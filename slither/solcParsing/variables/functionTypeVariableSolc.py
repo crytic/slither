@@ -1,0 +1,5 @@
+
+from slither.solcParsing.variables.variableDeclarationSolc import VariableDeclarationSolc
+from slither.core.variables.functionTypeVariable import FunctionTypeVariable
+
+class FunctionTypeVariableSolc(VariableDeclarationSolc, FunctionTypeVariable): pass
