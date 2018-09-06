@@ -14,7 +14,7 @@ With Slither you can:
 Use pip to install the dependencies:
 
 ```bash
-$ sudo -H pip install -U -r requirements.txt
+$ pip install -U -r requirements.txt
 ```
 
 You may also want solc, which can be installed using homebrew:
