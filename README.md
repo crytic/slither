@@ -53,11 +53,11 @@ If Slither is applied on a directory, it will run on every `.sol` file of the di
 ## Options
 
 ### Configuration
-* `--solc` SOLC: Path to `solc` (default 'solc')
+* `--solc SOLC`: Path to `solc` (default 'solc')
 * `--disable-solc-warnings`: Do not print solc warnings
 * `--solc-ast`: Use the solc AST file as input (`solc file.sol --ast-json > file.ast.json`)
-* `--json` FILE: Export results as JSON
-* `--solc-args` SOLC_ARGS: Add custom solc arguments. SOLC_ARGS can contain multiple arguments.
+* `--json FILE`: Export results as JSON
+* `--solc-args SOLC_ARGS`: Add custom solc arguments. `SOLC_ARGS` can contain multiple arguments.
 
 ### Analyses
 * `--high`: Run only medium/high severity checks with high confidence
