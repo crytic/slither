@@ -42,9 +42,9 @@ $ slither.py file.sol
 ``` 
 
 ``` 
-$ slither.py examples/uninitialized.sol
+$ slither.py examples/bugs/uninitialized.sol
 [..]
-INFO:Detectors:Uninitialized state variables in examples/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
+INFO:Detectors:Uninitialized state variables in examples/bugs/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
 [..]
 ``` 
 
