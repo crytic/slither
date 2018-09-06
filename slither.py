@@ -18,7 +18,9 @@ logging.basicConfig()
 logger = logging.getLogger("Slither")
 
 def determineChecks(detectors, args):
-    if args.medium:
+    if args.low:
+        return detectors.low
+    elif args.medium:
         return detectors.medium + detectors.high
     elif args.high:
         return detectors.high
@@ -55,7 +57,7 @@ if __name__ == '__main__':
     printers = Printers()
 
     parser = argparse.ArgumentParser(description='Slither',
-                                     usage="slither.py contract.sol")
+                                     usage="slither.py contract.sol [flag]")
 
     parser.add_argument('filename',
                         help='contract.sol file')
@@ -80,6 +82,11 @@ if __name__ == '__main__':
                         action='store_true',
                         default=False)
 
+    parser.add_argument('--low',
+                        help='Only low analyses',
+                        action='store_true',
+                        default=False)
+
     parser.add_argument('--medium',
                         help='Only medium and high analyses',
                         action='store_true',
@@ -95,128 +102,6 @@ if __name__ == '__main__':
                         action='store',
                         default=None)
 
-    # Analyses available
-
-#    parser.add_argument('--reentrancy',
-#                        help='Re-entrancy detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_reentrancy')
-#
-#    parser.add_argument('--sim',
-#                        help='Variable name similitude detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_sim')
-#
-#    parser.add_argument('--const-func',
-#                        help='Incorrect constant functions',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_constant_function')
-#
-#    parser.add_argument('--missing-cons',
-#                        help='Missing constructor detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_no_constructor')
-#
-#    parser.add_argument('--unprotected-func',
-#                        help='Unprotected function detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_unprotected_func')
-#
-#    parser.add_argument('--unprotected-erc20',
-#                        help='Unprotected function detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_unprotected_erc20')
-#
-#    parser.add_argument('--event-name',
-#                        help='Incorrect event name detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_incorrect_events_prefix')
-#
-#    parser.add_argument('--erc20-interface',
-#                        help='Incorrect ERC20 interface',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_incorrect_erc20_interface')
-#
-#    parser.add_argument('--uninitialized',
-#                        help='Uninitialized state vars detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_uninitialized')
-#
-#    parser.add_argument('--unused',
-#                        help='Unused state vars detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_unused')
-#
-#    parser.add_argument('--mapping-deletion',
-#                        help='Mapping deletion detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_mapping_deletion')
-#
-#    parser.add_argument('--shadowing',
-#                        help='State variables shadowing detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_state_shadowing')
-#
-#    parser.add_argument('--shadowing-abstract',
-#                        help='State variables shadowing detection from abstract contracts',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_state_shadowing_abstract')
-#
-#    parser.add_argument('--unimplemented-func',
-#                        help='Unimplemented function detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_unimplemented_function')
-#
-#    parser.add_argument('--tx-origin',
-#                        help='tx.origin usage detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_tx_origin')
-#
-#    parser.add_argument('--suicidal-func',
-#                        help='Suicidal functions detection',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_suicidal_function')
-#
-#    parser.add_argument('--msgValue',
-#                        help='Non payable function using msg.value detection (solidity >= 0.4)',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='detect_msgValue_non_payable')
-#
-#    parser.add_argument('--print-summary',
-#                        help='Print the summary of the contract',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='print_summary')
-#
-#    parser.add_argument('--print-quick-summary',
-#                        help='Print a quick summary of the contract',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='print_quick_summary')
-#
-#    parser.add_argument('--print-inheritance',
-#                        help='Print the inheritance graph',
-#                        action="append_const",
-#                        dest="detectors_to_run",
-#                        const='print_inheritance')
-#
 
     for detector_name, Detector in detectors.detectors.iteritems():
         detector_arg = '--{}'.format(Detector.ARGUMENT)
