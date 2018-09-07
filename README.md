@@ -11,7 +11,7 @@ With Slither you can:
 
 ## How to install
 
-Slither uses python 2.
+Slither uses Python 2.
 
 Use pip to install the dependencies:
 
