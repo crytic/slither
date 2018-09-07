@@ -7,6 +7,7 @@ from slither.printers.abstractPrinter import AbstractPrinter
 from slither.printers.summary.printerSummary import PrinterSummary
 from slither.printers.summary.printerQuickSummary import PrinterQuickSummary
 from slither.printers.inheritance.printerInheritance import PrinterInheritance
+from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
 
 logger_printer = logging.getLogger("Printers")
 

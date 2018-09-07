@@ -394,7 +394,7 @@ class Function(ChildContract, SourceMapping):
 
         return list(set(variables))
 
-    def all_variables_written(self):
+    def all_state_variables_written(self):
         """ recursive version of variables_written
         """
         variables = self.state_variables_written
