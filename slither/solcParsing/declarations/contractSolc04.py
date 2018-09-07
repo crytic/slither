@@ -251,3 +251,6 @@ class ContractSolc04(Contract):
         for function in self.functions:
             function.analyze_content()
         return
+
+    def __hash__(self):
+        return self._id
