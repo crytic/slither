@@ -1,7 +1,7 @@
 from slither.slither import Slither
 
 # Init slither
-slither = Slither('function_writing.sol')
+slither = Slither('functions_writing.sol')
 
 # Get the contract
 contract = slither.get_contract_from_name('Contract')
