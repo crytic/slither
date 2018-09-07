@@ -32,12 +32,12 @@ class Contract(ChildSlither, SourceMapping):
 
 
     def __eq__(self, other):
-        if isinstance(other, unicode):
+        if isinstance(other, str):
             return other == self.name
         return NotImplemented
 
     def __neq__(self, other):
-        if isinstance(other, unicode):
+        if isinstance(other, str):
             return other != self.name
         return NotImplemented
 
@@ -73,14 +73,14 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(Structure): List of the structures
         '''
-        return self._structures.values()
+        return list(self._structures.values())
 
     def structures_as_dict(self):
         return self._structures
 
     @property
     def enums(self):
-        return self._enums.values()
+        return list(self._enums.values())
 
     def enums_as_dict(self):
         return self._enums
@@ -90,7 +90,7 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(Modifier): List of the modifiers
         '''
-        return self._modifiers.values()
+        return list(self._modifiers.values())
 
     def modifiers_as_dict(self):
         return self._modifiers
@@ -100,7 +100,7 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(Function): List of the functions
         '''
-        return self._functions.values()
+        return list(self._functions.values())
 
     @property
     def functions_inherited(self):
@@ -114,11 +114,10 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(Function): List of functions reachable from the contract (include super)
         '''
-        all_calls = [f.all_calls() for f in self.functions]
+        all_calls = (f.all_calls() for f in self.functions)
         all_calls = [item for sublist in all_calls for item in sublist] + self.functions
-        all_calls = list(set(all_calls))
+        all_calls = set(all_calls)
         return [c for c in all_calls if isinstance(c, Function)]
-
 
     def functions_as_dict(self):
         return self._functions
@@ -128,7 +127,7 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(Event): List of the events
         '''
-        return self._events.values()
+        return list(self._events.values())
 
     def events_as_dict(self):
         return self._events
@@ -138,7 +137,7 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(StateVariable): List of the state variables. 
         '''
-        return self._variables.values()
+        return list(self._variables.values())
 
     @property
     def variables(self):
