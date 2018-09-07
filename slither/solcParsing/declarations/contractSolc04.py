@@ -233,7 +233,7 @@ class ContractSolc04(Contract):
 
     def analyze_params_functions(self):
         for father in self.inheritances_reverse:
-            functions = {k:v for (k,v) in father.functions_as_dict().iteritems()} #if not v.is_constructor}
+            functions = {k:v for (k,v) in father.functions_as_dict().items()} #if not v.is_constructor}
             self._functions.update(functions)
 
         for function in self._functions_no_params:

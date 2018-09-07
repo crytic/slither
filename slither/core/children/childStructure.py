@@ -1,5 +1,5 @@
 
-class ChildStructure(object):
+class ChildStructure:
 
     def __init__(self):
         super(ChildStructure, self).__init__()

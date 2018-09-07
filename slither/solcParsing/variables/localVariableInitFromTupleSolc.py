@@ -1,5 +1,5 @@
 
-from variableDeclarationSolc import VariableDeclarationSolc
+from .variableDeclarationSolc import VariableDeclarationSolc
 from slither.core.variables.localVariableInitFromTuple import LocalVariableInitFromTuple
 
 class LocalVariableInitFromTupleSolc(VariableDeclarationSolc, LocalVariableInitFromTuple):
