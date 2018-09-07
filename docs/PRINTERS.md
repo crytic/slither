@@ -75,4 +75,22 @@ Functions in orange override a parent's functions. If a variable points to anoth
 <img src="imgs/DAO.svg" width="700">
 
 
+## Variables written and authorization
+`slither.py file.sol --print-variables-written-and-authorization`
+
+Print the variables written and the check on `msg.sender` of each function.
+```
+...
+INFO:Printers:
+Contract MyNewBank
++----------+------------------------+-------------------------+
+| Function | State variable written | Condition on msg.sender |
++----------+------------------------+-------------------------+
+|   kill   |           []           | ['msg.sender != owner'] |
+| withdraw |           []           | ['msg.sender != owner'] |
+|   init   |       [u'owner']       |            []           |
+|  owned   |       [u'owner']       |            []           |
+| fallback |     [u'deposits']      |            []           |
++----------+------------------------+-------------------------+
+```
 
