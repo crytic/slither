@@ -2,15 +2,20 @@ import sys
 import logging
 import subprocess
 
+import os.path
 from solcParsing.slitherSolc import SlitherSolc
 from utils.colors import red
 
 logger = logging.getLogger("Slither")
+logging.basicConfig()
 
 class Slither(SlitherSolc):
 
     def __init__(self, filename, solc='solc', disable_solc_warnings=False ,solc_arguments=''):
 
+        if not os.path.isfile(filename):
+            logger.error('{} does not exist (are you in the correct directory?)'.format(filename))
+            exit(-1)
         is_ast_file = False
         if filename.endswith('json'):
             is_ast_file = True
