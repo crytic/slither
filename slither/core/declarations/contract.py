@@ -244,7 +244,7 @@ class Contract(ChildSlither, SourceMapping):
         Returns:
             Structure
         """
-        return next((st for st in self.structure if st.name == structure_name), None)
+        return next((st for st in self.structures if st.name == structure_name), None)
 
     def get_structure_from_canonical_name(self, structure_name):
         """
@@ -254,7 +254,7 @@ class Contract(ChildSlither, SourceMapping):
         Returns:
             Structure
         """
-        return next((st for st in self.structure if st.canonical_name == structure_name), None)
+        return next((st for st in self.structures if st.canonical_name == structure_name), None)
 
     def get_event_from_name(self, event_name):
         """
@@ -274,7 +274,7 @@ class Contract(ChildSlither, SourceMapping):
         Returns:
             Enum
         """
-        return next((e for e in self.enum if e.name == event_name), None)
+        return next((e for e in self.enums if e.name == enum_name), None)
 
     def get_enum_from_canonical_name(self, enum_name):
         """
@@ -284,7 +284,7 @@ class Contract(ChildSlither, SourceMapping):
         Returns:
             Enum
         """
-        return next((e for e in self.enum if e.canonical_name == event_name), None)
+        return next((e for e in self.enums if e.canonical_name == enum_name), None)
 
     def get_summary(self):
         """ Return the function summary
