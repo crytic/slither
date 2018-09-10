@@ -9,6 +9,7 @@ from slither.detectors.detectorClassification import DetectorClassification
 from slither.detectors.examples.backdoor import Backdoor
 from slither.detectors.variables.uninitializedStateVarsDetection import UninitializedStateVarsDetection
 from slither.detectors.attributes.constant_pragma import ConstantPragma
+from slither.detectors.attributes.old_solc import OldSolc
 
 ###
 
