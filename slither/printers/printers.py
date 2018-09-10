@@ -6,6 +6,7 @@ from slither.printers.abstractPrinter import AbstractPrinter
 # Printer must be imported here
 from slither.printers.summary.printerSummary import PrinterSummary
 from slither.printers.summary.printerQuickSummary import PrinterQuickSummary
+from slither.printers.summary.printer_human_summary import PrinterHumanSummary
 from slither.printers.inheritance.printerInheritance import PrinterInheritance
 from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
 
