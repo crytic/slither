@@ -5,7 +5,7 @@ from slither.core.expressions.expression import Expression
 
 logger = logging.getLogger("BinaryOperation")
 
-class BinaryOperationType(object):
+class BinaryOperationType:
     POWER =             0 # **
     MULTIPLICATION =    1 # *
     DIVISION =          2 # /

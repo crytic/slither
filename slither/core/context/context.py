@@ -1,4 +1,4 @@
-class Context(object):
+class Context:
 
     def __init__(self):
         super(Context, self).__init__()

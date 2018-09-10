@@ -3,7 +3,7 @@
 """
 import os
 
-class Slither(object):
+class Slither:
     """
     Slither static analyzer
     """
@@ -18,13 +18,13 @@ class Slither(object):
     @property
     def contracts(self):
         """list(Contract): List of contracts."""
-        return self._contracts.values()
+        return list(self._contracts.values())
 
     @property
     def contracts_derived(self):
         """list(Contract): List of contracts that are derived and not inherited."""
-        inheritances = [x.inheritances for x in self.contracts]
-        inheritances = [item for sublist in inheritances for item in sublist]
+        inheritances = (x.inheritances for x in self.contracts)
+        inheritances = (item for sublist in inheritances for item in sublist)
         return [c for c in self._contracts.values() if c not in inheritances]
 
     def contracts_as_dict(self):

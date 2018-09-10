@@ -17,4 +17,4 @@ function_using_a_as_condition = [f for f in functions_reading_a if\
                                  f.is_reading_in_require_or_assert(var_a)]
 
 # Print the result
-print 'The function using "a" in condition are {}'.format([f.name for f in function_using_a_as_condition])
+print('The function using "a" in condition are {}'.format([f.name for f in function_using_a_as_condition]))

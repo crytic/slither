@@ -1,13 +1,14 @@
+import os
 import sys
 import logging
 import subprocess
 
-import os.path
-from solcParsing.slitherSolc import SlitherSolc
-from utils.colors import red
+from .solcParsing.slitherSolc import SlitherSolc
+from .utils.colors import red
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
+
 
 class Slither(SlitherSolc):
 
@@ -24,8 +25,8 @@ class Slither(SlitherSolc):
 
         if is_ast_file:
             with open(filename) as astFile:
-                data = astFile.read()
-                if not data:
+                stdout = astFile.read()
+                if not stdout:
                     logger.info('Empty AST file: %s', filename)
                     sys.exit(-1)
         else:
@@ -44,20 +45,22 @@ class Slither(SlitherSolc):
             # Add . as default allowed path
             if '--allow-paths' not in cmd:
                 cmd += ['--allow-paths', '.']
+
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            data, err = process.communicate()
 
-            if err and (not disable_solc_warnings):
-                err = err.split('\n')
-                err = [x if 'Error' not in x else red(x) for x in err]
-                err = '\n'.join(err)
-                logger.info('Compilation warnings/errors on %s:\n%s', filename, err)
+            stdout, stderr = process.communicate()
+            stdout, stderr = stdout.decode(), stderr.decode()  # convert bytestrings to unicode strings
 
+            if stderr and (not disable_solc_warnings):
+                stderr = stderr.split('\n')
+                stderr = [x if 'Error' not in x else red(x) for x in stderr]
+                stderr = '\n'.join(stderr)
+                logger.info('Compilation warnings/errors on %s:\n%s', filename, stderr)
 
-        data = data.split('\n=')
+        stdout = stdout.split('\n=')
 
         super(Slither, self).__init__(filename)
-        for d in data:
+        for d in stdout:
             self.parse_contracts_from_json(d)
 
         self.analyze_contracts()

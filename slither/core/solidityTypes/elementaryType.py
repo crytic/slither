@@ -12,8 +12,8 @@ Uint = ['uint', 'uint8', 'uint16', 'uint24', 'uint32', 'uint40', 'uint48', 'uint
 Byte = ['byte', 'bytes', 'bytes1', 'bytes2', 'bytes3', 'bytes4', 'bytes5', 'bytes6', 'bytes7', 'bytes8', 'bytes9', 'bytes10', 'bytes11', 'bytes12', 'bytes13', 'bytes14', 'bytes15', 'bytes16', 'bytes17', 'bytes18', 'bytes19', 'bytes20', 'bytes21', 'bytes22', 'bytes23', 'bytes24', 'bytes25', 'bytes26', 'bytes27', 'bytes28', 'bytes29', 'bytes30', 'bytes31', 'bytes32']
 
 # https://solidity.readthedocs.io/en/v0.4.24/types.html#fixed-point-numbers
-M = range(8, 257, 8)
-N = range(0, 81)
+M = list(range(8, 257, 8))
+N = list(range(0, 81))
 MN = list(itertools.product(M,N))
 
 Fixed = ['fixed{}x{}'.format(m,n) for (m,n) in MN] + ['fixed']

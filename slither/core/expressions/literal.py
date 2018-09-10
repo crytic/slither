@@ -12,7 +12,4 @@ class Literal(Expression):
 
     def __str__(self):
         # be sure to handle any character
-        if isinstance(self._value, unicode):
-            return self._value.encode('utf-8')
         return str(self._value)
-
