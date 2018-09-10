@@ -287,6 +287,18 @@ class Contract(ChildSlither, SourceMapping):
         """
         return next((e for e in self.enums if e.canonical_name == enum_name), None)
 
+    def is_erc20(self):
+        """
+            Check if the contract is a erc20 token
+            Note: it does not check for correct return values
+        Returns:
+            bool
+        """
+        full_names = [f.full_name for f in self.functions]
+        return 'transfer(address,uint256)' in full_names and\
+               'transferFrom(address,address,uint256)' in full_names and\
+               'approve(address,uint256)' in full_names
+
     def get_summary(self):
         """ Return the function summary
 
