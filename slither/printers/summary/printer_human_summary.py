@@ -1,17 +1,15 @@
 """
-    Module printing summary of the contract
+Module printing summary of the contract
 """
 import logging
 
-from slither.printers.abstractPrinter import AbstractPrinter
-from slither.utils.colors import blue, green, magenta, red, yellow
-
-from slither.utils.code_complexity import compute_cyclomatic_complexity
-
 from slither.detectors.detectors import Detectors
+from slither.printers.abstractPrinter import AbstractPrinter
+from slither.utils.code_complexity import compute_cyclomatic_complexity
+from slither.utils.colors import green, red, yellow
+
 
 class PrinterHumanSummary(AbstractPrinter):
-
     ARGUMENT = 'print-human-summary'
     HELP = 'Print an human readable summary of the contracts'
 
@@ -26,7 +24,7 @@ class PrinterHumanSummary(AbstractPrinter):
         else:
             txt += "\t\t Can be paused? : {}\n".format(green('No'))
 
-        if 'mint'  in functions_name:
+        if 'mint' in functions_name:
             if not 'mintingFinished' in state_variables:
                 txt += "\t\t Minting restriction? : {}\n".format(red('None'))
             else:
@@ -54,14 +52,14 @@ class PrinterHumanSummary(AbstractPrinter):
 
         issues_low = [detectors.run_detector(self.slither, c) for c in checks_low]
         issues_low = [c for c in issues_low if c]
-        issues_medium = [detectors.run_detector(self.slither, c) for c in checks_medium]
+        issues_medium = (detectors.run_detector(self.slither, c) for c in checks_medium)
         issues_medium = [c for c in issues_medium if c]
         issues_high = [detectors.run_detector(self.slither, c) for c in checks_high]
         issues_high = [c for c in issues_high if c]
 
-        txt = "Number of low issue: {}\n".format(green(str(len(issues_low))))
-        txt += "Number of medium issue: {}\n".format(yellow(str(len(issues_medium))))
-        txt += "Number of high issue: {}\n".format(red(str(len(issues_high))))
+        txt = "Number of low issues: {}\n".format(green(len(issues_low)))
+        txt += "Number of medium issues: {}\n".format(yellow(len(issues_medium)))
+        txt += "Number of high issues: {}\n".format(red(len(issues_high)))
 
         return txt
 
@@ -79,13 +77,10 @@ class PrinterHumanSummary(AbstractPrinter):
         for f in contract.functions:
             if compute_cyclomatic_complexity(f) > 7:
                 is_complex = True
-        
-        if is_complex:
-            txt = "\tComplex code? {}\n".format(red('Yes'))
-        else:
-            txt = "\tComplex code? {}\n".format(green('No'))
 
-        return txt
+        result = red('Yes') if is_complex else green('No')
+
+        return "\tComplex code? {}\n".format(result)
 
     def output(self, _filename):
         """
