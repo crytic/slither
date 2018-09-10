@@ -126,7 +126,12 @@ class Node(SourceMapping, ChildFunction):
     def add_variable_declaration(self, var):
         assert self._variable_declaration is None
         self._variable_declaration = var
-        self._expression = var.expression
+        if var.expression:
+            self._vars_written += [var]
+
+    @property
+    def variable_declaration(self):
+        return self._variable_declaration
 
     def __str__(self):
         txt = NodeType.str(self._node_type) + ' '+ str(self.expression)

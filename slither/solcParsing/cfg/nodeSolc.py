@@ -1,4 +1,5 @@
 from slither.core.cfg.node import Node
+from slither.core.cfg.nodeType import NodeType
 from slither.solcParsing.expressions.expressionParsing import parse_expression
 from slither.visitors.expression.readVar import ReadVar
 from slither.visitors.expression.writeVar import WriteVar
@@ -22,9 +23,15 @@ class NodeSolc(Node):
         self._unparsed_expression = expression
 
     def analyze_expressions(self, caller_context):
+        if self.type == NodeType.VARIABLE:
+            self._expression = self.variable_declaration.expression
         if self._unparsed_expression:
             expression = parse_expression(self._unparsed_expression, caller_context)
+            self._expression = expression
+            self._unparsed_expression = None
 
+        if self.expression:
+            expression = self.expression
             pp = ReadVar(expression)
             self._expression_vars_read = pp.result()
             vars_read = [ExportValues(v).result() for v in self._expression_vars_read]
@@ -47,5 +54,4 @@ class NodeSolc(Node):
             calls = [item for sublist in calls for item in sublist]
             self._calls = [c for c in calls if isinstance(c, (Function, SolidityFunction))]
 
-            self._unparsed_expression = None
-            self._expression = expression
+
