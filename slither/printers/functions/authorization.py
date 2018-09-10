@@ -8,8 +8,8 @@ from slither.core.declarations.function import Function
 
 class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
 
-    ARGUMENT = 'print-variables-written-and-authorization'
-    HELP = 'Print the the variables written and the authorization of the functions'
+    ARGUMENT = 'vars-and-auth'
+    HELP = 'the state variables written and the authorization of the functions'
 
     @staticmethod
     def get_msg_sender_checks(function):

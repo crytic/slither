@@ -17,16 +17,20 @@ logger = logging.getLogger("Slither")
 
 
 def determineChecks(detectors, args):
-    if args.low:
-        return detectors.low
-    elif args.medium:
-        return detectors.medium + detectors.high
-    elif args.high:
-        return detectors.high
-    elif args.detectors_to_run:
+    if args.detectors_to_run:
         return args.detectors_to_run
-    else:
-        return detectors.high + detectors.medium + detectors.low + detectors.code_quality
+    all_detectors = detectors.high + detectors.medium + detectors.low + detectors.code_quality
+    if args.exclude_informational:
+        all_detectors = [d for d in all_detectors if d not in detectors.code_quality]
+    if args.exclude_low:
+        all_detectors = [d for d in all_detectors if d not in detectors.low]
+    if args.exclude_medium:
+        all_detectors = [d for d in all_detectors if d not in detectors.medium]
+    if args.exclude_high:
+        all_detectors = [d for d in all_detectors if d not in detectors.high]
+    if args.detectors_to_exclude:
+        all_detectors = [d for d in all_detectors if d not in args.detectors_to_exclude]
+    return all_detectors
 
 
 def process(filename, args, detectors, printers):
@@ -58,7 +62,7 @@ def main():
     printers = Printers()
 
     parser = argparse.ArgumentParser(description='Slither',
-                                     usage="slither.py contract.sol [flag]")
+                                     usage="slither.py contract.sol [flag]", formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=35))
 
     parser.add_argument('filename',
                         help='contract.sol file')
@@ -83,38 +87,53 @@ def main():
                         action='store_true',
                         default=False)
 
-    parser.add_argument('--low',
-                        help='Only low analyses',
-                        action='store_true',
-                        default=False)
-
-    parser.add_argument('--medium',
-                        help='Only medium and high analyses',
-                        action='store_true',
-                        default=False)
-
-    parser.add_argument('--high',
-                        help='Only high analyses',
-                        action='store_true',
-                        default=False)
-
     parser.add_argument('--json',
                         help='Export results as JSON',
                         action='store',
                         default=None)
 
+    parser.add_argument('--exclude-informational',
+                        help='Exclude informational impact analyses',
+                        action='store_true',
+                        default=False)
+
+    parser.add_argument('--exclude-low',
+                        help='Exclude low impact analyses',
+                        action='store_true',
+                        default=False)
+
+    parser.add_argument('--exclude-medium',
+                        help='Exclude medium impact analyses',
+                        action='store_true',
+                        default=False)
+
+    parser.add_argument('--exclude-high',
+                        help='Exclude high impact analyses',
+                        action='store_true',
+                        default=False)
+
+
     for detector_name, Detector in detectors.detectors.items():
-        detector_arg = '--{}'.format(Detector.ARGUMENT)
-        detector_help = 'Detection of ' + Detector.HELP
+        detector_arg = '--detect-{}'.format(Detector.ARGUMENT)
+        detector_help = 'Detection of {}'.format(Detector.HELP)
         parser.add_argument(detector_arg,
                             help=detector_help,
                             action="append_const",
                             dest="detectors_to_run",
                             const=detector_name)
 
+    for detector_name, Detector in detectors.detectors.items():
+        exclude_detector_arg = '--exclude-{}'.format(Detector.ARGUMENT)
+        exclude_detector_help = 'Exclude {} detector'.format(Detector.ARGUMENT)
+        parser.add_argument(exclude_detector_arg,
+                            help=exclude_detector_help,
+                            action="append_const",
+                            dest="detectors_to_exclude",
+                            const=detector_name)
+
     for printer_name, Printer in printers.printers.items():
-        printer_arg = '--{}'.format(Printer.ARGUMENT)
-        printer_help = Printer.HELP
+        printer_arg = '--print-{}'.format(Printer.ARGUMENT)
+        printer_help = 'Print {}'.format(Printer.HELP)
         parser.add_argument(printer_arg,
                             help=printer_help,
                             action="append_const",

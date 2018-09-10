@@ -7,8 +7,8 @@ from slither.printers.abstractPrinter import AbstractPrinter
 
 class PrinterSummary(AbstractPrinter):
 
-    ARGUMENT = 'print-summary'
-    HELP = 'Print the summary of the contract'
+    ARGUMENT = 'summary'
+    HELP = 'the summary of the contract'
 
     @staticmethod
     def _convert(l):

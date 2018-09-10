@@ -43,42 +43,44 @@ $ slither file.sol
 ``` 
 
 ``` 
-$ slither examples/uninitialized.sol
+$ slither examples/bugs/uninitialized.sol
 [..]
-INFO:Detectors:Uninitialized state variables in examples/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
+INFO:Detectors:Uninitialized state variables in examples/bugs/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
 [..]
 ``` 
 
 If Slither is applied on a directory, it will run on every `.sol` file of the directory.
 
-## Options
+## Checks available
 
-### Configuration
+By default, all the checks are run.
+
+Check | Purpose | Impact | Confidence
+--- | --- | --- | ---
+`--detect-uninitialized`| Detect uninitialized variables | High | High
+`--detect-pragma`| Detect if different pragma directives are used | Informational | High
+`--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational | High
+
+### Exclude analyses
+* `--exclude-informational`: Exclude informational impact analyses
+* `--exclude-low`: Exclude low impact analyses
+* `--exclude-medium`: Exclude medium impact analyses
+* `--exclude-high`: Exclude high impact analyses
+* `--exclude-name` will exclude the detector `name`
+
+##  Configuration
 * `--solc SOLC`: Path to `solc` (default 'solc')
+* `--solc-args SOLC_ARGS`: Add custom solc arguments. `SOLC_ARGS` can contain multiple arguments.
 * `--disable-solc-warnings`: Do not print solc warnings
 * `--solc-ast`: Use the solc AST file as input (`solc file.sol --ast-json > file.ast.json`)
 * `--json FILE`: Export results as JSON
-* `--solc-args SOLC_ARGS`: Add custom solc arguments. `SOLC_ARGS` can contain multiple arguments.
 
-### Analyses
-* `--high`: Run only medium/high severity checks with high confidence
-* `--medium`: Run only medium/high severity checks with medium confidence
-* `--low`: Run only low severity checks
-
-### Printers
+## Printers
 * `--print-summary`: Print a summary of the contracts
 * `--print-quick-summary`: Print a quick summary of the contracts
 * `--print-inheritance`: Print the inheritance graph
 
 For more information about printers, see the [Printers documentation](docs/PRINTERS.md)
-
-## Checks available
-
-Check | Purpose | Impact | Confidence
---- | --- | --- | ---
-`--uninitialized`| Detect uninitialized variables | High | High
-`--pragma`| Detect if different pragma directives are used | Informational | High
-`--solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational | High
 
 
 ## License
