@@ -12,7 +12,7 @@ from slither.printers.functions.authorization import PrinterWrittenVariablesAndA
 
 logger_printer = logging.getLogger("Printers")
 
-class Printers(object):
+class Printers:
 
     def __init__(self):
         self.printers = {}

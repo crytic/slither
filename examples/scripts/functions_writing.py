@@ -13,4 +13,4 @@ var_a = contract.get_state_variable_from_name('a')
 functions_writing_a = contract.get_functions_writing_variable(var_a)
 
 # Print the result
-print 'The function writing "a" are {}'.format([f.name for f in functions_writing_a])
+print('The function writing "a" are {}'.format([f.name for f in functions_writing_a]))

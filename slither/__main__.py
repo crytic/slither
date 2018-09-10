@@ -1,21 +1,20 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import sys
 import argparse
 import logging
-import subprocess
 import traceback
 import os
 import glob
 import json
 
 from slither.slither import Slither
-from slither.utils.colors import red
 from slither.detectors.detectors import Detectors
 from slither.printers.printers import Printers
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
+
 
 def determineChecks(detectors, args):
     if args.low:
@@ -42,17 +41,19 @@ def process(filename, args, detectors, printers):
         results = [item for sublist in results for item in sublist] #flatten
         return results
 
+
 def output_json(results, filename):
     with open(filename, 'w') as f:
         json.dump(results, f)
+
 
 def exit(results):
     if not results:
         sys.exit(0)
     sys.exit(len(results))
 
-if __name__ == '__main__':
 
+def main():
     detectors = Detectors()
     printers = Printers()
 
@@ -102,8 +103,7 @@ if __name__ == '__main__':
                         action='store',
                         default=None)
 
-
-    for detector_name, Detector in detectors.detectors.iteritems():
+    for detector_name, Detector in detectors.detectors.items():
         detector_arg = '--{}'.format(Detector.ARGUMENT)
         detector_help = 'Detection of ' + Detector.HELP
         parser.add_argument(detector_arg,
@@ -112,7 +112,7 @@ if __name__ == '__main__':
                             dest="detectors_to_run",
                             const=detector_name)
 
-    for printer_name, Printer in printers.printers.iteritems():
+    for printer_name, Printer in printers.printers.items():
         printer_arg = '--{}'.format(Printer.ARGUMENT)
         printer_help = Printer.HELP
         parser.add_argument(printer_arg,
@@ -166,8 +166,11 @@ if __name__ == '__main__':
         logger.info('%s analyzed, %d result(s) found', filename, len(results))
         exit(results)
 
-
     except Exception as e:
         logging.error('Error in %s'%sys.argv[1])
         logging.error(traceback.format_exc())
         sys.exit(-1)
+
+
+if __name__ == '__main__':
+    main()

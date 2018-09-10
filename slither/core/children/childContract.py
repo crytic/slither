@@ -1,5 +1,5 @@
 
-class ChildContract(object):
+class ChildContract:
 
     def __init__(self):
         super(ChildContract, self).__init__()

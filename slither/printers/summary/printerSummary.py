@@ -14,7 +14,7 @@ class PrinterSummary(AbstractPrinter):
     def _convert(l):
         if l:
             n = 2
-            l = [l[i:i + n] for i in xrange(0, len(l), n)]
+            l = [l[i:i + n] for i in range(0, len(l), n)]
             l = [str(x) for x in l]
             return "\n".join(l)
         return str(l)

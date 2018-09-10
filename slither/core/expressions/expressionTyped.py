@@ -1,5 +1,5 @@
 
-from expression import Expression
+from .expression import Expression
 
 class ExpressionTyped(Expression):
 

@@ -3,9 +3,7 @@ import abc
 class IncorrectPrinterInitialization(Exception):
     pass
 
-class AbstractPrinter(object):
-    __metaclass__ = abc.ABCMeta
-
+class AbstractPrinter(object, metaclass=abc.ABCMeta):
     ARGUMENT = '' # run the printer with slither.py --ARGUMENT
     HELP = '' # help information
 
