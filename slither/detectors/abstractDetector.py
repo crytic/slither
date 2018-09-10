@@ -1,7 +1,7 @@
 import abc
 import re
 from slither.detectors.detectorClassification import DetectorClassification
-from slither.utils.colors import green, yellow, red
+from slither.utils.colors import green, yellow, red, blue
 
 class IncorrectDetectorInitialization(Exception):
     pass
@@ -26,7 +26,8 @@ class AbstractDetector(object, metaclass=abc.ABCMeta):
             raise IncorrectDetectorInitialization('ARGUMENT has illegal character')
         if not self.CLASSIFICATION in [DetectorClassification.LOW,
                                        DetectorClassification.MEDIUM,
-                                       DetectorClassification.HIGH]:
+                                       DetectorClassification.HIGH,
+                                       DetectorClassification.CODE_QUALITY]:
             raise IncorrectDetectorInitialization('CLASSIFICATION is not initialized')
 
     def log(self, info):
@@ -41,8 +42,10 @@ class AbstractDetector(object, metaclass=abc.ABCMeta):
     @property
     def color(self):
         if self.CLASSIFICATION == DetectorClassification.LOW:
-            return green
+            return blue
         if self.CLASSIFICATION == DetectorClassification.MEDIUM:
             return yellow
         if self.CLASSIFICATION == DetectorClassification.HIGH:
             return red
+        if self.CLASSIFICATION == DetectorClassification.CODE_QUALITY:
+            return green

@@ -26,7 +26,7 @@ def determineChecks(detectors, args):
     elif args.detectors_to_run:
         return args.detectors_to_run
     else:
-        return detectors.high + detectors.medium + detectors.low
+        return detectors.high + detectors.medium + detectors.low + detectors.code_quality
 
 
 def process(filename, args, detectors, printers):

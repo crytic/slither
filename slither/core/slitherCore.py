@@ -14,6 +14,8 @@ class Slither:
         self._filename = None
         self._source_units = {}
         self._solc_version = None # '0.3' or '0.4':!
+        self._pragma_directives = []
+        self._import_directives = []
 
     @property
     def contracts(self):
@@ -40,6 +42,16 @@ class Slither:
     def solc_version(self):
         """str: Solidity version."""
         return self._solc_version
+
+    @property
+    def pragma_directives(self):
+        """ list(list(str)): Pragma directives. Example [['solidity', '^', '0.4', '.24']]"""
+        return self._pragma_directives
+
+    @property
+    def import_directives(self):
+        """ list(str): Import directives"""
+        return self._import_directives
 
     def get_contract_from_name(self, contract_name):
         """
