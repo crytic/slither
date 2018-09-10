@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-pip install -r requirements.txt
+python setup.py install
 
 function install_solc {
     sudo wget -O /usr/bin/solc https://github.com/ethereum/solidity/releases/download/v0.4.24/solc-static-linux
