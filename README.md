@@ -11,9 +11,8 @@ With Slither you can:
 
 ## How to install
 
-Slither uses Python 3.
+Slither uses Python 3.6.
 
-:
 
 ```bash
 $ python setup.py install
