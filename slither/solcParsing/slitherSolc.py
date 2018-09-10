@@ -44,6 +44,10 @@ class SlitherSolc(Slither):
                     if contract_data['name'] == 'ContractDefinition':
                         contract = ContractSolc04(self, contract_data)
                         self._contractsNotParsed.append(contract)
+                    elif contract_data['name'] == 'PragmaDirective':
+                        self._pragma_directives.append(contract_data['attributes']["literals"])
+                    elif contract_data['name'] == 'ImportDirective':
+                        self._import_directives.append(contract_data['attributes']["absolutePath"])
 
             return True
         return False

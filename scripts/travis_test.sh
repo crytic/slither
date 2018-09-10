@@ -10,4 +10,9 @@ if [ $? -ne 1 ]; then
     exit 1
 fi
 
+slither examples/bugs/pragma.0.4.24.sol --disable-solc-warnings
+if [ $? -ne 1 ]; then
+    exit 1
+fi
+
 exit 0

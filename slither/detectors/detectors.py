@@ -8,6 +8,7 @@ from slither.detectors.detectorClassification import DetectorClassification
 # Detectors must be imported here
 from slither.detectors.examples.backdoor import Backdoor
 from slither.detectors.variables.uninitializedStateVarsDetection import UninitializedStateVarsDetection
+from slither.detectors.attributes.constant_pragma import ConstantPragma
 
 ###
 
@@ -20,6 +21,7 @@ class Detectors:
         self.low = []
         self.medium = []
         self.high = []
+        self.code_quality = []
 
         self._load_detectors()
 
@@ -38,6 +40,8 @@ class Detectors:
                         self.medium.append(name)
                     elif obj.CLASSIFICATION == DetectorClassification.HIGH:
                         self.high.append(name)
+                    elif obj.CLASSIFICATION == DetectorClassification.CODE_QUALITY:
+                        self.code_quality.append(name)
                     else:
                         raise Exception('Unknown classification')
 
