@@ -53,8 +53,7 @@ def exit(results):
     sys.exit(len(results))
 
 
-if __name__ == '__main__':
-
+def main():
     detectors = Detectors()
     printers = Printers()
 
@@ -171,3 +170,7 @@ if __name__ == '__main__':
         logging.error('Error in %s'%sys.argv[1])
         logging.error(traceback.format_exc())
         sys.exit(-1)
+
+
+if __name__ == '__main__':
+    main()
