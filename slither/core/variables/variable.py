@@ -17,7 +17,6 @@ class Variable(SourceMapping):
         self._mappingTo = None
         self._initial_expression = None
         self._type = None
-        self._expression = None
         self._initialized = None
         self._visibility = None
 
@@ -26,7 +25,7 @@ class Variable(SourceMapping):
         """
             Expression: Expression of the node (if initialized)
         """
-        return self._expression
+        return self._initial_expression
 
     @property
     def initialized(self):
