@@ -78,6 +78,7 @@ Check | Purpose | Severity | Confidence
 --- | --- | --- | ---
 `--uninitialized`| Detect uninitialized variables | High | High
 `--pragma`| Detect if different pragma directives are used | Code Quality | High
+`--solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Code Quality | High
 
 
 ## License
