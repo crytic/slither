@@ -7,8 +7,8 @@ from slither.utils.colors import blue, green, magenta
 
 class PrinterQuickSummary(AbstractPrinter):
 
-    ARGUMENT = 'print-quick-summary'
-    HELP = 'Print a quick summary of the contract'
+    ARGUMENT = 'quick-summary'
+    HELP = 'a quick summary of the contract'
 
     def output(self, _filename):
         """

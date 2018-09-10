@@ -13,8 +13,8 @@ from slither.core.declarations.contract import Contract
 
 class PrinterInheritance(AbstractPrinter):
 
-    ARGUMENT = 'print-inheritance'
-    HELP = 'Print the inheritance graph'
+    ARGUMENT = 'inheritance'
+    HELP = 'the inheritance graph'
 
     def __init__(self, slither, logger):
         super(PrinterInheritance, self).__init__(slither, logger)
