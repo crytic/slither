@@ -34,16 +34,22 @@ def determineChecks(detectors, args):
 
 
 def process(filename, args, detectors, printers):
+    """
+
+    Returns:
+        list(result), int: Result list and number of contracts analyzed
+    """
     slither = Slither(filename, args.solc, args.disable_solc_warnings, args.solc_args)
+    number_contract = len(slither.contracts)
     if args.printers_to_run:
         [printers.run_printer(slither, p) for p in args.printers_to_run]
-        return []
+        return ([], number_contract)
     else:
         checks = determineChecks(detectors, args)
         results = [detectors.run_detector(slither, c) for c in checks]
         results = [x for x in results if x] # remove empty results
         results = [item for sublist in results for item in sublist] #flatten
-        return results
+        return (results, number_contract)
 
 
 def output_json(results, filename):
@@ -168,12 +174,16 @@ def main():
         filename = sys.argv[1]
 
         if os.path.isfile(filename):
-            results = process(filename, args, detectors, printers)
+            (results, number_contracts) = process(filename, args, detectors, printers)
         elif os.path.isdir(filename):
             extension = "*.sol" if not args.solc_ast else "*.json"
             filenames = glob.glob(os.path.join(filename, extension))
-            results = [process(filename, args, detectors, printers) for filename in filenames]
-            results = [item for sublist in results for item in sublist] #flatten
+            number_contracts = 0
+            results = []
+            for filename in filenames:
+                (results_tmp, number_contracts_tmp) = process(filename, args, detectors, printers)
+                number_contracts += number_contracts_tmp
+                results += results_tmp
             #if args.json:
             #    output_json(results, args.json)
             #exit(results)
@@ -182,7 +192,7 @@ def main():
 
         if args.json:
             output_json(results, args.json)
-        logger.info('%s analyzed, %d result(s) found', filename, len(results))
+        logger.info('%s analyzed (%d contracts), %d result(s) found', filename, number_contracts, len(results))
         exit(results)
 
     except Exception as e:
