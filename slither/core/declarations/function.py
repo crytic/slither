@@ -155,7 +155,7 @@ class Function(ChildContract, SourceMapping):
             Return all local variables
             Include paramters and return values
         """
-        return self._variables.values()
+        return list(self._variables.values())
 
     def variables_as_dict(self):
         return self._variables
@@ -275,7 +275,7 @@ class Function(ChildContract, SourceMapping):
         """
         write_var = [x.variables_written_as_expression for x in self.nodes]
         write_var = [x for x in write_var if x]
-        write_var = [item for sublist in write_var for item in sublist ]
+        write_var = [item for sublist in write_var for item in sublist]
         write_var = list(set(write_var))
         # Remove dupplicate if they share the same string representation
         write_var = [next(obj) for i, obj in groupby(sorted(write_var, key=lambda x: str(x)), lambda x: str(x))]
@@ -283,7 +283,7 @@ class Function(ChildContract, SourceMapping):
 
         write_var = [x.variables_written for x in self.nodes]
         write_var = [x for x in write_var if x]
-        write_var = [item for sublist in write_var for item in sublist ]
+        write_var = [item for sublist in write_var for item in sublist]
         write_var = list(set(write_var))
         # Remove dupplicate if they share the same string representation
         write_var = [next(obj) for i, obj in\

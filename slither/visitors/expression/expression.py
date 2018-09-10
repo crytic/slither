@@ -18,7 +18,7 @@ from slither.core.expressions.unaryOperation import UnaryOperation
 
 logger = logging.getLogger("ExpressionVisitor")
 
-class ExpressionVisitor(object):
+class ExpressionVisitor:
 
     def __init__(self, expression):
         self._expression = expression

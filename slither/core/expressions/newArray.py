@@ -1,5 +1,5 @@
 import logging
-from expression import Expression
+from .expression import Expression
 from slither.core.solidityTypes.type import Type
 
 logger = logging.getLogger("NewArray")

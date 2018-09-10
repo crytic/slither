@@ -5,7 +5,7 @@ from slither.core.solidityTypes.type import Type
 
 logger = logging.getLogger("UnaryOperation")
 
-class UnaryOperationType(object):
+class UnaryOperationType:
     BANG =              0 # ! 
     TILD =              1 # ~ 
     DELETE =            2 # delete
