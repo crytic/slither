@@ -1,4 +1,4 @@
-class NodeType(object):
+class NodeType:
 
     ENTRYPOINT = 0x0  # no expression
 

@@ -17,7 +17,7 @@ import re
 
 logger = logging.getLogger('TypeParsing')
 
-class UnknownType(object):
+class UnknownType:
     def __init__(self, name):
         self._name = name
 

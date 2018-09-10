@@ -6,9 +6,7 @@ from slither.utils.colors import green, yellow, red
 class IncorrectDetectorInitialization(Exception):
     pass
 
-class AbstractDetector(object):
-    __metaclass__ = abc.ABCMeta
-
+class AbstractDetector(object, metaclass=abc.ABCMeta):
     ARGUMENT = '' # run the detector with slither.py --ARGUMENT
     HELP = '' # help information
     CLASSIFICATION = None

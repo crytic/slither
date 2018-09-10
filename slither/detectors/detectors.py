@@ -13,7 +13,7 @@ from slither.detectors.variables.uninitializedStateVarsDetection import Uninitia
 
 logger_detector = logging.getLogger("Detectors")
 
-class Detectors(object):
+class Detectors:
 
     def __init__(self):
         self.detectors = {}

@@ -1,5 +1,5 @@
 
-class ChildSlither(object):
+class ChildSlither:
 
     def __init__(self):
         super(ChildSlither, self).__init__()

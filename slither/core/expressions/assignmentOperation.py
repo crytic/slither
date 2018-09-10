@@ -5,7 +5,7 @@ from slither.core.expressions.expression import Expression
 
 logger = logging.getLogger("AssignmentOperation")
 
-class AssignmentOperationType(object):
+class AssignmentOperationType:
     ASSIGN =                0 # =
     ASSIGN_OR =             1 # |=
     ASSIGN_CARET =          2 # ^=

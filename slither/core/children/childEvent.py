@@ -1,5 +1,5 @@
 
-class ChildEvent(object):
+class ChildEvent:
     def __init__(self):
         super(ChildEvent, self).__init__()
         self._event = None

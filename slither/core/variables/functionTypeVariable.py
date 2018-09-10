@@ -6,7 +6,7 @@
     }
 """
 
-from variable import Variable
+from .variable import Variable
 
 class FunctionTypeVariable(Variable): pass
 

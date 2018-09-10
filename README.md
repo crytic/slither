@@ -1,7 +1,7 @@
 # Slither, the Solidity source analyzer
 [![Build Status](https://travis-ci.com/trailofbits/slither.svg?token=JEF97dFy1QsDCfQ2Wusd&branch=master)](https://travis-ci.com/trailofbits/slither)
 
-Slither is a Solidity static analysis framework. It provides an API to easily manipulate Solidity code. In addition to exposing a Solidity contracts AST, Slither provides many APIs to quickly check local and state variable usage.
+Slither is a Solidity static analysis framework written in Python 3. It provides an API to easily manipulate Solidity code. In addition to exposing a Solidity contracts AST, Slither provides many APIs to quickly check local and state variable usage.
 
 With Slither you can:
 - Detect vulnerabilities
@@ -11,15 +11,14 @@ With Slither you can:
 
 ## How to install
 
-Slither uses Python 2.
+Slither uses Python 3.6.
 
-Use pip to install the dependencies:
 
 ```bash
-$ pip install -U -r requirements.txt
+$ python setup.py install
 ```
 
-You may also want solc, which can be installed using homebrew:
+You may also want solc, the Solidity compiler, which can be installed using homebrew:
 
 ```bash
 $ brew update
@@ -40,11 +39,11 @@ $ sudo apt-get install solc
 ## How to use
 
 ``` 
-$ slither.py file.sol
+$ slither file.sol
 ``` 
 
 ``` 
-$ slither.py examples/uninitialized.sol
+$ slither examples/uninitialized.sol
 [..]
 INFO:Detectors:Uninitialized state variables in examples/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
 [..]
