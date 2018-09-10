@@ -11,7 +11,7 @@ class ConstantPragma(AbstractDetector):
     """
 
     ARGUMENT = 'pragma'
-    HELP = 'Different pragma directives used'
+    HELP = 'different pragma directives'
     CLASSIFICATION = DetectorClassification.CODE_QUALITY
 
 

@@ -77,6 +77,7 @@ For more information about printers, see the [Printers documentation](docs/PRINT
 Check | Purpose | Severity | Confidence
 --- | --- | --- | ---
 `--uninitialized`| Detect uninitialized variables | High | High
+`--pragma`| Detect if different pragma directives are used | Code Quality | High
 
 
 ## License
