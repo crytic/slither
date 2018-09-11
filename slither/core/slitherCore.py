@@ -3,11 +3,11 @@
 """
 import os
 
+
 class Slither:
     """
     Slither static analyzer
     """
-    name_class = 'Slither'
 
     def __init__(self):
         self._contracts = {}
@@ -69,4 +69,4 @@ class Slither:
         """
         for c in self.contracts:
             for f in c.functions:
-                f.cfg_to_dot(os.path.join(d,'{}.{}.dot'.format(c.name, f.name)))
+                f.cfg_to_dot(os.path.join(d, '{}.{}.dot'.format(c.name, f.name)))

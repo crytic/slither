@@ -1,30 +1,51 @@
 import abc
 import re
-from slither.detectors.detectorClassification import DetectorClassification
-from slither.utils.colors import green, yellow, red, blue
+
+from slither.utils.colors import green, yellow, red
+
 
 class IncorrectDetectorInitialization(Exception):
     pass
 
-class AbstractDetector(object, metaclass=abc.ABCMeta):
-    ARGUMENT = '' # run the detector with slither.py --ARGUMENT
-    HELP = '' # help information
+
+class DetectorClassification:
+    LOW = 0
+    MEDIUM = 1
+    HIGH = 2
+    CODE_QUALITY = 3
+
+
+classification_colors = {
+    DetectorClassification.CODE_QUALITY: green,
+    DetectorClassification.LOW: green,
+    DetectorClassification.MEDIUM: yellow,
+    DetectorClassification.HIGH: red,
+}
+
+
+class AbstractDetector(metaclass=abc.ABCMeta):
+    ARGUMENT = ''  # run the detector with slither.py --ARGUMENT
+    HELP = ''  # help information
     CLASSIFICATION = None
 
-    HIDDEN_DETECTOR = False # yes if the detector should not be showed
+    HIDDEN_DETECTOR = False  # yes if the detector should not be showed
 
     def __init__(self, slither, logger):
         self.slither = slither
         self.contracts = slither.contracts
         self.filename = slither.filename
         self.logger = logger
-        if self.HELP == '':
+
+        if not self.HELP:
             raise IncorrectDetectorInitialization('HELP is not initialized')
-        if self.ARGUMENT == '':
+
+        if not self.ARGUMENT:
             raise IncorrectDetectorInitialization('ARGUMENT is not initialized')
+
         if re.match('^[a-zA-Z0-9_-]*$', self.ARGUMENT) is None:
             raise IncorrectDetectorInitialization('ARGUMENT has illegal character')
-        if not self.CLASSIFICATION in [DetectorClassification.LOW,
+
+        if self.CLASSIFICATION not in [DetectorClassification.LOW,
                                        DetectorClassification.MEDIUM,
                                        DetectorClassification.HIGH,
                                        DetectorClassification.CODE_QUALITY]:
@@ -41,11 +62,4 @@ class AbstractDetector(object, metaclass=abc.ABCMeta):
 
     @property
     def color(self):
-        if self.CLASSIFICATION == DetectorClassification.LOW:
-            return blue
-        if self.CLASSIFICATION == DetectorClassification.MEDIUM:
-            return yellow
-        if self.CLASSIFICATION == DetectorClassification.HIGH:
-            return red
-        if self.CLASSIFICATION == DetectorClassification.CODE_QUALITY:
-            return green
+        return classification_colors[self.CLASSIFICATION]
