@@ -26,9 +26,9 @@ class Slither(SlitherSolc):
         super(Slither, self).__init__(filename)
 
         for d in stdout:
-            self.parse_contracts_from_json(d)
+            self._parse_contracts_from_json(d)
 
-        self.analyze_contracts()
+        self._analyze_contracts()
 
     def register_detector(self, detector_class):
         """
