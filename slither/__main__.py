@@ -8,9 +8,8 @@ import os
 import sys
 import traceback
 
-from slither.slither import Slither
-
 from slither.detectors.abstract_detector import DetectorClassification
+from slither.slither import Slither
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -68,14 +67,47 @@ def main():
     from slither.detectors.attributes.constant_pragma import ConstantPragma
     from slither.detectors.attributes.old_solc import OldSolc
 
-    detectors = [Backdoor, UninitializedStateVarsDetection, ConstantPragma, OldSolc]
-
     from slither.printers.summary.printerSummary import PrinterSummary
     from slither.printers.summary.printerQuickSummary import PrinterQuickSummary
     from slither.printers.inheritance.printerInheritance import PrinterInheritance
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
 
+    # Public detectors and printers
+    detectors = [Backdoor, UninitializedStateVarsDetection, ConstantPragma, OldSolc]
     printers = [PrinterSummary, PrinterQuickSummary, PrinterInheritance, PrinterWrittenVariablesAndAuthorization]
+
+    # If there is a `slither_plugin` module installed, grab its detectors and printers
+    try:
+        from slither_plugin import plugin_detectors, plugin_printers
+
+        detectors += plugin_detectors
+        printers += plugin_printers
+
+    except ImportError:
+        pass
+
+    # If there is a specific envvar specified, grab all plugins from it
+    plugins = os.environ.get('SLITHER_PLUGINS_MODULES')
+
+    if plugins:
+        plugins = plugins.split(',')
+
+        print("Going to load plugins: %s" % plugins)
+
+        for plugin_name in plugins:
+            try:
+                plugin_mod = __import__(plugin_name)
+            except ImportError:
+                print("Can't import %s plugin. Maybe it is not installed or not in PYTHONPATH? Aborting." % plugin_name)
+                sys.exit(-1)
+
+            try:
+                detectors += plugin_mod.plugin_detectors
+                printers += plugin_mod.plugin_printers
+
+            except AttributeError:
+                print("The plugin %s lacks .plugin_detectors or .plugin_printers list. Aborting." % plugin_name)
+                sys.exit(-1)
 
     main_impl(all_detector_classes=detectors, all_printer_classes=printers)
 
