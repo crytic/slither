@@ -290,7 +290,7 @@ class Contract(ChildSlither, SourceMapping):
         """ Return the function summary
 
         Returns:
-            (str, list, list, list): (name, variables, fuction summaries, modifier summaries)
+            (str, list, list, list, list): (name, inheritances, variables, fuction summaries, modifier summaries)
         """
         func_summaries = [f.get_summary() for f in self.functions]
         modif_summaries = [f.get_summary() for f in self.modifiers]
