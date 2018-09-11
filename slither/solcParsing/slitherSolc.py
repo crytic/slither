@@ -17,7 +17,7 @@ class SlitherSolc(Slither):
         self._contracts_by_id = {}
         self._analyzed = False
 
-    def parse_contracts_from_json(self, json_data):
+    def _parse_contracts_from_json(self, json_data):
         first = json_data.find('{')
         if first != -1:
             last = json_data.rfind('}') + 1
@@ -72,7 +72,7 @@ class SlitherSolc(Slither):
 
         self._source_units[sourceUnit] = name
 
-    def analyze_contracts(self):
+    def _analyze_contracts(self):
         if self._analyzed:
             raise Exception('Contract analysis can be run only once!')
 
