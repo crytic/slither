@@ -8,6 +8,7 @@ python:
 branches:
   only:
   - master
+  - dev
 
 install:
   - scripts/travis_install.sh
