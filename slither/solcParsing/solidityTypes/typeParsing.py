@@ -78,23 +78,28 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
         var_type = next((f for f in contract.functions if f.name == name), None)
     if not var_type:
         if name.startswith('function '):
-             found = re.findall('function \(([a-zA-Z0-9\.,]*)\) returns \(([a-zA-Z0-9\.,]*)\)', name)
-             assert len(found) == 1
-             params = found[0][0].split(',')
-             return_values = found[0][1].split(',')
-             params = [_find_from_type_name(p, contract, contracts, structures, enums) for p in params]
-             return_values = [_find_from_type_name(r, contract, contracts, structures, enums) for r in return_values]
-             params_vars = []
-             return_vars = []
-             for p in params:
-                var = FunctionTypeVariable()
-                var.set_type(p)
-                params_vars.append(var)
-             for r in return_values:
-                var = FunctionTypeVariable()
-                var.set_type(r)
-                return_vars.append(var)
-             return FunctionType(params_vars, return_vars)
+            print(name)
+            found = re.findall('function \(([ ()a-zA-Z0-9\.,]*)\) returns \(([a-zA-Z0-9\.,]*)\)', name)
+            print(found)
+            assert len(found) == 1
+            params = found[0][0].split(',')
+            return_values = found[0][1].split(',')
+            params = [_find_from_type_name(p, contract, contracts, structures, enums) for p in params]
+            return_values = [_find_from_type_name(r, contract, contracts, structures, enums) for r in return_values]
+            params_vars = []
+            return_vars = []
+            for p in params:
+               var = FunctionTypeVariable()
+               var.set_type(p)
+               params_vars.append(var)
+            for r in return_values:
+               var = FunctionTypeVariable()
+               var.set_type(r)
+               return_vars.append(var)
+            print('Parse {}'.format(name))
+            print(params)
+            print(params_vars)
+            return FunctionType(params_vars, return_vars)
     if not var_type:
         if name.startswith('mapping('):
             found = re.findall('mapping\(([a-zA-Z0-9\.]*) => ([a-zA-Z0-9\.]*)\)', name)
@@ -171,7 +176,6 @@ def parse_type(t, caller_context):
         return_values_vars = []
         for p in params['children']:
             var = FunctionTypeVariableSolc(p)
-
             var.set_offset(p['src'])
             var.analyze(caller_context)
             params_vars.append(var)
