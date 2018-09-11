@@ -19,3 +19,12 @@ class MappingType(Type):
 
     def __str__(self):
         return 'mapping({} => {}'.format(str(self._from), str(self._to))
+
+    def __eq__(self, other):
+        if not isinstance(other, MappingType):
+            return False
+        return self.type_from == other.type_from and self.type_to == other.type_to
+
+    def __hash__(self):
+        return hash(str(self))
+

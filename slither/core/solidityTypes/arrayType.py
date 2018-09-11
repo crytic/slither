@@ -24,3 +24,11 @@ class ArrayType(Type):
             return str(self._type)+'[{}]'.format(str(self._length))
         return str(self._type)+'[]'
 
+
+    def __eq__(self, other):
+        if not isinstance(other, ArrayType):
+            return False
+        return self._type == other.type and self.length == other.length
+
+    def __hash__(self):
+        return hash(str(self))

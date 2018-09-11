@@ -48,3 +48,11 @@ class ElementaryType(Type):
     def __str__(self):
         return self._type
 
+    def __eq__(self, other):
+        if not isinstance(other, ElementaryType):
+            return False
+        return self.type == other.type
+
+    def __hash__(self):
+        return hash(str(self))
+

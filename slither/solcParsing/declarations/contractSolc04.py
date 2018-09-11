@@ -10,6 +10,8 @@ from slither.solcParsing.declarations.functionSolc import FunctionSolc
 
 from slither.solcParsing.variables.stateVariableSolc import StateVariableSolc
 
+from slither.solcParsing.solidityTypes.typeParsing import parse_type
+
 logger = logging.getLogger("ContractSolcParsing")
 
 class ContractSolc04(Contract):
@@ -94,10 +96,10 @@ class ContractSolc04(Contract):
             children = using_for['children']
             assert children and len(children) <= 2
             if len(children) == 2:
-                new = children[0]['attributes']['name']
-                old = children[1]['attributes']['name']
+                new = parse_type(children[0], self)
+                old = parse_type(children[1], self)
             else:
-                new = children[0]['attributes']['name']
+                new = parse_type(children[0], self)
                 old = '*'
             self._using_for[old] = new
         self._usingForNotParsed = []

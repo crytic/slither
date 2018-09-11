@@ -24,3 +24,10 @@ class FunctionType(Type):
         return_values = ".".join([str(x) for x in self._return_values])
         return 'function({}) returns ({})'.format(params, return_values)
 
+    def __eq__(self, other):
+        if not isinstance(other, FunctionType):
+            return False
+        return self.params == other.params and self.return_values == other.return_values
+
+    def __hash__(self):
+        return hash(str(self))

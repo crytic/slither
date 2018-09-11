@@ -43,7 +43,7 @@ class UninitializedStateVarsDetection(AbstractDetector):
         uninitialized_vars = list(set([v for v in var_read if \
                                        v not in var_written and \
                                        v not in all_push and \
-                                       str(v.type) not in contract.using_for]))  # Note: does not handle using X for *
+                                       v.type not in contract.using_for]))  # Note: does not handle using X for *
 
         return [(v, contract.get_functions_reading_variable(v)) for v in uninitialized_vars]
 
