@@ -19,13 +19,13 @@ class PrinterQuickSummary(AbstractPrinter):
 
         txt = ""
         for c in self.contracts:
-            (name, var, func_summaries, modif_summaries) = c.get_summary()
+            (name, _inheritances, _var, func_summaries, _modif_summaries) = c.get_summary()
             txt += blue("\n+ Contract %s\n"%name)
-            for (f_name, visi, modifiers, read, write, calls) in func_summaries:
+            for (f_name, visi, _modifiers, _read, _write, _calls) in func_summaries:
                 txt += "  - "
                 if visi in ['external', 'public']:
                     txt += green("%s (%s)\n"%(f_name, visi))
-                elif visi in ['internal','private']:
+                elif visi in ['internal', 'private']:
                     txt += magenta("%s (%s)\n"%(f_name, visi))
                 else:
                     txt += "%s (%s)\n"%(f_name, visi)
