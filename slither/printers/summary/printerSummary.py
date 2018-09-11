@@ -27,7 +27,7 @@ class PrinterSummary(AbstractPrinter):
         """
 
         for c in self.contracts:
-            (name, var, inheritances, func_summaries, modif_summaries) = c.get_summary()
+            (name, inheritances, var, func_summaries, modif_summaries) = c.get_summary()
             txt = "\nContract %s"%name
             txt += '\nContract vars: '+str(var)
             txt += '\nInheritances:: '+str(inheritances)
