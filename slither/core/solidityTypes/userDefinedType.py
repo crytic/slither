@@ -21,3 +21,12 @@ class UserDefinedType(Type):
             return str(self.type.contract)+'.'+str(self.type.name)
         return str(self.type.name)
 
+    def __eq__(self, other):
+        if not isinstance(other, UserDefinedType):
+            return False
+        return self.type == other.type
+
+
+    def __hash__(self):
+        return hash(str(self))
+
