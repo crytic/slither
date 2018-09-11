@@ -28,6 +28,8 @@ class Slither(SlitherSolc):
         for d in stdout:
             self.parse_contracts_from_json(d)
 
+        self.analyze_contracts()
+
     def register_detector(self, detector_class):
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
@@ -50,8 +52,6 @@ class Slither(SlitherSolc):
         """
         :return: List of registered detectors results.
         """
-        if not self.analyzed:
-            raise Exception('Launch analysis first by calling {}!'.format(self.analyze_contracts.__name__))
 
         return [d.detect() for d in self._detectors]
 
@@ -59,14 +59,10 @@ class Slither(SlitherSolc):
         """
         :return: List of registered printers outputs.
         """
-        if not self.analyzed:
-            raise Exception('Launch analysis first by calling {}!'.format(self.analyze_contracts.__name__))
 
         return [p.output(self.filename) for p in self._printers]
 
     def _check_common_things(self, thing_name, cls, base_cls, instances_list):
-        if self.analyzed:
-            raise Exception('There is no point of registering {} after running the analyzis.'.format(thing_name))
 
         if not issubclass(cls, base_cls) or cls is base_cls:
             raise Exception(

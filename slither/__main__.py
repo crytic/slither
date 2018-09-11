@@ -29,8 +29,6 @@ def process(filename, args, detector_classes, printer_classes):
     for printer_cls in printer_classes:
         slither.register_printer(printer_cls)
 
-    slither.analyze_contracts()
-
     analyzed_contracts_count = len(slither.contracts)
 
     results = []
