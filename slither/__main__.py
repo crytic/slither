@@ -10,6 +10,8 @@ import traceback
 
 from slither.slither import Slither
 
+from slither.detectors.abstract_detector import DetectorClassification
+
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
@@ -198,6 +200,8 @@ def parse_args(detector_classes, printer_classes):
                             dest="detectors_to_run",
                             const=detector_cls.ARGUMENT)
 
+    # Second loop so that the --exclude are shown after all the detectors
+    for detector_cls in detector_classes:
         exclude_detector_arg = '--exclude-{}'.format(detector_cls.ARGUMENT)
         exclude_detector_help = 'Exclude {} detector'.format(detector_cls.ARGUMENT)
         parser.add_argument(exclude_detector_arg,
@@ -224,26 +228,37 @@ def parse_args(detector_classes, printer_classes):
 
 
 def choose_detectors(args, all_detector_classes):
-    # TODO / FIXME: choose those =)
-    # if args.detectors_to_run:
-    #     return args.detectors_to_run
-    # all_detectors = detectors.high + detectors.medium + detectors.low + detectors.code_quality
-    # if args.exclude_informational:
-    #     all_detectors = [d for d in all_detectors if d not in detectors.code_quality]
-    # if args.exclude_low:
-    #     all_detectors = [d for d in all_detectors if d not in detectors.low]
-    # if args.exclude_medium:
-    #     all_detectors = [d for d in all_detectors if d not in detectors.medium]
-    # if args.exclude_high:
-    #     all_detectors = [d for d in all_detectors if d not in detectors.high]
-    # if args.detectors_to_exclude:
-    #     all_detectors = [d for d in all_detectors if d not in args.detectors_to_exclude]
-    return all_detector_classes
+    # If detectors are specified, run only these ones
+    if args.detectors_to_run:
+        return [d for d in all_detector_classes if d.ARGUMENT in args.detectors_to_run]
+
+    detectors_to_run = all_detector_classes
+
+    if args.exclude_informational:
+        detectors_to_run = [d for d in detectors_to_run if
+                            d.CLASSIFICATION != DetectorClassification.CODE_QUALITY]
+    if args.exclude_low:
+        detectors_to_run = [d for d in detectors_to_run if
+                            d.CLASSIFICATION != DetectorClassification.LOW]
+    if args.exclude_medium:
+        detectors_to_run = [d for d in detectors_to_run if
+                            d.CLASSIFICATION != DetectorClassification.MEDIUM]
+    if args.exclude_high:
+        detectors_to_run = [d for d in detectors_to_run if
+                            d.CLASSIFICATION != DetectorClassification.HIGH]
+    if args.detectors_to_exclude:
+        detectors_to_run = [d for d in detectors_to_run if
+                            d.ARGUMENT not in args.detectors_to_exclude]
+    return detectors_to_run
 
 
 def choose_printers(args, all_printer_classes):
-    # TODO / FIXME: choose those =)
-    return all_printer_classes
+    # by default, dont run any printer
+    printers_to_run = []
+    if args.printers_to_run:
+        printers_to_run = [p for p in all_printer_classes if
+                           p.ARGUMENT in args.printers_to_run]
+    return printers_to_run
 
 
 if __name__ == '__main__':
