@@ -30,6 +30,8 @@ class VariableDeclarationSolc(Variable):
 
         super(VariableDeclarationSolc, self).__init__()
         self._was_analyzed = False
+        self._elem_to_parse = None
+        self._initializedNotParsed = None
 
         if var['name'] in ['VariableDeclarationStatement', 'VariableDefinitionStatement']:
             if len(var['children']) == 2:

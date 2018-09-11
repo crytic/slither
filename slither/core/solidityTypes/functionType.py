@@ -20,9 +20,38 @@ class FunctionType(Type):
         return self._return_values
 
     def __str__(self):
-        params = ".".join([str(x) for x in self._params])
-        return_values = ".".join([str(x) for x in self._return_values])
-        return 'function({}) returns ({})'.format(params, return_values)
+        # Use x.type
+        # x.name may be empty
+        params = ".".join([str(x.type) for x in self._params])
+        return_values = ".".join([str(x.type) for x in self._return_values])
+        if return_values:
+            return 'function({}) returns({})'.format(params, return_values)
+        return 'function({})'.format(params)
+
+    @property
+    def parameters_signature(self):
+        '''
+            Return the parameters signature(without the return statetement)
+        '''
+        # Use x.type
+        # x.name may be empty
+        params = ".".join([str(x.type) for x in self._params])
+        return '({})'.format(params)
+
+    @property
+    def signature(self):
+        '''
+            Return the signature(with the return statetement if it exists)
+        '''
+        # Use x.type
+        # x.name may be empty
+        params = ".".join([str(x.type) for x in self._params])
+        return_values = ".".join([str(x.type) for x in self._return_values])
+        if return_values:
+            return '({}) returns({})'.format(params, return_values)
+        return '({})'.format(params)
+
+
 
     def __eq__(self, other):
         if not isinstance(other, FunctionType):
