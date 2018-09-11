@@ -1,12 +1,12 @@
-from slither.detectors.abstractDetector import AbstractDetector
-from slither.detectors.detectorClassification import DetectorClassification
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+
 
 class Backdoor(AbstractDetector):
     """
     Detect function named backdoor
     """
 
-    ARGUMENT = 'backdoor' # slither will launch the detector with slither.py --mydetector
+    ARGUMENT = 'backdoor'  # slither will launch the detector with slither.py --mydetector
     HELP = 'function named backdoor (detector example)'
     CLASSIFICATION = DetectorClassification.HIGH
 
@@ -21,5 +21,6 @@ class Backdoor(AbstractDetector):
                 # Print the info
                 self.log(info)
                 # Add the result in ret
-                ret.append({'vuln':'backdoor', 'contract':contract.name})
+                ret.append({'vuln': 'backdoor', 'contract': contract.name})
+
         return ret

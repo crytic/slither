@@ -3,7 +3,7 @@
 """
 
 from prettytable import PrettyTable
-from slither.printers.abstractPrinter import AbstractPrinter
+from slither.printers.abstract_printer import AbstractPrinter
 
 class PrinterSummary(AbstractPrinter):
 
