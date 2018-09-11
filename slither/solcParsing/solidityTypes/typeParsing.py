@@ -78,9 +78,7 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
         var_type = next((f for f in contract.functions if f.name == name), None)
     if not var_type:
         if name.startswith('function '):
-            print(name)
             found = re.findall('function \(([ ()a-zA-Z0-9\.,]*)\) returns \(([a-zA-Z0-9\.,]*)\)', name)
-            print(found)
             assert len(found) == 1
             params = found[0][0].split(',')
             return_values = found[0][1].split(',')
@@ -96,9 +94,6 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
                var = FunctionTypeVariable()
                var.set_type(r)
                return_vars.append(var)
-            print('Parse {}'.format(name))
-            print(params)
-            print(params_vars)
             return FunctionType(params_vars, return_vars)
     if not var_type:
         if name.startswith('mapping('):
