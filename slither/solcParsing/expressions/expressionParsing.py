@@ -254,7 +254,7 @@ def parse_expression(expression, caller_context):
         if 'type' in expression['attributes']:
             t = expression['attributes']['type']
             if t:
-                found = re.findall('[struct|enum|function|modifier] \(([\[\] a-zA-Z0-9\.,]*)\)', t)
+                found = re.findall('[struct|enum|function|modifier] \(([\[\] a-zA-Z0-9\.,_]*)\)', t)
                 if found:
                     value = value+'('+found[0]+')'
                     value = filter_name(value)
