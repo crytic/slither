@@ -186,6 +186,7 @@ def filter_name(value):
     value = value.replace(' pointer', '')
     value = value.replace(' pure ', ' ')
     value = value.replace(' view ', ' ')
+    value = value.replace(' constant ', ' ')
     value = value.replace('function (', 'function(')
     value = value.replace('returns (', 'returns(')
 
