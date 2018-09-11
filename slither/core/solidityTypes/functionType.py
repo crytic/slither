@@ -22,8 +22,8 @@ class FunctionType(Type):
     def __str__(self):
         # Use x.type
         # x.name may be empty
-        params = ".".join([str(x.type) for x in self._params])
-        return_values = ".".join([str(x.type) for x in self._return_values])
+        params = ",".join([str(x.type) for x in self._params])
+        return_values = ",".join([str(x.type) for x in self._return_values])
         if return_values:
             return 'function({}) returns({})'.format(params, return_values)
         return 'function({})'.format(params)
@@ -35,7 +35,7 @@ class FunctionType(Type):
         '''
         # Use x.type
         # x.name may be empty
-        params = ".".join([str(x.type) for x in self._params])
+        params = ",".join([str(x.type) for x in self._params])
         return '({})'.format(params)
 
     @property
@@ -45,8 +45,8 @@ class FunctionType(Type):
         '''
         # Use x.type
         # x.name may be empty
-        params = ".".join([str(x.type) for x in self._params])
-        return_values = ".".join([str(x.type) for x in self._return_values])
+        params = ",".join([str(x.type) for x in self._params])
+        return_values = ",".join([str(x.type) for x in self._return_values])
         if return_values:
             return '({}) returns({})'.format(params, return_values)
         return '({})'.format(params)
