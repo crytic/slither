@@ -3,8 +3,8 @@
     It is more useful as summary printer than as vuln detection
 """
 
-from slither.detectors.abstractDetector import AbstractDetector
-from slither.detectors.detectorClassification import DetectorClassification
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+
 
 class ShadowingFunctionsDetection(AbstractDetector):
     """
@@ -42,7 +42,7 @@ class ShadowingFunctionsDetection(AbstractDetector):
             shadowing = self.detect_shadowing(c)
             if shadowing:
                 for contract, funcs in shadowing.items():
-                    results.append({'vuln':self.vuln_name,
+                    results.append({'vuln': self.vuln_name,
                                     'filename': self.filename,
                                     'contractShadower': c.name,
                                     'contract': contract.name,

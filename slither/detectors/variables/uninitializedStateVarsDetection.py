@@ -9,10 +9,10 @@
     Only analyze "leaf" contracts (contracts that are not inherited by another contract)
 """
 
-from slither.detectors.abstractDetector import AbstractDetector
-from slither.detectors.detectorClassification import DetectorClassification
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 from slither.visitors.expression.findPush import FindPush
+
 
 class UninitializedStateVarsDetection(AbstractDetector):
     """
@@ -40,13 +40,12 @@ class UninitializedStateVarsDetection(AbstractDetector):
         # flat list
         all_push = [item for sublist in all_push for item in sublist]
 
-        uninitialized_vars = list(set([v for v in var_read if\
-                                       v not in var_written and\
-                                       v not in all_push and\
-                                       str(v.type) not in contract.using_for])) # Note: does not handle using X for *
+        uninitialized_vars = list(set([v for v in var_read if \
+                                       v not in var_written and \
+                                       v not in all_push and \
+                                       str(v.type) not in contract.using_for]))  # Note: does not handle using X for *
 
         return [(v, contract.get_functions_reading_variable(v)) for v in uninitialized_vars]
-
 
     def detect(self):
         """ Detect uninitialized state variables
@@ -59,13 +58,13 @@ class UninitializedStateVarsDetection(AbstractDetector):
         for c in self.slither.contracts_derived:
             ret = self.detect_uninitialized(c)
             for variable, functions in ret:
-                info = "Uninitialized state variables in %s, "%self.filename +\
-                       "Contract: %s, Vars: %s, Used in %s"%(c.name,
-                                                             str(variable),
-                                                             [str(f) for f in functions])
+                info = "Uninitialized state variables in %s, " % self.filename + \
+                       "Contract: %s, Vars: %s, Used in %s" % (c.name,
+                                                               str(variable),
+                                                               [str(f) for f in functions])
                 self.log(info)
 
-                results.append({'vuln':'UninitializedStateVars',
+                results.append({'vuln': 'UninitializedStateVars',
                                 'sourceMapping': c.source_mapping,
                                 'filename': self.filename,
                                 'contract': c.name,

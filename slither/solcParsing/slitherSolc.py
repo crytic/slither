@@ -7,6 +7,7 @@ logger = logging.getLogger("SlitherSolcParsing")
 from slither.solcParsing.declarations.contractSolc04 import ContractSolc04
 from slither.core.slitherCore import Slither
 
+
 class SlitherSolc(Slither):
 
     def __init__(self, filename):
@@ -14,11 +15,12 @@ class SlitherSolc(Slither):
         self._filename = filename
         self._contractsNotParsed = []
         self._contracts_by_id = {}
+        self._analyzed = False
 
     def parse_contracts_from_json(self, json_data):
         first = json_data.find('{')
         if first != -1:
-            last = json_data.rfind('}') +1
+            last = json_data.rfind('}') + 1
             filename = json_data[0:first]
             json_data = json_data[first:last]
 
@@ -26,19 +28,19 @@ class SlitherSolc(Slither):
 
             if data_loaded['name'] == 'root':
                 self._solc_version = '0.3'
-                logger.error('solc <0.4 not supported')
+                logger.error('solc <0.4 is not supported')
                 exit(-1)
             elif data_loaded['name'] == 'SourceUnit':
                 self._solc_version = '0.4'
                 self._parse_source_unit(data_loaded, filename)
             else:
-                logger.error('solc version not supported')
+                logger.error('solc version is not supported')
                 exit(-1)
 
             for contract_data in data_loaded['children']:
-#                if self.solc_version == '0.3':
-#                    assert contract_data['name'] == 'Contract'
- #                   contract = ContractSolc03(self, contract_data)
+                # if self.solc_version == '0.3':
+                #     assert contract_data['name'] == 'Contract'
+                #     contract = ContractSolc03(self, contract_data)
                 if self.solc_version == '0.4':
                     assert contract_data['name'] in ['ContractDefinition', 'PragmaDirective', 'ImportDirective']
                     if contract_data['name'] == 'ContractDefinition':
@@ -54,7 +56,7 @@ class SlitherSolc(Slither):
 
     def _parse_source_unit(self, data, filename):
         if data['name'] != 'SourceUnit':
-            return -1 # handle solc prior 0.3.6
+            return -1  # handle solc prior 0.3.6
 
         # match any char for filename
         # filename can contain space, /, -, ..
@@ -62,7 +64,7 @@ class SlitherSolc(Slither):
         assert len(name) == 1
         name = name[0]
 
-        sourceUnit = -1 # handle old solc, or error
+        sourceUnit = -1  # handle old solc, or error
         if 'src' in data:
             sourceUnit = re.findall('[0-9]*:[0-9]*:([0-9]*)', data['src'])
             if len(sourceUnit) == 1:
@@ -71,6 +73,8 @@ class SlitherSolc(Slither):
         self._source_units[sourceUnit] = name
 
     def analyze_contracts(self):
+        if self._analyzed:
+            raise Exception('Contract analysis can be run only once!')
 
         # First we save all the contracts in a dict
         # the key is the contractid
@@ -105,8 +109,13 @@ class SlitherSolc(Slither):
         # Then we analyse state variables, functions and modifiers
         self._analyze_third_part(contracts_to_be_analyzed, libraries)
 
+        self._analyzed = True
 
     # TODO refactor the following functions, and use a lambda function
+
+    @property
+    def analyzed(self):
+        return self._analyzed
 
     def _analyze_all_enums(self, contracts_to_be_analyzed):
         while contracts_to_be_analyzed:
@@ -120,7 +129,6 @@ class SlitherSolc(Slither):
             else:
                 contracts_to_be_analyzed += [contract]
         return
-
 
     def _analyze_first_part(self, contracts_to_be_analyzed, libraries):
         for lib in libraries:
@@ -142,7 +150,6 @@ class SlitherSolc(Slither):
             else:
                 contracts_to_be_analyzed += [contract]
         return
-
 
     def _analyze_second_part(self, contracts_to_be_analyzed, libraries):
         for lib in libraries:
@@ -192,7 +199,7 @@ class SlitherSolc(Slither):
         contract.set_is_analyzed(True)
 
     def _parse_struct_var_modifiers_functions(self, contract):
-        contract.parse_structs() # struct can refer another struct
+        contract.parse_structs()  # struct can refer another struct
         contract.parse_state_variables()
         contract.parse_modifiers()
         contract.parse_functions()
@@ -220,4 +227,3 @@ class SlitherSolc(Slither):
         contract.analyze_content_functions()
 
         contract.set_is_analyzed(True)
-
