@@ -230,7 +230,7 @@ def parse_args(detector_classes, printer_classes):
                             const=detector_cls.ARGUMENT)
 
     for printer_cls in printer_classes:
-        printer_arg = '--print-{}'.format(printer_cls.ARGUMENT)
+        printer_arg = '--printer-{}'.format(printer_cls.ARGUMENT)
         printer_help = 'Print {}'.format(printer_cls.HELP)
         parser.add_argument(printer_arg,
                             help=printer_help,
