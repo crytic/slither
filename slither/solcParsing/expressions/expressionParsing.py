@@ -51,15 +51,10 @@ def find_variable(var_name, caller_context):
             return func_variables[var_name]
         # A local variable can be a pointer
         # for example
-        # function test(function(uint) internal returns(bool) t) internal{
+        # function test(function(uint) internal returns(bool) t) interna{
         # Will have a local variable t which will match the signature
         # t(uint256)
         func_variables_ptr = {f.name + f.type.parameters_signature : f for f in function.variables
-                              if isinstance(f.type, FunctionType)}
-        if var_name in func_variables_ptr:
-            return func_variables_ptr[var_name]
-        # if it contains the return value
-        func_variables_ptr = {f.name + f.type.signature : f for f in function.variables
                               if isinstance(f.type, FunctionType)}
         if var_name in func_variables_ptr:
             return func_variables_ptr[var_name]
@@ -69,17 +64,6 @@ def find_variable(var_name, caller_context):
         return contract_variables[var_name]
 
     functions = contract.functions_as_dict()
-    if var_name in functions:
-        return functions[var_name]
-
-    # With funciton pointer, the signature with the return value is used
-    # function test(function(uint) internal returns(bool) t) internal{
-    # ..
-    # test(called)
-    # ..
-    # funcion called(uint) returns(bool)
-    # called is looked as 'called(uint256) returns(bool)
-    functions = {f.signature_str:f for f in  contract.functions}
     if var_name in functions:
         return functions[var_name]
 
@@ -115,11 +99,6 @@ def find_variable(var_name, caller_context):
 
     if var_name in SOLIDITY_FUNCTIONS:
         return SolidityFunction(var_name)
-
-    # With funciton pointer, the signature with the return value is used
-    solidity_signatures = {solidity_function_signature(f):f for f in SOLIDITY_FUNCTIONS}
-    if var_name in solidity_signatures:
-        return SolidityFunction(solidity_signatures[var_name])
 
     contracts = contract.slither.contracts_as_dict()
     if var_name in contracts:
@@ -190,6 +169,21 @@ def filter_name(value):
     value = value.replace('function (', 'function(')
     value = value.replace('returns (', 'returns(')
 
+    # remove the text remaining after functio(...)
+    # which should only be ..returns(...)
+    # nested parenthesis so we use a system of counter on parenthesis
+    idx = value.find('(')
+    if idx:
+        counter = 1
+        max_idx = len(value)
+        while counter:
+            assert idx < max_idx
+            idx = idx +1
+            if value[idx] == '(':
+                counter += 1
+            elif value[idx] == ')':
+                counter -= 1
+        value = value[:idx+1]
     return value
 
 def parse_expression(expression, caller_context):
