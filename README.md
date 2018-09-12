@@ -55,17 +55,20 @@ If Slither is applied on a directory, it will run on every `.sol` file of the di
 
 By default, all the checks are run.
 
-Check | Purpose | Impact | Confidence
---- | --- | --- | ---
-`--detect-uninitialized`| Detect uninitialized variables | High | High
-`--detect-pragma`| Detect if different pragma directives are used | Informational | High
-`--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational | High
+Check | Purpose | Impact | Confidence | Prioritization
+--- | --- | --- | --- | ---
+`--detect-uninitialized`| Detect uninitialized variables | High | High | High
+`--detect-pragma`| Detect if different pragma directives are used | Informational | High | Informational
+`--detect-reentrancy`| Detect if different pragma directives are used | High | Medium | Medium
+`--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational | High | Informational
+
+A high prioritization check is likely to be a true positive with a severe impact.
 
 ### Exclude analyses
-* `--exclude-informational`: Exclude informational impact analyses
-* `--exclude-low`: Exclude low impact analyses
-* `--exclude-medium`: Exclude medium impact analyses
-* `--exclude-high`: Exclude high impact analyses
+* `--exclude-informational`: Exclude informational prioritization analyses
+* `--exclude-low`: Exclude low prioritization analyses
+* `--exclude-medium`: Exclude medium prioritization impact analyses
+* `--exclude-high`: Exclude high impact prioritization analyses
 * `--exclude-name` will exclude the detector `name`
 
 ##  Configuration
