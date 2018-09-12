@@ -151,10 +151,10 @@ class Node(SourceMapping, ChildFunction):
         Returns:
             bool: True if the node has a require or assert call
         """
-        return self.calls and\
+        return self.internal_calls and\
                 any(isinstance(c, SolidityFunction) and\
                 (c.name in ['require(bool)', 'require(bool,string)', 'assert(bool)'])\
-                for c in self.calls)
+                for c in self.internal_calls)
 
     def contains_if(self):
         """
