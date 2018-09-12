@@ -165,9 +165,9 @@ def filter_name(value):
     value = value.replace('enum ', '')
     value = value.replace(' ref', '')
     value = value.replace(' pointer', '')
-    value = value.replace(' pure ', ' ')
-    value = value.replace(' view ', ' ')
-    value = value.replace(' constant ', ' ')
+    value = value.replace(' pure', '')
+    value = value.replace(' view', '')
+    value = value.replace(' constant', '')
     value = value.replace('function (', 'function(')
     value = value.replace('returns (', 'returns(')
 
@@ -315,7 +315,11 @@ def parse_expression(expression, caller_context):
         member_expression = parse_expression(children[0], caller_context)
         if str(member_expression) == 'super':
             super_name = parse_super_name(expression)
-            inheritances = caller_context.contract.inheritances
+            if isinstance(caller_context, Contract):
+                inheritances = caller_context.inheritances
+            else:
+                assert isinstance(caller_context, Function)
+                inheritances = caller_context.contract.inheritances
             var = None
             for father in inheritances:
                 try:
