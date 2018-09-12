@@ -13,7 +13,7 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
 
     @staticmethod
     def get_msg_sender_checks(function):
-        all_functions = function.all_calls() + [function] + function.modifiers
+        all_functions = function.all_internal_calls() + [function] + function.modifiers
 
         all_nodes = [f.nodes for f in all_functions if isinstance(f, Function)]
         all_nodes = [item for sublist in all_nodes for item in sublist]
@@ -33,7 +33,7 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
 
         for contract in self.contracts:
             txt = "\nContract %s\n"%contract.name
-            table = PrettyTable(["Function", "State variable written", "Condition on msg.sender"])
+            table = PrettyTable(["Function", "State variables written", "Conditions on msg.sender"])
             for function in contract.functions:
 
                 state_variables_written = [v.name for v in function.all_state_variables_written()]

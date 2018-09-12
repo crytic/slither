@@ -8,7 +8,7 @@ Slither allows printing contracts information through its printers.
 Output a quick summary of the contract.
 Example:
 ```
-$ slither.py vulns/0x01293cd77f68341635814c35299ed30ae212789e.sol --print-quick-summary
+$ slither vulns/0x01293cd77f68341635814c35299ed30ae212789e.sol --printer-quick-summary
 ```
 <img src="imgs/quick-summary.png" width="300">
 
@@ -22,40 +22,29 @@ Output a summary of the contract showing for each function:
 
 Example:
 ```
-$ slither.py vulns/0x01293cd77f68341635814c35299ed30ae212789e.sol --print-summary
+$ slither examples/bugs/backdoor.sol --printer-summary
 ```
 ```
 [...]
 
-INFO:Slither:Contract NBACrypto
-Contract vars: [u'ceoAddress', u'cfoAddress', u'teams', u'players', u'teamsAreInitiated', u'playersAreInitiated', u'isPaused']
-+--------------------+------------+--------------+------------------------+---------------+----------------------------------------------+
-|      Function      | Visibility |  Modifiers   |          Read          |     Write     |                    Calls                     |
-+--------------------+------------+--------------+------------------------+---------------+----------------------------------------------+
-|     pauseGame      |   public   | [u'onlyCeo'] |           []           | [u'isPaused'] |                      []                      |
-|    unPauseGame     |   public   | [u'onlyCeo'] |           []           | [u'isPaused'] |                      []                      |
-|    GetIsPauded     |   public   |      []      |     [u'isPaused']      |       []      |                      []                      |
-|  purchaseCountry   |   public   |      []      |     [u'isPaused']      |   [u'teams']  |       [u'cfoAddress.transfer', u'mul']       |
-|                    |            |              |                        |               | [u'require', u'teams.ownerAddress.transfer'] |
-|   purchasePlayer   |   public   |      []      |     [u'isPaused']      |  [u'players'] |       [u'cfoAddress.transfer', u'mul']       |
-|                    |            |              |                        |               | [u'require', u'teams.ownerAddress.transfer'] |
-|                    |            |              |                        |               |      [u'players.ownerAddress.transfer']      |
-| modifyPriceCountry |   public   |      []      |           []           |   [u'teams']  |                 [u'require']                 |
-|      getTeam       |   public   |      []      |       [u'teams']       |       []      |                      []                      |
-|     getPlayer      |   public   |      []      |      [u'players']      |       []      |                      []                      |
-|    getTeamPrice    |   public   |      []      |           []           |       []      |                      []                      |
-|   getPlayerPrice   |   public   |      []      |           []           |       []      |                      []                      |
-|    getTeamOwner    |   public   |      []      |           []           |       []      |                      []                      |
-|   getPlayerOwner   |   public   |      []      |           []           |       []      |                      []                      |
-|        mul         |  internal  |      []      |           []           |       []      |                 [u'assert']                  |
-|        div         |  internal  |      []      |           []           |       []      |                      []                      |
-|   InitiateTeams    |   public   | [u'onlyCeo'] | [u'teamsAreInitiated'] |       []      |         [u'require', u'teams.push']          |
-|     addPlayer      |   public   | [u'onlyCeo'] |           []           |       []      |              [u'players.push']               |
-+--------------------+------------+--------------+------------------------+---------------+----------------------------------------------+
+Contract C
+Contract vars: []
+Inheritances:: []
+ 
++-----------------+------------+-----------+----------------+-------+---------------------------+----------------+
+|     Function    | Visibility | Modifiers |      Read      | Write |       Internal Calls      | External Calls |
++-----------------+------------+-----------+----------------+-------+---------------------------+----------------+
+| i_am_a_backdoor |   public   |     []    | ['msg.sender'] |   []  | ['selfdestruct(address)'] |       []       |
++-----------------+------------+-----------+----------------+-------+---------------------------+----------------+
+
++-----------+------------+------+-------+----------------+----------------+
+| Modifiers | Visibility | Read | Write | Internal Calls | External Calls |
++-----------+------------+------+-------+----------------+----------------+
++-----------+------------+------+-------+----------------+----------------+
 ```
 
 ## Inheritance Graph
-`slither.py file.sol --print-inheritance`
+`slither file.sol --printer-inheritance`
 
 Output a graph showing the inheritance interaction between the contracts.
 Example:
@@ -76,21 +65,21 @@ Functions in orange override a parent's functions. If a variable points to anoth
 
 
 ## Variables written and authorization
-`slither.py file.sol --print-variables-written-and-authorization`
+`slither file.sol --printer-vars-and-auth`
 
 Print the variables written and the check on `msg.sender` of each function.
 ```
 ...
 INFO:Printers:
 Contract MyNewBank
-+----------+------------------------+-------------------------+
-| Function | State variable written | Condition on msg.sender |
-+----------+------------------------+-------------------------+
-|   kill   |           []           | ['msg.sender != owner'] |
-| withdraw |           []           | ['msg.sender != owner'] |
-|   init   |       [u'owner']       |            []           |
-|  owned   |       [u'owner']       |            []           |
-| fallback |     [u'deposits']      |            []           |
-+----------+------------------------+-------------------------+
++----------+-------------------------+--------------------------+
+| Function | State variables written | Conditions on msg.sender |
++----------+-------------------------+--------------------------+
+|   kill   |           []            | ['msg.sender != owner']  |
+| withdraw |           []            | ['msg.sender != owner']  |
+|   init   |       [u'owner']        |            []            |
+|  owned   |       [u'owner']        |            []            |
+| fallback |     [u'deposits']       |            []            |
++----------+-------------------------+--------------------------+
 ```
 

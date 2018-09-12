@@ -79,9 +79,10 @@ A high prioritization check is likely to be a true positive with a severe impact
 * `--json FILE`: Export results as JSON
 
 ## Printers
-* `--print-summary`: Print a summary of the contracts
-* `--print-quick-summary`: Print a quick summary of the contracts
-* `--print-inheritance`: Print the inheritance graph
+* `--printer-summary`: Print a summary of the contracts
+* `--printer-quick-summary`: Print a quick summary of the contracts
+* `--printer-inheritance`: Print the inheritance graph
+* `--printer-vars-and-auth`: Print the variables written and the check on `msg.sender` of each function.
 
 For more information about printers, see the [Printers documentation](docs/PRINTERS.md)
 
