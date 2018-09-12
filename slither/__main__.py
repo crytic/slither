@@ -69,8 +69,9 @@ def main():
     from slither.detectors.variables.uninitializedStateVarsDetection import UninitializedStateVarsDetection
     from slither.detectors.attributes.constant_pragma import ConstantPragma
     from slither.detectors.attributes.old_solc import OldSolc
+    from slither.detectors.reentrancy.reentrancy import Reentrancy
 
-    detectors = [Backdoor, UninitializedStateVarsDetection, ConstantPragma, OldSolc]
+    detectors = [Backdoor, UninitializedStateVarsDetection, ConstantPragma, OldSolc, Reentrancy]
 
     from slither.printers.summary.printerSummary import PrinterSummary
     from slither.printers.summary.printerQuickSummary import PrinterQuickSummary

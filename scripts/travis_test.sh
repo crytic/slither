@@ -20,4 +20,9 @@ if [ $? -ne 1 ]; then
     exit 1
 fi
 
+slither examples/bugs/reentrancy.sol --disable-solc-warnings
+if [ $? -ne 1 ]; then
+    exit 1
+fi
+
 exit 0
