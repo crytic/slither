@@ -42,7 +42,8 @@ class Function(ChildContract, SourceMapping):
         self._vars_read_or_written = []
         self._solidity_vars_read = []
         self._state_vars_written = []
-        self._calls = []
+        self._internal_calls = []
+        self._external_calls = []
         self._expression_vars_read = []
         self._expression_vars_written = []
         self._expression_calls = []
@@ -211,11 +212,18 @@ class Function(ChildContract, SourceMapping):
         return self._expression_vars_written
 
     @property
-    def calls(self):
+    def internal_calls(self):
         """
-            list(Function or SolidityFunction): List of calls
+            list(Function or SolidityFunction): List of function calls (that does not create a transaction)
         """
-        return self._calls
+        return self._internal_calls
+
+    @property
+    def external_calls(self):
+        """
+            list(ExpressionCall): List of message calls (that creates a transaction)
+        """
+        return self._external_calls
 
     @property
     def calls_as_expression(self):
@@ -324,19 +332,26 @@ class Function(ChildContract, SourceMapping):
                  groupby(sorted(calls, key=lambda x: str(x)), lambda x: str(x))]
         self._expression_calls = calls
 
-        calls = [x.calls for x in self.nodes]
-        calls = [x for x in calls if x]
-        calls = [item for sublist in calls for item in sublist]
-        calls = [next(obj) for i, obj in\
-                 groupby(sorted(calls, key=lambda x: str(x)), lambda x: str(x))]
-        self._calls = [c for c in calls if isinstance(c, (Function, SolidityFunction))]
+        internal_calls = [x.internal_calls for x in self.nodes]
+        internal_calls = [x for x in internal_calls if x]
+        internal_calls = [item for sublist in internal_calls for item in sublist]
+        internal_calls = [next(obj) for i, obj in
+                          groupby(sorted(internal_calls, key=lambda x: str(x)), lambda x: str(x))]
+        self._internal_calls = internal_calls
+
+        external_calls = [x.external_calls for x in self.nodes]
+        external_calls = [x for x in external_calls if x]
+        external_calls = [item for sublist in external_calls for item in sublist]
+        external_calls = [next(obj) for i, obj in
+                          groupby(sorted(external_calls, key=lambda x: str(x)), lambda x: str(x))]
+        self._external_calls = external_calls
 
     def all_state_variables_read(self):
         """ recursive version of variables_read
         """
         variables = self.state_variables_read
         explored = [self]
-        to_explore = [c for c in self.calls if isinstance(c, Function) and c not in explored]
+        to_explore = [c for c in self.internal_calls if isinstance(c, Function) and c not in explored]
         to_explore += [m for m in self.modifiers if m not in explored]
 
         while to_explore:
@@ -346,7 +361,7 @@ class Function(ChildContract, SourceMapping):
                 continue
             explored.append(f)
             variables += f.state_variables_read
-            to_explore += [c for c in f.calls if\
+            to_explore += [c for c in f.internal_calls if\
                            isinstance(c, Function) and c not in explored and c not in to_explore]
             to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
 
@@ -357,7 +372,7 @@ class Function(ChildContract, SourceMapping):
         """
         variables = self.solidity_variables_read
         explored = [self]
-        to_explore = [c for c in self.calls if isinstance(c, Function) and c not in explored]
+        to_explore = [c for c in self.internal_calls if isinstance(c, Function) and c not in explored]
         to_explore += [m for m in self.modifiers if m not in explored]
 
         while to_explore:
@@ -367,7 +382,7 @@ class Function(ChildContract, SourceMapping):
                 continue
             explored.append(f)
             variables += f.solidity_variables_read
-            to_explore += [c for c in f.calls if\
+            to_explore += [c for c in f.internal_calls if\
                            isinstance(c, Function) and c not in explored and c not in to_explore]
             to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
 
@@ -378,7 +393,7 @@ class Function(ChildContract, SourceMapping):
         """
         variables = self.expressions
         explored = [self]
-        to_explore = [c for c in self.calls if isinstance(c, Function) and c not in explored]
+        to_explore = [c for c in self.internal_calls if isinstance(c, Function) and c not in explored]
         to_explore += [m for m in self.modifiers if m not in explored]
 
         while to_explore:
@@ -388,7 +403,7 @@ class Function(ChildContract, SourceMapping):
                 continue
             explored.append(f)
             variables += f.expressions
-            to_explore += [c for c in f.calls if\
+            to_explore += [c for c in f.internal_calls if\
                            isinstance(c, Function) and c not in explored and c not in to_explore]
             to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
 
@@ -399,7 +414,8 @@ class Function(ChildContract, SourceMapping):
         """
         variables = self.state_variables_written
         explored = [self]
-        to_explore = [c for c in self.calls if isinstance(c, Function) and c not in explored]
+        to_explore = [c for c in self.internal_calls if
+                      isinstance(c, Function) and c not in explored]
         to_explore += [m for m in self.modifiers if m not in explored]
 
         while to_explore:
@@ -409,18 +425,19 @@ class Function(ChildContract, SourceMapping):
                 continue
             explored.append(f)
             variables += f.state_variables_written
-            to_explore += [c for c in f.calls if\
+            to_explore += [c for c in f.internal_calls if\
                            isinstance(c, Function) and c not in explored and c not in to_explore]
             to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
 
         return list(set(variables))
 
-    def all_calls(self):
-        """ recursive version of calls
+    def all_internal_calls(self):
+        """ recursive version of internal_calls
         """
-        calls = self.calls
+        calls = self.internal_calls
         explored = [self]
-        to_explore = [c for c in self.calls if isinstance(c, Function) and c not in explored]
+        to_explore = [c for c in self.internal_calls if
+                      isinstance(c, Function) and c not in explored]
         to_explore += [m for m in self.modifiers if m not in explored]
 
         while to_explore:
@@ -429,8 +446,8 @@ class Function(ChildContract, SourceMapping):
             if f in explored:
                 continue
             explored.append(f)
-            calls += f.calls
-            to_explore += [c for c in f.calls if\
+            calls += f.internal_calls
+            to_explore += [c for c in f.internal_calls if\
                            isinstance(c, Function) and c not in explored and c not in to_explore]
             to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
 
@@ -512,11 +529,12 @@ class Function(ChildContract, SourceMapping):
         """
             Return the function summary
         Returns:
-            (str, str, list(str), list(str), listr(str), list(str);
-            name, visibility, modifiers, variables read, variables written, calls
+            (str, str, list(str), list(str), listr(str), list(str), list(str);
+            name, visibility, modifiers, vars read, vars written, internal_calls, external_calls
         """
         return (self.name, self.visibility,
                 [str(x) for x in self.modifiers],
                 [str(x) for x in self.state_variables_read + self.solidity_variables_read],
                 [str(x) for x in self.state_variables_written],
-                [str(x) for x in self.calls])
+                [str(x) for x in self.internal_calls],
+                [str(x) for x in self.external_calls])

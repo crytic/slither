@@ -36,7 +36,8 @@ class Node(SourceMapping, ChildFunction):
         self._node_id = node_id
         self._vars_written = []
         self._vars_read = []
-        self._calls = []
+        self._internal_calls = []
+        self._external_calls = []
 
         self._state_vars_written = []
         self._state_vars_read = []
@@ -102,11 +103,18 @@ class Node(SourceMapping, ChildFunction):
         return self._expression_vars_written
 
     @property
-    def calls(self):
+    def internal_calls(self):
         """
-            list(Function or SolidityFunction): List of calls
+            list(Function or SolidityFunction): List of function calls (that does not create a transaction)
         """
-        return self._calls
+        return self._internal_calls
+
+    @property
+    def external_calls(self):
+        """
+            list(CallExpression): List of message calls (that creates a transaction)
+        """
+        return self._external_calls
 
     @property
     def calls_as_expression(self):
