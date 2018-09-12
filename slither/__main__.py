@@ -8,9 +8,11 @@ import os
 import sys
 import traceback
 
-from slither.slither import Slither
+from pkg_resources import iter_entry_points
 
-from slither.detectors.abstract_detector import DetectorClassification
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.printers.abstract_printer import AbstractPrinter
+from slither.slither import Slither
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -76,6 +78,22 @@ def main():
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
 
     printers = [PrinterSummary, PrinterQuickSummary, PrinterInheritance, PrinterWrittenVariablesAndAuthorization]
+
+    # Handle plugins!
+    for entry_point in iter_entry_points(group='slither_analyzer.plugin', name=None):
+        make_plugin = entry_point.load()
+
+        plugin_detectors, plugin_printers = make_plugin()
+
+        if not all(issubclass(d, AbstractDetector) for d in plugin_detectors):
+            raise Exception('Error when loading plugin %s, %r is not a detector' % (entry_point, d))
+
+        if not all(issubclass(p, AbstractPrinter) for p in plugin_printers):
+            raise Exception('Error when loading plugin %s, %r is not a printer' % (entry_point, p))
+
+        # We convert those to lists in case someone returns a tuple
+        detectors += list(plugin_detectors)
+        printers += list(plugin_printers)
 
     main_impl(all_detector_classes=detectors, all_printer_classes=printers)
 
