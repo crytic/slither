@@ -158,6 +158,8 @@ def parse_super_name(expression):
 def filter_name(value):
     value = value.replace(' memory', '')
     value = value.replace(' storage', '')
+    value = value.replace(' external', '')
+    value = value.replace(' internal', '')
     value = value.replace('struct ', '')
     value = value.replace('contract ', '')
     value = value.replace('enum ', '')
