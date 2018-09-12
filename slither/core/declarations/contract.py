@@ -114,7 +114,7 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(Function): List of functions reachable from the contract (include super)
         '''
-        all_calls = (f.all_calls() for f in self.functions)
+        all_calls = (f.all_internal_calls() for f in self.functions)
         all_calls = [item for sublist in all_calls for item in sublist] + self.functions
         all_calls = set(all_calls)
         return [c for c in all_calls if isinstance(c, Function)]

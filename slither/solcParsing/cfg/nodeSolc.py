@@ -3,14 +3,15 @@ from slither.core.cfg.nodeType import NodeType
 from slither.solcParsing.expressions.expressionParsing import parse_expression
 from slither.visitors.expression.readVar import ReadVar
 from slither.visitors.expression.writeVar import WriteVar
-from slither.visitors.expression.findCalls import FindCalls
+from slither.visitors.expression.find_calls import FindCalls
 
 from slither.visitors.expression.exportValues import ExportValues
 from slither.core.declarations.solidityVariables import SolidityVariable, SolidityFunction
 from slither.core.declarations.function import Function
 
-
 from slither.core.variables.stateVariable import StateVariable
+
+from slither.core.expressions.identifier import Identifier
 
 class NodeSolc(Node):
 
@@ -52,6 +53,8 @@ class NodeSolc(Node):
             self._expression_calls = pp.result()
             calls = [ExportValues(c).result() for c in self.calls_as_expression]
             calls = [item for sublist in calls for item in sublist]
-            self._calls = [c for c in calls if isinstance(c, (Function, SolidityFunction))]
+            self._internal_calls = [c for c in calls if isinstance(c, (Function, SolidityFunction))]
+
+            self._external_calls = [c for c in self.calls_as_expression if not isinstance(c.called, Identifier)]
 
 

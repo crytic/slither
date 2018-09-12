@@ -31,19 +31,32 @@ class PrinterSummary(AbstractPrinter):
             txt = "\nContract %s"%name
             txt += '\nContract vars: '+str(var)
             txt += '\nInheritances:: '+str(inheritances)
-            table = PrettyTable(["Function", "Visibility", "Modifiers", "Read", "Write", "Calls"])
-            for (f_name, visi, modifiers, read, write, calls) in func_summaries:
+            table = PrettyTable(["Function",
+                                 "Visibility",
+                                 "Modifiers",
+                                 "Read",
+                                 "Write",
+                                 "Internal Calls",
+                                 "External Calls"])
+            for (f_name, visi, modifiers, read, write, internal_calls, external_calls) in func_summaries:
                 read = self._convert(read)
                 write = self._convert(write)
-                calls = self._convert(calls)
-                table.add_row([f_name, visi, modifiers, read, write, calls])
+                internal_calls = self._convert(internal_calls)
+                external_calls = self._convert(external_calls)
+                table.add_row([f_name, visi, modifiers, read, write, internal_calls, external_calls])
             txt += "\n \n"+str(table)
-            table = PrettyTable(["Modifiers", "Visibility", "Read", "Write", "Calls"])
-            for (f_name, visi, _, read, write, calls) in modif_summaries:
+            table = PrettyTable(["Modifiers",
+                                 "Visibility",
+                                 "Read",
+                                 "Write",
+                                 "Internal Calls",
+                                 "External Calls"])
+            for (f_name, visi, _, read, write, internal_calls, external_calls) in modif_summaries:
                 read = self._convert(read)
                 write = self._convert(write)
-                calls = self._convert(calls)
-                table.add_row([f_name, visi, read, write, calls])
+                internal_calls = self._convert(internal_calls)
+                external_calls = self._convert(external_calls)
+                table.add_row([f_name, visi, read, write, internal_calls, external_calls])
             txt += "\n\n"+str(table)
             txt += "\n"
             self.info(txt)
