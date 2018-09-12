@@ -85,4 +85,4 @@ For more information about printers, see the [Printers documentation](docs/PRINT
 
 ## License
 
-Slither is licensed and distributed under AGPLv3. [Contact us](mailto:opensource@trailofbits.com) if you're looking for an exception to the terms.
+Slither is licensed and distributed under the AGPLv3 license. [Contact us](mailto:opensource@trailofbits.com) if you're looking for an exception to the terms.
