@@ -1,12 +1,8 @@
 """
-    Module detecting state uninitialized variables
-    Recursively check the called functions
+    Module detecting state uninitialized storage variables
 
-    The heuristic chekcs that:
-    - state variables are read or called
-    - the variables does not call push (avoid too many FP)
-
-    Only analyze "leaf" contracts (contracts that are not inherited by another contract)
+    Recursively explore the CFG to only report uninitialized storage variables that are
+    written before being read
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
@@ -23,6 +19,7 @@ class UninitializedStorageVars(AbstractDetector):
     CLASSIFICATION = DetectorClassification.HIGH
 
 
+    # node.context[self.key] contains the uninitialized storage variables
     key = "UNINITIALIZEDSTORAGE"
 
     def _detect_uninitialized(self, function, node, visited):
