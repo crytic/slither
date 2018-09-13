@@ -158,6 +158,13 @@ class Function(ChildContract, SourceMapping):
         """
         return list(self._variables.values())
 
+    @property
+    def local_variables(self):
+        """
+            Return all local variables (dont include paramters and return values)
+        """
+        return list(set(self.variables) - set(self.returns) - set(self.parameters))
+
     def variables_as_dict(self):
         return self._variables
 
