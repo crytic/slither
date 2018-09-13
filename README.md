@@ -54,13 +54,13 @@ If Slither is applied on a directory, it will run on every `.sol` file of the di
 
 By default, all the checks are run.
 
-Check | Purpose | Impact
---- | --- | --- 
-`--detect-uninitialized`| Detect uninitialized state variables | High
-`--detect-uninitialized-storage`| Detect uninitialized storagevariables | High
-`--detect-pragma`| Detect if different pragma directives are used | Informational
-`--detect-reentrancy`| Detect if different pragma directives are used | High
-`--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational
+Check | Purpose | Impact | Confidence
+--- | --- | --- | ---
+`--detect-uninitialized`| Detect uninitialized state variables | High | High
+`--detect-uninitialized-storage`| Detect uninitialized storage variables | High | High
+`--detect-pragma`| Detect if different pragma directives are used | Informational | High
+`--detect-reentrancy`| Detect if different pragma directives are used | High | Medium
+`--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational | High
 
 ## Exclude analyses
 * `--exclude-informational`: Exclude informational impact analyses
