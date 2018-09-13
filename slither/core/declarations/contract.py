@@ -56,7 +56,7 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(Contract): Inheritances list. Order: the first elem is the first father to be executed
         '''
-        return self._inheritances
+        return list(self._inheritances)
 
     @property
     def inheritances_reverse(self):
@@ -135,7 +135,7 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def state_variables(self):
         '''
-            list(StateVariable): List of the state variables. 
+            list(StateVariable): List of the state variables.
         '''
         return list(self._variables.values())
 
@@ -144,7 +144,7 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(StateVariable): List of the state variables. Alias to self.state_variables
         '''
-        return self.state_variables
+        return list(self.state_variables)
 
     def variables_as_dict(self):
         return self._variables

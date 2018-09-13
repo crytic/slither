@@ -64,21 +64,21 @@ class Node(SourceMapping, ChildFunction):
         """
             list(Variable): Variables read (local/state/solidity)
         """
-        return self._vars_read
+        return list(self._vars_read)
 
     @property
     def state_variables_read(self):
         """
             list(StateVariable): State variables read
         """
-        return self._state_vars_read
+        return list(self._state_vars_read)
 
     @property
     def solidity_variables_read(self):
         """
             list(SolidityVariable): State variables read
         """
-        return self._solidity_vars_read
+        return list(self._solidity_vars_read)
 
     @property
     def variables_read_as_expression(self):
@@ -89,14 +89,14 @@ class Node(SourceMapping, ChildFunction):
         """
             list(Variable): Variables written (local/state/solidity)
         """
-        return self._vars_written
+        return list(self._vars_written)
 
     @property
     def state_variables_written(self):
         """
             list(StateVariable): State variables written
         """
-        return self._state_vars_written
+        return list(self._state_vars_written)
 
     @property
     def variables_written_as_expression(self):
@@ -107,7 +107,7 @@ class Node(SourceMapping, ChildFunction):
         """
             list(Function or SolidityFunction): List of function calls (that does not create a transaction)
         """
-        return self._internal_calls
+        return list(self._internal_calls)
 
     @property
     def external_calls(self):
@@ -118,7 +118,7 @@ class Node(SourceMapping, ChildFunction):
 
     @property
     def calls_as_expression(self):
-        return self._expression_calls
+        return list(self._expression_calls)
 
     @property
     def expression(self):
@@ -139,6 +139,10 @@ class Node(SourceMapping, ChildFunction):
 
     @property
     def variable_declaration(self):
+        """
+        Returns:
+            LocalVariable
+        """
         return self._variable_declaration
 
     def __str__(self):
@@ -185,9 +189,10 @@ class Node(SourceMapping, ChildFunction):
         """ Returns the father nodes
 
         Returns:
-            fathers: list of fathers
+            list(Node): list of fathers
         """
-        return self._fathers
+        return list(self._fathers)
+
 
     def remove_father(self, father):
         """ Remove the father node. Do nothing if the node is not a father
@@ -219,7 +224,7 @@ class Node(SourceMapping, ChildFunction):
         """ Returns the son nodes
 
         Returns:
-            sons: list of sons
+            list(Node): list of sons
         """
-        return self._sons
+        return list(self._sons)
 
