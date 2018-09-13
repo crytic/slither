@@ -1,46 +1,45 @@
 # Slither, the Solidity source analyzer
 [![Build Status](https://travis-ci.com/trailofbits/slither.svg?token=JEF97dFy1QsDCfQ2Wusd&branch=master)](https://travis-ci.com/trailofbits/slither)
 
-Slither is a Solidity static analysis framework written in Python 3. It provides an API to easily manipulate Solidity code. In addition to exposing a Solidity contracts AST, Slither provides many APIs to quickly check local and state variable usage.
+Slither is a Solidity static analysis framework written in Python 3. It provides an API to easily manipulate Solidity code, and integrates vulnerabilities detectors.
 
+# Features
 With Slither you can:
-- Detect vulnerabilities
-- Speed up your understanding of code
-- Build custom analyses to answer specific questions
-- Quickly prototype a new static analysis techniques
+- **Detect vulnerabilities**
+- **Speed up your understanding** of code
+- **Build custom analyses** to answer specific questions
+- **Quickly prototype** a new static analysis techniques
 
-## How to install
+Slither can analyze contracts written with Solidity > 0.4.
+
+Some of Slither detectors are open-source, [contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
+
+# How to install
 
 Slither uses Python 3.6.
 
+## Using Pip
 
-```bash
-$ python setup.py install
+```
+$ pip install slither-analyzer
 ```
 
-You may also want solc, the Solidity compiler, which can be installed using homebrew:
+## Using Gihtub
 
 ```bash
-$ brew update
-$ brew upgrade
-$ brew tap ethereum/ethereum
-$ brew install solidity
-$ brew linkapps solidity
+$ git clone https://github.com/trailofbits/slither.git & cd slither
+$ python setup.py install 
 ```
 
-or with aptitude:
+Slither requires [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
 
-```bash
-$ sudo add-apt-repository ppa:ethereum/ethereum
-$ sudo apt-get update
-$ sudo apt-get install solc
-```
-
-## How to use
+# How to use
 
 ``` 
 $ slither file.sol
 ``` 
+
+For example:
 
 ``` 
 $ slither examples/bugs/uninitialized.sol
@@ -62,9 +61,7 @@ Check | Purpose | Impact
 `--detect-reentrancy`| Detect if different pragma directives are used | High
 `--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational
 
-A high prioritization check is likely to be a true positive with a severe impact.
-
-### Exclude analyses
+## Exclude analyses
 * `--exclude-informational`: Exclude informational impact analyses
 * `--exclude-low`: Exclude low impact analyses
 * `--exclude-medium`: Exclude medium impact analyses
@@ -86,7 +83,11 @@ A high prioritization check is likely to be a true positive with a severe impact
 
 For more information about printers, see the [Printers documentation](docs/PRINTERS.md)
 
+## How to create analyses
 
-## License
+See the [API documentation](https://github.com/trailofbits/slither/wiki/API-examples), and the [detector documentation](https://github.com/trailofbits/slither/wiki/Adding-a-new-detector).
+
+
+# License
 
 Slither is licensed and distributed under the AGPLv3 license. [Contact us](mailto:opensource@trailofbits.com) if you're looking for an exception to the terms.
