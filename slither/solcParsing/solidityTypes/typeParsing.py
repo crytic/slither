@@ -171,13 +171,13 @@ def parse_type(t, caller_context):
         return_values_vars = []
         for p in params['children']:
             var = FunctionTypeVariableSolc(p)
-            var.set_offset(p['src'])
+            var.set_offset(p['src'], caller_context.slithev)
             var.analyze(caller_context)
             params_vars.append(var)
         for p in return_values['children']:
             var = FunctionTypeVariableSolc(p)
 
-            var.set_offset(p['src'])
+            var.set_offset(p['src'], caller_context.slither)
             var.analyze(caller_context)
             return_values_vars.append(var)
 

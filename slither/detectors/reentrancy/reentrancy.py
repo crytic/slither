@@ -93,7 +93,7 @@ class Reentrancy(AbstractDetector):
             # we save the result wth (contract, func, calls) as key
             # calls are ordered
             finding_key = (node.function.contract.name,
-                           node.function.name,
+                           node.function.full_name,
                            tuple(set(node.context[self.key])))
             finding_vars = state_vars_written
             if finding_key not in self.result:
@@ -124,19 +124,26 @@ class Reentrancy(AbstractDetector):
         results = []
 
         for (contract, func, calls), varsWritten in self.result.items():
-            varsWritten = list(set([str(x) for x in list(varsWritten)]))
+            varsWritten_str = list(set([str(x) for x in list(varsWritten)]))
             calls = list(set([str(x) for x in list(calls)]))
             info = 'Reentrancy in %s, Contract: %s, ' % (self.filename, contract) + \
                    'Func: %s, Call: %s, ' % (func, calls) + \
-                   'Vars Written:%s' % (str(varsWritten))
+                   'Vars Written:%s' % (str(varsWritten_str))
             self.log(info)
 
+            source = [v.source_mapping for v in varsWritten]
+            # The source mapping could be kept during the analysis
+            # So we sould not have to re-iterate over the contracts and functions
+            contract_instance = self.slither.get_contract_from_name(contract)
+            function_instance = contract_instance.get_function_from_signature(func)
+            source += [function_instance.source_mapping]
+
             results.append({'vuln': 'Reentrancy',
-                            # 'sourceMapping': sourceMapping,
+                            'sourceMapping': source,
                             'filename': self.filename,
                             'contract': contract,
                             'function_name': func,
                             'call': calls,
-                            'varsWritten': varsWritten})
+                            'varsWritten': varsWritten_str})
 
         return results

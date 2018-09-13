@@ -18,6 +18,10 @@ class Slither:
         self._import_directives = []
 
     @property
+    def source_units(self):
+        return self._source_units
+
+    @property
     def contracts(self):
         """list(Contract): List of contracts."""
         return list(self._contracts.values())

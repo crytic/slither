@@ -222,7 +222,7 @@ class FunctionSolc(Function):
             local_var = LocalVariableSolc(statement)
             #local_var = LocalVariableSolc(statement['children'][0], statement['children'][1::])
             local_var.set_function(self)
-            local_var.set_offset(statement['src'])
+            local_var.set_offset(statement['src'], self.contract.slither)
 
             self._variables[local_var.name] = local_var
             #local_var.analyze(self)
@@ -281,7 +281,7 @@ class FunctionSolc(Function):
         local_var = LocalVariableInitFromTupleSolc(statement, index)
         #local_var = LocalVariableSolc(statement['children'][0], statement['children'][1::])
         local_var.set_function(self)
-        local_var.set_offset(statement['src'])
+        local_var.set_offset(statement['src'], self.contract.slither)
 
         self._variables[local_var.name] = local_var
 #        local_var.analyze(self)
@@ -464,7 +464,7 @@ class FunctionSolc(Function):
             local_var = LocalVariableSolc(param)
 
             local_var.set_function(self)
-            local_var.set_offset(param['src'])
+            local_var.set_offset(param['src'], self.contract.slither)
             local_var.analyze(self)
 
             self._variables[local_var.name] = local_var
@@ -479,7 +479,7 @@ class FunctionSolc(Function):
             local_var = LocalVariableSolc(ret)
 
             local_var.set_function(self)
-            local_var.set_offset(ret['src'])
+            local_var.set_offset(ret['src'], self.contract.slither)
             local_var.analyze(self)
 
             self._variables[local_var.name] = local_var

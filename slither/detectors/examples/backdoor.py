@@ -15,12 +15,14 @@ class Backdoor(AbstractDetector):
 
         for contract in self.slither.contracts_derived:
             # Check if a function has 'backdoor' in its name
-            if any('backdoor' in f.name for f in contract.functions):
-                # Info to be printed
-                info = 'Backdoor function found in {}'.format(contract.name)
-                # Print the info
-                self.log(info)
-                # Add the result in ret
-                ret.append({'vuln': 'backdoor', 'contract': contract.name})
+            for f in contract.functions:
+                if 'backdoor' in f.name:
+                    # Info to be printed
+                    info = 'Backdoor function found in {}.{}'.format(contract.name, f.name)
+                    # Print the info
+                    self.log(info)
+                    # Add the result in ret
+                    source = f.source_mapping
+                    ret.append({'vuln': 'backdoor', 'contract': contract.name, 'sourceMapping' : source})
 
         return ret

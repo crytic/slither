@@ -23,7 +23,7 @@ class StructureSolc(Structure):
         for elem_to_parse in self._elemsNotParsed:
             elem = StructureVariableSolc(elem_to_parse)
             elem.set_structure(self)
-            elem.set_offset(elem_to_parse['src'])
+            elem.set_offset(elem_to_parse['src'], self.contract.slither)
 
             elem.analyze(self.contract)
 

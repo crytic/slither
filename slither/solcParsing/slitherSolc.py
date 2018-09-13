@@ -6,7 +6,8 @@ logger = logging.getLogger("SlitherSolcParsing")
 
 from slither.solcParsing.declarations.contractSolc04 import ContractSolc04
 from slither.core.slitherCore import Slither
-
+from slither.core.declarations.pragma_directive import Pragma
+from slither.core.declarations.import_directive import Import
 
 class SlitherSolc(Slither):
 
@@ -45,11 +46,17 @@ class SlitherSolc(Slither):
                     assert contract_data['name'] in ['ContractDefinition', 'PragmaDirective', 'ImportDirective']
                     if contract_data['name'] == 'ContractDefinition':
                         contract = ContractSolc04(self, contract_data)
+                        if 'src' in contract_data:
+                            contract.set_offset(contract_data['src'], self)
                         self._contractsNotParsed.append(contract)
                     elif contract_data['name'] == 'PragmaDirective':
-                        self._pragma_directives.append(contract_data['attributes']["literals"])
+                        pragma = Pragma(contract_data['attributes']["literals"])
+                        pragma.set_offset(contract_data['src'], self)
+                        self._pragma_directives.append(pragma)
                     elif contract_data['name'] == 'ImportDirective':
-                        self._import_directives.append(contract_data['attributes']["absolutePath"])
+                        import_directive = Import(contract_data['attributes']["absolutePath"])
+                        import_directive.set_offset(contract_data['src'], self)
+                        self._import_directives.append(import_directive)
 
             return True
         return False

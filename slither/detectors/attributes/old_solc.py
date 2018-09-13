@@ -18,15 +18,18 @@ class OldSolc(AbstractDetector):
     def detect(self):
         results = []
         pragma = self.slither.pragma_directives
-        pragma = [''.join(p[1:]) for p in pragma]
-        pragma = [p.replace('solidity', '').replace('^', '') for p in pragma]
-        pragma = list(set(pragma))
-        old_pragma = [p for p in pragma if p not in ['0.4.23', '0.4.24']]
+        versions = [p.version for p in pragma]
+        versions = [p.replace('solidity', '').replace('^', '') for p in versions]
+        versions = list(set(versions))
+        old_pragma = [p for p in versions if p not in ['0.4.23', '0.4.24']]
 
         if old_pragma:
             info = "Old version of Solidity used in {}: {}".format(self.filename, old_pragma)
             self.log(info)
 
-            results.append({'vuln': 'OldPragma', 'pragma': old_pragma})
+            source = [p.source_mapping for p in pragma]
+            results.append({'vuln': 'OldPragma',
+                            'pragma': old_pragma,
+                            'sourceMapping': source})
 
         return results
