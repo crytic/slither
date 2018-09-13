@@ -129,7 +129,7 @@ class ContractSolc04(Contract):
 
         new_enum = Enum(name, canonicalName, values)
         new_enum.set_contract(self)
-        new_enum.set_offset(enum['src'])
+        new_enum.set_offset(enum['src'], self.slither)
         self._enums[canonicalName] = new_enum
 
     def _parse_struct(self, struct):
@@ -145,7 +145,7 @@ class ContractSolc04(Contract):
             children = [] # empty struct
         st = StructureSolc(name, canonicalName, children)
         st.set_contract(self)
-        st.set_offset(struct['src'])
+        st.set_offset(struct['src'], self.slither)
         self._structures[name] = st
 
     def _analyze_struct(self, struct):
@@ -181,7 +181,7 @@ class ContractSolc04(Contract):
 
         for varNotParsed in self._variablesNotParsed:
             var = StateVariableSolc(varNotParsed)
-            var.set_offset(varNotParsed['src'])
+            var.set_offset(varNotParsed['src'], self.slither)
             var.set_contract(self)
 
             self._variables[var.name] = var
@@ -195,7 +195,7 @@ class ContractSolc04(Contract):
 
         modif = ModifierSolc(modifier)
         modif.set_contract(self)
-        modif.set_offset(modifier['src'])
+        modif.set_offset(modifier['src'], self.slither)
         self._modifiers_no_params.append(modif)
 
     def parse_modifiers(self):
@@ -209,7 +209,7 @@ class ContractSolc04(Contract):
     def _parse_function(self, function):
         func = FunctionSolc(function)
         func.set_contract(self)
-        func.set_offset(function['src'])
+        func.set_offset(function['src'], self.slither)
         self._functions_no_params.append(func)
 
     def parse_functions(self):

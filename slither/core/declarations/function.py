@@ -264,6 +264,10 @@ class Function(ChildContract, SourceMapping):
         return name+'('+','.join(parameters)+')'
 
 
+    @property
+    def slither(self):
+        return self.contract.slither
+
     def _filter_state_variables_written(self, expressions):
         ret =[]
         for expression in expressions:

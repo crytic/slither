@@ -64,8 +64,11 @@ class UninitializedStateVarsDetection(AbstractDetector):
                                                                [str(f) for f in functions])
                 self.log(info)
 
+                source = [variable.source_mapping]
+                source += [f.source_mapping for f in functions]
+
                 results.append({'vuln': 'UninitializedStateVars',
-                                'sourceMapping': c.source_mapping,
+                                'sourceMapping': source,
                                 'filename': self.filename,
                                 'contract': c.name,
                                 'functions': [str(f) for f in functions],

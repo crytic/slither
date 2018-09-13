@@ -17,13 +17,17 @@ class ConstantPragma(AbstractDetector):
     def detect(self):
         results = []
         pragma = self.slither.pragma_directives
-        pragma = [''.join(p[1:]) for p in pragma]
-        pragma = list(set(pragma))
+        versions = [p.version for p in pragma]
+        versions = list(set(versions))
 
-        if len(pragma) > 1:
-            info = "Different version of Solidity used in {}: {}".format(self.filename, pragma)
+        if len(versions) > 1:
+            info = "Different version of Solidity used in {}: {}".format(self.filename, versions)
             self.log(info)
 
-            results.append({'vuln': 'ConstantPragma', 'pragma': pragma})
+            source = [p.source_mapping for p in pragma]
+
+            results.append({'vuln': 'ConstantPragma',
+                            'versions': versions,
+                            'sourceMapping': source})
 
         return results
