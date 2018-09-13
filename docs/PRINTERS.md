@@ -3,7 +3,7 @@
 Slither allows printing contracts information through its printers.
 
 ## Quick Summary
-`slither.py file.sol --print-quick-summary`
+`slither file.sol --printer-quick-summary`
 
 Output a quick summary of the contract.
 Example:
@@ -13,7 +13,7 @@ $ slither vulns/0x01293cd77f68341635814c35299ed30ae212789e.sol --printer-quick-s
 <img src="imgs/quick-summary.png" width="300">
 
 ## Summary
-`slither.py file.sol --print-summary`
+`slither file.sol --printer-summary`
 
 Output a summary of the contract showing for each function:
 - What are the visibility and the modifiers 
@@ -49,7 +49,7 @@ Inheritances:: []
 Output a graph showing the inheritance interaction between the contracts.
 Example:
 ```
-$ slither examples/DAO.sol --print-inheritance
+$ slither examples/DAO.sol --printer-inheritance
 [...]
 INFO:PrinterInheritance:Inheritance Graph: examples/DAO.sol.dot
 ```
