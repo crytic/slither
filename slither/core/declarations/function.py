@@ -68,7 +68,7 @@ class Function(ChildContract, SourceMapping):
         """
             list(Node): List of the nodes
         """
-        return self._nodes
+        return list(self._nodes)
 
     @property
     def entry_point(self):
@@ -131,21 +131,21 @@ class Function(ChildContract, SourceMapping):
         """
             list(LocalVariable): List of the parameters
         """
-        return self._parameters
+        return list(self._parameters)
 
     @property
     def returns(self):
         """
             list(LocalVariable): List of the return variables
         """
-        return self._returns
+        return list(self._returns)
 
     @property
     def modifiers(self):
         """
             list(Modifier): List of the modifiers
         """
-        return self._modifiers
+        return list(self._modifiers)
 
     def __str__(self):
         return self._name
@@ -166,42 +166,42 @@ class Function(ChildContract, SourceMapping):
         """
             list(Variable): Variables read (local/state/solidity)
         """
-        return self._vars_read
+        return list(self._vars_read)
 
     @property
     def variables_written(self):
         """
             list(Variable): Variables written (local/state/solidity)
         """
-        return self._vars_written
+        return list(self._vars_written)
 
     @property
     def state_variables_read(self):
         """
             list(StateVariable): State variables read
         """
-        return self._state_vars_read
+        return list(self._state_vars_read)
 
     @property
     def solidity_variables_read(self):
         """
             list(SolidityVariable): Solidity variables read
         """
-        return self._solidity_vars_read
+        return list(self._solidity_vars_read)
 
     @property
     def state_variables_written(self):
         """
             list(StateVariable): State variables written
         """
-        return self._state_vars_written
+        return list(self._state_vars_written)
 
     @property
     def variables_read_or_written(self):
         """
             list(Variable): Variables read or written (local/state/solidity)
         """
-        return self._vars_read_or_written
+        return list(self._vars_read_or_written)
 
     @property
     def variables_read_as_expression(self):
@@ -216,14 +216,14 @@ class Function(ChildContract, SourceMapping):
         """
             list(Function or SolidityFunction): List of function calls (that does not create a transaction)
         """
-        return self._internal_calls
+        return list(self._internal_calls)
 
     @property
     def external_calls(self):
         """
             list(ExpressionCall): List of message calls (that creates a transaction)
         """
-        return self._external_calls
+        return list(self._external_calls)
 
     @property
     def calls_as_expression(self):
