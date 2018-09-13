@@ -25,4 +25,9 @@ if [ $? -ne 1 ]; then
     exit 1
 fi
 
+slither examples/bugs/uninitialized_storage_pointer.sol --disable-solc-warnings
+if [ $? -ne 1 ]; then
+    exit 1
+fi
+
 exit 0

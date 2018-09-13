@@ -59,6 +59,11 @@ class VariableDeclarationSolc(Variable):
     def uninitialized(self):
         return not self._initialized
 
+    def _analyze_variable_attributes(self, attributes):
+        if 'visibility' in attributes:
+            self._visibility = attributes['visibility']
+        else:
+            self._visibility = 'internal'
 
     def _init_from_declaration(self, var, init):
         assert len(var['children']) <= 2
@@ -75,10 +80,7 @@ class VariableDeclarationSolc(Variable):
         self._initial_expression = None
         self._type = None
 
-        if 'visibility' in attributes:
-            self._visibility = attributes['visibility']
-        else:
-            self._visibility = 'internal'
+        self._analyze_variable_attributes(attributes)
 
         if not var['children']:
             # It happens on variable declared inside loop declaration

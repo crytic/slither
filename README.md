@@ -56,7 +56,8 @@ By default, all the checks are run.
 
 Check | Purpose | Impact
 --- | --- | --- 
-`--detect-uninitialized`| Detect uninitialized variables | High
+`--detect-uninitialized`| Detect uninitialized state variables | High
+`--detect-uninitialized-storage`| Detect uninitialized storagevariables | High
 `--detect-pragma`| Detect if different pragma directives are used | Informational
 `--detect-reentrancy`| Detect if different pragma directives are used | High
 `--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational
