@@ -21,7 +21,7 @@ def find_call(call, contract, contracts):
     for f in contract.functions + contract.modifiers:
         if call == f.name:
             return f
-    for father in contract.inheritances:
+    for father in contract.inheritance:
         fatherContract = next((x for x in contracts if x.name == father), None)
         if fatherContract:
             for f in fatherContract.functions:

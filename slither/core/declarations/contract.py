@@ -19,7 +19,7 @@ class Contract(ChildSlither, SourceMapping):
 
         self._name = None
         self._id = None
-        self._inheritances = []
+        self._inheritance = []
 
         self._enums = {}
         self._structures = {}
@@ -52,21 +52,21 @@ class Contract(ChildSlither, SourceMapping):
         return self._id
 
     @property
-    def inheritances(self):
+    def inheritance(self):
         '''
-            list(Contract): Inheritances list. Order: the first elem is the first father to be executed
+            list(Contract): Inheritance list. Order: the first elem is the first father to be executed
         '''
-        return list(self._inheritances)
+        return list(self._inheritance)
 
     @property
-    def inheritances_reverse(self):
+    def inheritance_reverse(self):
         '''
-            list(Contract): Inheritances list. Order: the last elem is the first father to be executed
+            list(Contract): Inheritance list. Order: the last elem is the first father to be executed
         '''
-        return reversed(self._inheritances)
+        return reversed(self._inheritance)
 
-    def setInheritances(self, inheritances):
-        self._inheritances = inheritances
+    def setInheritance(self, inheritance):
+        self._inheritance = inheritance
 
     @property
     def structures(self):
@@ -290,8 +290,8 @@ class Contract(ChildSlither, SourceMapping):
         """ Return the function summary
 
         Returns:
-            (str, list, list, list, list): (name, inheritances, variables, fuction summaries, modifier summaries)
+            (str, list, list, list, list): (name, inheritance, variables, fuction summaries, modifier summaries)
         """
         func_summaries = [f.get_summary() for f in self.functions]
         modif_summaries = [f.get_summary() for f in self.modifiers]
-        return (self.name, [str(x) for x in self.inheritances], [str(x) for x in self.variables], func_summaries, modif_summaries)
+        return (self.name, [str(x) for x in self.inheritance], [str(x) for x in self.variables], func_summaries, modif_summaries)

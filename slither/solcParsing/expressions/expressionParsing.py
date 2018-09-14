@@ -316,12 +316,12 @@ def parse_expression(expression, caller_context):
         if str(member_expression) == 'super':
             super_name = parse_super_name(expression)
             if isinstance(caller_context, Contract):
-                inheritances = caller_context.inheritances
+                inheritance = caller_context.inheritance
             else:
                 assert isinstance(caller_context, Function)
-                inheritances = caller_context.contract.inheritances
+                inheritance = caller_context.contract.inheritance
             var = None
-            for father in inheritances:
+            for father in inheritance:
                 try:
                     var = find_variable(super_name, father)
                     break

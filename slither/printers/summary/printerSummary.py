@@ -27,10 +27,10 @@ class PrinterSummary(AbstractPrinter):
         """
 
         for c in self.contracts:
-            (name, inheritances, var, func_summaries, modif_summaries) = c.get_summary()
+            (name, inheritance, var, func_summaries, modif_summaries) = c.get_summary()
             txt = "\nContract %s"%name
             txt += '\nContract vars: '+str(var)
-            txt += '\nInheritances:: '+str(inheritances)
+            txt += '\nInheritance:: '+str(inheritance)
             table = PrettyTable(["Function",
                                  "Visibility",
                                  "Modifiers",

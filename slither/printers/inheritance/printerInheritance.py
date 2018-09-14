@@ -18,7 +18,7 @@ class PrinterInheritance(AbstractPrinter):
     def __init__(self, slither, logger):
         super(PrinterInheritance, self).__init__(slither, logger)
 
-        inheritance = [x.inheritances for x in slither.contracts]
+        inheritance = [x.inheritance for x in slither.contracts]
         self.inheritance = set([item for sublist in inheritance for item in sublist])
 
         shadow = ShadowingFunctionsDetection(slither, None)
@@ -60,7 +60,7 @@ class PrinterInheritance(AbstractPrinter):
         """
         ret = ''
         # Add arrows
-        for i in contract.inheritances:
+        for i in contract.inheritance:
             ret += '%s -> %s;\n' % (contract.name, i)
 
         # Functions

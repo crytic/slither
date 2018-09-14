@@ -29,9 +29,9 @@ class Slither:
     @property
     def contracts_derived(self):
         """list(Contract): List of contracts that are derived and not inherited."""
-        inheritances = (x.inheritances for x in self.contracts)
-        inheritances = [item for sublist in inheritances for item in sublist]
-        return [c for c in self._contracts.values() if c not in inheritances]
+        inheritance = (x.inheritance for x in self.contracts)
+        inheritance = [item for sublist in inheritance for item in sublist]
+        return [c for c in self._contracts.values() if c not in inheritance]
 
     def contracts_as_dict(self):
         """list(dict(str: Contract): List of contracts as dict: name -> Contract."""

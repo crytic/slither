@@ -19,7 +19,7 @@ class PrinterQuickSummary(AbstractPrinter):
 
         txt = ""
         for c in self.contracts:
-            (name, _inheritances, _var, func_summaries, _modif_summaries) = c.get_summary()
+            (name, _inheritance, _var, func_summaries, _modif_summaries) = c.get_summary()
             txt += blue("\n+ Contract %s\n"%name)
             for (f_name, visi, _, _, _, _, _) in func_summaries:
                 txt += "  - "

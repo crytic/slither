@@ -39,7 +39,7 @@ class ContractSolc04(Contract):
         # Export info
         self._name = self._data['attributes']['name']
         self._id = self._data['id']
-        self._inheritances = []
+        self._inheritance = []
 
         self._parse_contract_info()
         self._parse_contract_items()
@@ -89,7 +89,7 @@ class ContractSolc04(Contract):
         return
 
     def analyze_using_for(self):
-        for father in self.inheritances:
+        for father in self.inheritance:
             self._using_for.update(father.using_for)
 
         for using_for in self._usingForNotParsed:
@@ -106,7 +106,7 @@ class ContractSolc04(Contract):
 
     def analyze_enums(self):
 
-        for father in self.inheritances:
+        for father in self.inheritance:
             self._enums.update(father.enums_as_dict())
 
         for enum in self._enumsNotParsed:
@@ -152,7 +152,7 @@ class ContractSolc04(Contract):
         struct.analyze()
 
     def parse_structs(self):
-        for father in self.inheritances_reverse:
+        for father in self.inheritance_reverse:
             self._structures.update(father.structures_as_dict())
 
         for struct in self._structuresNotParsed:
@@ -165,7 +165,7 @@ class ContractSolc04(Contract):
 
 
     def analyze_events(self):
-        for father in self.inheritances_reverse:
+        for father in self.inheritance_reverse:
             self._events.update(father.events_as_dict())
 
         for event_to_parse in self._eventsNotParsed:
@@ -176,7 +176,7 @@ class ContractSolc04(Contract):
         self._eventsNotParsed = None
 
     def parse_state_variables(self):
-        for father in self.inheritances_reverse:
+        for father in self.inheritance_reverse:
             self._variables.update(father.variables_as_dict())
 
         for varNotParsed in self._variablesNotParsed:
@@ -223,7 +223,7 @@ class ContractSolc04(Contract):
         return
 
     def analyze_params_modifiers(self):
-        for father in self.inheritances_reverse:
+        for father in self.inheritance_reverse:
             self._modifiers.update(father.modifiers_as_dict())
 
         for modifier in self._modifiers_no_params:
@@ -234,7 +234,7 @@ class ContractSolc04(Contract):
         return
 
     def analyze_params_functions(self):
-        for father in self.inheritances_reverse:
+        for father in self.inheritance_reverse:
             functions = {k:v for (k,v) in father.functions_as_dict().items()} #if not v.is_constructor}
             self._functions.update(functions)
 

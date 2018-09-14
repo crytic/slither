@@ -56,7 +56,7 @@ By default, all the checks are run.
 
 Check | Purpose | Impact | Confidence
 --- | --- | --- | ---
-`--detect-uninitialized`| Detect uninitialized state variables | High | High
+`--detect-uninitialized-state`| Detect uninitialized state variables | High | High
 `--detect-uninitialized-storage`| Detect uninitialized storage variables | High | High
 `--detect-pragma`| Detect if different pragma directives are used | Informational | High
 `--detect-reentrancy`| Detect if different pragma directives are used | High | Medium

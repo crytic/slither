@@ -89,10 +89,10 @@ class SlitherSolc(Slither):
             self._contracts_by_id[contract.id] = contract
             self._contracts[contract.name] = contract
 
-        # Update of the inheritances 
+        # Update of the inheritance 
         for contract in self._contractsNotParsed:
             # remove the first elem in linearizedBaseContracts as it is the contract itself
-            contract.setInheritances([self._contracts_by_id[i] for i in contract.linearizedBaseContracts[1:]])
+            contract.setInheritance([self._contracts_by_id[i] for i in contract.linearizedBaseContracts[1:]])
 
         contracts_to_be_analyzed = self.contracts
 
@@ -129,9 +129,9 @@ class SlitherSolc(Slither):
             contract = contracts_to_be_analyzed[0]
 
             contracts_to_be_analyzed = contracts_to_be_analyzed[1:]
-            all_father_analyzed = all(father.is_analyzed for father in contract.inheritances)
+            all_father_analyzed = all(father.is_analyzed for father in contract.inheritance)
 
-            if not contract.inheritances or all_father_analyzed:
+            if not contract.inheritance or all_father_analyzed:
                 self._analyze_enums(contract)
             else:
                 contracts_to_be_analyzed += [contract]
@@ -149,9 +149,9 @@ class SlitherSolc(Slither):
             contract = contracts_to_be_analyzed[0]
 
             contracts_to_be_analyzed = contracts_to_be_analyzed[1:]
-            all_father_analyzed = all(father.is_analyzed for father in contract.inheritances)
+            all_father_analyzed = all(father.is_analyzed for father in contract.inheritance)
 
-            if not contract.inheritances or all_father_analyzed:
+            if not contract.inheritance or all_father_analyzed:
                 self._parse_struct_var_modifiers_functions(contract)
 
             else:
@@ -170,9 +170,9 @@ class SlitherSolc(Slither):
             contract = contracts_to_be_analyzed[0]
 
             contracts_to_be_analyzed = contracts_to_be_analyzed[1:]
-            all_father_analyzed = all(father.is_analyzed for father in contract.inheritances)
+            all_father_analyzed = all(father.is_analyzed for father in contract.inheritance)
 
-            if not contract.inheritances or all_father_analyzed:
+            if not contract.inheritance or all_father_analyzed:
                 self._analyze_struct_events(contract)
 
             else:
@@ -191,9 +191,9 @@ class SlitherSolc(Slither):
             contract = contracts_to_be_analyzed[0]
 
             contracts_to_be_analyzed = contracts_to_be_analyzed[1:]
-            all_father_analyzed = all(father.is_analyzed for father in contract.inheritances)
+            all_father_analyzed = all(father.is_analyzed for father in contract.inheritance)
 
-            if not contract.inheritances or all_father_analyzed:
+            if not contract.inheritance or all_father_analyzed:
                 self._analyze_variables_modifiers_functions(contract)
 
             else:

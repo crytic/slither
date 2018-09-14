@@ -19,7 +19,7 @@ class UninitializedStateVarsDetection(AbstractDetector):
     Constant function detector
     """
 
-    ARGUMENT = 'uninitialized'
+    ARGUMENT = 'uninitialized-state'
     HELP = 'Uninitialized state variables'
     CLASSIFICATION = DetectorClassification.HIGH
 
