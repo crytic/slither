@@ -71,13 +71,15 @@ def main():
     from slither.detectors.attributes.old_solc import OldSolc
     from slither.detectors.reentrancy.reentrancy import Reentrancy
     from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
+    from slither.detectors.statements.tx_origin import TxOrigin
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
                  ConstantPragma,
                  OldSolc,
                  Reentrancy,
-                 UninitializedStorageVars]
+                 UninitializedStorageVars,
+                 TxOrigin]
 
     from slither.printers.summary.summary import PrinterSummary
     from slither.printers.summary.quick_summary import PrinterQuickSummary
