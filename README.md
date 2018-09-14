@@ -61,6 +61,7 @@ Check | Purpose | Impact | Confidence
 `--detect-pragma`| Detect if different pragma directives are used | Informational | High
 `--detect-reentrancy`| Detect if different pragma directives are used | High | Medium
 `--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational | High
+`--detect-tx-origin`| Detect dangerous usage of `tx.origin` | Medium | Medium
 
 ## Exclude analyses
 * `--exclude-informational`: Exclude informational impact analyses
