@@ -3,7 +3,18 @@
 
 SOLIDITY_VARIABLES = ["block", "msg", "now", "tx", "this", "super", 'abi']
 
-SOLIDITY_VARIABLES_COMPOSED = ["block.coinbase", "block.difficulty", "block.gaslimit", "block.number", "block.timestamp", "msg.data", "msg.gas", "msg.sender", "msg.sig", "msg.value", "tx.gasprice", "tx.origin"]
+SOLIDITY_VARIABLES_COMPOSED = ["block.coinbase",
+                               "block.difficulty",
+                               "block.gaslimit",
+                               "block.number",
+                               "block.timestamp",
+                               "msg.data",
+                               "msg.gas",
+                               "msg.sender",
+                               "msg.sig",
+                               "msg.value",
+                               "tx.gasprice",
+                               "tx.origin"]
 
 
 SOLIDITY_FUNCTIONS = {"gasleft()":['uint256'],
