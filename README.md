@@ -82,7 +82,7 @@ Check | Purpose | Impact | Confidence
 * `--printer-inheritance`: Print the inheritance graph
 * `--printer-vars-and-auth`: Print the variables written and the check on `msg.sender` of each function.
 
-For more information about printers, see the [Printers documentation](docs/PRINTERS.md)
+For more information about printers, see the [Printers documentation](https://github.com/trailofbits/slither/wiki/Printer-documentation)
 
 ## How to create analyses
 
