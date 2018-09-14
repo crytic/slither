@@ -3,18 +3,81 @@
 """
 import logging
 
-from slither.core.sourceMapping.sourceMapping import SourceMapping
-from slither.core.cfg.nodeType import NodeType
+from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
 
-from slither.visitors.expression.expressionPrinter import ExpressionPrinter
-from slither.visitors.expression.readVar import ReadVar
-from slither.visitors.expression.writeVar import WriteVar
+from slither.visitors.expression.expression_printer import ExpressionPrinter
+from slither.visitors.expression.read_var import ReadVar
+from slither.visitors.expression.write_var import WriteVar
 
-from slither.core.children.childFunction import ChildFunction
+from slither.core.children.child_function import ChildFunction
 
-from slither.core.declarations.solidityVariables import SolidityFunction
+from slither.core.declarations.solidity_variables import SolidityFunction
 logger = logging.getLogger("Node")
+
+class NodeType:
+
+    ENTRYPOINT = 0x0  # no expression
+
+    # Node with expression
+
+    EXPRESSION = 0x10  # normal case
+    RETURN = 0x11      # RETURN may contain an expression
+    IF = 0x12
+    VARIABLE = 0x13    # Declaration of variable
+    ASSEMBLY = 0x14
+    IFLOOP = 0x15
+
+    # Below the nodes have no expression
+    # But are used to expression CFG structure
+
+    # Absorbing node
+    THROW = 0x20
+
+    # Loop related nodes
+    BREAK = 0x31
+    CONTINUE = 0x32
+
+    # Only modifier node
+    PLACEHOLDER = 0x40
+
+    # Merging nodes
+    # Unclear if they will be necessary
+    ENDIF = 0x50
+    STARTLOOP = 0x51
+    ENDLOOP = 0x52
+
+    @staticmethod
+    def str(t):
+        if t == 0x0:
+            return 'EntryPoint'
+        if t == 0x10:
+            return 'Expressions'
+        if t == 0x11:
+            return 'Return'
+        if t == 0x12:
+            return 'If'
+        if t == 0x13:
+            return 'New variable'
+        if t == 0x14:
+            return 'Inline Assembly'
+        if t == 0x15:
+            return 'IfLoop'
+        if t == 0x20:
+            return 'Throw'
+        if t == 0x31:
+            return 'Break'
+        if t == 0x32:
+            return 'Continue'
+        if t == 0x40:
+            return '_'
+        if t == 0x50:
+            return 'EndIf'
+        if t == 0x51:
+            return 'BeginLoop'
+        if t == 0x52:
+            return 'EndLoop'
+        return 'Unknown type {}'.format(hex(t))
 
 def link_nodes(n1, n2):
     n1.add_son(n2)

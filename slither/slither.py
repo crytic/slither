@@ -5,7 +5,7 @@ import sys
 
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.printers.abstract_printer import AbstractPrinter
-from .solcParsing.slitherSolc import SlitherSolc
+from .solc_parsing.slitherSolc import SlitherSolc
 from .utils.colors import red
 
 logger = logging.getLogger("Slither")

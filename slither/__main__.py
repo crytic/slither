@@ -79,9 +79,9 @@ def main():
                  Reentrancy,
                  UninitializedStorageVars]
 
-    from slither.printers.summary.printerSummary import PrinterSummary
-    from slither.printers.summary.printerQuickSummary import PrinterQuickSummary
-    from slither.printers.inheritance.printerInheritance import PrinterInheritance
+    from slither.printers.summary.summary import PrinterSummary
+    from slither.printers.summary.quick_summary import PrinterQuickSummary
+    from slither.printers.inheritance.inheritance import PrinterInheritance
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
 
     printers = [PrinterSummary, PrinterQuickSummary, PrinterInheritance, PrinterWrittenVariablesAndAuthorization]

@@ -3,16 +3,16 @@
 """
 import logging
 from itertools import groupby
-from slither.core.sourceMapping.sourceMapping import SourceMapping
-from slither.core.children.childContract import ChildContract
+from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.children.child_contract import ChildContract
 
-from slither.core.variables.stateVariable import StateVariable
+from slither.core.variables.state_variable import StateVariable
 from slither.core.expressions.identifier import Identifier
-from slither.core.expressions.unaryOperation import UnaryOperation
-from slither.core.expressions.memberAccess import MemberAccess
-from slither.core.expressions.indexAccess import IndexAccess
+from slither.core.expressions.unary_operation import UnaryOperation
+from slither.core.expressions.member_access import MemberAccess
+from slither.core.expressions.index_access import IndexAccess
 
-from slither.core.declarations.solidityVariables import SolidityVariable, SolidityFunction
+from slither.core.declarations.solidity_variables import SolidityVariable, SolidityFunction
 
 logger = logging.getLogger("Function")
 

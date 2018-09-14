@@ -1,33 +1,51 @@
 #!/usr/bin/env bash
 
-slither examples/bugs/uninitialized.sol --disable-solc-warnings
+### Test Detectors
+
+slither tests/uninitialized.sol --disable-solc-warnings
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither examples/bugs/backdoor.sol --disable-solc-warnings
+slither tests/backdoor.sol --disable-solc-warnings
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither examples/bugs/pragma.0.4.24.sol --disable-solc-warnings
+slither tests/pragma.0.4.24.sol --disable-solc-warnings
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither examples/bugs/old_solc.sol.json --solc-ast
+slither tests/old_solc.sol.json --solc-ast
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither examples/bugs/reentrancy.sol --disable-solc-warnings
+slither tests/reentrancy.sol --disable-solc-warnings
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither examples/bugs/uninitialized_storage_pointer.sol --disable-solc-warnings
+slither tests/uninitialized_storage_pointer.sol --disable-solc-warnings
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
+### Test scripts
+
+python examples/scripts/functions_called.py examples/scripts/functions_called.sol
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+python examples/scripts/functions_writing.py examples/scripts/functions_writing.sol
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+python examples/scripts/variable_in_condition.py examples/scripts/variable_in_condition.sol
+if [ $? -ne 0 ]; then
+    exit 1
+fi
 exit 0

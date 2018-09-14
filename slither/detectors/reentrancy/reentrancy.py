@@ -6,11 +6,11 @@
 """
 
 from slither.core.declarations.function import Function
-from slither.core.declarations.solidityVariables import SolidityFunction
-from slither.core.expressions.unaryOperation import UnaryOperation, UnaryOperationType
+from slither.core.declarations.solidity_variables import SolidityFunction
+from slither.core.expressions.unary_operation import UnaryOperation, UnaryOperationType
 from slither.core.cfg.node import NodeType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.visitors.expression.exportValues import ExportValues
+from slither.visitors.expression.export_values import ExportValues
 
 
 class Reentrancy(AbstractDetector):
