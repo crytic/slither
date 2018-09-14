@@ -11,7 +11,7 @@
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
-from slither.visitors.expression.findPush import FindPush
+from slither.visitors.expression.find_push import FindPush
 
 
 class UninitializedStateVarsDetection(AbstractDetector):

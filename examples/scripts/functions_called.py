@@ -1,7 +1,12 @@
+import sys
 from slither.slither import Slither
 
+if len(sys.argv) != 2:
+    print('python.py function_called.py functions_called.sol')
+    exit(-1)
+
 # Init slither
-slither = Slither('functions_called.sol')
+slither = Slither(sys.argv[1])
 
 # Get the contract
 contract = slither.get_contract_from_name('Contract')
@@ -9,7 +14,7 @@ contract = slither.get_contract_from_name('Contract')
 # Get the variable
 entry_point = contract.get_function_from_signature('entry_point()')
 
-all_calls = entry_point.all_calls()
+all_calls = entry_point.all_internal_calls()
 
 all_calls_formated = [f.contract.name + '.' + f.name for f in all_calls]
 

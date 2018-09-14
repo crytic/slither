@@ -1,7 +1,12 @@
+import sys
 from slither.slither import Slither
 
+if len(sys.argv) != 2:
+    print('python.py variable_in_condition.py variable_in_condition.sol')
+    exit(-1)
+
 # Init slither
-slither = Slither('variable_in_condition.sol')
+slither = Slither(sys.argv[1])
 
 # Get the contract
 contract = slither.get_contract_from_name('Contract')

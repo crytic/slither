@@ -2,8 +2,8 @@
     Contract module
 """
 import logging
-from slither.core.children.childSlither import ChildSlither
-from slither.core.sourceMapping.sourceMapping import SourceMapping
+from slither.core.children.child_slither import ChildSlither
+from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.declarations.function import Function
 
 logger = logging.getLogger("Contract")

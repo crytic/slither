@@ -1,4 +1,4 @@
-from slither.core.sourceMapping.sourceMapping import SourceMapping
+from slither.core.source_mapping.source_mapping import SourceMapping
 
 class Import(SourceMapping):
 
