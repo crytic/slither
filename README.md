@@ -5,10 +5,10 @@ Slither is a Solidity static analysis framework written in Python 3. It provides
 
 # Features
 With Slither you can:
-- **Detect vulnerabilities**
-- **Speed up your understanding** of code
-- **Build custom analyses** to answer specific questions
-- **Quickly prototype** a new static analysis techniques
+- **Detect vulnerabilities**.
+- **Speed up your understanding** of code.
+- **Build custom analyses** to answer specific questions.
+- **Quickly prototype** a new static analysis techniques.
 
 Slither can analyze contracts written with Solidity > 0.4.
 
@@ -64,23 +64,23 @@ Check | Purpose | Impact | Confidence
 `--detect-tx-origin`| Detect dangerous usage of `tx.origin` | Medium | Medium
 
 ## Exclude analyses
-* `--exclude-informational`: Exclude informational impact analyses
-* `--exclude-low`: Exclude low impact analyses
-* `--exclude-medium`: Exclude medium impact analyses
-* `--exclude-high`: Exclude high impact analyses
-* `--exclude-name` will exclude the detector `name`
+* `--exclude-informational`: Exclude informational impact analyses.
+* `--exclude-low`: Exclude low impact analyses.
+* `--exclude-medium`: Exclude medium impact analyses.
+* `--exclude-high`: Exclude high impact analyses.
+* `--exclude-name` will exclude the detector `name`.
 
 ##  Configuration
-* `--solc SOLC`: Path to `solc` (default 'solc')
+* `--solc SOLC`: Path to `solc` (default 'solc').
 * `--solc-args SOLC_ARGS`: Add custom solc arguments. `SOLC_ARGS` can contain multiple arguments.
-* `--disable-solc-warnings`: Do not print solc warnings
-* `--solc-ast`: Use the solc AST file as input (`solc file.sol --ast-json > file.ast.json`)
-* `--json FILE`: Export results as JSON
+* `--disable-solc-warnings`: Do not print solc warnings.
+* `--solc-ast`: Use the solc AST file as input (`solc file.sol --ast-json > file.ast.json`).
+* `--json FILE`: Export results as JSON.
 
 ## Printers
-* `--printer-summary`: Print a summary of the contracts
-* `--printer-quick-summary`: Print a quick summary of the contracts
-* `--printer-inheritance`: Print the inheritance graph
+* `--printer-summary`: Print a summary of the contracts.
+* `--printer-quick-summary`: Print a quick summary of the contracts.
+* `--printer-inheritance`: Print the inheritance graph.
 * `--printer-vars-and-auth`: Print the variables written and the check on `msg.sender` of each function.
 
 For more information about printers, see the [Printers documentation](https://github.com/trailofbits/slither/wiki/Printer-documentation)
