@@ -42,9 +42,9 @@ $ slither file.sol
 For example:
 
 ``` 
-$ slither examples/bugs/uninitialized.sol
+$ slither tests/uninitialized.sol
 [..]
-INFO:Detectors:Uninitialized state variables in examples/bugs/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
+INFO:Detectors:Uninitialized state variables in tests/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
 [..]
 ``` 
 
