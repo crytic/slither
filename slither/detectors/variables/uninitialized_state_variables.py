@@ -58,8 +58,8 @@ class UninitializedStateVarsDetection(AbstractDetector):
         for c in self.slither.contracts_derived:
             ret = self.detect_uninitialized(c)
             for variable, functions in ret:
-                info = "Uninitialized state variables in %s, " % self.filename + \
-                       "Contract: %s, Vars: %s, Used in %s" % (c.name,
+                info = "Uninitialized state variable in %s, " % self.filename + \
+                       "Contract: %s, Variable: %s, Used in %s" % (c.name,
                                                                str(variable),
                                                                [str(f) for f in functions])
                 self.log(info)
