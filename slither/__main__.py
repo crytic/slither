@@ -66,7 +66,7 @@ def main():
     NOTE: This contains just a few detectors and printers that we made public.
     """
     from slither.detectors.examples.backdoor import Backdoor
-    from slither.detectors.variables.uninitializedStateVarsDetection import UninitializedStateVarsDetection
+    from slither.detectors.variables.uninitialized_state_variables import UninitializedStateVarsDetection
     from slither.detectors.attributes.constant_pragma import ConstantPragma
     from slither.detectors.attributes.old_solc import OldSolc
     from slither.detectors.reentrancy.reentrancy import Reentrancy

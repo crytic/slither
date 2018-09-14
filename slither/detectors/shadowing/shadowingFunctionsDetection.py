@@ -22,7 +22,7 @@ class ShadowingFunctionsDetection(AbstractDetector):
     def detect_shadowing(self, contract):
         functions_declared = set([x.full_name for x in contract.functions])
         ret = {}
-        for father in contract.inheritances:
+        for father in contract.inheritance:
             functions_declared_father = ([x.full_name for x in father.functions])
             inter = functions_declared.intersection(functions_declared_father)
             if inter:
