@@ -17,13 +17,13 @@ Some of Slither detectors are open-source, [contact us](https://www.trailofbits.
 # How to install
 
 Slither uses Python 3.6.
-
+<!--- 
 ## Using Pip
 
 ```
 $ pip install slither-analyzer
 ```
-
+-->
 ## Using Gihtub
 
 ```bash
@@ -58,10 +58,10 @@ Check | Purpose | Impact | Confidence
 --- | --- | --- | ---
 `--detect-uninitialized-state`| Detect uninitialized state variables | High | High
 `--detect-uninitialized-storage`| Detect uninitialized storage variables | High | High
-`--detect-pragma`| Detect if different pragma directives are used | Informational | High
 `--detect-reentrancy`| Detect if different pragma directives are used | High | Medium
-`--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational | High
 `--detect-tx-origin`| Detect dangerous usage of `tx.origin` | Medium | Medium
+`--detect-pragma`| Detect if different pragma directives are used | Informational | High
+`--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational | High
 
 ## Exclude analyses
 * `--exclude-informational`: Exclude informational impact analyses.
