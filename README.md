@@ -23,8 +23,9 @@ Slither uses Python 3.6.
 ```
 $ pip install slither-analyzer
 ```
+
+or
 -->
-## Using Github
 
 ```bash
 $ git clone https://github.com/trailofbits/slither.git & cd slither
