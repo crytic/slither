@@ -2,17 +2,20 @@
 [![Build Status](https://travis-ci.com/trailofbits/slither.svg?token=JEF97dFy1QsDCfQ2Wusd&branch=master)](https://travis-ci.com/trailofbits/slither)
 [![Slack Status](https://empireslacking.herokuapp.com/badge.svg)](https://empireslacking.herokuapp.com)
 
-Slither is a Solidity static analysis framework written in Python 3. It runs a suite of vulnerability detectors, prints visual information about contract details, and provides an API to easily write custom analyses.
+Slither is a Solidity static analysis framework written in Python 3. It runs a suite of vulnerability detectors, prints visual information about contract details, and provides an API to easily write custom analyses. Slither enables developers to find vulnerabilities, enhance their code comphrehension, and quickly prototype custom analyses.
 
 ## Features
 
-With Slither you can:
-- **Detect vulnerabilities**.
-- **Speed up your understanding** of code.
-- **Build custom analyses** to answer specific questions.
-- **Quickly prototype** a new static analysis techniques.
+* Detects vulnerable Solidity code with low false positives
+  * Detection of most major smart contract vulnerabilities
+  * Detection of poor coding practices
+* Reports exact line number in source code where the error condition occurs
+* Easy integration into continuous integration pipelines
+* Four built-in 'printers' quickly report crucial contract information
+* Detector API to write custom analyses in Python
+* Ability to analyze contracts written with Solidity > 0.4
 
-Slither can analyze contracts written with Solidity > 0.4.
+Support for advanced value- and taint-tracking is [coming soon](https://github.com/trailofbits/slither/issues/6)!
 
 ## Usage
 
