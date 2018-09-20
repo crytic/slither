@@ -27,19 +27,19 @@ If Slither is run on a directory, it will run on every `.sol` file of the direct
 
 ###  Configuration
 
-* `--solc SOLC`: Path to `solc` (default 'solc').
-* `--solc-args SOLC_ARGS`: Add custom solc arguments. `SOLC_ARGS` can contain multiple arguments.
-* `--disable-solc-warnings`: Do not print solc warnings.
-* `--solc-ast`: Use the solc AST file as input (`solc file.sol --ast-json > file.ast.json`).
-* `--json FILE`: Export results as JSON.
-* `--exclude-name` will exclude the detector `name`.
+* `--solc SOLC`: Path to `solc` (default 'solc')
+* `--solc-args SOLC_ARGS`: Add custom solc arguments. `SOLC_ARGS` can contain multiple arguments
+* `--disable-solc-warnings`: Do not print solc warnings
+* `--solc-ast`: Use the solc AST file as input (`solc file.sol --ast-json > file.ast.json`)
+* `--json FILE`: Export results as JSON
+* `--exclude-name`: Excludes the detector `name` from analysis
 
 ### Printers
 
-* `--printer-summary`: Print a summary of the contracts.
-* `--printer-quick-summary`: Print a quick summary of the contracts.
-* `--printer-inheritance`: Print the inheritance graph.
-* `--printer-vars-and-auth`: Print the variables written and the check on `msg.sender` of each function.
+* `--printer-summary`: Print a summary of the contracts
+* `--printer-quick-summary`: Print a quick summary of the contracts
+* `--printer-inheritance`: Print the inheritance graph
+* `--printer-vars-and-auth`: Print the variables written and the check on `msg.sender` of each function
 
 ## Checks available
 
