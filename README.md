@@ -24,7 +24,7 @@ Slither uses Python 3.6.
 $ pip install slither-analyzer
 ```
 -->
-## Using Gihtub
+## Using Github
 
 ```bash
 $ git clone https://github.com/trailofbits/slither.git & cd slither
@@ -63,19 +63,13 @@ Check | Purpose | Impact | Confidence
 `--detect-pragma`| Detect if different pragma directives are used | Informational | High
 `--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational | High
 
-## Exclude analyses
-* `--exclude-informational`: Exclude informational impact analyses.
-* `--exclude-low`: Exclude low impact analyses.
-* `--exclude-medium`: Exclude medium impact analyses.
-* `--exclude-high`: Exclude high impact analyses.
-* `--exclude-name` will exclude the detector `name`.
-
 ##  Configuration
 * `--solc SOLC`: Path to `solc` (default 'solc').
 * `--solc-args SOLC_ARGS`: Add custom solc arguments. `SOLC_ARGS` can contain multiple arguments.
 * `--disable-solc-warnings`: Do not print solc warnings.
 * `--solc-ast`: Use the solc AST file as input (`solc file.sol --ast-json > file.ast.json`).
 * `--json FILE`: Export results as JSON.
+* `--exclude-name` will exclude the detector `name`.
 
 ## Printers
 * `--printer-summary`: Print a summary of the contracts.
@@ -83,7 +77,7 @@ Check | Purpose | Impact | Confidence
 * `--printer-inheritance`: Print the inheritance graph.
 * `--printer-vars-and-auth`: Print the variables written and the check on `msg.sender` of each function.
 
-For more information about printers, see the [Printers documentation](https://github.com/trailofbits/slither/wiki/Printer-documentation)
+For more information about printers, see the [Printers documentation](https://github.com/trailofbits/slither/wiki/Printer-documentation).
 
 ## How to create analyses
 
