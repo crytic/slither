@@ -76,7 +76,7 @@ $ python setup.py install
 
 ## Getting Help
 
-Feel free to stop by our [Slack channel](https://empirehacking.slack.com/messages/C7KKY517H/) for help on using or extending Slither.
+Feel free to stop by our [Slack channel](https://empirehacking.slack.com/messages/C7KKY517H/) for help using or extending Slither.
 
 * The [Printer documentation](https://github.com/trailofbits/slither/wiki/Printer-documentation) describes the information Slither is capable of visualizing for each contract.
 
