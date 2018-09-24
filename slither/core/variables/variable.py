@@ -24,6 +24,14 @@ class Variable(SourceMapping):
     def expression(self):
         """
             Expression: Expression of the node (if initialized)
+            Initial expression may be different than the expression of the node
+            where the variable is declared, if its used ternary operator
+            Ex: uint a = b?1:2
+            The expression associated to a is uint a = b?1:2
+            But two nodes are created,
+            one where uint a = 1,
+            and one where uint a = 2
+
         """
         return self._initial_expression
 

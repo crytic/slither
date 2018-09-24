@@ -24,7 +24,7 @@ class NodeSolc(Node):
         self._unparsed_expression = expression
 
     def analyze_expressions(self, caller_context):
-        if self.type == NodeType.VARIABLE:
+        if self.type == NodeType.VARIABLE and not self._expression:
             self._expression = self.variable_declaration.expression
         if self._unparsed_expression:
             expression = parse_expression(self._unparsed_expression, caller_context)

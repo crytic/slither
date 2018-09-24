@@ -14,6 +14,11 @@ from slither.solc_parsing.variables.variable_declaration import MultipleVariable
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 
 from slither.visitors.expression.export_values import ExportValues
+from slither.visitors.expression.has_conditional import HasConditional
+
+from slither.utils.expression_manipulations import SplitTernaryExpression
+
+
 logger = logging.getLogger("FunctionSolc")
 
 class FunctionSolc(Function):
@@ -28,6 +33,7 @@ class FunctionSolc(Function):
         self._functionNotParsed = function
         self._params_was_analyzed = False
         self._content_was_analyzed = False
+        self._counter_nodes = 0
 
     def _analyze_attributes(self):
         attributes = self._functionNotParsed['attributes']
@@ -63,8 +69,9 @@ class FunctionSolc(Function):
         if 'payable' in attributes:
             self._payable = attributes['payable']
 
-    def _new_node(self, expression):
-        node = NodeSolc(expression, len(self.nodes))
+    def _new_node(self, node_type):
+        node = NodeSolc(node_type, self._counter_nodes)
+        self._counter_nodes += 1
         node.set_function(self)
         self._nodes.append(node)
         return node
@@ -455,6 +462,7 @@ class FunctionSolc(Function):
             if node.type in [NodeType.CONTINUE]:
                 self._fix_continue_node(node)
 
+
     def _parse_params(self, params):
 
         assert params['name'] == 'ParameterList'
@@ -543,5 +551,60 @@ class FunctionSolc(Function):
         for node in self.nodes:
             node.analyze_expressions(self)
 
+        ternary_found = True
+        while ternary_found:
+            ternary_found = False
+            for node in self.nodes:
+                has_cond = HasConditional(node.expression)
+                if has_cond.result():
+                    print('Expression to split {}'.format(node.expression))
+                    st = SplitTernaryExpression(node.expression)
+                    condition = st.condition
+                    assert condition
+                    true_expr = st.true_expression
+                    false_expr = st.false_expression
+                    print('\tCondition {}'.format(condition))
+                    print('\ttrue {}'.format(true_expr))
+                    print('\tfalse {}'.format(false_expr))
+                    self.split_ternary_node(node, condition, true_expr, false_expr)
+                    ternary_found = True
+                    break
+
         self._analyze_read_write()
         self._analyze_calls()
+ 
+
+    def split_ternary_node(self, node, condition, true_expr, false_expr):
+        condition_node = self._new_node(NodeType.IF)
+        condition_node.add_expression(condition)
+        condition_node.analyze_expressions(self)
+
+        true_node = self._new_node(node.type)
+        true_node.add_expression(true_expr)
+        true_node.analyze_expressions(self)
+
+        false_node = self._new_node(node.type)
+        false_node.add_expression(false_expr)
+        false_node.analyze_expressions(self)
+
+        endif_node = self._new_node(NodeType.ENDIF)
+
+        for father in node.fathers:
+            father.remove_son(node)
+            father.add_son(condition_node)
+            condition_node.add_father(father)
+
+        for son in node.sons:
+            son.remove_father(node)
+            son.add_father(endif_node)
+            endif_node.add_son(son)
+
+        link_nodes(condition_node, true_node)
+        link_nodes(condition_node, false_node)
+
+        link_nodes(true_node, endif_node)
+        link_nodes(false_node, endif_node)
+
+        self._nodes = [n for n in self._nodes if n.node_id != node.node_id]
+
+

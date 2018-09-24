@@ -22,8 +22,8 @@ class ExpressionVisitor:
 
     def __init__(self, expression):
         self._expression = expression
-        self._visit_expression(self.expression)
         self._result = None
+        self._visit_expression(self.expression)
 
     def result(self):
         return self._result

@@ -29,6 +29,7 @@ from slither.core.declarations.solidity_variables import SolidityVariable, Solid
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.function_type import FunctionType
 
+
 logger = logging.getLogger("ExpressionParsing")
 
 class VariableNotFound(Exception): pass
@@ -260,6 +261,7 @@ def parse_expression(expression, caller_context):
         then_expression = parse_expression(children[1], caller_context)
         else_expression = parse_expression(children[2], caller_context)
         conditional = ConditionalExpression(if_expression, then_expression, else_expression)
+        #print(conditional)
         return conditional
 
     elif name == 'Assignment':

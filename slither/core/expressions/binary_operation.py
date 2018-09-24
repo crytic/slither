@@ -123,7 +123,7 @@ class BinaryOperation(ExpressionTyped):
         self._type = expression_type
 
     @property
-    def get_expression(self):
+    def expressions(self):
         return self._expressions
 
     @property
