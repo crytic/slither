@@ -287,7 +287,6 @@ def convert_expression(expression):
     # handle standlone expression
     # such as return true;
     if isinstance(expression, Literal):
-        print(expression.value)
         return [Constant(expression.value)]
     visitor = ExpressionToSlithIR(expression)
     result = visitor.result()

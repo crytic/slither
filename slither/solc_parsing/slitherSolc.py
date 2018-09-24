@@ -17,7 +17,6 @@ class SlitherSolc(Slither):
         self._contractsNotParsed = []
         self._contracts_by_id = {}
         self._analyzed = False
-        print(filename)
 
     def _parse_contracts_from_json(self, json_data):
         first = json_data.find('{')
