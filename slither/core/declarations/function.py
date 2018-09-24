@@ -248,7 +248,8 @@ class Function(ChildContract, SourceMapping):
     @property
     def signature(self):
         """
-            (str, list(str), list(str)): Function signature as (name, list parameters type, list return values type)
+            (str, list(str), list(str)): Function signature as
+            (name, list parameters type, list return values type)
         """
         return self.name, [str(x.type) for x in self.parameters], [str(x.type) for x in self.returns]
 
@@ -276,7 +277,7 @@ class Function(ChildContract, SourceMapping):
         return self.contract.slither
 
     def _filter_state_variables_written(self, expressions):
-        ret =[]
+        ret = []
         for expression in expressions:
             if isinstance(expression, Identifier):
                 ret.append(expression)
@@ -357,12 +358,12 @@ class Function(ChildContract, SourceMapping):
                           groupby(sorted(external_calls, key=lambda x: str(x)), lambda x: str(x))]
         self._external_calls = external_calls
 
-    def all_state_variables_read(self):
-        """ recursive version of variables_read
-        """
-        variables = self.state_variables_read
+
+    def _explore_functions(self, f_new_values):
+        values = f_new_values(self)
         explored = [self]
-        to_explore = [c for c in self.internal_calls if isinstance(c, Function) and c not in explored]
+        to_explore = [c for c in self.internal_calls if
+                      isinstance(c, Function) and c not in explored]
         to_explore += [m for m in self.modifiers if m not in explored]
 
         while to_explore:
@@ -371,98 +372,39 @@ class Function(ChildContract, SourceMapping):
             if f in explored:
                 continue
             explored.append(f)
-            variables += f.state_variables_read
+
+            values += f_new_values(f)
+
             to_explore += [c for c in f.internal_calls if\
                            isinstance(c, Function) and c not in explored and c not in to_explore]
             to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
 
-        return list(set(variables))
+        return list(set(values))
+
+    def all_state_variables_read(self):
+        """ recursive version of variables_read
+        """
+        return self._explore_functions(lambda x: x.state_variables_read)
 
     def all_solidity_variables_read(self):
         """ recursive version of solidity_read
         """
-        variables = self.solidity_variables_read
-        explored = [self]
-        to_explore = [c for c in self.internal_calls if isinstance(c, Function) and c not in explored]
-        to_explore += [m for m in self.modifiers if m not in explored]
-
-        while to_explore:
-            f = to_explore[0]
-            to_explore = to_explore[1:]
-            if f in explored:
-                continue
-            explored.append(f)
-            variables += f.solidity_variables_read
-            to_explore += [c for c in f.internal_calls if\
-                           isinstance(c, Function) and c not in explored and c not in to_explore]
-            to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
-
-        return list(set(variables))
+        return self._explore_functions(lambda x: x.solidity_variables_read)
 
     def all_expressions(self):
         """ recursive version of variables_read
         """
-        variables = self.expressions
-        explored = [self]
-        to_explore = [c for c in self.internal_calls if isinstance(c, Function) and c not in explored]
-        to_explore += [m for m in self.modifiers if m not in explored]
-
-        while to_explore:
-            f = to_explore[0]
-            to_explore = to_explore[1:]
-            if f in explored:
-                continue
-            explored.append(f)
-            variables += f.expressions
-            to_explore += [c for c in f.internal_calls if\
-                           isinstance(c, Function) and c not in explored and c not in to_explore]
-            to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
-
-        return list(set(variables))
+        return self._explore_functions(lambda x: x.expressions)
 
     def all_state_variables_written(self):
         """ recursive version of variables_written
         """
-        variables = self.state_variables_written
-        explored = [self]
-        to_explore = [c for c in self.internal_calls if
-                      isinstance(c, Function) and c not in explored]
-        to_explore += [m for m in self.modifiers if m not in explored]
-
-        while to_explore:
-            f = to_explore[0]
-            to_explore = to_explore[1:]
-            if f in explored:
-                continue
-            explored.append(f)
-            variables += f.state_variables_written
-            to_explore += [c for c in f.internal_calls if\
-                           isinstance(c, Function) and c not in explored and c not in to_explore]
-            to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
-
-        return list(set(variables))
+        return self._explore_functions(lambda x: x.state_variables_written)
 
     def all_internal_calls(self):
         """ recursive version of internal_calls
         """
-        calls = self.internal_calls
-        explored = [self]
-        to_explore = [c for c in self.internal_calls if
-                      isinstance(c, Function) and c not in explored]
-        to_explore += [m for m in self.modifiers if m not in explored]
-
-        while to_explore:
-            f = to_explore[0]
-            to_explore = to_explore[1:]
-            if f in explored:
-                continue
-            explored.append(f)
-            calls += f.internal_calls
-            to_explore += [c for c in f.internal_calls if\
-                           isinstance(c, Function) and c not in explored and c not in to_explore]
-            to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
-
-        return list(set(calls))
+        return self._explore_functions(lambda x: x.internal_calls)
 
     def is_reading(self, variable):
         """
