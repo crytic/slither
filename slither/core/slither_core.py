@@ -2,14 +2,15 @@
     Main module
 """
 import os
+from slither.core.context.context import Context
 
-
-class Slither:
+class Slither(Context):
     """
     Slither static analyzer
     """
 
     def __init__(self):
+        super(Slither, self).__init__()
         self._contracts = {}
         self._filename = None
         self._source_units = {}

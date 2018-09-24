@@ -8,3 +8,4 @@ class LocalVariableInitFromTupleSolc(VariableDeclarationSolc, LocalVariableInitF
         super(LocalVariableInitFromTupleSolc, self).__init__(var)
         self._tuple_index = index
 
+

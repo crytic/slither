@@ -12,6 +12,7 @@ from slither.core.declarations.function import Function
 from slither.core.variables.state_variable import StateVariable
 
 from slither.core.expressions.identifier import Identifier
+from slither.core.expressions.assignment_operation import AssignmentOperation, AssignmentOperationType
 
 class NodeSolc(Node):
 
@@ -32,6 +33,15 @@ class NodeSolc(Node):
             self._unparsed_expression = None
 
         if self.expression:
+
+            if self.type == NodeType.VARIABLE:
+                # Update the expression to be an assignement to the variable
+                #print(self.variable_declaration)
+                self._expression = AssignmentOperation(Identifier(self.variable_declaration),
+                                                       self.expression,
+                                                       AssignmentOperationType.ASSIGN,
+                                                       self.variable_declaration.type)
+
             expression = self.expression
             pp = ReadVar(expression)
             self._expression_vars_read = pp.result()
@@ -56,5 +66,4 @@ class NodeSolc(Node):
             self._internal_calls = [c for c in calls if isinstance(c, (Function, SolidityFunction))]
 
             self._external_calls = [c for c in self.calls_as_expression if not isinstance(c.called, Identifier)]
-
 
