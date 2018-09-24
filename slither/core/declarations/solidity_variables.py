@@ -63,6 +63,13 @@ class SolidityVariable:
     def __str__(self):
         return self._name
 
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+
 class SolidityVariableComposed(SolidityVariable):
     def __init__(self, name):
         assert name in SOLIDITY_VARIABLES_COMPOSED
@@ -87,3 +94,9 @@ class SolidityFunction:
 
     def __str__(self):
         return self._name
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
