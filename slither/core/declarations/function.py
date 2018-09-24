@@ -512,3 +512,23 @@ class Function(ChildContract, SourceMapping):
                 [str(x) for x in self.state_variables_written],
                 [str(x) for x in self.internal_calls],
                 [str(x) for x in self.external_calls])
+
+    def is_protected(self):
+        """
+            Determine if the function is protected using a check on msg.sender
+
+        Returns
+            (bool)
+        """
+
+        from slither.core.cfg.node import NodeType
+        read_var_cond = [x.variables_read for x in self.nodes if x.type == NodeType.IF]
+        read_var_cond = [item for sublist in read_var_cond for item in sublist]
+        if 'msg.sender' in [x.name for x in read_var_cond]:
+            return True
+
+        read_var_require = [n.variables_read for n in self.nodes if n.contains_require_or_assert()]
+        read_var_require = [item for sublist in read_var_require for item in sublist]
+        if 'msg.sender' in [x.name for x in read_var_require]:
+            return True
+        return False
