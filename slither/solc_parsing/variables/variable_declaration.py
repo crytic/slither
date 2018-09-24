@@ -96,7 +96,7 @@ class VariableDeclarationSolc(Variable):
             assert len(var['children']) <= 1
             self._initialized = True
             self._initializedNotParsed = init
-        elif len(var['children']) == 1:
+        elif len(var['children']) in [0, 1]:
             self._initialized = False
             self._initializedNotParsed = []
         else:

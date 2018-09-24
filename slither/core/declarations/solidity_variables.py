@@ -8,6 +8,7 @@ SOLIDITY_VARIABLES_COMPOSED = ["block.coinbase",
                                "block.gaslimit",
                                "block.number",
                                "block.timestamp",
+                               "block.blockhash", # alias for blockhash. It's a call
                                "msg.data",
                                "msg.gas",
                                "msg.sender",
@@ -63,6 +64,12 @@ class SolidityVariable:
     def __str__(self):
         return self._name
 
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
 class SolidityVariableComposed(SolidityVariable):
     def __init__(self, name):
         assert name in SOLIDITY_VARIABLES_COMPOSED
@@ -85,5 +92,15 @@ class SolidityFunction:
     def name(self):
         return self._name
 
+    @property
+    def full_name(self):
+        return self.name
+
     def __str__(self):
         return self._name
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)

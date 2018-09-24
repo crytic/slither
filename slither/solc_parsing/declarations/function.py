@@ -3,6 +3,7 @@
 """
 import logging
 from slither.core.declarations.function import Function
+from slither.core.cfg.node import NodeType
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.core.cfg.node import NodeType
 from slither.core.cfg.node import link_nodes
@@ -240,7 +241,6 @@ class FunctionSolc(Function):
             return new_node
         except MultipleVariablesDeclaration:
             # Custom handling of var (a,b) = .. style declaration
-            # We split the variabledeclaration in multiple declarations
             count = 0
             children = statement['children']
             child = children[0]
@@ -270,18 +270,48 @@ class FunctionSolc(Function):
             else:
                 # If we have
                 # var (a, b) = f()
-                # we can split in multiple declarations, keep the init value and use LocalVariableSolc
-                # We use LocalVariableInitFromTupleSolc class 
+                # we can split in multiple declarations, without init
+                # Then we craft one expression that does not assignment
                 assert tuple_vars['name'] in ['FunctionCall', 'Conditional']
+                variables = []
                 for variable in variables_declaration:
                     src = variable['src']
                     i= i+1
                     # Create a fake statement to be consistent
                     new_statement = {'name':'VariableDefinitionStatement',
                                      'src': src,
-                                     'children':[variable, tuple_vars]}
+                                     'children':[variable]}
+                    variables.append(variable)
 
                     new_node = self._parse_variable_definition_init_tuple(new_statement, i, new_node)
+                var_identifiers = []
+                # craft of the expression doing the assignement
+                for v in variables:
+                    identifier = {
+                        'name' : 'Identifier',
+                        'src': v['src'],
+                        'attributes': {
+                                'value': v['attributes']['name'],
+                                'type': v['attributes']['type']}
+                    }
+                    var_identifiers.append(identifier)
+
+                expression = {
+                    'name' : 'Assignment',
+                    'src':statement['src'],
+                    'attributes': {'operator': '=',
+                                   'type':'tuple()'},
+                    'children':
+                    [{'name': 'TupleExpression',
+                      'src': statement['src'],
+                      'children': var_identifiers},
+                     tuple_vars]}
+                node = new_node
+                new_node = self._new_node(NodeType.EXPRESSION)
+                new_node.add_unparsed_expression(expression)
+                link_nodes(node, new_node)
+
+
             return new_node
 
     def _parse_variable_definition_init_tuple(self, statement, index, node):
@@ -396,6 +426,7 @@ class FunctionSolc(Function):
             self._is_empty = False
             self._parse_block(cfg, node)
             self._remove_incorrect_edges()
+            self._remove_alone_endif()
 
     def _find_end_loop(self, node, visited):
         if node in visited:
@@ -462,6 +493,18 @@ class FunctionSolc(Function):
             if node.type in [NodeType.CONTINUE]:
                 self._fix_continue_node(node)
 
+    def _remove_alone_endif(self):
+        """
+            Can occur on:
+            if(..){
+                return
+            }
+            else{
+                return
+            }
+
+        """
+        self._nodes = [n for n in self.nodes if n.type != NodeType.ENDIF or n.sons or n.fathers]
 
     def _parse_params(self, params):
 
@@ -557,21 +600,19 @@ class FunctionSolc(Function):
             for node in self.nodes:
                 has_cond = HasConditional(node.expression)
                 if has_cond.result():
-                    print('Expression to split {}'.format(node.expression))
                     st = SplitTernaryExpression(node.expression)
                     condition = st.condition
                     assert condition
                     true_expr = st.true_expression
                     false_expr = st.false_expression
-                    print('\tCondition {}'.format(condition))
-                    print('\ttrue {}'.format(true_expr))
-                    print('\tfalse {}'.format(false_expr))
                     self.split_ternary_node(node, condition, true_expr, false_expr)
                     ternary_found = True
                     break
 
         self._analyze_read_write()
         self._analyze_calls()
+        for node in self.nodes:
+            node.slithir_generation()
  
 
     def split_ternary_node(self, node, condition, true_expr, false_expr):
@@ -580,10 +621,14 @@ class FunctionSolc(Function):
         condition_node.analyze_expressions(self)
 
         true_node = self._new_node(node.type)
+        if node.type == NodeType.VARIABLE:
+            true_node.add_variable_declaration(node.variable_declaration)
         true_node.add_expression(true_expr)
         true_node.analyze_expressions(self)
 
         false_node = self._new_node(node.type)
+        if node.type == NodeType.VARIABLE:
+            false_node.add_variable_declaration(node.variable_declaration)
         false_node.add_expression(false_expr)
         false_node.analyze_expressions(self)
 

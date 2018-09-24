@@ -6,6 +6,7 @@ from itertools import groupby
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.children.child_contract import ChildContract
 
+
 from slither.core.variables.state_variable import StateVariable
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.unary_operation import UnaryOperation
@@ -531,6 +532,26 @@ class Function(ChildContract, SourceMapping):
             f.write('digraph{\n')
             for node in self.nodes:
                 f.write('{}[label="{}"];\n'.format(node.node_id, str(node)))
+                for son in node.sons:
+                    f.write('{}->{};\n'.format(node.node_id, son.node_id))
+
+            f.write("}\n")
+
+    def slithir_cfg_to_dot(self, filename):
+        """
+            Export the function to a dot file
+        Args:
+            filename (str)
+        """
+        from slither.core.cfg.node import NodeType
+        with open(filename, 'w') as f:
+            f.write('digraph{\n')
+            for node in self.nodes:
+                label = 'Node Type: {}\n'.format(NodeType.str(node.type))
+                if node.expression:
+                    label += '\nEXPRESSION:\n{}\n'.format(node.expression)
+                    label += '\nIRs:\n' + '\n'.join([str(ir) for ir in node.irs])
+                f.write('{}[label="{}"];\n'.format(node.node_id, label))
                 for son in node.sons:
                     f.write('{}->{};\n'.format(node.node_id, son.node_id))
 

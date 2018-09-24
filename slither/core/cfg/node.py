@@ -13,6 +13,9 @@ from slither.visitors.expression.write_var import WriteVar
 from slither.core.children.child_function import ChildFunction
 
 from slither.core.declarations.solidity_variables import SolidityFunction
+
+from slither.slithir.convert import convert_expression
+
 logger = logging.getLogger("Node")
 
 class NodeType:
@@ -47,36 +50,36 @@ class NodeType:
     STARTLOOP = 0x51
     ENDLOOP = 0x52
 
-    @staticmethod
+#    @staticmethod
     def str(t):
         if t == 0x0:
-            return 'EntryPoint'
+            return 'ENTRY_POINT'
         if t == 0x10:
-            return 'Expressions'
+            return 'EXPRESSION'
         if t == 0x11:
-            return 'Return'
+            return 'RETURN'
         if t == 0x12:
-            return 'If'
+            return 'IF'
         if t == 0x13:
-            return 'New variable'
+            return 'NEW VARIABLE'
         if t == 0x14:
-            return 'Inline Assembly'
+            return 'INLINE ASM'
         if t == 0x15:
-            return 'IfLoop'
+            return 'IF_LOOP'
         if t == 0x20:
-            return 'Throw'
+            return 'THROW'
         if t == 0x31:
-            return 'Break'
+            return 'BREAK'
         if t == 0x32:
-            return 'Continue'
+            return 'CONTINUE'
         if t == 0x40:
             return '_'
         if t == 0x50:
-            return 'EndIf'
+            return 'END_IF'
         if t == 0x51:
-            return 'BeginLoop'
+            return 'BEGIN_LOOP'
         if t == 0x52:
-            return 'EndLoop'
+            return 'END_LOOP'
         return 'Unknown type {}'.format(hex(t))
 
 def link_nodes(n1, n2):
@@ -101,6 +104,7 @@ class Node(SourceMapping, ChildFunction):
         self._vars_read = []
         self._internal_calls = []
         self._external_calls = []
+        self._irs = []
 
         self._state_vars_written = []
         self._state_vars_read = []
@@ -298,3 +302,16 @@ class Node(SourceMapping, ChildFunction):
         """
         return list(self._sons)
 
+    @property
+    def irs(self):
+        """ Returns the slithIR representation
+
+        return
+            list(slithIR.Operation)
+        """
+        return self._irs
+
+    def slithir_generation(self):
+        if self.expression:
+            expression = self.expression
+            self._irs = convert_expression(expression)
