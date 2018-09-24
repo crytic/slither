@@ -118,7 +118,6 @@ class BinaryOperation(OperationWithLValue):
 
     def __init__(self, result, left_variable, right_variable, operation_type):
         assert is_valid_rvalue(left_variable)
-#        print(right_variable)
         assert is_valid_rvalue(right_variable)
         assert is_valid_lvalue(result)
         super(BinaryOperation, self).__init__()

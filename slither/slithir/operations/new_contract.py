@@ -9,8 +9,6 @@ from slither.slithir.variables.constant import Constant
 class NewContract(Call, OperationWithLValue):
 
     def __init__(self, contract_name, lvalue):
-        print(contract_name)
-        print(type(contract_name))
         assert isinstance(contract_name, Constant)
         assert is_valid_lvalue(lvalue)
         super(NewContract, self).__init__()
