@@ -557,15 +557,11 @@ class FunctionSolc(Function):
             for node in self.nodes:
                 has_cond = HasConditional(node.expression)
                 if has_cond.result():
-                    print('Expression to split {}'.format(node.expression))
                     st = SplitTernaryExpression(node.expression)
                     condition = st.condition
                     assert condition
                     true_expr = st.true_expression
                     false_expr = st.false_expression
-                    print('\tCondition {}'.format(condition))
-                    print('\ttrue {}'.format(true_expr))
-                    print('\tfalse {}'.format(false_expr))
                     self.split_ternary_node(node, condition, true_expr, false_expr)
                     ternary_found = True
                     break
