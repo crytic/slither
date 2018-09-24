@@ -265,6 +265,13 @@ class Node(SourceMapping, ChildFunction):
         """
         self._fathers = [x for x in self._fathers if x.node_id != father.node_id]
 
+    def remove_son(self, son):
+        """ Remove the son node. Do nothing if the node is not a son
+
+        Args:
+            fathers: list of fathers to add
+        """
+        self._sons = [x for x in self._sons if x.node_id != son.node_id]
 
     def add_son(self, son):
         """ Add a son node
