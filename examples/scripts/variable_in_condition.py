@@ -15,7 +15,7 @@ contract = slither.get_contract_from_name('Contract')
 var_a = contract.get_state_variable_from_name('a')
 
 # Get the functions reading the variable
-functions_reading_a = contract.get_functions_reading_variable(var_a)
+functions_reading_a = contract.get_functions_reading_from_variable(var_a)
 
 function_using_a_as_condition = [f for f in functions_reading_a if\
                                  f.is_reading_in_conditional_node(var_a) or\

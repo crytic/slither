@@ -45,7 +45,7 @@ class UninitializedStateVarsDetection(AbstractDetector):
                                        v not in all_push and \
                                        v.type not in contract.using_for]))  # Note: does not handle using X for *
 
-        return [(v, contract.get_functions_reading_variable(v)) for v in uninitialized_vars]
+        return [(v, contract.get_functions_reading_from_variable(v)) for v in uninitialized_vars]
 
     def detect(self):
         """ Detect uninitialized state variables

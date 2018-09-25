@@ -163,13 +163,13 @@ class Contract(ChildSlither, SourceMapping):
     def __str__(self):
         return self.name
 
-    def get_functions_reading_variable(self, variable):
+    def get_functions_reading_from_variable(self, variable):
         '''
             Return the functions reading the variable
         '''
         return [f for f in self.functions if f.is_reading(variable)]
 
-    def get_functions_writing_variable(self, variable):
+    def get_functions_writing_to_variable(self, variable):
         '''
             Return the functions writting the variable
         '''
