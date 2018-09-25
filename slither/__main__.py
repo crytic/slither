@@ -40,7 +40,7 @@ def process(filename, args, detector_classes, printer_classes):
     if printer_classes:
         slither.run_printers()  # Currently printers does not return results
 
-    if detector_classes:
+    elif detector_classes:
         detector_results = slither.run_detectors()
         detector_results = [x for x in detector_results if x]  # remove empty results
         detector_results = [item for sublist in detector_results for item in sublist]  # flatten
