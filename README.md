@@ -52,7 +52,7 @@ Check | Purpose | Impact | Confidence
 --- | --- | --- | ---
 `--detect-uninitialized-state`| Detect uninitialized state variables | High | High
 `--detect-uninitialized-storage`| Detect uninitialized storage variables | High | High
-`--detect-reentrancy`| Detect if different pragma directives are used | High | Medium
+`--detect-reentrancy`| Detect reentrancy bugs | High | Medium
 `--detect-tx-origin`| Detect dangerous usage of `tx.origin` | Medium | Medium
 `--detect-pragma`| Detect if different pragma directives are used | Informational | High
 `--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational | High
