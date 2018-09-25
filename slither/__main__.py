@@ -71,6 +71,7 @@ def main():
     from slither.detectors.attributes.old_solc import OldSolc
     from slither.detectors.reentrancy.reentrancy import Reentrancy
     from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
+    from slither.detectors.variables.unused_state_variables import UnusedStateVars
     from slither.detectors.statements.tx_origin import TxOrigin
 
     detectors = [Backdoor,
@@ -79,6 +80,7 @@ def main():
                  OldSolc,
                  Reentrancy,
                  UninitializedStorageVars,
+                 UnusedStateVars,
                  TxOrigin]
 
     from slither.printers.summary.summary import PrinterSummary

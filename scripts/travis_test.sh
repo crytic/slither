@@ -37,6 +37,12 @@ if [ $? -ne 2 ]; then
     exit 1
 fi
 
+slither tests/unused_state.sol
+if [ $? -ne 1 ]; then
+    exit 1
+fi
+
+
 ### Test scripts
 
 python examples/scripts/functions_called.py examples/scripts/functions_called.sol

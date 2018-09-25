@@ -56,6 +56,7 @@ Check | Purpose | Impact | Confidence
 `--detect-tx-origin`| Detect dangerous usage of `tx.origin` | Medium | Medium
 `--detect-pragma`| Detect if different pragma directives are used | Informational | High
 `--detect-solc-version`| Detect if an old version of Solidity is used (<0.4.23) | Informational | High
+`--detect-unused-state`| Detection of unused state variables | Informational | High
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
