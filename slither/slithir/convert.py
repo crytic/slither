@@ -292,7 +292,29 @@ def extract_tmp_call(ins):
 
     raise Exception('Not extracted {} {}'.format(type(ins.called), ins))
 
-def convert_expression(expression):
+def convert_libs(result, contract):
+    using_for = contract.using_for
+    for idx in range(len(result)):
+        ir = result[idx]
+        if isinstance(ir, HighLevelCall):
+            if ir.destination.type in using_for:
+                destination = using_for[ir.destination.type]
+                print(destination)
+                # destination is a UserDefinedType
+                destination = contract.slither.get_contract_from_name(str(destination))
+                print(destination)
+                lib_call = LibraryCall(destination,
+                                       ir.function_name,
+                                       ir.nbr_arguments,
+                                       ir.lvalue,
+                                       ir.type_call)
+                lib_call.call_gas = ir.call_gas
+                lib_call.arguments = [ir.destination] + ir.arguments
+                result[idx] = lib_call
+
+    return result
+
+def convert_expression(expression, node):
     # handle standlone expression
     # such as return true;
     if isinstance(expression, Literal):
@@ -301,5 +323,7 @@ def convert_expression(expression):
     result = visitor.result()
 
     result = apply_ir_heuristics(result)
+
+    result = convert_libs(result, node.function.contract)
 
     return result

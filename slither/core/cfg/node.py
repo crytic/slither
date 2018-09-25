@@ -314,4 +314,4 @@ class Node(SourceMapping, ChildFunction):
     def slithir_generation(self):
         if self.expression:
             expression = self.expression
-            self._irs = convert_expression(expression)
+            self._irs = convert_expression(expression, self)
