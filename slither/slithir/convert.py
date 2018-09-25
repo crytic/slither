@@ -296,7 +296,7 @@ def convert_libs(result, contract):
     using_for = contract.using_for
     for idx in range(len(result)):
         ir = result[idx]
-        if isinstance(ir, HighLevelCall):
+        if isinstance(ir, HighLevelCall) and isinstance(ir.destination, Variable):
             if ir.destination.type in using_for:
                 destination = using_for[ir.destination.type]
                 print(destination)
