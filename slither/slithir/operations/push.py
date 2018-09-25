@@ -19,8 +19,9 @@ class Push(OperationWithLValue):
     def array(self):
         return self._lvalue
 
+    @property
     def value(self):
         return self._value
 
     def __str__(self):
-        return "PUSH {} in  {}".format(self.value, self.lvalue)
+        return "PUSH {} in {}".format(self.value, self.lvalue)

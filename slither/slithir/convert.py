@@ -1,42 +1,37 @@
-from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
-from slither.slithir.operations.assignment import Assignment
-from slither.slithir.operations.member import Member
-from slither.slithir.operations.lvalue import OperationWithLValue
-
-from slither.slithir.operations.binary import BinaryOperation, BinaryOperationType
-from slither.slithir.operations.high_level_call import HighLevelCall
-from slither.slithir.operations.low_level_call import LowLevelCall
-from slither.slithir.operations.solidity_call import SolidityCall
-from slither.slithir.operations.library_call import LibraryCall
-from slither.slithir.operations.new_elementary_type import NewElementaryType
-from slither.slithir.operations.new_contract import NewContract
-from slither.slithir.operations.new_structure import NewStructure
-from slither.slithir.operations.new_array import NewArray
-from slither.slithir.operations.event_call import EventCall
-from slither.slithir.operations.push import Push
-from slither.slithir.operations.push_array import PushArray
-
-from slither.slithir.tmp_operations.tmp_call import TmpCall
-from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElementaryType
-from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
-from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
-from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
-from slither.slithir.tmp_operations.argument import ArgumentType, Argument
-
-from slither.slithir.operations.call import Call
-
-from slither.slithir.variables.constant import Constant
-from slither.slithir.variables.temporary import TemporaryVariable
-from slither.slithir.variables.reference import ReferenceVariable
-from slither.slithir.variables.tuple import TupleVariable
-
-from slither.core.variables.variable import Variable
-from slither.core.declarations.solidity_variables import SolidityFunction, SolidityVariableComposed
-from slither.core.declarations.event import Event
-from slither.core.declarations.structure import Structure
 from slither.core.declarations.contract import Contract
-
+from slither.core.declarations.event import Event
+from slither.core.declarations.solidity_variables import (SolidityFunction,
+                                                          SolidityVariableComposed)
+from slither.core.declarations.structure import Structure
 from slither.core.expressions.literal import Literal
+from slither.core.variables.variable import Variable
+from slither.slithir.operations.call import Call
+from slither.slithir.operations.event_call import EventCall
+from slither.slithir.operations.high_level_call import HighLevelCall
+from slither.slithir.operations.init_array import InitArray
+from slither.slithir.operations.library_call import LibraryCall
+from slither.slithir.operations.low_level_call import LowLevelCall
+from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.operations.member import Member
+from slither.slithir.operations.new_array import NewArray
+from slither.slithir.operations.new_contract import NewContract
+from slither.slithir.operations.new_elementary_type import NewElementaryType
+from slither.slithir.operations.new_structure import NewStructure
+from slither.slithir.operations.push import Push
+from slither.slithir.operations.solidity_call import SolidityCall
+from slither.slithir.tmp_operations.argument import Argument, ArgumentType
+from slither.slithir.tmp_operations.tmp_call import TmpCall
+from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
+from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
+from slither.slithir.tmp_operations.tmp_new_elementary_type import \
+    TmpNewElementaryType
+from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
+from slither.slithir.variables.constant import Constant
+from slither.slithir.variables.reference import ReferenceVariable
+from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.variables.tuple import TupleVariable
+from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
+
 
 def is_value(ins):
     if isinstance(ins, TmpCall):
@@ -139,6 +134,7 @@ def apply_ir_heuristics(result):
     # Remove temporary
     result = remove_temporary(result)
 
+    result = replace_calls(result)
 
     reset_variable_number(result)
 
@@ -231,17 +227,30 @@ def replace_calls(result):
         replace call to push to a Push Operation
         Replace to call 'call' 'delegatecall', 'callcode' to an LowLevelCall
     '''
-    for idx in range(len(result)):
-        ins = result[idx]
-        if isinstance(ins, HighLevelCall):
-            if ins.function_name == 'push':
-                assert len(ins.arguments) == 1
-                if isinstance(ins.arguments[0], list):
-                    result[idx] = PushArray(ins.destination, ins.arguments[0])
-                else:
-                    result[idx] = Push(ins.destination, ins.arguments[0])
-            if ins.function_name in ['call', 'delegatecall', 'callcode']:
-                result[idx] = LowLevelCall(ins.destination, ins.function_name, ins.nbr_arguments, ins.lvalue, ins.type_call)
+    reset = True
+    while reset:
+        reset = False
+        for idx in range(len(result)):
+            ins = result[idx]
+            if isinstance(ins, HighLevelCall):
+                if ins.function_name == 'push':
+                    assert len(ins.arguments) == 1
+                    if isinstance(ins.arguments[0], list):
+                        val = TemporaryVariable()
+                        operation = InitArray(ins.arguments[0], val)
+                        result.insert(idx, operation)
+                        result[idx+1] = Push(ins.destination, val)
+                        reset = True
+                        break
+                    else:
+                        result[idx] = Push(ins.destination, ins.arguments[0])
+                if ins.function_name in ['call', 'delegatecall', 'callcode']:
+                    result[idx] = LowLevelCall(ins.destination,
+                                               ins.function_name,
+                                               ins.nbr_arguments,
+                                               ins.lvalue,
+                                               ins.type_call)
+    return result
 
 
 def extract_tmp_call(ins):
