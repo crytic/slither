@@ -1,18 +1,14 @@
 import sys
-from slither.slither import Slither
 
-from slither.core.declarations.solidity_variables import SolidityVariableComposed
-
+from slither.core.declarations.solidity_variables import \
+    SolidityVariableComposed
 from slither.core.variables.state_variable import StateVariable
-
-#from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slither import Slither
 from slither.slithir.operations.high_level_call import HighLevelCall
-from slither.slithir.operations.member import Member
 from slither.slithir.operations.index import Index
-from slither.slithir.operations.assignment import Assignment
-
-from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.reference import ReferenceVariable
+from slither.slithir.variables.temporary import TemporaryVariable
+
 
 def visit_node(node, visited):
     if node in visited:
