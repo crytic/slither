@@ -11,8 +11,9 @@ class ConstantPragma(AbstractDetector):
     """
 
     ARGUMENT = 'pragma'
-    HELP = 'different pragma directives'
-    CLASSIFICATION = DetectorClassification.CODE_QUALITY
+    HELP = 'if different pragma directives are used'
+    IMPACT = DetectorClassification.INFORMATIONAL
+    CONFIDENCE = DetectorClassification.HIGH
 
     def detect(self):
         results = []

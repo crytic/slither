@@ -10,8 +10,9 @@ class TxOrigin(AbstractDetector):
     """
 
     ARGUMENT = 'tx-origin'
-    HELP = 'tx.origin usage'
-    CLASSIFICATION = DetectorClassification.MEDIUM
+    HELP = 'dangerous usage of `tx.origin`'
+    IMPACT = DetectorClassification.MEDIUM
+    CONFIDENCE = DetectorClassification.MEDIUM
 
     @staticmethod
     def _contains_incorrect_tx_origin_use(node):
