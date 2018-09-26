@@ -3,17 +3,17 @@
 """
 import logging
 from itertools import groupby
-from slither.core.source_mapping.source_mapping import SourceMapping
+
 from slither.core.children.child_contract import ChildContract
-
-
-from slither.core.variables.state_variable import StateVariable
+from slither.core.declarations.solidity_variables import (SolidityFunction,
+                                                          SolidityVariable,
+                                                          SolidityVariableComposed)
 from slither.core.expressions.identifier import Identifier
-from slither.core.expressions.unary_operation import UnaryOperation
-from slither.core.expressions.member_access import MemberAccess
 from slither.core.expressions.index_access import IndexAccess
-
-from slither.core.declarations.solidity_variables import SolidityVariable, SolidityFunction
+from slither.core.expressions.member_access import MemberAccess
+from slither.core.expressions.unary_operation import UnaryOperation
+from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.variables.state_variable import StateVariable
 
 logger = logging.getLogger("Function")
 
@@ -407,6 +407,38 @@ class Function(ChildContract, SourceMapping):
         """
         return self._explore_functions(lambda x: x.internal_calls)
 
+    def all_conditional_state_variables_read(self):
+        """
+            Return the state variable used in a condition
+
+            Over approximate and also return index access
+            It won't work if the variable is assigned to a temp variable
+        """
+        def _explore_func(func):
+            ret = [n.state_variables_read for n in func.nodes if n.is_conditional()]
+            return [item for sublist in ret for item in sublist]
+        return self._explore_functions(lambda x: _explore_func(x))
+
+    def all_conditional_solidity_variables_read(self):
+        """
+            Return the Soldiity variables directly used in a condtion
+
+            Use of the IR to filter index access
+            Assumption: the solidity vars are used directly in the conditional node
+            It won't work if the variable is assigned to a temp variable
+        """
+        from slither.slithir.operations.binary import BinaryOperation as BinaryOperationIR
+        def _solidity_variable_in_node(node):
+            ret = []
+            for ir in node.irs:
+                if isinstance(ir, BinaryOperationIR):
+                    ret += ir.read
+            return [var for var in ret if isinstance(var, SolidityVariable)]
+        def _explore_func(func, f):
+            ret = [f(n) for n in func.nodes if n.is_conditional()]
+            return [item for sublist in ret for item in sublist]
+        return self._explore_functions(lambda x: _explore_func(x, _solidity_variable_in_node))
+
     def is_reading(self, variable):
         """
             Check if the function reads the variable
@@ -517,18 +549,13 @@ class Function(ChildContract, SourceMapping):
         """
             Determine if the function is protected using a check on msg.sender
 
+            Only detects if msg.sender is directly used in a condition
+            For example, it wont work for:
+                address a = msg.sender
+                require(a == owner)
         Returns
             (bool)
         """
 
-        from slither.core.cfg.node import NodeType
-        read_var_cond = [x.variables_read for x in self.nodes if x.type == NodeType.IF]
-        read_var_cond = [item for sublist in read_var_cond for item in sublist]
-        if 'msg.sender' in [x.name for x in read_var_cond]:
-            return True
-
-        read_var_require = [n.variables_read for n in self.nodes if n.contains_require_or_assert()]
-        read_var_require = [item for sublist in read_var_require for item in sublist]
-        if 'msg.sender' in [x.name for x in read_var_require]:
-            return True
-        return False
+        conditional_vars = self.all_conditional_solidity_variables_read()
+        return SolidityVariableComposed('msg.sender') in conditional_vars

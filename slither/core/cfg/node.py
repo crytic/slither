@@ -229,11 +229,20 @@ class Node(SourceMapping, ChildFunction):
 
     def contains_if(self):
         """
-            Check if the node is a conditional node
+            Check if the node is a IF node
         Returns:
             bool: True if the node is a conditional node (IF or IFLOOP)
         """
         return self.type in [NodeType.IF, NodeType.IFLOOP]
+
+    def is_conditional(self):
+        """
+            Check if the node is a conditional node
+            A conditional node is either a IF or a require/assert
+        Returns:
+            bool: True if the node is a conditional node
+        """
+        return self.contains_if() or self.contains_require_or_assert()
 
     def add_father(self, father):
         """ Add a father node

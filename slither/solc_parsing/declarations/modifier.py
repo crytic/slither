@@ -50,6 +50,8 @@ class ModifierSolc(Modifier, FunctionSolc):
 
         self._analyze_read_write()
         self._analyze_calls()
+        for node in self.nodes:
+            node.slithir_generation()
 
     def _parse_statement(self, statement, node):
         name = statement['name']
