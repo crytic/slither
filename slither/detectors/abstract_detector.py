@@ -42,25 +42,25 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         self.logger = logger
 
         if not self.HELP:
-            raise IncorrectDetectorInitialization('HELP is not initialized')
+            raise IncorrectDetectorInitialization('HELP is not initialized {}'.format(self.__class__.__name__))
 
         if not self.ARGUMENT:
-            raise IncorrectDetectorInitialization('ARGUMENT is not initialized')
+            raise IncorrectDetectorInitialization('ARGUMENT is not initialized {}'.format(self.__class__.__name__))
 
         if re.match('^[a-zA-Z0-9_-]*$', self.ARGUMENT) is None:
-            raise IncorrectDetectorInitialization('ARGUMENT has illegal character')
+            raise IncorrectDetectorInitialization('ARGUMENT has illegal character {}'.format(self.__class__.__name__))
 
         if self.IMPACT not in [DetectorClassification.LOW,
                                        DetectorClassification.MEDIUM,
                                        DetectorClassification.HIGH,
                                        DetectorClassification.INFORMATIONAL]:
-            raise IncorrectDetectorInitialization('IMPACT is not initialized')
+            raise IncorrectDetectorInitialization('IMPACT is not initialized {}'.format(self.__class__.__name__))
 
         if self.CONFIDENCE not in [DetectorClassification.LOW,
                                        DetectorClassification.MEDIUM,
                                        DetectorClassification.HIGH,
                                        DetectorClassification.INFORMATIONAL]:
-            raise IncorrectDetectorInitialization('CONFIDENCE is not initialized')
+            raise IncorrectDetectorInitialization('CONFIDENCE is not initialized {}'.format(self.__class__.__name__))
 
     def log(self, info):
         if self.logger:
