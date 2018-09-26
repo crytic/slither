@@ -4,6 +4,7 @@ from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariableComposed)
 from slither.core.declarations.structure import Structure
 from slither.core.expressions.literal import Literal
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.event_call import EventCall
@@ -18,7 +19,9 @@ from slither.slithir.operations.new_contract import NewContract
 from slither.slithir.operations.new_elementary_type import NewElementaryType
 from slither.slithir.operations.new_structure import NewStructure
 from slither.slithir.operations.push import Push
+from slither.slithir.operations.send import Send
 from slither.slithir.operations.solidity_call import SolidityCall
+from slither.slithir.operations.transfer import Transfer
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -228,6 +231,12 @@ def replace_calls(result):
         Replace to call 'call' 'delegatecall', 'callcode' to an LowLevelCall
     '''
     reset = True
+    def is_address(v):
+        if not isinstance(v, Variable):
+            return False
+        if not isinstance(v.type, ElementaryType):
+            return False
+        return v.type.type == 'address'
     while reset:
         reset = False
         for idx in range(len(result)):
@@ -244,12 +253,22 @@ def replace_calls(result):
                         break
                     else:
                         result[idx] = Push(ins.destination, ins.arguments[0])
-                if ins.function_name in ['call', 'delegatecall', 'callcode']:
-                    result[idx] = LowLevelCall(ins.destination,
-                                               ins.function_name,
-                                               ins.nbr_arguments,
-                                               ins.lvalue,
-                                               ins.type_call)
+                if is_address(ins.destination):
+                    if ins.function_name == 'transfer':
+                        assert len(ins.arguments) == 1
+                        result[idx] = Transfer(ins.destination, ins.arguments[0])
+                    elif ins.function_name == 'send':
+                        assert len(ins.arguments) == 1
+                        result[idx] = Send(ins.destination, ins.arguments[0], ins.lvalue)
+                    else:
+                        assert ins.function_name in ['call', 'delegatecall', 'callcode']
+                        result[idx] = LowLevelCall(ins.destination,
+                                                   ins.function_name,
+                                                   ins.nbr_arguments,
+                                                   ins.lvalue,
+                                                   ins.type_call)
+                        result[idx].call_gas = ins.call_gas
+                        result[idx].call_value = ins.call_value
     return result
 
 

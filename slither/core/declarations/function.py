@@ -427,15 +427,34 @@ class Function(ChildContract, SourceMapping):
             Assumption: the solidity vars are used directly in the conditional node
             It won't work if the variable is assigned to a temp variable
         """
-        from slither.slithir.operations.binary import BinaryOperation as BinaryOperationIR
+        from slither.slithir.operations.binary import BinaryOperation
         def _solidity_variable_in_node(node):
             ret = []
             for ir in node.irs:
-                if isinstance(ir, BinaryOperationIR):
+                if isinstance(ir, BinaryOperation):
                     ret += ir.read
             return [var for var in ret if isinstance(var, SolidityVariable)]
         def _explore_func(func, f):
             ret = [f(n) for n in func.nodes if n.is_conditional()]
+            return [item for sublist in ret for item in sublist]
+        return self._explore_functions(lambda x: _explore_func(x, _solidity_variable_in_node))
+
+    def all_solidity_variables_used_as_args(self):
+        """
+            Return the Soldiity variables directly used in a call
+
+            Use of the IR to filter index access
+            Used to catch check(msg.sender)
+        """
+        from slither.slithir.operations.internal_call import InternalCall
+        def _solidity_variable_in_node(node):
+            ret = []
+            for ir in node.irs:
+                if isinstance(ir, InternalCall):
+                    ret += ir.read
+            return [var for var in ret if isinstance(var, SolidityVariable)]
+        def _explore_func(func, f):
+            ret = [f(n) for n in func.nodes]
             return [item for sublist in ret for item in sublist]
         return self._explore_functions(lambda x: _explore_func(x, _solidity_variable_in_node))
 
@@ -558,4 +577,5 @@ class Function(ChildContract, SourceMapping):
         """
 
         conditional_vars = self.all_conditional_solidity_variables_read()
-        return SolidityVariableComposed('msg.sender') in conditional_vars
+        args_vars = self.all_solidity_variables_used_as_args()
+        return SolidityVariableComposed('msg.sender') in conditional_vars + args_vars

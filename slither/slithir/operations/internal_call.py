@@ -16,7 +16,7 @@ class InternalCall(Call, OperationWithLValue):
 
     @property
     def read(self):
-        return []
+        return list(self.arguments)
 
     @property
     def function(self):
