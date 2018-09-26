@@ -15,8 +15,9 @@ class UninitializedStorageVars(AbstractDetector):
     """
 
     ARGUMENT = 'uninitialized-storage'
-    HELP = 'Uninitialized storage variables'
-    CLASSIFICATION = DetectorClassification.HIGH
+    HELP = 'uninitialized storage variables'
+    IMPACT = DetectorClassification.HIGH
+    CONFIDENCE = DetectorClassification.HIGH
 
 
     # node.context[self.key] contains the uninitialized storage variables

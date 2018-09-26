@@ -8,7 +8,8 @@ class Backdoor(AbstractDetector):
 
     ARGUMENT = 'backdoor'  # slither will launch the detector with slither.py --mydetector
     HELP = 'function named backdoor (detector example)'
-    CLASSIFICATION = DetectorClassification.HIGH
+    IMPACT = DetectorClassification.HIGH
+    CONFIDENCE = DetectorClassification.HIGH
 
     def detect(self):
         ret = []
