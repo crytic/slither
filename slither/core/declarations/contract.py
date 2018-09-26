@@ -154,6 +154,10 @@ class Contract(ChildSlither, SourceMapping):
         return self._using_for
 
     def reverse_using_for(self, name):
+        '''
+            Returns:
+            (list)
+        '''
         return self._using_for[name]
 
     @property

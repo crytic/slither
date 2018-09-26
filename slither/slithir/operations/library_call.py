@@ -1,9 +1,6 @@
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.core.declarations.contract import Contract
 
-
-# TODO: use the usefor declaration
-
 class LibraryCall(HighLevelCall):
     """
         High level message call
