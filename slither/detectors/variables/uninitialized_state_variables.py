@@ -20,8 +20,9 @@ class UninitializedStateVarsDetection(AbstractDetector):
     """
 
     ARGUMENT = 'uninitialized-state'
-    HELP = 'Uninitialized state variables'
-    CLASSIFICATION = DetectorClassification.HIGH
+    HELP = 'uninitialized state variables'
+    IMPACT = DetectorClassification.HIGH
+    CONFIDENCE = DetectorClassification.HIGH
 
     def detect_uninitialized(self, contract):
         # get all the state variables read by all functions

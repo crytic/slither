@@ -9,26 +9,31 @@ class IncorrectDetectorInitialization(Exception):
 
 
 class DetectorClassification:
-    LOW = 0
+    HIGH = 0
     MEDIUM = 1
-    HIGH = 2
-    CODE_QUALITY = 3
+    LOW = 2
+    INFORMATIONAL = 3
 
 
 classification_colors = {
-    DetectorClassification.CODE_QUALITY: green,
+    DetectorClassification.INFORMATIONAL: green,
     DetectorClassification.LOW: green,
     DetectorClassification.MEDIUM: yellow,
     DetectorClassification.HIGH: red,
 }
 
+classification_txt = {
+    DetectorClassification.INFORMATIONAL: 'Informational',
+    DetectorClassification.LOW: 'Low',
+    DetectorClassification.MEDIUM: 'Medium',
+    DetectorClassification.HIGH: 'High',
+}
 
 class AbstractDetector(metaclass=abc.ABCMeta):
     ARGUMENT = ''  # run the detector with slither.py --ARGUMENT
     HELP = ''  # help information
-    CLASSIFICATION = None
-
-    HIDDEN_DETECTOR = False  # yes if the detector should not be showed
+    IMPACT = None
+    CONFIDENCE = None
 
     def __init__(self, slither, logger):
         self.slither = slither
@@ -37,19 +42,25 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         self.logger = logger
 
         if not self.HELP:
-            raise IncorrectDetectorInitialization('HELP is not initialized')
+            raise IncorrectDetectorInitialization('HELP is not initialized {}'.format(self.__class__.__name__))
 
         if not self.ARGUMENT:
-            raise IncorrectDetectorInitialization('ARGUMENT is not initialized')
+            raise IncorrectDetectorInitialization('ARGUMENT is not initialized {}'.format(self.__class__.__name__))
 
         if re.match('^[a-zA-Z0-9_-]*$', self.ARGUMENT) is None:
-            raise IncorrectDetectorInitialization('ARGUMENT has illegal character')
+            raise IncorrectDetectorInitialization('ARGUMENT has illegal character {}'.format(self.__class__.__name__))
 
-        if self.CLASSIFICATION not in [DetectorClassification.LOW,
+        if self.IMPACT not in [DetectorClassification.LOW,
                                        DetectorClassification.MEDIUM,
                                        DetectorClassification.HIGH,
-                                       DetectorClassification.CODE_QUALITY]:
-            raise IncorrectDetectorInitialization('CLASSIFICATION is not initialized')
+                                       DetectorClassification.INFORMATIONAL]:
+            raise IncorrectDetectorInitialization('IMPACT is not initialized {}'.format(self.__class__.__name__))
+
+        if self.CONFIDENCE not in [DetectorClassification.LOW,
+                                       DetectorClassification.MEDIUM,
+                                       DetectorClassification.HIGH,
+                                       DetectorClassification.INFORMATIONAL]:
+            raise IncorrectDetectorInitialization('CONFIDENCE is not initialized {}'.format(self.__class__.__name__))
 
     def log(self, info):
         if self.logger:
@@ -62,4 +73,4 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     @property
     def color(self):
-        return classification_colors[self.CLASSIFICATION]
+        return classification_colors[self.IMPACT]

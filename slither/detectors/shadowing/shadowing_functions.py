@@ -15,9 +15,8 @@ class ShadowingFunctionsDetection(AbstractDetector):
 
     ARGUMENT = 'shadowing-function'
     HELP = 'Function Shadowing'
-    CLASSIFICATION = DetectorClassification.LOW
-
-    HIDDEN_DETECTOR = True
+    IMPACT = DetectorClassification.LOW
+    CONFIDENCE = DetectorClassification.HIGH
 
     def detect_shadowing(self, contract):
         functions_declared = set([x.full_name for x in contract.functions])

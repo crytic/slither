@@ -234,10 +234,15 @@ class ContractSolc04(Contract):
         return
 
     def analyze_params_functions(self):
+        # keep track of the contracts visited
+        # to prevent an ovveride due to multiple inheritance of the same contract
+        # A is B, C, D is C, --> the second C was already seen
+        contracts_visited = []
         for father in self.inheritance_reverse:
-            functions = {k:v for (k,v) in father.functions_as_dict().items()} #if not v.is_constructor}
+            functions = {k:v for (k, v) in father.functions_as_dict().items()
+                         if not v.contract in contracts_visited}
+            contracts_visited.append(father)
             self._functions.update(functions)
-
         for function in self._functions_no_params:
             function.analyze_params()
             self._functions[function.full_name] = function

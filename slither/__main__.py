@@ -10,13 +10,37 @@ import traceback
 
 from pkg_resources import iter_entry_points
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (AbstractDetector,
+                                                 DetectorClassification,
+                                                 classification_txt)
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
+def output_to_markdown(detector_classes):
+    """
+        Pretty print of the detectors to README.md
+    """
+    detectors_list = []
+    for detector in detector_classes:
+        argument = detector.ARGUMENT
+        # dont show the backdoor example
+        if argument == 'backdoor':
+            continue
+        help_info = detector.HELP
+        impact = detector.IMPACT
+        confidence = classification_txt[detector.CONFIDENCE]
+        detectors_list.append((argument, help_info, impact, confidence))
+
+    # Sort by impact and name
+    detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[0]))
+    for (argument, help_info, impact, confidence) in detectors_list:
+        print('`--detect-{}`| Detect {} | {} | {}'.format(argument,
+                                                          help_info,
+                                                          classification_txt[impact],
+                                                          confidence))
 
 def process(filename, args, detector_classes, printer_classes):
     """
@@ -71,6 +95,7 @@ def main():
     from slither.detectors.attributes.old_solc import OldSolc
     from slither.detectors.reentrancy.reentrancy import Reentrancy
     from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
+    from slither.detectors.variables.unused_state_variables import UnusedStateVars
     from slither.detectors.statements.tx_origin import TxOrigin
 
     detectors = [Backdoor,
@@ -79,6 +104,7 @@ def main():
                  OldSolc,
                  Reentrancy,
                  UninitializedStorageVars,
+                 UnusedStateVars,
                  TxOrigin]
 
     from slither.printers.summary.summary import PrinterSummary
@@ -113,6 +139,10 @@ def main_impl(all_detector_classes, all_printer_classes):
     :param all_printer_classes: A list of all printers that can be included.
     """
     args = parse_args(all_detector_classes, all_printer_classes)
+
+    if args.markdown:
+        output_to_markdown(all_detector_classes)
+        return
 
     detector_classes = choose_detectors(args, all_detector_classes)
     printer_classes = choose_printers(args, all_printer_classes)
@@ -246,8 +276,14 @@ def parse_args(detector_classes, printer_classes):
                             dest="printers_to_run",
                             const=printer_cls.ARGUMENT)
 
+    # debugger command
     parser.add_argument('--debug',
-                        help='Debug mode',
+                        help=argparse.SUPPRESS,
+                        action="store_true",
+                        default=False)
+
+    parser.add_argument('--markdown',
+                        help=argparse.SUPPRESS,
                         action="store_true",
                         default=False)
 
@@ -263,16 +299,16 @@ def choose_detectors(args, all_detector_classes):
 
     if args.exclude_informational:
         detectors_to_run = [d for d in detectors_to_run if
-                            d.CLASSIFICATION != DetectorClassification.CODE_QUALITY]
+                            d.IMPACT != DetectorClassification.INFORMATIONAL]
     if args.exclude_low:
         detectors_to_run = [d for d in detectors_to_run if
-                            d.CLASSIFICATION != DetectorClassification.LOW]
+                            d.IMPACT != DetectorClassification.LOW]
     if args.exclude_medium:
         detectors_to_run = [d for d in detectors_to_run if
-                            d.CLASSIFICATION != DetectorClassification.MEDIUM]
+                            d.IMPACT != DetectorClassification.MEDIUM]
     if args.exclude_high:
         detectors_to_run = [d for d in detectors_to_run if
-                            d.CLASSIFICATION != DetectorClassification.HIGH]
+                            d.IMPACT != DetectorClassification.HIGH]
     if args.detectors_to_exclude:
         detectors_to_run = [d for d in detectors_to_run if
                             d.ARGUMENT not in args.detectors_to_exclude]
