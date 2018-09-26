@@ -101,7 +101,9 @@ class ContractSolc04(Contract):
             else:
                 new = parse_type(children[0], self)
                 old = '*'
-            self._using_for[old] = new
+            if not old in self._using_for:
+                self.using_for[old] = []
+            self._using_for[old].append(new)
         self._usingForNotParsed = []
 
     def analyze_enums(self):
