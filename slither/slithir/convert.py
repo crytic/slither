@@ -260,8 +260,8 @@ def replace_calls(result):
                     elif ins.function_name == 'send':
                         assert len(ins.arguments) == 1
                         result[idx] = Send(ins.destination, ins.arguments[0], ins.lvalue)
-                    else:
-                        assert ins.function_name in ['call', 'delegatecall', 'callcode']
+                    elif ins.function_name in ['call', 'delegatecall', 'callcode']:
+                        # TODO: handle name collision
                         result[idx] = LowLevelCall(ins.destination,
                                                    ins.function_name,
                                                    ins.nbr_arguments,
@@ -269,6 +269,7 @@ def replace_calls(result):
                                                    ins.type_call)
                         result[idx].call_gas = ins.call_gas
                         result[idx].call_value = ins.call_value
+                    # other case are library on address
     return result
 
 
