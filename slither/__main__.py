@@ -299,16 +299,16 @@ def choose_detectors(args, all_detector_classes):
 
     if args.exclude_informational:
         detectors_to_run = [d for d in detectors_to_run if
-                            d.CLASSIFICATION != DetectorClassification.CODE_QUALITY]
+                            d.IMPACT != DetectorClassification.INFORMATIONAL]
     if args.exclude_low:
         detectors_to_run = [d for d in detectors_to_run if
-                            d.CLASSIFICATION != DetectorClassification.LOW]
+                            d.IMPACT != DetectorClassification.LOW]
     if args.exclude_medium:
         detectors_to_run = [d for d in detectors_to_run if
-                            d.CLASSIFICATION != DetectorClassification.MEDIUM]
+                            d.IMPACT != DetectorClassification.MEDIUM]
     if args.exclude_high:
         detectors_to_run = [d for d in detectors_to_run if
-                            d.CLASSIFICATION != DetectorClassification.HIGH]
+                            d.IMPACT != DetectorClassification.HIGH]
     if args.detectors_to_exclude:
         detectors_to_run = [d for d in detectors_to_run if
                             d.ARGUMENT not in args.detectors_to_exclude]
