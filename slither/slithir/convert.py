@@ -299,10 +299,8 @@ def convert_libs(result, contract):
         if isinstance(ir, HighLevelCall) and isinstance(ir.destination, Variable):
             if ir.destination.type in using_for:
                 destination = using_for[ir.destination.type]
-                print(destination)
                 # destination is a UserDefinedType
                 destination = contract.slither.get_contract_from_name(str(destination))
-                print(destination)
                 lib_call = LibraryCall(destination,
                                        ir.function_name,
                                        ir.nbr_arguments,
