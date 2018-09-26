@@ -15,10 +15,9 @@ from slither.visitors.expression.export_values import ExportValues
 
 class Reentrancy(AbstractDetector):
     ARGUMENT = 'reentrancy'
-    HELP = 'Re-entrancy'
-    # High impact 
-    # Medium confidence
-    CLASSIFICATION = DetectorClassification.HIGH
+    HELP = 'reentrancy vulnerabilities'
+    IMPACT = DetectorClassification.HIGH
+    CONFIDENCE = DetectorClassification.MEDIUM
 
     @staticmethod
     def _is_legit_call(call_name):

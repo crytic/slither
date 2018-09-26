@@ -10,8 +10,9 @@ class UnusedStateVars(AbstractDetector):
     """
 
     ARGUMENT = 'unused-state'
-    HELP = 'Unused state variables'
-    CLASSIFICATION = DetectorClassification.CODE_QUALITY
+    HELP = 'unused state variables'
+    IMPACT = DetectorClassification.INFORMATIONAL
+    CONFIDENCE = DetectorClassification.HIGH
 
     def detect_unused(self, contract):
         if contract.is_signature_only():

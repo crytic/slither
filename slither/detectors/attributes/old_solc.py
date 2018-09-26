@@ -12,8 +12,9 @@ class OldSolc(AbstractDetector):
     """
 
     ARGUMENT = 'solc-version'
-    HELP = 'an old version of Solidity used (<0.4.23)'
-    CLASSIFICATION = DetectorClassification.CODE_QUALITY
+    HELP = 'if an old version of Solidity used (<0.4.23)'
+    IMPACT = DetectorClassification.INFORMATIONAL
+    CONFIDENCE = DetectorClassification.HIGH
 
     def detect(self):
         results = []
