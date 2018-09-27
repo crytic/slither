@@ -608,6 +608,7 @@ class FunctionSolc(Function):
                     self.split_ternary_node(node, condition, true_expr, false_expr)
                     ternary_found = True
                     break
+        self._remove_alone_endif()
 
         self._analyze_read_write()
         self._analyze_calls()
@@ -647,8 +648,11 @@ class FunctionSolc(Function):
         link_nodes(condition_node, true_node)
         link_nodes(condition_node, false_node)
 
-        link_nodes(true_node, endif_node)
-        link_nodes(false_node, endif_node)
+
+        if not true_node.type in [NodeType.THROW, NodeType.RETURN]:
+            link_nodes(true_node, endif_node)
+        if not false_node.type in [NodeType.THROW, NodeType.RETURN]:
+            link_nodes(false_node, endif_node)
 
         self._nodes = [n for n in self._nodes if n.node_id != node.node_id]
 
