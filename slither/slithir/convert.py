@@ -22,6 +22,8 @@ from slither.slithir.operations.push import Push
 from slither.slithir.operations.send import Send
 from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.operations.transfer import Transfer
+from slither.slithir.operations.return_operation import Return
+from slither.slithir.operations.condition import Condition
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -338,13 +340,27 @@ def convert_libs(result, contract):
 def convert_expression(expression, node):
     # handle standlone expression
     # such as return true;
+    from slither.core.cfg.node import NodeType
     if isinstance(expression, Literal):
-        return [Constant(expression.value)]
+        result =  [Return(Constant(expression.value))]
+        return result
     visitor = ExpressionToSlithIR(expression)
     result = visitor.result()
 
     result = apply_ir_heuristics(result)
 
     result = convert_libs(result, node.function.contract)
+
+    if result:
+#        print(expression)
+#        for ir in result:
+#            print(ir)
+        if node.type in [NodeType.IF, NodeType.IFLOOP]:
+            assert isinstance(result[-1], (OperationWithLValue))
+            result.append(Condition(result[-1].lvalue))
+        elif node.type == NodeType.RETURN:
+            assert isinstance(result[-1], (OperationWithLValue))
+            result.append(Return(result[-1].lvalue))
+
 
     return result

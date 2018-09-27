@@ -3,6 +3,7 @@ from slither.core.variables.variable import Variable
 class Constant(Variable):
 
     def __init__(self, val):
+        super(Constant, self).__init__()
         assert isinstance(val, str)
         if val.isdigit():
             self._type = 'uint256'
