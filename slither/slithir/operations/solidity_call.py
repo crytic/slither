@@ -16,7 +16,7 @@ class SolidityCall(Call, OperationWithLValue):
 
     @property
     def read(self):
-        return []
+        return list(self.arguments)
 
     @property
     def function(self):
@@ -32,7 +32,7 @@ class SolidityCall(Call, OperationWithLValue):
 
     def __str__(self):
         args = [str(a) for a in self.arguments]
-        return str(self.lvalue) +' = SOLIDITY_CALL {}({})'.format(self.function.full_name, '.'.join(args))
+        return str(self.lvalue) +' = SOLIDITY_CALL {}({})'.format(self.function.full_name, ','.join(args))
    #     return str(self.lvalue) +' = INTERNALCALL {} (arg {})'.format(self.function,
    #                                                                   self.nbr_arguments)
 

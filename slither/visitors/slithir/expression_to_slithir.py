@@ -204,7 +204,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.MINUSMINUS_PRE]:
-            operation = BinaryOperation(value, value, Constant("1"), BinaryOperationType.SUBSTRACTION)
+            operation = BinaryOperation(value, value, Constant("1"), BinaryOperationType.SUBTRACTION)
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.PLUSPLUS_POST]:
@@ -218,7 +218,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             lvalue = TemporaryVariable()
             operation = Assignment(lvalue, value, AssignmentOperationType.ASSIGN, value.type)
             self._result.append(operation)
-            operation = BinaryOperation(value, value, Constant("1"), BinaryOperationType.SUBSTRACTION)
+            operation = BinaryOperation(value, value, Constant("1"), BinaryOperationType.SUBTRACTION)
             self._result.append(operation)
             set_val(expression, lvalue)
         elif expression.type in [UnaryOperationType.PLUS_PRE]:

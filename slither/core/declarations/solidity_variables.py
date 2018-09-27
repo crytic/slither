@@ -1,5 +1,5 @@
 # https://solidity.readthedocs.io/en/v0.4.24/units-and-global-variables.html
-
+from slither.core.context.context import Context
 
 SOLIDITY_VARIABLES = ["block", "msg", "now", "tx", "this", "super", 'abi']
 
@@ -51,11 +51,16 @@ def solidity_function_signature(name):
     """
     return name+' returns({})'.format(','.join(SOLIDITY_FUNCTIONS[name]))
 
-class SolidityVariable:
+class SolidityVariable(Context):
 
     def __init__(self, name):
-        assert name in SOLIDITY_VARIABLES
+        super(SolidityVariable, self).__init__()
+        self._check_name(name)
         self._name = name
+
+    # dev function, will be removed once the code is stable
+    def _check_name(self, name):
+        assert name in SOLIDITY_VARIABLES
 
     @property
     def name(self):
@@ -72,8 +77,10 @@ class SolidityVariable:
 
 class SolidityVariableComposed(SolidityVariable):
     def __init__(self, name):
+        super(SolidityVariableComposed, self).__init__(name)
+
+    def _check_name(self, name):
         assert name in SOLIDITY_VARIABLES_COMPOSED
-        self._name = name
 
     @property
     def name(self):
@@ -81,6 +88,13 @@ class SolidityVariableComposed(SolidityVariable):
 
     def __str__(self):
         return self._name
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
 
 class SolidityFunction:
 
