@@ -31,7 +31,7 @@ def _visit_node(node, visited, key):
     if node in visited:
         return
 
-    visited += [node]
+    visited = visited + [node]
     taints = node.function.slither.context[key]
 
     refs = {}

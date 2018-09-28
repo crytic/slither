@@ -31,13 +31,13 @@ class SlitherSolc(Slither):
             if data_loaded['name'] == 'root':
                 self._solc_version = '0.3'
                 logger.error('solc <0.4 is not supported')
-                exit(-1)
+                return
             elif data_loaded['name'] == 'SourceUnit':
                 self._solc_version = '0.4'
                 self._parse_source_unit(data_loaded, filename)
             else:
                 logger.error('solc version is not supported')
-                exit(-1)
+                return
 
             for contract_data in data_loaded['children']:
                 # if self.solc_version == '0.3':

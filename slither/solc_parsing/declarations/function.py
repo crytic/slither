@@ -90,6 +90,7 @@ class FunctionSolc(Function):
 
         trueStatement = self._parse_statement(children[1], condition_node)
 
+        
         endIf_node = self._new_node(NodeType.ENDIF)
         link_nodes(trueStatement, endIf_node)
 
@@ -503,9 +504,27 @@ class FunctionSolc(Function):
                 return
             }
 
+            Iterate until a fix point to remove the ENDIF node
+            creates on the following pattern
+            if(){
+                return
+            }
+            else if(){
+                return
+            }
         """
-        self._nodes = [n for n in self.nodes if n.type != NodeType.ENDIF or n.sons or n.fathers]
-
+        prev_nodes = []
+        while set(prev_nodes) != set(self.nodes):
+            prev_nodes = self.nodes
+            to_remove = []
+            for node in self.nodes:
+                if node.type == NodeType.ENDIF and not node.fathers:
+                    for son in node.sons:
+                        son.remove_father(node)
+                    node.set_sons([])
+                    to_remove.append(node)
+            self._nodes = [n for n in self.nodes if not n in to_remove]
+#
     def _parse_params(self, params):
 
         assert params['name'] == 'ParameterList'
@@ -650,7 +669,7 @@ class FunctionSolc(Function):
 
 
         if not true_node.type in [NodeType.THROW, NodeType.RETURN]:
-            link_nodes(true_node, endif_node)
+           link_nodes(true_node, endif_node)
         if not false_node.type in [NodeType.THROW, NodeType.RETURN]:
             link_nodes(false_node, endif_node)
 
