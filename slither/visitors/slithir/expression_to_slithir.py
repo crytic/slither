@@ -224,7 +224,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
         elif expression.type in [UnaryOperationType.PLUS_PRE]:
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.MINUS_PRE]:
-            set_val(expression, Constant("-"+str(value.value)))
+            lvalue = TemporaryVariable()
+            operation = BinaryOperation(lvalue, Constant("0"), value, BinaryOperationType.SUBTRACTION)
+            self._result.append(operation)
+            set_val(expression, lvalue)
         else:
             raise Exception('Unary operation to IR not supported {}'.format(expression))
 

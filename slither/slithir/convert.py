@@ -4,6 +4,7 @@ from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariableComposed)
 from slither.core.declarations.structure import Structure
 from slither.core.expressions.literal import Literal
+from slither.core.expressions.identifier import Identifier
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
@@ -341,8 +342,11 @@ def convert_expression(expression, node):
     # handle standlone expression
     # such as return true;
     from slither.core.cfg.node import NodeType
-    if isinstance(expression, Literal):
+    if isinstance(expression, Literal) and node.type == NodeType.RETURN:
         result =  [Return(Constant(expression.value))]
+        return result
+    if isinstance(expression, Identifier) and node.type == NodeType.RETURN:
+        result =  [Return(expression.value)]
         return result
     visitor = ExpressionToSlithIR(expression)
     result = visitor.result()
@@ -352,9 +356,6 @@ def convert_expression(expression, node):
     result = convert_libs(result, node.function.contract)
 
     if result:
-#        print(expression)
-#        for ir in result:
-#            print(ir)
         if node.type in [NodeType.IF, NodeType.IFLOOP]:
             assert isinstance(result[-1], (OperationWithLValue))
             result.append(Condition(result[-1].lvalue))
