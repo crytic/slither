@@ -9,7 +9,8 @@ class Example(AbstractDetector):
 
     ARGUMENT = 'mydetector' # slither will launch the detector with slither.py --mydetector
     HELP = 'Help printed by slither'
-    CLASSIFICATION = DetectorClassification.HIGH
+    IMPACT = DetectorClassification.HIGH
+    CONFIDENCE = DetectorClassification.HIGH
 
     def detect(self):
 
