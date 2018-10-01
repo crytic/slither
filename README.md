@@ -51,6 +51,7 @@ By default, all the checks are run.
 Check | Purpose | Impact | Confidence
 --- | --- | --- | ---
 `--detect-reentrancy`| Detect reentrancy vulnerabilities | High | Medium
+`--detect-suicidal`| Detect suicidal functions | High | High
 `--detect-uninitialized-state`| Detect uninitialized state variables | High | High
 `--detect-uninitialized-storage`| Detect uninitialized storage variables | High | High
 `--detect-locked-ether`| Detect contracts with a payable function that do not send ether | Medium | High
@@ -58,6 +59,7 @@ Check | Purpose | Impact | Confidence
 `--detect-pragma`| Detect if different pragma directives are used | Informational | High
 `--detect-solc-version`| Detect if an old version of Solidity used (<0.4.23) | Informational | High
 `--detect-unused-state`| Detect unused state variables | Informational | High
+
 
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
