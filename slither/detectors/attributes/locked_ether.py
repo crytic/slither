@@ -22,10 +22,16 @@ class LockedEther(AbstractDetector):
     def do_no_send_ether(contract):
         functions = contract.all_functions_called
         for function in functions:
+            calls = [c.name for c in function.internal_calls]
+            if 'suicide(address)' in calls or 'selfdestruct(address)' in calls:
+                return False
             for node in function.nodes:
                 for ir in node.irs:
                     if isinstance(ir, (Send, Transfer, HighLevelCall, LowLevelCall)):
                         if ir.call_value and ir.call_value != 0:
+                            return False
+                    if isinstance(ir, (LowLevelCall)):
+                        if ir.function_name in ['delegatecall', 'callcode']:
                             return False
         return True
 
@@ -33,7 +39,9 @@ class LockedEther(AbstractDetector):
     def detect(self):
         results = []
 
-        for contract in self.slither.contracts:
+        for contract in self.slither.contracts_derived:
+            if contract.is_signature_only():
+                continue
             funcs_payable = [function for function in contract.functions if function.payable]
             if funcs_payable:
                 if self.do_no_send_ether(contract):

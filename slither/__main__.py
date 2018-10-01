@@ -94,6 +94,7 @@ def main():
     from slither.detectors.attributes.constant_pragma import ConstantPragma
     from slither.detectors.attributes.old_solc import OldSolc
     from slither.detectors.attributes.locked_ether import LockedEther
+    from slither.detectors.functions.suicidal import Suicidal
     from slither.detectors.reentrancy.reentrancy import Reentrancy
     from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
     from slither.detectors.variables.unused_state_variables import UnusedStateVars
@@ -106,6 +107,7 @@ def main():
                  Reentrancy,
                  UninitializedStorageVars,
                  LockedEther,
+                 Suicidal,
                  UnusedStateVars,
                  TxOrigin]
 
