@@ -42,6 +42,11 @@ if [ $? -ne 1 ]; then
     exit 1
 fi
 
+slither tests/locked_ether.sol
+if [ $? -ne 1 ]; then
+    exit 1
+fi
+
 
 ### Test scripts
 
