@@ -110,7 +110,7 @@ class Contract(ChildSlither, SourceMapping):
         return [f for f in self.functions if f.contract != self]
 
     @property
-    def functions_all_called(self):
+    def all_functions_called(self):
         '''
             list(Function): List of functions reachable from the contract (include super)
         '''
