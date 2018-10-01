@@ -22,3 +22,5 @@ contract Unlocked is Locked, Send{
     }
 
 }
+
+contract OnlyLocked is Locked{ }
