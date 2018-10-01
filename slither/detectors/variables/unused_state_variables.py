@@ -19,7 +19,7 @@ class UnusedStateVars(AbstractDetector):
             return None
         # Get all the variables read in all the functions and modifiers
         variables_used = [x.state_variables_read + x.state_variables_written for x in
-                          (contract.functions + contract.modifiers)]
+                          (contract.all_functions_called + contract.modifiers)]
         # Flat list
         variables_used = [item for sublist in variables_used for item in sublist]
         # Return the variables unused that are not public

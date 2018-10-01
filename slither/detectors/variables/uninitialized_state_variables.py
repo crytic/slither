@@ -26,14 +26,14 @@ class UninitializedStateVarsDetection(AbstractDetector):
 
     def detect_uninitialized(self, contract):
         # get all the state variables read by all functions
-        var_read = [f.state_variables_read for f in contract.functions_all_called + contract.modifiers]
+        var_read = [f.state_variables_read for f in contract.all_functions_called + contract.modifiers]
         # flat list
         var_read = [item for sublist in var_read for item in sublist]
         # remove state variable that are initiliazed at contract construction
         var_read = [v for v in var_read if v.uninitialized]
 
         # get all the state variables written by the functions
-        var_written = [f.state_variables_written for f in contract.functions_all_called + contract.modifiers]
+        var_written = [f.state_variables_written for f in contract.all_functions_called + contract.modifiers]
         # flat list
         var_written = [item for sublist in var_written for item in sublist]
 
