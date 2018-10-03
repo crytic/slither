@@ -27,7 +27,7 @@ class ArbitrarySend(AbstractDetector):
     """
 
     ARGUMENT = 'arbitrary-send'
-    HELP = 'function sending ethers to arbitrary destination'
+    HELP = 'functions sending ethers to an arbitrary destination'
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
