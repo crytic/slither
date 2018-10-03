@@ -50,7 +50,7 @@ By default, all the checks are run.
 
 Check | Purpose | Impact | Confidence
 --- | --- | --- | ---
-`--detect-arbitrary-send`| Detect functions sending ethers to an arbitrary destination | High | High
+`--detect-arbitrary-send`| Detect functions sending ethers to an arbitrary destination | High | Medium
 `--detect-reentrancy`| Detect reentrancy vulnerabilities | High | Medium
 `--detect-suicidal`| Detect suicidal functions | High | High
 `--detect-uninitialized-state`| Detect uninitialized state variables | High | High
