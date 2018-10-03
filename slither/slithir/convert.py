@@ -235,6 +235,9 @@ def replace_calls(result):
     '''
     reset = True
     def is_address(v):
+        if v in [SolidityVariableComposed('msg.sender'),
+                 SolidityVariableComposed('tx.origin')]:
+            return True
         if not isinstance(v, Variable):
             return False
         if not isinstance(v.type, ElementaryType):

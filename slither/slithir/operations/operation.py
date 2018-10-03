@@ -1,4 +1,5 @@
-class Operation(object):
+from slither.core.context.context import Context
+class Operation(Context):
 
     @property
     def read(self):
