@@ -29,7 +29,7 @@ class ArbitrarySend(AbstractDetector):
     ARGUMENT = 'arbitrary-send'
     HELP = 'functions sending ethers to an arbitrary destination'
     IMPACT = DetectorClassification.HIGH
-    CONFIDENCE = DetectorClassification.HIGH
+    CONFIDENCE = DetectorClassification.MEDIUM
 
     @staticmethod
     def arbitrary_send(func):
