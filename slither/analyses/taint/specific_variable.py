@@ -50,7 +50,7 @@ def _visit_node(node, visited, key):
 #        print('TAINT {}'.format([str(v) for v in taints]))
 #        print(any(var_read in taints for var_read in read))
 #        print()
-        if any(is_tainted_from_key(var_read, key) or var_read in taints for var_read in read):
+        if isinstance(ir, OperationWithLValue) and any(is_tainted_from_key(var_read, key) or var_read in taints for var_read in read):
             taints += [ir.lvalue]
             ir.lvalue.context[key] = True
             lvalue = ir.lvalue
