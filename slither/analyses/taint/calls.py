@@ -8,16 +8,15 @@
 from slither.analyses.taint.state_variables import get_taint as get_taint_state
 from slither.core.declarations.solidity_variables import \
     SolidityVariableComposed
-from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.index import Index
 from slither.slithir.operations.low_level_call import LowLevelCall
+from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.operations.member import Member
 from slither.slithir.operations.send import Send
 from slither.slithir.operations.transfer import Transfer
 from slither.slithir.variables.reference import ReferenceVariable
 
-from slither.slithir.operations.member import Member
-from slither.slithir.operations.lvalue import OperationWithLValue
 KEY = 'TAINT_CALL_DESTINATION'
 
 def _visit_node(node, visited, taints):

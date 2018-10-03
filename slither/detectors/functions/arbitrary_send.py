@@ -9,7 +9,7 @@
     TODO: dont report if the value is tainted by msg.value
 """
 
-from slither.analyses.taint.call import KEY, run_taint
+from slither.analyses.taint.calls import KEY, run_taint
 from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariableComposed)
 from slither.detectors.abstract_detector import (AbstractDetector,

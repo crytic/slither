@@ -5,16 +5,15 @@
     Propage to state variables
     Iterate until it finding a fixpoint
 """
+from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
-from slither.core.declarations.solidity_variables import SolidityVariable, SolidityVariableComposed
-
 from slither.slithir.operations.index import Index
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.operations.internal_call import InternalCall
-from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.reference import ReferenceVariable
+from slither.slithir.variables.temporary import TemporaryVariable
+
 
 def make_key(variable):
     if isinstance(variable, Variable):
@@ -45,11 +44,6 @@ def _visit_node(node, visited, key):
             read = [ir.variable_left]
         else:
             read = ir.read
-#        print(ir)
-#        print('READ {}'.format([str(v) for v in read]))
-#        print('TAINT {}'.format([str(v) for v in taints]))
-#        print(any(var_read in taints for var_read in read))
-#        print()
         if isinstance(ir, OperationWithLValue) and any(is_tainted_from_key(var_read, key) or var_read in taints for var_read in read):
             taints += [ir.lvalue]
             ir.lvalue.context[key] = True
