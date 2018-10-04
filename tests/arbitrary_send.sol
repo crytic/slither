@@ -20,6 +20,8 @@ contract Test{
         destination.send(this.balance);
     }
 
+    // these are legitimate calls
+    // and should not be detected
     function repay() payable{
         msg.sender.transfer(msg.value);
     }
@@ -27,5 +29,12 @@ contract Test{
     function withdraw(){
         msg.sender.send(balances[msg.sender]);
     }
+
+    function buy() payable{
+        uint value_send = msg.value;
+        uint value_spent = 0 ; // simulate a buy of tokens
+        uint remaining = value_send - value_spent;
+        msg.sender.send(remaining);
+}
 
 }

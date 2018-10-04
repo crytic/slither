@@ -9,7 +9,11 @@
     TODO: dont report if the value is tainted by msg.value
 """
 
-from slither.analyses.taint.calls import KEY, run_taint
+from slither.analyses.taint.calls import KEY
+from slither.analyses.taint.calls import run_taint as run_taint_calls
+from slither.analyses.taint.specific_variable import is_tainted
+from slither.analyses.taint.specific_variable import \
+    run_taint as run_taint_variable
 from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariableComposed)
 from slither.detectors.abstract_detector import (AbstractDetector,
@@ -48,6 +52,8 @@ class ArbitrarySend(AbstractDetector):
                         continue
                     if ir.call_value == SolidityVariableComposed('msg.value'):
                         continue
+                    if is_tainted(ir.call_value, SolidityVariableComposed('msg.value')):
+                        continue
 
                     if KEY in ir.context:
                         if ir.context[KEY]:
@@ -73,8 +79,15 @@ class ArbitrarySend(AbstractDetector):
     def detect(self):
         """
         """
-        run_taint(self.slither)
         results = []
+
+        # Look if the destination of a call is tainted
+        run_taint_calls(self.slither)
+
+        # Taint msg.value
+        taint = SolidityVariableComposed('msg.value')
+        run_taint_variable(self.slither, taint)
+
         for c in self.contracts:
             arbitrary_send = self.detect_arbitrary_send(c)
             for (func, nodes) in arbitrary_send:

@@ -1,9 +1,9 @@
 """
-    Compute taint on state call
+    Compute taint on call
 
-    use taint on state_variable
+    use taint from state_variable
 
-    an call ir with a taint set to yes means tainted destination
+    call from slithIR with a taint set to yes means its destination is tainted
 """
 from slither.analyses.taint.state_variables import get_taint as get_taint_state
 from slither.core.declarations import SolidityVariableComposed
