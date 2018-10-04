@@ -12,7 +12,17 @@ from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import Index, Member, OperationWithLValue
 from slither.slithir.variables import ReferenceVariable, TemporaryVariable
 
+from .common import iterate_over_irs
 KEY = 'TAINT_STATE_VARIABLES'
+
+def _transfer_func(ir, read, refs, taints):
+    if isinstance(ir, OperationWithLValue) and any(var_read in taints for var_read in read):
+        taints += [ir.lvalue]
+        lvalue = ir.lvalue
+        while  isinstance(lvalue, ReferenceVariable):
+            taints += [refs[lvalue]]
+            lvalue = refs[lvalue]
+    return taints
 
 def _visit_node(node, visited):
     if node in visited:
@@ -21,22 +31,7 @@ def _visit_node(node, visited):
     visited += [node]
     taints = node.function.slither.context[KEY]
 
-    refs = {}
-
-    for ir in node.irs:
-        if isinstance(ir, (Index, Member)):
-            refs[ir.lvalue] = ir.variable_left
-
-        if isinstance(ir, Index):
-            read = [ir.variable_left]
-        else:
-            read = ir.read
-        if isinstance(ir, OperationWithLValue) and any(var_read in taints for var_read in read):
-            taints += [ir.lvalue]
-            lvalue = ir.lvalue
-            while  isinstance(lvalue, ReferenceVariable):
-                taints += [refs[lvalue]]
-                lvalue = refs[lvalue]
+    taints = iterate_over_irs(node.irs, _transfer_func, taints)
 
     taints = [v for v in taints if not isinstance(v, (TemporaryVariable, ReferenceVariable))]
 
