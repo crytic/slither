@@ -14,12 +14,8 @@ from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariableComposed)
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
-from slither.slithir.operations.high_level_call import HighLevelCall
-from slither.slithir.operations.index import Index
-from slither.slithir.operations.low_level_call import LowLevelCall
-from slither.slithir.operations.send import Send
-from slither.slithir.operations.solidity_call import SolidityCall
-from slither.slithir.operations.transfer import Transfer
+from slither.slithir.operations import (HighLevelCall, Index, LowLevelCall,
+                                        Send, SolidityCall, Transfer)
 
 
 class ArbitrarySend(AbstractDetector):

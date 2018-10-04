@@ -1,34 +1,21 @@
 
-from slither.visitors.expression.expression import ExpressionVisitor
-
-from slither.core.expressions.assignment_operation import AssignmentOperationType
-from slither.core.declarations.function import Function
-from slither.core.declarations.structure import Structure
-from slither.core.expressions.unary_operation import UnaryOperationType
+from slither.core.declarations import Function, Structure
+from slither.core.expressions import (AssignmentOperationType,
+                                      UnaryOperationType)
 from slither.core.solidity_types.array_type import ArrayType
-
-from slither.slithir.operations.assignment import Assignment
-from slither.slithir.operations.binary import BinaryOperation, BinaryOperationType
-from slither.slithir.operations.unary import UnaryOperation
-from slither.slithir.operations.index import Index
-from slither.slithir.operations.internal_call import InternalCall
-from slither.slithir.operations.member import Member
-from slither.slithir.operations.type_conversion import TypeConversion
-from slither.slithir.operations.delete import Delete
-from slither.slithir.operations.unpack import Unpack
-from slither.slithir.operations.init_array import InitArray
-
-from slither.slithir.tmp_operations.tmp_call import TmpCall
-from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElementaryType
-from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
-from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
-from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
+from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
+                                        Index, InitArray, InternalCall, Member,
+                                        TypeConversion, Unary, Unpack)
 from slither.slithir.tmp_operations.argument import Argument
-
-from slither.slithir.variables.temporary import TemporaryVariable
-from slither.slithir.variables.tuple import TupleVariable
-from slither.slithir.variables.constant import Constant
-from slither.slithir.variables.reference import ReferenceVariable
+from slither.slithir.tmp_operations.tmp_call import TmpCall
+from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
+from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
+from slither.slithir.tmp_operations.tmp_new_elementary_type import \
+    TmpNewElementaryType
+from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
+from slither.slithir.variables import (Constant, ReferenceVariable,
+                                       TemporaryVariable, TupleVariable)
+from slither.visitors.expression.expression import ExpressionVisitor
 
 key = 'expressionToSlithIR'
 
@@ -88,7 +75,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         right = get(expression.expression_right)
         val = TemporaryVariable()
 
-        operation = BinaryOperation(val, left, right, expression.type)
+        operation = Binary(val, left, right, expression.type)
         self._result.append(operation)
         set_val(expression, val)
 
@@ -192,7 +179,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         value = get(expression.expression)
         if expression.type in [UnaryOperationType.BANG, UnaryOperationType.TILD]:
             lvalue = TemporaryVariable()
-            operation = UnaryOperation(lvalue, value, expression.type)
+            operation = Unary(lvalue, value, expression.type)
             self._result.append(operation)
             set_val(expression, lvalue)
         elif expression.type in [UnaryOperationType.DELETE]:
@@ -200,35 +187,34 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.PLUSPLUS_PRE]:
-            operation = BinaryOperation(value, value, Constant("1"), BinaryOperationType.ADDITION)
+            operation = Binary(value, value, Constant("1"), BinaryType.ADDITION)
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.MINUSMINUS_PRE]:
-            operation = BinaryOperation(value, value, Constant("1"), BinaryOperationType.SUBTRACTION)
+            operation = Binary(value, value, Constant("1"), BinaryType.SUBTRACTION)
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.PLUSPLUS_POST]:
             lvalue = TemporaryVariable()
             operation = Assignment(lvalue, value, AssignmentOperationType.ASSIGN, value.type)
             self._result.append(operation)
-            operation = BinaryOperation(value, value, Constant("1"), BinaryOperationType.ADDITION)
+            operation = Binary(value, value, Constant("1"), BinaryType.ADDITION)
             self._result.append(operation)
             set_val(expression, lvalue)
         elif expression.type in [UnaryOperationType.MINUSMINUS_POST]:
             lvalue = TemporaryVariable()
             operation = Assignment(lvalue, value, AssignmentOperationType.ASSIGN, value.type)
             self._result.append(operation)
-            operation = BinaryOperation(value, value, Constant("1"), BinaryOperationType.SUBTRACTION)
+            operation = Binary(value, value, Constant("1"), BinaryType.SUBTRACTION)
             self._result.append(operation)
             set_val(expression, lvalue)
         elif expression.type in [UnaryOperationType.PLUS_PRE]:
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.MINUS_PRE]:
             lvalue = TemporaryVariable()
-            operation = BinaryOperation(lvalue, Constant("0"), value, BinaryOperationType.SUBTRACTION)
+            operation = Binary(lvalue, Constant("0"), value, BinaryType.SUBTRACTION)
             self._result.append(operation)
             set_val(expression, lvalue)
         else:
             raise Exception('Unary operation to IR not supported {}'.format(expression))
-
 

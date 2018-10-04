@@ -9,11 +9,8 @@
 from slither.core.declarations.solidity_variables import \
     SolidityVariableComposed
 from slither.core.variables.state_variable import StateVariable
-from slither.slithir.operations.index import Index
-from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.operations.member import Member
-from slither.slithir.variables.reference import ReferenceVariable
-from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.operations import Index, Member, OperationWithLValue
+from slither.slithir.variables import ReferenceVariable, TemporaryVariable
 
 KEY = 'TAINT_STATE_VARIABLES'
 

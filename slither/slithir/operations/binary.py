@@ -5,7 +5,7 @@ from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 
 logger = logging.getLogger("BinaryOperationIR")
 
-class BinaryOperationType(object):
+class BinaryType(object):
     POWER =             0 # **
     MULTIPLICATION =    1 # *
     DIVISION =          2 # /
@@ -30,97 +30,97 @@ class BinaryOperationType(object):
     @staticmethod
     def get_type(operation_type):
         if operation_type == '**':
-            return BinaryOperationType.POWER
+            return BinaryType.POWER
         if operation_type == '*':
-            return BinaryOperationType.MULTIPLICATION
+            return BinaryType.MULTIPLICATION
         if operation_type == '/':
-            return BinaryOperationType.DIVISION
+            return BinaryType.DIVISION
         if operation_type == '%':
-            return BinaryOperationType.MODULO
+            return BinaryType.MODULO
         if operation_type == '+':
-            return BinaryOperationType.ADDITION
+            return BinaryType.ADDITION
         if operation_type == '-':
-            return BinaryOperationType.SUBTRACTION
+            return BinaryType.SUBTRACTION
         if operation_type == '<<':
-            return BinaryOperationType.LEFT_SHIFT
+            return BinaryType.LEFT_SHIFT
         if operation_type == '>>':
-            return BinaryOperationType.RIGHT_SHIT
+            return BinaryType.RIGHT_SHIT
         if operation_type == '&':
-            return BinaryOperationType.AND
+            return BinaryType.AND
         if operation_type == '^':
-            return BinaryOperationType.CARET
+            return BinaryType.CARET
         if operation_type == '|':
-            return BinaryOperationType.OR
+            return BinaryType.OR
         if operation_type == '<':
-            return BinaryOperationType.LESS
+            return BinaryType.LESS
         if operation_type == '>':
-            return BinaryOperationType.GREATER
+            return BinaryType.GREATER
         if operation_type == '<=':
-            return BinaryOperationType.LESS_EQUAL
+            return BinaryType.LESS_EQUAL
         if operation_type == '>=':
-            return BinaryOperationType.GREATER_EQUAL
+            return BinaryType.GREATER_EQUAL
         if operation_type == '==':
-            return BinaryOperationType.EQUAL
+            return BinaryType.EQUAL
         if operation_type == '!=':
-            return BinaryOperationType.NOT_EQUAL
+            return BinaryType.NOT_EQUAL
         if operation_type == '&&':
-            return BinaryOperationType.ANDAND
+            return BinaryType.ANDAND
         if operation_type == '||':
-            return BinaryOperationType.OROR
+            return BinaryType.OROR
 
         logger.error('get_type: Unknown operation type {})'.format(operation_type))
         exit(-1)
 
     @staticmethod
     def str(operation_type):
-        if operation_type == BinaryOperationType.POWER:
+        if operation_type == BinaryType.POWER:
             return '**'
-        if operation_type == BinaryOperationType.MULTIPLICATION:
+        if operation_type == BinaryType.MULTIPLICATION:
             return '*'
-        if operation_type == BinaryOperationType.DIVISION:
+        if operation_type == BinaryType.DIVISION:
             return '/'
-        if operation_type == BinaryOperationType.MODULO:
+        if operation_type == BinaryType.MODULO:
             return '%'
-        if operation_type == BinaryOperationType.ADDITION:
+        if operation_type == BinaryType.ADDITION:
             return '+'
-        if operation_type == BinaryOperationType.SUBTRACTION:
+        if operation_type == BinaryType.SUBTRACTION:
             return '-'
-        if operation_type == BinaryOperationType.LEFT_SHIFT:
+        if operation_type == BinaryType.LEFT_SHIFT:
             return '<<'
-        if operation_type == BinaryOperationType.RIGHT_SHIT:
+        if operation_type == BinaryType.RIGHT_SHIT:
             return '>>'
-        if operation_type == BinaryOperationType.AND:
+        if operation_type == BinaryType.AND:
             return '&'
-        if operation_type == BinaryOperationType.CARET:
+        if operation_type == BinaryType.CARET:
             return '^'
-        if operation_type == BinaryOperationType.OR:
+        if operation_type == BinaryType.OR:
             return '|'
-        if operation_type == BinaryOperationType.LESS:
+        if operation_type == BinaryType.LESS:
             return '<'
-        if operation_type == BinaryOperationType.GREATER:
+        if operation_type == BinaryType.GREATER:
             return '>'
-        if operation_type == BinaryOperationType.LESS_EQUAL:
+        if operation_type == BinaryType.LESS_EQUAL:
             return '<='
-        if operation_type == BinaryOperationType.GREATER_EQUAL:
+        if operation_type == BinaryType.GREATER_EQUAL:
             return '>='
-        if operation_type == BinaryOperationType.EQUAL:
+        if operation_type == BinaryType.EQUAL:
             return '=='
-        if operation_type == BinaryOperationType.NOT_EQUAL:
+        if operation_type == BinaryType.NOT_EQUAL:
             return '!='
-        if operation_type == BinaryOperationType.ANDAND:
+        if operation_type == BinaryType.ANDAND:
             return '&&'
-        if operation_type == BinaryOperationType.OROR:
+        if operation_type == BinaryType.OROR:
             return '||'
         logger.error('str: Unknown operation type {})'.format(operation_type))
         exit(-1)
 
-class BinaryOperation(OperationWithLValue):
+class Binary(OperationWithLValue):
 
     def __init__(self, result, left_variable, right_variable, operation_type):
         assert is_valid_rvalue(left_variable)
         assert is_valid_rvalue(right_variable)
         assert is_valid_lvalue(result)
-        super(BinaryOperation, self).__init__()
+        super(Binary, self).__init__()
         self._variables = [left_variable, right_variable]
         self._type = operation_type
         self._lvalue = result
@@ -143,7 +143,7 @@ class BinaryOperation(OperationWithLValue):
 
     @property
     def type_str(self):
-        return BinaryOperationType.str(self._type)
+        return BinaryType.str(self._type)
 
     def __str__(self):
         return str(self.lvalue)+ ' = ' + str(self.variable_left) + ' ' + self.type_str + ' ' + str(self.variable_right)
