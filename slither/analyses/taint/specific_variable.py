@@ -1,7 +1,7 @@
 """
     Compute taint from a specific variable
 
-    Do not propagate taint on protected function
+    Do not propagate taint on protected function or constructor
     Propage to state variables
     Iterate until it finding a fixpoint
 """

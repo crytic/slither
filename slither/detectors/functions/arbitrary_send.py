@@ -47,6 +47,8 @@ class ArbitrarySend(AbstractDetector):
                 if isinstance(ir, Index):
                     if ir.variable_right == SolidityVariableComposed('msg.sender'):
                         return False
+                    if is_tainted(ir.variable_right, SolidityVariableComposed('msg.sender')):
+                        return False
                 if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
                     if ir.call_value is None:
                         continue
@@ -86,6 +88,10 @@ class ArbitrarySend(AbstractDetector):
 
         # Taint msg.value
         taint = SolidityVariableComposed('msg.value')
+        run_taint_variable(self.slither, taint)
+
+        # Taint msg.sender
+        taint = SolidityVariableComposed('msg.sender')
         run_taint_variable(self.slither, taint)
 
         for c in self.contracts:

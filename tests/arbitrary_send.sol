@@ -27,7 +27,8 @@ contract Test{
     }
 
     function withdraw(){
-        msg.sender.send(balances[msg.sender]);
+        uint val = balances[msg.sender];
+        msg.sender.send(val);
     }
 
     function buy() payable{
