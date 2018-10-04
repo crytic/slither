@@ -427,11 +427,11 @@ class Function(ChildContract, SourceMapping):
             Assumption: the solidity vars are used directly in the conditional node
             It won't work if the variable is assigned to a temp variable
         """
-        from slither.slithir.operations.binary import BinaryOperation
+        from slither.slithir.operations.binary import Binary
         def _solidity_variable_in_node(node):
             ret = []
             for ir in node.irs:
-                if isinstance(ir, BinaryOperation):
+                if isinstance(ir, Binary):
                     ret += ir.read
             return [var for var in ret if isinstance(var, SolidityVariable)]
         def _explore_func(func, f):

@@ -6,16 +6,11 @@
     an call ir with a taint set to yes means tainted destination
 """
 from slither.analyses.taint.state_variables import get_taint as get_taint_state
-from slither.core.declarations.solidity_variables import \
-    SolidityVariableComposed
-from slither.slithir.operations.high_level_call import HighLevelCall
-from slither.slithir.operations.index import Index
-from slither.slithir.operations.low_level_call import LowLevelCall
-from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.operations.member import Member
-from slither.slithir.operations.send import Send
-from slither.slithir.operations.transfer import Transfer
-from slither.slithir.variables.reference import ReferenceVariable
+from slither.core.declarations import SolidityVariableComposed
+from slither.slithir.operations import (HighLevelCall, Index, LowLevelCall,
+                                        Member, OperationWithLValue, Send,
+                                        Transfer)
+from slither.slithir.variables import ReferenceVariable
 
 KEY = 'TAINT_CALL_DESTINATION'
 

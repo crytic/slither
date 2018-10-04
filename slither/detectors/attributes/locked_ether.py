@@ -2,11 +2,10 @@
     Check if ether are locked in the contract
 """
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations.send import Send
-from slither.slithir.operations.transfer import Transfer
-from slither.slithir.operations.high_level_call import HighLevelCall
-from slither.slithir.operations.low_level_call import LowLevelCall
+from slither.detectors.abstract_detector import (AbstractDetector,
+                                                 DetectorClassification)
+from slither.slithir.operations import (HighLevelCall, LowLevelCall, Send,
+                                        Transfer)
 
 
 class LockedEther(AbstractDetector):

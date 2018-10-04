@@ -2,12 +2,11 @@
     Detect if all the given variables are written in all the paths of the function
 """
 from slither.core.cfg.node import NodeType
-from slither.core.declarations.solidity_variables import SolidityFunction
-from slither.slithir.operations.index import Index
-from slither.slithir.operations.member import Member
-from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.operations.solidity_call import SolidityCall
-from slither.slithir.variables.reference import ReferenceVariable
+from slither.core.declarations import SolidityFunction
+from slither.slithir.operations import (Index, Member, OperationWithLValue,
+                                        SolidityCall)
+from slither.slithir.variables import ReferenceVariable
+
 
 def _visit(node, visited, variables_written, variables_to_write):
 

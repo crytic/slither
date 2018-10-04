@@ -7,7 +7,7 @@ from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 
 logger = logging.getLogger("AssignmentOperationIR")
 
-class AssignmentOperationType(object):
+class AssignmentType(object):
     ASSIGN =                0 # =
     ASSIGN_OR =             1 # |=
     ASSIGN_CARET =          2 # ^=
@@ -23,54 +23,54 @@ class AssignmentOperationType(object):
     @staticmethod
     def get_type(operation_type):
         if operation_type == '=':
-            return AssignmentOperationType.ASSIGN
+            return AssignmentType.ASSIGN
         if operation_type == '|=':
-            return AssignmentOperationType.ASSIGN_OR
+            return AssignmentType.ASSIGN_OR
         if operation_type == '^=':
-            return AssignmentOperationType.ASSIGN_CARET
+            return AssignmentType.ASSIGN_CARET
         if operation_type == '&=':
-            return AssignmentOperationType.ASSIGN_AND
+            return AssignmentType.ASSIGN_AND
         if operation_type == '<<=':
-            return AssignmentOperationType.ASSIGN_LEFT_SHIFT
+            return AssignmentType.ASSIGN_LEFT_SHIFT
         if operation_type == '>>=':
-            return AssignmentOperationType.ASSIGN_RIGHT_SHIFT
+            return AssignmentType.ASSIGN_RIGHT_SHIFT
         if operation_type == '+=':
-            return AssignmentOperationType.ASSIGN_ADDITION
+            return AssignmentType.ASSIGN_ADDITION
         if operation_type == '-=':
-            return AssignmentOperationType.ASSIGN_SUBTRACTION
+            return AssignmentType.ASSIGN_SUBTRACTION
         if operation_type == '*=':
-            return AssignmentOperationType.ASSIGN_MULTIPLICATION
+            return AssignmentType.ASSIGN_MULTIPLICATION
         if operation_type == '/=':
-            return AssignmentOperationType.ASSIGN_DIVISION
+            return AssignmentType.ASSIGN_DIVISION
         if operation_type == '%=':
-            return AssignmentOperationType.ASSIGN_MODULO
+            return AssignmentType.ASSIGN_MODULO
 
         logger.error('get_type: Unknown operation type {})'.format(operation_type))
         exit(-1)
 
     @staticmethod
     def str(operation_type):
-        if operation_type == AssignmentOperationType.ASSIGN:
+        if operation_type == AssignmentType.ASSIGN:
             return '='
-        if operation_type == AssignmentOperationType.ASSIGN_OR:
+        if operation_type == AssignmentType.ASSIGN_OR:
             return '|='
-        if operation_type == AssignmentOperationType.ASSIGN_CARET:
+        if operation_type == AssignmentType.ASSIGN_CARET:
             return '^='
-        if operation_type == AssignmentOperationType.ASSIGN_AND:
+        if operation_type == AssignmentType.ASSIGN_AND:
             return '&='
-        if operation_type == AssignmentOperationType.ASSIGN_LEFT_SHIFT:
+        if operation_type == AssignmentType.ASSIGN_LEFT_SHIFT:
             return '<<='
-        if operation_type == AssignmentOperationType.ASSIGN_RIGHT_SHIFT:
+        if operation_type == AssignmentType.ASSIGN_RIGHT_SHIFT:
             return '>>='
-        if operation_type == AssignmentOperationType.ASSIGN_ADDITION:
+        if operation_type == AssignmentType.ASSIGN_ADDITION:
             return '+='
-        if operation_type == AssignmentOperationType.ASSIGN_SUBTRACTION:
+        if operation_type == AssignmentType.ASSIGN_SUBTRACTION:
             return '-='
-        if operation_type == AssignmentOperationType.ASSIGN_MULTIPLICATION:
+        if operation_type == AssignmentType.ASSIGN_MULTIPLICATION:
             return '*='
-        if operation_type == AssignmentOperationType.ASSIGN_DIVISION:
+        if operation_type == AssignmentType.ASSIGN_DIVISION:
             return '/='
-        if operation_type == AssignmentOperationType.ASSIGN_MODULO:
+        if operation_type == AssignmentType.ASSIGN_MODULO:
             return '%='
 
         logger.error('str: Unknown operation type {})'.format(operation_type))
@@ -83,7 +83,7 @@ class Assignment(OperationWithLValue):
         #print(type(left_variable))
         assert is_valid_lvalue(left_variable)
         assert is_valid_rvalue(right_variable) or\
-               (isinstance(right_variable, Function) and variable_type == AssignmentOperationType.ASSIGN)
+               (isinstance(right_variable, Function) and variable_type == AssignmentType.ASSIGN)
         super(Assignment, self).__init__()
         self._variables = [left_variable, right_variable]
         self._lvalue = left_variable
@@ -109,7 +109,7 @@ class Assignment(OperationWithLValue):
 
     @property
     def type_str(self):
-        return AssignmentOperationType.str(self._type)
+        return AssignmentType.str(self._type)
 
     def __str__(self):
         return '{} {} {}'.format(self.lvalue, self.type_str, self.rvalue)

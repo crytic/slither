@@ -5,11 +5,11 @@
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
 
-from slither.core.declarations.function import Function
-from slither.core.declarations.solidity_variables import SolidityFunction
-from slither.core.expressions.unary_operation import UnaryOperation, UnaryOperationType
 from slither.core.cfg.node import NodeType
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations import Function, SolidityFunction
+from slither.core.expressions import UnaryOperation, UnaryOperationType
+from slither.detectors.abstract_detector import (AbstractDetector,
+                                                 DetectorClassification)
 from slither.visitors.expression.export_values import ExportValues
 
 

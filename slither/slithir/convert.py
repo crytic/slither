@@ -1,30 +1,15 @@
-from slither.core.declarations.contract import Contract
-from slither.core.declarations.event import Event
-from slither.core.declarations.solidity_variables import (SolidityFunction,
-                                                          SolidityVariableComposed)
-from slither.core.declarations.structure import Structure
-from slither.core.expressions.literal import Literal
-from slither.core.expressions.identifier import Identifier
+from slither.core.declarations import (Contract, Event, SolidityFunction,
+                                       SolidityVariableComposed, Structure)
+from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
-from slither.slithir.operations.call import Call
-from slither.slithir.operations.event_call import EventCall
-from slither.slithir.operations.high_level_call import HighLevelCall
-from slither.slithir.operations.init_array import InitArray
-from slither.slithir.operations.library_call import LibraryCall
-from slither.slithir.operations.low_level_call import LowLevelCall
-from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.operations.member import Member
-from slither.slithir.operations.new_array import NewArray
-from slither.slithir.operations.new_contract import NewContract
-from slither.slithir.operations.new_elementary_type import NewElementaryType
-from slither.slithir.operations.new_structure import NewStructure
-from slither.slithir.operations.push import Push
-from slither.slithir.operations.send import Send
-from slither.slithir.operations.solidity_call import SolidityCall
-from slither.slithir.operations.transfer import Transfer
-from slither.slithir.operations.return_operation import Return
-from slither.slithir.operations.condition import Condition
+from slither.slithir.operations import (Call, Condition, EventCall,
+                                        HighLevelCall, InitArray, LibraryCall,
+                                        LowLevelCall, Member, NewArray,
+                                        NewContract, NewElementaryType,
+                                        NewStructure, OperationWithLValue,
+                                        Push, Return, Send, SolidityCall,
+                                        Transfer)
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -32,10 +17,8 @@ from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import \
     TmpNewElementaryType
 from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
-from slither.slithir.variables.constant import Constant
-from slither.slithir.variables.reference import ReferenceVariable
-from slither.slithir.variables.temporary import TemporaryVariable
-from slither.slithir.variables.tuple import TupleVariable
+from slither.slithir.variables import (Constant, ReferenceVariable,
+                                       TemporaryVariable, TupleVariable)
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 
 
