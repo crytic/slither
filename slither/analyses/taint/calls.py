@@ -12,7 +12,22 @@ from slither.slithir.operations import (HighLevelCall, Index, LowLevelCall,
                                         Transfer)
 from slither.slithir.variables import ReferenceVariable
 
+from .common import iterate_over_irs
+
 KEY = 'TAINT_CALL_DESTINATION'
+
+def _transfer_func(ir, read, refs, taints):
+    if isinstance(ir, OperationWithLValue) and any(var_read in taints for var_read in read):
+        taints += [ir.lvalue]
+        lvalue = ir.lvalue
+        while  isinstance(lvalue, ReferenceVariable):
+            taints += [refs[lvalue]]
+            lvalue = refs[lvalue]
+    if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
+        if ir.destination in taints:
+            ir.context[KEY] = True
+
+    return taints
 
 def _visit_node(node, visited, taints):
     if node in visited:
@@ -20,24 +35,7 @@ def _visit_node(node, visited, taints):
 
     visited += [node]
 
-    refs = {}
-    for ir in node.irs:
-        if isinstance(ir, (Index, Member)):
-            refs[ir.lvalue] = ir.variable_left
-
-        if isinstance(ir, Index):
-            read = [ir.variable_left]
-        else:
-            read = ir.read
-        if isinstance(ir, OperationWithLValue) and any(var_read in taints for var_read in read):
-            taints += [ir.lvalue]
-            lvalue = ir.lvalue
-            while  isinstance(lvalue, ReferenceVariable):
-                taints += [refs[lvalue]]
-                lvalue = refs[lvalue]
-        if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
-            if ir.destination in taints:
-                ir.context[KEY] = True
+    taints = iterate_over_irs(node.irs, _transfer_func, taints)
 
     for son in node.sons:
         _visit_node(son, visited, taints)

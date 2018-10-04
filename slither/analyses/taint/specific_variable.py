@@ -11,6 +11,7 @@ from slither.core.variables.variable import Variable
 from slither.slithir.operations import Index, Member, OperationWithLValue
 from slither.slithir.variables import ReferenceVariable, TemporaryVariable
 
+from .common import iterate_over_irs
 
 def make_key(variable):
     if isinstance(variable, Variable):
@@ -23,25 +24,9 @@ def make_key(variable):
                                     str(type(variable)))
     return key
 
-def _visit_node(node, visited, key):
-    if node in visited:
-        return
-
-    visited = visited + [node]
-    taints = node.function.slither.context[key]
-
-    refs = {}
-    for ir in node.irs:
-        if not isinstance(ir, OperationWithLValue):
-            continue
-        if isinstance(ir, (Index, Member)):
-            refs[ir.lvalue] = ir.variable_left
-
-        if isinstance(ir, Index):
-            read = [ir.variable_left]
-        else:
-            read = ir.read
-        if isinstance(ir, OperationWithLValue) and any(is_tainted_from_key(var_read, key) or var_read in taints for var_read in read):
+def _transfer_func_with_key(ir, read, refs, taints, key):
+    if isinstance(ir, OperationWithLValue):
+        if any(is_tainted_from_key(var_read, key) or var_read in taints for var_read in read):
             taints += [ir.lvalue]
             ir.lvalue.context[key] = True
             lvalue = ir.lvalue
@@ -49,6 +34,22 @@ def _visit_node(node, visited, key):
                 taints += [refs[lvalue]]
                 lvalue = refs[lvalue]
                 lvalue.context[key] = True
+    return taints
+
+def _visit_node(node, visited, key):
+    if node in visited:
+        return
+
+    visited = visited + [node]
+    taints = node.function.slither.context[key]
+
+    # use of lambda function, as the key is required for this transfer_func 
+    _transfer_func_ = lambda _ir, _read, _refs, _taints: _transfer_func_with_key(_ir,
+                                                                                 _read,
+                                                                                 _refs,
+                                                                                 _taints,
+                                                                                 key)
+    taints = iterate_over_irs(node.irs, _transfer_func_, taints)
 
     taints = [v for v in taints if not isinstance(v, (TemporaryVariable, ReferenceVariable))]
 

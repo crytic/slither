@@ -115,7 +115,6 @@ def apply_ir_heuristics(result):
 
     result = transform_calls(result)
 
-    result = remove_unused(result)
 
     # Move the arguments operation to the call
     result = merge_call_parameters(result)
@@ -125,6 +124,7 @@ def apply_ir_heuristics(result):
 
     result = replace_calls(result)
 
+    result = remove_unused(result)
     reset_variable_number(result)
 
     return result
@@ -198,8 +198,13 @@ def remove_unused(result):
         to_keep = []
         to_remove = []
 
+        # keep variables that are read
+        # and reference that are written
         for ins in result:
             to_keep += [str(x) for x in ins.read]
+            if isinstance(ins, OperationWithLValue):
+                if isinstance(ins.lvalue, ReferenceVariable):
+                    to_keep += [str(ins.lvalue)]
 
         for ins in result:
             if isinstance(ins, Member):
