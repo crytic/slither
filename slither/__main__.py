@@ -117,8 +117,13 @@ def main():
     from slither.printers.summary.quick_summary import PrinterQuickSummary
     from slither.printers.inheritance.inheritance import PrinterInheritance
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
+    from slither.printers.summary.slithir import PrinterSlithIR
 
-    printers = [PrinterSummary, PrinterQuickSummary, PrinterInheritance, PrinterWrittenVariablesAndAuthorization]
+    printers = [PrinterSummary,
+                PrinterQuickSummary,
+                PrinterInheritance,
+                PrinterWrittenVariablesAndAuthorization,
+                PrinterSlithIR]
 
     # Handle plugins!
     for entry_point in iter_entry_points(group='slither_analyzer.plugin', name=None):

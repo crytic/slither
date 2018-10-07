@@ -354,5 +354,4 @@ def convert_expression(expression, node):
             assert isinstance(result[-1], (OperationWithLValue))
             result.append(Return(result[-1].lvalue))
 
-
     return result
