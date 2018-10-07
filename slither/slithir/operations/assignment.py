@@ -2,6 +2,7 @@ import logging
 
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
+from slither.slithir.variables import TupleVariable
 from slither.core.declarations.function import Function
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 
@@ -83,7 +84,7 @@ class Assignment(OperationWithLValue):
         #print(type(left_variable))
         assert is_valid_lvalue(left_variable)
         assert is_valid_rvalue(right_variable) or\
-               (isinstance(right_variable, Function) and variable_type == AssignmentType.ASSIGN)
+               (isinstance(right_variable, (Function, TupleVariable)) and variable_type == AssignmentType.ASSIGN)
         super(Assignment, self).__init__()
         self._variables = [left_variable, right_variable]
         self._lvalue = left_variable
@@ -98,7 +99,7 @@ class Assignment(OperationWithLValue):
     @property
     def read(self):
         return list(self.variables)
-    
+
     @property
     def variable_return_type(self):
         return self._variable_return_type
