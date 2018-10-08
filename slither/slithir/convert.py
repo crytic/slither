@@ -4,12 +4,12 @@ from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import (Assignment, Call, Condition, EventCall,
-                                        HighLevelCall, InitArray, LibraryCall,
-                                        LowLevelCall, Member, NewArray,
-                                        NewContract, NewElementaryType,
-                                        NewStructure, OperationWithLValue,
-                                        Push, Return, Send, SolidityCall,
-                                        Transfer)
+                                        HighLevelCall, Index, InitArray,
+                                        LibraryCall, LowLevelCall, Member,
+                                        NewArray, NewContract,
+                                        NewElementaryType, NewStructure,
+                                        OperationWithLValue, Push, Return,
+                                        Send, SolidityCall, Transfer)
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -61,14 +61,16 @@ def transform_calls(result):
         # Replace call to value, gas to an argument of the real call
         for idx in range(len(result)):
             ins = result[idx]
-            if is_value(ins):
+            # value can be shadowed, so we check that the prev ins
+            # is an Argument
+            if is_value(ins) and isinstance(result[idx-1], Argument):
                 was_changed = True
                 result[idx-1].set_type(ArgumentType.VALUE)
                 result[idx-1].call_id = ins.ori.variable_left.name
                 calls.append(ins.ori.variable_left)
                 to_remove.append(ins)
                 variable_to_replace[ins.lvalue.name] = ins.ori.variable_left
-            elif is_gas(ins):
+            elif is_gas(ins) and isinstance(result[idx-1], Argument):
                 was_changed = True
                 result[idx-1].set_type(ArgumentType.GAS)
                 result[idx-1].call_id = ins.ori.variable_left.name
@@ -199,7 +201,7 @@ def remove_unused(result):
         # and reference that are written
         for ins in result:
             to_keep += [str(x) for x in ins.read]
-            if isinstance(ins, Assignment):
+            if isinstance(ins, OperationWithLValue) and not isinstance(ins, (Index, Member)):
                 if isinstance(ins.lvalue, ReferenceVariable):
                     to_keep += [str(ins.lvalue)]
 
@@ -233,8 +235,8 @@ def replace_calls(result):
         for idx in range(len(result)):
             ins = result[idx]
             if isinstance(ins, HighLevelCall):
-                if ins.function_name == 'push':
-                    assert len(ins.arguments) == 1
+                # TODO better handle collision with function named push
+                if ins.function_name == 'push' and len(ins.arguments) == 1:
                     if isinstance(ins.arguments[0], list):
                         val = TemporaryVariable()
                         operation = InitArray(ins.arguments[0], val)
