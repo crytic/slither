@@ -38,7 +38,11 @@ SOLIDITY_FUNCTIONS = {"gasleft()":['uint256'],
                       "log1(bytes32,bytes32)":[],
                       "log2(bytes32,bytes32,bytes32)":[],
                       "log3(bytes32,bytes32,bytes32,bytes32)":[],
-                      "blockhash(uint256)":['bytes32']}
+                      "blockhash(uint256)":['bytes32'],
+                      # this balance needs a special handling
+                      # as it is first recognized as a SolidityVariableComposed
+                      # and converted to a SolidityFunction by SlithIR
+                      "this.balance()":['uint256']}
 
 def solidity_function_signature(name):
     """

@@ -282,9 +282,10 @@ def extract_tmp_call(ins):
         r = extract_tmp_call(ins.ori)
         return r
     if isinstance(ins.called, SolidityVariableComposed):
-        # block.blockhash is the only variable composed which is a call
-        assert str(ins.called) == 'block.blockhash'
-        ins.called = SolidityFunction('blockhash(uint256)')
+        if str(ins.called) == 'block.blockhash':
+            ins.called = SolidityFunction('blockhash(uint256)')
+        elif str(ins.called) == 'this.balance':
+            ins.called = SolidityFunction('this.balance()')
 
     if isinstance(ins.called, SolidityFunction):
         return SolidityCall(ins.called, ins.nbr_arguments, ins.lvalue, ins.type_call)
