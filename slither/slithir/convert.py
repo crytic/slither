@@ -3,7 +3,7 @@ from slither.core.declarations import (Contract, Event, SolidityFunction,
 from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.variable import Variable
-from slither.slithir.operations import (Call, Condition, EventCall,
+from slither.slithir.operations import (Assignment, Call, Condition, EventCall,
                                         HighLevelCall, InitArray, LibraryCall,
                                         LowLevelCall, Member, NewArray,
                                         NewContract, NewElementaryType,
@@ -115,13 +115,10 @@ def apply_ir_heuristics(result):
 
     result = transform_calls(result)
 
-
     # Move the arguments operation to the call
     result = merge_call_parameters(result)
-
     # Remove temporary
     result = remove_temporary(result)
-
     result = replace_calls(result)
 
     result = remove_unused(result)
@@ -169,13 +166,13 @@ def merge_call_parameters(result):
                 assert ins.get_type() == ArgumentType.CALL
                 call_data.append(ins.argument)
 
-        if isinstance(ins, HighLevelCall):
+        if isinstance(ins, (HighLevelCall, NewContract)):
             if ins.call_id in calls_value:
                 ins.call_value = calls_value[ins.call_id]
             if ins.call_id in calls_gas:
                 ins.call_gas = calls_gas[ins.call_id]
 
-        if isinstance(ins, Call):
+        if isinstance(ins, (Call, NewContract, NewStructure)):
             ins.arguments = call_data
             call_data = []
     return result
@@ -202,7 +199,7 @@ def remove_unused(result):
         # and reference that are written
         for ins in result:
             to_keep += [str(x) for x in ins.read]
-            if isinstance(ins, OperationWithLValue):
+            if isinstance(ins, Assignment):
                 if isinstance(ins.lvalue, ReferenceVariable):
                     to_keep += [str(ins.lvalue)]
 
@@ -278,6 +275,7 @@ def extract_tmp_call(ins):
             msgcall = HighLevelCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
             msgcall.call_id = ins.call_id
             return msgcall
+
     if isinstance(ins.ori, TmpCall):
         r = extract_tmp_call(ins.ori)
         return r
@@ -293,13 +291,17 @@ def extract_tmp_call(ins):
         return NewElementaryType(ins.ori.type, ins.lvalue)
 
     if isinstance(ins.ori, TmpNewContract):
-        return NewContract(Constant(ins.ori.contract_name), ins.lvalue)
+        op = NewContract(Constant(ins.ori.contract_name), ins.lvalue)
+        op.call_id = ins.call_id
+        return op
 
     if isinstance(ins.ori, TmpNewArray):
         return NewArray(ins.ori.depth, ins.ori.array_type, ins.lvalue)
 
     if isinstance(ins.called, Structure):
-        return NewStructure(ins.called, ins.lvalue)
+        op = NewStructure(ins.called, ins.lvalue)
+        op.call_id = ins.call_id
+        return op
 
     if isinstance(ins.called, Event):
         return EventCall(ins.called.name)
