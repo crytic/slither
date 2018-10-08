@@ -5,7 +5,8 @@ from slither.core.expressions import (AssignmentOperationType,
 from slither.core.solidity_types.array_type import ArrayType
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
                                         Index, InitArray, InternalCall, Member,
-                                        TypeConversion, Unary, Unpack)
+                                        TypeConversion, Unary, Unpack, NewContract,
+                                        NewStructure, NewArray)
 from slither.slithir.tmp_operations.argument import Argument
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
