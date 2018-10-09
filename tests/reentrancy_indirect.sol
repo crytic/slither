@@ -21,7 +21,7 @@ contract Reentrancy {
 
     function withdraw(address token){
         msg.sender.transfer(eth_deposed[token][msg.sender]);
-        require(Token(token).transfer(msg.sender, eth_deposed[token][msg.sender]));
+        require(Token(token).transfer(msg.sender, token_deposed[token][msg.sender]));
 
         eth_deposed[token][msg.sender] = 0;
         token_deposed[token][msg.sender] = 0;
