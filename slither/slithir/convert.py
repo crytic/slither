@@ -229,6 +229,8 @@ def replace_calls(result):
             return False
         if not isinstance(v.type, ElementaryType):
             return False
+        if isinstance(v, ReferenceVariable):
+            return True
         return v.type.type == 'address'
     while reset:
         reset = False
@@ -246,22 +248,20 @@ def replace_calls(result):
                         break
                     else:
                         result[idx] = Push(ins.destination, ins.arguments[0])
-                if is_address(ins.destination):
-                    if ins.function_name == 'transfer':
-                        assert len(ins.arguments) == 1
-                        result[idx] = Transfer(ins.destination, ins.arguments[0])
-                    elif ins.function_name == 'send':
-                        assert len(ins.arguments) == 1
-                        result[idx] = Send(ins.destination, ins.arguments[0], ins.lvalue)
-                    elif ins.function_name in ['call', 'delegatecall', 'callcode']:
-                        # TODO: handle name collision
-                        result[idx] = LowLevelCall(ins.destination,
-                                                   ins.function_name,
-                                                   ins.nbr_arguments,
-                                                   ins.lvalue,
-                                                   ins.type_call)
-                        result[idx].call_gas = ins.call_gas
-                        result[idx].call_value = ins.call_value
+#                if is_address(ins.destination):
+                if ins.function_name == 'transfer' and len(ins.arguments) == 1:
+                    result[idx] = Transfer(ins.destination, ins.arguments[0])
+                elif ins.function_name == 'send' and len(ins.arguments) == 1:
+                    result[idx] = Send(ins.destination, ins.arguments[0], ins.lvalue)
+                elif ins.function_name in ['call', 'delegatecall', 'callcode']:
+                    # TODO: handle name collision
+                    result[idx] = LowLevelCall(ins.destination,
+                                               ins.function_name,
+                                               ins.nbr_arguments,
+                                               ins.lvalue,
+                                               ins.type_call)
+                    result[idx].call_gas = ins.call_gas
+                    result[idx].call_value = ins.call_value
                     # other case are library on address
     return result
 
