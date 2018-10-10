@@ -12,6 +12,7 @@ from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.visitors.expression.export_values import ExportValues
 from slither.slithir.operations import (HighLevelCall, LowLevelCall,
+                                        LibraryCall,
                                         Send, Transfer)
 
 class Reentrancy(AbstractDetector):
@@ -37,7 +38,7 @@ class Reentrancy(AbstractDetector):
         for ir in node.irs:
             if isinstance(ir, LowLevelCall):
                 return True
-            if isinstance(ir, HighLevelCall):
+            if isinstance(ir, HighLevelCall) and not isinstance(ir, LibraryCall):
                 return True
         return False
 
