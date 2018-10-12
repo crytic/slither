@@ -631,6 +631,8 @@ class FunctionSolc(Function):
 
         self._analyze_read_write()
         self._analyze_calls()
+
+    def convert_expression_to_slithir(self):
         for node in self.nodes:
             node.slithir_generation()
  

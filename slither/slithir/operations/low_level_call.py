@@ -78,5 +78,12 @@ class LowLevelCall(Call, OperationWithLValue):
         arguments = []
         if self.arguments:
             arguments = self.arguments
-        return str(self.lvalue) +' = LOW_LEVEL_CALL dest:{} function:{} arguments:{} {} {}'.format(self.destination, self.function_name, [str(x) for x in arguments], value, gas)
+        txt = '{}({}) = LOW_LEVEL_CALL, dest:{}, function:{}, arguments:{} {} {}'
+        return txt.format(self.lvalue,
+                          self.lvalue.type,
+                          self.destination,
+                          self.function_name,
+                          [str(x) for x in arguments],
+                          value,
+                          gas)
 

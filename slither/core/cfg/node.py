@@ -115,6 +115,10 @@ class Node(SourceMapping, ChildFunction):
         self._expression_calls = []
 
     @property
+    def slither(self):
+        return self.function.slither
+
+    @property
     def node_id(self):
         """Unique node id."""
         return self._node_id

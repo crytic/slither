@@ -33,5 +33,5 @@ class Member(OperationWithLValue):
         return self._variable_right
 
     def __str__(self):
-        return str(self.lvalue)  + ' -> ' + str(self.variable_left) + '.' + str(self.variable_right)
+        return '{}({}) -> {}.{}'.format(self.lvalue, self.lvalue.type, self.variable_left, self.variable_right)
 

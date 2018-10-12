@@ -52,6 +52,18 @@ class Function(ChildContract, SourceMapping):
         self._modifiers = []
         self._payable = False
 
+
+    @property
+    def return_type(self):
+        """
+            Return the list of return type 
+            If no return, return None
+        """
+        returns = self.returns
+        if returns:
+            return [r.type for r in returns]
+        return None
+
     @property
     def name(self):
         """

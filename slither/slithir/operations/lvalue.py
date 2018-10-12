@@ -13,3 +13,7 @@ class OperationWithLValue(Operation):
     @property
     def lvalue(self):
         return self._lvalue
+
+    @lvalue.setter
+    def lvalue(self, lvalue):
+        self._lvalue = lvalue

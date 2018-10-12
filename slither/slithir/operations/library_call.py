@@ -16,9 +16,13 @@ class LibraryCall(HighLevelCall):
         arguments = []
         if self.arguments:
             arguments = self.arguments
-        return str(self.lvalue) +' = LIBRARY_CALL dest:{} function:{} arguments:{} {}'.format(self.destination, self.function_name, [str(x) for x in arguments], gas)
-#        if self.call_id:
-#            call_id = '(id ({}))'.format(self.call_id)
-#        return str(self.lvalue) +' = EXTERNALCALL dest:{} function:{} (#arg {}) {}'.format(self.destination, self.function_name, self.nbr_arguments)
+        txt = '{}({}) = LIBRARY_CALL, dest:{}, function:{}, arguments:{} {}'
+        return txt.format(self.lvalue,
+                          self.lvalue.type,
+                          self.destination,
+                          self.function_name,
+                          [str(x) for x in arguments],
+                          gas)
+
 
 

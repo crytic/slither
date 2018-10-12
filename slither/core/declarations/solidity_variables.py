@@ -1,22 +1,29 @@
 # https://solidity.readthedocs.io/en/v0.4.24/units-and-global-variables.html
 from slither.core.context.context import Context
+from slither.core.solidity_types import ElementaryType
 
-SOLIDITY_VARIABLES = ["block", "msg", "now", "tx", "this", "super", 'abi']
+SOLIDITY_VARIABLES = {"now":'uint256',
+                      "this":'address',
+                      'abi':'',
+                      'msg':'',
+                      'tx':'',
+                      'block':'',
+                      'super':''}
 
-SOLIDITY_VARIABLES_COMPOSED = ["block.coinbase",
-                               "block.difficulty",
-                               "block.gaslimit",
-                               "block.number",
-                               "block.timestamp",
-                               "block.blockhash", # alias for blockhash. It's a call
-                               "msg.data",
-                               "msg.gas",
-                               "msg.sender",
-                               "msg.sig",
-                               "msg.value",
-                               "tx.gasprice",
-                               "tx.origin",
-                               "this.balance"]
+SOLIDITY_VARIABLES_COMPOSED = {"block.coinbase":"address",
+                               "block.difficulty":"uint256",
+                               "block.gaslimit":"uint256",
+                               "block.number":"uint256",
+                               "block.timestamp":"uint256",
+                               "block.blockhash":"uint256", # alias for blockhash. It's a call
+                               "msg.data":"bytes",
+                               "msg.gas":"uint256",
+                               "msg.sender":"address",
+                               "msg.sig":"bytes4",
+                               "msg.value":"uint256",
+                               "tx.gasprice":"uint256",
+                               "tx.origin":"address",
+                               "this.balance":"uint256"}
 
 
 SOLIDITY_FUNCTIONS = {"gasleft()":['uint256'],
@@ -71,6 +78,10 @@ class SolidityVariable(Context):
     def name(self):
         return self._name
 
+    @property
+    def type(self):
+        return ElementaryType(SOLIDITY_VARIABLES[self.name])
+
     def __str__(self):
         return self._name
 
@@ -90,6 +101,10 @@ class SolidityVariableComposed(SolidityVariable):
     @property
     def name(self):
         return self._name
+
+    @property
+    def type(self):
+        return SOLIDITY_VARIABLES_COMPOSED[self.name]
 
     def __str__(self):
         return self._name
@@ -114,6 +129,10 @@ class SolidityFunction:
     @property
     def full_name(self):
         return self.name
+
+    @property
+    def return_type(self):
+        return [ElementaryType(x) for x in SOLIDITY_FUNCTIONS[self.name]]
 
     def __str__(self):
         return self._name

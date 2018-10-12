@@ -26,6 +26,16 @@ class BinaryType(object):
     ANDAND =            17 # &&
     OROR =              18 # ||
 
+    @staticmethod
+    def return_bool(operation_type):
+        return operation_type in [BinaryType.OROR,
+                                  BinaryType.ANDAND,
+                                  BinaryType.LESS,
+                                  BinaryType.GREATER,
+                                  BinaryType.LESS_EQUAL,
+                                  BinaryType.GREATER_EQUAL,
+                                  BinaryType.EQUAL,
+                                  BinaryType.NOT_EQUAL]
 
     @staticmethod
     def get_type(operation_type):
@@ -124,6 +134,10 @@ class Binary(OperationWithLValue):
         self._variables = [left_variable, right_variable]
         self._type = operation_type
         self._lvalue = result
+        if BinaryType.return_bool(operation_type):
+            result.set_type('bool')
+        else:
+            result.set_type(left_variable.type)
 
     @property
     def read(self):
@@ -142,8 +156,16 @@ class Binary(OperationWithLValue):
         return self._variables[1]
 
     @property
+    def type(self):
+        return self._type
+
+    @property
     def type_str(self):
         return BinaryType.str(self._type)
 
     def __str__(self):
-        return str(self.lvalue)+ ' = ' + str(self.variable_left) + ' ' + self.type_str + ' ' + str(self.variable_right)
+        return '{}({}) = {} {} {}'.format(str(self.lvalue),
+                                          str(self.lvalue.type),
+                                          self.variable_left,
+                                          self.type_str,
+                                          self.variable_right)
