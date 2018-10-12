@@ -25,7 +25,7 @@ def make_key(variable):
     return key
 
 def _transfer_func_with_key(ir, read, refs, taints, key):
-    if isinstance(ir, OperationWithLValue):
+    if isinstance(ir, OperationWithLValue) and ir.lvalue:
         if any(is_tainted_from_key(var_read, key) or var_read in taints for var_read in read):
             taints += [ir.lvalue]
             ir.lvalue.context[key] = True
