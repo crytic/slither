@@ -1,15 +1,20 @@
-from slither.core.declarations import (Contract, Event, SolidityFunction,
-                                       SolidityVariableComposed, Structure)
+import logging
+
+from slither.core.declarations import (Contract, Enum, Event, SolidityFunction,
+                                       Structure, SolidityVariableComposed, Function)
 from slither.core.expressions import Identifier, Literal
-from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types import ElementaryType, UserDefinedType, MappingType, ArrayType
 from slither.core.variables.variable import Variable
-from slither.slithir.operations import (Assignment, Call, Condition, EventCall,
+from slither.slithir.operations import (Assignment, Binary, BinaryType, Call,
+                                        Condition, Delete, EventCall,
                                         HighLevelCall, Index, InitArray,
-                                        LibraryCall, LowLevelCall, Member,
-                                        NewArray, NewContract,
-                                        NewElementaryType, NewStructure,
-                                        OperationWithLValue, Push, Return,
-                                        Send, SolidityCall, Transfer)
+                                        InternalCall, LibraryCall,
+                                        LowLevelCall, Member, NewArray,
+                                        NewContract, NewElementaryType,
+                                        NewStructure, OperationWithLValue,
+                                        Push, Return, Send, SolidityCall,
+                                        Transfer, TypeConversion, Unary,
+                                        Unpack)
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -21,6 +26,7 @@ from slither.slithir.variables import (Constant, ReferenceVariable,
                                        TemporaryVariable, TupleVariable)
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 
+logger = logging.getLogger('ConvertToIR')
 
 def is_value(ins):
     if isinstance(ins, TmpCall):
@@ -36,7 +42,7 @@ def is_gas(ins):
                 return True
     return False
 
-def transform_calls(result):
+def integrate_value_gas(result):
     was_changed = True
 
     calls = []
@@ -102,31 +108,183 @@ def transform_calls(result):
         calls_d[str(call)] = idx
         idx = idx+1
 
-    for idx in range(len(result)):
-        ins = result[idx]
-        if isinstance(ins, TmpCall):
-            r = extract_tmp_call(ins)
-            if r:
-                result[idx] = r
     return result
 
-def apply_ir_heuristics(result):
+def propage_type_and_convert_call(result, node):
+    calls_value = {}
+    calls_gas = {}
+
+    call_data = []
+
+    for idx in range(len(result)):
+        ins = result[idx]
+
+        if isinstance(ins, TmpCall):
+            new_ins = extract_tmp_call(ins)
+            if new_ins:
+                ins = new_ins
+                result[idx] = ins
+
+        if isinstance(ins, Argument):
+            if ins.get_type() in [ArgumentType.GAS]:
+                assert not ins.call_id in calls_gas
+                calls_gas[ins.call_id] = ins.argument
+            elif ins.get_type() in [ArgumentType.VALUE]:
+                assert not ins.call_id in calls_value
+                calls_value[ins.call_id] = ins.argument
+            else:
+                assert ins.get_type() == ArgumentType.CALL
+                call_data.append(ins.argument)
+
+        if isinstance(ins, (HighLevelCall, NewContract)):
+            if ins.call_id in calls_value:
+                ins.call_value = calls_value[ins.call_id]
+            if ins.call_id in calls_gas:
+                ins.call_gas = calls_gas[ins.call_id]
+
+        if isinstance(ins, (Call, NewContract, NewStructure)):
+            ins.arguments = call_data
+        propagate_types(ins, node)
+    return result
+
+def propagate_types(ir, node):
+    # propagate the type
+    if isinstance(ir, OperationWithLValue):
+        if not ir.lvalue.type:
+            if isinstance(ir, Assignment):
+                ir.lvalue.set_type(ir.rvalue.type)
+            elif isinstance(ir, Binary):
+                if BinaryType.return_bool(ir.type):
+                    ir.lvalue.set_type(ElementaryType('bool'))
+                else:
+                    ir.lvalue.set_type(ir.left_variable.type)
+            elif isinstance(ir, Delete):
+                # nothing to propagate
+                pass
+            elif isinstance(ir, HighLevelCall):
+                t = ir.destination.type
+                # can be None due to temporary operation
+                if t:
+                    if isinstance(t, UserDefinedType):
+                        # UserdefinedType
+                        t = t.type
+                        if isinstance(t, Contract):
+                            sig = '{}({})'.format(ir.function_name,
+                                                  ','.join([str(x.type) for x in ir.arguments]))
+                            contract = node.slither.get_contract_from_name(t.name)
+                            func = contract.get_function_from_signature(sig)
+                            if not func:
+                                func = t.get_state_variable_from_name(ir.function_name)
+                            else:
+                                return_type = func.return_type
+                            if not func and ir.function_name in ['call', 'delegatecall','codecall']:
+                                return
+                            if not func:
+                                logger.error('Function not found {}'.format(sig))
+                            ir.function = func
+                            if isinstance(func, Function):
+                                t = func.return_type
+                            else:
+                                # otherwise its a variable (getter)
+                                t = func.type
+                            if t:
+                                ir.lvalue.set_type(t)
+                            else:
+                                ir.lvalue = None
+                    if isinstance(t, ElementaryType):
+                        print(t.name)
+                        # TODO here handle library call
+                        # we can probably directly remove the ins, as alow level
+                        # or a lib
+                        if t.name == 'address':
+                            ir.lvalue.set_type(ElementaryType('bool'))
+            elif isinstance(ir, Index):
+                if isinstance(ir.variable_left.type, MappingType):
+                    ir.lvalue.set_type(ir.variable_left.type.type_to)
+                else:
+                    assert isinstance(ir.variable_left.type, ArrayType)
+                    ir.lvalue.set_type(ir.variable_left.type.type)
+
+            elif isinstance(ir, InitArray):
+                length = len(ir.init_values)
+                t = ir.init_values[0].type
+                ir.lvalue.set_type(ArrayType(t, length))
+            elif isinstance(ir, InternalCall):
+                return_type = ir.function.return_type
+                if return_type:
+                    ir.lvalue.set_type(return_type)
+                else:
+                    ir.lvalue = None
+            elif isinstance(ir, LowLevelCall):
+                # Call are not yet converted
+                # This should not happen
+                assert False
+            elif isinstance(ir, Member):
+                t = ir.variable_left.type
+                # can be None due to temporary operation
+                if t:
+                    if isinstance(t, UserDefinedType):
+                        # UserdefinedType
+                        t = t.type
+                        if isinstance(t, Enum):
+                            elems = t.values
+                            for elem in elems:
+                                if elem == ir.variable_right:
+                                    ir.lvalue.set_type(elems[elem].type)
+                        elif isinstance(t, Structure):
+                            elems = t.elems
+                            for elem in elems:
+                                if elem == ir.variable_right:
+                                    ir.lvalue.set_type(elems[elem].type)
+                        else:
+                            assert isinstance(t, Contract)
+            elif isinstance(ir, NewArray):
+                ir.lvalue.set_type(ir.array_type)
+            elif isinstance(ir, NewContract):
+                contract = node.slither.get_contract_from_name(ir.contract_name)
+                ir.lvalue.set_type(UserDefinedType(contract))
+            elif isinstance(ir, NewElementaryType):
+                ir.lvalue.set_type(ir.type)
+            elif isinstance(ir, NewStructure):
+                ir.lvalue.set_type(UserDefinedType(ir.structure))
+            elif isinstance(ir, Push):
+                # No change required
+                pass
+            elif isinstance(ir, Send):
+                ir.lvalue.set_type(ElementaryType('bool'))
+            elif isinstance(ir, SolidityCall):
+                ir.lvalue.set_type(ir.function.return_type)
+            elif isinstance(ir, TypeConversion):
+                ir.lvalue.set_type(ir.type)
+            elif isinstance(ir, Unary):
+                ir.lvalue.set_type(ir.rvalue.type)
+            elif isinstance(ir, Unpack):
+                types = ir.tuple.type.type
+                idx = ir.index
+                t = types[idx]
+                ir.lvalue.set_type(t) 
+            elif isinstance(ir, (Argument, TmpCall, TmpNewArray, TmpNewContract, TmpNewStructure, TmpNewElementaryType)):
+                # temporary operation; they will be removed
+                pass
+            else:
+                logger.error('Not handling {} during type propgation'.format(type(ir)))
+                exit(0)
+
+def apply_ir_heuristics(irs, node):
     """
         Apply a set of heuristic to improve slithIR
     """
 
-    result = transform_calls(result)
+    irs = integrate_value_gas(irs)
 
-    # Move the arguments operation to the call
-    result = merge_call_parameters(result)
-    # Remove temporary
-    result = remove_temporary(result)
-    result = replace_calls(result)
+    irs = propage_type_and_convert_call(irs, node)
+    irs = remove_temporary(irs)
+    irs = replace_calls(irs)
+    irs = remove_unused(irs)
 
-    result = remove_unused(result)
-    reset_variable_number(result)
+    reset_variable_number(irs)
 
-    return result
+    return irs
 
 def reset_variable_number(result):
     """
@@ -149,35 +307,6 @@ def reset_variable_number(result):
         tuple_variables[idx].index = idx
 
 
-def merge_call_parameters(result):
-
-    calls_value = {}
-    calls_gas = {}
-
-    call_data = []
-
-    for ins in result:
-        if isinstance(ins, Argument):
-            if ins.get_type() in [ArgumentType.GAS]:
-                assert not ins.call_id in calls_gas
-                calls_gas[ins.call_id] = ins.argument
-            elif ins.get_type() in [ArgumentType.VALUE]:
-                assert not ins.call_id in calls_value
-                calls_value[ins.call_id] = ins.argument
-            else:
-                assert ins.get_type() == ArgumentType.CALL
-                call_data.append(ins.argument)
-
-        if isinstance(ins, (HighLevelCall, NewContract)):
-            if ins.call_id in calls_value:
-                ins.call_value = calls_value[ins.call_id]
-            if ins.call_id in calls_gas:
-                ins.call_gas = calls_gas[ins.call_id]
-
-        if isinstance(ins, (Call, NewContract, NewStructure)):
-            ins.arguments = call_data
-            call_data = []
-    return result
 
 def remove_temporary(result):
     result = [ins for ins in result if not isinstance(ins, (Argument,
@@ -262,6 +391,7 @@ def replace_calls(result):
                                                    ins.type_call)
                         result[idx].call_gas = ins.call_gas
                         result[idx].call_value = ins.call_value
+                        result[idx].arguments = ins.arguments
                     # other case are library on address
     return result
 
@@ -269,11 +399,11 @@ def replace_calls(result):
 def extract_tmp_call(ins):
     assert isinstance(ins, TmpCall)
     if isinstance(ins.ori, Member):
-        if isinstance(ins.ori.variable_left, Contract):
-            libcall = LibraryCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
-            libcall.call_id = ins.call_id
-            return libcall
-        else:
+#        if isinstance(ins.ori.variable_left, Contract):
+#            libcall = LibraryCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
+#            libcall.call_id = ins.call_id
+#            return libcall
+#        else:
             msgcall = HighLevelCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
             msgcall.call_id = ins.call_id
             return msgcall
@@ -347,7 +477,7 @@ def convert_expression(expression, node):
     visitor = ExpressionToSlithIR(expression)
     result = visitor.result()
 
-    result = apply_ir_heuristics(result)
+    result = apply_ir_heuristics(result, node)
 
     result = convert_libs(result, node.function.contract)
 

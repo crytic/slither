@@ -19,4 +19,4 @@ class InitArray(OperationWithLValue):
         return list(self._init_values)
 
     def __str__(self):
-        return "{} =  {}".format(self.lvalue, [str(x) for x in self.init_values])
+        return "{}({}) =  {}".format(self.lvalue, self.lvalue.type, [str(x) for x in self.init_values])

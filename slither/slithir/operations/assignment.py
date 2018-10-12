@@ -91,6 +91,7 @@ class Assignment(OperationWithLValue):
         self._rvalue = right_variable
         self._type = variable_type
         self._variable_return_type = variable_return_type
+        #left_variable.set_type(right_variable.type)
 
     @property
     def variables(self):

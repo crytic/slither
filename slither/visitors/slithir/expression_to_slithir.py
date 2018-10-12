@@ -93,7 +93,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             if expression.type_call.startswith('tuple(') and expression.type_call != 'tuple()':
                 val = TupleVariable()
             else:
-               val = TemporaryVariable()
+                val = TemporaryVariable()
             internal_call = InternalCall(called, len(args), val, expression.type_call)
             self._result.append(internal_call)
             set_val(expression, val)
@@ -104,16 +104,11 @@ class ExpressionToSlithIR(ExpressionVisitor):
             if expression.type_call.startswith('tuple(') and expression.type_call != 'tuple()':
                 val = TupleVariable()
             else:
-               val = TemporaryVariable()
+                val = TemporaryVariable()
 
-            if isinstance(called, Structure) and False:
-                operation = TmpNewStructure(called, val)
-#                self._result.append(message_call)
-#                set_val(expression, val)
-            else:
-                message_call = TmpCall(called, len(args), val, expression.type_call)
-                self._result.append(message_call)
-                set_val(expression, val)
+            message_call = TmpCall(called, len(args), val, expression.type_call)
+            self._result.append(message_call)
+            set_val(expression, val)
 
     def _post_conditional_expression(self, expression):
         raise Exception('Ternary operator are not convertible to SlithIR {}'.format(expression))

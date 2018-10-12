@@ -42,10 +42,10 @@ class Unary(OperationWithLValue):
 
     @property
     def read(self):
-        return [self.variable]
+        return [self._variable]
 
     @property
-    def variable(self):
+    def rvalue(self):
         return self._variable
 
     @property
@@ -53,4 +53,4 @@ class Unary(OperationWithLValue):
         return UnaryType.str(self._type)
 
     def __str__(self):
-        return "{} = {} {} ".format(self.lvalue, self.type_str, self.variable)
+        return "{} = {} {} ".format(self.lvalue, self.type_str, self.rvalue)

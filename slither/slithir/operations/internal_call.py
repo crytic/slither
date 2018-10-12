@@ -32,7 +32,13 @@ class InternalCall(Call, OperationWithLValue):
 
     def __str__(self):
         args = [str(a) for a in self.arguments]
-        return str(self.lvalue) +' = INTERNAL_CALL {}.{} ({}) '.format(self.function.contract.name, self.function.full_name, ','.join(args))
-   #     return str(self.lvalue) +' = INTERNALCALL {} (arg {})'.format(self.function,
-   #                                                                   self.nbr_arguments)
+        if not self.lvalue:
+            lvalue = ''
+        else:
+            lvalue = '{}({}) = '.format(self.lvalue, ','.join(str(x) for x in self.lvalue.type))
+        txt = '{}INTERNAL_CALL, {}.{}({})'
+        return txt.format(lvalue,
+                          self.function.contract.name,
+                          self.function.full_name,
+                          ','.join(args))
 
