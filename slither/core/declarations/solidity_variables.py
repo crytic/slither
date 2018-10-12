@@ -104,7 +104,7 @@ class SolidityVariableComposed(SolidityVariable):
 
     @property
     def type(self):
-        return SOLIDITY_VARIABLES_COMPOSED[self.name]
+        return ElementaryType(SOLIDITY_VARIABLES_COMPOSED[self.name])
 
     def __str__(self):
         return self._name

@@ -34,8 +34,10 @@ class InternalCall(Call, OperationWithLValue):
         args = [str(a) for a in self.arguments]
         if not self.lvalue:
             lvalue = ''
-        else:
+        elif isinstance(self.lvalue.type, (list,)):
             lvalue = '{}({}) = '.format(self.lvalue, ','.join(str(x) for x in self.lvalue.type))
+        else:
+            lvalue = '{}({}) = '.format(self.lvalue, self.lvalue.type)
         txt = '{}INTERNAL_CALL, {}.{}({})'
         return txt.format(lvalue,
                           self.function.contract.name,
