@@ -509,69 +509,13 @@ def remove_unused(result):
     return result
 
 
-#def replace_calls(result):
-#    '''
-#        replace call to push to a Push Operation
-#        Replace to call 'call' 'delegatecall', 'callcode' to an LowLevelCall
-#    '''
-#    reset = True
-#    def is_address(v):
-#        if v in [SolidityVariableComposed('msg.sender'),
-#                 SolidityVariableComposed('tx.origin')]:
-#            return True
-#        if not isinstance(v, Variable):
-#            return False
-#        if not isinstance(v.type, ElementaryType):
-#            return False
-#        return v.type.type == 'address'
-#    while reset:
-#        reset = False
-#        for idx in range(len(result)):
-#            ins = result[idx]
-#            if isinstance(ins, HighLevelCall):
-#                # TODO better handle collision with function named push
-#                if ins.function_name == 'push' and len(ins.arguments) == 1:
-#                    if isinstance(ins.arguments[0], list):
-#                        val = TemporaryVariable()
-#                        operation = InitArray(ins.arguments[0], val)
-#                        result.insert(idx, operation)
-#                        result[idx+1] = Push(ins.destination, val)
-#                        reset = True
-#                        break
-#                    else:
-#                        result[idx] = Push(ins.destination, ins.arguments[0])
-#                if is_address(ins.destination):
-#                    if ins.function_name == 'transfer':
-#                        assert len(ins.arguments) == 1
-#                        result[idx] = Transfer(ins.destination, ins.arguments[0])
-#                    elif ins.function_name == 'send':
-#                        assert len(ins.arguments) == 1
-#                        result[idx] = Send(ins.destination, ins.arguments[0], ins.lvalue)
-#                    elif ins.function_name in ['call', 'delegatecall', 'callcode']:
-#                        # TODO: handle name collision
-#                        result[idx] = LowLevelCall(ins.destination,
-#                                                   ins.function_name,
-#                                                   ins.nbr_arguments,
-#                                                   ins.lvalue,
-#                                                   ins.type_call)
-#                        result[idx].call_gas = ins.call_gas
-#                        result[idx].call_value = ins.call_value
-#                        result[idx].arguments = ins.arguments
-#                    # other case are library on address
-#    return result
-
 
 def extract_tmp_call(ins):
     assert isinstance(ins, TmpCall)
     if isinstance(ins.ori, Member):
-#        if isinstance(ins.ori.variable_left, Contract):
-#            libcall = LibraryCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
-#            libcall.call_id = ins.call_id
-#            return libcall
-#        else:
-            msgcall = HighLevelCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
-            msgcall.call_id = ins.call_id
-            return msgcall
+        msgcall = HighLevelCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
+        msgcall.call_id = ins.call_id
+        return msgcall
 
     if isinstance(ins.ori, TmpCall):
         r = extract_tmp_call(ins.ori)
@@ -606,29 +550,6 @@ def extract_tmp_call(ins):
 
     raise Exception('Not extracted {} {}'.format(type(ins.called), ins))
 
-#def convert_libs(result, contract):
-#    using_for = contract.using_for
-#    for idx in range(len(result)):
-#        ir = result[idx]
-#        if isinstance(ir, HighLevelCall) and isinstance(ir.destination, Variable):
-#            if ir.destination.type in using_for:
-#                for destination in using_for[ir.destination.type]:
-#                    # destination is a UserDefinedType
-#                    destination = contract.slither.get_contract_from_name(str(destination))
-#                    if destination:
-#                        lib_call = LibraryCall(destination,
-#                                               ir.function_name,
-#                                               ir.nbr_arguments,
-#                                               ir.lvalue,
-#                                               ir.type_call)
-#                        lib_call.call_gas = ir.call_gas
-#                        lib_call.arguments = [ir.destination] + ir.arguments
-#                        result[idx] = lib_call
-#                        break
-#                assert destination
-#
-#    return result
-
 def convert_expression(expression, node):
     # handle standlone expression
     # such as return true;
@@ -643,8 +564,6 @@ def convert_expression(expression, node):
     result = visitor.result()
 
     result = apply_ir_heuristics(result, node)
-
-#    result = convert_libs(result, node.function.contract)
 
     if result:
         if node.type in [NodeType.IF, NodeType.IFLOOP]:
