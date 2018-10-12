@@ -4,7 +4,7 @@ from slither.core.solidity_types import ElementaryType
 
 SOLIDITY_VARIABLES = {"now":'uint256',
                       "this":'address',
-                      'abi':'',
+                      'abi':'address', # to simplify the conversion, assume that abi return an address
                       'msg':'',
                       'tx':'',
                       'block':'',
@@ -46,10 +46,14 @@ SOLIDITY_FUNCTIONS = {"gasleft()":['uint256'],
                       "log2(bytes32,bytes32,bytes32)":[],
                       "log3(bytes32,bytes32,bytes32,bytes32)":[],
                       "blockhash(uint256)":['bytes32'],
-                      # this balance needs a special handling
-                      # as it is first recognized as a SolidityVariableComposed
+                      # the following need a special handling
+                      # as they are recognized as a SolidityVariableComposed
                       # and converted to a SolidityFunction by SlithIR
-                      "this.balance()":['uint256']}
+                      "this.balance()":['uint256'],
+                      "abi.encode()":['bytes'],
+                      "abi.encodePacked()":['bytes'],
+                      "abi.encodeWithSelector()":["bytes"],
+                      "abi.encodeWithSignature()":["bytes"]}
 
 def solidity_function_signature(name):
     """

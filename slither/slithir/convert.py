@@ -1,7 +1,7 @@
 import logging
 
 from slither.core.declarations import (Contract, Enum, Event, SolidityFunction,
-                                       Structure, SolidityVariableComposed, Function)
+                                       Structure, SolidityVariableComposed, Function, SolidityVariable)
 from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types import ElementaryType, UserDefinedType, MappingType, ArrayType
 from slither.core.variables.variable import Variable
@@ -169,6 +169,8 @@ def convert_to_low_level(ir):
         Convert to a transfer/send/or low level call
         The funciton assume to receive a correct IR
         The checks must be done by the caller
+
+        Additionally convert abi... to solidityfunction
     """
     if ir.function_name == 'transfer':
         assert len(ir.arguments) == 1
@@ -179,6 +181,16 @@ def convert_to_low_level(ir):
         ir = Send(ir.destination, ir.arguments[0], ir.lvalue)
         ir.lvalue.set_type(ElementaryType('bool'))
         return ir
+    elif ir.destination.name ==  'abi' and ir.function_name in ['encode',
+                                                                'encodePacked',
+                                                                'encodeWithSelector',
+                                                                'encodeWithSignature']:
+
+        call = SolidityFunction('abi.{}()'.format(ir.function_name))
+        new_ir = SolidityCall(call, ir.nbr_arguments, ir.lvalue, ir.type_call)
+        new_ir.arguments = ir.arguments
+        new_ir.lvalue.set_type(call.return_type)
+        return new_ir
     elif ir.function_name in ['call', 'delegatecall', 'callcode']:
         new_ir = LowLevelCall(ir.destination,
                           ir.function_name,
@@ -222,9 +234,7 @@ def convert_to_push(ir):
     ir = Push(ir.destination, ir.arguments[0])
     return ir
 
-def convert_to_library(ir, node, using_for):
-    contract = node.function.contract
-    t = ir.destination.type
+def look_for_library(contract, ir, node, using_for, t):
     for destination in using_for[t]:
         lib_contract = contract.slither.get_contract_from_name(str(destination))
         if destination:
@@ -235,28 +245,24 @@ def convert_to_library(ir, node, using_for):
                                    ir.type_call)
             lib_call.call_gas = ir.call_gas
             lib_call.arguments = [ir.destination] + ir.arguments
-            prev = ir
-            ir = lib_call
-            sig = '{}({})'.format(ir.function_name,
-                                  ','.join([str(x.type) for x in ir.arguments]))
-            func = lib_contract.get_function_from_signature(sig)
-            if not func:
-                func = lib_contract.get_state_variable_from_name(ir.function_name)
-            assert func
-            ir.function = func
-            if isinstance(func, Function):
-                t = func.return_type
-                # if its not a tuple, return a singleton
-                if len(t) == 1:
-                    t = t[0]
-            else:
-                # otherwise its a variable (getter)
-                t = func.type
-            if t:
-                ir.lvalue.set_type(t)
-            else:
-                ir.lvalue = None
-            return ir
+            new_ir = convert_type_library_call(lib_call, lib_contract)
+            if new_ir:
+                return new_ir
+    return None
+
+def convert_to_library(ir, node, using_for):
+    contract = node.function.contract
+    t = ir.destination.type
+
+    new_ir = look_for_library(contract, ir, node, using_for, t)
+    if new_ir:
+        return new_ir
+
+    if '*' in using_for:
+        new_ir = look_for_library(contract, ir, node, using_for, '*')
+        if new_ir:
+            return new_ir
+
     logger.error('Library not found {}'.format(ir))
     exit(0)
 
@@ -270,17 +276,36 @@ def get_type(t):
             return 'address'
     return str(t)
 
+def convert_type_library_call(ir, lib_contract):
+    sig = '{}({})'.format(ir.function_name,
+                          ','.join([get_type(x.type) for x in ir.arguments]))
+    func = lib_contract.get_function_from_signature(sig)
+    if not func:
+        func = lib_contract.get_state_variable_from_name(ir.function_name)
+    # In case of multiple binding to the same type
+    if not func:
+        return None
+    ir.function = func
+    if isinstance(func, Function):
+        t = func.return_type
+        # if its not a tuple, return a singleton
+        if t and len(t) == 1:
+            t = t[0]
+    else:
+        # otherwise its a variable (getter)
+        t = func.type
+    if t:
+        ir.lvalue.set_type(t)
+    else:
+        ir.lvalue = None
+    return ir
+
 def convert_type_of_high_level_call(ir, contract):
     sig = '{}({})'.format(ir.function_name,
                           ','.join([get_type(x.type) for x in ir.arguments]))
     func = contract.get_function_from_signature(sig)
     if not func:
         func = contract.get_state_variable_from_name(ir.function_name)
-    else:
-        return_type = func.return_type
-        # if its not a tuple; return a singleton
-        if return_type and len(return_type) == 1:
-            return_type = return_type[0]
     if not func and ir.function_name in ['call',
                                          'delegatecall',
                                          'codecall',
@@ -288,15 +313,27 @@ def convert_type_of_high_level_call(ir, contract):
                                          'send']:
         return convert_to_low_level(ir)
     if not func:
+        # specific lookup when the compiler does implicit conversion
+        # for example
+        # myFunc(uint)
+        # can be called with an uint8
+        for function in contract.functions:
+            if function.name == ir.function_name and len(function.parameters) == len(ir.arguments):
+                func = function
+                break
+    if not func:
         logger.error('Function not found {}'.format(sig))
     ir.function = func
     if isinstance(func, Function):
-        t = return_type
+        return_type = func.return_type
+        # if its not a tuple; return a singleton
+        if return_type and len(return_type) == 1:
+            return_type = return_type[0]
     else:
         # otherwise its a variable (getter)
-        t = func.type
-    if t:
-        ir.lvalue.set_type(t)
+        return_type = func.type
+    if return_type:
+        ir.lvalue.set_type(return_type)
     else:
         ir.lvalue = None
 
@@ -317,6 +354,8 @@ def propagate_types(ir, node):
             elif isinstance(ir, Delete):
                 # nothing to propagate
                 pass
+            elif isinstance(ir, LibraryCall):
+                return convert_type_library_call(ir, ir.destination)
             elif isinstance(ir, HighLevelCall):
                 t = ir.destination.type
 
@@ -375,24 +414,31 @@ def propagate_types(ir, node):
                 # This should not happen
                 assert False
             elif isinstance(ir, Member):
-                t = ir.variable_left.type
+                left = ir.variable_left
+                if isinstance(left, (Variable, SolidityVariable)):
+                    t = ir.variable_left.type
+                elif isinstance(left, (Contract, Enum, Structure)):
+                    t = UserDefinedType(left)
                 # can be None due to temporary operation
                 if t:
                     if isinstance(t, UserDefinedType):
                         # UserdefinedType
-                        t = t.type
-                        if isinstance(t, Enum):
-                            elems = t.values
-                            for elem in elems:
-                                if elem == ir.variable_right:
-                                    ir.lvalue.set_type(elems[elem].type)
-                        elif isinstance(t, Structure):
-                            elems = t.elems
+                        type_t = t.type
+                        if isinstance(type_t, Enum):
+                            ir.lvalue.set_type(t)
+#                            elems = t.values
+#                            print(elems)
+#                            for elem in elems:
+#                                print(elem)
+#                                if elem == ir.variable_right:
+#                                    ir.lvalue.set_type(elems[elem].type)
+                        elif isinstance(type_t, Structure):
+                            elems = type_t.elems
                             for elem in elems:
                                 if elem == ir.variable_right:
                                     ir.lvalue.set_type(elems[elem].type)
                         else:
-                            assert isinstance(t, Contract)
+                            assert isinstance(type_t, Contract)
             elif isinstance(ir, NewArray):
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):
@@ -513,6 +559,10 @@ def remove_unused(result):
 def extract_tmp_call(ins):
     assert isinstance(ins, TmpCall)
     if isinstance(ins.ori, Member):
+        if isinstance(ins.ori.variable_left, Contract):
+            libcall = LibraryCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
+            libcall.call_id = ins.call_id
+            return libcall
         msgcall = HighLevelCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
         msgcall.call_id = ins.call_id
         return msgcall
@@ -524,7 +574,7 @@ def extract_tmp_call(ins):
         if str(ins.called) == 'block.blockhash':
             ins.called = SolidityFunction('blockhash(uint256)')
         elif str(ins.called) == 'this.balance':
-            ins.called = SolidityFunction('this.balance()')
+            return SolidityCall(SolidityFunction('this.balance()'), ins.nbr_arguments, ins.lvalue, ins.type_call)
 
     if isinstance(ins.called, SolidityFunction):
         return SolidityCall(ins.called, ins.nbr_arguments, ins.lvalue, ins.type_call)
