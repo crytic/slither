@@ -165,7 +165,7 @@ class Binary(OperationWithLValue):
 
     def __str__(self):
         return '{}({}) = {} {} {}'.format(str(self.lvalue),
-                                          str(self.lvalue.type),
+                                          self.lvalue.type,
                                           self.variable_left,
                                           self.type_str,
                                           self.variable_right)

@@ -8,7 +8,10 @@ class Return(Operation):
        Only present as last operation in RETURN node
     """
     def __init__(self, value):
-        assert is_valid_rvalue(value) or isinstance(value, TupleVariable)
+        # Note: Can return None 
+        # ex: return call()
+        # where call() dont return
+        assert is_valid_rvalue(value) or isinstance(value, TupleVariable) or value == None
         super(Return, self).__init__()
         self._value = value
 

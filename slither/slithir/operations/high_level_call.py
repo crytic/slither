@@ -98,9 +98,10 @@ class HighLevelCall(Call, OperationWithLValue):
         txt = '{}HIGH_LEVEL_CALL, dest:{}({}), function:{}, arguments:{} {} {}'
         if not self.lvalue:
             lvalue = ''
-        else:
-            print(self.lvalue)
+        elif isinstance(self.lvalue.type, (list,)):
             lvalue = '{}({}) = '.format(self.lvalue, ','.join(str(x) for x in self.lvalue.type))
+        else:
+            lvalue = '{}({}) = '.format(self.lvalue, self.lvalue.type)
         return txt.format(lvalue,
                           self.destination,
                           self.destination.type,
