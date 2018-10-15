@@ -35,8 +35,16 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
             return ArrayType(ElementaryType(name_elementary), Literal(depth))
         else:
             return ElementaryType(name_elementary)
+    # We first look for contract
+    # To avoid collision 
+    # Ex: a structure with the name of a contract
+    name_contract = name
+    if name_contract.startswith('contract '):
+        name_contract = name_contract[len('contract '):]
+    var_type = next((c for c in contracts if c.name == name_contract), None)
 
-    var_type = next((st for st in structures if st.name == name), None)
+    if not var_type:
+        var_type = next((st for st in structures if st.name == name), None)
     if not var_type:
         var_type = next((e for e in enums if e.name == name), None)
     if not var_type:
@@ -69,11 +77,7 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
             var_type = next((st for st in all_structures if st.contract.name+"."+st.name == name_struct), None)
             if var_type:
                 return ArrayType(UserDefinedType(var_type), Literal(depth))
-    if not var_type:
-        name_contract = name
-        if name_contract.startswith('contract '):
-            name_contract = name_contract[len('contract '):]
-        var_type = next((c for c in contracts if c.name == name_contract), None)
+
     if not var_type:
         var_type = next((f for f in contract.functions if f.name == name), None)
     if not var_type:

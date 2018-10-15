@@ -237,7 +237,7 @@ def convert_to_push(ir):
 def look_for_library(contract, ir, node, using_for, t):
     for destination in using_for[t]:
         lib_contract = contract.slither.get_contract_from_name(str(destination))
-        if destination:
+        if lib_contract:
             lib_call = LibraryCall(lib_contract,
                                    ir.function_name,
                                    ir.nbr_arguments,
