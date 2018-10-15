@@ -43,6 +43,15 @@ def _visit_node(node, visited, key):
     visited = visited + [node]
     taints = node.function.slither.context[key]
 
+    # taints only increase
+    # if we already see this node with the last taint set
+    # we dont need to explore itœ
+    if node in node.slither.context['visited_all_paths']:
+        if node.slither.context['visited_all_paths'][node] == taints:
+            return
+
+    node.slither.context['visited_all_paths'][node] = taints
+
     # use of lambda function, as the key is required for this transfer_func 
     _transfer_func_ = lambda _ir, _read, _refs, _taints: _transfer_func_with_key(_ir,
                                                                                  _read,
@@ -61,6 +70,13 @@ def _visit_node(node, visited, key):
 def run_taint(slither, taint):
 
     key = make_key(taint)
+
+    # if a node was already visited by another path
+    # we will only explore it if the traversal brings
+    # new variables written
+    # This speedup the exploration through a light fixpoint
+    # Its particular useful on 'complex' functions with several loops and conditions
+    slither.context['visited_all_paths'] = {}
 
     prev_taints = []
     slither.context[key] = [taint]
