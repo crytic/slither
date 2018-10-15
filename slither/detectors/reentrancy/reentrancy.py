@@ -96,10 +96,10 @@ class Reentrancy(AbstractDetector):
                 fathers_context['read'] += father.context[self.key]['read']
 
         # Exclude path that dont bring further information
-        if self.key in self.visited_all_paths:
-            if all(f_c['calls'] in self.visited_all_paths[node]['calls'] for f_c in fathers_context):
-                if all(f_c['send_eth'] in self.visited_all_paths[node]['send_eth'] for f_c in fathers_context):
-                    if all(f_c['read'] in self.visited_all_paths[node]['read'] for f_c in fathers_context):
+        if node in self.visited_all_paths:
+            if all(call in self.visited_all_paths[node]['calls'] for call in fathers_context['calls']):
+                if all(send in self.visited_all_paths[node]['send_eth'] for send in fathers_context['send_eth']):
+                    if all(read in self.visited_all_paths[node]['read'] for read in fathers_context['read']):
                         return
         else:
             self.visited_all_paths[node] = {'send_eth':[], 'calls':[], 'read':[]}
