@@ -224,11 +224,11 @@ def convert_to_push(ir):
 
         ir = Push(ir.destination, val)
 
-        length = len(operation.init_values)
+        length = Literal(len(operation.init_values))
         t = operation.init_values[0].type
         ir.lvalue.set_type(ArrayType(t, length))
 
-        ret.insert(ir)
+        ret.append(ir)
         return ret
 
     ir = Push(ir.destination, ir.arguments[0])
