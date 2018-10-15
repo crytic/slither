@@ -306,12 +306,6 @@ def convert_type_of_high_level_call(ir, contract):
     func = contract.get_function_from_signature(sig)
     if not func:
         func = contract.get_state_variable_from_name(ir.function_name)
-    if not func and ir.function_name in ['call',
-                                         'delegatecall',
-                                         'codecall',
-                                         'transfer',
-                                         'send']:
-        return convert_to_low_level(ir)
     if not func:
         # specific lookup when the compiler does implicit conversion
         # for example
@@ -321,6 +315,13 @@ def convert_type_of_high_level_call(ir, contract):
             if function.name == ir.function_name and len(function.parameters) == len(ir.arguments):
                 func = function
                 break
+    # lowlelvel lookup needs to be done at last step
+    if not func and ir.function_name in ['call',
+                                         'delegatecall',
+                                         'codecall',
+                                         'transfer',
+                                         'send']:
+        return convert_to_low_level(ir)
     if not func:
         logger.error('Function not found {}'.format(sig))
     ir.function = func
