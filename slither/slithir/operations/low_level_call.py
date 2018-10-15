@@ -1,7 +1,7 @@
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
-from slither.core.declarations.solidity_variables import SolidityVariableComposed
+from slither.core.declarations.solidity_variables import SolidityVariable
 
 from slither.slithir.variables.constant import Constant
 
@@ -11,7 +11,7 @@ class LowLevelCall(Call, OperationWithLValue):
     """
 
     def __init__(self, destination, function_name, nbr_arguments, result, type_call):
-        assert isinstance(destination, (Variable, SolidityVariableComposed))
+        assert isinstance(destination, (Variable, SolidityVariable))
         assert isinstance(function_name, Constant)
         super(LowLevelCall, self).__init__()
         self._destination = destination
