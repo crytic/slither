@@ -3,12 +3,12 @@ import logging
 from slither.core.declarations import (Contract, Enum, Event, SolidityFunction,
                                        Structure, SolidityVariableComposed, Function, SolidityVariable)
 from slither.core.expressions import Identifier, Literal
-from slither.core.solidity_types import ElementaryType, UserDefinedType, MappingType, ArrayType
+from slither.core.solidity_types import ElementaryType, UserDefinedType, MappingType, ArrayType, FunctionType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Call,
                                         Condition, Delete, EventCall,
                                         HighLevelCall, Index, InitArray,
-                                        InternalCall, LibraryCall,
+                                        InternalCall, InternalDynamicCall, LibraryCall,
                                         LowLevelCall, Member, NewArray,
                                         NewContract, NewElementaryType,
                                         NewStructure, OperationWithLValue,
@@ -57,7 +57,7 @@ def integrate_value_gas(result):
             if isinstance(i, OperationWithLValue):
                 assigments[i.lvalue.name] = i
             if isinstance(i, TmpCall):
-                if isinstance(i.called, Variable):
+                if isinstance(i.called, Variable) and i.called.name in assigments:
                     ins_ori = assigments[i.called.name]
                     i.set_ori(ins_ori)
 
@@ -276,9 +276,21 @@ def get_type(t):
             return 'address'
     return str(t)
 
+def get_sig(ir):
+    sig = '{}({})'
+    name = ir.function_name
+
+    args = []
+    for arg in ir.arguments:
+        if isinstance(arg, (list,)):
+            type_arg = '{}[{}]'.format(get_type(arg[0].type), len(arg))
+        else:
+            type_arg = get_type(arg.type)
+        args.append(type_arg)
+    return sig.format(name, ','.join(args))
+
 def convert_type_library_call(ir, lib_contract):
-    sig = '{}({})'.format(ir.function_name,
-                          ','.join([get_type(x.type) for x in ir.arguments]))
+    sig = get_sig(ir)
     func = lib_contract.get_function_from_signature(sig)
     if not func:
         func = lib_contract.get_state_variable_from_name(ir.function_name)
@@ -301,8 +313,7 @@ def convert_type_library_call(ir, lib_contract):
     return ir
 
 def convert_type_of_high_level_call(ir, contract):
-    sig = '{}({})'.format(ir.function_name,
-                          ','.join([get_type(x.type) for x in ir.arguments]))
+    sig = get_sig(ir)
     func = contract.get_function_from_signature(sig)
     if not func:
         func = contract.get_state_variable_from_name(ir.function_name)
@@ -410,6 +421,16 @@ def propagate_types(ir, node):
                         ir.lvalue.set_type(return_type)
                 else:
                     ir.lvalue = None
+            elif isinstance(ir, InternalDynamicCall):
+                # if its not a tuple, return a singleton
+                return_type = ir.function_type.return_type
+                if return_type:
+                    if len(return_type) == 1:
+                        ir.lvalue.set_type(return_type[0])
+                    else:
+                        ir.lvalue.set_type(return_type)
+                else:
+                    ir.lvalue = None
             elif isinstance(ir, LowLevelCall):
                 # Call are not yet converted
                 # This should not happen
@@ -427,12 +448,6 @@ def propagate_types(ir, node):
                         type_t = t.type
                         if isinstance(type_t, Enum):
                             ir.lvalue.set_type(t)
-#                            elems = t.values
-#                            print(elems)
-#                            for elem in elems:
-#                                print(elem)
-#                                if elem == ir.variable_right:
-#                                    ir.lvalue.set_type(elems[elem].type)
                         elif isinstance(type_t, Structure):
                             elems = type_t.elems
                             for elem in elems:
@@ -599,6 +614,9 @@ def extract_tmp_call(ins):
     if isinstance(ins.called, Event):
         return EventCall(ins.called.name)
 
+    if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
+        return InternalDynamicCall(ins.lvalue, ins.called, ins.called.type)
+
     raise Exception('Not extracted {} {}'.format(type(ins.called), ins))
 
 def convert_expression(expression, node):
@@ -621,7 +639,8 @@ def convert_expression(expression, node):
             assert isinstance(result[-1], (OperationWithLValue))
             result.append(Condition(result[-1].lvalue))
         elif node.type == NodeType.RETURN:
-            assert isinstance(result[-1], (OperationWithLValue))
-            result.append(Return(result[-1].lvalue))
+            # May return None
+            if isinstance(result[-1], (OperationWithLValue)):
+                result.append(Return(result[-1].lvalue))
 
     return result

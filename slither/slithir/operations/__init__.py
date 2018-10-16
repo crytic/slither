@@ -8,6 +8,7 @@ from .high_level_call import HighLevelCall
 from .index import Index
 from .init_array import InitArray
 from .internal_call import InternalCall
+from .internal_dynamic_call import InternalDynamicCall
 from .library_call import LibraryCall
 from .low_level_call import LowLevelCall
 from .lvalue import OperationWithLValue
