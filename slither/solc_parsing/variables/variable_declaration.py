@@ -80,6 +80,9 @@ class VariableDeclarationSolc(Variable):
         self._initial_expression = None
         self._type = None
 
+        if 'constant' in attributes:
+            self._is_constant = attributes['constant']
+
         self._analyze_variable_attributes(attributes)
 
         if not var['children']:
