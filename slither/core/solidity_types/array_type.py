@@ -1,3 +1,4 @@
+from slither.core.variables.variable import Variable
 from slither.core.solidity_types.type import Type
 from slither.core.expressions.expression import Expression
 
@@ -21,6 +22,8 @@ class ArrayType(Type):
 
     def __str__(self):
         if self._length:
+            if isinstance(self._length.value, Variable) and self._length.value.is_constant:
+                return str(self._type)+'[{}]'.format(str(self._length.value.expression))
             return str(self._type)+'[{}]'.format(str(self._length))
         return str(self._type)+'[]'
 
