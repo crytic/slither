@@ -203,7 +203,7 @@ def convert_to_low_level(ir):
         new_ir.lvalue.set_type(ElementaryType('bool'))
         return new_ir
     logger.error('Incorrect conversion to low level {}'.format(ir))
-    exit(0)
+    exit(-1)
 
 def convert_to_push(ir):
     """
@@ -263,8 +263,7 @@ def convert_to_library(ir, node, using_for):
         if new_ir:
             return new_ir
 
-    logger.error('Library not found {}'.format(ir))
-    exit(0)
+    return None
 
 def get_type(t):
     """
@@ -295,6 +294,15 @@ def convert_type_library_call(ir, lib_contract):
     if not func:
         func = lib_contract.get_state_variable_from_name(ir.function_name)
     # In case of multiple binding to the same type
+    if not func:
+        # specific lookup when the compiler does implicit conversion
+        # for example
+        # myFunc(uint)
+        # can be called with an uint8
+        for function in lib_contract.functions:
+            if function.name == ir.function_name and len(function.parameters) == len(ir.arguments):
+                func = function
+                break
     if not func:
         return None
     ir.function = func
@@ -371,28 +379,28 @@ def propagate_types(ir, node):
             elif isinstance(ir, HighLevelCall):
                 t = ir.destination.type
 
-                # Temporary operaiton (they are removed later)
+                # Temporary operation (they are removed later)
                 if t is None:
                     return
+
                 # convert library
                 if t in using_for:
-                    return convert_to_library(ir, node, using_for)
+                    new_ir = convert_to_library(ir, node, using_for)
+                    if new_ir:
+                        return new_ir
 
                 if isinstance(t, UserDefinedType):
                     # UserdefinedType
-                    t = t.type
-                    if isinstance(t, Contract):
-                        contract = node.slither.get_contract_from_name(t.name)
+                    t_type = t.type
+                    if isinstance(t_type, Contract):
+                        contract = node.slither.get_contract_from_name(t_type.name)
                         return convert_type_of_high_level_call(ir, contract)
-                    else:
-                        return None
 
                 # Convert HighLevelCall to LowLevelCall
                 if isinstance(t, ElementaryType) and t.name == 'address':
                     if ir.destination.name == 'this':
                         return convert_type_of_high_level_call(ir, node.function.contract)
-                    else:
-                        return convert_to_low_level(ir)
+                    return convert_to_low_level(ir)
 
                 # Convert push operations
                 # May need to insert a new operation
@@ -489,7 +497,7 @@ def propagate_types(ir, node):
                 pass
             else:
                 logger.error('Not handling {} during type propgation'.format(type(ir)))
-                exit(0)
+                exit(-1)
 
 def apply_ir_heuristics(irs, node):
     """
