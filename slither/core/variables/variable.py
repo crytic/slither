@@ -19,6 +19,7 @@ class Variable(SourceMapping):
         self._type = None
         self._initialized = None
         self._visibility = None
+        self._is_constant = False
 
     @property
     def expression(self):
@@ -59,6 +60,10 @@ class Variable(SourceMapping):
     @property
     def type(self):
         return self._type
+
+    @property
+    def is_constant(self):
+        return self._is_constant
 
     @property
     def visibility(self):
