@@ -1,3 +1,4 @@
+import logging
 
 from slither.core.declarations import Function, Structure
 from slither.core.expressions import (AssignmentOperationType,
@@ -5,8 +6,8 @@ from slither.core.expressions import (AssignmentOperationType,
 from slither.core.solidity_types.array_type import ArrayType
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
                                         Index, InitArray, InternalCall, Member,
-                                        TypeConversion, Unary, Unpack, NewContract,
-                                        NewStructure, NewArray)
+                                        NewArray, NewContract, NewStructure,
+                                        TypeConversion, Unary, Unpack)
 from slither.slithir.tmp_operations.argument import Argument
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -18,6 +19,8 @@ from slither.slithir.variables import (Constant, ReferenceVariable,
                                        TemporaryVariable, TupleVariable)
 from slither.visitors.expression.expression import ExpressionVisitor
 
+logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
+
 key = 'expressionToSlithIR'
 
 def get(expression):
@@ -28,6 +31,33 @@ def get(expression):
 
 def set_val(expression, val):
     expression.context[key] = val
+
+def convert_assignment(left, right, t, return_type):
+    if t == AssignmentOperationType.ASSIGN:
+        return Assignment(left, right, return_type)
+    elif t == AssignmentOperationType.ASSIGN_OR:
+        return Binary(left, left, right, BinaryType.OR)
+    elif t == AssignmentOperationType.ASSIGN_CARET:
+        return Binary(left, left, right, BinaryType.CARET)
+    elif t == AssignmentOperationType.ASSIGN_AND:
+        return Binary(left, left, right, BinaryType.AND)
+    elif t == AssignmentOperationType.ASSIGN_LEFT_SHIFT:
+        return Binary(left, left, right, BinaryType.LEFT_SHIFT)
+    elif t == AssignmentOperationType.ASSIGN_RIGHT_SHIFT:
+        return Binary(left, left, right, BinaryType.RIGHT_SHIT)
+    elif t == AssignmentOperationType.ASSIGN_ADDITION:
+        return Binary(left, left, right, BinaryType.ADDITION)
+    elif t == AssignmentOperationType.ASSIGN_SUBTRACTION:
+        return Binary(left, left, right, BinaryType.SUBTRACTION)
+    elif t == AssignmentOperationType.ASSIGN_MULTIPLICATION:
+        return Binary(left, left, right, BinaryType.MULTIPLICATION)
+    elif t == AssignmentOperationType.ASSIGN_DIVISION:
+        return Binary(left, left, right, BinaryType.DIVISION)
+    elif t == AssignmentOperationType.ASSIGN_MODULO:
+        return Binary(left, left, right, BinaryType.MODULO)
+
+    logger.error('Missing type during assignment conversion')
+    exit(-1)
 
 class ExpressionToSlithIR(ExpressionVisitor):
 
@@ -47,7 +77,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 assert len(left) == len(right)
                 for idx in range(len(left)):
                     if not left[idx] is None:
-                        operation = Assignment(left[idx], right[idx], expression.type, expression.expression_return_type)
+                        operation = convert_assignment(left[idx], right[idx], expression.type, expression.expression_return_type)
                         self._result.append(operation)
                 set_val(expression, None)
             else:
@@ -65,7 +95,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
                 set_val(expression, left)
             else:
-                operation = Assignment(left, right, expression.type, expression.expression_return_type)
+                operation = convert_assignment(left, right, expression.type, expression.expression_return_type)
                 self._result.append(operation)
                 # Return left to handle
                 # a = b = 1; 
@@ -192,14 +222,14 @@ class ExpressionToSlithIR(ExpressionVisitor):
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.PLUSPLUS_POST]:
             lvalue = TemporaryVariable()
-            operation = Assignment(lvalue, value, AssignmentOperationType.ASSIGN, value.type)
+            operation = Assignment(lvalue, value, value.type)
             self._result.append(operation)
             operation = Binary(value, value, Constant("1"), BinaryType.ADDITION)
             self._result.append(operation)
             set_val(expression, lvalue)
         elif expression.type in [UnaryOperationType.MINUSMINUS_POST]:
             lvalue = TemporaryVariable()
-            operation = Assignment(lvalue, value, AssignmentOperationType.ASSIGN, value.type)
+            operation = Assignment(lvalue, value, value.type)
             self._result.append(operation)
             operation = Binary(value, value, Constant("1"), BinaryType.SUBTRACTION)
             self._result.append(operation)

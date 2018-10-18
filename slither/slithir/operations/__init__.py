@@ -1,4 +1,4 @@
-from .assignment import Assignment, AssignmentType
+from .assignment import Assignment
 from .binary import Binary, BinaryType
 from .call import Call
 from .condition import Condition
