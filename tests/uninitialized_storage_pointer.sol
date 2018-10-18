@@ -4,7 +4,7 @@ contract Uninitialized{
         uint a;
     }
 
-    function func() payable{
+    function func() {
         St st; // non init, but never read so its fine
         St memory st2;
         St st_bug;

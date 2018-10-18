@@ -12,6 +12,6 @@ class TupleExpression(Expression):
         return self._expressions
 
     def __str__(self):
-       expressions_str = [str(e) for e in self.expressions]
-       return '(' + ','.join(expressions_str) + ')'
+        expressions_str = [str(e) for e in self.expressions]
+        return '(' + ','.join(expressions_str) + ')'
 

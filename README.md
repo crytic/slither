@@ -15,7 +15,7 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 * Detector API to write custom analyses in Python
 * Ability to analyze contracts written with Solidity > 0.4
 
-Support for advanced value- and taint-tracking is [coming soon](https://github.com/trailofbits/slither/issues/6)!
+Slither possesses it's own intermediate representation, called [SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR).
 
 ## Usage
 
@@ -50,9 +50,12 @@ By default, all the checks are run.
 
 Check | Purpose | Impact | Confidence
 --- | --- | --- | ---
+`--detect-arbitrary-send`| Detect functions sending ethers to an arbitrary destination | High | Medium
 `--detect-reentrancy`| Detect reentrancy vulnerabilities | High | Medium
+`--detect-suicidal`| Detect suicidal functions | High | High
 `--detect-uninitialized-state`| Detect uninitialized state variables | High | High
 `--detect-uninitialized-storage`| Detect uninitialized storage variables | High | High
+`--detect-locked-ether`| Detect contracts with payable functions that do not send ether | Medium | High
 `--detect-tx-origin`| Detect dangerous usage of `tx.origin` | Medium | Medium
 `--detect-pragma`| Detect if different pragma directives are used | Informational | High
 `--detect-solc-version`| Detect if an old version of Solidity used (<0.4.23) | Informational | High
@@ -80,13 +83,15 @@ $ python setup.py install
 
 ## Getting Help
 
-Feel free to stop by our [Slack channel](https://empirehacking.slack.com/messages/C7KKY517H/) for help using or extending Slither.
+Feel free to stop by our [Slack channel](https://empireslacking.herokuapp.com) (#ethereum) for help using or extending Slither.
 
 * The [Printer documentation](https://github.com/trailofbits/slither/wiki/Printer-documentation) describes the information Slither is capable of visualizing for each contract.
 
 * The [Detector documentation](https://github.com/trailofbits/slither/wiki/Adding-a-new-detector) describes how to write a new vulnerability analyses.
 
 * The [API documentation](https://github.com/trailofbits/slither/wiki/API-examples) describes the methods and objects available for custom analyses.
+
+* The [SlithIR documentation](https://github.com/trailofbits/slither/wiki/SlithIR) describes the SlithIR intermediate representation.
 
 ## License
 

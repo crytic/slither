@@ -30,13 +30,13 @@ class SlitherSolc(Slither):
             if data_loaded['name'] == 'root':
                 self._solc_version = '0.3'
                 logger.error('solc <0.4 is not supported')
-                exit(-1)
+                return
             elif data_loaded['name'] == 'SourceUnit':
                 self._solc_version = '0.4'
                 self._parse_source_unit(data_loaded, filename)
             else:
                 logger.error('solc version is not supported')
-                exit(-1)
+                return
 
             for contract_data in data_loaded['children']:
                 # if self.solc_version == '0.3':
@@ -117,6 +117,8 @@ class SlitherSolc(Slither):
         self._analyze_third_part(contracts_to_be_analyzed, libraries)
 
         self._analyzed = True
+    
+        self._convert_to_slithir()
 
     # TODO refactor the following functions, and use a lambda function
 
@@ -234,3 +236,9 @@ class SlitherSolc(Slither):
         contract.analyze_content_functions()
 
         contract.set_is_analyzed(True)
+    
+    def _convert_to_slithir(self):
+        for contract in self.contracts:
+            for func in contract.functions + contract.modifiers:
+                if func.contract == contract:
+                    func.convert_expression_to_slithir()

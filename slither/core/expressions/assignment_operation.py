@@ -13,7 +13,7 @@ class AssignmentOperationType:
     ASSIGN_LEFT_SHIFT =     4 # <<=
     ASSIGN_RIGHT_SHIFT =    5 # >>=
     ASSIGN_ADDITION =       6 # +=
-    ASSIGN_SUBSTRACTION =   7 # -=
+    ASSIGN_SUBTRACTION =   7 # -=
     ASSIGN_MULTIPLICATION = 8 # *=
     ASSIGN_DIVISION =       9 # /=
     ASSIGN_MODULO =         10 # %=
@@ -35,7 +35,7 @@ class AssignmentOperationType:
         if operation_type == '+=':
             return AssignmentOperationType.ASSIGN_ADDITION
         if operation_type == '-=':
-            return AssignmentOperationType.ASSIGN_SUBSTRACTION
+            return AssignmentOperationType.ASSIGN_SUBTRACTION
         if operation_type == '*=':
             return AssignmentOperationType.ASSIGN_MULTIPLICATION
         if operation_type == '/=':
@@ -62,7 +62,7 @@ class AssignmentOperationType:
             return '>>='
         if operation_type == AssignmentOperationType.ASSIGN_ADDITION:
             return '+='
-        if operation_type == AssignmentOperationType.ASSIGN_SUBSTRACTION:
+        if operation_type == AssignmentOperationType.ASSIGN_SUBTRACTION:
             return '-='
         if operation_type == AssignmentOperationType.ASSIGN_MULTIPLICATION:
             return '*='
