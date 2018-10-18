@@ -5,10 +5,10 @@
 from prettytable import PrettyTable
 from slither.printers.abstract_printer import AbstractPrinter
 
-class PrinterSummary(AbstractPrinter):
+class FunctionSummary(AbstractPrinter):
 
-    ARGUMENT = 'summary'
-    HELP = 'the summary of the contract'
+    ARGUMENT = 'function-summary'
+    HELP = 'the summary of the functions'
 
     @staticmethod
     def _convert(l):
