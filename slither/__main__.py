@@ -99,6 +99,7 @@ def main():
     from slither.detectors.reentrancy.reentrancy import Reentrancy
     from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
     from slither.detectors.variables.unused_state_variables import UnusedStateVars
+    from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
     from slither.detectors.statements.tx_origin import TxOrigin
     from slither.detectors.statements.assembly import Assembly
 
@@ -113,7 +114,8 @@ def main():
                  Suicidal,
                  UnusedStateVars,
                  TxOrigin,
-                 Assembly]
+                 Assembly,
+                 ConstCandidateStateVars]
 
     from slither.printers.summary.summary import PrinterSummary
     from slither.printers.summary.quick_summary import PrinterQuickSummary
