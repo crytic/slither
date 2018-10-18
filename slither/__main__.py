@@ -101,6 +101,7 @@ def main():
     from slither.detectors.variables.unused_state_variables import UnusedStateVars
     from slither.detectors.statements.tx_origin import TxOrigin
     from slither.detectors.statements.assembly import Assembly
+    from slither.detectors.operations.low_level_calls import LowLevelCalls
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -113,7 +114,8 @@ def main():
                  Suicidal,
                  UnusedStateVars,
                  TxOrigin,
-                 Assembly]
+                 Assembly,
+                 LowLevelCalls]
 
     from slither.printers.summary.summary import PrinterSummary
     from slither.printers.summary.quick_summary import PrinterQuickSummary

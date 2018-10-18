@@ -24,7 +24,7 @@ if [ $? -ne 1 ]; then
 fi
 
 slither tests/reentrancy.sol --disable-solc-warnings
-if [ $? -ne 1 ]; then
+if [ $? -ne 4 ]; then
     exit 1
 fi
 
@@ -63,6 +63,10 @@ if [ $? -ne 3 ]; then
     exit 1
 fi
 
+slither tests/low_level_calls.sol --disable-solc-warnings --detect-low-level-calls
+if [ $? -ne 1 ]; then
+    exit 1
+fi
 
 ### Test scripts
 
