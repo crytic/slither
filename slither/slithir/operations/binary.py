@@ -13,7 +13,7 @@ class BinaryType(object):
     ADDITION =          4 # +
     SUBTRACTION =      5 # -
     LEFT_SHIFT =        6 # <<
-    RIGHT_SHIT =        7 # >>>
+    RIGHT_SHIT =        7 # >>
     AND =               8 # &
     CARET =             9 # ^
     OR =                10 # | 
