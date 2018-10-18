@@ -15,7 +15,7 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 * Detector API to write custom analyses in Python
 * Ability to analyze contracts written with Solidity > 0.4
 
-Support for advanced value- and taint-tracking is [coming soon](https://github.com/trailofbits/slither/issues/6)!
+Slither possesses it's own intermediate representation, called [SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR).
 
 ## Usage
 
@@ -83,13 +83,15 @@ $ python setup.py install
 
 ## Getting Help
 
-Feel free to stop by our [Slack channel](https://empirehacking.slack.com/messages/C7KKY517H/) for help using or extending Slither.
+Feel free to stop by our [Slack channel](https://empireslacking.herokuapp.com) (#ethereum) for help using or extending Slither.
 
 * The [Printer documentation](https://github.com/trailofbits/slither/wiki/Printer-documentation) describes the information Slither is capable of visualizing for each contract.
 
 * The [Detector documentation](https://github.com/trailofbits/slither/wiki/Adding-a-new-detector) describes how to write a new vulnerability analyses.
 
 * The [API documentation](https://github.com/trailofbits/slither/wiki/API-examples) describes the methods and objects available for custom analyses.
+
+* The [SlithIR documentation](https://github.com/trailofbits/slither/wiki/SlithIR) describes the SlithIR intermediate representation.
 
 ## License
 
