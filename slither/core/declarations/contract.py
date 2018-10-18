@@ -96,6 +96,10 @@ class Contract(ChildSlither, SourceMapping):
         return self._modifiers
 
     @property
+    def constructor(self):
+        return next((func for func in self.functions if func.is_constructor), None)
+
+    @property
     def functions(self):
         '''
             list(Function): List of the functions
@@ -116,7 +120,13 @@ class Contract(ChildSlither, SourceMapping):
         '''
         all_calls = (f.all_internal_calls() for f in self.functions)
         all_calls = [item for sublist in all_calls for item in sublist] + self.functions
-        all_calls = set(all_calls)
+        all_calls = list(set(all_calls))
+
+        all_constructors = [c.constructor for c in self.inheritance]
+        all_constructors = list(set([c for c in all_constructors if c]))
+
+        all_calls = set(all_calls+all_constructors)
+
         return [c for c in all_calls if isinstance(c, Function)]
 
     def functions_as_dict(self):
@@ -154,6 +164,10 @@ class Contract(ChildSlither, SourceMapping):
         return self._using_for
 
     def reverse_using_for(self, name):
+        '''
+            Returns:
+            (list)
+        '''
         return self._using_for[name]
 
     @property

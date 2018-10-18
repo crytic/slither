@@ -11,7 +11,7 @@ class BinaryOperationType:
     DIVISION =          2 # /
     MODULO =            3 # %
     ADDITION =          4 # +
-    SUBSTRACTION =      5 # -
+    SUBTRACTION =      5 # -
     LEFT_SHIFT =        6 # <<
     RIGHT_SHIT =        7 # >>>
     AND =               8 # &
@@ -39,7 +39,7 @@ class BinaryOperationType:
         if operation_type == '+':
             return BinaryOperationType.ADDITION
         if operation_type == '-':
-            return BinaryOperationType.SUBSTRACTION
+            return BinaryOperationType.SUBTRACTION
         if operation_type == '<<':
             return BinaryOperationType.LEFT_SHIFT
         if operation_type == '>>':
@@ -82,7 +82,7 @@ class BinaryOperationType:
             return '%'
         if operation_type == BinaryOperationType.ADDITION:
             return '+'
-        if operation_type == BinaryOperationType.SUBSTRACTION:
+        if operation_type == BinaryOperationType.SUBTRACTION:
             return '-'
         if operation_type == BinaryOperationType.LEFT_SHIFT:
             return '<<'

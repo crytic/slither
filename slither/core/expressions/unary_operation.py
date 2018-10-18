@@ -102,6 +102,10 @@ class UnaryOperation(ExpressionTyped):
         return UnaryOperationType.str(self._type)
 
     @property
+    def type(self):
+        return self._type
+
+    @property
     def is_prefix(self):
         return UnaryOperationType.is_prefix(self._type)
 

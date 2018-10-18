@@ -19,6 +19,10 @@ class FunctionType(Type):
     def return_values(self):
         return self._return_values
 
+    @property
+    def return_type(self):
+        return [x.type for x in self.return_values]
+
     def __str__(self):
         # Use x.type
         # x.name may be empty

@@ -93,6 +93,9 @@ def main():
     from slither.detectors.variables.uninitialized_state_variables import UninitializedStateVarsDetection
     from slither.detectors.attributes.constant_pragma import ConstantPragma
     from slither.detectors.attributes.old_solc import OldSolc
+    from slither.detectors.attributes.locked_ether import LockedEther
+    from slither.detectors.functions.arbitrary_send import ArbitrarySend
+    from slither.detectors.functions.suicidal import Suicidal
     from slither.detectors.reentrancy.reentrancy import Reentrancy
     from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
     from slither.detectors.variables.unused_state_variables import UnusedStateVars
@@ -104,6 +107,9 @@ def main():
                  OldSolc,
                  Reentrancy,
                  UninitializedStorageVars,
+                 LockedEther,
+                 ArbitrarySend,
+                 Suicidal,
                  UnusedStateVars,
                  TxOrigin]
 
@@ -111,8 +117,13 @@ def main():
     from slither.printers.summary.quick_summary import PrinterQuickSummary
     from slither.printers.inheritance.inheritance import PrinterInheritance
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
+    from slither.printers.summary.slithir import PrinterSlithIR
 
-    printers = [PrinterSummary, PrinterQuickSummary, PrinterInheritance, PrinterWrittenVariablesAndAuthorization]
+    printers = [PrinterSummary,
+                PrinterQuickSummary,
+                PrinterInheritance,
+                PrinterWrittenVariablesAndAuthorization,
+                PrinterSlithIR]
 
     # Handle plugins!
     for entry_point in iter_entry_points(group='slither_analyzer.plugin', name=None):

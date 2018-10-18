@@ -7,8 +7,9 @@ if [ $? -ne 1 ]; then
     exit 1
 fi
 
+# contains also the test for the suicidal detector
 slither tests/backdoor.sol --disable-solc-warnings
-if [ $? -ne 1 ]; then
+if [ $? -ne 2 ]; then
     exit 1
 fi
 
@@ -41,6 +42,17 @@ slither tests/unused_state.sol
 if [ $? -ne 1 ]; then
     exit 1
 fi
+
+slither tests/locked_ether.sol
+if [ $? -ne 1 ]; then
+    exit 1
+fi
+
+slither tests/arbitrary_send.sol --disable-solc-warnings
+if [ $? -ne 2 ]; then
+    exit 1
+fi
+
 
 
 ### Test scripts

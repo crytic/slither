@@ -245,12 +245,33 @@ def parse_expression(expression, caller_context):
         return  parse_call(expression, caller_context)
 
     elif name == 'TupleExpression':
+        """
+            For expression like
+            (a,,c) = (1,2,3)
+            the AST provides only two children in the left side
+            We check the type provided (tuple(uint256,,uint256))
+            To determine that there is an empty variable
+            Otherwhise we would not be able to determine that
+            a = 1, c = 3, and 2 is lost
+
+            Note: this is only possible with Solidity >= 0.4.12
+        """
         if 'children' not in expression :
             attributes = expression['attributes']
             components = attributes['components']
             expressions = [parse_expression(c, caller_context) if c else None for c in components]
         else:
             expressions = [parse_expression(e, caller_context) for e in expression['children']]
+        # Add none for empty tuple items
+        if "attributes" in expression:
+            if "type" in expression['attributes']:
+                t = expression['attributes']['type']
+                if ',,' in t or '(,' in t or ',)' in t:
+                    t = t[len('tuple('):-1]
+                    elems = t.split(',')
+                    for idx in range(len(elems)):
+                        if elems[idx] == '':
+                            expressions.insert(idx, None)
         t = TupleExpression(expressions)
         return t
 
@@ -280,6 +301,11 @@ def parse_expression(expression, caller_context):
     elif name == 'Literal':
         assert 'children' not in expression
         value = expression['attributes']['value']
+        if value is None:
+            # for literal declared as hex
+            # see https://solidity.readthedocs.io/en/v0.4.25/types.html?highlight=hex#hexadecimal-literals
+            assert 'hexvalue' in expression['attributes']
+            value = '0x'+expression['attributes']['hexvalue']
         literal = Literal(value)
         return literal
 
