@@ -3,7 +3,7 @@
 ### Test Detectors
 
 slither tests/uninitialized.sol --disable-solc-warnings
-if [ $? -ne 1 ]; then
+if [ $? -ne 2 ]; then
     exit 1
 fi
 
@@ -39,12 +39,12 @@ if [ $? -ne 2 ]; then
 fi
 
 slither tests/unused_state.sol
-if [ $? -ne 1 ]; then
+if [ $? -ne 3 ]; then
     exit 1
 fi
 
 slither tests/locked_ether.sol
-if [ $? -ne 1 ]; then
+if [ $? -ne 3 ]; then
     exit 1
 fi
 
@@ -63,6 +63,10 @@ if [ $? -ne 3 ]; then
     exit 1
 fi
 
+slither tests/const_state_variables.sol --detect-const-candidates-state
+if [ $? -ne 2 ]; then
+    exit 1
+fi
 
 ### Test scripts
 
