@@ -53,6 +53,15 @@ if [ $? -ne 2 ]; then
     exit 1
 fi
 
+slither tests/inline_assembly_contract.sol --disable-solc-warnings
+if [ $? -ne 2 ]; then
+    exit 1
+fi
+
+slither tests/inline_assembly_library.sol --disable-solc-warnings
+if [ $? -ne 3 ]; then
+    exit 1
+fi
 
 
 ### Test scripts
