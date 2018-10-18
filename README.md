@@ -78,7 +78,7 @@ or
 -->
 
 ```bash
-$ git clone https://github.com/trailofbits/slither.git & cd slither
+$ git clone https://github.com/trailofbits/slither.git && cd slither
 $ python setup.py install 
 ```
 
