@@ -100,6 +100,7 @@ def main():
     from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
     from slither.detectors.variables.unused_state_variables import UnusedStateVars
     from slither.detectors.statements.tx_origin import TxOrigin
+    from slither.detectors.naming_convention.naming_convention import NamingConvention
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -111,7 +112,8 @@ def main():
                  ArbitrarySend,
                  Suicidal,
                  UnusedStateVars,
-                 TxOrigin]
+                 TxOrigin,
+                 NamingConvention]
 
     from slither.printers.summary.summary import PrinterSummary
     from slither.printers.summary.quick_summary import PrinterQuickSummary
