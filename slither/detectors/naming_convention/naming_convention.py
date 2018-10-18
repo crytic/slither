@@ -11,7 +11,7 @@ class NamingConvention(AbstractDetector):
     ARGUMENT = 'naming-convention'
     HELP = 'naming convention violations'
     IMPACT = DetectorClassification.INFORMATIONAL
-    CONFIDENCE = DetectorClassification.INFORMATIONAL
+    CONFIDENCE = DetectorClassification.HIGH
 
     @staticmethod
     def is_cap_words(name):
