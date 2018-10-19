@@ -66,15 +66,13 @@ Check | Purpose | Impact | Confidence
 ## How to install
 
 Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
-<!--- 
-## Using Pip
+### Using Pip
 
 ```
 $ pip install slither-analyzer
 ```
 
-or
--->
+### Using Git
 
 ```bash
 $ git clone https://github.com/trailofbits/slither.git && cd slither
