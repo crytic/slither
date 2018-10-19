@@ -5,10 +5,10 @@
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.colors import blue, green, magenta
 
-class PrinterQuickSummary(AbstractPrinter):
+class ContractSummary(AbstractPrinter):
 
-    ARGUMENT = 'quick-summary'
-    HELP = 'a quick summary of the contract'
+    ARGUMENT = 'contract-summary'
+    HELP = 'a summary of the contract'
 
     def output(self, _filename):
         """
