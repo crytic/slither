@@ -11,7 +11,7 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 * Easy integration into continuous integration pipelines
 * Built-in 'printers' quickly report crucial contract information
 * Detector API to write custom analyses in Python
-* Ability to analyze contracts written with Solidity > 0.4
+* Ability to analyze contracts written with Solidity >= 0.4
 * Intermediate representation ([SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR)) enables simple, high-precision analyses
 
 ## Usage
