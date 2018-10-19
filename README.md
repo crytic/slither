@@ -45,21 +45,21 @@ If Slither is run on a directory, it will run on every `.sol` file of the direct
 
 By default, all the checks are run. Use --detect-_name-of-check_ to run one check at a time.
 
-Num | Check | Purpose | Impact | Confidence
+Num | Check | What it Detects | Impact | Confidence
 --- | --- | --- | --- | ---
-1 | `suicidal`| Detect suicidal functions | High | High
-2 | `uninitialized-state`| Detect uninitialized state variables | High | High
-3 | `uninitialized-storage`| Detect uninitialized storage variables | High | High
-4 | `arbitrary-send`| Detect functions sending ethers to an arbitrary destination | High | Medium
-5 | `reentrancy`| Detect reentrancy vulnerabilities | High | Medium
-6 | `locked-ether`| Detect contracts with a payable function that do not send ether | Medium | High
-7 | `tx-origin`| Detect dangerous usage of `tx.origin` | Medium | Medium
-8 | `assembly`| Detect assembly usage | Informational | High
-9 | `low-level-calls`| Detect low level calls | Informational | High
-10 | `naming-convention`| Detect conformance to Solidity naming conventions | Informational | High
-11 | `pragma`| Detect if different pragma directives are used | Informational | High
-12 | `solc-version`| Detect if an old version of Solidity used (<0.4.23) | Informational | High
-13 | `unused-state`| Detect unused state variables | Informational | High
+1 | `suicidal`| Suicidal functions | High | High
+2 | `uninitialized-state`| Uninitialized state variables | High | High
+3 | `uninitialized-storage`| Uninitialized storage variables | High | High
+4 | `arbitrary-send`| Functions that send ether to an arbitrary destination | High | Medium
+5 | `reentrancy`| Reentrancy vulnerabilities | High | Medium
+6 | `locked-ether`| Payable functions that do not send ether | Medium | High
+7 | `tx-origin`| Dangerous usage of `tx.origin` | Medium | Medium
+8 | `assembly`| Assembly usage | Informational | High
+9 | `low-level-calls`| Low level calls | Informational | High
+10 | `naming-convention`| Conformance to Solidity naming conventions | Informational | High
+11 | `pragma`| If different pragma directives are used | Informational | High
+12 | `solc-version`| If an old version of Solidity used (<0.4.23) | Informational | High
+13 | `unused-state`| Unused state variables | Informational | High
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
