@@ -33,7 +33,17 @@ class VariableDeclarationSolc(Variable):
         self._elem_to_parse = None
         self._initializedNotParsed = None
 
-        if var['name'] in ['VariableDeclarationStatement', 'VariableDefinitionStatement']:
+        self._is_compact_ast = False
+
+        if 'nodeType' in var:
+            self._is_compact_ast = True
+
+        if self._is_compact_ast:
+            nodeType = var['nodeType']
+        else:
+            nodeType = var['name']
+
+        if nodeType in ['VariableDeclarationStatement', 'VariableDefinitionStatement']:
             if len(var['children']) == 2:
                 init = var['children'][1]
             elif len(var['children']) == 1:
@@ -45,10 +55,10 @@ class VariableDeclarationSolc(Variable):
                 exit(-1)
             declaration = var['children'][0]
             self._init_from_declaration(declaration, init)
-        elif  var['name'] == 'VariableDeclaration':
+        elif  nodeType == 'VariableDeclaration':
             self._init_from_declaration(var, None)
         else:
-            logger.error('Incorrect variable declaration type {}'.format(var['name']))
+            logger.error('Incorrect variable declaration type {}'.format(nodeType))
             exit(-1)
 
     @property
@@ -66,13 +76,17 @@ class VariableDeclarationSolc(Variable):
             self._visibility = 'internal'
 
     def _init_from_declaration(self, var, init):
-        assert len(var['children']) <= 2
-        assert var['name'] == 'VariableDeclaration'
+        if self._is_compact_ast:
+            attributes = var
+            self._typeName = attributes['typeDescriptions']['typeString']
+        else:
+            assert len(var['children']) <= 2
+            assert var['name'] == 'VariableDeclaration'
 
-        attributes = var['attributes']
+            attributes = var['attributes']
+            self._typeName = attributes['type']
+
         self._name = attributes['name']
-
-        self._typeName = attributes['type']
         self._arrayDepth = 0
         self._isMapping = False
         self._mappingFrom = None
