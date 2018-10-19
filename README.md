@@ -7,15 +7,12 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 ## Features
 
 * Detects vulnerable Solidity code with low false positives
-  * Detection of most major smart contract vulnerabilities
-  * Detection of poor coding practices
 * Identifies where the error condition occurs in the source code
 * Easy integration into continuous integration pipelines
-* Four built-in 'printers' quickly report crucial contract information
+* Built-in 'printers' quickly report crucial contract information
 * Detector API to write custom analyses in Python
 * Ability to analyze contracts written with Solidity > 0.4
-
-Slither possesses it's own intermediate representation, called [SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR).
+* Intermediate representation ([SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR)) enables simple, high-precision analyses
 
 ## Usage
 
@@ -58,6 +55,8 @@ Check | Purpose | Impact | Confidence
 `--detect-locked-ether`| Detect contracts with a payable function that do not send ether | Medium | High
 `--detect-tx-origin`| Detect dangerous usage of `tx.origin` | Medium | Medium
 `--detect-assembly`| Detect assembly usage | Informational | High
+`--detect-low-level-calls`| Detect low level calls | Informational | High
+`--detect-naming-convention`| Detect conformance to Solidity naming conventions | Informational | High
 `--detect-pragma`| Detect if different pragma directives are used | Informational | High
 `--detect-solc-version`| Detect if an old version of Solidity used (<0.4.23) | Informational | High
 `--detect-unused-state`| Detect unused state variables | Informational | High
@@ -67,15 +66,13 @@ Check | Purpose | Impact | Confidence
 ## How to install
 
 Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
-<!--- 
-## Using Pip
+### Using Pip
 
 ```
 $ pip install slither-analyzer
 ```
 
-or
--->
+### Using Git
 
 ```bash
 $ git clone https://github.com/trailofbits/slither.git && cd slither
