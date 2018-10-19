@@ -77,7 +77,10 @@ class SlitherSolc(Slither):
                         pragma.set_offset(contract_data['src'], self)
                         self._pragma_directives.append(pragma)
                     elif contract_data[self.get_key()] == 'ImportDirective':
-                        import_directive = Import(contract_data['attributes']["absolutePath"])
+                        if self.is_compact_ast:
+                            import_directive = Import(contract_data["absolutePath"])
+                        else:
+                            import_directive = Import(contract_data['attributes']["absolutePath"])
                         import_directive.set_offset(contract_data['src'], self)
                         self._import_directives.append(import_directive)
 

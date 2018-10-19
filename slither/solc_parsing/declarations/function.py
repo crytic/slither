@@ -32,7 +32,7 @@ class FunctionSolc(Function):
         super(FunctionSolc, self).__init__()
         self._contract = contract
         if self.is_compact_ast:
-            self._name = function[self.get_key()]
+            self._name = function['name']
         else:
             self._name = function['attributes'][self.get_key()]
         self._functionNotParsed = function
@@ -98,44 +98,80 @@ class FunctionSolc(Function):
 
     def _parse_if(self, ifStatement, node):
         # IfStatement = 'if' '(' Expression ')' Statement ( 'else' Statement )?
+        falseStatement = None
 
-        children = ifStatement[self.get_children()]
-        condition_node = self._new_node(NodeType.IF)
-        #condition = parse_expression(children[0], self)
-        condition = children[0]
-        condition_node.add_unparsed_expression(condition)
+        if self.is_compact_ast:
+            condition = ifStatement['condition']
+            # Note: check if the expression could be directly
+            # parsed here
+            condition_node = self._new_node(NodeType.IF)
+            condition_node.add_unparsed_expression(condition)
+            link_nodes(node, condition_node)
+            trueStatement = self._parse_statement(ifStatement['trueBody'], condition_node)
+            if ifStatement['falseBody']:
+                falseStatement = self._parse_statement(ifStatement['falseBody'], condition_node)
+        else:
+            children = ifStatement[self.get_children('children')]
+            condition = children[0]
+            # Note: check if the expression could be directly
+            # parsed here
+            condition_node = self._new_node(NodeType.IF)
+            condition_node.add_unparsed_expression(condition)
+            link_nodes(node, condition_node)
+            trueStatement = self._parse_statement(children[1], condition_node)
+            if len(children) == 3:
+                falseStatement = self._parse_statement(children[2], condition_node)
 
-        link_nodes(node, condition_node)
-
-        trueStatement = self._parse_statement(children[1], condition_node)
-
-        
         endIf_node = self._new_node(NodeType.ENDIF)
         link_nodes(trueStatement, endIf_node)
 
-        if len(children) == 3:
-            falseStatement = self._parse_statement(children[2], condition_node)
-
+        if falseStatement:
             link_nodes(falseStatement, endIf_node)
-
         else:
             link_nodes(condition_node, endIf_node)
-
         return endIf_node
+
+#    def _parse_if(self, ifStatement, node):
+#        # IfStatement = 'if' '(' Expression ')' Statement ( 'else' Statement )?
+#
+#        children = ifStatement[self.get_children('children')]
+#        condition_node = self._new_node(NodeType.IF)
+#        #condition = parse_expression(children[0], self)
+#        condition = children[0]
+#        condition_node.add_unparsed_expression(condition)
+#
+#        link_nodes(node, condition_node)
+#
+#        trueStatement = self._parse_statement(children[1], condition_node)
+#
+#        
+#        endIf_node = self._new_node(NodeType.ENDIF)
+#        link_nodes(trueStatement, endIf_node)
+#
+#        if len(children) == 3:
+#            falseStatement = self._parse_statement(children[2], condition_node)
+#
+#            link_nodes(falseStatement, endIf_node)
+#
+#        else:
+#            link_nodes(condition_node, endIf_node)
+#
+#        return endIf_node
 
     def _parse_while(self, whileStatement, node):
         # WhileStatement = 'while' '(' Expression ')' Statement
 
-        children = whileStatement[self.get_children()]
-
         node_startWhile = self._new_node(NodeType.STARTLOOP)
-
         node_condition = self._new_node(NodeType.IFLOOP)
-        #expression = parse_expression(children[0], self)
-        expression = children[0]
-        node_condition.add_unparsed_expression(expression)
 
-        statement = self._parse_statement(children[1], node_condition)
+        if self.is_compact_ast:
+            node_condition.add_unparsed_expression(whileStatement['condition'])
+            statement = self._parse_statement(whileStatement['body'], node_condition)
+        else:
+            children = whileStatement[self.get_children('children')]
+            expression = children[0]
+            node_condition.add_unparsed_expression(expression)
+            statement = self._parse_statement(children[1], node_condition)
 
         node_endWhile = self._new_node(NodeType.ENDLOOP)
 
@@ -146,8 +182,48 @@ class FunctionSolc(Function):
 
         return node_endWhile
 
+    def _parse_for_compact_ast(self, statement, node):
+        body = statement['body']
+        init_expression = statement['initializationExpression']
+        condition = statement['condition']
+        loop_expression = statement['loopExpression']
+
+        node_startLoop = self._new_node(NodeType.STARTLOOP)
+        node_endLoop = self._new_node(NodeType.ENDLOOP)
+
+        if init_expression:
+            node_init_expression = self._parse_statement(init_expression, node)
+            link_nodes(node_init_expression, node_startLoop)
+        else:
+            link_nodes(node, node_startLoop)
+
+        if condition:
+            node_condition = self._new_node(NodeType.IFLOOP)
+            node_condition.add_unparsed_expression(condition)
+            link_nodes(node_startLoop, node_condition)
+            link_nodes(node_condition, node_endLoop)
+        else:
+            node_condition = node_startLoop
+
+        node_body = self._parse_statement(body, node_condition)
+
+        if loop_expression:
+            node_LoopExpression = self._parse_statement(loop_expression, node_body)
+            link_nodes(node_LoopExpression, node_startLoop)
+        else:
+            link_nodes(node_body, node_startLoop)
+
+        return node_endLoop
+
+
     def _parse_for(self, statement, node):
         # ForStatement = 'for' '(' (SimpleStatement)? ';' (Expression)? ';' (ExpressionStatement)? ')' Statement
+
+        # the handling of loop in the legacy ast is too complex
+        # to integrate the comapct ast
+        # its cleaner to do it separately
+        if self.is_compact_ast:
+            return self._parse_for_compact_ast(statement, node)
 
         hasInitExession = True
         hasCondition = True
@@ -171,7 +247,7 @@ class FunctionSolc(Function):
         node_startLoop = self._new_node(NodeType.STARTLOOP)
         node_endLoop = self._new_node(NodeType.ENDLOOP)
 
-        children = statement[self.get_children()]
+        children = statement[self.get_children('children')]
 
         if hasInitExession:
             if len(children) >= 2:
@@ -221,34 +297,32 @@ class FunctionSolc(Function):
         return node_endLoop
 
     def _parse_dowhile(self, doWhilestatement, node):
-        children = doWhilestatement[self.get_children()]
 
         node_startDoWhile = self._new_node(NodeType.STARTLOOP)
-
-        # same order in the AST as while
         node_condition = self._new_node(NodeType.IFLOOP)
-        #expression = parse_expression(children[0], self)
-        expression = children[0]
-        node_condition.add_unparsed_expression(expression)
 
-        statement = self._parse_statement(children[1], node_condition)
+        if self.is_compact_ast:
+            node_condition.add_unparsed_expression(doWhilestatement['condition'])
+            statement = self._parse_statement(doWhilestatement['body'], node_condition)
+        else:
+            children = doWhilestatement[self.get_children('children')]
+            # same order in the AST as while
+            expression = children[0]
+            node_condition.add_unparsed_expression(expression)
+            statement = self._parse_statement(children[1], node_condition)
+
         node_endDoWhile = self._new_node(NodeType.ENDLOOP)
 
         link_nodes(node, node_startDoWhile)
-        link_nodes(node_startDoWhile, node_condition)
+        link_nodes(node_startDoWhile, statement)
         link_nodes(statement, node_condition)
         link_nodes(node_condition, node_endDoWhile)
 
         return node_endDoWhile
 
     def _parse_variable_definition(self, statement, node):
-        #assert len(statement[self.get_children()]) == 1
-        # if there is, parse default value
-        #assert not 'attributes' in statement 
-
         try:
             local_var = LocalVariableSolc(statement)
-            #local_var = LocalVariableSolc(statement[self.get_children()][0], statement[self.get_children()][1::])
             local_var.set_function(self)
             local_var.set_offset(statement['src'], self.contract.slither)
 
@@ -261,82 +335,150 @@ class FunctionSolc(Function):
             return new_node
         except MultipleVariablesDeclaration:
             # Custom handling of var (a,b) = .. style declaration
-            count = 0
-            children = statement[self.get_children()]
-            child = children[0]
-            while child[self.get_key()] == 'VariableDeclaration':
-                count = count +1
-                child = children[count]
+            if self.is_compact_ast:
+                variables = statement['declarations']
+                count = len(variables)
 
-            assert len(children) == (count + 1)
-            tuple_vars = children[count]
+                if statement['initialValue']['nodeType'] == 'TupleExpression':
+                    inits = statement['initialValue']['components']
+                    i = 0
+                    new_node = node
+                    for variable in variables:
+                        init = inits[i]
+                        src = variable['src']
+                        i = i+1
+
+                        new_statement = {'nodeType':'VariableDefinitionStatement',
+                                         'src': src,
+                                         'declarations':[variable],
+                                         'initialValue':init}
+                        new_node = self._parse_variable_definition(new_statement, new_node)
+
+                else:
+                    # If we have
+                    # var (a, b) = f()
+                    # we can split in multiple declarations, without init
+                    # Then we craft one expression that does the assignment                   
+                    variables = []
+                    i = 0
+                    for variable in statement['declarations']:
+                        src = variable['src']
+                        i = i+1
+                        # Create a fake statement to be consistent
+                        new_statement = {'nodeType':'VariableDefinitionStatement',
+                                         'src': src,
+                                         'declarations':[variable]}
+                        variables.append(variable)
+
+                        new_node = self._parse_variable_definition_init_tuple(new_statement, i, new_node)
+
+                    var_identifiers = []
+                    # craft of the expression doing the assignement
+                    for v in variables:
+                        identifier = {
+                            'nodeType':'Identifier',
+                            'src': v['src'],
+                            'name': v['name'],
+                            'typeDescriptions': {
+                                'typeString':v['typeDescriptions']['typeString']
+                            }
+                        }
+                        var_identifiers.append(identifier)
+
+                    tuple_expression = {'nodeType':'TuleExpression',
+                                        'src': statement['src'],
+                                        'components':var_identifiers}
+
+                    expression = {
+                        'nodeType' : 'Assignment',
+                        'src':statement['src'],
+                        'operator': '=',
+                        'type':'tuple()',
+                        'leftHandSide': tuple_expression,
+                        'rightHandSide': statement['initialValue']}
+                    node = new_node
+                    new_node = self._new_node(NodeType.EXPRESSION)
+                    new_node.add_unparsed_expression(expression)
+                    link_nodes(node, new_node)
 
 
-            variables_declaration = children[0:count]
-            i = 0
-            new_node = node
-            if tuple_vars[self.get_key()] == 'TupleExpression':
-                assert len(tuple_vars[self.get_children()]) == count
-                for variable in variables_declaration:
-                    init = tuple_vars[self.get_children()][i]
-                    src = variable['src']
-                    i= i+1
-                    # Create a fake statement to be consistent
-                    new_statement = {self.get_key():'VariableDefinitionStatement',
-                                     'src': src,
-                                     self.get_children():[variable, init]}
-
-                    new_node = self._parse_variable_definition(new_statement, new_node)
             else:
-                # If we have
-                # var (a, b) = f()
-                # we can split in multiple declarations, without init
-                # Then we craft one expression that does not assignment
-                assert tuple_vars[self.get_key()] in ['FunctionCall', 'Conditional']
-                variables = []
-                for variable in variables_declaration:
-                    src = variable['src']
-                    i= i+1
-                    # Create a fake statement to be consistent
-                    new_statement = {self.get_key():'VariableDefinitionStatement',
-                                     'src': src,
-                                     self.get_children():[variable]}
-                    variables.append(variable)
+                count = 0
+                children = statement[self.get_children('children')]
+                child = children[0]
+                while child[self.get_key()] == 'VariableDeclaration':
+                    count = count +1
+                    child = children[count]
 
-                    new_node = self._parse_variable_definition_init_tuple(new_statement, i, new_node)
-                var_identifiers = []
-                # craft of the expression doing the assignement
-                for v in variables:
-                    identifier = {
-                        self.get_key() : 'Identifier',
-                        'src': v['src'],
-                        'attributes': {
-                                'value': v['attributes'][self.get_key()],
-                                'type': v['attributes']['type']}
-                    }
-                    var_identifiers.append(identifier)
+                assert len(children) == (count + 1)
+                tuple_vars = children[count]
 
-                expression = {
-                    self.get_key() : 'Assignment',
-                    'src':statement['src'],
-                    'attributes': {'operator': '=',
-                                   'type':'tuple()'},
-                    self.get_children():
-                    [{self.get_key(): 'TupleExpression',
-                      'src': statement['src'],
-                      self.get_children(): var_identifiers},
-                     tuple_vars]}
-                node = new_node
-                new_node = self._new_node(NodeType.EXPRESSION)
-                new_node.add_unparsed_expression(expression)
-                link_nodes(node, new_node)
+
+                variables_declaration = children[0:count]
+                i = 0
+                new_node = node
+                if tuple_vars[self.get_key()] == 'TupleExpression':
+                    assert len(tuple_vars[self.get_children('children')]) == count
+                    for variable in variables_declaration:
+                        init = tuple_vars[self.get_children('children')][i]
+                        src = variable['src']
+                        i = i+1
+                        # Create a fake statement to be consistent
+                        new_statement = {self.get_key():'VariableDefinitionStatement',
+                                         'src': src,
+                                         self.get_children('children'):[variable, init]}
+
+                        new_node = self._parse_variable_definition(new_statement, new_node)
+                else:
+                    # If we have
+                    # var (a, b) = f()
+                    # we can split in multiple declarations, without init
+                    # Then we craft one expression that does the assignment
+                    assert tuple_vars[self.get_key()] in ['FunctionCall', 'Conditional']
+                    variables = []
+                    for variable in variables_declaration:
+                        src = variable['src']
+                        i = i+1
+                        # Create a fake statement to be consistent
+                        new_statement = {self.get_key():'VariableDefinitionStatement',
+                                         'src': src,
+                                         self.get_children('children'):[variable]}
+                        variables.append(variable)
+
+                        new_node = self._parse_variable_definition_init_tuple(new_statement, i, new_node)
+                    var_identifiers = []
+                    # craft of the expression doing the assignement
+                    for v in variables:
+                        identifier = {
+                            self.get_key() : 'Identifier',
+                            'src': v['src'],
+                            'attributes': {
+                                    'value': v['attributes'][self.get_key()],
+                                    'type': v['attributes']['type']}
+                        }
+                        var_identifiers.append(identifier)
+
+                    expression = {
+                        self.get_key() : 'Assignment',
+                        'src':statement['src'],
+                        'attributes': {'operator': '=',
+                                       'type':'tuple()'},
+                        self.get_children('children'):
+                        [{self.get_key(): 'TupleExpression',
+                          'src': statement['src'],
+                          self.get_children('children'): var_identifiers},
+                         tuple_vars]}
+                    node = new_node
+                    new_node = self._new_node(NodeType.EXPRESSION)
+                    new_node.add_unparsed_expression(expression)
+                    link_nodes(node, new_node)
 
 
             return new_node
 
     def _parse_variable_definition_init_tuple(self, statement, index, node):
         local_var = LocalVariableInitFromTupleSolc(statement, index)
-        #local_var = LocalVariableSolc(statement[self.get_children()][0], statement[self.get_children()][1::])
+        #local_var = LocalVariableSolc(statement[self.get_children('children')][0], statement[self.get_children('children')][1::])
         local_var.set_function(self)
         local_var.set_offset(statement['src'], self.contract.slither)
 
@@ -389,9 +531,9 @@ class FunctionSolc(Function):
         elif name == 'Return':
             return_node = self._new_node(NodeType.RETURN)
             link_nodes(node, return_node)
-            if self.get_children() in statement and statement[self.get_children()]:
-                assert len(statement[self.get_children()]) == 1
-                expression = statement[self.get_children()][0]
+            if self.get_children('children') in statement and statement[self.get_children('children')]:
+                assert len(statement[self.get_children('children')]) == 1
+                expression = statement[self.get_children('children')][0]
                 return_node.add_unparsed_expression(expression)
             node = return_node
         elif name == 'Throw':
@@ -399,8 +541,11 @@ class FunctionSolc(Function):
             link_nodes(node, throw_node)
             node = throw_node
         elif name == 'EmitStatement':
-            #expression = parse_expression(statement[self.get_children()][0], self)
-            expression = statement[self.get_children()][0]
+            #expression = parse_expression(statement[self.get_children('children')][0], self)
+            if self.is_compact_ast:
+                expression = statement['eventCall']
+            else:
+                expression = statement[self.get_children('children')][0]
             new_node = self._new_node(NodeType.EXPRESSION)
             new_node.add_unparsed_expression(expression)
             link_nodes(node, new_node)
@@ -410,7 +555,7 @@ class FunctionSolc(Function):
         elif name == 'ExpressionStatement':
             #assert len(statement[self.get_children('expression')]) == 1
             #assert not 'attributes' in statement
-            #expression = parse_expression(statement[self.get_children()][0], self)
+            #expression = parse_expression(statement[self.get_children('children')][0], self)
             if self.is_compact_ast:
                 expression = statement[self.get_children('expression')]
             else:
@@ -435,7 +580,7 @@ class FunctionSolc(Function):
         if self.is_compact_ast:
             statements = block['statements']
         else:
-            statements = block[self.get_children()]
+            statements = block[self.get_children('children')]
 
         for statement in statements:
             node = self._parse_statement(statement, node)
@@ -451,7 +596,7 @@ class FunctionSolc(Function):
         if self.is_compact_ast:
             statements = cfg['statements']
         else:
-            statements = cfg[self.get_children()]
+            statements = cfg[self.get_children('children')]
 
         if not statements:
             self._is_empty = True
@@ -563,7 +708,7 @@ class FunctionSolc(Function):
         if self.is_compact_ast:
             params = params['parameters']
         else:
-            params = params[self.get_children()]
+            params = params[self.get_children('children')]
 
         for param in params:
             assert param[self.get_key()] == 'VariableDeclaration'
@@ -588,7 +733,7 @@ class FunctionSolc(Function):
         if self.is_compact_ast:
             returns = returns['parameters']
         else:
-            returns = returns[self.get_children()]
+            returns = returns[self.get_children('children')]
 
         for ret in returns:
             assert ret[self.get_key()] == 'VariableDeclaration'
@@ -644,7 +789,7 @@ class FunctionSolc(Function):
         if self.is_compact_ast:
             body = self._functionNotParsed['body']
 
-            if body[self.get_key()] == 'Block':
+            if body and body[self.get_key()] == 'Block':
                 self._is_implemented = True
                 self._parse_cfg(body)
 
