@@ -109,16 +109,29 @@ def find_variable(var_name, caller_context):
 
 
 def parse_call(expression, caller_context):
-    attributes = expression['attributes']
 
-    type_conversion = attributes['type_conversion']
+    if caller_context.is_compact_ast:
+        attributes = expression
+        type_conversion = expression['kind'] == 'typeConversion'
+        type_return = attributes['typeDescriptions']['typeString']
 
-    children = expression['children']
+    else:
+        attributes = expression['attributes']
+        type_conversion = attributes['type_conversion']
+        type_return = attributes['type']
+
     if type_conversion:
-        assert len(children) == 2
+        type_call = parse_type(UnknownType(type_return), caller_context)
 
-        type_call = parse_type(UnknownType(attributes['type']), caller_context)
-        type_info = children[0]
+
+        if caller_context.is_compact_ast:
+            type_info = expression['expression']
+            expression_to_parse = expression['value']
+        else:
+            children = expression['children']
+            assert len(children) == 2
+            type_info = children[0]
+            expression_to_parse = children[1]
         assert type_info['name'] in ['ElementaryTypenameExpression',
                                      'ElementaryTypeNameExpression',
                                      'Identifier',
@@ -126,19 +139,21 @@ def parse_call(expression, caller_context):
                                      'IndexAccess',
                                      'MemberAccess']
 
-        expression = parse_expression(children[1], caller_context)
+        expression = parse_expression(expression_to_parse, caller_context)
         t = TypeConversion(expression, type_call)
         return t
 
-    assert children
-
-    type_call = attributes['type']
-    called = parse_expression(children[0], caller_context)
-    arguments = [parse_expression(a, caller_context) for a in children[1::]]
+    if caller_context.is_compact_ast:
+        called = parse_expression(expression['expression'], caller_context)
+        arguments = [parse_expression(a, caller_context) for a in expression['arguments']]
+    else:
+        children = expression['children']
+        called = parse_expression(children[0], caller_context)
+        arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
     if isinstance(called, SuperCallExpression):
-        return SuperCallExpression(called, arguments, type_call)
-    return CallExpression(called, arguments, type_call)
+        return SuperCallExpression(called, arguments, type_return)
+    return CallExpression(called, arguments, type_return)
 
 def parse_super_name(expression):
     assert expression['name'] == 'MemberAccess'
@@ -219,15 +234,20 @@ def parse_expression(expression, caller_context):
     #    | PrimaryExpression
 
     # The AST naming does not follow the spec 
-    name = expression['name']
+    name = expression[caller_context.get_key()]
+
+    is_compact_ast = caller_context.is_compact_ast
 
     if name == 'UnaryOperation':
         attributes = expression['attributes']
         assert 'prefix' in attributes
         operation_type = UnaryOperationType.get_type(attributes['operator'], attributes['prefix'])
 
-        assert len(expression['children']) == 1
-        expression = parse_expression(expression['children'][0], caller_context)
+        if is_compact_ast:
+            expression = parse_expression(expression['subExpression'], caller_context)
+        else:
+            assert len(expression['children']) == 1
+            expression = parse_expression(expression['children'][0], caller_context)
         unary_op = UnaryOperation(expression, operation_type)
         return unary_op
 
@@ -235,9 +255,13 @@ def parse_expression(expression, caller_context):
         attributes = expression['attributes']
         operation_type = BinaryOperationType.get_type(attributes['operator'])
 
-        assert len(expression['children']) == 2
-        left_expression = parse_expression(expression['children'][0], caller_context)
-        right_expression = parse_expression(expression['children'][1], caller_context)
+        if is_compact_ast:
+            left_expression = parse_expression(expression['leftExpression'], caller_context)
+            right_expression = parse_expression(expression['rightExpression'], caller_context)
+        else:
+            assert len(expression['children']) == 2
+            left_expression = parse_expression(expression['children'][0], caller_context)
+            right_expression = parse_expression(expression['children'][1], caller_context)
         binary_op = BinaryOperation(left_expression, right_expression, operation_type)
         return binary_op
 
@@ -256,12 +280,15 @@ def parse_expression(expression, caller_context):
 
             Note: this is only possible with Solidity >= 0.4.12
         """
-        if 'children' not in expression :
-            attributes = expression['attributes']
-            components = attributes['components']
-            expressions = [parse_expression(c, caller_context) if c else None for c in components]
+        if caller_context.is_compact_ast:
+                expressions = [parse_expression(e, caller_context) for e in expression['components']]
         else:
-            expressions = [parse_expression(e, caller_context) for e in expression['children']]
+            if 'children' not in expression :
+                attributes = expression['attributes']
+                components = attributes['components']
+                expressions = [parse_expression(c, caller_context) if c else None for c in components]
+            else:
+                expressions = [parse_expression(e, caller_context) for e in expression['children']]
         # Add none for empty tuple items
         if "attributes" in expression:
             if "type" in expression['attributes']:
@@ -272,6 +299,7 @@ def parse_expression(expression, caller_context):
                     for idx in range(len(elems)):
                         if elems[idx] == '':
                             expressions.insert(idx, None)
+        print(expressions)
         t = TupleExpression(expressions)
         return t
 
@@ -311,15 +339,23 @@ def parse_expression(expression, caller_context):
 
     elif name == 'Identifier':
         assert 'children' not in expression
-        value = expression['attributes']['value']
-        if 'type' in expression['attributes']:
-            t = expression['attributes']['type']
-            if t:
-                found = re.findall('[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)', t)
-                assert len(found) <= 1
-                if found:
-                    value = value+'('+found[0]+')'
-                    value = filter_name(value)
+
+        t = None
+
+        if caller_context.is_compact_ast:
+            value = expression['name']
+            t = expression['typeDescriptions']['typeString']
+        else:
+            value = expression['attributes']['value']
+            if 'type' in expression['attributes']:
+               t = expression['attributes']['type']
+
+        if t:
+            found = re.findall('[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)', t)
+            assert len(found) <= 1
+            if found:
+                value = value+'('+found[0]+')'
+                value = filter_name(value)
 
         var = find_variable(value, caller_context)
 
@@ -336,11 +372,16 @@ def parse_expression(expression, caller_context):
         return index
 
     elif name == 'MemberAccess':
-        member_name = expression['attributes']['member_name']
-        member_type = expression['attributes']['type']
-        children = expression['children']
-        assert len(children) == 1
-        member_expression = parse_expression(children[0], caller_context)
+        if caller_context.is_compact_ast:
+            member_name = expression['memberName']
+            member_type = expression['typeDescriptions']['typeString']
+            member_expression = parse_expression(expression['expression'], caller_context)
+        else:
+            member_name = expression['attributes']['member_name']
+            member_type = expression['attributes']['type']
+            children = expression['children']
+            assert len(children) == 1
+            member_expression = parse_expression(children[0], caller_context)
         if str(member_expression) == 'super':
             super_name = parse_super_name(expression)
             if isinstance(caller_context, Contract):
