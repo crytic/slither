@@ -7,15 +7,12 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 ## Features
 
 * Detects vulnerable Solidity code with low false positives
-  * Detection of most major smart contract vulnerabilities
-  * Detection of poor coding practices
 * Identifies where the error condition occurs in the source code
 * Easy integration into continuous integration pipelines
-* Four built-in 'printers' quickly report crucial contract information
+* Built-in 'printers' quickly report crucial contract information
 * Detector API to write custom analyses in Python
 * Ability to analyze contracts written with Solidity > 0.4
-
-Slither possesses it's own intermediate representation, called [SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR).
+* Intermediate representation ([SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR)) enables simple, high-precision analyses
 
 ## Usage
 
@@ -55,12 +52,14 @@ Check | Purpose | Impact | Confidence
 `--detect-suicidal`| Detect suicidal functions | High | High
 `--detect-uninitialized-state`| Detect uninitialized state variables | High | High
 `--detect-uninitialized-storage`| Detect uninitialized storage variables | High | High
-`--detect-locked-ether`| Detect contracts with payable functions that do not send ether | Medium | High
+`--detect-locked-ether`| Detect contracts with a payable function that do not send ether | Medium | High
 `--detect-tx-origin`| Detect dangerous usage of `tx.origin` | Medium | Medium
+`--detect-assembly`| Detect assembly usage | Informational | High
 `--detect-pragma`| Detect if different pragma directives are used | Informational | High
 `--detect-solc-version`| Detect if an old version of Solidity used (<0.4.23) | Informational | High
 `--detect-unused-state`| Detect unused state variables | Informational | High
 `--detect-low-level-calls`| Detect low level calls | Informational | High
+`--detect-naming-convention`| Detect conformance to Solidity naming conventions | Informational | High
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
@@ -78,7 +77,7 @@ or
 -->
 
 ```bash
-$ git clone https://github.com/trailofbits/slither.git & cd slither
+$ git clone https://github.com/trailofbits/slither.git && cd slither
 $ python setup.py install 
 ```
 
