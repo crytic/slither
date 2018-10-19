@@ -69,6 +69,10 @@ if [ $? -ne 10 ]; then
     exit 1
 fi
 
+slither tests/low_level_calls.sol --disable-solc-warnings --detect-low-level-calls
+if [ $? -ne 1 ]; then
+    exit 1
+fi
 
 ### Test scripts
 
