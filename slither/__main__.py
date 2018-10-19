@@ -115,14 +115,14 @@ def main():
                  TxOrigin,
                  Assembly]
 
-    from slither.printers.summary.summary import PrinterSummary
-    from slither.printers.summary.quick_summary import PrinterQuickSummary
+    from slither.printers.summary.function import FunctionSummary
+    from slither.printers.summary.contract import ContractSummary
     from slither.printers.inheritance.inheritance import PrinterInheritance
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
     from slither.printers.summary.slithir import PrinterSlithIR
 
-    printers = [PrinterSummary,
-                PrinterQuickSummary,
+    printers = [FunctionSummary,
+                ContractSummary,
                 PrinterInheritance,
                 PrinterWrittenVariablesAndAuthorization,
                 PrinterSlithIR]
