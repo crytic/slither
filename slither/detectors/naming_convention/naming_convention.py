@@ -9,7 +9,7 @@ class NamingConvention(AbstractDetector):
     """
 
     ARGUMENT = 'naming-convention'
-    HELP = 'naming convention violations'
+    HELP = 'conformance to Solidity naming conventions'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
