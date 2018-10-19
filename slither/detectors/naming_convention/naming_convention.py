@@ -35,7 +35,7 @@ class NamingConvention(AbstractDetector):
         for contract in self.contracts:
 
             if self.is_cap_words(contract.name) is False:
-                info = " Contract '{}' is not in CapWords".format(contract.name)
+                info = "Contract '{}' is not in CapWords".format(contract.name)
                 self.log(info)
 
                 results.append({'vuln': 'NamingConvention',
@@ -46,7 +46,7 @@ class NamingConvention(AbstractDetector):
             for struct in contract.structures:
 
                 if self.is_cap_words(struct.name) is False:
-                    info = " Struct '{}' is not in CapWords, Contract: '{}' ".format(struct.name, contract.name)
+                    info = "Struct '{}' is not in CapWords, Contract: '{}' ".format(struct.name, contract.name)
                     self.log(info)
 
                     results.append({'vuln': 'NamingConvention',
@@ -58,7 +58,7 @@ class NamingConvention(AbstractDetector):
             for event in contract.events:
 
                 if self.is_cap_words(event.name) is False:
-                    info = " Event '{}' is not in CapWords, Contract: '{}' ".format(event.name, contract.name)
+                    info = "Event '{}' is not in CapWords, Contract: '{}' ".format(event.name, contract.name)
                     self.log(info)
 
                     results.append({'vuln': 'NamingConvention',
@@ -70,7 +70,7 @@ class NamingConvention(AbstractDetector):
             for func in contract.functions:
 
                 if self.is_mixed_case(func.name) is False:
-                    info = " Function '{}' is not in mixedCase, Contract: '{}' ".format(func.name, contract.name)
+                    info = "Function '{}' is not in mixedCase, Contract: '{}' ".format(func.name, contract.name)
                     self.log(info)
 
                     results.append({'vuln': 'NamingConvention',
@@ -82,7 +82,7 @@ class NamingConvention(AbstractDetector):
                 for argument in func.parameters:
 
                     if self.is_mixed_case(argument.name) is False:
-                        info = " Parameter '{}' is not in mixedCase, Contract: '{}', Function: '{}'' " \
+                        info = "Parameter '{}' is not in mixedCase, Contract: '{}', Function: '{}'' " \
                             .format(argument.name, argument.name, contract.name)
                         self.log(info)
 
@@ -97,7 +97,7 @@ class NamingConvention(AbstractDetector):
 
                 if self.should_avoid_name(var.name):
                     if self.is_upper_case_with_underscores(var.name) is False:
-                        info = " Variable '{}' l, O, I should not be used, Contract: '{}' " \
+                        info = "Variable '{}' l, O, I should not be used, Contract: '{}' " \
                             .format(var.name, contract.name)
                         self.log(info)
 
@@ -109,7 +109,7 @@ class NamingConvention(AbstractDetector):
 
                 if var.is_constant is True:
                     if self.is_upper_case_with_underscores(var.name) is False:
-                        info = " Constant '{}' is not in UPPER_CASE_WITH_UNDERSCORES, Contract: '{}' " \
+                        info = "Constant '{}' is not in UPPER_CASE_WITH_UNDERSCORES, Contract: '{}' " \
                             .format(var.name, contract.name)
                         self.log(info)
 
@@ -120,7 +120,7 @@ class NamingConvention(AbstractDetector):
                                         'sourceMapping': var.source_mapping})
                 else:
                     if self.is_mixed_case(var.name) is False:
-                        info = " Variable '{}' is not in mixedCase, Contract: '{}' ".format(var.name, contract.name)
+                        info = "Variable '{}' is not in mixedCase, Contract: '{}' ".format(var.name, contract.name)
                         self.log(info)
 
                         results.append({'vuln': 'NamingConvention',
@@ -131,7 +131,7 @@ class NamingConvention(AbstractDetector):
 
             for enum in contract.enums:
                 if self.is_cap_words(enum.name) is False:
-                    info = " Enum '{}' is not in CapWords, Contract: '{}' ".format(enum.name, contract.name)
+                    info = "Enum '{}' is not in CapWords, Contract: '{}' ".format(enum.name, contract.name)
                     self.log(info)
 
                     results.append({'vuln': 'NamingConvention',
@@ -142,7 +142,7 @@ class NamingConvention(AbstractDetector):
 
             for modifier in contract.modifiers:
                 if self.is_mixed_case(modifier.name) is False:
-                    info = " Modifier '{}' is not in mixedCase, Contract: '{}' ".format(modifier.name, contract.name)
+                    info = "Modifier '{}' is not in mixedCase, Contract: '{}' ".format(modifier.name, contract.name)
                     self.log(info)
 
                     results.append({'vuln': 'NamingConvention',
