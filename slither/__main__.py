@@ -116,12 +116,14 @@ def main():
     from slither.printers.summary.summary import PrinterSummary
     from slither.printers.summary.quick_summary import PrinterQuickSummary
     from slither.printers.inheritance.inheritance import PrinterInheritance
+    from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
     from slither.printers.summary.slithir import PrinterSlithIR
 
     printers = [PrinterSummary,
                 PrinterQuickSummary,
                 PrinterInheritance,
+                PrinterInheritanceGraph,
                 PrinterWrittenVariablesAndAuthorization,
                 PrinterSlithIR]
 
