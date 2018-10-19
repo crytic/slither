@@ -102,6 +102,8 @@ def main():
     from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
     from slither.detectors.statements.tx_origin import TxOrigin
     from slither.detectors.statements.assembly import Assembly
+    from slither.detectors.operations.low_level_calls import LowLevelCalls
+    from slither.detectors.naming_convention.naming_convention import NamingConvention
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -115,16 +117,18 @@ def main():
                  UnusedStateVars,
                  TxOrigin,
                  Assembly,
+                 LowLevelCalls,
+                 NamingConvention,
                  ConstCandidateStateVars]
 
-    from slither.printers.summary.summary import PrinterSummary
-    from slither.printers.summary.quick_summary import PrinterQuickSummary
+    from slither.printers.summary.function import FunctionSummary
+    from slither.printers.summary.contract import ContractSummary
     from slither.printers.inheritance.inheritance import PrinterInheritance
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
     from slither.printers.summary.slithir import PrinterSlithIR
 
-    printers = [PrinterSummary,
-                PrinterQuickSummary,
+    printers = [FunctionSummary,
+                ContractSummary,
                 PrinterInheritance,
                 PrinterWrittenVariablesAndAuthorization,
                 PrinterSlithIR]
