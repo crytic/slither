@@ -101,6 +101,7 @@ def main():
     from slither.detectors.variables.unused_state_variables import UnusedStateVars
     from slither.detectors.statements.tx_origin import TxOrigin
     from slither.detectors.statements.assembly import Assembly
+    from slither.detectors.naming_convention.naming_convention import NamingConvention
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -113,7 +114,8 @@ def main():
                  Suicidal,
                  UnusedStateVars,
                  TxOrigin,
-                 Assembly]
+                 Assembly,
+                 NamingConvention]
 
     from slither.printers.summary.function import FunctionSummary
     from slither.printers.summary.contract import ContractSummary
