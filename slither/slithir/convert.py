@@ -522,7 +522,7 @@ def reset_variable_number(result):
     variables = []
     for ins in result:
         variables += ins.read
-        if isinstance(ins, OperationWithLValue):
+        if isinstance(ins, OperationWithLValue) and not ins.lvalue in variables:
             variables += [ins.lvalue]
 
     tmp_variables = [v for v in variables if isinstance(v, TemporaryVariable)]
