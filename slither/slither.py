@@ -93,7 +93,7 @@ class Slither(SlitherSolc):
                     logger.info('Empty AST file: %s', filename)
                     sys.exit(-1)
         else:
-            cmd = [solc, filename, '--ast-json']
+            cmd = [solc, filename, '--ast-compact-json']
             if solc_arguments:
                 # To parse, we first split the string on each '--'
                 solc_args = solc_arguments.split('--')
