@@ -101,6 +101,8 @@ def main():
     from slither.detectors.variables.unused_state_variables import UnusedStateVars
     from slither.detectors.statements.tx_origin import TxOrigin
     from slither.detectors.statements.assembly import Assembly
+    from slither.detectors.operations.low_level_calls import LowLevelCalls
+    from slither.detectors.naming_convention.naming_convention import NamingConvention
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -113,16 +115,18 @@ def main():
                  Suicidal,
                  UnusedStateVars,
                  TxOrigin,
-                 Assembly]
+                 Assembly,
+                 LowLevelCalls,
+                 NamingConvention]
 
-    from slither.printers.summary.summary import PrinterSummary
-    from slither.printers.summary.quick_summary import PrinterQuickSummary
+    from slither.printers.summary.function import FunctionSummary
+    from slither.printers.summary.contract import ContractSummary
     from slither.printers.inheritance.inheritance import PrinterInheritance
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
     from slither.printers.summary.slithir import PrinterSlithIR
 
-    printers = [PrinterSummary,
-                PrinterQuickSummary,
+    printers = [FunctionSummary,
+                ContractSummary,
                 PrinterInheritance,
                 PrinterWrittenVariablesAndAuthorization,
                 PrinterSlithIR]
@@ -199,7 +203,11 @@ def main_impl(all_detector_classes, all_printer_classes):
 
         if args.json:
             output_json(results, args.json)
-        logger.info('%s analyzed (%d contracts), %d result(s) found', filename, number_contracts, len(results))
+        # Dont print the number of result for printers
+        if printer_classes:
+            logger.info('%s analyzed (%d contracts)', filename, number_contracts)
+        else:
+            logger.info('%s analyzed (%d contracts), %d result(s) found', filename, number_contracts, len(results))
         exit(results)
 
     except Exception:
