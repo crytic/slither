@@ -4,7 +4,7 @@
 
 
 slither tests/uninitialized.sol --disable-solc-warnings --detect-uninitialized-state
-if [ $? -ne 1 ]; then
+if [ $? -ne 3 ]; then
     exit 1
 fi
 
