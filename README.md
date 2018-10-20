@@ -17,7 +17,7 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 ## Usage
 
 ``` 
-$ slither tests/uninitialized.sol
+$ slither tests/uninitialized.sol # argument can be file, folder or glob, be sure to quote the argument when using a glob
 [..]
 INFO:Detectors:Uninitialized state variables in tests/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
 [..]
