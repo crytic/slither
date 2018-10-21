@@ -2,6 +2,7 @@
 
 ### Test Detectors
 
+
 slither tests/uninitialized.sol --disable-solc-warnings --detect-uninitialized-state
 if [ $? -ne 1 ]; then
     exit 1
@@ -73,6 +74,12 @@ slither tests/low_level_calls.sol --disable-solc-warnings --detect-low-level-cal
 if [ $? -ne 1 ]; then
     exit 1
 fi
+
+slither tests/const_state_variables.sol --detect-const-candidates-state
+if [ $? -ne 2 ]; then
+    exit 1
+fi
+
 
 ### Test scripts
 
