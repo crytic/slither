@@ -56,11 +56,12 @@ Num | Check | What it Detects | Impact | Confidence
 6 | `locked-ether`| Payable functions that do not send ether | Medium | High
 7 | `tx-origin`| Dangerous usage of `tx.origin` | Medium | Medium
 8 | `assembly`| Assembly usage | Informational | High
-9 | `low-level-calls`| Low level calls | Informational | High
-10 | `naming-convention`| Conformance to Solidity naming conventions | Informational | High
-11 | `pragma`| If different pragma directives are used | Informational | High
-12 | `solc-version`| If an old version of Solidity used (<0.4.23) | Informational | High
-13 | `unused-state`| Unused state variables | Informational | High
+9 | `const-candidates-state`| State variables that could be declared constant | Informational | High
+10 | `low-level-calls`| Low level calls | Informational | High
+11 | `naming-convention`| Conformance to Solidity naming conventions | Informational | High
+12 | `pragma`| If different pragma directives are used | Informational | High
+13 | `solc-version`| If an old version of Solidity used (<0.4.23) | Informational | High
+14 | `unused-state`| Unused state variables | Informational | High
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
