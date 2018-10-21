@@ -99,6 +99,7 @@ def main():
     from slither.detectors.reentrancy.reentrancy import Reentrancy
     from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
     from slither.detectors.variables.unused_state_variables import UnusedStateVars
+    from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
     from slither.detectors.statements.tx_origin import TxOrigin
     from slither.detectors.statements.assembly import Assembly
     from slither.detectors.operations.low_level_calls import LowLevelCalls
@@ -117,7 +118,8 @@ def main():
                  TxOrigin,
                  Assembly,
                  LowLevelCalls,
-                 NamingConvention]
+                 NamingConvention,
+                 ConstCandidateStateVars]
 
     from slither.printers.summary.function import FunctionSummary
     from slither.printers.summary.contract import ContractSummary
