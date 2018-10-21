@@ -19,7 +19,7 @@ class ConstCandidateStateVars(AbstractDetector):
     """
 
     ARGUMENT = 'const-candidates-state'
-    HELP = 'detect state variables that could be const'
+    HELP = 'State variables that could be declared constant'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 

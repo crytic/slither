@@ -11,7 +11,7 @@ class ConstantPragma(AbstractDetector):
     """
 
     ARGUMENT = 'pragma'
-    HELP = 'if different pragma directives are used'
+    HELP = 'If different pragma directives are used'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 

@@ -12,7 +12,7 @@ class Assembly(AbstractDetector):
     """
 
     ARGUMENT = 'assembly'
-    HELP = 'assembly usage'
+    HELP = 'Assembly usage'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
