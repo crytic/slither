@@ -6,6 +6,10 @@ class NamingConvention(AbstractDetector):
     """
     Check if naming conventions are followed
     https://solidity.readthedocs.io/en/v0.4.25/style-guide.html?highlight=naming_convention%20convention#naming_convention-conventions
+
+    Exceptions:
+    - Allow constant variables name/symbol/decimals to be lowercase (ERC20)
+    - Allow '_' at the beggining of the mixed_case match, to represent private variable and unused parameters
     """
 
     ARGUMENT = 'naming-convention'
@@ -19,7 +23,9 @@ class NamingConvention(AbstractDetector):
 
     @staticmethod
     def is_mixed_case(name):
-        return re.search('^[a-z]([A-Za-z0-9]+)?_?$', name) is not None
+        # Allow _ at the beginning to represent private variable
+        # or unused parameters
+        return re.search('^[a-z_]([A-Za-z0-9]+)?_?$', name) is not None
 
     @staticmethod
     def is_upper_case_with_underscores(name):
@@ -108,6 +114,10 @@ class NamingConvention(AbstractDetector):
                                         'sourceMapping': var.source_mapping})
 
                 if var.is_constant is True:
+                    # For ERC20 compatibility
+                    if var.name in ['symbol', 'name', 'decimals']:
+                        continue
+
                     if self.is_upper_case_with_underscores(var.name) is False:
                         info = "Constant '{}' is not in UPPER_CASE_WITH_UNDERSCORES, Contract: '{}' " \
                             .format(var.name, contract.name)
