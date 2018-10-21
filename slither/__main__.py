@@ -34,13 +34,16 @@ def output_to_markdown(detector_classes):
         confidence = classification_txt[detector.CONFIDENCE]
         detectors_list.append((argument, help_info, impact, confidence))
 
-    # Sort by impact and name
-    detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[0]))
+    # Sort by impact, confidence, and name
+    detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[3], element[0]))
+    idx = 1
     for (argument, help_info, impact, confidence) in detectors_list:
-        print('`--detect-{}`| Detect {} | {} | {}'.format(argument,
-                                                          help_info,
-                                                          classification_txt[impact],
-                                                          confidence))
+        print('{} | `{}` | {} | {} | {}'.format(idx,
+                                                argument,
+                                                help_info,
+                                                classification_txt[impact],
+                                                confidence))
+        idx = idx +1
 
 def process(filename, args, detector_classes, printer_classes):
     """
@@ -275,7 +278,7 @@ def parse_args(detector_classes, printer_classes):
 
     for detector_cls in detector_classes:
         detector_arg = '--detect-{}'.format(detector_cls.ARGUMENT)
-        detector_help = 'Detection of {}'.format(detector_cls.HELP)
+        detector_help = '{}'.format(detector_cls.HELP)
         parser.add_argument(detector_arg,
                             help=detector_help,
                             action="append_const",

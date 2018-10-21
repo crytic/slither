@@ -12,7 +12,7 @@ class OldSolc(AbstractDetector):
     """
 
     ARGUMENT = 'solc-version'
-    HELP = 'if an old version of Solidity used (<0.4.23)'
+    HELP = 'If an old version of Solidity used (<0.4.23)'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 

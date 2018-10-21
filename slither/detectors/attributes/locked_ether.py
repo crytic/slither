@@ -13,7 +13,7 @@ class LockedEther(AbstractDetector):
     """
 
     ARGUMENT = 'locked-ether'
-    HELP = "contracts with a payable function that do not send ether"
+    HELP = "Contracts that lock ether"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 

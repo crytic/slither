@@ -12,7 +12,7 @@ class Suicidal(AbstractDetector):
     """
 
     ARGUMENT = 'suicidal'
-    HELP = 'suicidal functions'
+    HELP = 'Suicidal functions'
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 

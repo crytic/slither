@@ -15,7 +15,7 @@ class UninitializedStorageVars(AbstractDetector):
     """
 
     ARGUMENT = 'uninitialized-storage'
-    HELP = 'uninitialized storage variables'
+    HELP = 'Uninitialized storage variables'
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
