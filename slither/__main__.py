@@ -6,6 +6,8 @@ import json
 import logging
 import os
 import sys
+sys.path.append("/Users/Samparsky/Sites/python/slither/slither")
+
 import traceback
 
 from pkg_resources import iter_entry_points, require
@@ -109,6 +111,7 @@ def get_detectors_and_printers():
     from slither.detectors.statements.assembly import Assembly
     from slither.detectors.operations.low_level_calls import LowLevelCalls
     from slither.detectors.naming_convention.naming_convention import NamingConvention
+    from slither.detectors.functions.external_function import ExternalFunction
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -125,6 +128,7 @@ def get_detectors_and_printers():
                  LowLevelCalls,
                  NamingConvention,
                  ConstCandidateStateVars]
+                 ExternalFunction]
 
     from slither.printers.summary.function import FunctionSummary
     from slither.printers.summary.contract import ContractSummary
