@@ -12,7 +12,7 @@ class LowLevelCalls(AbstractDetector):
     """
 
     ARGUMENT = 'low-level-calls'
-    HELP = 'low level calls'
+    HELP = 'Low level calls'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 

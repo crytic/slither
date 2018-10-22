@@ -17,7 +17,7 @@ from slither.slithir.operations import (HighLevelCall, LowLevelCall,
 
 class Reentrancy(AbstractDetector):
     ARGUMENT = 'reentrancy'
-    HELP = 'reentrancy vulnerabilities'
+    HELP = 'Reentrancy vulnerabilities'
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
