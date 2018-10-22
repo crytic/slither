@@ -15,7 +15,7 @@ class ExternalFunction(AbstractDetector):
 
     @staticmethod
     def detect_function_calls(func):
-        """ Returns a list of all InternallCall, InternalDynamicCall, SolidityCall
+        """ Returns a list of InternallCall, InternalDynamicCall, SolidityCall
             calls made in a function
 
         Returns:
@@ -25,7 +25,6 @@ class ExternalFunction(AbstractDetector):
         for node in func.nodes:
             for ir in node.irs:
                 if isinstance(ir, ( InternalCall, InternalDynamicCall, HighLevelCall, SolidityCall )):
-                    print(ir.function)
                     result.append(ir.function)
         return result
 
@@ -33,7 +32,7 @@ class ExternalFunction(AbstractDetector):
         ret = []
         for f in [f for f in contract.functions if f.contract == contract]:
             calls = self.detect_function_calls(f)
-            ret = [ret.append(f) for f in calls]
+            ret.extend(calls)
         return ret
 
     def detect(self):
@@ -41,19 +40,24 @@ class ExternalFunction(AbstractDetector):
 
         public_function_calls = []
         for contract in self.slither.contracts_derived:
-            # get the contract functions
             func_list = self.detect_external(contract)
-            public_function_calls = [public_function_calls.append(f) for f in func_list]
-
-        print(public_function_calls_list)
+            public_function_calls.extend(func_list)
 
         for c in self.contracts:
             """
-            Returns the list of functions with public visibility in contract doesn't exist in the public_function_calls_list
-            This means that the public function doesn't have any InternallCall, InternalDynamicCall, SolidityCall call
-            attached to it hence 
+            Returns a list of functions with public visibility in contract that doesn't
+            exist in the public_function_calls_list
+
+            This means that the public function doesn't have any
+            InternallCall, InternalDynamicCall, SolidityCall call
+            attached to it hence it can be declared as external
+
             """
-            functions = [f for f in c.functions if f.visibility == "public" and f.contract == c and f not in public_function_calls_list]
+            functions = [ f for f in c.functions if f.visibility == "public"
+                         and
+                         f.contract == c
+                         and
+                         f not in public_function_calls ]
 
             for func in functions:
                 func_name = func.name

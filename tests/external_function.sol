@@ -1,6 +1,6 @@
-pragma solidity 0.4.25;
+pragma solidity ^0.4.24;
 
-import "./external_function1.sol";
+import "./external_function_test_2.sol";
 
 contract ItemTwo is ItemFour {
     function helloTwo() public {
@@ -11,9 +11,10 @@ contract ItemTwo is ItemFour {
 contract ItemThree {
 
     function helloThree() {
+
     }
 
-    function helloTwo() internal  {
+    function helloTwo() internal {
 
     }
 
