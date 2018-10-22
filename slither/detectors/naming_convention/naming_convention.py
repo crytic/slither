@@ -81,11 +81,7 @@ class NamingConvention(AbstractDetector):
 
                 for argument in func.parameters:
 
-                    argument_name = argument.name
-                    if argument_name and argument_name.startswith('_'):
-                        argument_name = argument_name[1::]
-
-                    if self.is_mixed_case(argument_name) is False:
+                    if self.is_mixed_case(argument.name) is False:
                         info = "Parameter '{}' is not in mixedCase, Contract: '{}', Function: '{}'' " \
                             .format(argument.name, argument.name, contract.name)
                         self.log(info)
@@ -123,12 +119,7 @@ class NamingConvention(AbstractDetector):
                                         'constant': var.name,
                                         'sourceMapping': var.source_mapping})
                 else:
-
-                    var_name = var.name
-                    if var_name and var_name.startswith('_'):
-                        var_name = var_name[1::]
-
-                    if self.is_mixed_case(var_name) is False:
+                    if self.is_mixed_case(var.name) is False:
                         info = "Variable '{}' is not in mixedCase, Contract: '{}' ".format(var.name, contract.name)
                         self.log(info)
 
