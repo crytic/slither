@@ -513,7 +513,7 @@ def apply_ir_heuristics(irs, node):
 
     find_references_origin(irs)
 
-    reset_variable_number(irs)
+    #reset_variable_number(irs)
 
     return irs
 
@@ -525,26 +525,6 @@ def find_references_origin(irs):
     for ir in irs:
         if isinstance(ir, (Index, Member)):
             ir.lvalue.points_to = ir.variable_left
-
-def reset_variable_number(result):
-    """
-        Reset the number associated to slithIR variables
-    """
-    variables = []
-    for ins in result:
-        variables += ins.read
-        if isinstance(ins, OperationWithLValue) and not ins.lvalue in variables:
-            variables += [ins.lvalue]
-
-    tmp_variables = [v for v in variables if isinstance(v, TemporaryVariable)]
-    for idx in range(len(tmp_variables)):
-        tmp_variables[idx].index = idx
-    ref_variables = [v for v in variables if isinstance(v, ReferenceVariable)]
-    for idx in range(len(ref_variables)):
-        ref_variables[idx].index = idx
-    tuple_variables = [v for v in variables if isinstance(v, TupleVariable)]
-    for idx in range(len(tuple_variables)):
-        tuple_variables[idx].index = idx
 
 def is_temporary(ins):
     return isinstance(ins, (Argument,

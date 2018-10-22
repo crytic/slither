@@ -19,6 +19,7 @@ from slither.visitors.expression.has_conditional import HasConditional
 
 from slither.utils.expression_manipulations import SplitTernaryExpression
 
+from slither.slithir.utils.variable_number import transform_slithir_vars_to_ssa
 
 logger = logging.getLogger("FunctionSolc")
 
@@ -635,6 +636,7 @@ class FunctionSolc(Function):
     def convert_expression_to_slithir(self):
         for node in self.nodes:
             node.slithir_generation()
+        transform_slithir_vars_to_ssa(self)
  
 
     def split_ternary_node(self, node, condition, true_expr, false_expr):
