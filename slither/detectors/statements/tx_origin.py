@@ -10,7 +10,7 @@ class TxOrigin(AbstractDetector):
     """
 
     ARGUMENT = 'tx-origin'
-    HELP = 'dangerous usage of `tx.origin`'
+    HELP = 'Dangerous usage of `tx.origin`'
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 

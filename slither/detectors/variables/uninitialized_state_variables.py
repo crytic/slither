@@ -20,7 +20,7 @@ class UninitializedStateVarsDetection(AbstractDetector):
     """
 
     ARGUMENT = 'uninitialized-state'
-    HELP = 'uninitialized state variables'
+    HELP = 'Uninitialized state variables'
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
