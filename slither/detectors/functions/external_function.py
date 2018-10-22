@@ -15,11 +15,11 @@ class ExternalFunction(AbstractDetector):
 
     @staticmethod
     def detect_function_calls(func):
-        """ Returns a list of InternallCall, InternalDynamicCall, SolidityCall
+        """ Returns a list of InternallCall, InternalDynamicCall, SolidityCall, HighLevelCall
             calls made in a function
 
         Returns:
-            (list): List of all InternallCall, InternalDynamicCall, SolidityCall
+            (list): List of all InternallCall, InternalDynamicCall, SolidityCall, HighLevelCall
         """
         result = []
         for node in func.nodes:
@@ -40,7 +40,12 @@ class ExternalFunction(AbstractDetector):
 
         public_function_calls = []
         for contract in self.slither.contracts_derived:
+            """
+            Returns list of InternallCall, InternalDynamicCall, HighLevelCall, SolidityCall calls
+            in contract functions
+            """
             func_list = self.detect_external(contract)
+            # appends the list to public function calls
             public_function_calls.extend(func_list)
 
         for c in self.contracts:
