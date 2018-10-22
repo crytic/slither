@@ -26,13 +26,26 @@ from slither.core.declarations.function import Function
 from slither.core.declarations.solidity_variables import SOLIDITY_VARIABLES, SOLIDITY_FUNCTIONS, SOLIDITY_VARIABLES_COMPOSED
 from slither.core.declarations.solidity_variables import SolidityVariable, SolidityFunction, SolidityVariableComposed, solidity_function_signature
 
-from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.core.solidity_types.function_type import FunctionType
+from slither.core.solidity_types import ElementaryType, ArrayType, MappingType, FunctionType
 
 
 logger = logging.getLogger("ExpressionParsing")
 
 class VariableNotFound(Exception): pass
+
+def get_pointer_name(variable):
+    curr_type = variable.type
+    while(isinstance(curr_type, (ArrayType, MappingType))):
+        if isinstance(curr_type, ArrayType):
+            curr_type = curr_type.type
+        else:
+            assert isinstance(curr_type, MappingType)
+            curr_type = curr_type.type_to
+
+    if isinstance(curr_type, (FunctionType)):
+        return variable.name + curr_type.parameters_signature
+    return None
+
 
 def find_variable(var_name, caller_context):
 
@@ -55,14 +68,19 @@ def find_variable(var_name, caller_context):
         # function test(function(uint) internal returns(bool) t) interna{
         # Will have a local variable t which will match the signature
         # t(uint256)
-        func_variables_ptr = {f.name + f.type.parameters_signature : f for f in function.variables
-                              if isinstance(f.type, FunctionType)}
-        if var_name in func_variables_ptr:
+        func_variables_ptr = {get_pointer_name(f) : f for f in function.variables}
+        if var_name and var_name in func_variables_ptr:
             return func_variables_ptr[var_name]
 
     contract_variables = contract.variables_as_dict()
     if var_name in contract_variables:
         return contract_variables[var_name]
+
+    # A state variable can be a pointer
+    conc_variables_ptr = {get_pointer_name(f) : f for f in contract.variables}
+    if var_name and var_name in conc_variables_ptr:
+        return conc_variables_ptr[var_name]
+
 
     functions = contract.functions_as_dict()
     if var_name in functions:
