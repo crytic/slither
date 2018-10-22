@@ -511,9 +511,20 @@ def apply_ir_heuristics(irs, node):
 #    irs = replace_calls(irs)
     irs = remove_unused(irs)
 
+    find_references_origin(irs)
+
     reset_variable_number(irs)
 
     return irs
+
+def find_references_origin(irs):
+    """
+        Make lvalue of each Index, Member operation
+        points to the left variable
+    """
+    for ir in irs:
+        if isinstance(ir, (Index, Member)):
+            ir.lvalue.points_to = ir.variable_left
 
 def reset_variable_number(result):
     """
