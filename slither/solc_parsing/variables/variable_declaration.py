@@ -43,7 +43,7 @@ class VariableDeclarationSolc(Variable):
                     raise MultipleVariablesDeclaration
                 self._init_from_declaration(var['declarations'][0], var['initialValue'])
             elif  nodeType == 'VariableDeclaration':
-                self._init_from_declaration(var, None)
+                self._init_from_declaration(var, var['value'])
             else:
                 logger.error('Incorrect variable declaration type {}'.format(nodeType))
                 exit(-1)
