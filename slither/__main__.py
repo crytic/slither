@@ -6,8 +6,6 @@ import json
 import logging
 import os
 import sys
-sys.path.append("/Users/Samparsky/Sites/python/slither/slither")
-
 import traceback
 
 from pkg_resources import iter_entry_points, require
@@ -127,7 +125,7 @@ def get_detectors_and_printers():
                  Assembly,
                  LowLevelCalls,
                  NamingConvention,
-                 ConstCandidateStateVars]
+                 ConstCandidateStateVars,
                  ExternalFunction]
 
     from slither.printers.summary.function import FunctionSummary

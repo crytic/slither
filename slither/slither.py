@@ -2,7 +2,6 @@ import logging
 import os
 import subprocess
 import sys
-import sys
 
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.printers.abstract_printer import AbstractPrinter
