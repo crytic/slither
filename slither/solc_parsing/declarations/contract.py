@@ -43,6 +43,7 @@ class ContractSolc04(Contract):
             self._name = self._data['attributes'][self.get_key()]
 
         self._id = self._data['id']
+
         self._inheritance = []
 
         self._parse_contract_info()
