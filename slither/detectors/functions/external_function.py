@@ -6,6 +6,9 @@ from slither.slithir.operations import (InternalCall, InternalDynamicCall)
 class ExternalFunction(AbstractDetector):
     """
     Detect public function that could be declared as external
+
+    IMPROVEMENT: Add InternalDynamicCall check
+    https://github.com/trailofbits/slither/pull/53#issuecomment-432809950
     """
 
     ARGUMENT = 'external-function'
@@ -15,54 +18,71 @@ class ExternalFunction(AbstractDetector):
 
     @staticmethod
     def detect_function_calls(func):
-        """ Returns a list of InternallCall, InternalDynamicCall, SolidityCall, HighLevelCall
+        """ Returns a list of InternallCall, InternalDynamicCall, SolidityCall
             calls made in a function
 
         Returns:
-            (list): List of all InternallCall, InternalDynamicCall, SolidityCall, HighLevelCall
+            (list): List of all InternallCall, InternalDynamicCall, SolidityCall
         """
         result = []
+        containsInternalDynamicCall = False
         for node in func.nodes:
             for ir in node.irs:
-                if isinstance(ir, ( InternalCall, InternalDynamicCall, HighLevelCall, SolidityCall )):
+                if isinstance(ir, (InternalDynamicCall)):
+                    containsInternalDynamicCall = True
+                    break
+                if isinstance(ir, (InternalCall, SolidityCall)):
                     result.append(ir.function)
-        return result
+        return result, containsInternalDynamicCall
 
-    def detect_external(self, contract):
+    def detect_public(self, contract):
         ret = []
-        for f in [f for f in contract.functions if f.contract == contract]:
-            calls = self.detect_function_calls(f)
-            ret.extend(calls)
-        return ret
+        containsInternalDynamicCall = False
+        for f in contract.all_functions_called:
+            calls, containsInternalDynamicCall = self.detect_function_calls(f)
+            if containsInternalDynamicCall:
+                break
+            else:  
+                ret.extend(calls)
+        return ret, containsInternalDynamicCall
 
     def detect(self):
         results = []
 
         public_function_calls = []
+
+        """ Exclude contracts with InternalDynamicCall
+        """
+        excluded_contracts = []
+
         for contract in self.slither.contracts_derived:
             """
             Returns list of InternallCall, InternalDynamicCall, HighLevelCall, SolidityCall calls
             in contract functions
             """
-            func_list = self.detect_external(contract)
-            # appends the list to public function calls
-            public_function_calls.extend(func_list)
+            func_list, exclude_contract = self.detect_public(contract)
 
-        for c in self.contracts:
+            if exclude_contract:
+                excluded_contracts.append(contract)
+            else:
+                # appends the list to public function calls
+                public_function_calls.extend(func_list)
+
+        for c in [ contract for contract in self.contracts if contract not in excluded_contracts ]:
             """
             Returns a list of functions with public visibility in contract that doesn't
-            exist in the public_function_calls_list
+            exist in the public_function_calls
 
             This means that the public function doesn't have any
             InternallCall, InternalDynamicCall, SolidityCall call
             attached to it hence it can be declared as external
 
             """
-            functions = [ f for f in c.functions if f.visibility == "public"
+            functions = [ func for func in c.functions if func.visibility == "public"
                          and
-                         f.contract == c
+                         func.contract == c
                          and
-                         f not in public_function_calls ]
+                         func not in public_function_calls ]
 
             for func in functions:
                 func_name = func.name

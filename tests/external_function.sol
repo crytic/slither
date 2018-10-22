@@ -10,17 +10,22 @@ contract ItemTwo is ItemFour {
 
 contract ItemThree {
 
-    function helloThree() {
+    function helloThree() public {
 
     }
 
-    function helloTwo() internal {
+    function helloTwo() public {
 
     }
 
     function helloOne() public {
 
     }
+
+    function my_func() internal returns(bool){
+        return true;
+    }
+
 }
 
 contract ItemOne is ItemTwo {
@@ -32,4 +37,34 @@ contract ItemOne is ItemTwo {
         ItemFour four = new ItemFour();
         four.helloFour();
     }
+}
+
+contract InternalCall {
+    
+    function() returns(uint) ptr;
+    
+    function set_test1() external{
+        ptr = test1;
+    }
+    
+    function set_test2() external{
+        ptr = test2;
+    }
+    
+    function test1() public returns(uint){
+        return 1;
+    }
+    
+    function test2() public returns(uint){
+        return 2;
+    }
+    
+    function test3() public returns(uint){
+        return 3;
+    }
+    
+    function exec() external returns(uint){
+        return ptr();
+    }
+    
 }
