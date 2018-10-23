@@ -150,7 +150,7 @@ def parse_type(t, caller_context):
 
     elif t[key] == 'ElementaryTypeName':
         if is_compact_ast:
-            return ElementaryType(t['typeDescriptions']['typeString'])
+            return ElementaryType(t['name'])
         return ElementaryType(t['attributes'][key])
 
     elif t[key] == 'UserDefinedTypeName':
@@ -186,22 +186,28 @@ def parse_type(t, caller_context):
         return MappingType(mappingFrom, mappingTo)
 
     elif t[key] == 'FunctionTypeName':
-        assert len(t['children']) == 2
 
-        params = t['children'][0]
-        return_values = t['children'][1]
+        if is_compact_ast:
+            params = t['parameterTypes']
+            return_values = t['returnParameterTypes']
+            index =  'parameters'
+        else:
+            assert len(t['children']) == 2
+            params = t['children'][0]
+            return_values = t['children'][1]
+            index = 'children'
 
         assert params[key] == 'ParameterList'
         assert return_values[key] == 'ParameterList'
 
         params_vars = []
         return_values_vars = []
-        for p in params['children']:
+        for p in params[index]:
             var = FunctionTypeVariableSolc(p)
             var.set_offset(p['src'], caller_context.slither)
             var.analyze(caller_context)
             params_vars.append(var)
-        for p in return_values['children']:
+        for p in return_values[index]:
             var = FunctionTypeVariableSolc(p)
 
             var.set_offset(p['src'], caller_context.slither)

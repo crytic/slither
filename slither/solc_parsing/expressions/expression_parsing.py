@@ -164,7 +164,9 @@ def parse_call(expression, caller_context):
 
     if caller_context.is_compact_ast:
         called = parse_expression(expression['expression'], caller_context)
-        arguments = [parse_expression(a, caller_context) for a in expression['arguments']]
+        arguments = []
+        if expression['arguments']:
+            arguments = [parse_expression(a, caller_context) for a in expression['arguments']]
     else:
         children = expression['children']
         called = parse_expression(children[0], caller_context)
@@ -260,7 +262,6 @@ def parse_expression(expression, caller_context):
 
     # The AST naming does not follow the spec 
     name = expression[caller_context.get_key()]
-
     is_compact_ast = caller_context.is_compact_ast
 
     if name == 'UnaryOperation':
@@ -312,7 +313,7 @@ def parse_expression(expression, caller_context):
             Note: this is only possible with Solidity >= 0.4.12
         """
         if is_compact_ast:
-                expressions = [parse_expression(e, caller_context) for e in expression['components']]
+                expressions = [parse_expression(e, caller_context) if e else None for e in expression['components']]
         else:
             if 'children' not in expression :
                 attributes = expression['attributes']
@@ -373,6 +374,8 @@ def parse_expression(expression, caller_context):
 
         if is_compact_ast:
             value = expression['value']
+            if not value:
+                value = '0x'+expression['hexValue']
         else:
             value = expression['attributes']['value']
             if value is None:
@@ -527,7 +530,9 @@ def parse_expression(expression, caller_context):
 
         if is_compact_ast:
             called = parse_expression(expression['modifierName'], caller_context)
-            arguments = [parse_expression(a, caller_context) for a in expression['arguments']]
+            arguments = []
+            if expression['arguments']:
+                arguments = [parse_expression(a, caller_context) for a in expression['arguments']]
         else:
             children = expression['children']
             called = parse_expression(children[0], caller_context)

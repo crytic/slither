@@ -362,16 +362,20 @@ class FunctionSolc(Function):
                     # Then we craft one expression that does the assignment                   
                     variables = []
                     i = 0
+                    new_node = node
                     for variable in statement['declarations']:
-                        src = variable['src']
                         i = i+1
-                        # Create a fake statement to be consistent
-                        new_statement = {'nodeType':'VariableDefinitionStatement',
-                                         'src': src,
-                                         'declarations':[variable]}
-                        variables.append(variable)
+                        if variable:
+                            src = variable['src']
+                            # Create a fake statement to be consistent
+                            new_statement = {'nodeType':'VariableDefinitionStatement',
+                                             'src': src,
+                                             'declarations':[variable]}
+                            variables.append(variable)
 
-                        new_node = self._parse_variable_definition_init_tuple(new_statement, i, new_node)
+                            new_node = self._parse_variable_definition_init_tuple(new_statement,
+                                                                                  i,
+                                                                                  new_node)
 
                     var_identifiers = []
                     # craft of the expression doing the assignement
@@ -386,7 +390,7 @@ class FunctionSolc(Function):
                         }
                         var_identifiers.append(identifier)
 
-                    tuple_expression = {'nodeType':'TuleExpression',
+                    tuple_expression = {'nodeType':'TupleExpression',
                                         'src': statement['src'],
                                         'components':var_identifiers}
 
@@ -396,7 +400,9 @@ class FunctionSolc(Function):
                         'operator': '=',
                         'type':'tuple()',
                         'leftHandSide': tuple_expression,
-                        'rightHandSide': statement['initialValue']}
+                        'rightHandSide': statement['initialValue'],
+                        'typeDescriptions': {'typeString':'tuple()'}
+                        }
                     node = new_node
                     new_node = self._new_node(NodeType.EXPRESSION)
                     new_node.add_unparsed_expression(expression)

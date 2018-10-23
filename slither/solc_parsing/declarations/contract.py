@@ -116,11 +116,13 @@ class ContractSolc04(Contract):
         if self.is_compact_ast:
             for using_for in self._usingForNotParsed:
                 lib_name = parse_type(using_for['libraryName'], self)
-                if 'typeName' in using_for:
+                if 'typeName' in using_for and using_for['typeName']:
                     type_name = parse_type(using_for['typeName'], self)
                 else:
                     type_name = '*'
-                self._using_for[type_name] = lib_name
+                if not type_name in self._using_for:
+                    self.using_for[type_name] = []
+                self._using_for[type_name].append(lib_name)
         else:
             for using_for in self._usingForNotParsed:
                 children = using_for[self.get_children()]
