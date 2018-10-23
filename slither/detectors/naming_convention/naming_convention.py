@@ -44,6 +44,8 @@ class NamingConvention(AbstractDetector):
                                 'sourceMapping': contract.source_mapping})
 
             for struct in contract.structures:
+                if struct.contract != contract:
+                    continue
 
                 if self.is_cap_words(struct.name) is False:
                     info = "Struct '{}' is not in CapWords, Contract: '{}' ".format(struct.name, contract.name)
@@ -56,6 +58,8 @@ class NamingConvention(AbstractDetector):
                                     'sourceMapping': struct.source_mapping})
 
             for event in contract.events:
+                if event.contract != contract:
+                    continue
 
                 if self.is_cap_words(event.name) is False:
                     info = "Event '{}' is not in CapWords, Contract: '{}' ".format(event.name, contract.name)
@@ -68,6 +72,8 @@ class NamingConvention(AbstractDetector):
                                     'sourceMapping': event.source_mapping})
 
             for func in contract.functions:
+                if func.contract != contract:
+                    continue
 
                 if self.is_mixed_case(func.name) is False:
                     info = "Function '{}' is not in mixedCase, Contract: '{}' ".format(func.name, contract.name)
@@ -94,6 +100,8 @@ class NamingConvention(AbstractDetector):
                                         'sourceMapping': argument.source_mapping})
 
             for var in contract.state_variables:
+                if var.contract != contract:
+                    continue
 
                 if self.should_avoid_name(var.name):
                     if self.is_upper_case_with_underscores(var.name) is False:
@@ -130,6 +138,9 @@ class NamingConvention(AbstractDetector):
                                         'sourceMapping': var.source_mapping})
 
             for enum in contract.enums:
+                if enum.contract != contract:
+                    continue
+
                 if self.is_cap_words(enum.name) is False:
                     info = "Enum '{}' is not in CapWords, Contract: '{}' ".format(enum.name, contract.name)
                     self.log(info)
@@ -141,6 +152,9 @@ class NamingConvention(AbstractDetector):
                                     'sourceMapping': enum.source_mapping})
 
             for modifier in contract.modifiers:
+                if modifier.contract != contract:
+                    continue
+
                 if self.is_mixed_case(modifier.name) is False:
                     info = "Modifier '{}' is not in mixedCase, Contract: '{}' ".format(modifier.name, contract.name)
                     self.log(info)
