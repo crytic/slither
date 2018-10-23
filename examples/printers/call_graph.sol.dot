@@ -1,20 +1,21 @@
-digraph {
-subgraph "cluster_9_ContractA" {
+strict digraph {
+subgraph cluster_9_ContractA {
 label = "ContractA"
-"9_my_func_a()" [label="my_func_a()"]
+"9_my_func_a" [label="my_func_a"]
 }
-subgraph "cluster_45_ContractB" {
+subgraph cluster_45_ContractB {
 label = "ContractB"
-"45_constructor()" [label="constructor()"]
-"45_my_func_b()" [label="my_func_b()"]
-"45_my_func_b()" -> "45_my_second_func_b()"
-"45_my_func_a()" [label="my_func_a()"]
-"45_my_func_a()" -> "45_my_second_func_b()"
-"45_my_second_func_b()" [label="my_second_func_b()"]
+"45_my_func_a" [label="my_func_a"]
+"45_my_second_func_b" [label="my_second_func_b"]
+"45_my_func_b" [label="my_func_b"]
+"45_constructor" [label="constructor"]
+"45_my_func_b" -> "45_my_second_func_b"
+"45_my_func_a" -> "45_my_second_func_b"
 }
 subgraph cluster_solidity {
 label = "[Solidity]"
-"keccak256()"
+"keccak256()" 
+"9_my_func_a" -> "keccak256()"
 }
-"9_my_func_a()" -> "keccak256()"
+"45_my_func_b" -> "9_my_func_a"
 }
