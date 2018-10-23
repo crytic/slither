@@ -173,6 +173,7 @@ class ContractSolc04(Contract):
         for event_to_parse in self._eventsNotParsed:
             event = EventSolc(event_to_parse)
             event.analyze(self)
+            event.set_contract(self)
             self._events[event.full_name] = event
 
         self._eventsNotParsed = None
