@@ -41,7 +41,10 @@ class VariableDeclarationSolc(Variable):
             if nodeType in ['VariableDeclarationStatement', 'VariableDefinitionStatement']:
                 if len(var['declarations'])>1:
                     raise MultipleVariablesDeclaration
-                self._init_from_declaration(var['declarations'][0], var['initialValue'])
+                init = None
+                if 'initialValue' in var:
+                    init = var['initialValue']
+                self._init_from_declaration(var['declarations'][0], init)
             elif  nodeType == 'VariableDeclaration':
                 self._init_from_declaration(var, var['value'])
             else:
@@ -108,7 +111,10 @@ class VariableDeclarationSolc(Variable):
         self._analyze_variable_attributes(attributes)
 
         if self._is_compact_ast:
-            self._elem_to_parse = var['typeName']
+            if var['typeName']:
+                self._elem_to_parse = var['typeName']
+            else:
+                self._elem_to_parse = UnknownType(var['typeDescriptions']['typeString'])
         else:
             if not var['children']:
                 # It happens on variable declared inside loop declaration
