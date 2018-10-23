@@ -19,7 +19,7 @@ class InternalDynamicCall(Call, OperationWithLValue):
 
     @property
     def read(self):
-        return list(self.arguments)
+        return list(self.arguments) + [self.function]
 
     @property
     def function(self):
