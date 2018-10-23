@@ -17,16 +17,22 @@ logger_printer = logging.getLogger("Printers")
 
 class Slither(SlitherSolc):
 
-    def __init__(self, filename, solc='solc', disable_solc_warnings=False, solc_arguments=''):
+    def __init__(self, contract, solc='solc', disable_solc_warnings=False, solc_arguments=''):
         self._detectors = []
         self._printers = []
 
-        stdout = self._run_solc(filename, solc, disable_solc_warnings, solc_arguments)
 
-        super(Slither, self).__init__(filename)
+        # json text provided
+        if isinstance(contract, dict):
+            super(Slither, self).__init__('')
+            self._parse_contracts_from_loaded_json(contract, '')
+        # .json or .sol provided
+        else:
+            contracts_json = self._run_solc(contract, solc, disable_solc_warnings, solc_arguments)
+            super(Slither, self).__init__(contract)
 
-        for d in stdout:
-            self._parse_contracts_from_json(d)
+            for c in contracts_json:
+                self._parse_contracts_from_json(c)
 
         self._analyze_contracts()
 
