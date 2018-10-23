@@ -15,6 +15,7 @@ from slither.detectors.abstract_detector import (AbstractDetector,
                                                  classification_txt)
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
+from slither.utils.colors import red
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -54,6 +55,9 @@ def process(filename, args, detector_classes, printer_classes):
     """
     slither = Slither(filename, args.solc, args.disable_solc_warnings, args.solc_args)
 
+    return _process(slither, detector_classes, printer_classes)
+
+def _process(slither, detector_classes, printer_classes):
     for detector_cls in detector_classes:
         slither.register_detector(detector_cls)
 
@@ -75,6 +79,28 @@ def process(filename, args, detector_classes, printer_classes):
         results.extend(detector_results)
 
     return results, analyzed_contracts_count
+
+def process_truffle(dirname, args, detector_classes, printer_classes):
+    if not os.path.isdir(os.path.join(dirname, 'build'))\
+        or not os.path.isdir(os.path.join(dirname, 'build', 'contracts')):
+        logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
+        return (0,0)
+
+    filenames = glob.glob(os.path.join(dirname,'build','contracts', '*.json'))
+
+    all_contracts = []
+
+    for filename in filenames:
+        with open(filename) as f:
+            contract_loaded = json.load(f)
+            all_contracts  += contract_loaded['ast']['nodes']
+
+    contract = {
+            "nodeType": "SourceUnit",
+            "nodes" : all_contracts}
+
+    slither = Slither(contract, args.solc, args.disable_solc_warnings, args.solc_args)
+    return _process(slither, detector_classes, printer_classes)
 
 
 def output_json(results, filename):
@@ -194,6 +220,9 @@ def main_impl(all_detector_classes, all_printer_classes):
         if os.path.isfile(filename):
             (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
 
+        elif os.path.isfile(os.path.join(filename, 'truffle.js')):
+            (results, number_contracts) = process_truffle(filename, args, detector_classes, printer_classes)
+
         elif os.path.isdir(filename) or len(globbed_filenames) > 0:
             extension = "*.sol" if not args.solc_ast else "*.json"
             filenames = glob.glob(os.path.join(filename, extension))
@@ -208,6 +237,7 @@ def main_impl(all_detector_classes, all_printer_classes):
             # if args.json:
             #    output_json(results, args.json)
             # exit(results)
+
 
         else:
             raise Exception("Unrecognised file/dir path: '#{filename}'".format(filename=filename))
