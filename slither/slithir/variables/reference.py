@@ -36,7 +36,7 @@ class ReferenceVariable(ChildNode, Variable):
         # Member or Index operator
         from slither.slithir.utils.utils import is_valid_lvalue
         assert is_valid_lvalue(points_to) \
-            or points_to == SolidityVariableComposed('msg.data') \
+            or isinstance(points_to, SolidityVariableComposed) \
             or isinstance(points_to, (Contract, Enum))
 
         self._points_to = points_to
