@@ -189,12 +189,16 @@ def main_impl(all_detector_classes, all_printer_classes):
     try:
         filename = args.filename
 
+        globbed_filenames = glob.glob(filename, recursive=True)
+
         if os.path.isfile(filename):
             (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
 
-        elif os.path.isdir(filename):
+        elif os.path.isdir(filename) or len(globbed_filenames) > 0:
             extension = "*.sol" if not args.solc_ast else "*.json"
             filenames = glob.glob(os.path.join(filename, extension))
+            if len(filenames) == 0:
+                filenames = globbed_filenames
             number_contracts = 0
             results = []
             for filename in filenames:
