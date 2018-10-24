@@ -58,7 +58,7 @@ class ComplexFunction(AbstractDetector):
         """Checks the number of the state variables written to isn't
            greater than 20
         """
-        if func.state_variables_written.length > Complex.MAX_STATE_VARIABLES.value:
+        if func.variables_written.length > Complex.MAX_STATE_VARIABLES.value:
             ret.append({
                 contract: contract,
                 func: func
