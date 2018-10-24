@@ -61,11 +61,13 @@ class FunctionSolc(Function):
 
         if 'payable' in attributes:
             self._payable = attributes['payable']
-        elif 'stateMutability' in attributes:
+        if 'stateMutability' in attributes:
             if attributes['stateMutability'] == 'payable':
                 self._payable = True
             elif attributes['stateMutability'] == 'pure':
                 self._pure = True
+                self._view = True
+            elif attributes['stateMutability'] == 'view':
                 self._view = True
 
         if 'constant' in attributes:
