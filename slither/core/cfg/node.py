@@ -201,7 +201,10 @@ class Node(SourceMapping, ChildFunction):
     @property
     def high_level_calls(self):
         """
-            list((Contract, Function)): List of high level calls (external calls). Include library calls
+            list((Contract, Function|Variable)):
+            List of high level calls (external calls).
+            A variable is called in case of call to a public state variable
+            Include library calls
         """
         return list(self._high_level_calls)
 
