@@ -630,13 +630,13 @@ class FunctionSolc(Function):
                     break
         self._remove_alone_endif()
 
-        self._analyze_read_write()
-        self._analyze_calls()
 
     def convert_expression_to_slithir(self):
         for node in self.nodes:
             node.slithir_generation()
         transform_slithir_vars_to_ssa(self)
+        self._analyze_read_write()
+        self._analyze_calls()
  
 
     def split_ternary_node(self, node, condition, true_expr, false_expr):

@@ -44,7 +44,10 @@ class Function(ChildContract, SourceMapping):
         self._solidity_vars_read = []
         self._state_vars_written = []
         self._internal_calls = []
-        self._external_calls = []
+        self._solidity_calls = []
+        self._low_level_calls = []
+        self._high_level_calls = []
+        self._external_calls_as_expressions = []
         self._expression_vars_read = []
         self._expression_vars_written = []
         self._expression_calls = []
@@ -239,14 +242,39 @@ class Function(ChildContract, SourceMapping):
         return list(self._internal_calls)
 
     @property
-    def external_calls(self):
+    def solidity_calls(self):
+        """
+            list(SolidityFunction): List of Soldity calls
+        """
+        return list(self._internal_calls)
+
+    @property
+    def high_level_calls(self):
+        """
+            list((Contract, Function)): List of high level calls (external calls). Include library calls
+        """
+        return list(self._high_level_calls)
+
+    @property
+    def low_level_calls(self):
+        """
+            list((Variable|SolidityVariable, str)): List of low_level call
+            A low level call is defined by
+            - the variable called
+            - the name of the function (call/delegatecall/codecall)
+        """
+        return list(self._low_level_calls)
+
+
+    @property
+    def external_calls_as_expressions(self):
         """
             list(ExpressionCall): List of message calls (that creates a transaction)
         """
-        return list(self._external_calls)
+        return list(self._external_calls_as_expressions)
 
     @property
-    def calls_as_expression(self):
+    def calls_as_expressions(self):
         return self._expression_calls
 
     @property
@@ -353,6 +381,7 @@ class Function(ChildContract, SourceMapping):
         calls = [x for x in calls if x]
         calls = [item for sublist in calls for item in sublist]
         # Remove dupplicate if they share the same string representation
+        # TODO: check if groupby is still necessary here
         calls = [next(obj) for i, obj in\
                  groupby(sorted(calls, key=lambda x: str(x)), lambda x: str(x))]
         self._expression_calls = calls
@@ -364,12 +393,30 @@ class Function(ChildContract, SourceMapping):
                           groupby(sorted(internal_calls, key=lambda x: str(x)), lambda x: str(x))]
         self._internal_calls = internal_calls
 
-        external_calls = [x.external_calls for x in self.nodes]
-        external_calls = [x for x in external_calls if x]
-        external_calls = [item for sublist in external_calls for item in sublist]
-        external_calls = [next(obj) for i, obj in
-                          groupby(sorted(external_calls, key=lambda x: str(x)), lambda x: str(x))]
-        self._external_calls = external_calls
+        self._solidity_calls = [c for c in internal_calls if isinstance(c, SolidityFunction)]
+
+        low_level_calls = [x.low_level_calls for x in self.nodes]
+        low_level_calls = [x for x in low_level_calls if x]
+        low_level_calls = [item for sublist in low_level_calls for item in sublist]
+        low_level_calls = [next(obj) for i, obj in
+                          groupby(sorted(low_level_calls, key=lambda x: str(x)), lambda x: str(x))]
+
+        self._low_level_calls = low_level_calls
+
+        high_level_calls = [x.high_level_calls for x in self.nodes]
+        high_level_calls = [x for x in high_level_calls if x]
+        high_level_calls = [item for sublist in high_level_calls for item in sublist]
+        high_level_calls = [next(obj) for i, obj in
+                          groupby(sorted(high_level_calls, key=lambda x: str(x)), lambda x: str(x))]
+
+        self._high_level_calls = high_level_calls
+
+        external_calls_as_expressions = [x.external_calls_as_expressions for x in self.nodes]
+        external_calls_as_expressions = [x for x in external_calls_as_expressions if x]
+        external_calls_as_expressions = [item for sublist in external_calls_as_expressions for item in sublist]
+        external_calls_as_expressions = [next(obj) for i, obj in
+                          groupby(sorted(external_calls_as_expressions, key=lambda x: str(x)), lambda x: str(x))]
+        self._external_calls_as_expressions = external_calls_as_expressions
 
 
     def _explore_functions(self, f_new_values):
@@ -567,14 +614,14 @@ class Function(ChildContract, SourceMapping):
             Return the function summary
         Returns:
             (str, str, list(str), list(str), listr(str), list(str), list(str);
-            name, visibility, modifiers, vars read, vars written, internal_calls, external_calls
+            name, visibility, modifiers, vars read, vars written, internal_calls, external_calls_as_expressions
         """
         return (self.name, self.visibility,
                 [str(x) for x in self.modifiers],
                 [str(x) for x in self.state_variables_read + self.solidity_variables_read],
                 [str(x) for x in self.state_variables_written],
                 [str(x) for x in self.internal_calls],
-                [str(x) for x in self.external_calls])
+                [str(x) for x in self.external_calls_as_expressions])
 
     def is_protected(self):
         """
