@@ -125,7 +125,8 @@ def get_detectors_and_printers():
                  Assembly,
                  LowLevelCalls,
                  NamingConvention,
-                 ConstCandidateStateVars]
+                 ConstCandidateStateVars,
+                 ComplexFunction]
 
     from slither.printers.summary.function import FunctionSummary
     from slither.printers.summary.contract import ContractSummary
