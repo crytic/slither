@@ -7,10 +7,14 @@ from slither.slithir.operations import (HighLevelCall, Index, LowLevelCall, Libr
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 from enum import Enum
 
-class COMPLEX(Enum):
-        HIGH_EXTERNAL_CALLS = 1
-        HIGH_STATE_VARIABLES = 2
-        HIGH_CYCLOMATIC_COMPLEXITY = 3
+class Complex(Enum):
+    HIGH_EXTERNAL_CALLS = 1
+    HIGH_STATE_VARIABLES = 2
+    HIGH_CYCLOMATIC_COMPLEXITY = 3
+
+    MAX_STATE_VARIABLES = 20
+    MAX_EXTERNAL_CALLS = 5
+    MAX_CYCLOMATIC_COMPLEXITY = 6
 
 class ComplexFunction(AbstractDetector):
     """
@@ -22,25 +26,17 @@ class ComplexFunction(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    MAX_STATE_VARIABLES = 20
-    MAX_EXTERNAL_CALLS = 5
-    MAX_CYCLOMATIC_COMPLEXITY = 6
-
-    def detect_complex_func(self, func, contract):
-        # check the cyclomatic comlexity
-        # numerous state vars
-        # numerious external calls
-        
+    def detect_complex_func(self, func, contract):        
         """Detect the cyclomatic complexity of the contract functions
         """
         result = []
         code_complexity = compute_cyclomatic_complexity(func)
 
-        if code_complexity > self.MAX_CYCLOMATIC_COMPLEXITY:
+        if code_complexity > Complex.MAX_CYCLOMATIC_COMPLEXITY.value:
             result.append({
                 contract: contract,
                 func: func,
-                type: COMPLEX.HIGH_CYCLOMATIC_COMPLEXITY
+                type: Complex.HIGH_CYCLOMATIC_COMPLEXITY
             })
 
         """Detect the number of external calls in the func
@@ -51,26 +47,28 @@ class ComplexFunction(AbstractDetector):
             for ir in node.irs:
                 if isinstance(ir, (HighLevelCall, LowLevelCall, LibraryCall)):
                     count += 1
-                    
-        if count > self.MAX_EXTERNAL_CALLS:
+
+        if count > Complex.MAX_EXTERNAL_CALLS.value:
             result.append({
                 contract: contract,
                 func: func,
-                type: COMPLEX.HIGH_EXTERNAL_CALLS
+                type: Complex.HIGH_EXTERNAL_CALLS
             })
-            
+        
+        """Checks the number of the state variables written to isn't
+           greater than 20
+        """
+        if func.state_variables_written.length > Complex.MAX_STATE_VARIABLES.value:
+            ret.append({
+                contract: contract,
+                func: func
+                type: Complex.HIGH_STATE_VARIABLES
+            })
+
         return result
 
     def detect_complex(self, contract):
         ret = []
-        
-        """Checks the number of the contract state variables if its not greater than 20
-        """
-        if contract.variables > self.MAX_STATE_VARIABLES:
-            ret.append({
-                contract: contract,
-                type: COMPLEX.HIGH_STATE_VARIABLES
-            })
         
         for func in contract.all_functions_called:
             result = self.detect_complex_func(func, contract)
@@ -79,9 +77,36 @@ class ComplexFunction(AbstractDetector):
         return ret
     
     def detect(self):
-
+        result = []
         for contract in self.contracts:
-            
-            pass
+            complex_issues = self.detect_complex(contract)
+            for issue in complex_issues:
+                txt = ""
+                
+                if issue.type == Complex.HIGH_EXTERNAL_CALLS:
+                    txt = "High external calls, complex function in {} Contract: {}, Function: {}"
+                if issue.type == Complex.HIGH_CYCLOMATIC_COMPLEXITY:
+                    txt = "Too complex function, complex function in {} Contract: {}, Function: {}"
+                if issue.type == Complex.HIGH_STATE_VARIABLES:
+                    pass
 
-        pass
+                info = txt.format(self.filename,
+                                    c.name,
+                                    func_name)
+
+                
+                    txt = "Too many "
+                    info = txt.format(self.filename,
+                                    c.name,
+                                    func_name)
+
+                    self.log(info)
+
+                    results.append({'vuln': 'SuicidalFunc',
+                                    'sourceMapping': func.source_mapping,
+                                    'filename': self.filename,
+                                    'contract': c.name,
+                                    'func': func_name})
+
+        return result
+
