@@ -540,10 +540,14 @@ class FunctionSolc(Function):
         elif name == 'Return':
             return_node = self._new_node(NodeType.RETURN)
             link_nodes(node, return_node)
-            if self.get_children('children') in statement and statement[self.get_children('children')]:
-                assert len(statement[self.get_children('children')]) == 1
-                expression = statement[self.get_children('children')][0]
-                return_node.add_unparsed_expression(expression)
+            if self.is_compact_ast:
+                if statement['expression']:
+                    return_node.add_unparsed_expression(statement['expression'])
+            else:
+                if self.get_children('children') in statement and statement[self.get_children('children')]:
+                    assert len(statement[self.get_children('children')]) == 1
+                    expression = statement[self.get_children('children')][0]
+                    return_node.add_unparsed_expression(expression)
             node = return_node
         elif name == 'Throw':
             throw_node = self._new_node(NodeType.THROW)
