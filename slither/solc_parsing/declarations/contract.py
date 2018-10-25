@@ -233,6 +233,12 @@ class ContractSolc04(Contract):
 
             self._variables[var.name] = var
 
+    def analyze_constant_state_variables(self):
+        for var in self.variables:
+            if var.is_constant:
+                var.analyze(self)
+        return
+
     def analyze_state_variables(self):
         for var in self.variables:
             var.analyze(self)

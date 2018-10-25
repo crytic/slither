@@ -251,6 +251,9 @@ class SlitherSolc(Slither):
         contract.set_is_analyzed(True)
 
     def _analyze_struct_events(self, contract):
+
+        contract.analyze_constant_state_variables()
+
         # Struct can refer to enum, or state variables
         contract.analyze_structs()
         # Event can refer to struct
