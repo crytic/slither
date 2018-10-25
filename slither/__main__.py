@@ -157,6 +157,7 @@ def main():
     from slither.printers.summary.contract import ContractSummary
     from slither.printers.inheritance.inheritance import PrinterInheritance
     from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
+    from slither.printers.call.call_graph import PrinterCallGraph
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
     from slither.printers.summary.slithir import PrinterSlithIR
 
@@ -164,6 +165,7 @@ def main():
                 ContractSummary,
                 PrinterInheritance,
                 PrinterInheritanceGraph,
+                PrinterCallGraph,
                 PrinterWrittenVariablesAndAuthorization,
                 PrinterSlithIR]
 
