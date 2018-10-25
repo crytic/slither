@@ -1,6 +1,6 @@
 
 from slither.core.children.child_node import ChildNode
-from slither.core.declarations import Contract, Enum, SolidityVariableComposed
+from slither.core.declarations import Contract, Enum, SolidityVariable
 from slither.core.variables.variable import Variable
 
 
@@ -36,8 +36,7 @@ class ReferenceVariable(ChildNode, Variable):
         # Member or Index operator
         from slither.slithir.utils.utils import is_valid_lvalue
         assert is_valid_lvalue(points_to) \
-            or isinstance(points_to, SolidityVariableComposed) \
-            or isinstance(points_to, (Contract, Enum))
+            or isinstance(points_to, (SolidityVariable, Contract, Enum))
 
         self._points_to = points_to
 
