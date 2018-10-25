@@ -45,25 +45,21 @@ class NodeSolc(Node):
             expression = self.expression
             pp = ReadVar(expression)
             self._expression_vars_read = pp.result()
-            vars_read = [ExportValues(v).result() for v in self._expression_vars_read]
-            self._vars_read = [item for sublist in vars_read for item in sublist]
-            self._state_vars_read = [x for x in self.variables_read if\
-                                     isinstance(x, (StateVariable))]
-            self._solidity_vars_read = [x for x in self.variables_read if\
-                                        isinstance(x, (SolidityVariable))]
+
+#            self._vars_read = [item for sublist in vars_read for item in sublist]
+#            self._state_vars_read = [x for x in self.variables_read if\
+#                                     isinstance(x, (StateVariable))]
+#            self._solidity_vars_read = [x for x in self.variables_read if\
+#                                        isinstance(x, (SolidityVariable))]
 
             pp = WriteVar(expression)
             self._expression_vars_written = pp.result()
-            vars_written = [ExportValues(v).result() for v in self._expression_vars_written]
-            self._vars_written = [item for sublist in vars_written for item in sublist]
-            self._state_vars_written = [x for x in self.variables_written if\
-                                        isinstance(x, StateVariable)]
+
+#            self._vars_written = [item for sublist in vars_written for item in sublist]
+#            self._state_vars_written = [x for x in self.variables_written if\
+#                                        isinstance(x, StateVariable)]
 
             pp = FindCalls(expression)
             self._expression_calls = pp.result()
-            calls = [ExportValues(c).result() for c in self.calls_as_expression]
-            calls = [item for sublist in calls for item in sublist]
-            self._internal_calls = [c for c in calls if isinstance(c, (Function, SolidityFunction))]
-
-            self._external_calls = [c for c in self.calls_as_expression if not isinstance(c.called, Identifier)]
+            self._external_calls_as_expressions = [c for c in self.calls_as_expression if not isinstance(c.called, Identifier)]
 

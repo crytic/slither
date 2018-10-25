@@ -2,84 +2,35 @@
 
 ### Test Detectors
 
+# test_slither file.sol --detect-detectors number_results
+test_slither(){
+    slither "$1" --disable-solc-warnings "$2"
+    if [ $? -ne "$3" ]; then
+        exit 1
+    fi
 
-slither tests/uninitialized.sol --disable-solc-warnings --detect-uninitialized-state
-if [ $? -ne 3 ]; then
-    exit 1
-fi
+    slither "$1" --disable-solc-warnings "$2" --compact-ast
+    if [ $? -ne "$3" ]; then
+        exit 1
+    fi
+}
 
-# contains also the test for the suicidal detector
-slither tests/backdoor.sol --disable-solc-warnings --detect-backdoor
-if [ $? -ne 1 ]; then
-    exit 1
-fi
-
-slither tests/pragma.0.4.24.sol --disable-solc-warnings --detect-pragma
-if [ $? -ne 1 ]; then
-    exit 1
-fi
-
-slither tests/old_solc.sol.json --solc-ast --detect-solc-version
-if [ $? -ne 1 ]; then
-    exit 1
-fi
-
-slither tests/reentrancy.sol --disable-solc-warnings --detect-reentrancy
-if [ $? -ne 1 ]; then
-    exit 1
-fi
-
-slither tests/uninitialized_storage_pointer.sol --disable-solc-warnings --detect-uninitialized-storage
-if [ $? -ne 1 ]; then
-    exit 1
-fi
-
-slither tests/tx_origin.sol --disable-solc-warnings --detect-tx-origin
-if [ $? -ne 2 ]; then
-    exit 1
-fi
-
-slither tests/unused_state.sol --detect-unused-state
-if [ $? -ne 1 ]; then
-    exit 1
-fi
-
-slither tests/locked_ether.sol --detect-locked-ether
-if [ $? -ne 1 ]; then
-    exit 1
-fi
-
-slither tests/arbitrary_send.sol --disable-solc-warnings --detect-arbitrary-send
-if [ $? -ne 2 ]; then
-    exit 1
-fi
-
-
-slither tests/inline_assembly_contract.sol --disable-solc-warnings --detect-assembly
-if [ $? -ne 1 ]; then
-    exit 1
-fi
-
-slither tests/inline_assembly_library.sol --disable-solc-warnings --detect-assembly
-if [ $? -ne 2 ]; then
-    exit 1
-fi
-
-slither tests/naming_convention.sol --disable-solc-warnings --detect-naming-convention
-if [ $? -ne 10 ]; then
-    exit 1
-fi
-
-slither tests/low_level_calls.sol --disable-solc-warnings --detect-low-level-calls
-if [ $? -ne 1 ]; then
-    exit 1
-fi
-
-slither tests/const_state_variables.sol --detect-const-candidates-state
-if [ $? -ne 2 ]; then
-    exit 1
-fi
-
+test_slither tests/uninitialized.sol "--detect-uninitialized-state" 1
+test_slither tests/backdoor.sol "--detect-backdoor" 1
+test_slither tests/backdoor.sol "--detect-suicidal" 1
+test_slither tests/pragma.0.4.24.sol "--detect-pragma" 1
+test_slither tests/old_solc.sol.json "--detect-solc-version" 1
+test_slither tests/reentrancy.sol "--detect-reentrancy" 1
+test_slither tests/uninitialized_storage_pointer.sol "--detect-uninitialized-storage" 1
+test_slither tests/tx_origin.sol "--detect-tx-origin" 2
+test_slither tests/unused_state.sol "--detect-unused-state" 1
+test_slither tests/locked_ether.sol "--detect-locked-ether" 1
+test_slither tests/arbitrary_send.sol "--detect-arbitrary-send" 2
+test_slither tests/inline_assembly_contract.sol "--detect-assembly" 1
+test_slither tests/inline_assembly_library.sol "--detect-assembly" 2
+test_slither tests/naming_convention.sol "--detect-naming-convention" 10
+test_slither tests/low_level_calls.sol "--detect-low-level-calls" 1
+test_slither tests/const_state_variables.sol "--detect-const-candidates-state" 2
 
 ### Test scripts
 

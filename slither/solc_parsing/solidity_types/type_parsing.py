@@ -41,6 +41,8 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
     name_contract = name
     if name_contract.startswith('contract '):
         name_contract = name_contract[len('contract '):]
+    if name_contract.startswith('library '):
+        name_contract = name_contract[len('library '):]
     var_type = next((c for c in contracts if c.name == name_contract), None)
 
     if not var_type:
@@ -131,6 +133,14 @@ def parse_type(t, caller_context):
         logger.error('Incorrect caller context')
         exit(-1)
 
+
+    is_compact_ast = caller_context.is_compact_ast
+
+    if is_compact_ast:
+        key = 'nodeType'
+    else:
+        key = 'name'
+
     structures = contract.structures
     enums = contract.enums
     contracts = contract.slither.contracts
@@ -138,47 +148,66 @@ def parse_type(t, caller_context):
     if isinstance(t, UnknownType):
         return _find_from_type_name(t.name, contract, contracts, structures, enums)
 
-    elif t['name'] == 'ElementaryTypeName':
-        return ElementaryType(t['attributes']['name'])
+    elif t[key] == 'ElementaryTypeName':
+        if is_compact_ast:
+            return ElementaryType(t['name'])
+        return ElementaryType(t['attributes'][key])
 
-    elif t['name'] == 'UserDefinedTypeName':
-        return _find_from_type_name(t['attributes']['name'], contract, contracts, structures, enums)
+    elif t[key] == 'UserDefinedTypeName':
+        if is_compact_ast:
+            return _find_from_type_name(t['typeDescriptions']['typeString'], contract, contracts, structures, enums)
+        return _find_from_type_name(t['attributes'][key], contract, contracts, structures, enums)
 
-    elif t['name'] == 'ArrayTypeName':
+    elif t[key] == 'ArrayTypeName':
         length = None
-        if len(t['children']) == 2:
-            length = parse_expression(t['children'][1], caller_context)
+        if is_compact_ast:
+            if t['length']:
+                length = parse_expression(t['length'], caller_context)
+            array_type = parse_type(t['baseType'], contract)
         else:
-            assert len(t['children']) == 1
-        array_type = parse_type(t['children'][0], contract)
+            if len(t['children']) == 2:
+                length = parse_expression(t['children'][1], caller_context)
+            else:
+                assert len(t['children']) == 1
+            array_type = parse_type(t['children'][0], contract)
         return ArrayType(array_type, length)
 
-    elif t['name'] == 'Mapping':
+    elif t[key] == 'Mapping':
 
-        assert len(t['children']) == 2
+        if is_compact_ast:
+            mappingFrom = parse_type(t['keyType'], contract)
+            mappingTo = parse_type(t['valueType'], contract)
+        else:
+            assert len(t['children']) == 2
 
-        mappingFrom = parse_type(t['children'][0], contract)
-        mappingTo = parse_type(t['children'][1], contract)
+            mappingFrom = parse_type(t['children'][0], contract)
+            mappingTo = parse_type(t['children'][1], contract)
 
         return MappingType(mappingFrom, mappingTo)
 
-    elif t['name'] == 'FunctionTypeName':
-        assert len(t['children']) == 2
+    elif t[key] == 'FunctionTypeName':
 
-        params = t['children'][0]
-        return_values = t['children'][1]
+        if is_compact_ast:
+            params = t['parameterTypes']
+            return_values = t['returnParameterTypes']
+            index =  'parameters'
+        else:
+            assert len(t['children']) == 2
+            params = t['children'][0]
+            return_values = t['children'][1]
+            index = 'children'
 
-        assert params['name'] == 'ParameterList'
-        assert return_values['name'] == 'ParameterList'
+        assert params[key] == 'ParameterList'
+        assert return_values[key] == 'ParameterList'
 
         params_vars = []
         return_values_vars = []
-        for p in params['children']:
+        for p in params[index]:
             var = FunctionTypeVariableSolc(p)
             var.set_offset(p['src'], caller_context.slither)
             var.analyze(caller_context)
             params_vars.append(var)
-        for p in return_values['children']:
+        for p in return_values[index]:
             var = FunctionTypeVariableSolc(p)
 
             var.set_offset(p['src'], caller_context.slither)

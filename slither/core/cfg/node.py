@@ -5,6 +5,7 @@ import logging
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
+from slither.core.variables.state_variable import StateVariable
 
 from slither.visitors.expression.expression_printer import ExpressionPrinter
 from slither.visitors.expression.read_var import ReadVar
@@ -12,9 +13,16 @@ from slither.visitors.expression.write_var import WriteVar
 
 from slither.core.children.child_function import ChildFunction
 
-from slither.core.declarations.solidity_variables import SolidityFunction
+from slither.core.declarations.solidity_variables import SolidityVariable, SolidityFunction
 
 from slither.slithir.convert import convert_expression
+
+from slither.slithir.operations import OperationWithLValue, Index, Member, LowLevelCall, SolidityCall, HighLevelCall, InternalCall, LibraryCall
+
+
+from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable, TupleVariable
+
+from slither.core.declarations import Contract
 
 logger = logging.getLogger("Node")
 
@@ -103,7 +111,10 @@ class Node(SourceMapping, ChildFunction):
         self._vars_written = []
         self._vars_read = []
         self._internal_calls = []
-        self._external_calls = []
+        self._solidity_calls = []
+        self._high_level_calls = []
+        self._low_level_calls = []
+        self._external_calls_as_expressions = []
         self._irs = []
 
         self._state_vars_written = []
@@ -176,16 +187,43 @@ class Node(SourceMapping, ChildFunction):
     @property
     def internal_calls(self):
         """
-            list(Function or SolidityFunction): List of function calls (that does not create a transaction)
+            list(Function or SolidityFunction): List of internal/soldiity function calls
         """
         return list(self._internal_calls)
 
     @property
-    def external_calls(self):
+    def solidity_calls(self):
+        """
+            list(SolidityFunction): List of Soldity calls
+        """
+        return list(self._internal_calls)
+
+    @property
+    def high_level_calls(self):
+        """
+            list((Contract, Function|Variable)):
+            List of high level calls (external calls).
+            A variable is called in case of call to a public state variable
+            Include library calls
+        """
+        return list(self._high_level_calls)
+
+    @property
+    def low_level_calls(self):
+        """
+            list((Variable|SolidityVariable, str)): List of low_level call
+            A low level call is defined by
+            - the variable called
+            - the name of the function (call/delegatecall/codecall)
+        """
+        return list(self._low_level_calls)
+
+    @property
+    def external_calls_as_expressions(self):
         """
             list(CallExpression): List of message calls (that creates a transaction)
         """
-        return self._external_calls
+        return self._external_calls_as_expressions
 
     @property
     def calls_as_expression(self):
@@ -226,10 +264,7 @@ class Node(SourceMapping, ChildFunction):
         Returns:
             bool: True if the node has a require or assert call
         """
-        return self.internal_calls and\
-                any(isinstance(c, SolidityFunction) and\
-                (c.name in ['require(bool)', 'require(bool,string)', 'assert(bool)'])\
-                for c in self.internal_calls)
+        return any(c.name in ['require(bool)', 'require(bool,string)', 'assert(bool)'] for c in self.internal_calls)
 
     def contains_if(self):
         """
@@ -328,3 +363,55 @@ class Node(SourceMapping, ChildFunction):
         if self.expression:
             expression = self.expression
             self._irs = convert_expression(expression, self)
+
+        self._find_read_write_call()
+
+    def _find_read_write_call(self):
+
+        def is_slithir_var(var):
+            return isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
+
+        for ir in self.irs:
+            self._vars_read += [v for v in ir.read if not is_slithir_var(v)]
+            if isinstance(ir, OperationWithLValue):
+                if isinstance(ir, (Index, Member)):
+                    continue  # Don't consider Member and Index operations -> ReferenceVariable
+                var = ir.lvalue
+                # If its a reference, we loop until finding the origin
+                if isinstance(var, (ReferenceVariable)):
+                    while isinstance(var, ReferenceVariable):
+                        var = var.points_to
+                # Only store non-slithIR variables
+                if not is_slithir_var(var):
+                    self._vars_written.append(var)
+
+            if isinstance(ir, InternalCall):
+                self._internal_calls.append(ir.function)
+            if isinstance(ir, SolidityCall):
+                # TODO: consider removing dependancy of solidity_call to internal_call
+                self._solidity_calls.append(ir.function)
+                self._internal_calls.append(ir.function)
+            if isinstance(ir, LowLevelCall):
+                assert isinstance(ir.destination, (Variable, SolidityVariable))
+                self._low_level_calls.append((ir.destination, ir.function_name.value))
+            elif isinstance(ir, (HighLevelCall)) and not isinstance(ir, LibraryCall):
+                if isinstance(ir.destination.type, Contract):
+                    self._high_level_calls.append((ir.destination.type, ir.function))
+                else:
+                    self._high_level_calls.append((ir.destination.type.type, ir.function))
+            elif isinstance(ir, LibraryCall):
+                assert isinstance(ir.destination, Contract)
+                self._high_level_calls.append((ir.destination, ir.function))
+
+        self._vars_read = list(set(self._vars_read))
+        self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
+        self._solidity_vars_read = [v for v in self._vars_read if isinstance(v, SolidityVariable)]
+        self._vars_written = list(set(self._vars_written))
+        self._state_vars_written = [v for v in self._vars_written if isinstance(v, StateVariable)]
+        self._internal_calls = list(set(self._internal_calls))
+        self._solidity_calls = list(set(self._solidity_calls))
+        self._high_level_calls = list(set(self._high_level_calls))
+        self._low_level_calls = list(set(self._low_level_calls))
+
+
+
