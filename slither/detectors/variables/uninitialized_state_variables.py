@@ -33,17 +33,9 @@ class UninitializedStateVarsDetection(AbstractDetector):
         ret = []
         for f in contract.all_functions_called + contract.modifiers:
             for n in f.nodes:
+                ret += n.state_variables_written
                 for ir in n.irs:
-                    if isinstance(ir, (Index, Member)):
-                        continue  # Don't consider Member and Index operations -> ReferenceVariable
-                    elif isinstance(ir, OperationWithLValue) and isinstance(ir.lvalue, StateVariable):
-                        ret.append(ir.lvalue)
-                    elif isinstance(ir, Assignment) and isinstance(ir.lvalue, ReferenceVariable):
-                        dest = ir.lvalue
-                        while isinstance(dest, ReferenceVariable):
-                            dest = dest.points_to
-                        ret.append(dest)
-                    elif isinstance(ir, LibraryCall) \
+                    if isinstance(ir, LibraryCall) \
                             or isinstance(ir, InternalCall) \
                             or isinstance(ir, InternalDynamicCall):
                         for v in ir.arguments:
