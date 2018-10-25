@@ -17,10 +17,9 @@ logger_printer = logging.getLogger("Printers")
 
 class Slither(SlitherSolc):
 
-    def __init__(self, contract, solc='solc', disable_solc_warnings=False, solc_arguments='', ast_format='-ast-json'):
+    def __init__(self, contract, solc='solc', disable_solc_warnings=False, solc_arguments='', ast_format='--ast-json'):
         self._detectors = []
         self._printers = []
-
 
         # json text provided
         if isinstance(contract, dict):
