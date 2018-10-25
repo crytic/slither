@@ -283,6 +283,8 @@ def get_sig(ir):
     for arg in ir.arguments:
         if isinstance(arg, (list,)):
             type_arg = '{}[{}]'.format(get_type(arg[0].type), len(arg))
+        elif isinstance(arg, Function):
+            type_arg = arg.signature_str
         else:
             type_arg = get_type(arg.type)
         args.append(type_arg)
