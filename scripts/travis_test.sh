@@ -9,8 +9,8 @@ if [ $? -ne 1 ]; then
 fi
 
 # contains also the test for the suicidal detector
-slither tests/backdoor.sol --disable-solc-warnings --detect-backdoor
-if [ $? -ne 1 ]; then
+slither tests/backdoor.sol --disable-solc-warnings --detect-backdoor --detect-suicidal
+if [ $? -ne 2 ]; then
     exit 1
 fi
 
