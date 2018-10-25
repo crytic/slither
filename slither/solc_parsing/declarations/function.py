@@ -216,6 +216,13 @@ class FunctionSolc(Function):
         else:
             link_nodes(node_body, node_startLoop)
 
+        if not condition:
+            if not loop_expression:
+                # TODO: fix case where loop has no expression
+                link_nodes(node_startLoop, node_endLoop)
+            else:
+                link_nodes(node_LoopExpression, node_endLoop)
+
         return node_endLoop
 
 
