@@ -52,6 +52,14 @@ contract Test {
 }
 
 contract T {
+    uint private _myPrivateVar;
+    uint _myPublicVar;
+
+
+    function test(uint _unused, uint _used){
+        _used;}
+
+
     uint k = 1;
 
     uint constant M = 1;

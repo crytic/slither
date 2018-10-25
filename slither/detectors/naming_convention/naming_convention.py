@@ -9,7 +9,7 @@ class NamingConvention(AbstractDetector):
 
     Exceptions:
     - Allow constant variables name/symbol/decimals to be lowercase (ERC20)
-    - Allow '_' at the beggining of the mixed_case match, to represent private variable and unused parameters
+    - Allow '_' at the beggining of the mixed_case match for private variables and unused parameters
     """
 
     ARGUMENT = 'naming-convention'
@@ -23,6 +23,10 @@ class NamingConvention(AbstractDetector):
 
     @staticmethod
     def is_mixed_case(name):
+        return re.search('^[a-z]([A-Za-z0-9]+)?_?$', name) is not None
+
+    @staticmethod
+    def is_mixed_case_with_underscore(name):
         # Allow _ at the beginning to represent private variable
         # or unused parameters
         return re.search('^[a-z_]([A-Za-z0-9]+)?_?$', name) is not None
@@ -86,8 +90,11 @@ class NamingConvention(AbstractDetector):
                                     'sourceMapping': func.source_mapping})
 
                 for argument in func.parameters:
-
-                    if self.is_mixed_case(argument.name) is False:
+                    if argument in func.variables_read_or_written:
+                        incorrect_naming = self.is_mixed_case(argument.name) is False
+                    else:
+                        incorrect_naming = self.is_mixed_case_with_underscore(argument.name) is False
+                    if incorrect_naming:
                         info = "Parameter '{}' is not in mixedCase, Contract: '{}', Function: '{}'' " \
                             .format(argument.name, argument.name, contract.name)
                         self.log(info)
@@ -129,7 +136,11 @@ class NamingConvention(AbstractDetector):
                                         'constant': var.name,
                                         'sourceMapping': var.source_mapping})
                 else:
-                    if self.is_mixed_case(var.name) is False:
+                    if var.visibility == 'private':
+                        incorrect_naming = self.is_mixed_case_with_underscore(var.name) is False
+                    else:
+                        incorrect_naming = self.is_mixed_case(var.name) is False
+                    if incorrect_naming:
                         info = "Variable '{}' is not in mixedCase, Contract: '{}' ".format(var.name, contract.name)
                         self.log(info)
 

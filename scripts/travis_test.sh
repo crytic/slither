@@ -65,7 +65,7 @@ if [ $? -ne 2 ]; then
 fi
 
 slither tests/naming_convention.sol --disable-solc-warnings --detect-naming-convention
-if [ $? -ne 10 ]; then
+if [ $? -ne 12 ]; then
     exit 1
 fi
 
