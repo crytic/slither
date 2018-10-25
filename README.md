@@ -40,6 +40,7 @@ If Slither is run on a directory, it will run on every `.sol` file of the direct
 * `--printer-quick-summary`: Print a quick summary of the contracts
 * `--printer-inheritance`: Print the inheritance relations
 * `--printer-inheritance-graph`: Print the inheritance graph in a file
+* `--printer-call-graph`: Print the call graph in a file
 * `--printer-vars-and-auth`: Print the variables written and the check on `msg.sender` of each function
 
 ## Checks available
