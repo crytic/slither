@@ -283,6 +283,8 @@ def get_sig(ir):
     for arg in ir.arguments:
         if isinstance(arg, (list,)):
             type_arg = '{}[{}]'.format(get_type(arg[0].type), len(arg))
+        elif isinstance(arg, Function):
+            type_arg = arg.signature_str
         else:
             type_arg = get_type(arg.type)
         args.append(type_arg)
@@ -544,8 +546,14 @@ def remove_temporary(result):
     return result
 
 def remove_unused(result):
-
     removed = True
+
+    if not result:
+        return result
+
+    # dont remove the last elem, as it may be used by RETURN
+    last_elem = result[-1]
+
     while removed:
         removed = False
 
@@ -562,7 +570,7 @@ def remove_unused(result):
 
         for ins in result:
             if isinstance(ins, Member):
-                if not ins.lvalue.name in to_keep:
+                if not ins.lvalue.name in to_keep and ins != last_elem:
                     to_remove.append(ins)
                     removed = True
 
