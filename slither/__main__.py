@@ -53,7 +53,10 @@ def process(filename, args, detector_classes, printer_classes):
     Returns:
         list(result), int: Result list and number of contracts analyzed
     """
-    slither = Slither(filename, args.solc, args.disable_solc_warnings, args.solc_args)
+    ast = '--ast-json'
+    if args.compact_ast:
+        ast = '--ast-compact-json'
+    slither = Slither(filename, args.solc, args.disable_solc_warnings, args.solc_args, ast)
 
     return _process(slither, detector_classes, printer_classes)
 
@@ -347,6 +350,11 @@ def parse_args(detector_classes, printer_classes):
     parser.add_argument('--markdown',
                         help=argparse.SUPPRESS,
                         action="store_true",
+                        default=False)
+
+    parser.add_argument('--compact-ast',
+                        help=argparse.SUPPRESS,
+                        action='store_true',
                         default=False)
 
     return parser.parse_args()

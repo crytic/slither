@@ -17,7 +17,7 @@ logger_printer = logging.getLogger("Printers")
 
 class Slither(SlitherSolc):
 
-    def __init__(self, contract, solc='solc', disable_solc_warnings=False, solc_arguments=''):
+    def __init__(self, contract, solc='solc', disable_solc_warnings=False, solc_arguments='', ast_format='-ast-json'):
         self._detectors = []
         self._printers = []
 
@@ -28,7 +28,7 @@ class Slither(SlitherSolc):
             self._parse_contracts_from_loaded_json(contract, '')
         # .json or .sol provided
         else:
-            contracts_json = self._run_solc(contract, solc, disable_solc_warnings, solc_arguments)
+            contracts_json = self._run_solc(contract, solc, disable_solc_warnings, solc_arguments, ast_format)
             super(Slither, self).__init__(contract)
 
             for c in contracts_json:
@@ -82,7 +82,7 @@ class Slither(SlitherSolc):
                 "You can't register {!r} twice.".format(cls)
             )
 
-    def _run_solc(self, filename, solc, disable_solc_warnings, solc_arguments):
+    def _run_solc(self, filename, solc, disable_solc_warnings, solc_arguments, ast_format):
         if not os.path.isfile(filename):
             logger.error('{} does not exist (are you in the correct directory?)'.format(filename))
             exit(-1)
@@ -99,7 +99,7 @@ class Slither(SlitherSolc):
                     logger.info('Empty AST file: %s', filename)
                     sys.exit(-1)
         else:
-            cmd = [solc, filename, '--ast-compact-json']
+            cmd = [solc, filename, ast_format]
             if solc_arguments:
                 # To parse, we first split the string on each '--'
                 solc_args = solc_arguments.split('--')
