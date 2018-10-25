@@ -18,58 +18,94 @@ class SlitherSolc(Slither):
         self._contracts_by_id = {}
         self._analyzed = False
 
+        self._is_compact_ast = False
+
+    def get_key(self):
+        if self._is_compact_ast:
+            return 'nodeType'
+        return 'name'
+
+    def get_children(self):
+        if self._is_compact_ast:
+            return 'nodes'
+        return 'children'
+
+    @property
+    def is_compact_ast(self):
+        return self._is_compact_ast
+
     def _parse_contracts_from_json(self, json_data):
-        first = json_data.find('{')
-        if first != -1:
-            last = json_data.rfind('}') + 1
-            filename = json_data[0:first]
-            json_data = json_data[first:last]
-
+        try:
             data_loaded = json.loads(json_data)
+            self._parse_contracts_from_loaded_json(data_loaded['ast'], data_loaded['sourcePath'])
+            return True 
+        except ValueError:
 
-            if data_loaded['name'] == 'root':
-                self._solc_version = '0.3'
-                logger.error('solc <0.4 is not supported')
-                return
-            elif data_loaded['name'] == 'SourceUnit':
-                self._solc_version = '0.4'
-                self._parse_source_unit(data_loaded, filename)
-            else:
-                logger.error('solc version is not supported')
-                return
+            first = json_data.find('{')
+            if first != -1:
+                last = json_data.rfind('}') + 1
+                filename = json_data[0:first]
+                json_data = json_data[first:last]
 
-            for contract_data in data_loaded['children']:
-                # if self.solc_version == '0.3':
-                #     assert contract_data['name'] == 'Contract'
-                #     contract = ContractSolc03(self, contract_data)
-                if self.solc_version == '0.4':
-                    assert contract_data['name'] in ['ContractDefinition', 'PragmaDirective', 'ImportDirective']
-                    if contract_data['name'] == 'ContractDefinition':
-                        contract = ContractSolc04(self, contract_data)
-                        if 'src' in contract_data:
-                            contract.set_offset(contract_data['src'], self)
-                        self._contractsNotParsed.append(contract)
-                    elif contract_data['name'] == 'PragmaDirective':
+                data_loaded = json.loads(json_data)
+                self._parse_contracts_from_loaded_json(data_loaded, filename)
+                return True
+            return False
+
+    def _parse_contracts_from_loaded_json(self, data_loaded, filename):
+        if 'nodeType' in data_loaded:
+            self._is_compact_ast = True
+
+        if data_loaded[self.get_key()] == 'root':
+            self._solc_version = '0.3'
+            logger.error('solc <0.4 is not supported')
+            return
+        elif data_loaded[self.get_key()] == 'SourceUnit':
+            self._solc_version = '0.4'
+            self._parse_source_unit(data_loaded, filename)
+        else:
+            logger.error('solc version is not supported')
+            return
+
+        for contract_data in data_loaded[self.get_children()]:
+            # if self.solc_version == '0.3':
+            #     assert contract_data[self.get_key()] == 'Contract'
+            #     contract = ContractSolc03(self, contract_data)
+            if self.solc_version == '0.4':
+                assert contract_data[self.get_key()] in ['ContractDefinition', 'PragmaDirective', 'ImportDirective']
+                if contract_data[self.get_key()] == 'ContractDefinition':
+                    contract = ContractSolc04(self, contract_data)
+                    if 'src' in contract_data:
+                        contract.set_offset(contract_data['src'], self)
+                    self._contractsNotParsed.append(contract)
+                elif contract_data[self.get_key()] == 'PragmaDirective':
+                    if self._is_compact_ast:
+                        pragma = Pragma(contract_data['literals'])
+                    else:
                         pragma = Pragma(contract_data['attributes']["literals"])
-                        pragma.set_offset(contract_data['src'], self)
-                        self._pragma_directives.append(pragma)
-                    elif contract_data['name'] == 'ImportDirective':
+                    pragma.set_offset(contract_data['src'], self)
+                    self._pragma_directives.append(pragma)
+                elif contract_data[self.get_key()] == 'ImportDirective':
+                    if self.is_compact_ast:
+                        import_directive = Import(contract_data["absolutePath"])
+                    else:
                         import_directive = Import(contract_data['attributes']["absolutePath"])
-                        import_directive.set_offset(contract_data['src'], self)
-                        self._import_directives.append(import_directive)
+                    import_directive.set_offset(contract_data['src'], self)
+                    self._import_directives.append(import_directive)
 
-            return True
-        return False
 
     def _parse_source_unit(self, data, filename):
-        if data['name'] != 'SourceUnit':
+        if data[self.get_key()] != 'SourceUnit':
             return -1  # handle solc prior 0.3.6
 
         # match any char for filename
         # filename can contain space, /, -, ..
         name = re.findall('=* (.+) =*', filename)
-        assert len(name) == 1
-        name = name[0]
+        if name:
+            assert len(name) == 1
+            name = name[0]
+        else:
+            name =filename
 
         sourceUnit = -1  # handle old solc, or error
         if 'src' in data:
@@ -117,7 +153,7 @@ class SlitherSolc(Slither):
         self._analyze_third_part(contracts_to_be_analyzed, libraries)
 
         self._analyzed = True
-    
+
         self._convert_to_slithir()
 
     # TODO refactor the following functions, and use a lambda function

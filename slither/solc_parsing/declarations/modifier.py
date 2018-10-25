@@ -19,9 +19,11 @@ class ModifierSolc(Modifier, FunctionSolc):
 
         self._analyze_attributes()
 
-        children = self._functionNotParsed['children']
-
-        params = children[0]
+        if self.is_compact_ast:
+            params = self._functionNotParsed['parameters']
+        else:
+            children = self._functionNotParsed['children']
+            params = children[0]
 
         if params:
             self._parse_params(params)
@@ -32,15 +34,24 @@ class ModifierSolc(Modifier, FunctionSolc):
 
         self._content_was_analyzed = True
 
-        children = self._functionNotParsed['children']
 
-        self._isImplemented = False
-        if len(children) > 1:
-            assert len(children) == 2
-            block = children[1]
-            assert block['name'] == 'Block'
+        if self.is_compact_ast:
+            body = self._functionNotParsed['body']
+
+            if body and body[self.get_key()] == 'Block':
+                self._is_implemented = True
+                self._parse_cfg(body)
+
+        else:
+            children = self._functionNotParsed['children']
+
             self._isImplemented = False
-            self._parse_cfg(block)
+            if len(children) > 1:
+                assert len(children) == 2
+                block = children[1]
+                assert block['name'] == 'Block'
+                self._isImplemented = True
+                self._parse_cfg(block)
 
         for local_vars in self.variables:
             local_vars.analyze(self)
@@ -52,7 +63,7 @@ class ModifierSolc(Modifier, FunctionSolc):
         self._analyze_calls()
 
     def _parse_statement(self, statement, node):
-        name = statement['name']
+        name = statement[self.get_key()]
         if name == 'PlaceholderStatement':
             placeholder_node = self._new_node(NodeType.PLACEHOLDER)
             link_nodes(node, placeholder_node)
