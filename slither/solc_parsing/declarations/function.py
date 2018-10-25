@@ -197,6 +197,11 @@ class FunctionSolc(Function):
             if len(children) > 2:
                 if children[-2]['name'] == 'ExpressionStatement':
                     node_LoopExpression = self._parse_statement(children[-2], node_statement)
+            if not hasCondition:
+                link_nodes(node_LoopExpression, node_endLoop)
+
+        if not hasCondition and not hasLoopExpression:
+            link_nodes(node, node_endLoop)
 
         link_nodes(node_LoopExpression, node_startLoop)
 
@@ -464,7 +469,7 @@ class FunctionSolc(Function):
         end_node = self._find_end_loop(node, [])
 
         if not end_node:
-            logger.error('Break in no-loop context {}'.format(node.nodeId()))
+            logger.error('Break in no-loop context {}'.format(node))
             exit(-1)
 
         for son in node.sons:
