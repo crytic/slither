@@ -32,21 +32,12 @@ If Slither is run on a directory, it will run on every `.sol` file of the direct
 * `--disable-solc-warnings`: Do not print solc warnings
 * `--solc-ast`: Use the solc AST file as input (`solc file.sol --ast-json > file.ast.json`)
 * `--json FILE`: Export results as JSON
-* `--exclude-name`: Excludes the detector `name` from analysis
 
-### Printers
+## Detectors
 
-* `--printer-summary`: Print a summary of the contracts
-* `--printer-quick-summary`: Print a quick summary of the contracts
-* `--printer-inheritance`: Print the inheritance relations
-* `--printer-inheritance-graph`: Print the inheritance graph in a file
-* `--printer-vars-and-auth`: Print the variables written and the check on `msg.sender` of each function
+By default, all the detectors are run. Use `--detectors` comma-separated list of detectors to run.
 
-## Checks available
-
-By default, all the checks are run. Use --detect-_name-of-check_ to run one check at a time.
-
-Num | Check | What it Detects | Impact | Confidence
+Num | Detector | What it Detects | Impact | Confidence
 --- | --- | --- | --- | ---
 1 | `suicidal` | Suicidal functions | High | High
 2 | `uninitialized-state` | Uninitialized state variables | High | High
@@ -63,7 +54,22 @@ Num | Check | What it Detects | Impact | Confidence
 13 | `solc-version` | If an old version of Solidity used (<0.4.23) | Informational | High
 14 | `unused-state` | Unused state variables | Informational | High
 
+
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
+
+### Printers
+
+Use `--printers` comma-separated list of printers. 
+
+Num | Printer | Description
+--- | --- | ---
+1 | `call-graph` | the call graph
+2 | `contract-summary` | a summary of the contract
+3 | `function-summary` | the summary of the functions
+4 | `inheritance` | the inheritance relation between contracts
+5 | `inheritance-graph` | the inheritance graph
+6 | `slithir` | the slithIR
+7 | `vars-and-auth` | the state variables written and the authorization of the functions
 
 ## How to install
 
