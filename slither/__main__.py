@@ -345,6 +345,7 @@ def parse_args(detector_classes, printer_classes):
     parser.add_argument('--markdown',
                         help=argparse.SUPPRESS,
                         action=OutputMarkdown,
+                        nargs=0,
                         default=False)
 
     parser.add_argument('--compact-ast',
@@ -374,8 +375,8 @@ class ListPrinters(argparse.Action):
 
 class OutputMarkdown(argparse.Action):
     def __call__(self, parser, *args, **kwargs):
-        detectors, _ = get_detectors_and_printers()
-        output_to_markdown(detectors)
+        detectors, printers = get_detectors_and_printers()
+        output_to_markdown(detectors, printers)
         parser.exit()
 
 

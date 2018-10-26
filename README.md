@@ -39,21 +39,21 @@ By default, all the detectors are run. Use `--detectors` comma-separated list of
 
 Num | Detector | What it Detects | Impact | Confidence
 --- | --- | --- | --- | ---
-1 | `backdoor` | Function named backdoor (detector example) | High | High
-2 | `suicidal` | Suicidal functions | High | High
-3 | `uninitialized-state` | Uninitialized state variables | High | High
-4 | `uninitialized-storage` | Uninitialized storage variables | High | High
-5 | `arbitrary-send` | Functions that send ether to an arbitrary destination | High | Medium
-6 | `reentrancy` | Reentrancy vulnerabilities | High | Medium
-7 | `locked-ether` | Contracts that lock ether | Medium | High
-8 | `tx-origin` | Dangerous usage of `tx.origin` | Medium | Medium
-9 | `assembly` | Assembly usage | Informational | High
-10 | `const-candidates-state` | State variables that could be declared constant | Informational | High
-11 | `low-level-calls` | Low level calls | Informational | High
-12 | `naming-convention` | Conformance to Solidity naming conventions | Informational | High
-13 | `pragma` | If different pragma directives are used | Informational | High
-14 | `solc-version` | If an old version of Solidity used (<0.4.23) | Informational | High
-15 | `unused-state` | Unused state variables | Informational | High
+1 | `suicidal` | Suicidal functions | High | High
+2 | `uninitialized-state` | Uninitialized state variables | High | High
+3 | `uninitialized-storage` | Uninitialized storage variables | High | High
+4 | `arbitrary-send` | Functions that send ether to an arbitrary destination | High | Medium
+5 | `reentrancy` | Reentrancy vulnerabilities | High | Medium
+6 | `locked-ether` | Contracts that lock ether | Medium | High
+7 | `tx-origin` | Dangerous usage of `tx.origin` | Medium | Medium
+8 | `assembly` | Assembly usage | Informational | High
+9 | `const-candidates-state` | State variables that could be declared constant | Informational | High
+10 | `low-level-calls` | Low level calls | Informational | High
+11 | `naming-convention` | Conformance to Solidity naming conventions | Informational | High
+12 | `pragma` | If different pragma directives are used | Informational | High
+13 | `solc-version` | If an old version of Solidity used (<0.4.23) | Informational | High
+14 | `unused-state` | Unused state variables | Informational | High
+
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
@@ -63,13 +63,13 @@ Use `--printers` comma-separated list of printers.
 
 Num | Printer | Description
 --- | --- | ---
-1 | `contract-summary` | a summary of the contract
-2 | `function-summary` | the summary of the functions
-3 | `inheritance` | the inheritance relation between contracts
-4 | `inheritance-graph` | the inheritance graph
-5 | `slithir` | the slithIR
-6 | `vars-and-auth` | the state variables written and the authorization of the functions
-
+1 | `call-graph` | the call graph
+2 | `contract-summary` | a summary of the contract
+3 | `function-summary` | the summary of the functions
+4 | `inheritance` | the inheritance relation between contracts
+5 | `inheritance-graph` | the inheritance graph
+6 | `slithir` | the slithIR
+7 | `vars-and-auth` | the state variables written and the authorization of the functions
 
 ## How to install
 
