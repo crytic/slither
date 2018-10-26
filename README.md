@@ -66,7 +66,7 @@ Num | Detector | What it Detects | Impact | Confidence
 
 ### Printers
 
-Use `--printers` comma-separated list of printers. 
+To run a printer, use `--printers` and a comma-separated list of printers.
 
 Num | Printer | Description
 --- | --- | ---
@@ -76,7 +76,7 @@ Num | Printer | Description
 4 | `inheritance` | the inheritance relation between contracts
 5 | `inheritance-graph` | the inheritance graph
 6 | `slithir` | the slithIR
-7 | `vars-and-auth` | the state variables written and the authorization of the functions
+7 | `vars-and-auth` |  state variables written and the authorization of the functions
 
 ## How to install
 
