@@ -15,7 +15,7 @@ test_slither(){
     fi
 }
 
-test_slither tests/uninitialized.sol "uninitialized-state" 3
+test_slither tests/uninitialized.sol "uninitialized-state" 4
 test_slither tests/backdoor.sol "backdoor" 1
 test_slither tests/backdoor.sol "suicidal" 1
 test_slither tests/pragma.0.4.24.sol "pragma" 1
