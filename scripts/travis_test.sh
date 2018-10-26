@@ -15,7 +15,7 @@ test_slither(){
     fi
 }
 
-test_slither tests/uninitialized.sol "uninitialized-state" 1
+test_slither tests/uninitialized.sol "uninitialized-state" 4
 test_slither tests/backdoor.sol "backdoor" 1
 test_slither tests/backdoor.sol "suicidal" 1
 test_slither tests/pragma.0.4.24.sol "pragma" 1
@@ -31,7 +31,6 @@ test_slither tests/inline_assembly_library.sol "assembly" 2
 test_slither tests/naming_convention.sol "naming-convention" 10
 test_slither tests/low_level_calls.sol "low-level-calls" 1
 test_slither tests/const_state_variables.sol "const-candidates-state" 2
-
 
 ### Test scripts
 
