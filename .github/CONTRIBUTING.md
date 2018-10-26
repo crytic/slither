@@ -16,6 +16,4 @@ The following is a set of guidelines and helpful pointers for contributing to Sl
 7. Respond to any code review feedback
 
 ## Getting Help
-Please don't file an issue with questions. It's easier for you and for us if you go directly to [our chat](https://aragon.chat), since it will keep our repositories clean and you will get a faster response.
-
 For a list of resources and communication channels, please view `Getting Help` section of the [README](https://github.com/trailofbits/slither#getting-help) for list of resources and communication channels.
