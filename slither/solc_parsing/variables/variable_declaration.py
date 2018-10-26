@@ -33,23 +33,44 @@ class VariableDeclarationSolc(Variable):
         self._elem_to_parse = None
         self._initializedNotParsed = None
 
-        if var['name'] in ['VariableDeclarationStatement', 'VariableDefinitionStatement']:
-            if len(var['children']) == 2:
-                init = var['children'][1]
-            elif len(var['children']) == 1:
+        self._is_compact_ast = False
+
+        if 'nodeType' in var:
+            self._is_compact_ast = True
+            nodeType = var['nodeType']
+            if nodeType in ['VariableDeclarationStatement', 'VariableDefinitionStatement']:
+                if len(var['declarations'])>1:
+                    raise MultipleVariablesDeclaration
                 init = None
-            elif len(var['children']) > 2:
-                raise MultipleVariablesDeclaration
+                if 'initialValue' in var:
+                    init = var['initialValue']
+                self._init_from_declaration(var['declarations'][0], init)
+            elif  nodeType == 'VariableDeclaration':
+                self._init_from_declaration(var, var['value'])
             else:
-                logger.error('Variable declaration without children?'+var)
+                logger.error('Incorrect variable declaration type {}'.format(nodeType))
                 exit(-1)
-            declaration = var['children'][0]
-            self._init_from_declaration(declaration, init)
-        elif  var['name'] == 'VariableDeclaration':
-            self._init_from_declaration(var, None)
+
         else:
-            logger.error('Incorrect variable declaration type {}'.format(var['name']))
-            exit(-1)
+            nodeType = var['name']
+
+            if nodeType in ['VariableDeclarationStatement', 'VariableDefinitionStatement']:
+                if len(var['children']) == 2:
+                    init = var['children'][1]
+                elif len(var['children']) == 1:
+                    init = None
+                elif len(var['children']) > 2:
+                    raise MultipleVariablesDeclaration
+                else:
+                    logger.error('Variable declaration without children?'+var)
+                    exit(-1)
+                declaration = var['children'][0]
+                self._init_from_declaration(declaration, init)
+            elif  nodeType == 'VariableDeclaration':
+                self._init_from_declaration(var, None)
+            else:
+                logger.error('Incorrect variable declaration type {}'.format(nodeType))
+                exit(-1)
 
     @property
     def initialized(self):
@@ -66,13 +87,17 @@ class VariableDeclarationSolc(Variable):
             self._visibility = 'internal'
 
     def _init_from_declaration(self, var, init):
-        assert len(var['children']) <= 2
-        assert var['name'] == 'VariableDeclaration'
+        if self._is_compact_ast:
+            attributes = var
+            self._typeName = attributes['typeDescriptions']['typeString']
+        else:
+            assert len(var['children']) <= 2
+            assert var['name'] == 'VariableDeclaration'
 
-        attributes = var['attributes']
+            attributes = var['attributes']
+            self._typeName = attributes['type']
+
         self._name = attributes['name']
-
-        self._typeName = attributes['type']
         self._arrayDepth = 0
         self._isMapping = False
         self._mappingFrom = None
@@ -85,27 +110,38 @@ class VariableDeclarationSolc(Variable):
 
         self._analyze_variable_attributes(attributes)
 
-        if not var['children']:
-            # It happens on variable declared inside loop declaration
-            try:
-                self._type = ElementaryType(self._typeName)
-                self._elem_to_parse = None
-            except NonElementaryType:
-                self._elem_to_parse = UnknownType(self._typeName)
+        if self._is_compact_ast:
+            if var['typeName']:
+                self._elem_to_parse = var['typeName']
+            else:
+                self._elem_to_parse = UnknownType(var['typeDescriptions']['typeString'])
         else:
-            self._elem_to_parse = var['children'][0]
+            if not var['children']:
+                # It happens on variable declared inside loop declaration
+                try:
+                    self._type = ElementaryType(self._typeName)
+                    self._elem_to_parse = None
+                except NonElementaryType:
+                    self._elem_to_parse = UnknownType(self._typeName)
+            else:
+                self._elem_to_parse = var['children'][0]
 
-        if init: # there are two way to init a var local in the AST
-            assert len(var['children']) <= 1
-            self._initialized = True
+        if self._is_compact_ast:
             self._initializedNotParsed = init
-        elif len(var['children']) in [0, 1]:
-            self._initialized = False
-            self._initializedNotParsed = []
+            if init:
+                self._initialized = True
         else:
-            assert len(var['children']) == 2
-            self._initialized = True
-            self._initializedNotParsed = var['children'][1]
+            if init: # there are two way to init a var local in the AST
+                assert len(var['children']) <= 1
+                self._initialized = True
+                self._initializedNotParsed = init
+            elif len(var['children']) in [0, 1]:
+                self._initialized = False
+                self._initializedNotParsed = []
+            else:
+                assert len(var['children']) == 2
+                self._initialized = True
+                self._initializedNotParsed = var['children'][1]
 
     def analyze(self, caller_context):
         # Can be re-analyzed due to inheritance

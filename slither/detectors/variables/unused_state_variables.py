@@ -10,7 +10,7 @@ class UnusedStateVars(AbstractDetector):
     """
 
     ARGUMENT = 'unused-state'
-    HELP = 'unused state variables'
+    HELP = 'Unused state variables'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 

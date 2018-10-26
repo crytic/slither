@@ -37,8 +37,13 @@ class ContractSolc04(Contract):
         self._is_analyzed = False
 
         # Export info
-        self._name = self._data['attributes']['name']
+        if self.is_compact_ast:
+            self._name = self._data['name']
+        else:
+            self._name = self._data['attributes'][self.get_key()]
+
         self._id = self._data['id']
+
         self._inheritance = []
 
         self._parse_contract_info()
@@ -48,11 +53,27 @@ class ContractSolc04(Contract):
     def is_analyzed(self):
         return self._is_analyzed
 
+    def get_key(self):
+        return self.slither.get_key()
+
+    def get_children(self, key='nodes'):
+        if self.is_compact_ast:
+            return key
+        return 'children'
+
+    @property
+    def is_compact_ast(self):
+        return self.slither.is_compact_ast
+
     def set_is_analyzed(self, is_analyzed):
         self._is_analyzed = is_analyzed
 
     def _parse_contract_info(self):
-        attributes = self._data['attributes']
+        if self.is_compact_ast:
+            attributes = self._data
+        else:
+            attributes = self._data['attributes']
+
         self.isInterface = False
         if 'contractKind' in attributes:
             if attributes['contractKind'] == 'interface':
@@ -62,29 +83,29 @@ class ContractSolc04(Contract):
         self.fullyImplemented = attributes['fullyImplemented']
 
     def _parse_contract_items(self):
-        if not 'children' in self._data: # empty contract
+        if not self.get_children() in self._data: # empty contract
             return
-        for item in self._data['children']:
-            if item['name'] == 'FunctionDefinition':
+        for item in self._data[self.get_children()]:
+            if item[self.get_key()] == 'FunctionDefinition':
                 self._functionsNotParsed.append(item)
-            elif item['name'] == 'EventDefinition':
+            elif item[self.get_key()] == 'EventDefinition':
                 self._eventsNotParsed.append(item)
-            elif item['name'] == 'InheritanceSpecifier':
+            elif item[self.get_key()] == 'InheritanceSpecifier':
                 # we dont need to parse it as it is redundant
                 # with self.linearizedBaseContracts
                 continue
-            elif item['name'] == 'VariableDeclaration':
+            elif item[self.get_key()] == 'VariableDeclaration':
                 self._variablesNotParsed.append(item)
-            elif item['name'] == 'EnumDefinition':
+            elif item[self.get_key()] == 'EnumDefinition':
                 self._enumsNotParsed.append(item)
-            elif item['name'] == 'ModifierDefinition':
+            elif item[self.get_key()] == 'ModifierDefinition':
                 self._modifiersNotParsed.append(item)
-            elif item['name'] == 'StructDefinition':
+            elif item[self.get_key()] == 'StructDefinition':
                 self._structuresNotParsed.append(item)
-            elif item['name'] == 'UsingForDirective':
+            elif item[self.get_key()] == 'UsingForDirective':
                 self._usingForNotParsed.append(item)
             else:
-                logger.error('Unknown contract item: '+item['name'])
+                logger.error('Unknown contract item: '+item[self.get_key()])
                 exit(-1)
         return
 
@@ -92,18 +113,29 @@ class ContractSolc04(Contract):
         for father in self.inheritance:
             self._using_for.update(father.using_for)
 
-        for using_for in self._usingForNotParsed:
-            children = using_for['children']
-            assert children and len(children) <= 2
-            if len(children) == 2:
-                new = parse_type(children[0], self)
-                old = parse_type(children[1], self)
-            else:
-                new = parse_type(children[0], self)
-                old = '*'
-            if not old in self._using_for:
-                self.using_for[old] = []
-            self._using_for[old].append(new)
+        if self.is_compact_ast:
+            for using_for in self._usingForNotParsed:
+                lib_name = parse_type(using_for['libraryName'], self)
+                if 'typeName' in using_for and using_for['typeName']:
+                    type_name = parse_type(using_for['typeName'], self)
+                else:
+                    type_name = '*'
+                if not type_name in self._using_for:
+                    self.using_for[type_name] = []
+                self._using_for[type_name].append(lib_name)
+        else:
+            for using_for in self._usingForNotParsed:
+                children = using_for[self.get_children()]
+                assert children and len(children) <= 2
+                if len(children) == 2:
+                    new = parse_type(children[0], self)
+                    old = parse_type(children[1], self)
+                else:
+                    new = parse_type(children[0], self)
+                    old = '*'
+                if not old in self._using_for:
+                    self.using_for[old] = []
+                self._using_for[old].append(new)
         self._usingForNotParsed = []
 
     def analyze_enums(self):
@@ -119,15 +151,22 @@ class ContractSolc04(Contract):
 
     def _analyze_enum(self, enum):
         # Enum can be parsed in one pass
-        name = enum['attributes']['name']
-        if 'canonicalName' in enum['attributes']:
-            canonicalName = enum['attributes']['canonicalName']
+        if self.is_compact_ast:
+            name = enum['name']
+            canonicalName = enum['canonicalName']
         else:
-            canonicalName = self.name + '.' + name
+            name = enum['attributes'][self.get_key()]
+            if 'canonicalName' in enum['attributes']:
+                canonicalName = enum['attributes']['canonicalName']
+            else:
+                canonicalName = self.name + '.' + name
         values = []
-        for child in enum['children']:
-            assert child['name'] == 'EnumValue'
-            values.append(child['attributes']['name'])
+        for child in enum[self.get_children('members')]:
+            assert child[self.get_key()] == 'EnumValue'
+            if self.is_compact_ast:
+                values.append(child['name'])
+            else:
+                values.append(child['attributes'][self.get_key()])
 
         new_enum = Enum(name, canonicalName, values)
         new_enum.set_contract(self)
@@ -135,14 +174,19 @@ class ContractSolc04(Contract):
         self._enums[canonicalName] = new_enum
 
     def _parse_struct(self, struct):
-        name = struct['attributes']['name']
-        if 'canonicalName' in struct['attributes']:
-            canonicalName = struct['attributes']['canonicalName']
+        if self.is_compact_ast:
+            name = struct['name']
+            attributes = struct
+        else:
+            name = struct['attributes'][self.get_key()]
+            attributes = struct['attributes']
+        if 'canonicalName' in attributes:
+            canonicalName = attributes['canonicalName']
         else:
             canonicalName = self.name + '.' + name
 
-        if 'children' in struct:
-            children = struct['children']
+        if self.get_children('members') in struct:
+            children = struct[self.get_children('members')]
         else:
             children = [] # empty struct
         st = StructureSolc(name, canonicalName, children)
@@ -171,8 +215,9 @@ class ContractSolc04(Contract):
             self._events.update(father.events_as_dict())
 
         for event_to_parse in self._eventsNotParsed:
-            event = EventSolc(event_to_parse)
+            event = EventSolc(event_to_parse, self)
             event.analyze(self)
+            event.set_contract(self)
             self._events[event.full_name] = event
 
         self._eventsNotParsed = None
@@ -188,6 +233,12 @@ class ContractSolc04(Contract):
 
             self._variables[var.name] = var
 
+    def analyze_constant_state_variables(self):
+        for var in self.variables:
+            if var.is_constant:
+                var.analyze(self)
+        return
+
     def analyze_state_variables(self):
         for var in self.variables:
             var.analyze(self)
@@ -195,7 +246,7 @@ class ContractSolc04(Contract):
 
     def _parse_modifier(self, modifier):
 
-        modif = ModifierSolc(modifier)
+        modif = ModifierSolc(modifier, self)
         modif.set_contract(self)
         modif.set_offset(modifier['src'], self.slither)
         self._modifiers_no_params.append(modif)
@@ -209,8 +260,7 @@ class ContractSolc04(Contract):
         return
 
     def _parse_function(self, function):
-        func = FunctionSolc(function)
-        func.set_contract(self)
+        func = FunctionSolc(function, self)
         func.set_offset(function['src'], self.slither)
         self._functions_no_params.append(func)
 

@@ -17,16 +17,21 @@ logger_printer = logging.getLogger("Printers")
 
 class Slither(SlitherSolc):
 
-    def __init__(self, filename, solc='solc', disable_solc_warnings=False, solc_arguments=''):
+    def __init__(self, contract, solc='solc', disable_solc_warnings=False, solc_arguments='', ast_format='--ast-json'):
         self._detectors = []
         self._printers = []
 
-        stdout = self._run_solc(filename, solc, disable_solc_warnings, solc_arguments)
+        # json text provided
+        if isinstance(contract, dict):
+            super(Slither, self).__init__('')
+            self._parse_contracts_from_loaded_json(contract, '')
+        # .json or .sol provided
+        else:
+            contracts_json = self._run_solc(contract, solc, disable_solc_warnings, solc_arguments, ast_format)
+            super(Slither, self).__init__(contract)
 
-        super(Slither, self).__init__(filename)
-
-        for d in stdout:
-            self._parse_contracts_from_json(d)
+            for c in contracts_json:
+                self._parse_contracts_from_json(c)
 
         self._analyze_contracts()
 
@@ -76,7 +81,7 @@ class Slither(SlitherSolc):
                 "You can't register {!r} twice.".format(cls)
             )
 
-    def _run_solc(self, filename, solc, disable_solc_warnings, solc_arguments):
+    def _run_solc(self, filename, solc, disable_solc_warnings, solc_arguments, ast_format):
         if not os.path.isfile(filename):
             logger.error('{} does not exist (are you in the correct directory?)'.format(filename))
             exit(-1)
@@ -93,7 +98,7 @@ class Slither(SlitherSolc):
                     logger.info('Empty AST file: %s', filename)
                     sys.exit(-1)
         else:
-            cmd = [solc, filename, '--ast-json']
+            cmd = [solc, filename, ast_format]
             if solc_arguments:
                 # To parse, we first split the string on each '--'
                 solc_args = solc_arguments.split('--')

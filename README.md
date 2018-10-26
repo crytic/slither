@@ -1,6 +1,7 @@
 # Slither, the Solidity source analyzer
 [![Build Status](https://travis-ci.com/trailofbits/slither.svg?token=JEF97dFy1QsDCfQ2Wusd&branch=master)](https://travis-ci.com/trailofbits/slither)
 [![Slack Status](https://empireslacking.herokuapp.com/badge.svg)](https://empireslacking.herokuapp.com)
+[![PyPI version](https://badge.fury.io/py/slither-analyzer.svg)](https://badge.fury.io/py/slither-analyzer)
 
 Slither is a Solidity static analysis framework written in Python 3. It runs a suite of vulnerability detectors, prints visual information about contract details, and provides an API to easily write custom analyses. Slither enables developers to find vulnerabilities, enhance their code comphrehension, and quickly prototype custom analyses.
 
@@ -8,22 +9,29 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 
 * Detects vulnerable Solidity code with low false positives
 * Identifies where the error condition occurs in the source code
-* Easy integration into continuous integration pipelines
+* Easy integration into continuous integration and Truffle builds
 * Built-in 'printers' quickly report crucial contract information
 * Detector API to write custom analyses in Python
-* Ability to analyze contracts written with Solidity > 0.4
+* Ability to analyze contracts written with Solidity >= 0.4
 * Intermediate representation ([SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR)) enables simple, high-precision analyses
 
 ## Usage
 
+Run Slither on a Truffle application:
+```
+truffle compile
+slither .
+```
+
+Run Slither on a single file:
 ``` 
-$ slither tests/uninitialized.sol
+$ slither tests/uninitialized.sol # argument can be file, folder or glob, be sure to quote the argument when using a glob
 [..]
 INFO:Detectors:Uninitialized state variables in tests/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
 [..]
 ``` 
 
-If Slither is run on a directory, it will run on every `.sol` file of the directory. All vulnerability checks are run by default.
+If Slither is run on a directory, it will run on every `.sol` file in the directory.
 
 ###  Configuration
 
@@ -32,40 +40,49 @@ If Slither is run on a directory, it will run on every `.sol` file of the direct
 * `--disable-solc-warnings`: Do not print solc warnings
 * `--solc-ast`: Use the solc AST file as input (`solc file.sol --ast-json > file.ast.json`)
 * `--json FILE`: Export results as JSON
-* `--exclude-name`: Excludes the detector `name` from analysis
+
+## Detectors
+
+By default, all the detectors are run.
+
+Num | Detector | What it Detects | Impact | Confidence
+--- | --- | --- | --- | ---
+1 | `suicidal` | Suicidal functions | High | High
+2 | `uninitialized-state` | Uninitialized state variables | High | High
+3 | `uninitialized-storage` | Uninitialized storage variables | High | High
+4 | `arbitrary-send` | Functions that send ether to arbitrary destinations | High | Medium
+5 | `reentrancy` | Reentrancy vulnerabilities | High | Medium
+6 | `locked-ether` | Contracts that lock ether | Medium | High
+7 | `tx-origin` | Dangerous usage of `tx.origin` | Medium | Medium
+8 | `assembly` | Assembly usage | Informational | High
+9 | `const-candidates-state` | State variables that could be declared constant | Informational | High
+10 | `external-function` | Public functions that could be declared as external | Informational | High
+11 | `low-level-calls` | Low level calls | Informational | High
+12 | `naming-convention` | Conformance to Solidity naming conventions | Informational | High
+13 | `pragma` | If different pragma directives are used | Informational | High
+14 | `solc-version` | If an old version of Solidity used (<0.4.23) | Informational | High
+15 | `unused-state` | Unused state variables | Informational | High
+
+[Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
 ### Printers
 
-* `--printer-summary`: Print a summary of the contracts
-* `--printer-quick-summary`: Print a quick summary of the contracts
-* `--printer-inheritance`: Print the inheritance graph
-* `--printer-vars-and-auth`: Print the variables written and the check on `msg.sender` of each function
+To run a printer, use `--printers` and a comma-separated list of printers.
 
-## Checks available
-
-By default, all the checks are run.
-
-Check | Purpose | Impact | Confidence
---- | --- | --- | ---
-`--detect-arbitrary-send`| Detect functions sending ethers to an arbitrary destination | High | Medium
-`--detect-reentrancy`| Detect reentrancy vulnerabilities | High | Medium
-`--detect-suicidal`| Detect suicidal functions | High | High
-`--detect-uninitialized-state`| Detect uninitialized state variables | High | High
-`--detect-uninitialized-storage`| Detect uninitialized storage variables | High | High
-`--detect-locked-ether`| Detect contracts with a payable function that do not send ether | Medium | High
-`--detect-tx-origin`| Detect dangerous usage of `tx.origin` | Medium | Medium
-`--detect-assembly`| Detect assembly usage | Informational | High
-`--detect-low-level-calls`| Detect low level calls | Informational | High
-`--detect-naming-convention`| Detect conformance to Solidity naming conventions | Informational | High
-`--detect-pragma`| Detect if different pragma directives are used | Informational | High
-`--detect-solc-version`| Detect if an old version of Solidity used (<0.4.23) | Informational | High
-`--detect-unused-state`| Detect unused state variables | Informational | High
-
-[Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
+Num | Printer | Description
+--- | --- | ---
+1 | `call-graph` | the call graph
+2 | `contract-summary` | a summary of the contract
+3 | `function-summary` | the summary of the functions
+4 | `inheritance` | the inheritance relation between contracts
+5 | `inheritance-graph` | the inheritance graph
+6 | `slithir` | the slithIR
+7 | `vars-and-auth` |  state variables written and the authorization of the functions
 
 ## How to install
 
 Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
+
 ### Using Pip
 
 ```

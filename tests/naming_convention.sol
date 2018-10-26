@@ -56,8 +56,8 @@ contract T {
     uint _myPublicVar;
 
 
-    function test(uint _unused, uint _used){
-        _used;}
+    function test(uint _unused, uint _used) returns(uint){
+        return _used;}
 
 
     uint k = 1;
