@@ -2,23 +2,23 @@ pragma solidity ^0.4.24;
 
 import "./external_function_test_2.sol";
 
-contract ItemTwo is ItemFour {
-    function helloTwo() public {
+contract ContractWithFunctionCalledSuper is ContractWithFunctionCalled {
+    function callWithSuper() public {
         uint256 i = 0;
     }
 }
 
-contract ItemThree {
+contract ContractWithFunctionNotCalled {
 
-    function helloThree() public {
-
-    }
-
-    function helloTwo() public {
+    function funcNotCalled3() public {
 
     }
 
-    function helloOne() public {
+    function funcNotCalled2() public {
+
+    }
+
+    function funcNotCalled() public {
 
     }
 
@@ -28,14 +28,14 @@ contract ItemThree {
 
 }
 
-contract ItemOne is ItemTwo {
-    function helloOne() public {
+contract ContractWithFunctionNotCalled2 is ContractWithFunctionCalledSuper {
+    function funcNotCalled() public {
         uint256 i = 0;
-        address three = new ItemThree();
+        address three = new ContractWithFunctionNotCalled();
         three.call(bytes4(keccak256("helloTwo()")));
-        super.helloTwo();
-        ItemFour four = new ItemFour();
-        four.helloFour();
+        super.callWithSuper();
+        ContractWithFunctionCalled c = new ContractWithFunctionCalled();
+        c.funcCalled();
     }
 }
 
