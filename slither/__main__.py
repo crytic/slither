@@ -8,43 +8,18 @@ import os
 import sys
 import traceback
 
-from pkg_resources import iter_entry_points
+from pkg_resources import iter_entry_points, require
 
 from slither.detectors.abstract_detector import (AbstractDetector,
-                                                 DetectorClassification,
-                                                 classification_txt)
+                                                 DetectorClassification)
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils.colors import red
+from slither.utils.command_line import output_to_markdown, output_detectors, output_printers
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
-def output_to_markdown(detector_classes):
-    """
-        Pretty print of the detectors to README.md
-    """
-    detectors_list = []
-    for detector in detector_classes:
-        argument = detector.ARGUMENT
-        # dont show the backdoor example
-        if argument == 'backdoor':
-            continue
-        help_info = detector.HELP
-        impact = detector.IMPACT
-        confidence = classification_txt[detector.CONFIDENCE]
-        detectors_list.append((argument, help_info, impact, confidence))
-
-    # Sort by impact, confidence, and name
-    detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[3], element[0]))
-    idx = 1
-    for (argument, help_info, impact, confidence) in detectors_list:
-        print('{} | `{}` | {} | {} | {}'.format(idx,
-                                                argument,
-                                                help_info,
-                                                classification_txt[impact],
-                                                confidence))
-        idx = idx +1
 
 def process(filename, args, detector_classes, printer_classes):
     """
@@ -71,15 +46,13 @@ def _process(slither, detector_classes, printer_classes):
 
     results = []
 
-    if printer_classes:
-        slither.run_printers()  # Currently printers does not return results
+    detector_results = slither.run_detectors()
+    detector_results = [x for x in detector_results if x]  # remove empty results
+    detector_results = [item for sublist in detector_results for item in sublist]  # flatten
 
-    elif detector_classes:
-        detector_results = slither.run_detectors()
-        detector_results = [x for x in detector_results if x]  # remove empty results
-        detector_results = [item for sublist in detector_results for item in sublist]  # flatten
+    results.extend(detector_results)
 
-        results.extend(detector_results)
+    slither.run_printers()  # Currently printers does not return results
 
     return results, analyzed_contracts_count
 
@@ -117,7 +90,7 @@ def exit(results):
     sys.exit(len(results))
 
 
-def main():
+def get_detectors_and_printers():
     """
     NOTE: This contains just a few detectors and printers that we made public.
     """
@@ -185,6 +158,11 @@ def main():
         detectors += list(plugin_detectors)
         printers += list(plugin_printers)
 
+    return detectors, printers
+
+def main():
+    detectors, printers = get_detectors_and_printers()
+
     main_impl(all_detector_classes=detectors, all_printer_classes=printers)
 
 
@@ -195,12 +173,11 @@ def main_impl(all_detector_classes, all_printer_classes):
     """
     args = parse_args(all_detector_classes, all_printer_classes)
 
-    if args.markdown:
-        output_to_markdown(all_detector_classes)
-        return
-
-    detector_classes = choose_detectors(args, all_detector_classes)
     printer_classes = choose_printers(args, all_printer_classes)
+    if printer_classes:
+        detector_classes = []
+    else:
+        detector_classes = choose_detectors(args, all_detector_classes)
 
     default_log = logging.INFO if not args.debug else logging.DEBUG
 
@@ -239,9 +216,6 @@ def main_impl(all_detector_classes, all_printer_classes):
                 (results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
                 number_contracts += number_contracts_tmp
                 results += results_tmp
-            # if args.json:
-            #    output_json(results, args.json)
-            # exit(results)
 
 
         else:
@@ -264,84 +238,103 @@ def main_impl(all_detector_classes, all_printer_classes):
 
 def parse_args(detector_classes, printer_classes):
     parser = argparse.ArgumentParser(description='Slither',
-                                     usage="slither.py contract.sol [flag]",
-                                     formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=35))
+                                     usage="slither.py contract.sol [flag]")
 
     parser.add_argument('filename',
-                        help='contract.sol file')
+                        help='contract.sol')
 
-    parser.add_argument('--solc',
-                        help='solc path',
-                        action='store',
-                        default='solc')
+    parser.add_argument('--version',
+                        help='displays the current version',
+                        version=require('slither-analyzer')[0].version,
+                        action='version')
 
-    parser.add_argument('--solc-args',
-                        help='Add custom solc arguments. Example: --solc-args "--allow-path /tmp --evm-version byzantium".',
-                        action='store',
-                        default=None)
+    group_detector = parser.add_argument_group('Detectors')
+    group_printer = parser.add_argument_group('Printers')
+    group_solc = parser.add_argument_group('Solc options')
+    group_misc = parser.add_argument_group('Additional option')
 
-    parser.add_argument('--disable-solc-warnings',
-                        help='Disable solc warnings',
-                        action='store_true',
-                        default=False)
+    group_detector.add_argument('--detectors',
+                                help='Comma-separated list of detectors, defaults to all, '
+                                     'available detectors: {}'.format(
+                                         ', '.join(d.ARGUMENT for d in detector_classes)),
+                                action='store',
+                                dest='detectors_to_run',
+                                default='all')
 
-    parser.add_argument('--solc-ast',
-                        help='Provide the ast solc file',
-                        action='store_true',
-                        default=False)
+    group_printer.add_argument('--printers',
+                               help='Comma-separated list fo contract information printers, '
+                                    'available printers: {}'.format(
+                                        ', '.join(d.ARGUMENT for d in printer_classes)),
+                               action='store',
+                               dest='printers_to_run',
+                               default='')
 
-    parser.add_argument('--json',
-                        help='Export results as JSON',
-                        action='store',
-                        default=None)
+    group_detector.add_argument('--list-detectors',
+                                help='List available detectors',
+                                action=ListDetectors,
+                                nargs=0,
+                                default=False)
 
-    parser.add_argument('--exclude-informational',
-                        help='Exclude informational impact analyses',
-                        action='store_true',
-                        default=False)
+    group_printer.add_argument('--list-printers',
+                               help='List available printers',
+                               action=ListPrinters,
+                               nargs=0,
+                               default=False)
 
-    parser.add_argument('--exclude-low',
-                        help='Exclude low impact analyses',
-                        action='store_true',
-                        default=False)
 
-    parser.add_argument('--exclude-medium',
-                        help='Exclude medium impact analyses',
-                        action='store_true',
-                        default=False)
+    group_detector.add_argument('--exclude-detectors',
+                                help='Comma-separated list of detectors that should be excluded',
+                                action='store',
+                                dest='detectors_to_exclude',
+                                default='')
 
-    parser.add_argument('--exclude-high',
-                        help='Exclude high impact analyses',
-                        action='store_true',
-                        default=False)
+    group_detector.add_argument('--exclude-informational',
+                                help='Exclude informational impact analyses',
+                                action='store_true',
+                                default=False)
 
-    for detector_cls in detector_classes:
-        detector_arg = '--detect-{}'.format(detector_cls.ARGUMENT)
-        detector_help = '{}'.format(detector_cls.HELP)
-        parser.add_argument(detector_arg,
-                            help=detector_help,
-                            action="append_const",
-                            dest="detectors_to_run",
-                            const=detector_cls.ARGUMENT)
+    group_detector.add_argument('--exclude-low',
+                                help='Exclude low impact analyses',
+                                action='store_true',
+                                default=False)
 
-    # Second loop so that the --exclude are shown after all the detectors
-    for detector_cls in detector_classes:
-        exclude_detector_arg = '--exclude-{}'.format(detector_cls.ARGUMENT)
-        exclude_detector_help = 'Exclude {} detector'.format(detector_cls.ARGUMENT)
-        parser.add_argument(exclude_detector_arg,
-                            help=exclude_detector_help,
-                            action="append_const",
-                            dest="detectors_to_exclude",
-                            const=detector_cls.ARGUMENT)
+    group_detector.add_argument('--exclude-medium',
+                                help='Exclude medium impact analyses',
+                                action='store_true',
+                                default=False)
 
-    for printer_cls in printer_classes:
-        printer_arg = '--printer-{}'.format(printer_cls.ARGUMENT)
-        printer_help = 'Print {}'.format(printer_cls.HELP)
-        parser.add_argument(printer_arg,
-                            help=printer_help,
-                            action="append_const",
-                            dest="printers_to_run",
-                            const=printer_cls.ARGUMENT)
+    group_detector.add_argument('--exclude-high',
+                                help='Exclude high impact analyses',
+                                action='store_true',
+                                default=False)
+
+
+    group_solc.add_argument('--solc',
+                            help='solc path',
+                            action='store',
+                            default='solc')
+
+    group_solc.add_argument('--solc-args',
+                            help='Add custom solc arguments. Example: --solc-args "--allow-path /tmp --evm-version byzantium".',
+                            action='store',
+                            default=None)
+
+    group_solc.add_argument('--disable-solc-warnings',
+                            help='Disable solc warnings',
+                            action='store_true',
+                            default=False)
+
+    group_solc.add_argument('--solc-ast',
+                            help='Provide the ast solc file',
+                            action='store_true',
+                            default=False)
+
+    group_misc.add_argument('--json',
+                            help='Export results as JSON',
+                            action='store',
+                            default=None)
+
+
 
     # debugger command
     parser.add_argument('--debug',
@@ -351,7 +344,7 @@ def parse_args(detector_classes, printer_classes):
 
     parser.add_argument('--markdown',
                         help=argparse.SUPPRESS,
-                        action="store_true",
+                        action=OutputMarkdown,
                         default=False)
 
     parser.add_argument('--compact-ast',
@@ -359,15 +352,52 @@ def parse_args(detector_classes, printer_classes):
                         action='store_true',
                         default=False)
 
-    return parser.parse_args()
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+
+    args = parser.parse_args()
+
+    return args
+
+class ListDetectors(argparse.Action):
+    def __call__(self, parser, *args, **kwargs):
+        detectors, _ = get_detectors_and_printers()
+        output_detectors(detectors)
+        parser.exit()
+
+class ListPrinters(argparse.Action):
+    def __call__(self, parser, *args, **kwargs):
+        _, printers = get_detectors_and_printers()
+        output_printers(printers)
+        parser.exit()
+
+class OutputMarkdown(argparse.Action):
+    def __call__(self, parser, *args, **kwargs):
+        detectors, _ = get_detectors_and_printers()
+        output_to_markdown(detectors)
+        parser.exit()
 
 
 def choose_detectors(args, all_detector_classes):
     # If detectors are specified, run only these ones
-    if args.detectors_to_run:
-        return [d for d in all_detector_classes if d.ARGUMENT in args.detectors_to_run]
 
-    detectors_to_run = all_detector_classes
+    detectors_to_run = []
+    detectors = {d.ARGUMENT: d for d in all_detector_classes}
+
+    if args.detectors_to_run == 'all':
+        detectors_to_run = all_detector_classes
+        detectors_excluded = args.detectors_to_exclude.split(',')
+        for d in detectors:
+            if d in detectors_excluded:
+                detectors_to_run.remove(detectors[d])
+    else:
+        for d in args.detectors_to_run.split(','):
+            if d in detectors:
+                detectors_to_run.append(detectors[d])
+            else:
+                raise Exception('Error: {} is not a detector'.format(d))
+        return detectors_to_run
 
     if args.exclude_informational:
         detectors_to_run = [d for d in detectors_to_run if
@@ -388,11 +418,18 @@ def choose_detectors(args, all_detector_classes):
 
 
 def choose_printers(args, all_printer_classes):
-    # by default, dont run any printer
     printers_to_run = []
-    if args.printers_to_run:
-        printers_to_run = [p for p in all_printer_classes if
-                           p.ARGUMENT in args.printers_to_run]
+
+    # disable default printer
+    if args.printers_to_run == '':
+        return []
+
+    printers = {p.ARGUMENT: p for p in all_printer_classes}
+    for p in args.printers_to_run.split(','):
+        if p in printers:
+            printers_to_run.append(printers[p])
+        else:
+            raise Exception('Error: {} is not a printer'.format(p))
     return printers_to_run
 
 
