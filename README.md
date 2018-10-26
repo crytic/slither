@@ -32,25 +32,10 @@ If Slither is run on a directory, it will run on every `.sol` file of the direct
 * `--disable-solc-warnings`: Do not print solc warnings
 * `--solc-ast`: Use the solc AST file as input (`solc file.sol --ast-json > file.ast.json`)
 * `--json FILE`: Export results as JSON
-* `--exclude-name`: Excludes the detector `name` from analysis
-
-### Printers
-
-By default, the `contract-summary` printer is used. Use --printers comma-separated list of printers, 
-or `none` to disable the default printer. 
-
-Num | Printer | Description
---- | --- | ---
-1 | `contract-summary` | a summary of the contract
-2 | `function-summary` | the summary of the functions
-3 | `inheritance` | the inheritance relation between contracts
-4 | `inheritance-graph` | the inheritance graph
-5 | `slithir` | the slithIR
-6 | `vars-and-auth` | the state variables written and the authorization of the functions
 
 ## Detectors
 
-By default, all the detectors are run. Use --detectors comma-separated list of detectors to run.
+By default, all the detectors are run. Use `--detectors` comma-separated list of detectors to run.
 
 Num | Detector | What it Detects | Impact | Confidence
 --- | --- | --- | --- | ---
@@ -71,6 +56,20 @@ Num | Detector | What it Detects | Impact | Confidence
 15 | `unused-state` | Unused state variables | Informational | High
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
+
+### Printers
+
+Use `--printers` comma-separated list of printers. 
+
+Num | Printer | Description
+--- | --- | ---
+1 | `contract-summary` | a summary of the contract
+2 | `function-summary` | the summary of the functions
+3 | `inheritance` | the inheritance relation between contracts
+4 | `inheritance-graph` | the inheritance graph
+5 | `slithir` | the slithIR
+6 | `vars-and-auth` | the state variables written and the authorization of the functions
+
 
 ## How to install
 
