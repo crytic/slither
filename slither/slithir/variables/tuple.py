@@ -1,6 +1,7 @@
 
 from slither.core.variables.variable import Variable
 
+from slither.core.solidity_types.type import Type
 class TupleVariable(Variable):
 
     COUNTER = 0
@@ -21,6 +22,10 @@ class TupleVariable(Variable):
     @property
     def name(self):
         return 'TUPLE_{}'.format(self.index)
+
+    def set_type(self, t):
+        assert all(isinstance(x, Type) or x is None for x in t)
+        self._type = t
 
     def __str__(self):
         return self.name

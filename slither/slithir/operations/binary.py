@@ -2,6 +2,7 @@ import logging
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
+from slither.core.solidity_types import ElementaryType
 
 logger = logging.getLogger("BinaryOperationIR")
 
@@ -135,7 +136,7 @@ class Binary(OperationWithLValue):
         self._type = operation_type
         self._lvalue = result
         if BinaryType.return_bool(operation_type):
-            result.set_type('bool')
+            result.set_type(ElementaryType('bool'))
         else:
             result.set_type(left_variable.type)
 

@@ -189,7 +189,10 @@ def convert_to_low_level(ir):
         call = SolidityFunction('abi.{}()'.format(ir.function_name))
         new_ir = SolidityCall(call, ir.nbr_arguments, ir.lvalue, ir.type_call)
         new_ir.arguments = ir.arguments
-        new_ir.lvalue.set_type(call.return_type)
+        if isinstance(call.return_type, list) and len(call.return_type) == 1:
+            new_ir.lvalue.set_type(call.return_type[0])
+        else:
+            new_ir.lvalue.set_type(call.return_type)
         return new_ir
     elif ir.function_name in ['call', 'delegatecall', 'callcode']:
         new_ir = LowLevelCall(ir.destination,
@@ -427,7 +430,7 @@ def propagate_types(ir, node):
                 if return_type:
                     if len(return_type) == 1:
                         ir.lvalue.set_type(return_type[0])
-                    else:
+                    elif len(return_type)>1:
                         ir.lvalue.set_type(return_type)
                 else:
                     ir.lvalue = None
@@ -483,7 +486,7 @@ def propagate_types(ir, node):
                 return_type = ir.function.return_type
                 if len(return_type) == 1:
                     ir.lvalue.set_type(return_type[0])
-                else:
+                elif len(return_type)>1:
                     ir.lvalue.set_type(return_type)
             elif isinstance(ir, TypeConversion):
                 ir.lvalue.set_type(ir.type)
