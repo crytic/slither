@@ -54,7 +54,8 @@ class ExternalFunction(AbstractDetector):
             public_function_calls.extend(func_list)
 
             for func in [f for f in contract.functions if f.visibility == 'public' and\
-                                                           not f in public_function_calls]:
+                                                           not f in public_function_calls and\
+                                                           not f.is_constructor]:
                 func_name = func.name
                 txt = "Public function in {} Contract: {}, Function: {} should be declared external"
                 info = txt.format(self.filename,
