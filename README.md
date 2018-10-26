@@ -1,6 +1,7 @@
 # Slither, the Solidity source analyzer
 [![Build Status](https://travis-ci.com/trailofbits/slither.svg?token=JEF97dFy1QsDCfQ2Wusd&branch=master)](https://travis-ci.com/trailofbits/slither)
 [![Slack Status](https://empireslacking.herokuapp.com/badge.svg)](https://empireslacking.herokuapp.com)
+[![PyPI version](https://badge.fury.io/py/slither-analyzer.svg)](https://badge.fury.io/py/slither-analyzer)
 
 Slither is a Solidity static analysis framework written in Python 3. It runs a suite of vulnerability detectors, prints visual information about contract details, and provides an API to easily write custom analyses. Slither enables developers to find vulnerabilities, enhance their code comphrehension, and quickly prototype custom analyses.
 
@@ -8,7 +9,7 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 
 * Detects vulnerable Solidity code with low false positives
 * Identifies where the error condition occurs in the source code
-* Easy integration into continuous integration pipelines
+* Easy integration into continuous integration and Truffle builds
 * Built-in 'printers' quickly report crucial contract information
 * Detector API to write custom analyses in Python
 * Ability to analyze contracts written with Solidity >= 0.4
@@ -16,6 +17,13 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 
 ## Usage
 
+Run Slither on a Truffle application:
+```
+truffle compile
+slither .
+```
+
+Run Slither on a single file:
 ``` 
 $ slither tests/uninitialized.sol # argument can be file, folder or glob, be sure to quote the argument when using a glob
 [..]
@@ -23,7 +31,7 @@ INFO:Detectors:Uninitialized state variables in tests/uninitialized.sol, Contrac
 [..]
 ``` 
 
-If Slither is run on a directory, it will run on every `.sol` file of the directory. All vulnerability checks are run by default.
+If Slither is run on a directory, it will run on every `.sol` file in the directory.
 
 ###  Configuration
 
@@ -35,31 +43,31 @@ If Slither is run on a directory, it will run on every `.sol` file of the direct
 
 ## Detectors
 
-By default, all the detectors are run. Use `--detectors` comma-separated list of detectors to run.
+By default, all the detectors are run.
 
 Num | Detector | What it Detects | Impact | Confidence
 --- | --- | --- | --- | ---
 1 | `suicidal` | Suicidal functions | High | High
 2 | `uninitialized-state` | Uninitialized state variables | High | High
 3 | `uninitialized-storage` | Uninitialized storage variables | High | High
-4 | `arbitrary-send` | Functions that send ether to an arbitrary destination | High | Medium
+4 | `arbitrary-send` | Functions that send ether to arbitrary destinations | High | Medium
 5 | `reentrancy` | Reentrancy vulnerabilities | High | Medium
 6 | `locked-ether` | Contracts that lock ether | Medium | High
 7 | `tx-origin` | Dangerous usage of `tx.origin` | Medium | Medium
 8 | `assembly` | Assembly usage | Informational | High
 9 | `const-candidates-state` | State variables that could be declared constant | Informational | High
-10 | `low-level-calls` | Low level calls | Informational | High
-11 | `naming-convention` | Conformance to Solidity naming conventions | Informational | High
-12 | `pragma` | If different pragma directives are used | Informational | High
-13 | `solc-version` | If an old version of Solidity used (<0.4.23) | Informational | High
-14 | `unused-state` | Unused state variables | Informational | High
-
+10 | `external-function` | Public functions that could be declared as external | Informational | High
+11 | `low-level-calls` | Low level calls | Informational | High
+12 | `naming-convention` | Conformance to Solidity naming conventions | Informational | High
+13 | `pragma` | If different pragma directives are used | Informational | High
+14 | `solc-version` | If an old version of Solidity used (<0.4.23) | Informational | High
+15 | `unused-state` | Unused state variables | Informational | High
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
 ### Printers
 
-Use `--printers` comma-separated list of printers. 
+To run a printer, use `--printers` and a comma-separated list of printers.
 
 Num | Printer | Description
 --- | --- | ---
@@ -69,11 +77,12 @@ Num | Printer | Description
 4 | `inheritance` | the inheritance relation between contracts
 5 | `inheritance-graph` | the inheritance graph
 6 | `slithir` | the slithIR
-7 | `vars-and-auth` | the state variables written and the authorization of the functions
+7 | `vars-and-auth` |  state variables written and the authorization of the functions
 
 ## How to install
 
 Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
+
 ### Using Pip
 
 ```
