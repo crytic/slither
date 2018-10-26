@@ -76,7 +76,7 @@ class Variable(SourceMapping):
     def set_type(self, t):
         if isinstance(t, str):
             t = ElementaryType(t)
-        assert isinstance(t, Type) or t is None
+        assert isinstance(t, (Type, list)) or t is None
         self._type = t
 
     def __str__(self):

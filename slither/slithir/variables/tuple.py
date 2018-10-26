@@ -23,9 +23,5 @@ class TupleVariable(Variable):
     def name(self):
         return 'TUPLE_{}'.format(self.index)
 
-    def set_type(self, t):
-        assert all(isinstance(x, Type) or x is None for x in t)
-        self._type = t
-
     def __str__(self):
         return self.name

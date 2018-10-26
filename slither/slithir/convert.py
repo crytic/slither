@@ -14,7 +14,7 @@ from slither.slithir.operations import (Assignment, Binary, BinaryType, Call,
                                         NewStructure, OperationWithLValue,
                                         Push, Return, Send, SolidityCall,
                                         Transfer, TypeConversion, Unary,
-                                        Unpack)
+                                        Unpack, Length, Balance)
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -257,9 +257,10 @@ def convert_to_library(ir, node, using_for):
     contract = node.function.contract
     t = ir.destination.type
 
-    new_ir = look_for_library(contract, ir, node, using_for, t)
-    if new_ir:
-        return new_ir
+    if t in using_for:
+        new_ir = look_for_library(contract, ir, node, using_for, t)
+        if new_ir:
+            return new_ir
 
     if '*' in using_for:
         new_ir = look_for_library(contract, ir, node, using_for, '*')
@@ -389,7 +390,7 @@ def propagate_types(ir, node):
                     return
 
                 # convert library
-                if t in using_for:
+                if t in using_for or '*' in using_for:
                     new_ir = convert_to_library(ir, node, using_for)
                     if new_ir:
                         return new_ir
@@ -449,6 +450,11 @@ def propagate_types(ir, node):
                 # This should not happen
                 assert False
             elif isinstance(ir, Member):
+                # TODO we should convert the reference to a temporary if the member is a length or a balance
+                if ir.variable_right == 'length' and isinstance(ir.variable_left.type, ElementaryType):
+                    return Length(ir.variable_left, ir.lvalue)
+                if ir.variable_right == 'balance' and isinstance(ir.variable_left.type, ElementaryType):
+                    return Balance(ir.variable_left, ir.lvalue)
                 left = ir.variable_left
                 if isinstance(left, (Variable, SolidityVariable)):
                     t = ir.variable_left.type

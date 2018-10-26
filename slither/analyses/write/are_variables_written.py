@@ -4,7 +4,7 @@
 from slither.core.cfg.node import NodeType
 from slither.core.declarations import SolidityFunction
 from slither.slithir.operations import (Index, Member, OperationWithLValue,
-                                        SolidityCall)
+                                        SolidityCall, Length, Balance)
 from slither.slithir.variables import ReferenceVariable
 
 
@@ -27,6 +27,8 @@ def _visit(node, visited, variables_written, variables_to_write):
             continue
         if isinstance(ir, (Index, Member)):
             refs[ir.lvalue] = ir.variable_left
+        if isinstance(ir, (Length, Balance)):
+            refs[ir.lvalue] = ir.value
 
         variables_written = variables_written + [ir.lvalue]
         lvalue = ir.lvalue
