@@ -10,7 +10,7 @@ from slither.utils.colors import blue, green
 
 class PrinterInheritance(AbstractPrinter):
     ARGUMENT = 'inheritance'
-    HELP = 'the inheritance relation between contracts'
+    HELP = 'Print the inheritance relations between contracts'
 
     def _get_child_contracts(self, base):
         # Generate function to get all child contracts of a base contract

@@ -8,7 +8,7 @@ from slither.printers.abstract_printer import AbstractPrinter
 class FunctionSummary(AbstractPrinter):
 
     ARGUMENT = 'function-summary'
-    HELP = 'the summary of the functions'
+    HELP = 'Print a summary of the functions'
 
     @staticmethod
     def _convert(l):

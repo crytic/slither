@@ -8,7 +8,7 @@ from slither.utils.colors import blue, green, magenta
 class PrinterSlithIR(AbstractPrinter):
 
     ARGUMENT = 'slithir'
-    HELP = 'the slithIR'
+    HELP = 'Print the slithIR representation of the functions'
 
     def output(self, _filename):
         """

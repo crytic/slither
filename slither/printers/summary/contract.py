@@ -8,7 +8,7 @@ from slither.utils.colors import blue, green, magenta
 class ContractSummary(AbstractPrinter):
 
     ARGUMENT = 'contract-summary'
-    HELP = 'a summary of the contract'
+    HELP = 'Print a summary of the contracts'
 
     def output(self, _filename):
         """

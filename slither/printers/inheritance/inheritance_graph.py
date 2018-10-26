@@ -12,7 +12,7 @@ from slither.printers.abstract_printer import AbstractPrinter
 
 class PrinterInheritanceGraph(AbstractPrinter):
     ARGUMENT = 'inheritance-graph'
-    HELP = 'the inheritance graph'
+    HELP = 'Export the inheritance graph of each contract to a dot file'
 
     def __init__(self, slither, logger):
         super(PrinterInheritanceGraph, self).__init__(slither, logger)
