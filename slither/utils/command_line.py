@@ -2,7 +2,7 @@ from prettytable import PrettyTable
 
 from slither.detectors.abstract_detector import classification_txt
 
-def output_to_markdown(detector_classes):
+def output_to_markdown(detector_classes, printer_classes):
     detectors_list = []
     for detector in detector_classes:
         argument = detector.ARGUMENT
@@ -25,6 +25,19 @@ def output_to_markdown(detector_classes):
                                                 confidence))
         idx = idx + 1
 
+    print()
+    printers_list = []
+    for printer in printer_classes:
+        argument = printer.ARGUMENT
+        help_info = printer.HELP
+        printers_list.append((argument, help_info))
+
+    # Sort by impact, confidence, and name
+    printers_list = sorted(printers_list, key=lambda element: (element[0]))
+    idx = 1
+    for (argument, help_info) in printers_list:
+        print('{} | `{}` | {}'.format(idx, argument, help_info))
+        idx = idx + 1
 
 def output_detectors(detector_classes):
     detectors_list = []
