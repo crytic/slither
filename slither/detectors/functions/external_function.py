@@ -57,8 +57,10 @@ class ExternalFunction(AbstractDetector):
 
         for contract in self.slither.contracts_derived:
             """
-            Returns list of InternallCall, InternalDynamicCall, HighLevelCall, SolidityCall calls
+            Returns list of InternallCall, SolidityCall calls
             in contract functions
+
+            And excludes contract with InternalDynamicCall
             """
             func_list, exclude_contract = self.detect_public(contract)
 
@@ -67,14 +69,14 @@ class ExternalFunction(AbstractDetector):
             else:
                 # appends the list to public function calls
                 public_function_calls.extend(func_list)
-                
+
         for c in [ contract for contract in self.contracts if contract not in excluded_contracts ]:
             """
             Returns a list of functions with public visibility in contract that doesn't
             exist in the public_function_calls
 
             This means that the public function doesn't have any
-            InternallCall, InternalDynamicCall, SolidityCall call
+            InternallCall, SolidityCall call
             attached to it hence it can be declared as external
 
             """
