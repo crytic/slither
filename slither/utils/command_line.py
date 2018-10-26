@@ -43,6 +43,9 @@ def output_detectors(detector_classes):
     detectors_list = []
     for detector in detector_classes:
         argument = detector.ARGUMENT
+        # dont show the backdoor example
+        if argument == 'backdoor':
+            continue
         help_info = detector.HELP
         impact = detector.IMPACT
         confidence = classification_txt[detector.CONFIDENCE]
