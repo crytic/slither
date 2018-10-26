@@ -14,6 +14,10 @@ class OperationWithLValue(Operation):
     def lvalue(self):
         return self._lvalue
 
+    @property
+    def used(self):
+        return self.read + [self.lvalue]
+
     @lvalue.setter
     def lvalue(self, lvalue):
         self._lvalue = lvalue

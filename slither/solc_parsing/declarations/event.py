@@ -9,17 +9,29 @@ class EventSolc(Event):
     Event class
     """
 
-    def __init__(self, event):
+    def __init__(self, event, contract):
         super(EventSolc, self).__init__()
-        self._name = event['attributes']['name']
-        self._elems = []
+        self._contract = contract
 
-        elems = event['children'][0]
-        assert elems['name'] == 'ParameterList'
-        if 'children' in elems:
-            self._elemsNotParsed = elems['children']
+        self._elems = []
+        if self.is_compact_ast:
+            self._name = event['name']
+            elems = event['parameters']
+            assert elems['nodeType'] == 'ParameterList'
+            self._elemsNotParsed = elems['parameters']
         else:
-            self._elemsNotParsed = []
+            self._name = event['attributes']['name']
+            elems = event['children'][0]
+
+            assert elems['name'] == 'ParameterList'
+            if 'children' in elems:
+                self._elemsNotParsed = elems['children']
+            else:
+                self._elemsNotParsed = []
+
+    @property
+    def is_compact_ast(self):
+        return self.contract.is_compact_ast
 
     def analyze(self, contract):
         for elem_to_parse in self._elemsNotParsed:

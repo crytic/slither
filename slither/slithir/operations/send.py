@@ -23,7 +23,7 @@ class Send(Call, OperationWithLValue):
 
     @property
     def read(self):
-        return [self.destination]
+        return [self.destination, self.call_value]
 
     @property
     def destination(self):

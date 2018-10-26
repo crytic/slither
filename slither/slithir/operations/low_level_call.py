@@ -50,7 +50,9 @@ class LowLevelCall(Call, OperationWithLValue):
 
     @property
     def read(self):
-        return [self.destination]
+        all_read = [self.destination, self.call_gas, self.call_value] + self.arguments
+        # remove None
+        return [x for x in all_read if x]
 
     @property
     def destination(self):
