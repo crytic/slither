@@ -40,7 +40,7 @@ def _node(node, label=None):
 
 class PrinterCallGraph(AbstractPrinter):
     ARGUMENT = 'call-graph'
-    HELP = 'the call graph'
+    HELP = 'Export the call-graph of the contracts to a dot file'
 
     def __init__(self, slither, logger):
         super(PrinterCallGraph, self).__init__(slither, logger)

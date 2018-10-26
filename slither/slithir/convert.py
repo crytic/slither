@@ -636,6 +636,12 @@ def convert_expression(expression, node):
     if isinstance(expression, Identifier) and node.type == NodeType.RETURN:
         result =  [Return(expression.value)]
         return result
+    if isinstance(expression, Literal) and node.type in [NodeType.IF, NodeType.IFLOOP]:
+        result =  [Condition(Constant(expression.value))]
+        return result
+    if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
+        result =  [Condition(expression.value)]
+        return result
     visitor = ExpressionToSlithIR(expression)
     result = visitor.result()
 
