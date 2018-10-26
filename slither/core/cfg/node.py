@@ -3,26 +3,23 @@
 """
 import logging
 
+from slither.core.children.child_function import ChildFunction
+from slither.core.declarations import Contract
+from slither.core.declarations.solidity_variables import (SolidityFunction,
+                                                          SolidityVariable)
 from slither.core.source_mapping.source_mapping import SourceMapping
-from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
-
+from slither.core.variables.variable import Variable
+from slither.slithir.convert import convert_expression
+from slither.slithir.operations import (Balance, HighLevelCall, Index,
+                                        InternalCall, Length, LibraryCall,
+                                        LowLevelCall, Member,
+                                        OperationWithLValue, SolidityCall)
+from slither.slithir.variables import (Constant, ReferenceVariable,
+                                       TemporaryVariable, TupleVariable)
 from slither.visitors.expression.expression_printer import ExpressionPrinter
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
-
-from slither.core.children.child_function import ChildFunction
-
-from slither.core.declarations.solidity_variables import SolidityVariable, SolidityFunction
-
-from slither.slithir.convert import convert_expression
-
-from slither.slithir.operations import OperationWithLValue, Index, Member, LowLevelCall, SolidityCall, HighLevelCall, InternalCall, LibraryCall
-
-
-from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable, TupleVariable
-
-from slither.core.declarations import Contract
 
 logger = logging.getLogger("Node")
 
@@ -374,7 +371,7 @@ class Node(SourceMapping, ChildFunction):
         for ir in self.irs:
             self._vars_read += [v for v in ir.read if not is_slithir_var(v)]
             if isinstance(ir, OperationWithLValue):
-                if isinstance(ir, (Index, Member)):
+                if isinstance(ir, (Index, Member, Length, Balance)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
                 var = ir.lvalue
                 # If its a reference, we loop until finding the origin
@@ -412,6 +409,4 @@ class Node(SourceMapping, ChildFunction):
         self._solidity_calls = list(set(self._solidity_calls))
         self._high_level_calls = list(set(self._high_level_calls))
         self._low_level_calls = list(set(self._low_level_calls))
-
-
 
