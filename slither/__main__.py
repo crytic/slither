@@ -11,57 +11,13 @@ import traceback
 from pkg_resources import iter_entry_points, require
 
 from slither.detectors.abstract_detector import (AbstractDetector,
-                                                 DetectorClassification,
-                                                 classification_txt)
+                                                 DetectorClassification)
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
+from slither.utils.command_line import output_to_markdown, output_detectors, output_printers
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
-
-
-def output_detectors(detector_classes):
-    """
-        Pretty print of the detectors to README.md
-    """
-    detectors_list = []
-    for detector in detector_classes:
-        argument = detector.ARGUMENT
-        # dont show the backdoor example
-        help_info = detector.HELP
-        impact = detector.IMPACT
-        confidence = classification_txt[detector.CONFIDENCE]
-        detectors_list.append((argument, help_info, impact, confidence))
-
-    # Sort by impact, confidence, and name
-    detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[3], element[0]))
-    idx = 1
-    for (argument, help_info, impact, confidence) in detectors_list:
-        print('{} | `{}` | {} | {} | {}'.format(idx,
-                                                argument,
-                                                help_info,
-                                                classification_txt[impact],
-                                                confidence))
-        idx = idx + 1
-
-
-def output_printers(printer_classes):
-    """
-        Pretty print of the printers to README.md
-    """
-    printers_list = []
-    for printer in printer_classes:
-        argument = printer.ARGUMENT
-        help_info = printer.HELP
-        printers_list.append((argument, help_info))
-
-    print(printers_list)
-    # Sort by name
-    printers_list = sorted(printers_list, key=lambda element: (element[0]))
-    idx = 1
-    for (argument, help_info) in printers_list:
-        print('{} | `{}` | {} '.format(idx, argument, help_info))
-        idx = idx + 1
 
 
 def process(filename, args, detector_classes, printer_classes):
@@ -105,7 +61,7 @@ def exit(results):
     sys.exit(len(results))
 
 
-def main():
+def get_detectors_and_printers():
     """
     NOTE: This contains just a few detectors and printers that we made public.
     """
@@ -171,6 +127,11 @@ def main():
         detectors += list(plugin_detectors)
         printers += list(plugin_printers)
 
+    return detectors, printers
+
+def main():
+    detectors, printers = get_detectors_and_printers()
+
     main_impl(all_detector_classes=detectors, all_printer_classes=printers)
 
 
@@ -181,16 +142,11 @@ def main_impl(all_detector_classes, all_printer_classes):
     """
     args = parse_args(all_detector_classes, all_printer_classes)
 
-    if args.list_detectors:
-        output_detectors(all_detector_classes)
-        return
-
-    if args.list_printers:
-        output_printers(all_printer_classes)
-        return
-
-    detector_classes = choose_detectors(args, all_detector_classes)
     printer_classes = choose_printers(args, all_printer_classes)
+    if printer_classes:
+        detector_classes = []
+    else:
+        detector_classes = choose_detectors(args, all_detector_classes)
 
     default_log = logging.INFO if not args.debug else logging.DEBUG
 
@@ -250,84 +206,100 @@ def parse_args(detector_classes, printer_classes):
                                      usage="slither.py contract.sol [flag]")
 
     parser.add_argument('filename',
-                        help='contract.sol file')
+                        help='contract.sol')
 
     parser.add_argument('--version',
                         help='displays the current version',
                         version=require('slither-analyzer')[0].version,
                         action='version')
 
-    parser.add_argument('--solc',
-                        help='solc path',
-                        action='store',
-                        default='solc')
+    group_detector = parser.add_argument_group('Detectors')
+    group_printer = parser.add_argument_group('Printers')
+    group_solc = parser.add_argument_group('Solc options')
+    group_misc = parser.add_argument_group('Additional option')
 
-    parser.add_argument('--detectors',
-                        help='Comma-separated list of detectors, defaults to all, '
-                             'available detectors: {}'.format(', '.join(d.ARGUMENT for d in detector_classes)),
-                        action='store',
-                        dest='detectors_to_run',
-                        default='all')
+    group_detector.add_argument('--detectors',
+                                help='Comma-separated list of detectors, defaults to all, '
+                                     'available detectors: {}'.format(
+                                         ', '.join(d.ARGUMENT for d in detector_classes)),
+                                action='store',
+                                dest='detectors_to_run',
+                                default='all')
 
-    parser.add_argument('--printers',
-                        help='Comma-separated list fo contract information printers, '
-                             'defaults to contract-summary and can be disabled by using \'none\', '
-                             'available printers: {}'.format(', '.join(d.ARGUMENT for d in printer_classes)),
-                        action='store',
-                        dest='printers_to_run',
-                        default='contract-summary')
+    group_printer.add_argument('--printers',
+                               help='Comma-separated list fo contract information printers, '
+                                    'available printers: {}'.format(
+                                        ', '.join(d.ARGUMENT for d in printer_classes)),
+                               action='store',
+                               dest='printers_to_run',
+                               default='')
 
-    parser.add_argument('--output',
-                        help='Define output encoding',
-                        action='store',
-                        choices=['stdout', 'json'],
-                        default='stdout')
+    group_detector.add_argument('--list-detectors',
+                                help='List available detectors',
+                                action=ListDetectors,
+                                nargs=0,
+                                default=False)
 
-    parser.add_argument('--exclude-detectors',
-                        help='Comma-separated list of detectors that should be excluded',
-                        action='store',
-                        dest='detectors_to_exclude',
-                        default='')
+    group_printer.add_argument('--list-printers',
+                               help='List available printers',
+                               action=ListPrinters,
+                               nargs=0,
+                               default=False)
 
-    parser.add_argument('--solc-args',
-                        help='Add custom solc arguments. Example: --solc-args "--allow-path /tmp --evm-version byzantium".',
-                        action='store',
-                        default=None)
 
-    parser.add_argument('--disable-solc-warnings',
-                        help='Disable solc warnings',
-                        action='store_true',
-                        default=False)
+    group_detector.add_argument('--exclude-detectors',
+                                help='Comma-separated list of detectors that should be excluded',
+                                action='store',
+                                dest='detectors_to_exclude',
+                                default='')
 
-    parser.add_argument('--solc-ast',
-                        help='Provide the ast solc file',
-                        action='store_true',
-                        default=False)
+    group_detector.add_argument('--exclude-informational',
+                                help='Exclude informational impact analyses',
+                                action='store_true',
+                                default=False)
 
-    parser.add_argument('--json',
-                        help='Export results as JSON',
-                        action='store',
-                        default=None)
+    group_detector.add_argument('--exclude-low',
+                                help='Exclude low impact analyses',
+                                action='store_true',
+                                default=False)
 
-    parser.add_argument('--exclude-informational',
-                        help='Exclude informational impact analyses',
-                        action='store_true',
-                        default=False)
+    group_detector.add_argument('--exclude-medium',
+                                help='Exclude medium impact analyses',
+                                action='store_true',
+                                default=False)
 
-    parser.add_argument('--exclude-low',
-                        help='Exclude low impact analyses',
-                        action='store_true',
-                        default=False)
+    group_detector.add_argument('--exclude-high',
+                                help='Exclude high impact analyses',
+                                action='store_true',
+                                default=False)
 
-    parser.add_argument('--exclude-medium',
-                        help='Exclude medium impact analyses',
-                        action='store_true',
-                        default=False)
 
-    parser.add_argument('--exclude-high',
-                        help='Exclude high impact analyses',
-                        action='store_true',
-                        default=False)
+    group_solc.add_argument('--solc',
+                            help='solc path',
+                            action='store',
+                            default='solc')
+
+    group_solc.add_argument('--solc-args',
+                            help='Add custom solc arguments. Example: --solc-args "--allow-path /tmp --evm-version byzantium".',
+                            action='store',
+                            default=None)
+
+    group_solc.add_argument('--disable-solc-warnings',
+                            help='Disable solc warnings',
+                            action='store_true',
+                            default=False)
+
+    group_solc.add_argument('--solc-ast',
+                            help='Provide the ast solc file',
+                            action='store_true',
+                            default=False)
+
+    group_misc.add_argument('--json',
+                            help='Export results as JSON',
+                            action='store',
+                            default=None)
+
+
 
     # debugger command
     parser.add_argument('--debug',
@@ -337,18 +309,10 @@ def parse_args(detector_classes, printer_classes):
 
     parser.add_argument('--markdown',
                         help=argparse.SUPPRESS,
-                        action="store_true",
+                        action=OutputMarkdown,
                         default=False)
 
-    parser.add_argument('--list-detectors',
-                        help='List available detectors',
-                        action='store_true',
-                        default=False)
 
-    parser.add_argument('--list-printers',
-                        help='List available printers',
-                        action='store_true',
-                        default=False)
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -357,6 +321,25 @@ def parse_args(detector_classes, printer_classes):
     args = parser.parse_args()
 
     return args
+
+class ListDetectors(argparse.Action):
+    def __call__(self, parser, *args, **kwargs):
+        detectors, _ = get_detectors_and_printers()
+        output_detectors(detectors)
+        parser.exit()
+
+class ListPrinters(argparse.Action):
+    def __call__(self, parser, *args, **kwargs):
+        _, printers = get_detectors_and_printers()
+        output_printers(printers)
+        parser.exit()
+
+class OutputMarkdown(argparse.Action):
+    def __call__(self, parser, *args, **kwargs):
+        detectors, _ = get_detectors_and_printers()
+        output_to_markdown(detectors)
+        parser.exit()
+
 
 
 def choose_detectors(args, all_detector_classes):
@@ -401,8 +384,8 @@ def choose_printers(args, all_printer_classes):
     printers_to_run = []
 
     # disable default printer
-    if args.printers_to_run == 'none':
-        return printers_to_run
+    if args.printers_to_run == '':
+        return []
 
     printers = {p.ARGUMENT: p for p in all_printer_classes}
     for p in args.printers_to_run.split(','):
