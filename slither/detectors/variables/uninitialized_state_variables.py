@@ -48,7 +48,7 @@ class UninitializedStateVarsDetection(AbstractDetector):
     def detect_uninitialized(self, contract):
         written_variables = self.written_variables(contract)
         return [(variable, contract.get_functions_reading_from_variable(variable))
-                for variable in contract.state_variables if variable not in written_variables]
+                for variable in contract.state_variables if variable not in written_variables and not variable.expression]
 
     def detect(self):
         """ Detect uninitialized state variables
