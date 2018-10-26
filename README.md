@@ -36,33 +36,39 @@ If Slither is run on a directory, it will run on every `.sol` file of the direct
 
 ### Printers
 
-* `--printer-summary`: Print a summary of the contracts
-* `--printer-quick-summary`: Print a quick summary of the contracts
-* `--printer-inheritance`: Print the inheritance relations
-* `--printer-inheritance-graph`: Print the inheritance graph in a file
-* `--printer-call-graph`: Print the call graph in a file
-* `--printer-vars-and-auth`: Print the variables written and the check on `msg.sender` of each function
+By default, the `contract-summary` printer is used. Use --printers comma-separated list of printers, 
+or `none` to disable the default printer. 
 
-## Checks available
+Num | Printer | Description
+--- | --- | ---
+1 | `contract-summary` | a summary of the contract
+2 | `function-summary` | the summary of the functions
+3 | `inheritance` | the inheritance relation between contracts
+4 | `inheritance-graph` | the inheritance graph
+5 | `slithir` | the slithIR
+6 | `vars-and-auth` | the state variables written and the authorization of the functions
 
-By default, all the checks are run. Use --detect-_name-of-check_ to run one check at a time.
+## Detectors
 
-Num | Check | What it Detects | Impact | Confidence
+By default, all the detectors are run. Use --detectors comma-separated list of detectors to run.
+
+Num | Detector | What it Detects | Impact | Confidence
 --- | --- | --- | --- | ---
-1 | `suicidal` | Suicidal functions | High | High
-2 | `uninitialized-state` | Uninitialized state variables | High | High
-3 | `uninitialized-storage` | Uninitialized storage variables | High | High
-4 | `arbitrary-send` | Functions that send ether to an arbitrary destination | High | Medium
-5 | `reentrancy` | Reentrancy vulnerabilities | High | Medium
-6 | `locked-ether` | Contracts that lock ether | Medium | High
-7 | `tx-origin` | Dangerous usage of `tx.origin` | Medium | Medium
-8 | `assembly` | Assembly usage | Informational | High
-9 | `const-candidates-state` | State variables that could be declared constant | Informational | High
-10 | `low-level-calls` | Low level calls | Informational | High
-11 | `naming-convention` | Conformance to Solidity naming conventions | Informational | High
-12 | `pragma` | If different pragma directives are used | Informational | High
-13 | `solc-version` | If an old version of Solidity used (<0.4.23) | Informational | High
-14 | `unused-state` | Unused state variables | Informational | High
+1 | `backdoor` | Function named backdoor (detector example) | High | High
+2 | `suicidal` | Suicidal functions | High | High
+3 | `uninitialized-state` | Uninitialized state variables | High | High
+4 | `uninitialized-storage` | Uninitialized storage variables | High | High
+5 | `arbitrary-send` | Functions that send ether to an arbitrary destination | High | Medium
+6 | `reentrancy` | Reentrancy vulnerabilities | High | Medium
+7 | `locked-ether` | Contracts that lock ether | Medium | High
+8 | `tx-origin` | Dangerous usage of `tx.origin` | Medium | Medium
+9 | `assembly` | Assembly usage | Informational | High
+10 | `const-candidates-state` | State variables that could be declared constant | Informational | High
+11 | `low-level-calls` | Low level calls | Informational | High
+12 | `naming-convention` | Conformance to Solidity naming conventions | Informational | High
+13 | `pragma` | If different pragma directives are used | Informational | High
+14 | `solc-version` | If an old version of Solidity used (<0.4.23) | Informational | High
+15 | `unused-state` | Unused state variables | Informational | High
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
