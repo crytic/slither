@@ -38,11 +38,11 @@ class UninitializedStateVarsDetection(AbstractDetector):
                     if isinstance(ir, LibraryCall) \
                             or isinstance(ir, InternalCall) \
                             or isinstance(ir, InternalDynamicCall):
-                        for v in ir.arguments:
-                            ret.append(v)
-                        for param in f.parameters:
+                        idx = 0
+                        for param in ir.function.parameters:
                             if param.location == 'storage':
-                                ret.append(param)
+                                ret.append(ir.arguments[idx])
+                            idx = idx+1
 
         return ret
 

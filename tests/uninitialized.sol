@@ -32,7 +32,7 @@ library Lib{
         uint val;
     }
 
-    function set(MyStruct storage st){
+    function set(MyStruct storage st, uint v){
         st.val = 4;
     }
 
@@ -44,9 +44,10 @@ contract Test2 {
 
     Lib.MyStruct st;
     Lib.MyStruct stInitiliazed;
+    uint v; // v is used as parameter of the lib, but is never init
 
     function init(){
-        stInitiliazed.set();
+        stInitiliazed.set(v);
     }
 
     function use(){
