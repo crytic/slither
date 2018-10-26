@@ -67,7 +67,7 @@ class ExternalFunction(AbstractDetector):
             else:
                 # appends the list to public function calls
                 public_function_calls.extend(func_list)
-
+                
         for c in [ contract for contract in self.contracts if contract not in excluded_contracts ]:
             """
             Returns a list of functions with public visibility in contract that doesn't
