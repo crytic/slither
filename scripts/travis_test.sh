@@ -26,6 +26,7 @@ test_slither tests/tx_origin.sol "tx-origin" 2
 test_slither tests/unused_state.sol "unused-state" 1
 test_slither tests/locked_ether.sol "locked-ether" 1
 test_slither tests/arbitrary_send.sol "arbitrary-send" 2
+test_slither tests/complex_func.sol "complex-function" 3
 test_slither tests/inline_assembly_contract.sol "assembly" 1
 test_slither tests/inline_assembly_library.sol "assembly" 2
 test_slither tests/naming_convention.sol "naming-convention" 10
