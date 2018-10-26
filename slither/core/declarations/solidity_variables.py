@@ -22,8 +22,7 @@ SOLIDITY_VARIABLES_COMPOSED = {"block.coinbase":"address",
                                "msg.sig":"bytes4",
                                "msg.value":"uint256",
                                "tx.gasprice":"uint256",
-                               "tx.origin":"address",
-                               "this.balance":"uint256"}
+                               "tx.origin":"address"}
 
 
 SOLIDITY_FUNCTIONS = {"gasleft()":['uint256'],
