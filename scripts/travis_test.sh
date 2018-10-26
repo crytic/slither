@@ -3,79 +3,79 @@
 ### Test Detectors
 
 
-slither tests/uninitialized.sol --disable-solc-warnings --detect-uninitialized-state
+slither tests/uninitialized.sol --disable-solc-warnings --detectors uninitialized-state
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
 # contains also the test for the suicidal detector
-slither tests/backdoor.sol --disable-solc-warnings --detect-backdoor
+slither tests/backdoor.sol --disable-solc-warnings --detectors backdoor
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither tests/pragma.0.4.24.sol --disable-solc-warnings --detect-pragma
+slither tests/pragma.0.4.24.sol --disable-solc-warnings --detectors pragma
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither tests/old_solc.sol.json --solc-ast --detect-solc-version
+slither tests/old_solc.sol.json --solc-ast --detectors solc-version
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither tests/reentrancy.sol --disable-solc-warnings --detect-reentrancy
+slither tests/reentrancy.sol --disable-solc-warnings --detectors reentrancy
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither tests/uninitialized_storage_pointer.sol --disable-solc-warnings --detect-uninitialized-storage
+slither tests/uninitialized_storage_pointer.sol --disable-solc-warnings --detectors uninitialized-storage
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither tests/tx_origin.sol --disable-solc-warnings --detect-tx-origin
+slither tests/tx_origin.sol --disable-solc-warnings --detectors tx-origin
 if [ $? -ne 2 ]; then
     exit 1
 fi
 
-slither tests/unused_state.sol --detect-unused-state
+slither tests/unused_state.sol --detectors unused-state
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither tests/locked_ether.sol --detect-locked-ether
+slither tests/locked_ether.sol --detectors locked-ether
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither tests/arbitrary_send.sol --disable-solc-warnings --detect-arbitrary-send
+slither tests/arbitrary_send.sol --disable-solc-warnings --detectors arbitrary-send
 if [ $? -ne 2 ]; then
     exit 1
 fi
 
 
-slither tests/inline_assembly_contract.sol --disable-solc-warnings --detect-assembly
+slither tests/inline_assembly_contract.sol --disable-solc-warnings --detectors assembly
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither tests/inline_assembly_library.sol --disable-solc-warnings --detect-assembly
+slither tests/inline_assembly_library.sol --disable-solc-warnings --detectors assembly
 if [ $? -ne 2 ]; then
     exit 1
 fi
 
-slither tests/naming_convention.sol --disable-solc-warnings --detect-naming-convention
+slither tests/naming_convention.sol --disable-solc-warnings --detectors naming-convention
 if [ $? -ne 10 ]; then
     exit 1
 fi
 
-slither tests/low_level_calls.sol --disable-solc-warnings --detect-low-level-calls
+slither tests/low_level_calls.sol --disable-solc-warnings --detectors low-level-calls
 if [ $? -ne 1 ]; then
     exit 1
 fi
 
-slither tests/const_state_variables.sol --detect-const-candidates-state
+slither tests/const_state_variables.sol --detectors const-candidates-state
 if [ $? -ne 2 ]; then
     exit 1
 fi
