@@ -71,13 +71,14 @@ To run a printer, use `--printers` and a comma-separated list of printers.
 
 Num | Printer | Description
 --- | --- | ---
-1 | `call-graph` | the call graph
-2 | `contract-summary` | a summary of the contract
-3 | `function-summary` | the summary of the functions
-4 | `inheritance` | the inheritance relation between contracts
-5 | `inheritance-graph` | the inheritance graph
-6 | `slithir` | the slithIR
-7 | `vars-and-auth` |  state variables written and the authorization of the functions
+1 | `call-graph` | Export the call-graph of the contracts to a dot file
+2 | `contract-summary` | Print a summary of the contracts
+3 | `function-summary` | Print a summary of the functions
+4 | `inheritance` | Print the inheritance relations between contracts
+5 | `inheritance-graph` | Export the inheritance graph of each contract to a dot file
+6 | `slithir` | Print the slithIR representation of the functions
+7 | `vars-and-auth` | Print the state variables written and the authorization of the functions
+
 
 ## How to install
 

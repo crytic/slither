@@ -8,7 +8,7 @@ from slither.utils.colors import blue, green, magenta
 class PrinterSlithIR(AbstractPrinter):
 
     ARGUMENT = 'slithir'
-    HELP = 'the slithIR'
+    HELP = 'Print the slithIR representation of the functions'
 
     def output(self, _filename):
         """
@@ -24,6 +24,16 @@ class PrinterSlithIR(AbstractPrinter):
                 if function.contract == contract:
                     print('\tFunction {}'.format(function.full_name))
                     for node in function.nodes:
+                        if node.expression:
+                            print('\t\tExpression: {}'.format(node.expression))
+                            print('\t\tIRs:')
+                            for ir in node.irs:
+                                print('\t\t\t{}'.format(ir))
+            for modifier in contract.modifiers:
+                if modifier.contract == contract:
+                    print('\tModifier {}'.format(modifier.full_name))
+                    for node in modifier.nodes:
+                        print(node)
                         if node.expression:
                             print('\t\tExpression: {}'.format(node.expression))
                             print('\t\tIRs:')
