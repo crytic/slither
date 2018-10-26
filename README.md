@@ -53,6 +53,7 @@ Num | Detector | What it Detects | Impact | Confidence
 12 | `pragma` | If different pragma directives are used | Informational | High
 13 | `solc-version` | If an old version of Solidity used (<0.4.23) | Informational | High
 14 | `unused-state` | Unused state variables | Informational | High
+15 | `external-function` | Public functions that could be declared as external | Informational | High
 
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
