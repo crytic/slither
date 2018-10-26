@@ -1,0 +1,28 @@
+strict digraph {
+subgraph cluster_5_Library {
+label = "Library"
+"5_library_func" [label="library_func"]
+}
+subgraph cluster_22_ContractA {
+label = "ContractA"
+"22_my_func_a" [label="my_func_a"]
+"22_val" [label="val"]
+}
+subgraph cluster_63_ContractB {
+label = "ContractB"
+"63_my_second_func_b" [label="my_second_func_b"]
+"63_my_func_a" [label="my_func_a"]
+"63_constructor" [label="constructor"]
+"63_my_func_b" [label="my_func_b"]
+"63_my_func_b" -> "63_my_second_func_b"
+"63_my_func_a" -> "63_my_second_func_b"
+}
+subgraph cluster_solidity {
+label = "[Solidity]"
+"keccak256()" 
+"22_my_func_a" -> "keccak256()"
+}
+"22_my_func_a" -> "5_library_func"
+"63_my_func_b" -> "22_my_func_a"
+"63_my_second_func_b" -> "22_val"
+}
