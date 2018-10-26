@@ -6,6 +6,10 @@ class NamingConvention(AbstractDetector):
     """
     Check if naming conventions are followed
     https://solidity.readthedocs.io/en/v0.4.25/style-guide.html?highlight=naming_convention%20convention#naming_convention-conventions
+
+    Exceptions:
+    - Allow constant variables name/symbol/decimals to be lowercase (ERC20)
+    - Allow '_' at the beggining of the mixed_case match for private variables and unused parameters
     """
 
     ARGUMENT = 'naming-convention'
@@ -22,6 +26,12 @@ class NamingConvention(AbstractDetector):
         return re.search('^[a-z]([A-Za-z0-9]+)?_?$', name) is not None
 
     @staticmethod
+    def is_mixed_case_with_underscore(name):
+        # Allow _ at the beginning to represent private variable
+        # or unused parameters
+        return re.search('^[a-z_]([A-Za-z0-9]+)?_?$', name) is not None
+
+    @staticmethod
     def is_upper_case_with_underscores(name):
         return re.search('^[A-Z0-9_]+_?$', name) is not None
 
@@ -34,7 +44,7 @@ class NamingConvention(AbstractDetector):
         results = []
         for contract in self.contracts:
 
-            if self.is_cap_words(contract.name) is False:
+            if not self.is_cap_words(contract.name):
                 info = "Contract '{}' is not in CapWords".format(contract.name)
                 self.log(info)
 
@@ -47,7 +57,7 @@ class NamingConvention(AbstractDetector):
                 if struct.contract != contract:
                     continue
 
-                if self.is_cap_words(struct.name) is False:
+                if not self.is_cap_words(struct.name):
                     info = "Struct '{}' is not in CapWords, Contract: '{}' ".format(struct.name, contract.name)
                     self.log(info)
 
@@ -61,7 +71,7 @@ class NamingConvention(AbstractDetector):
                 if event.contract != contract:
                     continue
 
-                if self.is_cap_words(event.name) is False:
+                if not self.is_cap_words(event.name):
                     info = "Event '{}' is not in CapWords, Contract: '{}' ".format(event.name, contract.name)
                     self.log(info)
 
@@ -75,7 +85,7 @@ class NamingConvention(AbstractDetector):
                 if func.contract != contract:
                     continue
 
-                if self.is_mixed_case(func.name) is False:
+                if not self.is_mixed_case(func.name):
                     info = "Function '{}' is not in mixedCase, Contract: '{}' ".format(func.name, contract.name)
                     self.log(info)
 
@@ -86,8 +96,11 @@ class NamingConvention(AbstractDetector):
                                     'sourceMapping': func.source_mapping})
 
                 for argument in func.parameters:
-
-                    if self.is_mixed_case(argument.name) is False:
+                    if argument in func.variables_read_or_written:
+                        correct_naming = self.is_mixed_case(argument.name)
+                    else:
+                        correct_naming = self.is_mixed_case_with_underscore(argument.name)
+                    if not correct_naming:
                         info = "Parameter '{}' is not in mixedCase, Contract: '{}', Function: '{}'' " \
                             .format(argument.name, argument.name, contract.name)
                         self.log(info)
@@ -104,7 +117,7 @@ class NamingConvention(AbstractDetector):
                     continue
 
                 if self.should_avoid_name(var.name):
-                    if self.is_upper_case_with_underscores(var.name) is False:
+                    if not self.is_upper_case_with_underscores(var.name):
                         info = "Variable '{}' l, O, I should not be used, Contract: '{}' " \
                             .format(var.name, contract.name)
                         self.log(info)
@@ -116,7 +129,11 @@ class NamingConvention(AbstractDetector):
                                         'sourceMapping': var.source_mapping})
 
                 if var.is_constant is True:
-                    if self.is_upper_case_with_underscores(var.name) is False:
+                    # For ERC20 compatibility
+                    if var.name in ['symbol', 'name', 'decimals']:
+                        continue
+
+                    if not self.is_upper_case_with_underscores(var.name):
                         info = "Constant '{}' is not in UPPER_CASE_WITH_UNDERSCORES, Contract: '{}' " \
                             .format(var.name, contract.name)
                         self.log(info)
@@ -127,7 +144,11 @@ class NamingConvention(AbstractDetector):
                                         'constant': var.name,
                                         'sourceMapping': var.source_mapping})
                 else:
-                    if self.is_mixed_case(var.name) is False:
+                    if var.visibility == 'private':
+                        correct_naming = self.is_mixed_case_with_underscore(var.name)
+                    else:
+                        correct_naming = self.is_mixed_case(var.name)
+                    if not correct_naming:
                         info = "Variable '{}' is not in mixedCase, Contract: '{}' ".format(var.name, contract.name)
                         self.log(info)
 
@@ -141,7 +162,7 @@ class NamingConvention(AbstractDetector):
                 if enum.contract != contract:
                     continue
 
-                if self.is_cap_words(enum.name) is False:
+                if not self.is_cap_words(enum.name):
                     info = "Enum '{}' is not in CapWords, Contract: '{}' ".format(enum.name, contract.name)
                     self.log(info)
 
@@ -155,7 +176,7 @@ class NamingConvention(AbstractDetector):
                 if modifier.contract != contract:
                     continue
 
-                if self.is_mixed_case(modifier.name) is False:
+                if not self.is_mixed_case(modifier.name):
                     info = "Modifier '{}' is not in mixedCase, Contract: '{}' ".format(modifier.name, contract.name)
                     self.log(info)
 
