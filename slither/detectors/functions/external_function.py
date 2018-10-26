@@ -18,11 +18,12 @@ class ExternalFunction(AbstractDetector):
 
     @staticmethod
     def detect_function_calls(func):
-        """ Returns a list of InternallCall, InternalDynamicCall, SolidityCall
+        """ Returns a list of InternallCall, SolidityCall
             calls made in a function
 
         Returns:
-            (list): List of all InternallCall, InternalDynamicCall, SolidityCall
+            (list): List of all InternallCall, SolidityCall
+            (bool): exclude the contract if it contains InternalDynamicCall
         """
         result = []
         containsInternalDynamicCall = False
