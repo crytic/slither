@@ -18,7 +18,7 @@ class ConstCandidateStateVars(AbstractDetector):
     Reference: https://solidity.readthedocs.io/en/latest/contracts.html#constant-state-variables
     """
 
-    ARGUMENT = 'const-candidates-state'
+    ARGUMENT = 'constable-states'
     HELP = 'State variables that could be declared constant'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
