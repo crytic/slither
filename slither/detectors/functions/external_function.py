@@ -17,86 +17,53 @@ class ExternalFunction(AbstractDetector):
     CONFIDENCE = DetectorClassification.HIGH
 
     @staticmethod
-    def detect_function_calls(func):
+    def detect_functions_called(contract):
         """ Returns a list of InternallCall, SolidityCall
             calls made in a function
 
         Returns:
             (list): List of all InternallCall, SolidityCall
-            (bool): exclude the contract if it contains InternalDynamicCall
         """
         result = []
-        containsInternalDynamicCall = False
-        for node in func.nodes:
-            for ir in node.irs:
-                if isinstance(ir, (InternalDynamicCall)):
-                    containsInternalDynamicCall = True
-                    break
-                if isinstance(ir, (InternalCall, SolidityCall)):
-                    result.append(ir.function)
-        return result, containsInternalDynamicCall
+        for func in contract.all_functions_called:
+            for node in func.nodes:
+                for ir in node.irs:
+                    if isinstance(ir, (InternalCall, SolidityCall)):
+                        result.append(ir.function)
+        return result
 
-    def detect_public(self, contract):
-        ret = []
-        containsInternalDynamicCall = False
-        for f in contract.all_functions_called:
-            calls, containsInternalDynamicCall = self.detect_function_calls(f)
-            if containsInternalDynamicCall:
-                break
-            else:  
-                ret.extend(calls)
-        return ret, containsInternalDynamicCall
+    @staticmethod
+    def _contains_internal_dynamic_call(contract):
+        for func in contract.all_functions_called:
+            for node in func.nodes:
+                for ir in node.irs:
+                    if isinstance(ir, (InternalDynamicCall)):
+                        return True
+        return False
 
     def detect(self):
         results = []
 
         public_function_calls = []
 
-        """ Exclude contracts with InternalDynamicCall
-        """
-        excluded_contracts = []
-
         for contract in self.slither.contracts_derived:
-            """
-            Returns list of InternallCall, SolidityCall calls
-            in contract functions
+            if self._contains_internal_dynamic_call(contract):
+                continue
 
-            And excludes contract with InternalDynamicCall
-            """
-            func_list, exclude_contract = self.detect_public(contract)
+            func_list = self.detect_functions_called(contract)
+            public_function_calls.extend(func_list)
 
-            if exclude_contract:
-                excluded_contracts.append(contract)
-            else:
-                # appends the list to public function calls
-                public_function_calls.extend(func_list)
-
-        for c in [ contract for contract in self.contracts if contract not in excluded_contracts ]:
-            """
-            Returns a list of functions with public visibility in contract that doesn't
-            exist in the public_function_calls
-
-            This means that the public function doesn't have any
-            InternallCall, SolidityCall call
-            attached to it hence it can be declared as external
-
-            """
-            functions = [ func for func in c.functions if func.visibility == "public"
-                         and
-                         func.contract == c
-                         and
-                         func not in public_function_calls ]
-
-            for func in functions:
+            for func in [f for f in contract.functions if f.visibility == 'public' and\
+                                                           not f in public_function_calls]:
                 func_name = func.name
                 txt = "Public function in {} Contract: {}, Function: {} should be declared external"
                 info = txt.format(self.filename,
-                                  c.name,
+                                  contract.name,
                                   func_name)
                 self.log(info)
                 results.append({'vuln': 'ExternalFunc',
                                 'sourceMapping': func.source_mapping,
                                 'filename': self.filename,
-                                'contract': c.name,
+                                'contract': contract.name,
                                 'func': func_name})
         return results
