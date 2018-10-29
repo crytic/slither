@@ -357,7 +357,12 @@ def convert_type_of_high_level_call(ir, contract):
             return_type = return_type[0]
     else:
         # otherwise its a variable (getter)
-        return_type = func.type
+        if isinstance(func.type, MappingType):
+            return_type = func.type.type_to
+        elif isinstance(func.type, ArrayType):
+            return_type = func.type.type
+        else:
+            return_type = func.type
     if return_type:
         ir.lvalue.set_type(return_type)
     else:
@@ -369,9 +374,12 @@ def propagate_types(ir, node):
     # propagate the type
     using_for = node.function.contract.using_for
     if isinstance(ir, OperationWithLValue):
+        # Force assignment in case of missing previous correct type
+        if isinstance(ir, Assignment):
+            ir.lvalue.set_type(ir.rvalue.type)
         if not ir.lvalue.type:
             if isinstance(ir, Assignment):
-                ir.lvalue.set_type(ir.rvalue.type)
+                pass
             elif isinstance(ir, Binary):
                 if BinaryType.return_bool(ir.type):
                     ir.lvalue.set_type(ElementaryType('bool'))
@@ -451,7 +459,7 @@ def propagate_types(ir, node):
                 assert False
             elif isinstance(ir, Member):
                 # TODO we should convert the reference to a temporary if the member is a length or a balance
-                if ir.variable_right == 'length' and isinstance(ir.variable_left.type, ElementaryType):
+                if ir.variable_right == 'length' and isinstance(ir.variable_left.type, (ElementaryType, ArrayType)):
                     return Length(ir.variable_left, ir.lvalue)
                 if ir.variable_right == 'balance' and isinstance(ir.variable_left.type, ElementaryType):
                     return Balance(ir.variable_left, ir.lvalue)
