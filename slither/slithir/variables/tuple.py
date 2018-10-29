@@ -1,6 +1,7 @@
 
 from slither.core.variables.variable import Variable
 
+from slither.core.solidity_types.type import Type
 class TupleVariable(Variable):
 
     COUNTER = 0

@@ -14,7 +14,7 @@ from slither.slithir.operations import (Assignment, Binary, BinaryType, Call,
                                         NewStructure, OperationWithLValue,
                                         Push, Return, Send, SolidityCall,
                                         Transfer, TypeConversion, Unary,
-                                        Unpack)
+                                        Unpack, Length, Balance)
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -189,7 +189,10 @@ def convert_to_low_level(ir):
         call = SolidityFunction('abi.{}()'.format(ir.function_name))
         new_ir = SolidityCall(call, ir.nbr_arguments, ir.lvalue, ir.type_call)
         new_ir.arguments = ir.arguments
-        new_ir.lvalue.set_type(call.return_type)
+        if isinstance(call.return_type, list) and len(call.return_type) == 1:
+            new_ir.lvalue.set_type(call.return_type[0])
+        else:
+            new_ir.lvalue.set_type(call.return_type)
         return new_ir
     elif ir.function_name in ['call', 'delegatecall', 'callcode']:
         new_ir = LowLevelCall(ir.destination,
@@ -254,9 +257,10 @@ def convert_to_library(ir, node, using_for):
     contract = node.function.contract
     t = ir.destination.type
 
-    new_ir = look_for_library(contract, ir, node, using_for, t)
-    if new_ir:
-        return new_ir
+    if t in using_for:
+        new_ir = look_for_library(contract, ir, node, using_for, t)
+        if new_ir:
+            return new_ir
 
     if '*' in using_for:
         new_ir = look_for_library(contract, ir, node, using_for, '*')
@@ -353,7 +357,12 @@ def convert_type_of_high_level_call(ir, contract):
             return_type = return_type[0]
     else:
         # otherwise its a variable (getter)
-        return_type = func.type
+        if isinstance(func.type, MappingType):
+            return_type = func.type.type_to
+        elif isinstance(func.type, ArrayType):
+            return_type = func.type.type
+        else:
+            return_type = func.type
     if return_type:
         ir.lvalue.set_type(return_type)
     else:
@@ -365,6 +374,7 @@ def propagate_types(ir, node):
     # propagate the type
     using_for = node.function.contract.using_for
     if isinstance(ir, OperationWithLValue):
+        # Force assignment in case of missing previous correct type
         if not ir.lvalue.type:
             if isinstance(ir, Assignment):
                 ir.lvalue.set_type(ir.rvalue.type)
@@ -386,7 +396,7 @@ def propagate_types(ir, node):
                     return
 
                 # convert library
-                if t in using_for:
+                if t in using_for or '*' in using_for:
                     new_ir = convert_to_library(ir, node, using_for)
                     if new_ir:
                         return new_ir
@@ -427,7 +437,7 @@ def propagate_types(ir, node):
                 if return_type:
                     if len(return_type) == 1:
                         ir.lvalue.set_type(return_type[0])
-                    else:
+                    elif len(return_type)>1:
                         ir.lvalue.set_type(return_type)
                 else:
                     ir.lvalue = None
@@ -446,6 +456,11 @@ def propagate_types(ir, node):
                 # This should not happen
                 assert False
             elif isinstance(ir, Member):
+                # TODO we should convert the reference to a temporary if the member is a length or a balance
+                if ir.variable_right == 'length' and isinstance(ir.variable_left.type, (ElementaryType, ArrayType)):
+                    return Length(ir.variable_left, ir.lvalue)
+                if ir.variable_right == 'balance' and isinstance(ir.variable_left.type, ElementaryType):
+                    return Balance(ir.variable_left, ir.lvalue)
                 left = ir.variable_left
                 if isinstance(left, (Variable, SolidityVariable)):
                     t = ir.variable_left.type
@@ -483,7 +498,7 @@ def propagate_types(ir, node):
                 return_type = ir.function.return_type
                 if len(return_type) == 1:
                     ir.lvalue.set_type(return_type[0])
-                else:
+                elif len(return_type)>1:
                     ir.lvalue.set_type(return_type)
             elif isinstance(ir, TypeConversion):
                 ir.lvalue.set_type(ir.type)

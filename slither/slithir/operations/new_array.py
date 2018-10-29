@@ -18,7 +18,16 @@ class NewArray(Call, OperationWithLValue):
 
     @property
     def read(self):
-        return list(self.arguments)
+        # if array inside the parameters
+        def unroll(l):
+            ret = []
+            for x in l:
+                if not isinstance(x, list):
+                    ret += [x]
+                else:
+                    ret += unroll(x)
+            return ret
+        return unroll(self.arguments)
 
     @property
     def depth(self):

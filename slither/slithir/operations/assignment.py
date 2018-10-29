@@ -36,4 +36,4 @@ class Assignment(OperationWithLValue):
         return self._rvalue
 
     def __str__(self):
-        return '{} := {}'.format(self.lvalue, self.rvalue)
+        return '{}({}) := {}({})'.format(self.lvalue, self.lvalue.type, self.rvalue, self.rvalue.type)
