@@ -14,7 +14,15 @@ class EventCall(Call):
 
     @property
     def read(self):
-        return list(self.arguments)
+        def unroll(l):
+            ret = []
+            for x in l:
+                if not isinstance(x, list):
+                    ret += [x]
+                else:
+                    ret += unroll(x)
+            return ret
+        return unroll(self.arguments)
 
     def __str__(self):
         args = [str(a) for a in self.arguments]
