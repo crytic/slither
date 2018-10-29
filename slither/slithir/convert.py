@@ -375,11 +375,9 @@ def propagate_types(ir, node):
     using_for = node.function.contract.using_for
     if isinstance(ir, OperationWithLValue):
         # Force assignment in case of missing previous correct type
-        if isinstance(ir, Assignment):
-            ir.lvalue.set_type(ir.rvalue.type)
         if not ir.lvalue.type:
             if isinstance(ir, Assignment):
-                pass
+                ir.lvalue.set_type(ir.rvalue.type)
             elif isinstance(ir, Binary):
                 if BinaryType.return_bool(ir.type):
                     ir.lvalue.set_type(ElementaryType('bool'))
