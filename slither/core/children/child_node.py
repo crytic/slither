@@ -10,3 +10,11 @@ class ChildNode(object):
     @property
     def node(self):
         return self._node
+
+    @property
+    def function(self):
+        return self.node.function
+
+    @property
+    def contract(self):
+        return self.node.function.contract
