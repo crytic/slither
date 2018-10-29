@@ -56,12 +56,13 @@ Num | Detector | What it Detects | Impact | Confidence
 7 | `tx-origin` | Dangerous usage of `tx.origin` | Medium | Medium
 8 | `assembly` | Assembly usage | Informational | High
 9 | `constable-states` | State variables that could be declared constant | Informational | High
-10 | `external-function` | Public functions that could be declared as external | Informational | High
+10 | `external-function` | Public function that could be declared as external | Informational | High
 11 | `low-level-calls` | Low level calls | Informational | High
 12 | `naming-convention` | Conformance to Solidity naming conventions | Informational | High
 13 | `pragma` | If different pragma directives are used | Informational | High
 14 | `solc-version` | Old versions of Solidity (< 0.4.23) | Informational | High
 15 | `unused-state` | Unused state variables | Informational | High
+16 | `complex-function` | Complex functions | Informational | Medium
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
