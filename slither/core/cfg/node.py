@@ -367,7 +367,6 @@ class Node(SourceMapping, ChildFunction):
 
         def is_slithir_var(var):
             return isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
-
         for ir in self.irs:
             self._vars_read += [v for v in ir.read if not is_slithir_var(v)]
             if isinstance(ir, OperationWithLValue):
