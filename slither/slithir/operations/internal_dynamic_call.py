@@ -19,7 +19,17 @@ class InternalDynamicCall(Call, OperationWithLValue):
 
     @property
     def read(self):
-        return list(self.arguments) + [self.function]
+        # if array inside the parameters
+        def unroll(l):
+            ret = []
+            for x in l:
+                if not isinstance(x, list):
+                    ret += [x]
+                else:
+                    ret += unroll(x)
+            return ret
+
+        return unroll(self.arguments) + [self.function]
 
     @property
     def function(self):

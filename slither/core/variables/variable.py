@@ -3,7 +3,8 @@
 """
 
 from slither.core.source_mapping.source_mapping import SourceMapping
-
+from slither.core.solidity_types.type import Type
+from slither.core.solidity_types.elementary_type import ElementaryType
 
 class Variable(SourceMapping):
 
@@ -73,6 +74,9 @@ class Variable(SourceMapping):
         return self._visibility
 
     def set_type(self, t):
+        if isinstance(t, str):
+            t = ElementaryType(t)
+        assert isinstance(t, (Type, list)) or t is None
         self._type = t
 
     def __str__(self):

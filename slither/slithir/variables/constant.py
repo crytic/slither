@@ -1,4 +1,5 @@
 from slither.core.variables.variable import Variable
+from slither.core.solidity_types.elementary_type import ElementaryType
 
 class Constant(Variable):
 
@@ -6,10 +7,10 @@ class Constant(Variable):
         super(Constant, self).__init__()
         assert isinstance(val, str)
         if val.isdigit():
-            self._type = 'uint256'
+            self._type = ElementaryType('uint256')
             self._val = int(val)
         else:
-            self._type = 'string'
+            self._type = ElementaryType('string')
             self._val = val
 
     @property
