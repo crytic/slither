@@ -12,7 +12,7 @@ class ExternalFunction(AbstractDetector):
     """
 
     ARGUMENT = 'external-function'
-    HELP = 'Detect public function that could be declared as external'
+    HELP = 'Public function that could be declared as external'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
