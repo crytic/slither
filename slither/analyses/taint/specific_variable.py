@@ -60,8 +60,6 @@ def _visit_node(node, visited, key):
                                                                                  key)
     taints = iterate_over_irs(node.irs, _transfer_func_, taints)
 
-    taints = [v for v in taints if not isinstance(v, (TemporaryVariable, ReferenceVariable))]
-
     node.function.slither.context[key] = list(set(taints))
 
     for son in node.sons:
@@ -101,7 +99,7 @@ def is_tainted(variable, taint):
     if not isinstance(variable, (Variable, SolidityVariable)):
         return False
     key = make_key(taint)
-    return key in variable.context and variable.context[key]
+    return (key in variable.context and variable.context[key]) or variable == taint
 
 def is_tainted_from_key(variable, key):
     """
