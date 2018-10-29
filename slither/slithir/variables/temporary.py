@@ -6,10 +6,11 @@ class TemporaryVariable(ChildNode, Variable):
 
     COUNTER = 0
 
-    def __init__(self):
+    def __init__(self, node):
         super(TemporaryVariable, self).__init__()
         self._index = TemporaryVariable.COUNTER
         TemporaryVariable.COUNTER += 1
+        self._node = node
 
     @property
     def index(self):
