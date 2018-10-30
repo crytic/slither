@@ -56,15 +56,14 @@ class ExternalFunction(AbstractDetector):
             for func in [f for f in contract.functions if f.visibility == 'public' and\
                                                            not f in public_function_calls and\
                                                            not f.is_constructor]:
-                func_name = func.name
-                txt = "Public function in {} Contract: {}, Function: {} should be declared external"
-                info = txt.format(self.filename,
-                                  contract.name,
-                                  func_name)
+                txt = "{}.{} ({}) should be declared external"
+                info = txt.format(func.contract.name,
+                                  func.name,
+                                  func.source_mapping_str)
                 self.log(info)
                 results.append({'vuln': 'ExternalFunc',
                                 'sourceMapping': func.source_mapping,
                                 'filename': self.filename,
-                                'contract': contract.name,
-                                'func': func_name})
+                                'contract': func.contract.name,
+                                'func': func.name})
         return results
