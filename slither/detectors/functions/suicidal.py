@@ -12,7 +12,7 @@ class Suicidal(AbstractDetector):
     """
 
     ARGUMENT = 'suicidal'
-    HELP = 'Suicidal functions'
+    HELP = 'Functions allowing anyone to destruct the contract'
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
@@ -54,12 +54,11 @@ class Suicidal(AbstractDetector):
         for c in self.contracts:
             functions = self.detect_suicidal(c)
             for func in functions:
-                func_name = func.name
 
-                txt = "Suicidal function in {} Contract: {}, Function: {}"
-                info = txt.format(self.filename,
-                                  c.name,
-                                  func_name)
+                txt = "{}.{} ({}) allows anyone to destruct the contract"
+                info = txt.format(func.contract.name,
+                                  func.name,
+                                  func.source_mapping_str)
 
                 self.log(info)
 
@@ -67,6 +66,6 @@ class Suicidal(AbstractDetector):
                                 'sourceMapping': func.source_mapping,
                                 'filename': self.filename,
                                 'contract': c.name,
-                                'func': func_name})
+                                'func': func.name})
 
         return results
