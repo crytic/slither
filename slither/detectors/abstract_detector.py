@@ -64,7 +64,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     def log(self, info):
         if self.logger:
-            info = " "+info
+            info = "\n"+info
             self.logger.info(self.color(info))
 
     @abc.abstractmethod

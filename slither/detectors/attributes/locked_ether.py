@@ -44,7 +44,11 @@ class LockedEther(AbstractDetector):
             funcs_payable = [function for function in contract.functions if function.payable]
             if funcs_payable:
                 if self.do_no_send_ether(contract):
-                    txt = "Contract locked ether in {}, Contract {}, Functions {}"
+                    txt = "Contract locking ether found in {}:\n".format(self.filename)
+                    txt += "\tContract {} has payable functions:\n".format(contract.name)
+                    for function in funcs_payable:
+                        txt += "\t - {} ({})\n".format(function.name, function.source_mapping_str)
+                    txt += "\tBut has not function to withdraw the ether"
                     info = txt.format(self.filename,
                                       contract.name,
                                       [f.name for f in funcs_payable])

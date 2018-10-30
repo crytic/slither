@@ -12,7 +12,7 @@ class SourceMapping(Context):
         return self._source_mapping
 
     @staticmethod
-    def _compute_line(source_code, start, end):
+    def _compute_line(source_code, start, length):
         """
             Compute line(s) number from a start/end offset
             Not done in an efficient way
@@ -27,7 +27,7 @@ class SourceMapping(Context):
             i = i+1
             if counter > start:
                 lines.append(i)
-            if counter > end:
+            if counter > start+length:
                 break
         return lines
 
@@ -71,8 +71,8 @@ class SourceMapping(Context):
         if not lines:
             lines = '[source code not found]'
         elif len(lines) == 1:
-            lines = 'line {}'.format(lines[0])
+            lines = '{}'.format(lines[0])
         else:
-            lines = 'lines: {}'.format(','.join(lines))
-        return '{} {}'.format(self.source_mapping['filename'], lines)
+            lines = '{}-{}'.format(lines[0], lines[-1])
+        return '{}#{}'.format(self.source_mapping['filename'], lines)
 
