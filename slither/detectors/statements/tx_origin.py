@@ -48,10 +48,12 @@ class TxOrigin(AbstractDetector):
         for c in self.contracts:
             values = self.detect_tx_origin(c)
             for func, nodes in values:
-                func_name = func.name
-                info = "tx.origin in %s, Contract: %s, Function: %s" % (self.filename,
-                                                                        c.name,
-                                                                        func_name)
+                info = "{}.{} uses tx.origin for authorization:\n"
+                info = info.format(func.contract.name, func.name)
+
+                for node in nodes:
+                    info += "\t- {} ({})\n".format(node.expression, node.source_mapping_str)
+
                 self.log(info)
 
                 sourceMapping = [n.source_mapping for n in nodes]
@@ -59,7 +61,7 @@ class TxOrigin(AbstractDetector):
                 results.append({'vuln': 'TxOrigin',
                                 'sourceMapping': sourceMapping,
                                 'filename': self.filename,
-                                'contract': c.name,
-                                'function_name': func_name})
+                                'contract': func.contract.name,
+                                'function_name': func.name})
 
         return results

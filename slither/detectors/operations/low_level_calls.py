@@ -27,7 +27,7 @@ class LowLevelCalls(AbstractDetector):
 
     def detect_low_level_calls(self, contract):
         ret = []
-        for f in contract.functions:
+        for f in [f for f in contract.functions if contract == f.contract]:
             nodes = f.nodes
             assembly_nodes = [n for n in nodes if
                               self._contains_low_level_calls(n)]
@@ -42,10 +42,8 @@ class LowLevelCalls(AbstractDetector):
         for c in self.contracts:
             values = self.detect_low_level_calls(c)
             for func, nodes in values:
-                func_name = func.name
-                info = "Low level call in %s, Contract: %s, Function: %s" % (self.filename,
-                                                                             c.name,
-                                                                             func_name)
+                info = "Low level call in {}.{} ({})"
+                info = info.format(func.contract.name, func.name, func.source_mapping_str)
                 self.log(info)
 
                 sourceMapping = [n.source_mapping for n in nodes]
@@ -53,7 +51,7 @@ class LowLevelCalls(AbstractDetector):
                 results.append({'vuln': 'Low level call',
                                 'sourceMapping': sourceMapping,
                                 'filename': self.filename,
-                                'contract': c.name,
-                                'function_name': func_name})
+                                'contract': func.contract.name,
+                                'function_name': func.name})
 
         return results
