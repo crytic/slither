@@ -104,6 +104,7 @@ class ComplexFunction(AbstractDetector):
                                     contract.name,
                                     func_name,
                                     func.source_mapping_str)
+                info = info + "\n"
                 self.log(info)
 
                 results.append({'vuln': 'ComplexFunc',

@@ -42,7 +42,7 @@ class LowLevelCalls(AbstractDetector):
         for c in self.contracts:
             values = self.detect_low_level_calls(c)
             for func, nodes in values:
-                info = "Low level call in {}.{} ({})"
+                info = "Low level call in {}.{} ({})\n"
                 info = info.format(func.contract.name, func.name, func.source_mapping_str)
                 self.log(info)
 

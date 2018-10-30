@@ -34,9 +34,10 @@ class UnusedStateVars(AbstractDetector):
             unusedVars = self.detect_unused(c)
             if unusedVars:
                 unusedVarsName = [v.name for v in unusedVars]
-                info = "Unused state variables in %s, Contract: %s, Vars %s" % (self.filename,
-                                                                                c.name,
-                                                                                str(unusedVarsName))
+                info = ''
+                for var in unusedVars:
+                    info += "{}.{} ({}) is never used\n".format(var.contract.name, var.name, var.source_mapping_str)
+
                 self.log(info)
 
                 sourceMapping = [v.source_mapping for v in unusedVars]
