@@ -17,6 +17,7 @@ class Slither(Context):
         self._solc_version = None # '0.3' or '0.4':!
         self._pragma_directives = []
         self._import_directives = []
+        self._raw_source_code = {}
 
     @property
     def source_units(self):
@@ -57,6 +58,11 @@ class Slither(Context):
     def import_directives(self):
         """ list(str): Import directives"""
         return self._import_directives
+
+    @property
+    def source_code(self):
+        """ {filename: source_code}: source code """
+        return self._raw_source_code
 
     def get_contract_from_name(self, contract_name):
         """
