@@ -155,7 +155,7 @@ class NamingConvention(AbstractDetector):
                     else:
                         correct_naming = self.is_mixed_case(var.name)
                     if not correct_naming:
-                        info = "Variable '{}.{}' ({}) is not in mixedCase"
+                        info = "Variable '{}.{}' ({}) is not in mixedCase\n"
                         info = info.format(var.contract.name, var.name, var.source_mapping_str)
                         self.log(info)
 

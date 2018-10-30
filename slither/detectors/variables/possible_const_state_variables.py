@@ -64,9 +64,9 @@ class ConstCandidateStateVars(AbstractDetector):
 
                 for contract, variables in variables_by_contract.items():
                     variable_names = [v.name for v in variables]
-                    info = "State variables that could be const in %s, Contract: %s, Vars %s" % (self.filename,
-                                                                                                 contract,
-                                                                                                 str(variable_names))
+                    info = "{} has state variables that should be constant:\n".format(contract)
+                    for v in variables:
+                        info += "\t- {} ({})\n".format(v.name, v.source_mapping_str)
                     self.log(info)
 
                     sourceMapping = [v.source_mapping for v in const_candidates]

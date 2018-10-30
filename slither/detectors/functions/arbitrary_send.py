@@ -104,7 +104,7 @@ class ArbitrarySend(AbstractDetector):
                                    func.name)
                 info += '\tDangerous calls:\n'
                 for node in nodes:
-                    info += '- {} ({})'.format(node.expression, node.source_mapping_str)
+                    info += '\t- {} ({})\n'.format(node.expression, node.source_mapping_str)
 
                 self.log(info)
 

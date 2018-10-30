@@ -55,7 +55,7 @@ class Suicidal(AbstractDetector):
             functions = self.detect_suicidal(c)
             for func in functions:
 
-                txt = "{}.{} ({}) allows anyone to destruct the contract"
+                txt = "{}.{} ({}) allows anyone to destruct the contract\n"
                 info = txt.format(func.contract.name,
                                   func.name,
                                   func.source_mapping_str)
