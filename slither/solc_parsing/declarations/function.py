@@ -867,23 +867,23 @@ class FunctionSolc(Function):
  
 
     def split_ternary_node(self, node, condition, true_expr, false_expr):
-        condition_node = self._new_node(NodeType.IF, condition['src'])
+        condition_node = self._new_node(NodeType.IF, node.source_mapping)
         condition_node.add_expression(condition)
         condition_node.analyze_expressions(self)
 
-        true_node = self._new_node(node.type, true_expr['src'])
+        true_node = self._new_node(node.type, node.source_mapping)
         if node.type == NodeType.VARIABLE:
             true_node.add_variable_declaration(node.variable_declaration)
         true_node.add_expression(true_expr)
         true_node.analyze_expressions(self)
 
-        false_node = self._new_node(node.type, false_expr['src'])
+        false_node = self._new_node(node.type, node.source_mapping)
         if node.type == NodeType.VARIABLE:
             false_node.add_variable_declaration(node.variable_declaration)
         false_node.add_expression(false_expr)
         false_node.analyze_expressions(self)
 
-        endif_node = self._new_node(NodeType.ENDIF, condition['src'])
+        endif_node = self._new_node(NodeType.ENDIF, node.source_mapping)
 
         for father in node.fathers:
             father.remove_son(node)
