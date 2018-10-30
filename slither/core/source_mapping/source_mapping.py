@@ -69,10 +69,10 @@ class SourceMapping(Context):
     def source_mapping_str(self):
         lines = self.source_mapping['lines']
         if not lines:
-            lines = '[source code not found]'
+            lines = ''
         elif len(lines) == 1:
-            lines = '{}'.format(lines[0])
+            lines = '#{}'.format(lines[0])
         else:
-            lines = '{}-{}'.format(lines[0], lines[-1])
-        return '{}#{}'.format(self.source_mapping['filename'], lines)
+            lines = '#{}-{}'.format(lines[0], lines[-1])
+        return '{}{}'.format(self.source_mapping['filename'], lines)
 
