@@ -62,7 +62,10 @@ class SourceMapping(Context):
         return {'start':s, 'length':l, 'filename': filename, 'lines' : lines }
 
     def set_offset(self, offset, slither):
-        self._source_mapping = self._convert_source_mapping(offset, slither)
+        if isinstance(offset, dict):
+            self._source_mapping = offset
+        else:
+            self._source_mapping = self._convert_source_mapping(offset, slither)
 
 
     @property
