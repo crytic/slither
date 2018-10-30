@@ -2,7 +2,7 @@ import sys
 from slither import Slither
 
 if len(sys.argv) != 2:
-    print('python.py slithIR.py contract.sol')
+    print('python slithIR.py contract.sol')
     exit(-1)
 
 # Init slither

@@ -2,7 +2,7 @@ import sys
 from slither.slither import Slither
 
 if len(sys.argv) != 2:
-    print('python.py function_writing.py functions_writing.sol')
+    print('python function_writing.py functions_writing.sol')
     exit(-1)
 
 # Init slither
