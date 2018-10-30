@@ -22,7 +22,9 @@ class ConstantPragma(AbstractDetector):
         versions = list(set(versions))
 
         if len(versions) > 1:
-            info = "Different version of Solidity used in {}: {}".format(self.filename, versions)
+            info = "\nDifferent version of Solidity used in {}:\n".format(self.filename)
+            for p in pragma:
+                info += "\t- {} uses {}\n".format(p.source_mapping_str, str(p))
             self.log(info)
 
             source = [p.source_mapping for p in pragma]

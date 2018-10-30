@@ -1,3 +1,4 @@
+import os
 import json
 import re
 import logging
@@ -114,6 +115,13 @@ class SlitherSolc(Slither):
                 sourceUnit = int(sourceUnit[0])
 
         self._source_units[sourceUnit] = name
+
+        if os.path.isfile(name):
+            with open(name) as f:
+                source_code = f.read()
+            self.source_code[name] = source_code
+
+
 
     def _analyze_contracts(self):
         if self._analyzed:
