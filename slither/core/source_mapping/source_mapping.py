@@ -51,6 +51,8 @@ class SourceMapping(Context):
         f = int(f)
 
         if f not in sourceUnits:
+            print(f)
+            print(sourceUnits)
             return {'start':s, 'length':l}
         filename = sourceUnits[f]
 
