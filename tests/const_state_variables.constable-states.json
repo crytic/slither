@@ -1,0 +1,64 @@
+[
+    {
+        "vuln": "ConstStateVariableCandidates",
+        "sourceMapping": [
+            {
+                "start": 130,
+                "length": 76,
+                "filename": "tests/const_state_variables.sol"
+            },
+            {
+                "start": 235,
+                "length": 20,
+                "filename": "tests/const_state_variables.sol"
+            },
+            {
+                "start": 331,
+                "length": 20,
+                "filename": "tests/const_state_variables.sol"
+            },
+            {
+                "start": 494,
+                "length": 76,
+                "filename": "tests/const_state_variables.sol"
+            }
+        ],
+        "filename": "tests/const_state_variables.sol",
+        "contract": "B",
+        "unusedVars": [
+            "myFriendsAddress",
+            "test",
+            "text2"
+        ]
+    },
+    {
+        "vuln": "ConstStateVariableCandidates",
+        "sourceMapping": [
+            {
+                "start": 130,
+                "length": 76,
+                "filename": "tests/const_state_variables.sol"
+            },
+            {
+                "start": 235,
+                "length": 20,
+                "filename": "tests/const_state_variables.sol"
+            },
+            {
+                "start": 331,
+                "length": 20,
+                "filename": "tests/const_state_variables.sol"
+            },
+            {
+                "start": 494,
+                "length": 76,
+                "filename": "tests/const_state_variables.sol"
+            }
+        ],
+        "filename": "tests/const_state_variables.sol",
+        "contract": "B",
+        "unusedVars": [
+            "mySistersAddress"
+        ]
+    }
+]
