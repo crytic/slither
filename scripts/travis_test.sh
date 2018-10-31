@@ -2,36 +2,61 @@
 
 ### Test Detectors
 
-# test_slither file.sol detectors number_results
+# test_slither file.sol detectors
 test_slither(){
-    slither "$1" --disable-solc-warnings --detectors "$2"
-    if [ $? -ne "$3" ]; then
-        exit 1
+    expected="tests/$(basename $1 .sol).$2.json"
+    actual="$(basename $1 .sol).$2.json"
+
+    slither "$1" --disable-solc-warnings --detectors "$2" --json tmp.json
+
+    cat tmp.json | python -m json.tool > "$actual"
+    rm tmp.json
+
+    result=$(diff "$expected" "$actual")
+
+    if [ "$result" != "" ]; then
+      rm "$actual"
+      echo "\nfailed test of file: $1, detector: $2\n"
+      echo "$result\n"
+      exit 1
+    else
+      rm "$actual"
     fi
 
-    slither "$1" --disable-solc-warnings --detectors "$2" --compact-ast
-    if [ $? -ne "$3" ]; then
-        exit 1
+    slither "$1" --disable-solc-warnings --detectors "$2" --compact-ast --json tmp.json
+
+    cat tmp.json | python -m json.tool > "$actual"
+    rm tmp.json
+
+    result=$(diff "$expected" "$actual")
+
+    if [ "$result" != "" ]; then
+      rm "$actual"
+      echo "\nfailed test of file: $1, detector: $2\n"
+      echo "$result\n"
+      exit 1
+    else
+      rm "$actual"
     fi
 }
 
-test_slither tests/uninitialized.sol "uninitialized-state" 4
-test_slither tests/backdoor.sol "backdoor" 1
-test_slither tests/backdoor.sol "suicidal" 1
-test_slither tests/pragma.0.4.24.sol "pragma" 1
-test_slither tests/old_solc.sol.json "solc-version" 1
-test_slither tests/reentrancy.sol "reentrancy" 1
-test_slither tests/uninitialized_storage_pointer.sol "uninitialized-storage" 1
-test_slither tests/tx_origin.sol "tx-origin" 2
-test_slither tests/unused_state.sol "unused-state" 1
-test_slither tests/locked_ether.sol "locked-ether" 1
-test_slither tests/arbitrary_send.sol "arbitrary-send" 2
-test_slither tests/inline_assembly_contract.sol "assembly" 1
-test_slither tests/inline_assembly_library.sol "assembly" 2
-test_slither tests/low_level_calls.sol "low-level-calls" 1
-test_slither tests/const_state_variables.sol "constable-states" 2
-test_slither tests/external_function.sol "external-function" 4
-test_slither tests/naming_convention.sol "naming-convention" 12
+test_slither tests/uninitialized.sol "uninitialized-state"
+test_slither tests/backdoor.sol "backdoor"
+test_slither tests/backdoor.sol "suicidal"
+test_slither tests/pragma.0.4.24.sol "pragma"
+test_slither tests/old_solc.sol.json "solc-version"
+test_slither tests/reentrancy.sol "reentrancy"
+test_slither tests/uninitialized_storage_pointer.sol "uninitialized-storage"
+test_slither tests/tx_origin.sol "tx-origin"
+test_slither tests/unused_state.sol "unused-state"
+test_slither tests/locked_ether.sol "locked-ether"
+test_slither tests/arbitrary_send.sol "arbitrary-send"
+test_slither tests/inline_assembly_contract.sol "assembly"
+test_slither tests/inline_assembly_library.sol "assembly"
+test_slither tests/low_level_calls.sol "low-level-calls"
+test_slither tests/const_state_variables.sol "constable-states"
+test_slither tests/external_function.sol "external-function"
+test_slither tests/naming_convention.sol "naming-convention"
 
 ### Test scripts
 
