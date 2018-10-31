@@ -15,5 +15,8 @@ The following is a set of guidelines and helpful pointers for contributing to Sl
 6. Create a new PR in GitHub
 7. Respond to any code review feedback
 
+## Where to Start
+Please refer to our wiki entry on [bounties](https://github.com/trailofbits/slither/wiki#bounties) for details on good first issues and ways to contribute.
+
 ## Getting Help
 For a list of resources and communication channels, please view `Getting Help` section of the [README](https://github.com/trailofbits/slither#getting-help) for list of resources and communication channels.
