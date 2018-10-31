@@ -1,0 +1,20 @@
+[
+    {
+        "vuln": "TxOrigin",
+        "sourceMapping": [
+            null
+        ],
+        "filename": "tests/tx_origin.sol",
+        "contract": "TxOrigin",
+        "function_name": "bug0"
+    },
+    {
+        "vuln": "TxOrigin",
+        "sourceMapping": [
+            null
+        ],
+        "filename": "tests/tx_origin.sol",
+        "contract": "TxOrigin",
+        "function_name": "bug2"
+    }
+]

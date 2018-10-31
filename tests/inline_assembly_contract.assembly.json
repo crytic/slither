@@ -1,0 +1,11 @@
+[
+    {
+        "vuln": "Assembly",
+        "sourceMapping": [
+            null
+        ],
+        "filename": "tests/inline_assembly_contract.sol",
+        "contract": "GetCode",
+        "function_name": "at"
+    }
+]

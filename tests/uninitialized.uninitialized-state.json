@@ -1,0 +1,86 @@
+[
+    {
+        "vuln": "UninitializedStateVars",
+        "sourceMapping": [
+            {
+                "start": 55,
+                "length": 19,
+                "filename": "tests/uninitialized.sol"
+            },
+            {
+                "start": 81,
+                "length": 82,
+                "filename": "tests/uninitialized.sol"
+            }
+        ],
+        "filename": "tests/uninitialized.sol",
+        "contract": "Uninitialized",
+        "functions": [
+            "transfer"
+        ],
+        "variable": "destination"
+    },
+    {
+        "vuln": "UninitializedStateVars",
+        "sourceMapping": [
+            {
+                "start": 189,
+                "length": 34,
+                "filename": "tests/uninitialized.sol"
+            },
+            {
+                "start": 356,
+                "length": 143,
+                "filename": "tests/uninitialized.sol"
+            }
+        ],
+        "filename": "tests/uninitialized.sol",
+        "contract": "Test",
+        "functions": [
+            "use"
+        ],
+        "variable": "balances"
+    },
+    {
+        "vuln": "UninitializedStateVars",
+        "sourceMapping": [
+            {
+                "start": 695,
+                "length": 15,
+                "filename": "tests/uninitialized.sol"
+            },
+            {
+                "start": 875,
+                "length": 117,
+                "filename": "tests/uninitialized.sol"
+            }
+        ],
+        "filename": "tests/uninitialized.sol",
+        "contract": "Test2",
+        "functions": [
+            "use"
+        ],
+        "variable": "st"
+    },
+    {
+        "vuln": "UninitializedStateVars",
+        "sourceMapping": [
+            {
+                "start": 748,
+                "length": 6,
+                "filename": "tests/uninitialized.sol"
+            },
+            {
+                "start": 817,
+                "length": 52,
+                "filename": "tests/uninitialized.sol"
+            }
+        ],
+        "filename": "tests/uninitialized.sol",
+        "contract": "Test2",
+        "functions": [
+            "init"
+        ],
+        "variable": "v"
+    }
+]

@@ -1,0 +1,11 @@
+[
+    {
+        "vuln": "Low level call",
+        "sourceMapping": [
+            null
+        ],
+        "filename": "tests/low_level_calls.sol",
+        "contract": "Sender",
+        "function_name": "send"
+    }
+]
