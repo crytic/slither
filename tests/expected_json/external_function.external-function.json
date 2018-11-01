@@ -2,11 +2,11 @@
     {
         "contract": "ContractWithFunctionNotCalled",
         "filename": "tests/external_function.sol",
-        "func": "funcNotCalled3",
+        "func": "funcNotCalled",
         "sourceMapping": {
             "filename": "tests/external_function.sol",
-            "length": 41,
-            "start": 257
+            "length": 40,
+            "start": 351
         },
         "vuln": "ExternalFunc"
     },
@@ -24,11 +24,11 @@
     {
         "contract": "ContractWithFunctionNotCalled",
         "filename": "tests/external_function.sol",
-        "func": "funcNotCalled",
+        "func": "funcNotCalled3",
         "sourceMapping": {
             "filename": "tests/external_function.sol",
-            "length": 40,
-            "start": 351
+            "length": 41,
+            "start": 257
         },
         "vuln": "ExternalFunc"
     },
