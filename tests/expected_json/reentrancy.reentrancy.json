@@ -2,25 +2,25 @@
     {
         "calls": [
             "! (msg.sender.call.value(userBalance[msg.sender])())"
-        ], 
-        "contract": "Reentrancy", 
-        "filename": "tests/reentrancy.sol", 
-        "function_name": "withdrawBalance()", 
+        ],
+        "contract": "Reentrancy",
+        "filename": "tests/reentrancy.sol",
+        "function_name": "withdrawBalance()",
         "send_eth": [
             "! (msg.sender.call.value(userBalance[msg.sender])())"
-        ], 
+        ],
         "sourceMapping": [
             {
-                "filename": "tests/reentrancy.sol", 
-                "length": 37, 
+                "filename": "tests/reentrancy.sol",
+                "length": 37,
                 "start": 52
-            }, 
-            null, 
+            },
+            null,
             null
-        ], 
+        ],
         "varsWritten": [
             "userBalance"
-        ], 
+        ],
         "vuln": "Reentrancy"
     }
 ]

@@ -1,11 +1,11 @@
 [
     {
-        "contract": "C", 
+        "contract": "C",
         "sourceMapping": {
-            "filename": "tests/backdoor.sol", 
-            "length": 74, 
+            "filename": "tests/backdoor.sol",
+            "length": 74,
             "start": 42
-        }, 
+        },
         "vuln": "backdoor"
     }
 ]
