@@ -42,7 +42,7 @@ class NamingConvention(AbstractDetector):
     def detect(self):
 
         results = []
-        for contract in self.contracts:
+        for contract in sorted(self.contracts, key=lambda c: c.name):
 
             if not self.is_cap_words(contract.name):
                 info = "Contract '{}' is not in CapWords".format(contract.name)
@@ -53,7 +53,7 @@ class NamingConvention(AbstractDetector):
                                 'contract': contract.name,
                                 'sourceMapping': contract.source_mapping})
 
-            for struct in contract.structures:
+            for struct in sorted(contract.structures, key=lambda x: x.name):
                 if struct.contract != contract:
                     continue
 
@@ -67,7 +67,7 @@ class NamingConvention(AbstractDetector):
                                     'struct': struct.name,
                                     'sourceMapping': struct.source_mapping})
 
-            for event in contract.events:
+            for event in sorted(contract.events, key=lambda x: x.name):
                 if event.contract != contract:
                     continue
 
@@ -81,7 +81,7 @@ class NamingConvention(AbstractDetector):
                                     'event': event.name,
                                     'sourceMapping': event.source_mapping})
 
-            for func in contract.functions:
+            for func in sorted(contract.functions, key=lambda x: x.name):
                 if func.contract != contract:
                     continue
 
@@ -95,7 +95,7 @@ class NamingConvention(AbstractDetector):
                                     'function': func.name,
                                     'sourceMapping': func.source_mapping})
 
-                for argument in func.parameters:
+                for argument in sorted(func.parameters, key=lambda x: x.name):
                     if argument in func.variables_read_or_written:
                         correct_naming = self.is_mixed_case(argument.name)
                     else:
@@ -112,7 +112,7 @@ class NamingConvention(AbstractDetector):
                                         'argument': argument.name,
                                         'sourceMapping': argument.source_mapping})
 
-            for var in contract.state_variables:
+            for var in sorted(contract.state_variables, key=lambda x: x.name):
                 if var.contract != contract:
                     continue
 
@@ -158,7 +158,7 @@ class NamingConvention(AbstractDetector):
                                         'variable': var.name,
                                         'sourceMapping': var.source_mapping})
 
-            for enum in contract.enums:
+            for enum in sorted(contract.enums, key=lambda x: x.name):
                 if enum.contract != contract:
                     continue
 
@@ -172,7 +172,7 @@ class NamingConvention(AbstractDetector):
                                     'enum': enum.name,
                                     'sourceMapping': enum.source_mapping})
 
-            for modifier in contract.modifiers:
+            for modifier in sorted(contract.modifiers, key=lambda x: x.name):
                 if modifier.contract != contract:
                     continue
 

@@ -54,12 +54,12 @@ class ConstCandidateStateVars(AbstractDetector):
         """ Detect state variables that could be const
         """
         results = []
-        for c in self.slither.contracts_derived:
+        for c in sorted(self.slither.contracts_derived, key=lambda c: c.name):
             const_candidates = self.detect_const_candidates(c)
             if const_candidates:
                 variables_by_contract = defaultdict(list)
 
-                for state_var in const_candidates:
+                for state_var in sorted(const_candidates, key=lambda x: (x.contract.name, x.name)):
                     variables_by_contract[state_var.contract.name].append(state_var)
 
                 for contract, variables in variables_by_contract.items():
