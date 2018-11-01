@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # generate_expected_json file.sol detectors
 generate_expected_json(){
     # generate output filename
@@ -8,13 +10,13 @@ generate_expected_json(){
     output_filename="$(basename $1 .sol).$2.json"
 
     # run slither detector on input file and save output as json
-    slither "$1" --disable-solc-warnings --detectors "$2" --json "$output_filename"
+    slither "$1" --disable-solc-warnings --detectors "$2" --json "$DIR/tmp-gen.json"
 
-    # beautify json and move to test/
-    cat "$output_filename" | python -m json.tool > tests/$output_filename
+    # convert json file to pretty print and write to destination folder
+    cat "$DIR/tmp-gen.json" | python -m json.tool > "$DIR/../tests/expected_json/$output_filename"
 
-    # rm original un-beautified json file
-    rm $output_filename
+    # remove the raw un-prettified json file
+    rm "$DIR/tmp-gen.json"
 }
 
 generate_expected_json tests/uninitialized.sol "uninitialized-state"
