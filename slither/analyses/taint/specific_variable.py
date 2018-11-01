@@ -15,9 +15,7 @@ from .common import iterate_over_irs
 
 def make_key(variable):
     if isinstance(variable, Variable):
-        key = 'TAINT_{}{}{}'.format(variable.contract.name,
-                                    variable.name,
-                                    str(type(variable)))
+        key = 'TAINT_{}'.format(id(variable))
     else:
         assert isinstance(variable, SolidityVariable)
         key = 'TAINT_{}{}'.format(variable.name,
