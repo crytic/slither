@@ -127,7 +127,7 @@ def get_detectors_and_printers():
                  LowLevelCalls,
                  NamingConvention,
                  ConstCandidateStateVars,
-                 ComplexFunction,
+                 #ComplexFunction,
                  ExternalFunction]
 
     from slither.printers.summary.function import FunctionSummary
