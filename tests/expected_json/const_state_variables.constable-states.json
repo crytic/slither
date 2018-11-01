@@ -1,64 +1,64 @@
 [
     {
-        "contract": "B", 
-        "filename": "tests/const_state_variables.sol", 
+        "contract": "B",
+        "filename": "tests/const_state_variables.sol",
         "sourceMapping": [
             {
-                "filename": "tests/const_state_variables.sol", 
-                "length": 76, 
+                "filename": "tests/const_state_variables.sol",
+                "length": 76,
                 "start": 130
-            }, 
+            },
             {
-                "filename": "tests/const_state_variables.sol", 
-                "length": 20, 
+                "filename": "tests/const_state_variables.sol",
+                "length": 20,
                 "start": 235
-            }, 
+            },
             {
-                "filename": "tests/const_state_variables.sol", 
-                "length": 20, 
+                "filename": "tests/const_state_variables.sol",
+                "length": 20,
                 "start": 331
-            }, 
+            },
             {
-                "filename": "tests/const_state_variables.sol", 
-                "length": 76, 
+                "filename": "tests/const_state_variables.sol",
+                "length": 76,
                 "start": 494
             }
-        ], 
+        ],
         "unusedVars": [
-            "myFriendsAddress", 
-            "test", 
+            "myFriendsAddress",
+            "test",
             "text2"
-        ], 
+        ],
         "vuln": "ConstStateVariableCandidates"
-    }, 
+    },
     {
-        "contract": "B", 
-        "filename": "tests/const_state_variables.sol", 
+        "contract": "B",
+        "filename": "tests/const_state_variables.sol",
         "sourceMapping": [
             {
-                "filename": "tests/const_state_variables.sol", 
-                "length": 76, 
+                "filename": "tests/const_state_variables.sol",
+                "length": 76,
                 "start": 130
-            }, 
+            },
             {
-                "filename": "tests/const_state_variables.sol", 
-                "length": 20, 
+                "filename": "tests/const_state_variables.sol",
+                "length": 20,
                 "start": 235
-            }, 
+            },
             {
-                "filename": "tests/const_state_variables.sol", 
-                "length": 20, 
+                "filename": "tests/const_state_variables.sol",
+                "length": 20,
                 "start": 331
-            }, 
+            },
             {
-                "filename": "tests/const_state_variables.sol", 
-                "length": 76, 
+                "filename": "tests/const_state_variables.sol",
+                "length": 76,
                 "start": 494
             }
-        ], 
+        ],
         "unusedVars": [
             "mySistersAddress"
-        ], 
+        ],
         "vuln": "ConstStateVariableCandidates"
     }
 ]

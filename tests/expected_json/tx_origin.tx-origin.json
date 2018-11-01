@@ -1,20 +1,20 @@
 [
     {
-        "contract": "TxOrigin", 
-        "filename": "tests/tx_origin.sol", 
-        "function_name": "bug0", 
+        "contract": "TxOrigin",
+        "filename": "tests/tx_origin.sol",
+        "function_name": "bug0",
         "sourceMapping": [
             null
-        ], 
+        ],
         "vuln": "TxOrigin"
-    }, 
+    },
     {
-        "contract": "TxOrigin", 
-        "filename": "tests/tx_origin.sol", 
-        "function_name": "bug2", 
+        "contract": "TxOrigin",
+        "filename": "tests/tx_origin.sol",
+        "function_name": "bug2",
         "sourceMapping": [
             null
-        ], 
+        ],
         "vuln": "TxOrigin"
     }
 ]
