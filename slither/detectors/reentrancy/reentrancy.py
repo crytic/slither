@@ -176,7 +176,7 @@ class Reentrancy(AbstractDetector):
 
         results = []
 
-        for (contract, func, calls, send_eth), varsWritten in self.result.items():
+        for (contract, func, calls, send_eth), varsWritten in sorted(self.result.items(), key=lambda x: (x[0][0], x[0][1], str(list(x[0][2])) )):
             varsWritten_str = list(set([str(x) for x in list(varsWritten)]))
             calls_str = list(set([str(x.expression) for x in list(calls)]))
             send_eth_str = list(set([str(x.expression) for x in list(send_eth)]))

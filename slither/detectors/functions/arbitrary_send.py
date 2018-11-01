@@ -33,7 +33,7 @@ class ArbitrarySend(AbstractDetector):
 
     @staticmethod
     def arbitrary_send(func):
-        """ 
+        """
         """
         if func.is_protected():
             return []
@@ -94,9 +94,9 @@ class ArbitrarySend(AbstractDetector):
         taint = SolidityVariableComposed('msg.sender')
         run_taint_variable(self.slither, taint)
 
-        for c in self.contracts:
+        for c in sorted(self.contracts, key=lambda c: c.name):
             arbitrary_send = self.detect_arbitrary_send(c)
-            for (func, nodes) in arbitrary_send:
+            for (func, nodes) in sorted(arbitrary_send, key=lambda v: v[0].name):
                 func_name = func.name
                 calls_str = [str(node.expression) for node in nodes]
 

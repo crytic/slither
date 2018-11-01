@@ -79,7 +79,7 @@ class UninitializedStorageVars(AbstractDetector):
                     function.entry_point.context[self.key] = uninitialized_storage_variables
                     self._detect_uninitialized(function, function.entry_point, [])
 
-        for(function, uninitialized_storage_variable) in self.results:
+        for(function, uninitialized_storage_variable) in sorted(self.results, key=lambda r: (r[0].contract.name, r[0].name, r[1].name)):
             var_name = uninitialized_storage_variable.name
 
             info = "Uninitialized storage variables in %s, " % self.filename + \

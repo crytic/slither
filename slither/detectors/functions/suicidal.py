@@ -51,9 +51,9 @@ class Suicidal(AbstractDetector):
         """ Detect the suicidal functions
         """
         results = []
-        for c in self.contracts:
+        for c in sorted(self.contracts, key=lambda c: c.name):
             functions = self.detect_suicidal(c)
-            for func in functions:
+            for func in sorted(functions, key=lambda x: x.name):
                 func_name = func.name
 
                 txt = "Suicidal function in {} Contract: {}, Function: {}"

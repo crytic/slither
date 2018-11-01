@@ -14,9 +14,9 @@ class Backdoor(AbstractDetector):
     def detect(self):
         ret = []
 
-        for contract in self.slither.contracts_derived:
+        for contract in sorted(self.slither.contracts_derived, key=lambda c: c.name):
             # Check if a function has 'backdoor' in its name
-            for f in contract.functions:
+            for f in sorted(contract.functions, key=lambda x: x.name):
                 if 'backdoor' in f.name:
                     # Info to be printed
                     info = 'Backdoor function found in {}.{}'.format(contract.name, f.name)

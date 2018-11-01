@@ -69,9 +69,9 @@ class UninitializedStateVarsDetection(AbstractDetector):
             dict: [contract name] = set(state variable uninitialized)
         """
         results = []
-        for c in self.slither.contracts_derived:
+        for c in sorted(self.slither.contracts_derived, key=lambda c: c.name):
             ret = self.detect_uninitialized(c)
-            for variable, functions in ret:
+            for variable, functions in sorted(ret, key=lambda r: str(r[0])):
                 info = "Uninitialized state variable in %s, " % self.filename + \
                        "Contract: %s, Variable: %s, Used in %s" % (c.name,
                                                                    str(variable),

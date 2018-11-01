@@ -46,14 +46,14 @@ class ExternalFunction(AbstractDetector):
 
         public_function_calls = []
 
-        for contract in self.slither.contracts_derived:
+        for contract in sorted(self.slither.contracts_derived, key=lambda c: c.name):
             if self._contains_internal_dynamic_call(contract):
                 continue
 
             func_list = self.detect_functions_called(contract)
             public_function_calls.extend(func_list)
 
-            for func in [f for f in contract.functions if f.visibility == 'public' and\
+            for func in [f for f in sorted(contract.functions, key=lambda x: x.name) if f.visibility == 'public' and\
                                                            not f in public_function_calls and\
                                                            not f.is_constructor]:
                 func_name = func.name
