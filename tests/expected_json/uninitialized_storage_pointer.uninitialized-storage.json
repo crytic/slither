@@ -1,0 +1,21 @@
+[
+    {
+        "contract": "Uninitialized",
+        "filename": "tests/uninitialized_storage_pointer.sol",
+        "function": "func",
+        "sourceMapping": [
+            {
+                "filename": "tests/uninitialized_storage_pointer.sol",
+                "length": 138,
+                "start": 67
+            },
+            {
+                "filename": "tests/uninitialized_storage_pointer.sol",
+                "length": 9,
+                "start": 171
+            }
+        ],
+        "variable": "st_bug",
+        "vuln": "UninitializedStorageVars"
+    }
+]
