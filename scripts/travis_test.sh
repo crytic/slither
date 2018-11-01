@@ -2,38 +2,54 @@
 
 ### Test Detectors
 
+DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # test_slither file.sol detectors
 test_slither(){
-    expected="tests/$(basename $1 .sol).$2.json"
-    actual="$(basename $1 .sol).$2.json"
+    expected="$DIR/../tests/expected_json/$(basename $1 .sol).$2.json"
+    actual="$DIR/$(basename $1 .sol).$2.json"
 
-    slither "$1" --disable-solc-warnings --detectors "$2" --json tmp.json
+    # run slither detector on input file and save output as json
+    slither "$1" --disable-solc-warnings --detectors "$2" --json "$DIR/tmp-test.json"
 
-    cat tmp.json | python -m json.tool > "$actual"
-    rm tmp.json
+    # convert json file to pretty print and write to destination folder
+    cat "$DIR/tmp-test.json" | python -m json.tool > "$actual"
+
+    # remove the raw un-prettified json file
+    rm "$DIR/tmp-test.json"
 
     result=$(diff "$expected" "$actual")
 
     if [ "$result" != "" ]; then
       rm "$actual"
-      echo "\nfailed test of file: $1, detector: $2\n"
-      echo "$result\n"
+      echo ""
+      echo "failed test of file: $1, detector: $2"
+      echo ""
+      echo "$result"
+      echo ""
       exit 1
     else
       rm "$actual"
     fi
 
-    slither "$1" --disable-solc-warnings --detectors "$2" --compact-ast --json tmp.json
+    # run slither detector on input file and save output as json
+    slither "$1" --disable-solc-warnings --detectors "$2" --compact-ast --json "$DIR/tmp-test.json"
 
-    cat tmp.json | python -m json.tool > "$actual"
-    rm tmp.json
+    # convert json file to pretty print and write to destination folder
+    cat "$DIR/tmp-test.json" | python -m json.tool > "$actual"
+
+    # remove the raw un-prettified json file
+    rm "$DIR/tmp-test.json"
 
     result=$(diff "$expected" "$actual")
 
     if [ "$result" != "" ]; then
       rm "$actual"
-      echo "\nfailed test of file: $1, detector: $2\n"
-      echo "$result\n"
+      echo ""
+      echo "failed test of file: $1, detector: $2"
+      echo ""
+      echo "$result"
+      echo ""
       exit 1
     else
       rm "$actual"
