@@ -1,5 +1,39 @@
 [
     {
+        "argument": "_used",
+        "contract": "T",
+        "filename": "tests/naming_convention.sol",
+        "function": "test",
+        "sourceMapping": {
+            "filename": "tests/naming_convention.sol",
+            "length": 10,
+            "start": 748
+        },
+        "vuln": "NamingConvention"
+    },
+    {
+        "contract": "T",
+        "filename": "tests/naming_convention.sol",
+        "sourceMapping": {
+            "filename": "tests/naming_convention.sol",
+            "length": 17,
+            "start": 695
+        },
+        "variable": "_myPublicVar",
+        "vuln": "NamingConvention"
+    },
+    {
+        "constant": "l",
+        "contract": "T",
+        "filename": "tests/naming_convention.sol",
+        "sourceMapping": {
+            "filename": "tests/naming_convention.sol",
+            "length": 10,
+            "start": 847
+        },
+        "vuln": "NamingConvention"
+    },
+    {
         "contract": "naming",
         "filename": "tests/naming_convention.sol",
         "sourceMapping": {
@@ -91,40 +125,6 @@
             "filename": "tests/naming_convention.sol",
             "length": 36,
             "start": 545
-        },
-        "vuln": "NamingConvention"
-    },
-    {
-        "argument": "_used",
-        "contract": "T",
-        "filename": "tests/naming_convention.sol",
-        "function": "test",
-        "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 10,
-            "start": 748
-        },
-        "vuln": "NamingConvention"
-    },
-    {
-        "contract": "T",
-        "filename": "tests/naming_convention.sol",
-        "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 17,
-            "start": 695
-        },
-        "variable": "_myPublicVar",
-        "vuln": "NamingConvention"
-    },
-    {
-        "constant": "l",
-        "contract": "T",
-        "filename": "tests/naming_convention.sol",
-        "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 10,
-            "start": 847
         },
         "vuln": "NamingConvention"
     }
