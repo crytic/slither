@@ -1,46 +1,46 @@
 [
     {
-        "contract": "ContractWithFunctionNotCalled",
-        "filename": "tests/external_function.sol",
-        "func": "funcNotCalled",
+        "contract": "ContractWithFunctionNotCalled", 
+        "filename": "tests/external_function.sol", 
+        "func": "funcNotCalled", 
         "sourceMapping": {
-            "filename": "tests/external_function.sol",
-            "length": 40,
+            "filename": "tests/external_function.sol", 
+            "length": 40, 
             "start": 351
-        },
+        }, 
         "vuln": "ExternalFunc"
-    },
+    }, 
     {
-        "contract": "ContractWithFunctionNotCalled",
-        "filename": "tests/external_function.sol",
-        "func": "funcNotCalled2",
+        "contract": "ContractWithFunctionNotCalled", 
+        "filename": "tests/external_function.sol", 
+        "func": "funcNotCalled2", 
         "sourceMapping": {
-            "filename": "tests/external_function.sol",
-            "length": 41,
+            "filename": "tests/external_function.sol", 
+            "length": 41, 
             "start": 304
-        },
+        }, 
         "vuln": "ExternalFunc"
-    },
+    }, 
     {
-        "contract": "ContractWithFunctionNotCalled",
-        "filename": "tests/external_function.sol",
-        "func": "funcNotCalled3",
+        "contract": "ContractWithFunctionNotCalled", 
+        "filename": "tests/external_function.sol", 
+        "func": "funcNotCalled3", 
         "sourceMapping": {
-            "filename": "tests/external_function.sol",
-            "length": 41,
+            "filename": "tests/external_function.sol", 
+            "length": 41, 
             "start": 257
-        },
+        }, 
         "vuln": "ExternalFunc"
-    },
+    }, 
     {
-        "contract": "ContractWithFunctionNotCalled2",
-        "filename": "tests/external_function.sol",
-        "func": "funcNotCalled",
+        "contract": "ContractWithFunctionNotCalled2", 
+        "filename": "tests/external_function.sol", 
+        "func": "funcNotCalled", 
         "sourceMapping": {
-            "filename": "tests/external_function.sol",
-            "length": 304,
+            "filename": "tests/external_function.sol", 
+            "length": 304, 
             "start": 552
-        },
+        }, 
         "vuln": "ExternalFunc"
     }
 ]

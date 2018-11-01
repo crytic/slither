@@ -1,131 +1,131 @@
 [
     {
-        "argument": "_used",
-        "contract": "T",
-        "filename": "tests/naming_convention.sol",
-        "function": "test",
+        "argument": "_used", 
+        "contract": "T", 
+        "filename": "tests/naming_convention.sol", 
+        "function": "test", 
         "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 10,
+            "filename": "tests/naming_convention.sol", 
+            "length": 10, 
             "start": 748
-        },
+        }, 
         "vuln": "NamingConvention"
-    },
+    }, 
     {
-        "contract": "T",
-        "filename": "tests/naming_convention.sol",
+        "contract": "T", 
+        "filename": "tests/naming_convention.sol", 
         "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 17,
+            "filename": "tests/naming_convention.sol", 
+            "length": 17, 
             "start": 695
-        },
-        "variable": "_myPublicVar",
+        }, 
+        "variable": "_myPublicVar", 
         "vuln": "NamingConvention"
-    },
+    }, 
     {
-        "constant": "l",
-        "contract": "T",
-        "filename": "tests/naming_convention.sol",
+        "constant": "l", 
+        "contract": "T", 
+        "filename": "tests/naming_convention.sol", 
         "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 10,
+            "filename": "tests/naming_convention.sol", 
+            "length": 10, 
             "start": 847
-        },
+        }, 
         "vuln": "NamingConvention"
-    },
+    }, 
     {
-        "contract": "naming",
-        "filename": "tests/naming_convention.sol",
+        "contract": "naming", 
+        "filename": "tests/naming_convention.sol", 
         "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 598,
+            "filename": "tests/naming_convention.sol", 
+            "length": 598, 
             "start": 26
-        },
+        }, 
         "vuln": "NamingConvention"
-    },
+    }, 
     {
-        "contract": "naming",
-        "filename": "tests/naming_convention.sol",
+        "contract": "naming", 
+        "filename": "tests/naming_convention.sol", 
         "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 20,
+            "filename": "tests/naming_convention.sol", 
+            "length": 20, 
             "start": 227
-        },
-        "struct": "test",
+        }, 
+        "struct": "test", 
         "vuln": "NamingConvention"
-    },
+    }, 
     {
-        "contract": "naming",
-        "event": "event_",
-        "filename": "tests/naming_convention.sol",
-        "sourceMapping": null,
+        "contract": "naming", 
+        "event": "event_", 
+        "filename": "tests/naming_convention.sol", 
+        "sourceMapping": null, 
         "vuln": "NamingConvention"
-    },
+    }, 
     {
-        "contract": "naming",
-        "filename": "tests/naming_convention.sol",
-        "function": "GetOne",
+        "contract": "naming", 
+        "filename": "tests/naming_convention.sol", 
+        "function": "GetOne", 
         "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 71,
+            "filename": "tests/naming_convention.sol", 
+            "length": 71, 
             "start": 405
-        },
+        }, 
         "vuln": "NamingConvention"
-    },
+    }, 
     {
-        "argument": "Number2",
-        "contract": "naming",
-        "filename": "tests/naming_convention.sol",
-        "function": "setInt",
+        "argument": "Number2", 
+        "contract": "naming", 
+        "filename": "tests/naming_convention.sol", 
+        "function": "setInt", 
         "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 12,
+            "filename": "tests/naming_convention.sol", 
+            "length": 12, 
             "start": 512
-        },
+        }, 
         "vuln": "NamingConvention"
-    },
+    }, 
     {
-        "constant": "MY_other_CONSTANT",
-        "contract": "naming",
-        "filename": "tests/naming_convention.sol",
+        "constant": "MY_other_CONSTANT", 
+        "contract": "naming", 
+        "filename": "tests/naming_convention.sol", 
         "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 35,
+            "filename": "tests/naming_convention.sol", 
+            "length": 35, 
             "start": 141
-        },
+        }, 
         "vuln": "NamingConvention"
-    },
+    }, 
     {
-        "contract": "naming",
-        "filename": "tests/naming_convention.sol",
+        "contract": "naming", 
+        "filename": "tests/naming_convention.sol", 
         "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 16,
+            "filename": "tests/naming_convention.sol", 
+            "length": 16, 
             "start": 183
-        },
-        "variable": "Var_One",
+        }, 
+        "variable": "Var_One", 
         "vuln": "NamingConvention"
-    },
+    }, 
     {
-        "contract": "naming",
-        "enum": "numbers",
-        "filename": "tests/naming_convention.sol",
+        "contract": "naming", 
+        "enum": "numbers", 
+        "filename": "tests/naming_convention.sol", 
         "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 23,
+            "filename": "tests/naming_convention.sol", 
+            "length": 23, 
             "start": 77
-        },
+        }, 
         "vuln": "NamingConvention"
-    },
+    }, 
     {
-        "contract": "naming",
-        "filename": "tests/naming_convention.sol",
-        "modifier": "CantDo",
+        "contract": "naming", 
+        "filename": "tests/naming_convention.sol", 
+        "modifier": "CantDo", 
         "sourceMapping": {
-            "filename": "tests/naming_convention.sol",
-            "length": 36,
+            "filename": "tests/naming_convention.sol", 
+            "length": 36, 
             "start": 545
-        },
+        }, 
         "vuln": "NamingConvention"
     }
 ]
