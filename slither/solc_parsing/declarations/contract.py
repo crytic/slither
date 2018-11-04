@@ -234,9 +234,14 @@ class ContractSolc04(Contract):
             self._variables[var.name] = var
 
     def analyze_constant_state_variables(self):
+        from slither.solc_parsing.expressions.expression_parsing import VariableNotFound
         for var in self.variables:
             if var.is_constant:
-                var.analyze(self)
+                # cant parse constant expression based on function calls
+                try:
+                    var.analyze(self)
+                except VariableNotFound:
+                    pass
         return
 
     def analyze_state_variables(self):
