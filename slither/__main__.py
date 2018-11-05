@@ -101,6 +101,7 @@ def get_detectors_and_printers():
     from slither.detectors.attributes.locked_ether import LockedEther
     from slither.detectors.functions.arbitrary_send import ArbitrarySend
     from slither.detectors.functions.suicidal import Suicidal
+    from slither.detectors.functions.complex_function import ComplexFunction
     from slither.detectors.reentrancy.reentrancy import Reentrancy
     from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
     from slither.detectors.variables.unused_state_variables import UnusedStateVars
@@ -126,6 +127,7 @@ def get_detectors_and_printers():
                  LowLevelCalls,
                  NamingConvention,
                  ConstCandidateStateVars,
+                 #ComplexFunction,
                  ExternalFunction]
 
     from slither.printers.summary.function import FunctionSummary
