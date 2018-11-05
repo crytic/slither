@@ -75,7 +75,7 @@ def order_by_prop_value(list_of_dicts):
 def order_list(l):
     # TODO: sometimes slither detectors return a null value in the json output sourceMapping object array
     # get rid of those values, it will break sorting (some items are an object, some are null?!)
-    l = list(filter(None, list))
+    l = list(filter(None, l))
     if not l:
         return []
     if isinstance(l[0], basestring): # it's a list of string
