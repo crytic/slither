@@ -2,7 +2,7 @@ import sys
 from slither.slither import Slither
 
 if len(sys.argv) != 2:
-    print('python.py variable_in_condition.py variable_in_condition.sol')
+    print('python variable_in_condition.py variable_in_condition.sol')
     exit(-1)
 
 # Init slither
