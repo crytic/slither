@@ -4,7 +4,7 @@ class Import(SourceMapping):
 
     def __init__(self, filename):
         super(Import, self).__init__()
-        self._fimename = filename
+        self._filename = filename
 
     @property
     def filename(self):

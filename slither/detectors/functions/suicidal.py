@@ -16,6 +16,8 @@ class Suicidal(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#suicidal'
+
     @staticmethod
     def detect_suicidal_func(func):
         """ Detect if the function is suicidal

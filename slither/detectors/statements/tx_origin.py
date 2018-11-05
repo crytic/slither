@@ -14,6 +14,8 @@ class TxOrigin(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#dangerous-usage-of-txorigin'
+
     @staticmethod
     def _contains_incorrect_tx_origin_use(node):
         """

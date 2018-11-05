@@ -16,6 +16,8 @@ class LowLevelCalls(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#low-level-calls'
+
     @staticmethod
     def _contains_low_level_calls(node):
         """
@@ -39,12 +41,13 @@ class LowLevelCalls(AbstractDetector):
         """ Detect the functions that use low level calls
         """
         results = []
+        all_info = ''
         for c in self.contracts:
             values = self.detect_low_level_calls(c)
             for func, nodes in values:
                 info = "Low level call in {}.{} ({})\n"
                 info = info.format(func.contract.name, func.name, func.source_mapping_str)
-                self.log(info)
+                all_info += info
 
                 sourceMapping = [n.source_mapping for n in nodes]
 
@@ -54,4 +57,6 @@ class LowLevelCalls(AbstractDetector):
                                 'contract': func.contract.name,
                                 'function_name': func.name})
 
+        if all_info != '':
+            self.log(all_info)
         return results

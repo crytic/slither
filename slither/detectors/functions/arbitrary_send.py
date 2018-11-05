@@ -31,6 +31,8 @@ class ArbitrarySend(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#functions-that-send-ether-to-arbitrary-destinations'
+
     @staticmethod
     def arbitrary_send(func):
         """ 

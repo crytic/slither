@@ -17,6 +17,8 @@ class LockedEther(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#contracts-that-lock-ether'
+
     @staticmethod
     def do_no_send_ether(contract):
         functions = contract.all_functions_called

@@ -16,6 +16,8 @@ class OldSolc(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#old-versions-of-solidity'
+
     @staticmethod
     def _convert_pragma(version):
         return version.replace('solidity', '').replace('^', '')

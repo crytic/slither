@@ -21,6 +21,8 @@ class Reentrancy(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities'
+
     key = 'REENTRANCY'
 
     @staticmethod

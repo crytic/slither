@@ -19,6 +19,7 @@ class UninitializedStorageVars(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-storage-variables'
 
     # node.context[self.key] contains the uninitialized storage variables
     key = "UNINITIALIZEDSTORAGE"
