@@ -66,7 +66,7 @@ def get_props_info(list_of_dicts):
                             prop_types[p] = 'string'
                         elif isinstance(d[p], int):
                             prop_types[p] = 'number'
-    return (list(shared_props), prop_types)
+    return (sorted(list(shared_props)), prop_types)
 
 def order_by_prop_value(list_of_dicts):
     props_info = get_props_info(list_of_dicts)
