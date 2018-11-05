@@ -21,6 +21,27 @@
         "vuln": "UninitializedStateVars"
     },
     {
+        "contract": "Uninitialized",
+        "filename": "tests/uninitialized.sol",
+        "functions": [
+            "transfer"
+        ],
+        "sourceMapping": [
+            {
+                "filename": "tests/uninitialized.sol",
+                "length": 19,
+                "start": 55
+            },
+            {
+                "filename": "tests/uninitialized.sol",
+                "length": 82,
+                "start": 81
+            }
+        ],
+        "variable": "destination",
+        "vuln": "UninitializedStateVars"
+    },
+    {
         "contract": "Test2",
         "filename": "tests/uninitialized.sol",
         "functions": [
@@ -60,27 +81,6 @@
             }
         ],
         "variable": "v",
-        "vuln": "UninitializedStateVars"
-    },
-    {
-        "contract": "Uninitialized",
-        "filename": "tests/uninitialized.sol",
-        "functions": [
-            "transfer"
-        ],
-        "sourceMapping": [
-            {
-                "filename": "tests/uninitialized.sol",
-                "length": 19,
-                "start": 55
-            },
-            {
-                "filename": "tests/uninitialized.sol",
-                "length": 82,
-                "start": 81
-            }
-        ],
-        "variable": "destination",
         "vuln": "UninitializedStateVars"
     }
 ]

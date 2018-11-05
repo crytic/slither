@@ -6,9 +6,7 @@
         "contract": "Test",
         "filename": "tests/arbitrary_send.sol",
         "func": "direct",
-        "sourceMapping": [
-            null
-        ],
+        "sourceMapping": [],
         "vuln": "SuicidalFunc"
     },
     {
@@ -18,9 +16,7 @@
         "contract": "Test",
         "filename": "tests/arbitrary_send.sol",
         "func": "indirect",
-        "sourceMapping": [
-            null
-        ],
+        "sourceMapping": [],
         "vuln": "SuicidalFunc"
     }
 ]

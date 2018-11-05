@@ -14,9 +14,7 @@
                 "filename": "tests/reentrancy.sol",
                 "length": 37,
                 "start": 52
-            },
-            null,
-            null
+            }
         ],
         "varsWritten": [
             "userBalance"
