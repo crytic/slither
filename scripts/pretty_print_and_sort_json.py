@@ -72,18 +72,18 @@ def order_by_prop_value(list_of_dicts):
     props_info = get_props_info(list_of_dicts)
     return sorted(list_of_dicts, key=lambda d: create_property_val_tuple(d, props_info))
 
-def order_list(list):
+def order_list(l):
     # TODO: sometimes slither detectors return a null value in the json output sourceMapping object array
     # get rid of those values, it will break sorting (some items are an object, some are null?!)
-    list = list(filter(None, list))
-    if not list:
+    l = list(filter(None, list))
+    if not l:
         return []
-    if isinstance(list[0], basestring): # it's a list of string
-        return sorted(list)
-    elif isinstance(list[0], int): # it's a list of numbers
-        return sorted(list)
-    elif isinstance(list[0], dict): # it's a list of objects
-        ordered_by_key = [order_dict(v) for v in list]
+    if isinstance(l[0], basestring): # it's a list of string
+        return sorted(l)
+    elif isinstance(l[0], int): # it's a list of numbers
+        return sorted(l)
+    elif isinstance(l[0], dict): # it's a list of objects
+        ordered_by_key = [order_dict(v) for v in l]
         ordered_by_val = order_by_prop_value(ordered_by_key)
         return ordered_by_val
 
