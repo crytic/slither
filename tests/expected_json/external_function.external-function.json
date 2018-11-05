@@ -11,6 +11,17 @@
         "vuln": "ExternalFunc"
     },
     {
+        "contract": "ContractWithFunctionNotCalled2",
+        "filename": "tests/external_function.sol",
+        "func": "funcNotCalled",
+        "sourceMapping": {
+            "filename": "tests/external_function.sol",
+            "length": 304,
+            "start": 552
+        },
+        "vuln": "ExternalFunc"
+    },
+    {
         "contract": "ContractWithFunctionNotCalled",
         "filename": "tests/external_function.sol",
         "func": "funcNotCalled2",
@@ -29,17 +40,6 @@
             "filename": "tests/external_function.sol",
             "length": 41,
             "start": 257
-        },
-        "vuln": "ExternalFunc"
-    },
-    {
-        "contract": "ContractWithFunctionNotCalled2",
-        "filename": "tests/external_function.sol",
-        "func": "funcNotCalled",
-        "sourceMapping": {
-            "filename": "tests/external_function.sol",
-            "length": 304,
-            "start": 552
         },
         "vuln": "ExternalFunc"
     }
