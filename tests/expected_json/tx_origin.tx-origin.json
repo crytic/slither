@@ -3,18 +3,14 @@
         "contract": "TxOrigin",
         "filename": "tests/tx_origin.sol",
         "function_name": "bug0",
-        "sourceMapping": [
-            null
-        ],
+        "sourceMapping": [],
         "vuln": "TxOrigin"
     },
     {
         "contract": "TxOrigin",
         "filename": "tests/tx_origin.sol",
         "function_name": "bug2",
-        "sourceMapping": [
-            null
-        ],
+        "sourceMapping": [],
         "vuln": "TxOrigin"
     }
 ]
