@@ -42,7 +42,7 @@ def get_props_info(list_of_dicts):
             found_props.add(p)
 
     # create a copy, since we are gonna possibly remove props
-    shared_props = set(found_props)
+    props_whose_value_we_can_sort_on = set(found_props)
 
     # for each object, loop through list of all found property names,
     # if the object contains that property, check that it's of type string or number
@@ -50,13 +50,13 @@ def get_props_info(list_of_dicts):
     # if it's not of type string/number remove it from list of properties to check
     # since we cannot sort on non-string/number values
     for p in list(found_props):
-        if p in shared_props: # short circuit
+        if p in props_whose_value_we_can_sort_on: # short circuit
             for d in list_of_dicts:
-                if p in shared_props: # less shorter short circuit
+                if p in props_whose_value_we_can_sort_on: # less shorter short circuit
                     if p in d:
                         # we ae only gonna sort key values if they are of type string or number
                         if not isinstance(d[p], str) and not isinstance(d[p], int):
-                            shared_props.remove(p)
+                            props_whose_value_we_can_sort_on.remove(p)
                         # we need to store the type of the value because not each object
                         # in a list of output objects for 1 detector will have the same
                         # keys, so if we want to sort based on the values then if a certain object
@@ -67,11 +67,22 @@ def get_props_info(list_of_dicts):
                             prop_types[p] = 'string'
                         elif isinstance(d[p], int):
                             prop_types[p] = 'number'
-    return (sorted(list(shared_props)), prop_types)
+    return (sorted(list(props_whose_value_we_can_sort_on)), prop_types)
 
 def order_by_prop_value(list_of_dicts):
     props_info = get_props_info(list_of_dicts)
     return sorted(list_of_dicts, key=lambda d: create_property_val_tuple(d, props_info))
+
+def order_dict(d):
+    result = OrderedDict() # such that we keep the order
+    for k, v in sorted(d.items()):
+        if isinstance(v, dict):
+            result[k] = order_dict(v)
+        elif type(v) is list:
+            result[k] = order_list(v)
+        else: # string/number
+            result[k] = v
+    return result
 
 def order_list(l):
     # TODO: sometimes slither detectors return a null value in the json output sourceMapping object array
@@ -87,17 +98,6 @@ def order_list(l):
         ordered_by_key = [order_dict(v) for v in l]
         ordered_by_val = order_by_prop_value(ordered_by_key)
         return ordered_by_val
-
-def order_dict(dictionary):
-    result = OrderedDict() # such that we keep the order
-    for k, v in sorted(dictionary.items()):
-        if isinstance(v, dict):
-            result[k] = order_dict(v)
-        elif type(v) is list:
-            result[k] = order_list(v)
-        else: # string/number
-            result[k] = v
-    return result
 
 with open(raw_json_file, 'r') as json_data:
     with open(pretty_json_file, 'w') as out_file:
