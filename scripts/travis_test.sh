@@ -56,6 +56,7 @@ test_slither(){
     fi
 }
 
+
 test_slither tests/uninitialized.sol "uninitialized-state"
 test_slither tests/backdoor.sol "backdoor"
 test_slither tests/backdoor.sol "suicidal"
@@ -73,6 +74,7 @@ test_slither tests/low_level_calls.sol "low-level-calls"
 test_slither tests/const_state_variables.sol "constable-states"
 test_slither tests/external_function.sol "external-function"
 test_slither tests/naming_convention.sol "naming-convention"
+#test_slither tests/complex_func.sol "complex-function"
 
 ### Test scripts
 

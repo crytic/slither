@@ -208,7 +208,7 @@ def convert_to_low_level(ir):
     logger.error('Incorrect conversion to low level {}'.format(ir))
     exit(-1)
 
-def convert_to_push(ir):
+def convert_to_push(ir, node):
     """
     Convert a call to a PUSH operaiton
 
@@ -221,7 +221,7 @@ def convert_to_push(ir):
     if isinstance(ir.arguments[0], list):
         ret = []
 
-        val = TemporaryVariable()
+        val = TemporaryVariable(node)
         operation = InitArray(ir.arguments[0], val)
         ret.append(operation)
 
@@ -419,7 +419,7 @@ def propagate_types(ir, node):
                 # Which leads to return a list of operation
                 if isinstance(t, ArrayType):
                     if ir.function_name == 'push' and len(ir.arguments) == 1:
-                        return convert_to_push(ir)
+                        return convert_to_push(ir, node)
 
             elif isinstance(ir, Index):
                 if isinstance(ir.variable_left.type, MappingType):
@@ -458,7 +458,9 @@ def propagate_types(ir, node):
             elif isinstance(ir, Member):
                 # TODO we should convert the reference to a temporary if the member is a length or a balance
                 if ir.variable_right == 'length' and isinstance(ir.variable_left.type, (ElementaryType, ArrayType)):
-                    return Length(ir.variable_left, ir.lvalue)
+                    length = Length(ir.variable_left, ir.lvalue)
+                    ir.lvalue.points_to = ir.variable_left
+                    return ir
                 if ir.variable_right == 'balance' and isinstance(ir.variable_left.type, ElementaryType):
                     return Balance(ir.variable_left, ir.lvalue)
                 left = ir.variable_left
@@ -657,7 +659,7 @@ def convert_expression(expression, node):
     if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
         result =  [Condition(expression.value)]
         return result
-    visitor = ExpressionToSlithIR(expression)
+    visitor = ExpressionToSlithIR(expression, node)
     result = visitor.result()
 
     result = apply_ir_heuristics(result, node)
