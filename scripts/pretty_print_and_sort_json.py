@@ -6,6 +6,7 @@ the order is deterministic
 
 - the keys of a json object are sorted
 - json objects in a list will be sorted based on the values of their keys
+- lists of strings/numbers are sorted
 
 '''
 
