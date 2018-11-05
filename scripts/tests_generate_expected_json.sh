@@ -13,7 +13,7 @@ generate_expected_json(){
     slither "$1" --disable-solc-warnings --detectors "$2" --json "$DIR/tmp-gen.json"
 
     # convert json file to pretty print and write to destination folder
-    python "$DIR/pretty_print_json.py" "$DIR/tmp-gen.json" "$DIR/../tests/expected_json/$output_filename"
+    python "$DIR/pretty_print_and_sort_json.py" "$DIR/tmp-gen.json" "$DIR/../tests/expected_json/$output_filename"
 
     # remove the raw un-prettified json file
     rm "$DIR/tmp-gen.json"

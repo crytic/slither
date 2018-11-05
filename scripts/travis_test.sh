@@ -13,7 +13,7 @@ test_slither(){
     slither "$1" --disable-solc-warnings --detectors "$2" --json "$DIR/tmp-test.json"
 
     # convert json file to pretty print and write to destination folder
-    python "$DIR/pretty_print_json.py" "$DIR/tmp-test.json" "$actual"
+    python "$DIR/pretty_print_and_sort_json.py" "$DIR/tmp-test.json" "$actual"
 
     # remove the raw un-prettified json file
     rm "$DIR/tmp-test.json"
@@ -36,7 +36,7 @@ test_slither(){
     slither "$1" --disable-solc-warnings --detectors "$2" --compact-ast --json "$DIR/tmp-test.json"
 
     # convert json file to pretty print and write to destination folder
-    python "$DIR/pretty_print_json.py" "$DIR/tmp-test.json" "$actual"
+    python "$DIR/pretty_print_and_sort_json.py" "$DIR/tmp-test.json" "$actual"
 
     # remove the raw un-prettified json file
     rm "$DIR/tmp-test.json"
