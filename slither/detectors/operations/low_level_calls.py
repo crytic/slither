@@ -39,9 +39,9 @@ class LowLevelCalls(AbstractDetector):
         """ Detect the functions that use low level calls
         """
         results = []
-        for c in sorted(self.contracts, key=lambda c: c.name):
+        for c in self.contracts:
             values = self.detect_low_level_calls(c)
-            for func, nodes in sorted(values, key=lambda v: v[0].name):
+            for func, nodes in values:
                 func_name = func.name
                 info = "Low level call in %s, Contract: %s, Function: %s" % (self.filename,
                                                                              c.name,

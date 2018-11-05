@@ -21,7 +21,7 @@ class OldSolc(AbstractDetector):
         pragma = self.slither.pragma_directives
         versions = [p.version for p in pragma]
         versions = [p.replace('solidity', '').replace('^', '') for p in versions]
-        versions = sorted(list(set(versions)))
+        versions = list(set(versions))
         old_pragma = [p for p in versions if p not in ['0.4.23', '0.4.24']]
 
         if old_pragma:

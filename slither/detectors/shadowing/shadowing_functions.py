@@ -37,10 +37,10 @@ class ShadowingFunctionsDetection(AbstractDetector):
 
         """
         results = []
-        for c in sorted(self.contracts, key=lambda c: c.name):
+        for c in self.contracts:
             shadowing = self.detect_shadowing(c)
             if shadowing:
-                for contract, funcs in sorted(shadowing.items(), key=lambda x: (x[0].name, str(list(x[1])))):
+                for contract, funcs in shadowing.items():
                     results.append({'vuln': self.vuln_name,
                                     'filename': self.filename,
                                     'contractShadower': c.name,

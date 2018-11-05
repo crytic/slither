@@ -45,9 +45,9 @@ class TxOrigin(AbstractDetector):
         """ Detect the functions that use tx.origin in a conditional node
         """
         results = []
-        for c in sorted(self.contracts, key=lambda c: c.name):
+        for c in self.contracts:
             values = self.detect_tx_origin(c)
-            for func, nodes in sorted(values, key=lambda v: v[0].name):
+            for func, nodes in values:
                 func_name = func.name
                 info = "tx.origin in %s, Contract: %s, Function: %s" % (self.filename,
                                                                         c.name,

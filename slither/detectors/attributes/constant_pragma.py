@@ -19,7 +19,7 @@ class ConstantPragma(AbstractDetector):
         results = []
         pragma = self.slither.pragma_directives
         versions = [p.version for p in pragma]
-        versions = sorted(list(set(versions)))
+        versions = list(set(versions))
 
         if len(versions) > 1:
             info = "Different version of Solidity used in {}: {}".format(self.filename, versions)

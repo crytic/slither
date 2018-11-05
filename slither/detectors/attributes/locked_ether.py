@@ -38,10 +38,10 @@ class LockedEther(AbstractDetector):
     def detect(self):
         results = []
 
-        for contract in sorted(self.slither.contracts_derived, key=lambda c: c.name):
+        for contract in self.slither.contracts_derived:
             if contract.is_signature_only():
                 continue
-            funcs_payable = [function for function in sorted(contract.functions, key=lambda x: x.name) if function.payable]
+            funcs_payable = [function for function in contract.functions if function.payable]
             if funcs_payable:
                 if self.do_no_send_ether(contract):
                     txt = "Contract locked ether in {}, Contract {}, Functions {}"
