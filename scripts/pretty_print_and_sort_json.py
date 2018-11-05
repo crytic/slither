@@ -54,7 +54,7 @@ def get_props_info(list_of_dicts):
                 if p in shared_props: # less shorter short circuit
                     if p in d:
                         # we ae only gonna sort key values if they are of type string or number
-                        if not isinstance(d[p], basestring) and not isinstance(d[p], int):
+                        if not isinstance(d[p], str) and not isinstance(d[p], int):
                             shared_props.remove(p)
                         # we need to store the type of the value because not each object
                         # in a list of output objects for 1 detector will have the same
@@ -62,7 +62,7 @@ def get_props_info(list_of_dicts):
                         # does not have a key which another object does have we are gonna
                         # put in 0 for number and "" for string for that key such that sorting on values
                         # still works
-                        elif isinstance(d[p], basestring):
+                        elif isinstance(d[p], str):
                             prop_types[p] = 'string'
                         elif isinstance(d[p], int):
                             prop_types[p] = 'number'
@@ -78,7 +78,7 @@ def order_list(l):
     l = list(filter(None, l))
     if not l:
         return []
-    if isinstance(l[0], basestring): # it's a list of string
+    if isinstance(l[0], str): # it's a list of string
         return sorted(l)
     elif isinstance(l[0], int): # it's a list of numbers
         return sorted(l)
