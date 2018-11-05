@@ -30,7 +30,7 @@ class UnusedStateVars(AbstractDetector):
         """ Detect unused state variables
         """
         results = []
-        for c in sorted(self.slither.contracts_derived, key=lambda c: c.name):
+        for c in self.slither.contracts_derived:
             unusedVars = self.detect_unused(c)
             if unusedVars:
                 unusedVarsName = [v.name for v in unusedVars]
