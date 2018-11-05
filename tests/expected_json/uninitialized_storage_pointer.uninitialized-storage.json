@@ -6,13 +6,13 @@
         "sourceMapping": [
             {
                 "filename": "tests/uninitialized_storage_pointer.sol",
-                "length": 138,
-                "start": 67
+                "length": 9,
+                "start": 171
             },
             {
                 "filename": "tests/uninitialized_storage_pointer.sol",
-                "length": 9,
-                "start": 171
+                "length": 138,
+                "start": 67
             }
         ],
         "variable": "st_bug",
