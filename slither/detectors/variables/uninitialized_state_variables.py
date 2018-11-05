@@ -28,6 +28,8 @@ class UninitializedStateVarsDetection(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-state-variables'
+
     @staticmethod
     def written_variables(contract):
         ret = []
@@ -73,7 +75,6 @@ class UninitializedStateVarsDetection(AbstractDetector):
             ret = self.detect_uninitialized(c)
             for variable, functions in ret:
                 info = "{}.{} ({}) is never initialized. It is used in:\n"
-                print(variable.source_mapping)
                 info = info.format(variable.contract.name, variable.name, variable.source_mapping_str)
                 for f in functions:
                     info += "\t- {} ({})\n".format(f.name, f.source_mapping_str)

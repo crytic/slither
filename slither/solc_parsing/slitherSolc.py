@@ -54,7 +54,6 @@ class SlitherSolc(Slither):
             return False
 
     def _parse_contracts_from_loaded_json(self, data_loaded, filename):
-        print(filename)
         if 'nodeType' in data_loaded:
             self._is_compact_ast = True
 
@@ -63,7 +62,6 @@ class SlitherSolc(Slither):
                 if os.path.isfile(sourcePath):
                     with open(sourcePath) as f:
                         source_code = f.read()
-                    print(sourcePath)
                     self.source_code[sourcePath] = source_code
 
         if data_loaded[self.get_key()] == 'root':
@@ -124,7 +122,7 @@ class SlitherSolc(Slither):
                 sourceUnit = int(sourceUnit[0])
 
         self._source_units[sourceUnit] = name
-        if os.path.isfile(name):
+        if os.path.isfile(name) and not name in self.source_code:
             with open(name) as f:
                 source_code = f.read()
             self.source_code[name] = source_code

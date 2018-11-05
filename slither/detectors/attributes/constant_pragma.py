@@ -15,6 +15,8 @@ class ConstantPragma(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variables-that-could-be-declared-constant'
+
     def detect(self):
         results = []
         pragma = self.slither.pragma_directives

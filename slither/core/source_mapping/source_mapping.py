@@ -51,8 +51,6 @@ class SourceMapping(Context):
         f = int(f)
 
         if f not in sourceUnits:
-            print(f)
-            print(sourceUnits)
             return {'start':s, 'length':l}
         filename = sourceUnits[f]
 
@@ -72,6 +70,14 @@ class SourceMapping(Context):
 
     @property
     def source_mapping_str(self):
+
+        def relative_path(path):
+            # Remove absolute path for printing
+            # Truffle returns absolutePath
+            if '/contracts/' in path:
+                return path[path.find('/contracts/'):]
+            return path
+
         lines = self.source_mapping['lines']
         if not lines:
             lines = ''
@@ -79,5 +85,5 @@ class SourceMapping(Context):
             lines = '#{}'.format(lines[0])
         else:
             lines = '#{}-{}'.format(lines[0], lines[-1])
-        return '{}{}'.format(self.source_mapping['filename'], lines)
+        return '{}{}'.format(relative_path(self.source_mapping['filename']), lines)
 

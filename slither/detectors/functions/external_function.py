@@ -16,6 +16,8 @@ class ExternalFunction(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#public-function-that-could-be-declared-as-external'
+
     @staticmethod
     def detect_functions_called(contract):
         """ Returns a list of InternallCall, SolidityCall
@@ -45,6 +47,7 @@ class ExternalFunction(AbstractDetector):
         results = []
 
         public_function_calls = []
+        all_info = ''
 
         for contract in self.slither.contracts_derived:
             if self._contains_internal_dynamic_call(contract):
@@ -60,10 +63,12 @@ class ExternalFunction(AbstractDetector):
                 info = txt.format(func.contract.name,
                                   func.name,
                                   func.source_mapping_str)
-                self.log(info)
+                all_info += info
                 results.append({'vuln': 'ExternalFunc',
                                 'sourceMapping': func.source_mapping,
                                 'filename': self.filename,
                                 'contract': func.contract.name,
                                 'func': func.name})
+        if all_info != '':
+            self.log(all_info)
         return results
