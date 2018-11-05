@@ -56,7 +56,7 @@ def check_call(func, taints):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print('python.py taint.py taint.sol')
+        print('python taint_mapping.py taint.sol')
         exit(-1)
 
     # Init slither
