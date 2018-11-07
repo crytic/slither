@@ -288,7 +288,7 @@ class Contract(ChildSlither, SourceMapping):
 
     def is_erc20(self):
         """
-            Check if the contract is a erc20 token
+            Check if the contract is an erc20 token
             Note: it does not check for correct return values
         Returns:
             bool
