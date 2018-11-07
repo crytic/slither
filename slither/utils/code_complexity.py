@@ -1,4 +1,4 @@
-# Funciton computing the code complexity
+# Function computing the code complexity
 
 def compute_number_edges(function):
     """
