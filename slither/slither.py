@@ -22,9 +22,10 @@ class Slither(SlitherSolc):
         self._printers = []
 
         # json text provided
-        if isinstance(contract, dict):
+        if isinstance(contract, list):
             super(Slither, self).__init__('')
-            self._parse_contracts_from_loaded_json(contract, '')
+            for c in contract:
+                self._parse_contracts_from_loaded_json(c, c['absolutePath'])
         # .json or .sol provided
         else:
             contracts_json = self._run_solc(contract, solc, disable_solc_warnings, solc_arguments, ast_format)

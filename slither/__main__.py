@@ -65,17 +65,15 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
     filenames = glob.glob(os.path.join(dirname,'build','contracts', '*.json'))
 
     all_contracts = []
+    all_filenames = []
 
     for filename in filenames:
         with open(filename) as f:
             contract_loaded = json.load(f)
-            all_contracts  += contract_loaded['ast']['nodes']
+            all_contracts.append(contract_loaded['ast'])
+            all_filenames.append(contract_loaded['sourcePath'])
 
-    contract = {
-            "nodeType": "SourceUnit",
-            "nodes" : all_contracts}
-
-    slither = Slither(contract, args.solc, args.disable_solc_warnings, args.solc_args)
+    slither = Slither(all_contracts, args.solc, args.disable_solc_warnings, args.solc_args)
     return _process(slither, detector_classes, printer_classes)
 
 
