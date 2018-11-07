@@ -1,0 +1,16 @@
+[
+    {
+        "contract": "VectorSum",
+        "filename": "tests/inline_assembly_library.sol",
+        "function_name": "sumAsm",
+        "sourceMapping": [],
+        "vuln": "Assembly"
+    },
+    {
+        "contract": "VectorSum",
+        "filename": "tests/inline_assembly_library.sol",
+        "function_name": "sumPureAsm",
+        "sourceMapping": [],
+        "vuln": "Assembly"
+    }
+]
