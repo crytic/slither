@@ -25,7 +25,7 @@ class Assignment(OperationWithLValue):
 
     @property
     def read(self):
-        return list(self.variables)
+        return [self.rvalue]
 
     @property
     def variable_return_type(self):
