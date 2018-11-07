@@ -218,6 +218,7 @@ class ContractSolc04(Contract):
             event = EventSolc(event_to_parse, self)
             event.analyze(self)
             event.set_contract(self)
+            event.set_offset(event_to_parse['src'], self.slither)
             self._events[event.full_name] = event
 
         self._eventsNotParsed = None

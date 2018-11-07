@@ -16,6 +16,8 @@ class Assembly(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#assembly-usage'
+
     @staticmethod
     def _contains_inline_assembly_use(node):
         """
@@ -39,21 +41,22 @@ class Assembly(AbstractDetector):
         """ Detect the functions that use inline assembly
         """
         results = []
+        all_info = ''
         for c in self.contracts:
             values = self.detect_assembly(c)
             for func, nodes in values:
-                func_name = func.name
-                info = "Assembly in %s, Contract: %s, Function: %s" % (self.filename,
-                                                                       c.name,
-                                                                       func_name)
-                self.log(info)
+                info = "{}.{} uses assembly ({})\n"
+                info = info.format(func.contract.name, func.name, func.source_mapping_str)
+                all_info += info
 
                 sourceMapping = [n.source_mapping for n in nodes]
 
                 results.append({'vuln': 'Assembly',
                                 'sourceMapping': sourceMapping,
                                 'filename': self.filename,
-                                'contract': c.name,
-                                'function_name': func_name})
+                                'contract': func.contract.name,
+                                'function_name': func.name})
 
+        if all_info != '':
+            self.log(all_info)
         return results
