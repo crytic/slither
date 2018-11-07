@@ -94,6 +94,8 @@ def get_detectors_and_printers():
     """
     from slither.detectors.examples.backdoor import Backdoor
     from slither.detectors.variables.uninitialized_state_variables import UninitializedStateVarsDetection
+    from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
+    from slither.detectors.variables.uninitialized_local_variables import UninitializedLocalVars
     from slither.detectors.attributes.constant_pragma import ConstantPragma
     from slither.detectors.attributes.old_solc import OldSolc
     from slither.detectors.attributes.locked_ether import LockedEther
@@ -101,7 +103,6 @@ def get_detectors_and_printers():
     from slither.detectors.functions.suicidal import Suicidal
     from slither.detectors.functions.complex_function import ComplexFunction
     from slither.detectors.reentrancy.reentrancy import Reentrancy
-    from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
     from slither.detectors.variables.unused_state_variables import UnusedStateVars
     from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
     from slither.detectors.statements.tx_origin import TxOrigin
@@ -112,10 +113,11 @@ def get_detectors_and_printers():
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
+                 UninitializedStorageVars,
+                 UninitializedLocalVars,
                  ConstantPragma,
                  OldSolc,
                  Reentrancy,
-                 UninitializedStorageVars,
                  LockedEther,
                  ArbitrarySend,
                  Suicidal,
