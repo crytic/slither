@@ -3,18 +3,89 @@
 """
 import logging
 
-from slither.core.sourceMapping.sourceMapping import SourceMapping
-from slither.core.cfg.nodeType import NodeType
+from slither.core.children.child_function import ChildFunction
+from slither.core.declarations import Contract
+from slither.core.declarations.solidity_variables import (SolidityFunction,
+                                                          SolidityVariable)
+from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
+from slither.slithir.convert import convert_expression
+from slither.slithir.operations import (Balance, HighLevelCall, Index,
+                                        InternalCall, Length, LibraryCall,
+                                        LowLevelCall, Member,
+                                        OperationWithLValue, SolidityCall)
+from slither.slithir.variables import (Constant, ReferenceVariable,
+                                       TemporaryVariable, TupleVariable)
+from slither.visitors.expression.expression_printer import ExpressionPrinter
+from slither.visitors.expression.read_var import ReadVar
+from slither.visitors.expression.write_var import WriteVar
 
-from slither.visitors.expression.expressionPrinter import ExpressionPrinter
-from slither.visitors.expression.readVar import ReadVar
-from slither.visitors.expression.writeVar import WriteVar
-
-from slither.core.children.childFunction import ChildFunction
-
-from slither.core.declarations.solidityVariables import SolidityFunction
 logger = logging.getLogger("Node")
+
+class NodeType:
+
+    ENTRYPOINT = 0x0  # no expression
+
+    # Node with expression
+
+    EXPRESSION = 0x10  # normal case
+    RETURN = 0x11      # RETURN may contain an expression
+    IF = 0x12
+    VARIABLE = 0x13    # Declaration of variable
+    ASSEMBLY = 0x14
+    IFLOOP = 0x15
+
+    # Below the nodes have no expression
+    # But are used to expression CFG structure
+
+    # Absorbing node
+    THROW = 0x20
+
+    # Loop related nodes
+    BREAK = 0x31
+    CONTINUE = 0x32
+
+    # Only modifier node
+    PLACEHOLDER = 0x40
+
+    # Merging nodes
+    # Unclear if they will be necessary
+    ENDIF = 0x50
+    STARTLOOP = 0x51
+    ENDLOOP = 0x52
+
+#    @staticmethod
+    def str(t):
+        if t == 0x0:
+            return 'ENTRY_POINT'
+        if t == 0x10:
+            return 'EXPRESSION'
+        if t == 0x11:
+            return 'RETURN'
+        if t == 0x12:
+            return 'IF'
+        if t == 0x13:
+            return 'NEW VARIABLE'
+        if t == 0x14:
+            return 'INLINE ASM'
+        if t == 0x15:
+            return 'IF_LOOP'
+        if t == 0x20:
+            return 'THROW'
+        if t == 0x31:
+            return 'BREAK'
+        if t == 0x32:
+            return 'CONTINUE'
+        if t == 0x40:
+            return '_'
+        if t == 0x50:
+            return 'END_IF'
+        if t == 0x51:
+            return 'BEGIN_LOOP'
+        if t == 0x52:
+            return 'END_LOOP'
+        return 'Unknown type {}'.format(hex(t))
 
 def link_nodes(n1, n2):
     n1.add_son(n2)
@@ -36,7 +107,12 @@ class Node(SourceMapping, ChildFunction):
         self._node_id = node_id
         self._vars_written = []
         self._vars_read = []
-        self._calls = []
+        self._internal_calls = []
+        self._solidity_calls = []
+        self._high_level_calls = []
+        self._low_level_calls = []
+        self._external_calls_as_expressions = []
+        self._irs = []
 
         self._state_vars_written = []
         self._state_vars_read = []
@@ -45,6 +121,10 @@ class Node(SourceMapping, ChildFunction):
         self._expression_vars_written = []
         self._expression_vars_read = []
         self._expression_calls = []
+
+    @property
+    def slither(self):
+        return self.function.slither
 
     @property
     def node_id(self):
@@ -63,21 +143,21 @@ class Node(SourceMapping, ChildFunction):
         """
             list(Variable): Variables read (local/state/solidity)
         """
-        return self._vars_read
+        return list(self._vars_read)
 
     @property
     def state_variables_read(self):
         """
             list(StateVariable): State variables read
         """
-        return self._state_vars_read
+        return list(self._state_vars_read)
 
     @property
     def solidity_variables_read(self):
         """
             list(SolidityVariable): State variables read
         """
-        return self._solidity_vars_read
+        return list(self._solidity_vars_read)
 
     @property
     def variables_read_as_expression(self):
@@ -88,29 +168,63 @@ class Node(SourceMapping, ChildFunction):
         """
             list(Variable): Variables written (local/state/solidity)
         """
-        return self._vars_written
+        return list(self._vars_written)
 
     @property
     def state_variables_written(self):
         """
             list(StateVariable): State variables written
         """
-        return self._state_vars_written
+        return list(self._state_vars_written)
 
     @property
     def variables_written_as_expression(self):
         return self._expression_vars_written
 
     @property
-    def calls(self):
+    def internal_calls(self):
         """
-            list(Function or SolidityFunction): List of calls
+            list(Function or SolidityFunction): List of internal/soldiity function calls
         """
-        return self._calls
+        return list(self._internal_calls)
+
+    @property
+    def solidity_calls(self):
+        """
+            list(SolidityFunction): List of Soldity calls
+        """
+        return list(self._internal_calls)
+
+    @property
+    def high_level_calls(self):
+        """
+            list((Contract, Function|Variable)):
+            List of high level calls (external calls).
+            A variable is called in case of call to a public state variable
+            Include library calls
+        """
+        return list(self._high_level_calls)
+
+    @property
+    def low_level_calls(self):
+        """
+            list((Variable|SolidityVariable, str)): List of low_level call
+            A low level call is defined by
+            - the variable called
+            - the name of the function (call/delegatecall/codecall)
+        """
+        return list(self._low_level_calls)
+
+    @property
+    def external_calls_as_expressions(self):
+        """
+            list(CallExpression): List of message calls (that creates a transaction)
+        """
+        return self._external_calls_as_expressions
 
     @property
     def calls_as_expression(self):
-        return self._expression_calls
+        return list(self._expression_calls)
 
     @property
     def expression(self):
@@ -126,7 +240,16 @@ class Node(SourceMapping, ChildFunction):
     def add_variable_declaration(self, var):
         assert self._variable_declaration is None
         self._variable_declaration = var
-        self._expression = var.expression
+        if var.expression:
+            self._vars_written += [var]
+
+    @property
+    def variable_declaration(self):
+        """
+        Returns:
+            LocalVariable
+        """
+        return self._variable_declaration
 
     def __str__(self):
         txt = NodeType.str(self._node_type) + ' '+ str(self.expression)
@@ -138,18 +261,24 @@ class Node(SourceMapping, ChildFunction):
         Returns:
             bool: True if the node has a require or assert call
         """
-        return self.calls and\
-                any(isinstance(c, SolidityFunction) and\
-                (c.name in ['require(bool)', 'require(bool,string)', 'assert(bool)'])\
-                for c in self.calls)
+        return any(c.name in ['require(bool)', 'require(bool,string)', 'assert(bool)'] for c in self.internal_calls)
 
     def contains_if(self):
         """
-            Check if the node is a conditional node
+            Check if the node is a IF node
         Returns:
             bool: True if the node is a conditional node (IF or IFLOOP)
         """
         return self.type in [NodeType.IF, NodeType.IFLOOP]
+
+    def is_conditional(self):
+        """
+            Check if the node is a conditional node
+            A conditional node is either a IF or a require/assert
+        Returns:
+            bool: True if the node is a conditional node
+        """
+        return self.contains_if() or self.contains_require_or_assert()
 
     def add_father(self, father):
         """ Add a father node
@@ -172,9 +301,10 @@ class Node(SourceMapping, ChildFunction):
         """ Returns the father nodes
 
         Returns:
-            fathers: list of fathers
+            list(Node): list of fathers
         """
-        return self._fathers
+        return list(self._fathers)
+
 
     def remove_father(self, father):
         """ Remove the father node. Do nothing if the node is not a father
@@ -184,6 +314,13 @@ class Node(SourceMapping, ChildFunction):
         """
         self._fathers = [x for x in self._fathers if x.node_id != father.node_id]
 
+    def remove_son(self, son):
+        """ Remove the son node. Do nothing if the node is not a son
+
+        Args:
+            fathers: list of fathers to add
+        """
+        self._sons = [x for x in self._sons if x.node_id != son.node_id]
 
     def add_son(self, son):
         """ Add a son node
@@ -206,7 +343,69 @@ class Node(SourceMapping, ChildFunction):
         """ Returns the son nodes
 
         Returns:
-            sons: list of sons
+            list(Node): list of sons
         """
-        return self._sons
+        return list(self._sons)
+
+    @property
+    def irs(self):
+        """ Returns the slithIR representation
+
+        return
+            list(slithIR.Operation)
+        """
+        return self._irs
+
+    def slithir_generation(self):
+        if self.expression:
+            expression = self.expression
+            self._irs = convert_expression(expression, self)
+
+        self._find_read_write_call()
+
+    def _find_read_write_call(self):
+
+        def is_slithir_var(var):
+            return isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
+        for ir in self.irs:
+            self._vars_read += [v for v in ir.read if not is_slithir_var(v)]
+            if isinstance(ir, OperationWithLValue):
+                if isinstance(ir, (Index, Member, Length, Balance)):
+                    continue  # Don't consider Member and Index operations -> ReferenceVariable
+                var = ir.lvalue
+                # If its a reference, we loop until finding the origin
+                if isinstance(var, (ReferenceVariable)):
+                    while isinstance(var, ReferenceVariable):
+                        var = var.points_to
+                # Only store non-slithIR variables
+                if not is_slithir_var(var):
+                    self._vars_written.append(var)
+
+            if isinstance(ir, InternalCall):
+                self._internal_calls.append(ir.function)
+            if isinstance(ir, SolidityCall):
+                # TODO: consider removing dependancy of solidity_call to internal_call
+                self._solidity_calls.append(ir.function)
+                self._internal_calls.append(ir.function)
+            if isinstance(ir, LowLevelCall):
+                assert isinstance(ir.destination, (Variable, SolidityVariable))
+                self._low_level_calls.append((ir.destination, ir.function_name.value))
+            elif isinstance(ir, (HighLevelCall)) and not isinstance(ir, LibraryCall):
+                if isinstance(ir.destination.type, Contract):
+                    self._high_level_calls.append((ir.destination.type, ir.function))
+                else:
+                    self._high_level_calls.append((ir.destination.type.type, ir.function))
+            elif isinstance(ir, LibraryCall):
+                assert isinstance(ir.destination, Contract)
+                self._high_level_calls.append((ir.destination, ir.function))
+
+        self._vars_read = list(set(self._vars_read))
+        self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
+        self._solidity_vars_read = [v for v in self._vars_read if isinstance(v, SolidityVariable)]
+        self._vars_written = list(set(self._vars_written))
+        self._state_vars_written = [v for v in self._vars_written if isinstance(v, StateVariable)]
+        self._internal_calls = list(set(self._internal_calls))
+        self._solidity_calls = list(set(self._solidity_calls))
+        self._high_level_calls = list(set(self._high_level_calls))
+        self._low_level_calls = list(set(self._low_level_calls))
 

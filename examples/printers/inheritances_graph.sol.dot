@@ -1,0 +1,7 @@
+digraph{
+Contract1[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>Contract1</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    myfunc()</TD></TR><TR><TD align="left"><I>Private Variables:</I></TD></TR><TR><TD align="left">    myvar</TD></TR></TABLE> >];
+Contract2[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>Contract2</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    myfunc2()</TD></TR><TR><TD align="left"><I>Private Functions:</I></TD></TR><TR><TD align="left">    privatefunc()</TD></TR><TR><TD align="left"><I>Public Variables:</I></TD></TR><TR><TD align="left">    myvar2</TD></TR></TABLE> >];
+Contract3 -> Contract2;
+Contract3 -> Contract1;
+Contract3[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>Contract3</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left"><font color="#FFA500">    myfunc()</font></TD></TR><TR><TD align="left"><I>Public Variables:</I></TD></TR><TR><TD align="left">    myvar2</TD></TR><TR><TD align="left"><I>Private Variables:</I></TD></TR><TR><TD align="left">    myvar</TD></TR></TABLE> >];
+}

@@ -1,0 +1,18 @@
+[
+    {
+        "contract": "C",
+        "filename": "tests/backdoor.sol",
+        "func": "i_am_a_backdoor",
+        "sourceMapping": {
+            "filename": "tests/backdoor.sol",
+            "length": 74,
+            "lines": [
+                5,
+                6,
+                7
+            ],
+            "start": 42
+        },
+        "vuln": "SuicidalFunc"
+    }
+]

@@ -1,21 +1,16 @@
-contract Contract1{
+pragma solidity ^0.4.24;
 
-    uint myvar;
-
-    function myfunc() public{}
+contract BaseContract1{
 }
 
-contract Contract2{
-
-    uint public myvar2;
-
-    function myfunc2() public{}
-
-    function privatefunc() private{}
+contract BaseContract2{
 }
 
-contract Contract3 is Contract1, Contract2{
+contract ChildContract1 is BaseContract1{
+}
 
-    function myfunc() public{} // override myfunc
+contract ChildContract2 is BaseContract1, BaseContract2{
+}
 
+contract GrandchildContract1 is ChildContract1{
 }

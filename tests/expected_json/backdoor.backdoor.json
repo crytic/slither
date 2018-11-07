@@ -1,0 +1,16 @@
+[
+    {
+        "contract": "C",
+        "sourceMapping": {
+            "filename": "tests/backdoor.sol",
+            "length": 74,
+            "lines": [
+                5,
+                6,
+                7
+            ],
+            "start": 42
+        },
+        "vuln": "backdoor"
+    }
+]

@@ -3,11 +3,12 @@ os:
   - linux
 language: python
 python:
-  - 2.7.12
+  - 3.6
 
 branches:
   only:
   - master
+  - dev
 
 install:
   - scripts/travis_install.sh

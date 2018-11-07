@@ -1,0 +1,71 @@
+[
+    {
+        "contract": "ContractWithFunctionNotCalled",
+        "filename": "tests/external_function.sol",
+        "func": "funcNotCalled",
+        "sourceMapping": {
+            "filename": "tests/external_function.sol",
+            "length": 40,
+            "lines": [
+                21,
+                22,
+                23
+            ],
+            "start": 351
+        },
+        "vuln": "ExternalFunc"
+    },
+    {
+        "contract": "ContractWithFunctionNotCalled",
+        "filename": "tests/external_function.sol",
+        "func": "funcNotCalled2",
+        "sourceMapping": {
+            "filename": "tests/external_function.sol",
+            "length": 41,
+            "lines": [
+                17,
+                18,
+                19
+            ],
+            "start": 304
+        },
+        "vuln": "ExternalFunc"
+    },
+    {
+        "contract": "ContractWithFunctionNotCalled",
+        "filename": "tests/external_function.sol",
+        "func": "funcNotCalled3",
+        "sourceMapping": {
+            "filename": "tests/external_function.sol",
+            "length": 41,
+            "lines": [
+                13,
+                14,
+                15
+            ],
+            "start": 257
+        },
+        "vuln": "ExternalFunc"
+    },
+    {
+        "contract": "ContractWithFunctionNotCalled2",
+        "filename": "tests/external_function.sol",
+        "func": "funcNotCalled",
+        "sourceMapping": {
+            "filename": "tests/external_function.sol",
+            "length": 304,
+            "lines": [
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
+                38,
+                39
+            ],
+            "start": 552
+        },
+        "vuln": "ExternalFunc"
+    }
+]

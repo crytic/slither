@@ -1,5 +1,5 @@
-from slither.core.sourceMapping.sourceMapping import SourceMapping
-from slither.core.children.childContract import ChildContract
+from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.children.child_contract import ChildContract
 
 class Enum(ChildContract, SourceMapping):
     def __init__(self, name, canonical_name, values):

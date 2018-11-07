@@ -3,17 +3,17 @@
 """
 
 from prettytable import PrettyTable
-from slither.printers.abstractPrinter import AbstractPrinter
+from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.function import Function
 
 class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
 
-    ARGUMENT = 'print-variables-written-and-authorization'
-    HELP = 'Print the the variables written and the authorization of the functions'
+    ARGUMENT = 'vars-and-auth'
+    HELP = 'Print the state variables written and the authorization of the functions'
 
     @staticmethod
     def get_msg_sender_checks(function):
-        all_functions = function.all_calls() + [function] + function.modifiers
+        all_functions = function.all_internal_calls() + [function] + function.modifiers
 
         all_nodes = [f.nodes for f in all_functions if isinstance(f, Function)]
         all_nodes = [item for sublist in all_nodes for item in sublist]
@@ -33,10 +33,10 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
 
         for contract in self.contracts:
             txt = "\nContract %s\n"%contract.name
-            table = PrettyTable(["Function", "State variable written", "Condition on msg.sender"])
+            table = PrettyTable(["Function", "State variables written", "Conditions on msg.sender"])
             for function in contract.functions:
 
                 state_variables_written = [v.name for v in function.all_state_variables_written()]
                 msg_sender_condition = self.get_msg_sender_checks(function)
                 table.add_row([function.name, str(state_variables_written), str(msg_sender_condition)])
-                self.info(txt + str(table))
+            self.info(txt + str(table))

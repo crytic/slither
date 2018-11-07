@@ -1,0 +1,31 @@
+[
+    {
+        "contract": "GetCode",
+        "filename": "tests/inline_assembly_contract.sol",
+        "function_name": "at",
+        "sourceMapping": [
+            {
+                "filename": "tests/inline_assembly_contract.sol",
+                "length": 628,
+                "lines": [
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20
+                ],
+                "start": 191
+            }
+        ],
+        "vuln": "Assembly"
+    }
+]

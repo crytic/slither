@@ -1,0 +1,67 @@
+JSON AST:
+
+
+======= old_solc.sol =======
+{
+	"attributes" : 
+	{
+		"absolutePath" : "old_solc.sol",
+		"exportedSymbols" : 
+		{
+			"Contract" : 
+			[
+				2
+			]
+		}
+	},
+	"children" : 
+	[
+		{
+			"attributes" : 
+			{
+				"literals" : 
+				[
+					"solidity",
+					"0.4",
+					".21"
+				]
+			},
+			"id" : 1,
+			"name" : "PragmaDirective",
+			"src" : "0:23:0"
+		},
+		{
+			"attributes" : 
+			{
+				"baseContracts" : 
+				[
+					null
+				],
+				"contractDependencies" : 
+				[
+					null
+				],
+				"contractKind" : "contract",
+				"documentation" : null,
+				"fullyImplemented" : true,
+				"linearizedBaseContracts" : 
+				[
+					2
+				],
+				"name" : "Contract",
+				"nodes" : 
+				[
+					null
+				],
+				"scope" : 3
+			},
+			"id" : 2,
+			"name" : "ContractDefinition",
+			"src" : "25:21:0"
+		}
+	],
+	"id" : 3,
+	"name" : "SourceUnit",
+	"src" : "0:47:0"
+}
+======= old_solc.sol:Contract =======
