@@ -45,6 +45,6 @@ class ShadowingFunctionsDetection(AbstractDetector):
                                     'filename': self.filename,
                                     'contractShadower': c.name,
                                     'contract': contract.name,
-                                    'funcs': list(funcs)})
+                                    'functions': list(funcs)})
 
         return results

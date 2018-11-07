@@ -206,7 +206,7 @@ class Reentrancy(AbstractDetector):
                             'sourceMapping': source,
                             'filename': self.filename,
                             'contract': func.contract.name,
-                            'function_name': func.name,
+                            'function': func.name,
                             'calls': [str(x.expression) for x in calls],
                             'send_eth': [str(x.expression) for x in send_eth],
                             'varsWritten': [str(x) for (x,_) in varsWritten]})

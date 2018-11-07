@@ -68,7 +68,7 @@ class ExternalFunction(AbstractDetector):
                                 'sourceMapping': func.source_mapping,
                                 'filename': self.filename,
                                 'contract': func.contract.name,
-                                'func': func.name})
+                                'function': func.name})
         if all_info != '':
             self.log(all_info)
         return results

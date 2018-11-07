@@ -2,7 +2,7 @@
     {
         "contract": "C",
         "filename": "tests/backdoor.sol",
-        "func": "i_am_a_backdoor",
+        "function": "i_am_a_backdoor",
         "sourceMapping": {
             "filename": "tests/backdoor.sol",
             "length": 74,
