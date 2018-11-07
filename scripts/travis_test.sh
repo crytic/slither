@@ -4,12 +4,12 @@
 
 # test_slither file.sol detectors number_results
 test_slither(){
-    slither "$1" --disable-solc-warnings --detectors "$2"
+    slither "$1" --disable-solc-warnings --detect "$2"
     if [ $? -ne "$3" ]; then
         exit 1
     fi
 
-    slither "$1" --disable-solc-warnings --detectors "$2" --compact-ast
+    slither "$1" --disable-solc-warnings --detect "$2" --compact-ast
     if [ $? -ne "$3" ]; then
         exit 1
     fi

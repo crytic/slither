@@ -67,7 +67,7 @@ Num | Detector | What it Detects | Impact | Confidence
 
 ### Printers
 
-To run a printer, use `--printers` and a comma-separated list of printers.
+To run a printer, use `--print` and a comma-separated list of printers.
 
 Num | Printer | Description
 --- | --- | ---

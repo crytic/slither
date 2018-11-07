@@ -257,7 +257,7 @@ def parse_args(detector_classes, printer_classes):
     group_solc = parser.add_argument_group('Solc options')
     group_misc = parser.add_argument_group('Additional option')
 
-    group_detector.add_argument('--detectors',
+    group_detector.add_argument('--detect',
                                 help='Comma-separated list of detectors, defaults to all, '
                                      'available detectors: {}'.format(
                                          ', '.join(d.ARGUMENT for d in detector_classes)),
@@ -265,7 +265,7 @@ def parse_args(detector_classes, printer_classes):
                                 dest='detectors_to_run',
                                 default='all')
 
-    group_printer.add_argument('--printers',
+    group_printer.add_argument('--print',
                                help='Comma-separated list fo contract information printers, '
                                     'available printers: {}'.format(
                                         ', '.join(d.ARGUMENT for d in printer_classes)),
