@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-from slither.detectors.abstract_detector import AbstractDetector
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
 from .solc_parsing.slitherSolc import SlitherSolc
 from .utils.colors import red
@@ -35,6 +35,26 @@ class Slither(SlitherSolc):
                 self._parse_contracts_from_json(c)
 
         self._analyze_contracts()
+
+    @property
+    def detectors(self):
+        return self._detectors
+
+    @property
+    def detectors_high(self):
+        return [d for d in self.detectors if d.IMPACT == DetectorClassification.HIGH]
+
+    @property
+    def detectors_medium(self):
+        return [d for d in self.detectors if d.IMPACT == DetectorClassification.MEDIUM]
+
+    @property
+    def detectors_low(self):
+        return [d for d in self.detectors if d.IMPACT == DetectorClassification.LOW]
+
+    @property
+    def detectors_informational(self):
+        return [d for d in self.detectors if d.IMPACT == DetectorClassification.INFORMATIONAL]
 
     def register_detector(self, detector_class):
         """

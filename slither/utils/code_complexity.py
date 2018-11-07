@@ -1,8 +1,8 @@
-# Funciton computing the code complexity
+# Function computing the code complexity
 
 def compute_number_edges(function):
     """
-        Compute the number of edges of the CFG
+    Compute the number of edges of the CFG
     Args:
         function (core.declarations.function.Function)
     Returns:
