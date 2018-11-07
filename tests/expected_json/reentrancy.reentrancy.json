@@ -5,7 +5,7 @@
         ],
         "contract": "Reentrancy",
         "filename": "tests/reentrancy.sol",
-        "function_name": "withdrawBalance",
+        "function": "withdrawBalance",
         "send_eth": [
             "! (msg.sender.call.value(userBalance[msg.sender])())"
         ],

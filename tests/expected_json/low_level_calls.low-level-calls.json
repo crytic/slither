@@ -2,7 +2,7 @@
     {
         "contract": "Sender",
         "filename": "tests/low_level_calls.sol",
-        "function_name": "send",
+        "function": "send",
         "sourceMapping": [
             {
                 "filename": "tests/low_level_calls.sol",
