@@ -55,7 +55,7 @@ class LowLevelCalls(AbstractDetector):
                                 'sourceMapping': sourceMapping,
                                 'filename': self.filename,
                                 'contract': func.contract.name,
-                                'function_name': func.name})
+                                'function': func.name})
 
         if all_info != '':
             self.log(all_info)

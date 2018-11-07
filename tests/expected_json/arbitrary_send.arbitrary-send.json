@@ -5,7 +5,7 @@
         ],
         "contract": "Test",
         "filename": "tests/arbitrary_send.sol",
-        "func": "direct",
+        "function": "direct",
         "sourceMapping": [
             {
                 "filename": "tests/arbitrary_send.sol",
@@ -24,7 +24,7 @@
         ],
         "contract": "Test",
         "filename": "tests/arbitrary_send.sol",
-        "func": "indirect",
+        "function": "indirect",
         "sourceMapping": [
             {
                 "filename": "tests/arbitrary_send.sol",
