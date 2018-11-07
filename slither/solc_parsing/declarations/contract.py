@@ -218,6 +218,7 @@ class ContractSolc04(Contract):
             event = EventSolc(event_to_parse, self)
             event.analyze(self)
             event.set_contract(self)
+            event.set_offset(event_to_parse['src'], self.slither)
             self._events[event.full_name] = event
 
         self._eventsNotParsed = None
@@ -234,9 +235,14 @@ class ContractSolc04(Contract):
             self._variables[var.name] = var
 
     def analyze_constant_state_variables(self):
+        from slither.solc_parsing.expressions.expression_parsing import VariableNotFound
         for var in self.variables:
             if var.is_constant:
-                var.analyze(self)
+                # cant parse constant expression based on function calls
+                try:
+                    var.analyze(self)
+                except VariableNotFound:
+                    pass
         return
 
     def analyze_state_variables(self):

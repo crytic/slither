@@ -35,6 +35,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     IMPACT = None
     CONFIDENCE = None
 
+    WIKI = ''
+
     def __init__(self, slither, logger):
         self.slither = slither
         self.contracts = slither.contracts
@@ -64,7 +66,9 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     def log(self, info):
         if self.logger:
-            info = " "+info
+            info = "\n"+info
+            if self.WIKI != '':
+                info += 'Reference: {}'.format(self.WIKI)
             self.logger.info(self.color(info))
 
     @abc.abstractmethod

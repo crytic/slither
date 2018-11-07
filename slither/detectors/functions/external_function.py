@@ -16,6 +16,8 @@ class ExternalFunction(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#public-function-that-could-be-declared-as-external'
+
     @staticmethod
     def detect_functions_called(contract):
         """ Returns a list of InternallCall, SolidityCall
@@ -45,6 +47,7 @@ class ExternalFunction(AbstractDetector):
         results = []
 
         public_function_calls = []
+        all_info = ''
 
         for contract in self.slither.contracts_derived:
             if self._contains_internal_dynamic_call(contract):
@@ -56,15 +59,16 @@ class ExternalFunction(AbstractDetector):
             for func in [f for f in contract.functions if f.visibility == 'public' and\
                                                            not f in public_function_calls and\
                                                            not f.is_constructor]:
-                func_name = func.name
-                txt = "Public function in {} Contract: {}, Function: {} should be declared external"
-                info = txt.format(self.filename,
-                                  contract.name,
-                                  func_name)
-                self.log(info)
+                txt = "{}.{} ({}) should be declared external\n"
+                info = txt.format(func.contract.name,
+                                  func.name,
+                                  func.source_mapping_str)
+                all_info += info
                 results.append({'vuln': 'ExternalFunc',
                                 'sourceMapping': func.source_mapping,
                                 'filename': self.filename,
-                                'contract': contract.name,
-                                'func': func_name})
+                                'contract': func.contract.name,
+                                'func': func.name})
+        if all_info != '':
+            self.log(all_info)
         return results
