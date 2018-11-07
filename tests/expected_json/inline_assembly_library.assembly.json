@@ -2,7 +2,7 @@
     {
         "contract": "VectorSum",
         "filename": "tests/inline_assembly_library.sol",
-        "function_name": "sumAsm",
+        "function": "sumAsm",
         "sourceMapping": [
             {
                 "filename": "tests/inline_assembly_library.sol",
@@ -21,7 +21,7 @@
     {
         "contract": "VectorSum",
         "filename": "tests/inline_assembly_library.sol",
-        "function_name": "sumPureAsm",
+        "function": "sumPureAsm",
         "sourceMapping": [
             {
                 "filename": "tests/inline_assembly_library.sol",
