@@ -2,7 +2,7 @@
     {
         "contract": "TxOrigin",
         "filename": "tests/tx_origin.sol",
-        "function_name": "bug0",
+        "function": "bug0",
         "sourceMapping": [
             {
                 "filename": "tests/tx_origin.sol",
@@ -18,7 +18,7 @@
     {
         "contract": "TxOrigin",
         "filename": "tests/tx_origin.sol",
-        "function_name": "bug2",
+        "function": "bug2",
         "sourceMapping": [
             {
                 "filename": "tests/tx_origin.sol",

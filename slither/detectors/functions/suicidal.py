@@ -68,6 +68,6 @@ class Suicidal(AbstractDetector):
                                 'sourceMapping': func.source_mapping,
                                 'filename': self.filename,
                                 'contract': c.name,
-                                'func': func.name})
+                                'function': func.name})
 
         return results

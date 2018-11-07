@@ -64,6 +64,6 @@ class TxOrigin(AbstractDetector):
                                 'sourceMapping': sourceMapping,
                                 'filename': self.filename,
                                 'contract': func.contract.name,
-                                'function_name': func.name})
+                                'function': func.name})
 
         return results
