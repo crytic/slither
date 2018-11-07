@@ -6,8 +6,17 @@
         "contract": "Test",
         "filename": "tests/arbitrary_send.sol",
         "func": "direct",
-        "sourceMapping": [],
-        "vuln": "SuicidalFunc"
+        "sourceMapping": [
+            {
+                "filename": "tests/arbitrary_send.sol",
+                "length": 29,
+                "lines": [
+                    12
+                ],
+                "start": 174
+            }
+        ],
+        "vuln": "ArbitrarySend"
     },
     {
         "calls": [
@@ -16,7 +25,16 @@
         "contract": "Test",
         "filename": "tests/arbitrary_send.sol",
         "func": "indirect",
-        "sourceMapping": [],
-        "vuln": "SuicidalFunc"
+        "sourceMapping": [
+            {
+                "filename": "tests/arbitrary_send.sol",
+                "length": 30,
+                "lines": [
+                    20
+                ],
+                "start": 307
+            }
+        ],
+        "vuln": "ArbitrarySend"
     }
 ]

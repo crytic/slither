@@ -9,11 +9,20 @@
             {
                 "filename": "tests/uninitialized.sol",
                 "length": 34,
+                "lines": [
+                    15
+                ],
                 "start": 189
             },
             {
                 "filename": "tests/uninitialized.sol",
                 "length": 143,
+                "lines": [
+                    23,
+                    24,
+                    25,
+                    26
+                ],
                 "start": 356
             }
         ],
@@ -30,11 +39,20 @@
             {
                 "filename": "tests/uninitialized.sol",
                 "length": 15,
+                "lines": [
+                    45
+                ],
                 "start": 695
             },
             {
                 "filename": "tests/uninitialized.sol",
                 "length": 117,
+                "lines": [
+                    53,
+                    54,
+                    55,
+                    56
+                ],
                 "start": 875
             }
         ],
@@ -51,11 +69,19 @@
             {
                 "filename": "tests/uninitialized.sol",
                 "length": 6,
+                "lines": [
+                    47
+                ],
                 "start": 748
             },
             {
                 "filename": "tests/uninitialized.sol",
                 "length": 52,
+                "lines": [
+                    49,
+                    50,
+                    51
+                ],
                 "start": 817
             }
         ],
@@ -72,11 +98,19 @@
             {
                 "filename": "tests/uninitialized.sol",
                 "length": 19,
+                "lines": [
+                    5
+                ],
                 "start": 55
             },
             {
                 "filename": "tests/uninitialized.sol",
                 "length": 82,
+                "lines": [
+                    7,
+                    8,
+                    9
+                ],
                 "start": 81
             }
         ],

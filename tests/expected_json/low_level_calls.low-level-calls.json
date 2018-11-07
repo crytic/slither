@@ -3,7 +3,16 @@
         "contract": "Sender",
         "filename": "tests/low_level_calls.sol",
         "function_name": "send",
-        "sourceMapping": [],
+        "sourceMapping": [
+            {
+                "filename": "tests/low_level_calls.sol",
+                "length": 43,
+                "lines": [
+                    6
+                ],
+                "start": 100
+            }
+        ],
         "vuln": "Low level call"
     }
 ]
