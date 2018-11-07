@@ -116,7 +116,7 @@ class ArbitrarySend(AbstractDetector):
                                 'sourceMapping': source_mapping,
                                 'filename': self.filename,
                                 'contract': func.contract.name,
-                                'func': func.name,
+                                'function': func.name,
                                 'calls': calls_str})
 
         return results

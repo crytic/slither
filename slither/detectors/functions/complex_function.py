@@ -111,6 +111,6 @@ class ComplexFunction(AbstractDetector):
                                 'sourceMapping': func.source_mapping,
                                 'filename': self.filename,
                                 'contract': contract.name,
-                                'func': func_name})
+                                'function': func_name})
         return results
 
