@@ -7,11 +7,22 @@
             {
                 "filename": "tests/uninitialized_storage_pointer.sol",
                 "length": 9,
+                "lines": [
+                    10
+                ],
                 "start": 171
             },
             {
                 "filename": "tests/uninitialized_storage_pointer.sol",
                 "length": 138,
+                "lines": [
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12
+                ],
                 "start": 67
             }
         ],

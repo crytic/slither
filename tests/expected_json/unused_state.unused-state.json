@@ -6,6 +6,9 @@
             {
                 "filename": "tests/unused_state.sol",
                 "length": 14,
+                "lines": [
+                    4
+                ],
                 "start": 41
             }
         ],

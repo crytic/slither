@@ -6,21 +6,33 @@
             {
                 "filename": "tests/const_state_variables.sol",
                 "length": 20,
+                "lines": [
+                    10
+                ],
                 "start": 235
             },
             {
                 "filename": "tests/const_state_variables.sol",
                 "length": 20,
+                "lines": [
+                    14
+                ],
                 "start": 331
             },
             {
                 "filename": "tests/const_state_variables.sol",
                 "length": 76,
+                "lines": [
+                    7
+                ],
                 "start": 130
             },
             {
                 "filename": "tests/const_state_variables.sol",
                 "length": 76,
+                "lines": [
+                    26
+                ],
                 "start": 494
             }
         ],
@@ -38,21 +50,33 @@
             {
                 "filename": "tests/const_state_variables.sol",
                 "length": 20,
+                "lines": [
+                    10
+                ],
                 "start": 235
             },
             {
                 "filename": "tests/const_state_variables.sol",
                 "length": 20,
+                "lines": [
+                    14
+                ],
                 "start": 331
             },
             {
                 "filename": "tests/const_state_variables.sol",
                 "length": 76,
+                "lines": [
+                    7
+                ],
                 "start": 130
             },
             {
                 "filename": "tests/const_state_variables.sol",
                 "length": 76,
+                "lines": [
+                    26
+                ],
                 "start": 494
             }
         ],

@@ -35,7 +35,7 @@ class OldSolc(AbstractDetector):
 
             source = [p.source_mapping for p in pragma]
             results.append({'vuln': 'OldPragma',
-                            'pragma': old_pragma,
+                            'pragma': [p.version for p in old_pragma],
                             'sourceMapping': source})
 
         return results

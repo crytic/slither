@@ -8,6 +8,11 @@
             {
                 "filename": "tests/locked_ether.sol",
                 "length": 72,
+                "lines": [
+                    4,
+                    5,
+                    6
+                ],
                 "start": 46
             }
         ],
