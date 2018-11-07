@@ -16,7 +16,7 @@ class PrinterHumanSummary(AbstractPrinter):
     @staticmethod
     def get_summary_erc20(contract):
         txt = ''
-        functions_name = [f.name for f in contract.functions]
+        functions_name = [f.name.lower() for f in contract.functions]
         state_variables = [v.name.lower() for v in contract.state_variables]
 
         if 'pause' in functions_name:
