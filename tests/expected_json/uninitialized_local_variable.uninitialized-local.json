@@ -1,0 +1,31 @@
+[
+    {
+        "contract": "Uninitialized",
+        "filename": "tests/uninitialized_local_variable.sol",
+        "function": "func",
+        "sourceMapping": [
+            {
+                "filename": "tests/uninitialized_local_variable.sol",
+                "length": 18,
+                "lines": [
+                    4
+                ],
+                "start": 77
+            },
+            {
+                "filename": "tests/uninitialized_local_variable.sol",
+                "length": 143,
+                "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                ],
+                "start": 29
+            }
+        ],
+        "variable": "uint_not_init",
+        "vuln": "UninitializedLocalVars"
+    }
+]

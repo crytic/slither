@@ -2,8 +2,8 @@
     Contract module
 """
 import logging
-from slither.core.children.childSlither import ChildSlither
-from slither.core.sourceMapping.sourceMapping import SourceMapping
+from slither.core.children.child_slither import ChildSlither
+from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.declarations.function import Function
 
 logger = logging.getLogger("Contract")
@@ -19,7 +19,7 @@ class Contract(ChildSlither, SourceMapping):
 
         self._name = None
         self._id = None
-        self._inheritances = []
+        self._inheritance = []
 
         self._enums = {}
         self._structures = {}
@@ -52,21 +52,21 @@ class Contract(ChildSlither, SourceMapping):
         return self._id
 
     @property
-    def inheritances(self):
+    def inheritance(self):
         '''
-            list(Contract): Inheritances list. Order: the first elem is the first father to be executed
+            list(Contract): Inheritance list. Order: the first elem is the first father to be executed
         '''
-        return self._inheritances
+        return list(self._inheritance)
 
     @property
-    def inheritances_reverse(self):
+    def inheritance_reverse(self):
         '''
-            list(Contract): Inheritances list. Order: the last elem is the first father to be executed
+            list(Contract): Inheritance list. Order: the last elem is the first father to be executed
         '''
-        return reversed(self._inheritances)
+        return reversed(self._inheritance)
 
-    def setInheritances(self, inheritances):
-        self._inheritances = inheritances
+    def setInheritance(self, inheritance):
+        self._inheritance = inheritance
 
     @property
     def structures(self):
@@ -96,6 +96,10 @@ class Contract(ChildSlither, SourceMapping):
         return self._modifiers
 
     @property
+    def constructor(self):
+        return next((func for func in self.functions if func.is_constructor), None)
+
+    @property
     def functions(self):
         '''
             list(Function): List of the functions
@@ -110,13 +114,19 @@ class Contract(ChildSlither, SourceMapping):
         return [f for f in self.functions if f.contract != self]
 
     @property
-    def functions_all_called(self):
+    def all_functions_called(self):
         '''
             list(Function): List of functions reachable from the contract (include super)
         '''
-        all_calls = (f.all_calls() for f in self.functions)
+        all_calls = (f.all_internal_calls() for f in self.functions)
         all_calls = [item for sublist in all_calls for item in sublist] + self.functions
-        all_calls = set(all_calls)
+        all_calls = list(set(all_calls))
+
+        all_constructors = [c.constructor for c in self.inheritance]
+        all_constructors = list(set([c for c in all_constructors if c]))
+
+        all_calls = set(all_calls+all_constructors)
+
         return [c for c in all_calls if isinstance(c, Function)]
 
     def functions_as_dict(self):
@@ -135,7 +145,7 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def state_variables(self):
         '''
-            list(StateVariable): List of the state variables. 
+            list(StateVariable): List of the state variables.
         '''
         return list(self._variables.values())
 
@@ -144,7 +154,7 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(StateVariable): List of the state variables. Alias to self.state_variables
         '''
-        return self.state_variables
+        return list(self.state_variables)
 
     def variables_as_dict(self):
         return self._variables
@@ -154,6 +164,10 @@ class Contract(ChildSlither, SourceMapping):
         return self._using_for
 
     def reverse_using_for(self, name):
+        '''
+            Returns:
+            (list)
+        '''
         return self._using_for[name]
 
     @property
@@ -163,13 +177,13 @@ class Contract(ChildSlither, SourceMapping):
     def __str__(self):
         return self.name
 
-    def get_functions_reading_variable(self, variable):
+    def get_functions_reading_from_variable(self, variable):
         '''
             Return the functions reading the variable
         '''
         return [f for f in self.functions if f.is_reading(variable)]
 
-    def get_functions_writing_variable(self, variable):
+    def get_functions_writing_to_variable(self, variable):
         '''
             Return the functions writting the variable
         '''
@@ -289,6 +303,7 @@ class Contract(ChildSlither, SourceMapping):
     def is_erc20(self):
         """
             Check if the contract is an erc20 token
+
             Note: it does not check for correct return values
         Returns:
             bool
@@ -302,8 +317,8 @@ class Contract(ChildSlither, SourceMapping):
         """ Return the function summary
 
         Returns:
-            (str, list, list, list): (name, variables, fuction summaries, modifier summaries)
+            (str, list, list, list, list): (name, inheritance, variables, fuction summaries, modifier summaries)
         """
         func_summaries = [f.get_summary() for f in self.functions]
         modif_summaries = [f.get_summary() for f in self.modifiers]
-        return (self.name, [str(x) for x in self.inheritances], [str(x) for x in self.variables], func_summaries, modif_summaries)
+        return (self.name, [str(x) for x in self.inheritance], [str(x) for x in self.variables], func_summaries, modif_summaries)

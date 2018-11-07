@@ -1,0 +1,40 @@
+[
+    {
+        "calls": [
+            "msg.sender.send(this.balance)"
+        ],
+        "contract": "Test",
+        "filename": "tests/arbitrary_send.sol",
+        "func": "direct",
+        "sourceMapping": [
+            {
+                "filename": "tests/arbitrary_send.sol",
+                "length": 29,
+                "lines": [
+                    12
+                ],
+                "start": 174
+            }
+        ],
+        "vuln": "ArbitrarySend"
+    },
+    {
+        "calls": [
+            "destination.send(this.balance)"
+        ],
+        "contract": "Test",
+        "filename": "tests/arbitrary_send.sol",
+        "func": "indirect",
+        "sourceMapping": [
+            {
+                "filename": "tests/arbitrary_send.sol",
+                "length": 30,
+                "lines": [
+                    20
+                ],
+                "start": 307
+            }
+        ],
+        "vuln": "ArbitrarySend"
+    }
+]
