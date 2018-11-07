@@ -84,7 +84,7 @@ class PrinterHumanSummary(AbstractPrinter):
 
     def output(self, _filename):
         """
-            _filename is not used
+        _filename is not used
             Args:
                 _filename(string)
         """
