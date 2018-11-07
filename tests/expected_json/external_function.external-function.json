@@ -2,7 +2,7 @@
     {
         "contract": "ContractWithFunctionNotCalled",
         "filename": "tests/external_function.sol",
-        "func": "funcNotCalled",
+        "function": "funcNotCalled",
         "sourceMapping": {
             "filename": "tests/external_function.sol",
             "length": 40,
@@ -18,7 +18,7 @@
     {
         "contract": "ContractWithFunctionNotCalled",
         "filename": "tests/external_function.sol",
-        "func": "funcNotCalled2",
+        "function": "funcNotCalled2",
         "sourceMapping": {
             "filename": "tests/external_function.sol",
             "length": 41,
@@ -34,7 +34,7 @@
     {
         "contract": "ContractWithFunctionNotCalled",
         "filename": "tests/external_function.sol",
-        "func": "funcNotCalled3",
+        "function": "funcNotCalled3",
         "sourceMapping": {
             "filename": "tests/external_function.sol",
             "length": 41,
@@ -50,7 +50,7 @@
     {
         "contract": "ContractWithFunctionNotCalled2",
         "filename": "tests/external_function.sol",
-        "func": "funcNotCalled",
+        "function": "funcNotCalled",
         "sourceMapping": {
             "filename": "tests/external_function.sol",
             "length": 304,
