@@ -1,3 +1,4 @@
+import os
 import json
 import re
 import logging
@@ -56,6 +57,13 @@ class SlitherSolc(Slither):
         if 'nodeType' in data_loaded:
             self._is_compact_ast = True
 
+        if 'sourcePaths' in data_loaded:
+            for sourcePath in data_loaded['sourcePaths']:
+                if os.path.isfile(sourcePath):
+                    with open(sourcePath) as f:
+                        source_code = f.read()
+                    self.source_code[sourcePath] = source_code
+
         if data_loaded[self.get_key()] == 'root':
             self._solc_version = '0.3'
             logger.error('solc <0.4 is not supported')
@@ -105,7 +113,7 @@ class SlitherSolc(Slither):
             assert len(name) == 1
             name = name[0]
         else:
-            name =filename
+            name = filename
 
         sourceUnit = -1  # handle old solc, or error
         if 'src' in data:
@@ -114,6 +122,12 @@ class SlitherSolc(Slither):
                 sourceUnit = int(sourceUnit[0])
 
         self._source_units[sourceUnit] = name
+        if os.path.isfile(name) and not name in self.source_code:
+            with open(name) as f:
+                source_code = f.read()
+            self.source_code[name] = source_code
+
+
 
     def _analyze_contracts(self):
         if self._analyzed:

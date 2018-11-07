@@ -18,4 +18,4 @@ class Pragma(SourceMapping):
         return ''.join(self.directive[1:])
 
     def __str__(self):
-        return 'pragma '+str(self.directive)
+        return 'pragma '+''.join(self.directive)
