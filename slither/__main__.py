@@ -46,11 +46,12 @@ def _process(slither, detector_classes, printer_classes):
 
     results = []
 
-    detector_results = slither.run_detectors()
-    detector_results = [x for x in detector_results if x]  # remove empty results
-    detector_results = [item for sublist in detector_results for item in sublist]  # flatten
+    if not printer_classes:
+        detector_results = slither.run_detectors()
+        detector_results = [x for x in detector_results if x]  # remove empty results
+        detector_results = [item for sublist in detector_results for item in sublist]  # flatten
 
-    results.extend(detector_results)
+        results.extend(detector_results)
 
     slither.run_printers()  # Currently printers does not return results
 
@@ -137,6 +138,7 @@ def get_detectors_and_printers():
     from slither.printers.call.call_graph import PrinterCallGraph
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
     from slither.printers.summary.slithir import PrinterSlithIR
+    from slither.printers.summary.human_summary import PrinterHumanSummary
 
     printers = [FunctionSummary,
                 ContractSummary,
@@ -144,7 +146,8 @@ def get_detectors_and_printers():
                 PrinterInheritanceGraph,
                 PrinterCallGraph,
                 PrinterWrittenVariablesAndAuthorization,
-                PrinterSlithIR]
+                PrinterSlithIR,
+                PrinterHumanSummary]
 
     # Handle plugins!
     for entry_point in iter_entry_points(group='slither_analyzer.plugin', name=None):
@@ -178,10 +181,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     args = parse_args(all_detector_classes, all_printer_classes)
 
     printer_classes = choose_printers(args, all_printer_classes)
-    if printer_classes:
-        detector_classes = []
-    else:
-        detector_classes = choose_detectors(args, all_detector_classes)
+    detector_classes = choose_detectors(args, all_detector_classes)
 
     default_log = logging.INFO if not args.debug else logging.DEBUG
 
