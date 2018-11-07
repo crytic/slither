@@ -35,7 +35,7 @@ class ArbitrarySend(AbstractDetector):
 
     @staticmethod
     def arbitrary_send(func):
-        """ 
+        """
         """
         if func.is_protected():
             return []

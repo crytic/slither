@@ -1,0 +1,86 @@
+[
+    {
+        "contract": "Test",
+        "filename": "tests/uninitialized.sol",
+        "functions": [
+            "use"
+        ],
+        "sourceMapping": [
+            {
+                "filename": "tests/uninitialized.sol",
+                "length": 34,
+                "start": 189
+            },
+            {
+                "filename": "tests/uninitialized.sol",
+                "length": 143,
+                "start": 356
+            }
+        ],
+        "variable": "balances",
+        "vuln": "UninitializedStateVars"
+    },
+    {
+        "contract": "Test2",
+        "filename": "tests/uninitialized.sol",
+        "functions": [
+            "use"
+        ],
+        "sourceMapping": [
+            {
+                "filename": "tests/uninitialized.sol",
+                "length": 15,
+                "start": 695
+            },
+            {
+                "filename": "tests/uninitialized.sol",
+                "length": 117,
+                "start": 875
+            }
+        ],
+        "variable": "st",
+        "vuln": "UninitializedStateVars"
+    },
+    {
+        "contract": "Test2",
+        "filename": "tests/uninitialized.sol",
+        "functions": [
+            "init"
+        ],
+        "sourceMapping": [
+            {
+                "filename": "tests/uninitialized.sol",
+                "length": 6,
+                "start": 748
+            },
+            {
+                "filename": "tests/uninitialized.sol",
+                "length": 52,
+                "start": 817
+            }
+        ],
+        "variable": "v",
+        "vuln": "UninitializedStateVars"
+    },
+    {
+        "contract": "Uninitialized",
+        "filename": "tests/uninitialized.sol",
+        "functions": [
+            "transfer"
+        ],
+        "sourceMapping": [
+            {
+                "filename": "tests/uninitialized.sol",
+                "length": 19,
+                "start": 55
+            },
+            {
+                "filename": "tests/uninitialized.sol",
+                "length": 82,
+                "start": 81
+            }
+        ],
+        "variable": "destination",
+        "vuln": "UninitializedStateVars"
+    }
+]

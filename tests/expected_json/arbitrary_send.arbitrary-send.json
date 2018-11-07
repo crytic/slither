@@ -1,0 +1,22 @@
+[
+    {
+        "calls": [
+            "msg.sender.send(this.balance)"
+        ],
+        "contract": "Test",
+        "filename": "tests/arbitrary_send.sol",
+        "func": "direct",
+        "sourceMapping": [],
+        "vuln": "SuicidalFunc"
+    },
+    {
+        "calls": [
+            "destination.send(this.balance)"
+        ],
+        "contract": "Test",
+        "filename": "tests/arbitrary_send.sol",
+        "func": "indirect",
+        "sourceMapping": [],
+        "vuln": "SuicidalFunc"
+    }
+]

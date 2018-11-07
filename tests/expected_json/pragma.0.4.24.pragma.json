@@ -1,0 +1,21 @@
+[
+    {
+        "sourceMapping": [
+            {
+                "filename": "tests/pragma.0.4.23.sol",
+                "length": 24,
+                "start": 0
+            },
+            {
+                "filename": "tests/pragma.0.4.24.sol",
+                "length": 23,
+                "start": 0
+            }
+        ],
+        "versions": [
+            "0.4.24",
+            "^0.4.23"
+        ],
+        "vuln": "ConstantPragma"
+    }
+]

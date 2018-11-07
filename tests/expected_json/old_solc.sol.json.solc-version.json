@@ -1,0 +1,15 @@
+[
+    {
+        "pragma": [
+            "0.4.21"
+        ],
+        "sourceMapping": [
+            {
+                "filename": "old_solc.sol",
+                "length": 23,
+                "start": 0
+            }
+        ],
+        "vuln": "OldPragma"
+    }
+]
