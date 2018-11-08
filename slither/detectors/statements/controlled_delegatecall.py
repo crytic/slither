@@ -17,7 +17,7 @@ class ControlledDelegateCall(AbstractDetector):
         ret = []
         for node in function.nodes:
             for ir in node.irs:
-                if isinstance(ir, LowLevelCall) and ir.function_name == 'delegatecall':
+                if isinstance(ir, LowLevelCall) and ir.function_name in ['delegatecall', 'codecall']:
                     if is_tainted(self.slither, ir.arguments[0]):
                         ret.append(node)
         return ret
