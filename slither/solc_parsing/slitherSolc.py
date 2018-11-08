@@ -142,7 +142,13 @@ class SlitherSolc(Slither):
         # Update of the inheritance 
         for contract in self._contractsNotParsed:
             # remove the first elem in linearizedBaseContracts as it is the contract itself
-            contract.setInheritance([self._contracts_by_id[i] for i in contract.linearizedBaseContracts[1:]])
+            fathers = []
+            for i in contract.linearizedBaseContracts[1:]:
+                if i in contract.remapping:
+                    fathers.append(self.get_contract_from_name(contract.remapping[i]))
+                else:
+                    fathers.append(self._contracts_by_id[i])
+            contract.setInheritance(fathers)
 
         contracts_to_be_analyzed = self.contracts
 
