@@ -469,6 +469,9 @@ class Function(ChildContract, SourceMapping):
         """
         return self._explore_functions(lambda x: x.internal_calls)
 
+    def explore(self, f):
+        return self._explore_functions(f)
+
     def all_conditional_state_variables_read(self):
         """
             Return the state variable used in a condition
