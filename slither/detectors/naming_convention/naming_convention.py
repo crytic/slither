@@ -114,6 +114,7 @@ class NamingConvention(AbstractDetector):
                                            argument.source_mapping_str)
                         all_info += info
 
+
                         results.append({'vuln': 'NamingConvention',
                                         'filename': self.filename,
                                         'contract': contract.name,
