@@ -7,7 +7,7 @@ class ControlledDelegateCall(AbstractDetector):
     """
 
     ARGUMENT = 'controlled-delegatecall'
-    HELP = 'Controlled delegatecall function id'
+    HELP = 'Controlled delegatecall destination'
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
@@ -18,7 +18,7 @@ class ControlledDelegateCall(AbstractDetector):
         for node in function.nodes:
             for ir in node.irs:
                 if isinstance(ir, LowLevelCall) and ir.function_name in ['delegatecall', 'codecall']:
-                    if is_tainted(self.slither, ir.arguments[0]) and is_tainted(self.slither, ir.destination):
+                    if is_tainted(self.slither, ir.destination):
                         ret.append(node)
         return ret
 
