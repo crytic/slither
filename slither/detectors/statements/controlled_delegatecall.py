@@ -9,7 +9,7 @@ class ControlledDelegateCall(AbstractDetector):
     ARGUMENT = 'controlled-delegatecall'
     HELP = 'Controlled delegatecall function id'
     IMPACT = DetectorClassification.HIGH
-    CONFIDENCE = DetectorClassification.HIGH
+    CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#controlled-delegatecall'
 
