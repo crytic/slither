@@ -111,6 +111,7 @@ def get_detectors_and_printers():
     from slither.detectors.operations.low_level_calls import LowLevelCalls
     from slither.detectors.naming_convention.naming_convention import NamingConvention
     from slither.detectors.functions.external_function import ExternalFunction
+    from slither.detectors.statements.controlled_delegatecall import ControlledDelegateCall
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -129,7 +130,8 @@ def get_detectors_and_printers():
                  NamingConvention,
                  ConstCandidateStateVars,
                  #ComplexFunction,
-                 ExternalFunction]
+                 ExternalFunction,
+                 ControlledDelegateCall]
 
     from slither.printers.summary.function import FunctionSummary
     from slither.printers.summary.contract import ContractSummary
