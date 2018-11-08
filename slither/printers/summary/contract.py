@@ -23,10 +23,6 @@ class ContractSummary(AbstractPrinter):
             txt += blue("\n+ Contract %s\n"%name)
             # (c_name, f_name, visi, _, _, _, _, _) in func_summaries
             public = [(elem[0], (elem[1], elem[2]) ) for elem in func_summaries]
-#            private = [(elem[0], (elem[1], elem[2])) for elem in func_summaries if elem[2] in ['internal', 'private']]
-            # should never happen
-  #          other = [(elem[0], (elem[1], elem[2])) for elem in func_summaries if elem[2] not in ['external', 'public', 'internal', 'private']]
-    #        assert not other
 
             collect = collections.defaultdict(list)
             for a,b in public:
