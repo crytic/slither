@@ -101,7 +101,7 @@ class NamingConvention(AbstractDetector):
                     else:
                         correct_naming = self.is_mixed_case_with_underscore(argument.name)
                     if not correct_naming:
-                        info = "Parameter '{}' is not in mixedCase, Contract: '{}', Function: '{}'' " \
+                        info = "Parameter '{}' is not in mixedCase, Contract: '{}', Function: '{}' " \
                             .format(argument.name, argument.name, contract.name)
                         self.log(info)
 
