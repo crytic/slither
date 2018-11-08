@@ -30,6 +30,8 @@ class Assembly(AbstractDetector):
     def detect_assembly(self, contract):
         ret = []
         for f in contract.functions:
+            if f.contract != contract:
+                continue
             nodes = f.nodes
             assembly_nodes = [n for n in nodes if
                               self._contains_inline_assembly_use(n)]

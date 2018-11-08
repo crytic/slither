@@ -39,10 +39,12 @@ class UnusedStateVars(AbstractDetector):
                 unusedVarsName = [v.name for v in unusedVars]
                 info = ''
                 for var in unusedVars:
-                    info += "{}.{} ({}) is never used\n".format(var.contract.name, var.name, var.source_mapping_str)
+                    info += "{}.{} ({}) is never used in {}\n".format(var.contract.name,
+                                                                      var.name,
+                                                                      var.source_mapping_str,
+                                                                      c.name)
 
                 all_info += info
-
                 sourceMapping = [v.source_mapping for v in unusedVars]
 
                 results.append({'vuln': 'unusedStateVars',
