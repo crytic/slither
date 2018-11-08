@@ -9,8 +9,7 @@
     TODO: dont report if the value is tainted by msg.value
 """
 
-from slither.analyses.taint.calls import KEY
-from slither.analyses.taint.calls import run_taint as run_taint_calls
+from slither.analyses.taint.all_variables import is_tainted as is_tainted_from_inputs
 from slither.analyses.taint.specific_variable import is_tainted
 from slither.analyses.taint.specific_variable import \
     run_taint as run_taint_variable
@@ -33,8 +32,7 @@ class ArbitrarySend(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#functions-that-send-ether-to-arbitrary-destinations'
 
-    @staticmethod
-    def arbitrary_send(func):
+    def arbitrary_send(self, func):
         """
         """
         if func.is_protected():
@@ -59,9 +57,8 @@ class ArbitrarySend(AbstractDetector):
                     if is_tainted(ir.call_value, SolidityVariableComposed('msg.value')):
                         continue
 
-                    if KEY in ir.context:
-                        if ir.context[KEY]:
-                            ret.append(node)
+                    if is_tainted_from_inputs(self.slither, ir.destination):
+                        ret.append(node)
         return ret
 
 
@@ -85,9 +82,6 @@ class ArbitrarySend(AbstractDetector):
         """
         results = []
 
-        # Look if the destination of a call is tainted
-        run_taint_calls(self.slither)
-
         # Taint msg.value
         taint = SolidityVariableComposed('msg.value')
         run_taint_variable(self.slither, taint)
@@ -101,7 +95,7 @@ class ArbitrarySend(AbstractDetector):
             for (func, nodes) in arbitrary_send:
                 calls_str = [str(node.expression) for node in nodes]
 
-                info = "{}{} sends eth to arbirary user\n"
+                info = "{}.{} sends eth to arbirary user\n"
                 info = info.format(func.contract.name,
                                    func.name)
                 info += '\tDangerous calls:\n'
