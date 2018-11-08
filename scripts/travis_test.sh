@@ -76,6 +76,7 @@ test_slither tests/const_state_variables.sol "constable-states"
 test_slither tests/external_function.sol "external-function"
 test_slither tests/naming_convention.sol "naming-convention"
 #test_slither tests/complex_func.sol "complex-function"
+test_slither tests/controlled_delegatecall.sol "controlled-delegatecall"
 
 ### Test scripts
 
