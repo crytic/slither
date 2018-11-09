@@ -25,7 +25,11 @@ class Slither(SlitherSolc):
         if isinstance(contract, list):
             super(Slither, self).__init__('')
             for c in contract:
-                self._parse_contracts_from_loaded_json(c, c['absolutePath'])
+                if 'absolutePath' in c:
+                    path = c['absolutePath']
+                else:
+                    path = c['attributes']['absolutePath']
+                self._parse_contracts_from_loaded_json(c, path)
         # .json or .sol provided
         else:
             contracts_json = self._run_solc(contract, solc, disable_solc_warnings, solc_arguments, ast_format)

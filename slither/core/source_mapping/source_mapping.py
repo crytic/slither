@@ -1,4 +1,5 @@
 import re
+import os
 from slither.core.context.context import Context
 
 class SourceMapping(Context):
@@ -74,8 +75,10 @@ class SourceMapping(Context):
         def relative_path(path):
             # Remove absolute path for printing
             # Truffle returns absolutePath
-            if '/contracts/' in path:
-                return path[path.find('/contracts/'):]
+            splited_path = path.split(os.sep)
+            if 'contracts' in splited_path:
+                idx = splited_path.index('contracts')
+                return os.sep.join(splited_path[idx-1:])
             return path
 
         lines = self.source_mapping['lines']
