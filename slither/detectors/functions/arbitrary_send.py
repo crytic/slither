@@ -5,10 +5,11 @@
         - If msg.sender is used as index (withdraw situation)
         - If the function is protected
         - If the value sent is msg.value (repay situation)
+        - If there is a call to transferFrom
 
     TODO: dont report if the value is tainted by msg.value
 """
-
+from slither.core.declarations import Function
 from slither.analyses.taint.all_variables import is_tainted as is_tainted_from_inputs
 from slither.analyses.taint.specific_variable import is_tainted
 from slither.analyses.taint.specific_variable import \
@@ -50,6 +51,10 @@ class ArbitrarySend(AbstractDetector):
                     if is_tainted(ir.variable_right, SolidityVariableComposed('msg.sender')):
                         return False
                 if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
+                    if isinstance(ir, (HighLevelCall)):
+                        if isinstance(ir.function, Function):
+                            if ir.function.full_name == 'transferFrom(address,address,uint256)':
+                                return False
                     if ir.call_value is None:
                         continue
                     if ir.call_value == SolidityVariableComposed('msg.value'):
@@ -59,6 +64,8 @@ class ArbitrarySend(AbstractDetector):
 
                     if is_tainted_from_inputs(self.slither, ir.destination):
                         ret.append(node)
+
+
         return ret
 
 
@@ -95,9 +102,10 @@ class ArbitrarySend(AbstractDetector):
             for (func, nodes) in arbitrary_send:
                 calls_str = [str(node.expression) for node in nodes]
 
-                info = "{}.{} sends eth to arbirary user\n"
+                info = "{}.{} ({}) sends eth to arbirary user\n"
                 info = info.format(func.contract.name,
-                                   func.name)
+                                   func.name,
+                                   func.source_mapping_str)
                 info += '\tDangerous calls:\n'
                 for node in nodes:
                     info += '\t- {} ({})\n'.format(node.expression, node.source_mapping_str)
