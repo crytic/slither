@@ -24,12 +24,12 @@ slither .
 ```
 
 Run Slither on a single file:
-``` 
+```
 $ slither tests/uninitialized.sol # argument can be file, folder or glob, be sure to quote the argument when using a glob
 [..]
 INFO:Detectors:Uninitialized state variables in tests/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
 [..]
-``` 
+```
 
 If Slither is run on a directory, it will run on every `.sol` file in the directory.
 
@@ -54,14 +54,16 @@ Num | Detector | What it Detects | Impact | Confidence
 5 | `reentrancy` | Reentrancy vulnerabilities | High | Medium
 6 | `locked-ether` | Contracts that lock ether | Medium | High
 7 | `tx-origin` | Dangerous usage of `tx.origin` | Medium | Medium
-8 | `assembly` | Assembly usage | Informational | High
-9 | `constable-states` | State variables that could be declared constant | Informational | High
-10 | `external-function` | Public function that could be declared as external | Informational | High
-11 | `low-level-calls` | Low level calls | Informational | High
-12 | `naming-convention` | Conformance to Solidity naming conventions | Informational | High
-13 | `pragma` | If different pragma directives are used | Informational | High
-14 | `solc-version` | Old versions of Solidity (< 0.4.23) | Informational | High
-15 | `unused-state` | Unused state variables | Informational | High
+8 | `unused-return` | Unused return values | Low | Medium
+9 | `assembly` | Assembly usage | Informational | High
+10 | `constable-states` | State variables that could be declared constant | Informational | High
+11 | `external-function` | Public function that could be declared as external | Informational | High
+12 | `low-level-calls` | Low level calls | Informational | High
+13 | `naming-convention` | Conformance to Solidity naming conventions | Informational | High
+14 | `pragma` | If different pragma directives are used | Informational | High
+15 | `solc-version` | Old versions of Solidity (< 0.4.23) | Informational | High
+16 | `unused-state` | Unused state variables | Informational | High
+
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
@@ -94,7 +96,7 @@ $ pip install slither-analyzer
 
 ```bash
 $ git clone https://github.com/trailofbits/slither.git && cd slither
-$ python setup.py install 
+$ python setup.py install
 ```
 
 ## Getting Help
