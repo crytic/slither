@@ -268,7 +268,7 @@ def parse_args(detector_classes, printer_classes):
                                 default='all')
 
     group_printer.add_argument('--printers',
-                               help='Comma-separated list fo contract information printers, '
+                               help='Comma-separated list of contract information printers, '
                                     'available printers: {}'.format(
                                         ', '.join(d.ARGUMENT for d in printer_classes)),
                                action='store',
