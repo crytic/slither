@@ -54,7 +54,7 @@ Num | Detector | What it Detects | Impact | Confidence
 5 | `reentrancy` | Reentrancy vulnerabilities | High | Medium
 6 | `locked-ether` | Contracts that lock ether | Medium | High
 7 | `tx-origin` | Dangerous usage of `tx.origin` | Medium | Medium
-8 | `unused-return` | Unused return values | Low | Medium
+8 | `unused-return` | Unused return value of a call | Low | Medium
 9 | `assembly` | Assembly usage | Informational | High
 10 | `constable-states` | State variables that could be declared constant | Informational | High
 11 | `external-function` | Public function that could be declared as external | Informational | High

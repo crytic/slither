@@ -29,7 +29,7 @@ class UnusedReturnValues(AbstractDetector):
 
     @staticmethod
     def unused_lvalues_in_high_level_calls(irs):
-        # Checking HighLevelCall - Same process would work for LowLevelCall
+        # Checking HighLevelCall - same process could work for LowLevelCall
         lvalues = []
         for ir in irs:
             if isinstance(ir, HighLevelCall):
@@ -49,26 +49,23 @@ class UnusedReturnValues(AbstractDetector):
         """
         results = []
         for c in self.slither.contracts_derived:
-            return_values = self.detect_unused_return_values(c)
+            unused_return_values = self.detect_unused_return_values(c)
 
-            if return_values:
-                variables_by_contract = defaultdict(list)
+            if unused_return_values:
+                funcs_with_unused_return_value_by_contract = defaultdict(list)
 
-                for return_value in return_values:
-                    variables_by_contract[return_value.contract.name].append(return_value)
+                for unused_return_value in unused_return_values:
+                    funcs_with_unused_return_value_by_contract[unused_return_value.contract.name].append(unused_return_value.function.name)
 
-                for contract, functions in variables_by_contract.items():
-                    func_names = [v.function.name for v in functions]
-                    info = "Unused return value from external call in %s, Contract: %s, Function: %s" % (self.filename,
-                                                                                                 contract,
-                                                                                                 func_names)
+                for contract, functions in funcs_with_unused_return_value_by_contract.items():
+                    info = "Unused return value from external call in %s Contract: %s, Function: %s" % (self.filename, contract, ",".join(functions))
                     self.log(info)
 
-                    sourceMapping = [v.source_mapping for v in return_values]
+                    sourceMapping = [v.source_mapping for v in unused_return_values]
 
                     results.append({'vuln': 'UnusedReturn',
                                     'sourceMapping': sourceMapping,
                                     'filename': self.filename,
                                     'contract': c.name,
-                                    'unusedVars': func_names})
+                                    'unusedReturns': functions})
         return results
