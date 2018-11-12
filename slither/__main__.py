@@ -288,7 +288,7 @@ def parse_args(detector_classes, printer_classes):
                                default=False)
 
 
-    group_detector.add_argument('--exclude-detectors',
+    group_detector.add_argument('--exclude',
                                 help='Comma-separated list of detectors that should be excluded',
                                 action='store',
                                 dest='detectors_to_exclude',
