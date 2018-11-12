@@ -4,10 +4,9 @@ contract Target{
     function f() returns(uint);
 }
 
-contract Function{
+contract User{
 
     function test(Target t){
         t.f();
     }
-
 }
