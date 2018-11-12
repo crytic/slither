@@ -24,12 +24,12 @@ slither .
 ```
 
 Run Slither on a single file:
-```
+``` 
 $ slither tests/uninitialized.sol # argument can be file, folder or glob, be sure to quote the argument when using a glob
 [..]
 INFO:Detectors:Uninitialized state variables in tests/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
 [..]
-```
+``` 
 
 If Slither is run on a directory, it will run on every `.sol` file in the directory.
 
@@ -96,7 +96,7 @@ $ pip install slither-analyzer
 
 ```bash
 $ git clone https://github.com/trailofbits/slither.git && cd slither
-$ python setup.py install
+$ python setup.py install 
 ```
 
 ## Getting Help
