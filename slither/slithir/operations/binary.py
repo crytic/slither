@@ -14,7 +14,7 @@ class BinaryType(object):
     ADDITION =          4 # +
     SUBTRACTION =      5 # -
     LEFT_SHIFT =        6 # <<
-    RIGHT_SHIT =        7 # >>
+    RIGHT_SHIFT =       7 # >>
     AND =               8 # &
     CARET =             9 # ^
     OR =                10 # | 
@@ -55,7 +55,7 @@ class BinaryType(object):
         if operation_type == '<<':
             return BinaryType.LEFT_SHIFT
         if operation_type == '>>':
-            return BinaryType.RIGHT_SHIT
+            return BinaryType.RIGHT_SHIFT
         if operation_type == '&':
             return BinaryType.AND
         if operation_type == '^':
@@ -98,7 +98,7 @@ class BinaryType(object):
             return '-'
         if operation_type == BinaryType.LEFT_SHIFT:
             return '<<'
-        if operation_type == BinaryType.RIGHT_SHIT:
+        if operation_type == BinaryType.RIGHT_SHIFT:
             return '>>'
         if operation_type == BinaryType.AND:
             return '&'
