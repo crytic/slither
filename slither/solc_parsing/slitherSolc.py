@@ -126,7 +126,12 @@ class SlitherSolc(Slither):
             with open(name) as f:
                 source_code = f.read()
             self.source_code[name] = source_code
-
+        else:
+            lib_name = os.path.join('node_modules', name)
+            if os.path.isfile(lib_name) and not name in self.source_code:
+                with open(lib_name) as f:
+                    source_code = f.read()
+                self.source_code[name] = source_code
 
 
     def _analyze_contracts(self):
