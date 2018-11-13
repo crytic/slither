@@ -13,7 +13,7 @@ class BinaryOperationType:
     ADDITION =          4 # +
     SUBTRACTION =      5 # -
     LEFT_SHIFT =        6 # <<
-    RIGHT_SHIT =        7 # >>>
+    RIGHT_SHIFT =        7 # >>>
     AND =               8 # &
     CARET =             9 # ^
     OR =                10 # | 
@@ -43,7 +43,7 @@ class BinaryOperationType:
         if operation_type == '<<':
             return BinaryOperationType.LEFT_SHIFT
         if operation_type == '>>':
-            return BinaryOperationType.RIGHT_SHIT
+            return BinaryOperationType.RIGHT_SHIFT
         if operation_type == '&':
             return BinaryOperationType.AND
         if operation_type == '^':
@@ -86,7 +86,7 @@ class BinaryOperationType:
             return '-'
         if operation_type == BinaryOperationType.LEFT_SHIFT:
             return '<<'
-        if operation_type == BinaryOperationType.RIGHT_SHIT:
+        if operation_type == BinaryOperationType.RIGHT_SHIFT:
             return '>>'
         if operation_type == BinaryOperationType.AND:
             return '&'
