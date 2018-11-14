@@ -1,5 +1,5 @@
 import sys
-from slither.slither import Slither
+from slither import Slither
 
 if len(sys.argv) != 2:
     print('python function_writing.py functions_writing.sol')

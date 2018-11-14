@@ -1,5 +1,5 @@
 import sys
-from slither.slither import Slither
+from slither import Slither
 
 if len(sys.argv) != 2:
     print('python variable_in_condition.py variable_in_condition.sol')

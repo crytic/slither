@@ -1,5 +1,5 @@
 import sys
-from slither.slither import Slither
+from slither import Slither
 from slither.slithir.convert import convert_expression
 
 

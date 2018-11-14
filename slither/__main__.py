@@ -13,12 +13,26 @@ from pkg_resources import iter_entry_points, require
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.slither import Slither
+from slither.slither_solidity import Slither as SlitherSolidity
+from slither.slither_vyper import Slither as SlitherVyper
 from slither.utils.colors import red
 from slither.utils.command_line import output_to_markdown, output_detectors, output_printers
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
+
+
+def process_vyper(filename, args, detector_classes, printer_classes):
+    """
+    The core high-level code for running Slither static analysis.
+
+    Returns:
+        list(result), int: Result list and number of contracts analyzed
+    """
+    slither = SlitherVyper(filename)
+
+    return _process(slither, detector_classes, printer_classes)
+
 
 
 def process(filename, args, detector_classes, printer_classes):
@@ -31,7 +45,7 @@ def process(filename, args, detector_classes, printer_classes):
     ast = '--ast-json'
     if args.compact_ast:
         ast = '--ast-compact-json'
-    slither = Slither(filename, args.solc, args.disable_solc_warnings, args.solc_args, ast)
+    slither = SlitherSolidity(filename, args.solc, args.disable_solc_warnings, args.solc_args, ast)
 
     return _process(slither, detector_classes, printer_classes)
 
@@ -74,7 +88,7 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
             all_contracts.append(contract_loaded['ast'])
             all_filenames.append(contract_loaded['sourcePath'])
 
-    slither = Slither(all_contracts, args.solc, args.disable_solc_warnings, args.solc_args)
+    slither = SlitherSolidity(all_contracts, args.solc, args.disable_solc_warnings, args.solc_args)
     return _process(slither, detector_classes, printer_classes)
 
 
@@ -196,6 +210,7 @@ def main_impl(all_detector_classes, all_printer_classes):
                               ('FunctionSolc', default_log),
                               ('ExpressionParsing', default_log),
                               ('TypeParsing', default_log),
+                              ('VyperParsing', default_log),
                               ('Printers', default_log)]:
         l = logging.getLogger(l_name)
         l.setLevel(l_level)
@@ -206,7 +221,10 @@ def main_impl(all_detector_classes, all_printer_classes):
         globbed_filenames = glob.glob(filename, recursive=True)
 
         if os.path.isfile(filename):
-            (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
+            if filename.endswith('.py'):
+                (results, number_contracts) = process_vyper(filename, args, detector_classes, printer_classes)
+            else:
+                (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
 
         elif os.path.isfile(os.path.join(filename, 'truffle.js')):
             (results, number_contracts) = process_truffle(filename, args, detector_classes, printer_classes)
