@@ -141,8 +141,17 @@ class SlitherSolc(Slither):
         # First we save all the contracts in a dict
         # the key is the contractid
         for contract in self._contractsNotParsed:
-            self._contracts_by_id[contract.id] = contract
-            self._contracts[contract.name] = contract
+            if contract.name in self._contracts:
+                if contract.id != self._contracts[contract.name].id:
+                    info = 'Slither does not handle projects with contract names re-use'
+                    info += '\n{} is defined in:'.format(contract.name)
+                    info += '\n- {}\n- {}'.format(contract.source_mapping_str,
+                                               self._contracts[contract.name].source_mapping_str)
+                    logger.error(info)
+                    exit(-1)
+            else:
+                self._contracts_by_id[contract.id] = contract
+                self._contracts[contract.name] = contract
 
         # Update of the inheritance 
         for contract in self._contractsNotParsed:
