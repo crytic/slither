@@ -61,7 +61,7 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
     if not os.path.isdir(os.path.join(dirname, 'build'))\
         or not os.path.isdir(os.path.join(dirname, 'build', 'contracts')):
         logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
-        return (0,0)
+        return ([],[])
 
     filenames = glob.glob(os.path.join(dirname,'build','contracts', '*.json'))
 
