@@ -103,7 +103,7 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
             return FunctionType(params_vars, return_vars)
     if not var_type:
         if name.startswith('mapping('):
-            found = re.findall('mapping\(([a-zA-Z0-9\.]*) => ([a-zA-Z0-9\.]*)\)', name)
+            found = re.findall('mapping\(([a-zA-Z0-9\.]*) => ([a-zA-Z0-9\.\[\]]*)\)', name)
             assert len(found) == 1
             from_ = found[0][0]
             to_ = found[0][1]
