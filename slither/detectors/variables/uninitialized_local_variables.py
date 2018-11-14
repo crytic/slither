@@ -6,7 +6,7 @@
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-
+from slither.core.cfg.node import NodeType
 from slither.visitors.expression.find_push import FindPush
 
 
@@ -60,6 +60,10 @@ class UninitializedLocalVars(AbstractDetector):
             self._detect_uninitialized(function, son, visited)
 
 
+    @staticmethod
+    def has_assembly_code(function):
+        return any(x.type == NodeType.ASSEMBLY for x in function.nodes)
+
     def detect(self):
         """ Detect uninitialized state variables
 
@@ -75,6 +79,8 @@ class UninitializedLocalVars(AbstractDetector):
         for contract in self.slither.contracts:
             for function in contract.functions:
                 if function.is_implemented:
+                    if self.has_assembly_code(function):
+                        continue
                     # dont consider storage variable, as they are detected by another detector
                     uninitialized_local_variables = [v for v in function.local_variables if not v.is_storage and v.uninitialized]
                     function.entry_point.context[self.key] = uninitialized_local_variables
