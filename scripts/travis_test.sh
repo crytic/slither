@@ -19,6 +19,15 @@ test_slither(){
     # remove the raw un-prettified json file
     rm "$DIR/tmp-test.json"
 
+    if [ ! -f "$expected" ]; then
+      rm "$actual"
+        echo ""
+        echo "Missing expected file"
+        echo ""
+        echo "$expected"
+        exit 1
+    fi 
+
     result=$(diff "$expected" "$actual")
 
     if [ "$result" != "" ]; then
