@@ -19,7 +19,6 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 
 Run Slither on a Truffle application:
 ```
-truffle compile
 slither .
 ```
 
@@ -27,11 +26,18 @@ Run Slither on a single file:
 ``` 
 $ slither tests/uninitialized.sol # argument can be file, folder or glob, be sure to quote the argument when using a glob
 [..]
-INFO:Detectors:Uninitialized state variables in tests/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
+INFO:Detectors:
+Uninitialized.destination (tests/uninitialized.sol#5) is never initialized. It is used in:
+	- transfer (tests/uninitialized.sol#7-9)
+Reference: https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-state-variables
 [..]
 ``` 
 
-If Slither is run on a directory, it will run on every `.sol` file in the directory.
+Slither can be run:
+    - A `.sol` file
+    - A Truffle directory
+    - A directory containing `*.sol` files (all the `*.sol` files will be analyzed)
+    - On glob (be sure to quote the argument when using a glob) 
 
 ###  Configuration
 
