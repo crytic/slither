@@ -1,0 +1,62 @@
+[
+    {
+        "contains_assembly": false,
+        "contract": "Constant",
+        "filename": "tests/constant.sol",
+        "function_name": "test_constant_bug",
+        "sourceMapping": {
+            "filename": "tests/constant.sol",
+            "length": 66,
+            "lines": [
+                9,
+                10,
+                11
+            ],
+            "start": 113
+        },
+        "varsWritten": [
+            "a"
+        ],
+        "vuln": "ConstFunction"
+    },
+    {
+        "contains_assembly": false,
+        "contract": "Constant",
+        "filename": "tests/constant.sol",
+        "function_name": "test_view_bug",
+        "sourceMapping": {
+            "filename": "tests/constant.sol",
+            "length": 58,
+            "lines": [
+                5,
+                6,
+                7
+            ],
+            "start": 45
+        },
+        "varsWritten": [
+            "a"
+        ],
+        "vuln": "ConstFunction"
+    },
+    {
+        "contains_assembly": true,
+        "contract": "Constant",
+        "filename": "tests/constant.sol",
+        "function_name": "test_assembly_bug",
+        "sourceMapping": [
+            {
+                "filename": "tests/constant.sol",
+                "length": 66,
+                "lines": [
+                    22,
+                    23,
+                    24
+                ],
+                "start": 324
+            }
+        ],
+        "varsWritten": [],
+        "vuln": "ConstFunction"
+    }
+]
