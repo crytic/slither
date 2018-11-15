@@ -135,33 +135,6 @@ class FunctionSolc(Function):
             link_nodes(condition_node, endIf_node)
         return endIf_node
 
-#    def _parse_if(self, ifStatement, node):
-#        # IfStatement = 'if' '(' Expression ')' Statement ( 'else' Statement )?
-#
-#        children = ifStatement[self.get_children('children')]
-#        condition_node = self._new_node(NodeType.IF)
-#        #condition = parse_expression(children[0], self)
-#        condition = children[0]
-#        condition_node.add_unparsed_expression(condition)
-#
-#        link_nodes(node, condition_node)
-#
-#        trueStatement = self._parse_statement(children[1], condition_node)
-#
-#        
-#        endIf_node = self._new_node(NodeType.ENDIF)
-#        link_nodes(trueStatement, endIf_node)
-#
-#        if len(children) == 3:
-#            falseStatement = self._parse_statement(children[2], condition_node)
-#
-#            link_nodes(falseStatement, endIf_node)
-#
-#        else:
-#            link_nodes(condition_node, endIf_node)
-#
-#        return endIf_node
-
     def _parse_while(self, whileStatement, node):
         # WhileStatement = 'while' '(' Expression ')' Statement
 
@@ -536,6 +509,7 @@ class FunctionSolc(Function):
             node = self._parse_block(statement, node)
         elif name == 'InlineAssembly':
             break_node = self._new_node(NodeType.ASSEMBLY, statement['src'])
+            self._contains_assembly = True
             link_nodes(node, break_node)
             node = break_node
         elif name == 'DoWhileStatement':
