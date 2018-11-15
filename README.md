@@ -24,7 +24,7 @@ slither .
 
 Run Slither on a single file:
 ``` 
-$ slither tests/uninitialized.sol # argument can be file, folder or glob, be sure to quote the argument when using a glob
+$ slither tests/uninitialized.sol 
 [..]
 INFO:Detectors:
 Uninitialized.destination (tests/uninitialized.sol#5) is never initialized. It is used in:
@@ -33,11 +33,11 @@ Reference: https://github.com/trailofbits/slither/wiki/Vulnerabilities-Descripti
 [..]
 ``` 
 
-Slither can be run:
-    - A `.sol` file
-    - A Truffle directory
-    - A directory containing `*.sol` files (all the `*.sol` files will be analyzed)
-    - On glob (be sure to quote the argument when using a glob) 
+Slither can be run on:
+- A `.sol` file
+- A Truffle directory
+- A directory containing `*.sol` files (all the `*.sol` files will be analyzed)
+- A glob (be sure to quote the argument when using a glob) 
 
 ###  Configuration
 
@@ -61,7 +61,7 @@ Num | Detector | What it Detects | Impact | Confidence
 6 | `controlled-delegatecall` | [Controlled delegatecall destination](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#controlled-delegatecall) | High | Medium
 7 | `reentrancy` | [Reentrancy vulnerabilities](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities) | High | Medium
 8 | `locked-ether` | [Contracts that lock ether](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#contracts-that-lock-ether) | Medium | High
-9 | `const-func` | [constant functions changing the state](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#constant-functions) | Medium | Medium
+9 | `const-func` | [Constant functions changing the state](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#constant-functions) | Medium | Medium
 10 | `tx-origin` | [Dangerous usage of `tx.origin`](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#dangerous-usage-of-txorigin) | Medium | Medium
 11 | `assembly` | [Assembly usage](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#assembly-usage) | Informational | High
 12 | `constable-states` | [State variables that could be declared constant](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variables-that-could-be-declared-constant) | Informational | High
