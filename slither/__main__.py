@@ -67,10 +67,10 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
     stdout, stderr = stdout.decode(), stderr.decode()  # convert bytestrings to unicode strings
 
     logger.info(stdout)
-    
+
     if stderr:
         logger.error(stderr)
-    
+
     if not os.path.isdir(os.path.join(dirname, 'build'))\
         or not os.path.isdir(os.path.join(dirname, 'build', 'contracts')):
         logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
