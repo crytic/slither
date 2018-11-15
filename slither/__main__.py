@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 
 from pkg_resources import iter_entry_points, require
 
@@ -58,6 +59,18 @@ def _process(slither, detector_classes, printer_classes):
     return results, analyzed_contracts_count
 
 def process_truffle(dirname, args, detector_classes, printer_classes):
+    cmd = ['truffle','compile']
+    logger.info('truffle compile running...')
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    stdout, stderr = process.communicate()
+    stdout, stderr = stdout.decode(), stderr.decode()  # convert bytestrings to unicode strings
+
+    logger.info(stdout)
+    
+    if stderr:
+        logger.error(stderr)
+    
     if not os.path.isdir(os.path.join(dirname, 'build'))\
         or not os.path.isdir(os.path.join(dirname, 'build', 'contracts')):
         logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
