@@ -5,6 +5,7 @@ Module detecting unused return values from external calls
 from collections import defaultdict
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations.high_level_call import HighLevelCall
+from slither.core.variables.state_variable import StateVariable
 
 class UnusedReturnValues(AbstractDetector):
     """
@@ -16,56 +17,52 @@ class UnusedReturnValues(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    @staticmethod
-    def lvalues_of_operations(contract):
-        ret = []
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-return'
 
-        for f in contract.all_functions_called + contract.modifiers:
-            for n in f.nodes:
-                for ir in n.irs:
-                    ret.append(ir)
+    def detect_unused_return_values(self, f):
+        """
+            Return the nodes where the return value of a call is unused
+        Args:
+            f (Function)
+        Returns:
+            list(Node)
+        """
+        values_returned = []
+        nodes_origin = {}
+        for n in f.nodes:
+            for ir in n.irs:
+                if isinstance(ir, HighLevelCall):
+                    # if a return value is stored in a state variable, it's ok
+                    if ir.lvalue and not isinstance(ir.lvalue, StateVariable):
+                        values_returned.append(ir.lvalue)
+                        nodes_origin[ir.lvalue] = ir
+                for read in ir.read:
+                    if read in values_returned:
+                        values_returned.remove(read)
 
-        return ret
-
-    @staticmethod
-    def unused_lvalues_in_high_level_calls(irs):
-        # Checking HighLevelCall - same process could work for LowLevelCall
-        lvalues = []
-        for ir in irs:
-            if isinstance(ir, HighLevelCall):
-                if (ir.lvalue.contract.get_functions_reading_from_variable(ir.lvalue) == []):
-                    lvalues.append(ir.lvalue)
-
-        return lvalues
-
-    def detect_unused_return_values(self, contract):
-        lvalues_of_operations = self.lvalues_of_operations(contract)
-        unused_lvalues = self.unused_lvalues_in_high_level_calls(lvalues_of_operations)
-
-        return unused_lvalues
+        return [nodes_origin[value].node for value in values_returned]
 
     def detect(self):
         """ Detect unused high level calls that return a value but are never used
         """
         results = []
-        for c in self.slither.contracts_derived:
-            unused_return_values = self.detect_unused_return_values(c)
-
-            if unused_return_values:
-                funcs_with_unused_return_value_by_contract = defaultdict(list)
-
-                for unused_return_value in unused_return_values:
-                    funcs_with_unused_return_value_by_contract[unused_return_value.contract.name].append(unused_return_value.function.name)
-
-                for contract, functions in funcs_with_unused_return_value_by_contract.items():
-                    info = "Unused return value from external call in %s Contract: %s, Function: %s" % (self.filename, contract, ",".join(functions))
+        for c in self.slither.contracts:
+            for f in c.functions + c.modifiers:
+                unused_return = self.detect_unused_return_values(f)
+                if unused_return:
+                    info = "{}.{} ({}) does not use the value returned by external calls:\n"
+                    info = info.format(f.contract.name,
+                                       f.name,
+                                       f.source_mapping_str)
+                    for node in unused_return:
+                        info += "\t-{} ({})\n".format(node.expression, node.source_mapping_str)
                     self.log(info)
 
-                    sourceMapping = [v.source_mapping for v in unused_return_values]
+                    sourceMapping = [v.source_mapping for v in unused_return]
 
                     results.append({'vuln': 'UnusedReturn',
                                     'sourceMapping': sourceMapping,
                                     'filename': self.filename,
                                     'contract': c.name,
-                                    'unusedReturns': functions})
+                                    'expressions':[str(n.expression) for n in unused_return]})
         return results

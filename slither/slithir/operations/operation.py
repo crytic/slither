@@ -1,5 +1,6 @@
 import abc
 from slither.core.context.context import Context
+from slither.core.children.child_node import ChildNode
 
 class AbstractOperation(abc.ABC):
 
@@ -19,7 +20,7 @@ class AbstractOperation(abc.ABC):
         """
         pass
 
-class Operation(Context, AbstractOperation):
+class Operation(Context, ChildNode, AbstractOperation):
 
     @property
     def used(self):
@@ -27,3 +28,4 @@ class Operation(Context, AbstractOperation):
             By default used is all the variables read
         """
         return self.read
+
