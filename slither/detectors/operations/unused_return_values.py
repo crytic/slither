@@ -48,6 +48,8 @@ class UnusedReturnValues(AbstractDetector):
         results = []
         for c in self.slither.contracts:
             for f in c.functions + c.modifiers:
+                if f.contract != c:
+                    continue
                 unused_return = self.detect_unused_return_values(f)
                 if unused_return:
                     info = "{}.{} ({}) does not use the value returned by external calls:\n"
