@@ -38,4 +38,5 @@ generate_expected_json(){
 #generate_expected_json tests/naming_convention.sol "naming-convention"
 #generate_expected_json tests/uninitialized_local_variable.sol "uninitialized-local"
 #generate_expected_json tests/controlled_delegatecall.sol "controlled-delegatecall"
-#generate_expected_json tests/constant.sol "const-func"
+#generate_expected_json tests/constant.sol "constant-func"
+generate_expected_json tests/unused_return.sol "unused-return"

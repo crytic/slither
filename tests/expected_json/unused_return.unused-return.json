@@ -1,0 +1,29 @@
+[
+    {
+        "contract": "User",
+        "expressions": [
+            "a.add(0)",
+            "t.f()"
+        ],
+        "filename": "tests/unused_return.sol",
+        "sourceMapping": [
+            {
+                "filename": "tests/unused_return.sol",
+                "length": 5,
+                "lines": [
+                    18
+                ],
+                "start": 263
+            },
+            {
+                "filename": "tests/unused_return.sol",
+                "length": 8,
+                "lines": [
+                    22
+                ],
+                "start": 337
+            }
+        ],
+        "vuln": "UnusedReturn"
+    }
+]
