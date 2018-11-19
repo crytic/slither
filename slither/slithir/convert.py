@@ -124,6 +124,7 @@ def propage_type_and_convert_call(result, node):
         if isinstance(ins, TmpCall):
             new_ins = extract_tmp_call(ins)
             if new_ins:
+                new_ins.set_node(ins.node)
                 ins = new_ins
                 result[idx] = ins
 
@@ -154,6 +155,7 @@ def propage_type_and_convert_call(result, node):
 
         new_ins = propagate_types(ins, node)
         if new_ins:
+            new_ins.set_node(ins.node)
             if isinstance(new_ins, (list,)):
                 assert len(new_ins) == 2
                 result.insert(idx, new_ins[0])
@@ -250,6 +252,7 @@ def look_for_library(contract, ir, node, using_for, t):
             lib_call.arguments = [ir.destination] + ir.arguments
             new_ir = convert_type_library_call(lib_call, lib_contract)
             if new_ir:
+                new_ir.set_node(ir.node)
                 return new_ir
     return None
 
