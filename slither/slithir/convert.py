@@ -600,6 +600,11 @@ def extract_tmp_call(ins):
     assert isinstance(ins, TmpCall)
     if isinstance(ins.ori, Member):
         if isinstance(ins.ori.variable_left, Contract):
+            st = ins.ori.variable_left.get_structure_from_name(ins.ori.variable_right)
+            if st:
+                op = NewStructure(st, ins.lvalue)
+                op.call_id = ins.call_id
+                return op
             libcall = LibraryCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
             libcall.call_id = ins.call_id
             return libcall

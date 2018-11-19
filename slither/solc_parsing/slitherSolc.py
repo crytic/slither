@@ -1,3 +1,4 @@
+import os
 import json
 import re
 import logging
@@ -56,6 +57,13 @@ class SlitherSolc(Slither):
         if 'nodeType' in data_loaded:
             self._is_compact_ast = True
 
+        if 'sourcePaths' in data_loaded:
+            for sourcePath in data_loaded['sourcePaths']:
+                if os.path.isfile(sourcePath):
+                    with open(sourcePath) as f:
+                        source_code = f.read()
+                    self.source_code[sourcePath] = source_code
+
         if data_loaded[self.get_key()] == 'root':
             self._solc_version = '0.3'
             logger.error('solc <0.4 is not supported')
@@ -105,7 +113,7 @@ class SlitherSolc(Slither):
             assert len(name) == 1
             name = name[0]
         else:
-            name =filename
+            name = filename
 
         sourceUnit = -1  # handle old solc, or error
         if 'src' in data:
@@ -114,6 +122,17 @@ class SlitherSolc(Slither):
                 sourceUnit = int(sourceUnit[0])
 
         self._source_units[sourceUnit] = name
+        if os.path.isfile(name) and not name in self.source_code:
+            with open(name) as f:
+                source_code = f.read()
+            self.source_code[name] = source_code
+        else:
+            lib_name = os.path.join('node_modules', name)
+            if os.path.isfile(lib_name) and not name in self.source_code:
+                with open(lib_name) as f:
+                    source_code = f.read()
+                self.source_code[name] = source_code
+
 
     def _analyze_contracts(self):
         if self._analyzed:
@@ -122,13 +141,28 @@ class SlitherSolc(Slither):
         # First we save all the contracts in a dict
         # the key is the contractid
         for contract in self._contractsNotParsed:
-            self._contracts_by_id[contract.id] = contract
-            self._contracts[contract.name] = contract
+            if contract.name in self._contracts:
+                if contract.id != self._contracts[contract.name].id:
+                    info = 'Slither does not handle projects with contract names re-use'
+                    info += '\n{} is defined in:'.format(contract.name)
+                    info += '\n- {}\n- {}'.format(contract.source_mapping_str,
+                                               self._contracts[contract.name].source_mapping_str)
+                    logger.error(info)
+                    exit(-1)
+            else:
+                self._contracts_by_id[contract.id] = contract
+                self._contracts[contract.name] = contract
 
         # Update of the inheritance 
         for contract in self._contractsNotParsed:
             # remove the first elem in linearizedBaseContracts as it is the contract itself
-            contract.setInheritance([self._contracts_by_id[i] for i in contract.linearizedBaseContracts[1:]])
+            fathers = []
+            for i in contract.linearizedBaseContracts[1:]:
+                if i in contract.remapping:
+                    fathers.append(self.get_contract_from_name(contract.remapping[i]))
+                else:
+                    fathers.append(self._contracts_by_id[i])
+            contract.setInheritance(fathers)
 
         contracts_to_be_analyzed = self.contracts
 

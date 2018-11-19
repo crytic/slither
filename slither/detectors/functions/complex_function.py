@@ -90,25 +90,27 @@ class ComplexFunction(AbstractDetector):
             for issue in issues:
                 func, cause = issue.values()
                 func_name = func.name
-                
-                txt = "Complex function in {} Contract: {}, Function: {}"
+
+                txt = "Complex function in {}\n\t- {}.{} ({})\n"
 
                 if cause == self.CAUSE_EXTERNAL_CALL:
-                    txt += ", Reason: High number of external calls"
+                    txt += "\t- Reason: High number of external calls"
                 if cause == self.CAUSE_CYCLOMATIC:
-                    txt += ", Reason: High number of branches"
+                    txt += "\t- Reason: High number of branches"
                 if cause == self.CAUSE_STATE_VARS:
-                    txt += ", Reason: High number of modified state variables"
+                    txt += "\t- Reason: High number of modified state variables"
 
                 info = txt.format(self.filename,
                                     contract.name,
-                                    func_name)
+                                    func_name,
+                                    func.source_mapping_str)
+                info = info + "\n"
                 self.log(info)
 
                 results.append({'vuln': 'ComplexFunc',
                                 'sourceMapping': func.source_mapping,
                                 'filename': self.filename,
                                 'contract': contract.name,
-                                'func': func_name})
+                                'function': func_name})
         return results
 

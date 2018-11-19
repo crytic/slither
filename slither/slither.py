@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-from slither.detectors.abstract_detector import AbstractDetector
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
 from .solc_parsing.slitherSolc import SlitherSolc
 from .utils.colors import red
@@ -22,9 +22,14 @@ class Slither(SlitherSolc):
         self._printers = []
 
         # json text provided
-        if isinstance(contract, dict):
+        if isinstance(contract, list):
             super(Slither, self).__init__('')
-            self._parse_contracts_from_loaded_json(contract, '')
+            for c in contract:
+                if 'absolutePath' in c:
+                    path = c['absolutePath']
+                else:
+                    path = c['attributes']['absolutePath']
+                self._parse_contracts_from_loaded_json(c, path)
         # .json or .sol provided
         else:
             contracts_json = self._run_solc(contract, solc, disable_solc_warnings, solc_arguments, ast_format)
@@ -34,6 +39,26 @@ class Slither(SlitherSolc):
                 self._parse_contracts_from_json(c)
 
         self._analyze_contracts()
+
+    @property
+    def detectors(self):
+        return self._detectors
+
+    @property
+    def detectors_high(self):
+        return [d for d in self.detectors if d.IMPACT == DetectorClassification.HIGH]
+
+    @property
+    def detectors_medium(self):
+        return [d for d in self.detectors if d.IMPACT == DetectorClassification.MEDIUM]
+
+    @property
+    def detectors_low(self):
+        return [d for d in self.detectors if d.IMPACT == DetectorClassification.LOW]
+
+    @property
+    def detectors_informational(self):
+        return [d for d in self.detectors if d.IMPACT == DetectorClassification.INFORMATIONAL]
 
     def register_detector(self, detector_class):
         """

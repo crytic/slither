@@ -92,8 +92,9 @@ class FunctionSolc(Function):
         if 'payable' in attributes:
             self._payable = attributes['payable']
 
-    def _new_node(self, node_type):
+    def _new_node(self, node_type, src):
         node = NodeSolc(node_type, self._counter_nodes)
+        node.set_offset(src, self.slither)
         self._counter_nodes += 1
         node.set_function(self)
         self._nodes.append(node)
@@ -107,7 +108,7 @@ class FunctionSolc(Function):
             condition = ifStatement['condition']
             # Note: check if the expression could be directly
             # parsed here
-            condition_node = self._new_node(NodeType.IF)
+            condition_node = self._new_node(NodeType.IF, ifStatement['src'])
             condition_node.add_unparsed_expression(condition)
             link_nodes(node, condition_node)
             trueStatement = self._parse_statement(ifStatement['trueBody'], condition_node)
@@ -118,14 +119,14 @@ class FunctionSolc(Function):
             condition = children[0]
             # Note: check if the expression could be directly
             # parsed here
-            condition_node = self._new_node(NodeType.IF)
+            condition_node = self._new_node(NodeType.IF, ifStatement['src'])
             condition_node.add_unparsed_expression(condition)
             link_nodes(node, condition_node)
             trueStatement = self._parse_statement(children[1], condition_node)
             if len(children) == 3:
                 falseStatement = self._parse_statement(children[2], condition_node)
 
-        endIf_node = self._new_node(NodeType.ENDIF)
+        endIf_node = self._new_node(NodeType.ENDIF, ifStatement['src'])
         link_nodes(trueStatement, endIf_node)
 
         if falseStatement:
@@ -134,38 +135,11 @@ class FunctionSolc(Function):
             link_nodes(condition_node, endIf_node)
         return endIf_node
 
-#    def _parse_if(self, ifStatement, node):
-#        # IfStatement = 'if' '(' Expression ')' Statement ( 'else' Statement )?
-#
-#        children = ifStatement[self.get_children('children')]
-#        condition_node = self._new_node(NodeType.IF)
-#        #condition = parse_expression(children[0], self)
-#        condition = children[0]
-#        condition_node.add_unparsed_expression(condition)
-#
-#        link_nodes(node, condition_node)
-#
-#        trueStatement = self._parse_statement(children[1], condition_node)
-#
-#        
-#        endIf_node = self._new_node(NodeType.ENDIF)
-#        link_nodes(trueStatement, endIf_node)
-#
-#        if len(children) == 3:
-#            falseStatement = self._parse_statement(children[2], condition_node)
-#
-#            link_nodes(falseStatement, endIf_node)
-#
-#        else:
-#            link_nodes(condition_node, endIf_node)
-#
-#        return endIf_node
-
     def _parse_while(self, whileStatement, node):
         # WhileStatement = 'while' '(' Expression ')' Statement
 
-        node_startWhile = self._new_node(NodeType.STARTLOOP)
-        node_condition = self._new_node(NodeType.IFLOOP)
+        node_startWhile = self._new_node(NodeType.STARTLOOP, whileStatement['src'])
+        node_condition = self._new_node(NodeType.IFLOOP, whileStatement['src'])
 
         if self.is_compact_ast:
             node_condition.add_unparsed_expression(whileStatement['condition'])
@@ -176,7 +150,7 @@ class FunctionSolc(Function):
             node_condition.add_unparsed_expression(expression)
             statement = self._parse_statement(children[1], node_condition)
 
-        node_endWhile = self._new_node(NodeType.ENDLOOP)
+        node_endWhile = self._new_node(NodeType.ENDLOOP, whileStatement['src'])
 
         link_nodes(node, node_startWhile)
         link_nodes(node_startWhile, node_condition)
@@ -191,8 +165,8 @@ class FunctionSolc(Function):
         condition = statement['condition']
         loop_expression = statement['loopExpression']
 
-        node_startLoop = self._new_node(NodeType.STARTLOOP)
-        node_endLoop = self._new_node(NodeType.ENDLOOP)
+        node_startLoop = self._new_node(NodeType.STARTLOOP, statement['src'])
+        node_endLoop = self._new_node(NodeType.ENDLOOP, statement['src'])
 
         if init_expression:
             node_init_expression = self._parse_statement(init_expression, node)
@@ -201,7 +175,7 @@ class FunctionSolc(Function):
             link_nodes(node, node_startLoop)
 
         if condition:
-            node_condition = self._new_node(NodeType.IFLOOP)
+            node_condition = self._new_node(NodeType.IFLOOP, statement['src'])
             node_condition.add_unparsed_expression(condition)
             link_nodes(node_startLoop, node_condition)
             link_nodes(node_condition, node_endLoop)
@@ -254,8 +228,8 @@ class FunctionSolc(Function):
                     hasLoopExpression = False
 
 
-        node_startLoop = self._new_node(NodeType.STARTLOOP)
-        node_endLoop = self._new_node(NodeType.ENDLOOP)
+        node_startLoop = self._new_node(NodeType.STARTLOOP, statement['src'])
+        node_endLoop = self._new_node(NodeType.ENDLOOP, statement['src'])
 
         children = statement[self.get_children('children')]
 
@@ -283,7 +257,7 @@ class FunctionSolc(Function):
             if candidate[self.get_key()] not in ['VariableDefinitionStatement',
                                          'VariableDeclarationStatement',
                                          'ExpressionStatement']:
-                node_condition = self._new_node(NodeType.IFLOOP)
+                node_condition = self._new_node(NodeType.IFLOOP, statement['src'])
                 #expression = parse_expression(candidate, self)
                 expression = candidate
                 node_condition.add_unparsed_expression(expression)
@@ -313,8 +287,8 @@ class FunctionSolc(Function):
 
     def _parse_dowhile(self, doWhilestatement, node):
 
-        node_startDoWhile = self._new_node(NodeType.STARTLOOP)
-        node_condition = self._new_node(NodeType.IFLOOP)
+        node_startDoWhile = self._new_node(NodeType.STARTLOOP, doWhilestatement['src'])
+        node_condition = self._new_node(NodeType.IFLOOP, doWhilestatement['src'])
 
         if self.is_compact_ast:
             node_condition.add_unparsed_expression(doWhilestatement['condition'])
@@ -326,7 +300,7 @@ class FunctionSolc(Function):
             node_condition.add_unparsed_expression(expression)
             statement = self._parse_statement(children[1], node_condition)
 
-        node_endDoWhile = self._new_node(NodeType.ENDLOOP)
+        node_endDoWhile = self._new_node(NodeType.ENDLOOP, doWhilestatement['src'])
 
         link_nodes(node, node_startDoWhile)
         link_nodes(node_startDoWhile, statement)
@@ -344,7 +318,7 @@ class FunctionSolc(Function):
             self._variables[local_var.name] = local_var
             #local_var.analyze(self)
 
-            new_node = self._new_node(NodeType.VARIABLE)
+            new_node = self._new_node(NodeType.VARIABLE, statement['src'])
             new_node.add_variable_declaration(local_var)
             link_nodes(node, new_node)
             return new_node
@@ -418,7 +392,7 @@ class FunctionSolc(Function):
                         'typeDescriptions': {'typeString':'tuple()'}
                         }
                     node = new_node
-                    new_node = self._new_node(NodeType.EXPRESSION)
+                    new_node = self._new_node(NodeType.EXPRESSION, statement['src'])
                     new_node.add_unparsed_expression(expression)
                     link_nodes(node, new_node)
 
@@ -490,7 +464,7 @@ class FunctionSolc(Function):
                           self.get_children('children'): var_identifiers},
                          tuple_vars]}
                     node = new_node
-                    new_node = self._new_node(NodeType.EXPRESSION)
+                    new_node = self._new_node(NodeType.EXPRESSION, statement['src'])
                     new_node.add_unparsed_expression(expression)
                     link_nodes(node, new_node)
 
@@ -506,7 +480,7 @@ class FunctionSolc(Function):
         self._variables[local_var.name] = local_var
 #        local_var.analyze(self)
 
-        new_node = self._new_node(NodeType.VARIABLE)
+        new_node = self._new_node(NodeType.VARIABLE, statement['src'])
         new_node.add_variable_declaration(local_var)
         link_nodes(node, new_node)
         return new_node
@@ -534,7 +508,8 @@ class FunctionSolc(Function):
         elif name == 'Block':
             node = self._parse_block(statement, node)
         elif name == 'InlineAssembly':
-            break_node = self._new_node(NodeType.ASSEMBLY)
+            break_node = self._new_node(NodeType.ASSEMBLY, statement['src'])
+            self._contains_assembly = True
             link_nodes(node, break_node)
             node = break_node
         elif name == 'DoWhileStatement':
@@ -542,15 +517,15 @@ class FunctionSolc(Function):
         # For Continue / Break / Return / Throw
         # The is fixed later
         elif name == 'Continue':
-            continue_node = self._new_node(NodeType.CONTINUE)
+            continue_node = self._new_node(NodeType.CONTINUE, statement['src'])
             link_nodes(node, continue_node)
             node = continue_node
         elif name == 'Break':
-            break_node = self._new_node(NodeType.BREAK)
+            break_node = self._new_node(NodeType.BREAK, statement['src'])
             link_nodes(node, break_node)
             node = break_node
         elif name == 'Return':
-            return_node = self._new_node(NodeType.RETURN)
+            return_node = self._new_node(NodeType.RETURN, statement['src'])
             link_nodes(node, return_node)
             if self.is_compact_ast:
                 if statement['expression']:
@@ -562,7 +537,7 @@ class FunctionSolc(Function):
                     return_node.add_unparsed_expression(expression)
             node = return_node
         elif name == 'Throw':
-            throw_node = self._new_node(NodeType.THROW)
+            throw_node = self._new_node(NodeType.THROW, statement['src'])
             link_nodes(node, throw_node)
             node = throw_node
         elif name == 'EmitStatement':
@@ -571,7 +546,7 @@ class FunctionSolc(Function):
                 expression = statement['eventCall']
             else:
                 expression = statement[self.get_children('children')][0]
-            new_node = self._new_node(NodeType.EXPRESSION)
+            new_node = self._new_node(NodeType.EXPRESSION, statement['src'])
             new_node.add_unparsed_expression(expression)
             link_nodes(node, new_node)
             node = new_node
@@ -585,7 +560,7 @@ class FunctionSolc(Function):
                 expression = statement[self.get_children('expression')]
             else:
                 expression = statement[self.get_children('expression')][0]
-            new_node = self._new_node(NodeType.EXPRESSION)
+            new_node = self._new_node(NodeType.EXPRESSION, statement['src'])
             new_node.add_unparsed_expression(expression)
             link_nodes(node, new_node)
             node = new_node
@@ -615,7 +590,7 @@ class FunctionSolc(Function):
 
         assert cfg[self.get_key()] == 'Block'
 
-        node = self._new_node(NodeType.ENTRYPOINT)
+        node = self._new_node(NodeType.ENTRYPOINT, cfg['src'])
         self._entry_point = node
 
         if self.is_compact_ast:
@@ -866,23 +841,23 @@ class FunctionSolc(Function):
  
 
     def split_ternary_node(self, node, condition, true_expr, false_expr):
-        condition_node = self._new_node(NodeType.IF)
+        condition_node = self._new_node(NodeType.IF, node.source_mapping)
         condition_node.add_expression(condition)
         condition_node.analyze_expressions(self)
 
-        true_node = self._new_node(node.type)
+        true_node = self._new_node(node.type, node.source_mapping)
         if node.type == NodeType.VARIABLE:
             true_node.add_variable_declaration(node.variable_declaration)
         true_node.add_expression(true_expr)
         true_node.analyze_expressions(self)
 
-        false_node = self._new_node(node.type)
+        false_node = self._new_node(node.type, node.source_mapping)
         if node.type == NodeType.VARIABLE:
             false_node.add_variable_declaration(node.variable_declaration)
         false_node.add_expression(false_expr)
         false_node.analyze_expressions(self)
 
-        endif_node = self._new_node(NodeType.ENDIF)
+        endif_node = self._new_node(NodeType.ENDIF, node.source_mapping)
 
         for father in node.fathers:
             father.remove_son(node)

@@ -19,19 +19,25 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 
 Run Slither on a Truffle application:
 ```
-truffle compile
 slither .
 ```
 
 Run Slither on a single file:
 ``` 
-$ slither tests/uninitialized.sol # argument can be file, folder or glob, be sure to quote the argument when using a glob
+$ slither tests/uninitialized.sol 
 [..]
-INFO:Detectors:Uninitialized state variables in tests/uninitialized.sol, Contract: Uninitialized, Vars: destination, Used in ['transfer']
+INFO:Detectors:
+Uninitialized.destination (tests/uninitialized.sol#5) is never initialized. It is used in:
+	- transfer (tests/uninitialized.sol#7-9)
+Reference: https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-state-variables
 [..]
 ``` 
 
-If Slither is run on a directory, it will run on every `.sol` file in the directory.
+Slither can be run on:
+- A `.sol` file
+- A Truffle directory
+- A directory containing `*.sol` files (all the `*.sol` files will be analyzed)
+- A glob (be sure to quote the argument when using a glob) 
 
 ###  Configuration
 
@@ -47,40 +53,44 @@ By default, all the detectors are run.
 
 Num | Detector | What it Detects | Impact | Confidence
 --- | --- | --- | --- | ---
-1 | `suicidal` | Suicidal functions | High | High
-2 | `uninitialized-state` | Uninitialized state variables | High | High
-3 | `uninitialized-storage` | Uninitialized storage variables | High | High
-4 | `arbitrary-send` | Functions that send ether to arbitrary destinations | High | Medium
-5 | `reentrancy` | Reentrancy vulnerabilities | High | Medium
-6 | `locked-ether` | Contracts that lock ether | Medium | High
-7 | `tx-origin` | Dangerous usage of `tx.origin` | Medium | Medium
-8 | `unused-return` | Unused return value of a call | Low | Medium
-9 | `assembly` | Assembly usage | Informational | High
-10 | `constable-states` | State variables that could be declared constant | Informational | High
-11 | `external-function` | Public function that could be declared as external | Informational | High
-12 | `low-level-calls` | Low level calls | Informational | High
-13 | `naming-convention` | Conformance to Solidity naming conventions | Informational | High
-14 | `pragma` | If different pragma directives are used | Informational | High
-15 | `solc-version` | Old versions of Solidity (< 0.4.23) | Informational | High
-16 | `unused-state` | Unused state variables | Informational | High
+1 | `suicidal` | [Functions allowing anyone to destruct the contract](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#suicidal) | High | High
+2 | `uninitialized-local` | [Uninitialized local variables](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-local-variables) | High | High
+3 | `uninitialized-state` | [Uninitialized state variables](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-state-variables) | High | High
+4 | `uninitialized-storage` | [Uninitialized storage variables](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-storage-variables) | High | High
+5 | `arbitrary-send` | [Functions that send ether to arbitrary destinations](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#functions-that-send-ether-to-arbitrary-destinations) | High | Medium
+6 | `controlled-delegatecall` | [Controlled delegatecall destination](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#controlled-delegatecall) | High | Medium
+7 | `reentrancy` | [Reentrancy vulnerabilities](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities) | High | Medium
+8 | `locked-ether` | [Contracts that lock ether](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#contracts-that-lock-ether) | Medium | High
+9 | `const-func` | [Constant functions changing the state](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#constant-functions) | Medium | Medium
+10 | `tx-origin` | [Dangerous usage of `tx.origin`](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#dangerous-usage-of-txorigin) | Medium | Medium
+11 | `unused-return` | Unused return value of a call | Low | Medium
+12 | `assembly` | [Assembly usage](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#assembly-usage) | Informational | High
+13 | `constable-states` | [State variables that could be declared constant](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variables-that-could-be-declared-constant) | Informational | High
+14 | `external-function` | [Public function that could be declared as external](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#public-function-that-could-be-declared-as-external) | Informational | High
+15 | `low-level-calls` | [Low level calls](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#low-level-calls) | Informational | High
+16 | `naming-convention` | [Conformance to Solidity naming conventions](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#conformance-to-solidity-naming-conventions) | Informational | High
+17 | `pragma` | [If different pragma directives are used](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variables-that-could-be-declared-constant) | Informational | High
+18 | `solc-version` | [Old versions of Solidity (< 0.4.23)](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#old-versions-of-solidity) | Informational | High
+19 | `unused-state` | [Unused state variables](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-state-variables) | Informational | High
+
 
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
 ### Printers
 
-To run a printer, use `--printers` and a comma-separated list of printers.
+To run a printer, use `--print` and a comma-separated list of printers.
 
 Num | Printer | Description
 --- | --- | ---
 1 | `call-graph` | Export the call-graph of the contracts to a dot file
 2 | `contract-summary` | Print a summary of the contracts
 3 | `function-summary` | Print a summary of the functions
-4 | `inheritance` | Print the inheritance relations between contracts
-5 | `inheritance-graph` | Export the inheritance graph of each contract to a dot file
-6 | `slithir` | Print the slithIR representation of the functions
-7 | `vars-and-auth` | Print the state variables written and the authorization of the functions
-
+4 | `human-summary` | Print a human readable summary of the contracts
+5 | `inheritance` | Print the inheritance relations between contracts
+6 | `inheritance-graph` | Export the inheritance graph of each contract to a dot file
+7 | `slithir` | Print the slithIR representation of the functions
+8 | `vars-and-auth` | Print the state variables written and the authorization of the functions
 
 ## How to install
 

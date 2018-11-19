@@ -21,6 +21,8 @@ class Reentrancy(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities'
+
     key = 'REENTRANCY'
 
     @staticmethod
@@ -126,7 +128,7 @@ class Reentrancy(AbstractDetector):
             if isinstance(internal_call, Function):
                 state_vars_written += internal_call.all_state_variables_written()
 
-        read_then_written = [v for v in state_vars_written if v in node.context[self.key]['read']]
+        read_then_written = [(v, node.source_mapping_str) for v in state_vars_written if v in node.context[self.key]['read']]
 
         node.context[self.key]['read'] = list(set(node.context[self.key]['read'] + node.state_variables_read))
         # If a state variables was read and is then written, there is a dangerous call and
@@ -136,8 +138,7 @@ class Reentrancy(AbstractDetector):
                 node.context[self.key]['calls'] and
                 node.context[self.key]['send_eth']):
             # calls are ordered
-            finding_key = (node.function.contract.name,
-                           node.function.full_name,
+            finding_key = (node.function,
                            tuple(set(node.context[self.key]['calls'])),
                            tuple(set(node.context[self.key]['send_eth'])))
             finding_vars = read_then_written
@@ -176,32 +177,38 @@ class Reentrancy(AbstractDetector):
 
         results = []
 
-        for (contract, func, calls, send_eth), varsWritten in self.result.items():
-            varsWritten_str = list(set([str(x) for x in list(varsWritten)]))
-            calls_str = list(set([str(x.expression) for x in list(calls)]))
-            send_eth_str = list(set([str(x.expression) for x in list(send_eth)]))
-
-            if calls == send_eth:
-                call_info = 'Call: {},'.format(calls_str)
-            else:
-                call_info = 'Call: {}, Ether sent: {},'.format(calls_str, send_eth_str)
-            info = 'Reentrancy in {}, Contract: {}, '.format(self.filename, contract) + \
-                   'Func: {}, '.format(func) + \
-                   '{}'.format(call_info) + \
-                   'Vars Written: {}'.format(str(varsWritten_str))
+        for (func, calls, send_eth), varsWritten in self.result.items():
+            calls = list(set(calls))
+            send_eth = list(set(send_eth))
+#            if calls == send_eth:
+#                calls_info = 'Call: {},'.format(calls_str)
+#            else:
+#                calls_info = 'Call: {}, Ether sent: {},'.format(calls_str, send_eth_str)
+            info = 'Reentrancy in {}.{} ({}):\n'
+            info = info.format(func.contract.name, func.name, func.source_mapping_str)
+            info += '\tExternal calls:\n'
+            for call_info in calls:
+                info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
+            if calls != send_eth:
+                info += '\tExternal calls sending eth:\n'
+                for call_info in send_eth:
+                    info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
+            info += '\tState variables written after the call(s):\n'
+            for (v, mapping) in varsWritten:
+                info +=  '\t- {} ({})\n'.format(v, mapping)
             self.log(info)
 
-            source = [v.source_mapping for v in varsWritten]
+            source = [v.source_mapping for (v,_) in varsWritten]
             source += [node.source_mapping for node in calls]
             source += [node.source_mapping for node in send_eth]
 
             results.append({'vuln': 'Reentrancy',
                             'sourceMapping': source,
                             'filename': self.filename,
-                            'contract': contract,
-                            'function_name': func,
-                            'calls': calls_str,
-                            'send_eth': send_eth_str,
-                            'varsWritten': varsWritten_str})
+                            'contract': func.contract.name,
+                            'function': func.name,
+                            'calls': [str(x.expression) for x in calls],
+                            'send_eth': [str(x.expression) for x in send_eth],
+                            'varsWritten': [str(x) for (x,_) in varsWritten]})
 
         return results

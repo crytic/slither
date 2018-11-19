@@ -1,3 +1,6 @@
+from functools import partial
+
+
 class Colors:
     RED = '\033[91m'
     GREEN = '\033[92m'
@@ -6,14 +9,13 @@ class Colors:
     MAGENTA = '\033[95m'
     END = '\033[0m'
 
-def green(txt):
-    return Colors.GREEN + txt + Colors.END
-def yellow(txt):
-    return Colors.YELLOW + txt + Colors.END
-def red(txt):
-    return Colors.RED + txt + Colors.END
-def blue(txt):
-    return Colors.BLUE + txt + Colors.END
-def magenta(txt):
-    return Colors.MAGENTA + txt + Colors.END
 
+def colorize(color, txt):
+    return '{}{}{}'.format(color, txt, Colors.END)
+
+
+green = partial(colorize, Colors.GREEN)
+yellow = partial(colorize, Colors.YELLOW)
+red = partial(colorize, Colors.RED)
+blue = partial(colorize, Colors.BLUE)
+magenta = partial(colorize, Colors.MAGENTA)
