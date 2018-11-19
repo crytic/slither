@@ -122,6 +122,7 @@ def get_detectors_and_printers():
     from slither.detectors.statements.tx_origin import TxOrigin
     from slither.detectors.statements.assembly import Assembly
     from slither.detectors.operations.low_level_calls import LowLevelCalls
+    from slither.detectors.operations.unused_return_values import UnusedReturnValues
     from slither.detectors.naming_convention.naming_convention import NamingConvention
     from slither.detectors.functions.external_function import ExternalFunction
     from slither.detectors.statements.controlled_delegatecall import ControlledDelegateCall
@@ -144,6 +145,7 @@ def get_detectors_and_printers():
                  NamingConvention,
                  ConstCandidateStateVars,
                  #ComplexFunction,
+                 UnusedReturnValues,
                  ExternalFunction,
                  ControlledDelegateCall,
                  ConstantFunctions]
