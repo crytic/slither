@@ -10,12 +10,12 @@ class ConstantFunctions(AbstractDetector):
     Constant function detector
     """
 
-    ARGUMENT = 'const-func'  # run the detector with slither.py --ARGUMENT
+    ARGUMENT = 'constant-func'  # run the detector with slither.py --ARGUMENT
     HELP = 'Constant functions changing the state'  # help information
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#constant-functions'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#constant-functions-changing-the-state'
 
     def detect(self):
         """ Detect the constant function changing the state

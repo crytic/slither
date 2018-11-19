@@ -16,8 +16,8 @@ class UninitializedLocalVars(AbstractDetector):
 
     ARGUMENT = 'uninitialized-local'
     HELP = 'Uninitialized local variables'
-    IMPACT = DetectorClassification.HIGH
-    CONFIDENCE = DetectorClassification.HIGH
+    IMPACT = DetectorClassification.MEDIUM
+    CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-local-variables'
 
