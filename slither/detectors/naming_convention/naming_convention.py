@@ -17,6 +17,8 @@ class NamingConvention(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#conformance-to-solidity-naming-conventions'
+
     @staticmethod
     def is_cap_words(name):
         return re.search('^[A-Z]([A-Za-z0-9]+)?_?$', name) is not None
@@ -42,11 +44,12 @@ class NamingConvention(AbstractDetector):
     def detect(self):
 
         results = []
+        all_info = ''
         for contract in self.contracts:
 
             if not self.is_cap_words(contract.name):
-                info = "Contract '{}' is not in CapWords".format(contract.name)
-                self.log(info)
+                info = "Contract '{}' ({}) is not in CapWords\n".format(contract.name, contract.source_mapping_str)
+                all_info += info
 
                 results.append({'vuln': 'NamingConvention',
                                 'filename': self.filename,
@@ -58,8 +61,9 @@ class NamingConvention(AbstractDetector):
                     continue
 
                 if not self.is_cap_words(struct.name):
-                    info = "Struct '{}' is not in CapWords, Contract: '{}' ".format(struct.name, contract.name)
-                    self.log(info)
+                    info = "Struct '{}.{}' ({}) is not in CapWords\n"
+                    info = info.format(struct.contract.name, struct.name, struct.source_mapping_str)
+                    all_info += info
 
                     results.append({'vuln': 'NamingConvention',
                                     'filename': self.filename,
@@ -72,8 +76,9 @@ class NamingConvention(AbstractDetector):
                     continue
 
                 if not self.is_cap_words(event.name):
-                    info = "Event '{}' is not in CapWords, Contract: '{}' ".format(event.name, contract.name)
-                    self.log(info)
+                    info = "Event '{}.{}' ({}) is not in CapWords\n"
+                    info = info.format(event.contract.name, event.name, event.source_mapping_str)
+                    all_info += info
 
                     results.append({'vuln': 'NamingConvention',
                                     'filename': self.filename,
@@ -86,8 +91,9 @@ class NamingConvention(AbstractDetector):
                     continue
 
                 if not self.is_mixed_case(func.name):
-                    info = "Function '{}' is not in mixedCase, Contract: '{}' ".format(func.name, contract.name)
-                    self.log(info)
+                    info = "Function '{}.{}' ({}) is not in mixedCase\n"
+                    info = info.format(func.contract.name, func.name, func.source_mapping_str)
+                    all_info += info
 
                     results.append({'vuln': 'NamingConvention',
                                     'filename': self.filename,
@@ -101,9 +107,13 @@ class NamingConvention(AbstractDetector):
                     else:
                         correct_naming = self.is_mixed_case_with_underscore(argument.name)
                     if not correct_naming:
-                        info = "Parameter '{}' is not in mixedCase, Contract: '{}', Function: '{}' " \
-                            .format(argument.name, argument.name, contract.name)
-                        self.log(info)
+                        info = "Parameter '{}' of {}.{} ({}) is not in mixedCase\n"
+                        info = info.format(argument.name,
+                                           argument.function.contract.name,
+                                           argument.function,
+                                           argument.source_mapping_str)
+                        all_info += info
+
 
                         results.append({'vuln': 'NamingConvention',
                                         'filename': self.filename,
@@ -118,9 +128,9 @@ class NamingConvention(AbstractDetector):
 
                 if self.should_avoid_name(var.name):
                     if not self.is_upper_case_with_underscores(var.name):
-                        info = "Variable '{}' l, O, I should not be used, Contract: '{}' " \
-                            .format(var.name, contract.name)
-                        self.log(info)
+                        info = "Variable '{}.{}' ({}) used l, O, I, which should not be used\n"
+                        info = info.format(var.contract.name, var.name, var.source_mapping_str)
+                        all_info += info
 
                         results.append({'vuln': 'NamingConvention',
                                         'filename': self.filename,
@@ -134,9 +144,9 @@ class NamingConvention(AbstractDetector):
                         continue
 
                     if not self.is_upper_case_with_underscores(var.name):
-                        info = "Constant '{}' is not in UPPER_CASE_WITH_UNDERSCORES, Contract: '{}' " \
-                            .format(var.name, contract.name)
-                        self.log(info)
+                        info = "Constant '{}.{}' ({}) is not in UPPER_CASE_WITH_UNDERSCORES\n"
+                        info = info.format(var.contract.name, var.name, var.source_mapping_str)
+                        all_info += info
 
                         results.append({'vuln': 'NamingConvention',
                                         'filename': self.filename,
@@ -149,8 +159,10 @@ class NamingConvention(AbstractDetector):
                     else:
                         correct_naming = self.is_mixed_case(var.name)
                     if not correct_naming:
-                        info = "Variable '{}' is not in mixedCase, Contract: '{}' ".format(var.name, contract.name)
-                        self.log(info)
+                        info = "Variable '{}.{}' ({}) is not in mixedCase\n"
+                        info = info.format(var.contract.name, var.name, var.source_mapping_str)
+                        all_info += info
+
 
                         results.append({'vuln': 'NamingConvention',
                                         'filename': self.filename,
@@ -163,8 +175,9 @@ class NamingConvention(AbstractDetector):
                     continue
 
                 if not self.is_cap_words(enum.name):
-                    info = "Enum '{}' is not in CapWords, Contract: '{}' ".format(enum.name, contract.name)
-                    self.log(info)
+                    info = "Enum '{}.{}' ({}) is not in CapWords\n"
+                    info = info.format(enum.contract.name, enum.name, enum.source_mapping_str)
+                    all_info += info
 
                     results.append({'vuln': 'NamingConvention',
                                     'filename': self.filename,
@@ -177,13 +190,16 @@ class NamingConvention(AbstractDetector):
                     continue
 
                 if not self.is_mixed_case(modifier.name):
-                    info = "Modifier '{}' is not in mixedCase, Contract: '{}' ".format(modifier.name, contract.name)
-                    self.log(info)
+                    info = "Modifier '{}.{}' ({}) is not in mixedCase\n"
+                    info = info.format(modifier.contract.name, modifier.name, modifier.source_mapping_str)
+                    all_info += info
 
                     results.append({'vuln': 'NamingConvention',
                                     'filename': self.filename,
                                     'contract': contract.name,
                                     'modifier': modifier.name,
                                     'sourceMapping': modifier.source_mapping})
+        if all_info != '':
+            self.log(all_info)
 
         return results

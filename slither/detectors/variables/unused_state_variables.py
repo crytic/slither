@@ -14,6 +14,8 @@ class UnusedStateVars(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-state-variables'
+
     def detect_unused(self, contract):
         if contract.is_signature_only():
             return None
@@ -30,15 +32,19 @@ class UnusedStateVars(AbstractDetector):
         """ Detect unused state variables
         """
         results = []
+        all_info = ''
         for c in self.slither.contracts_derived:
             unusedVars = self.detect_unused(c)
             if unusedVars:
                 unusedVarsName = [v.name for v in unusedVars]
-                info = "Unused state variables in %s, Contract: %s, Vars %s" % (self.filename,
-                                                                                c.name,
-                                                                                str(unusedVarsName))
-                self.log(info)
+                info = ''
+                for var in unusedVars:
+                    info += "{}.{} ({}) is never used in {}\n".format(var.contract.name,
+                                                                      var.name,
+                                                                      var.source_mapping_str,
+                                                                      c.name)
 
+                all_info += info
                 sourceMapping = [v.source_mapping for v in unusedVars]
 
                 results.append({'vuln': 'unusedStateVars',
@@ -46,4 +52,6 @@ class UnusedStateVars(AbstractDetector):
                                 'filename': self.filename,
                                 'contract': c.name,
                                 'unusedVars': unusedVarsName})
+        if all_info != '':
+            self.log(all_info)
         return results

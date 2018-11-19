@@ -54,7 +54,11 @@ class Function(ChildContract, SourceMapping):
         self._expression_modifiers = []
         self._modifiers = []
         self._payable = False
+        self._contains_assembly = False
 
+    @property
+    def contains_assembly(self):
+        return self._contains_assembly
 
     @property
     def return_type(self):

@@ -1,0 +1,53 @@
+[
+    {
+        "contract": "C",
+        "function": "bad_delegate_call",
+        "sourceMapping": [
+            {
+                "filename": "tests/controlled_delegatecall.sol",
+                "length": 27,
+                "lines": [
+                    10
+                ],
+                "start": 178
+            },
+            {
+                "filename": "tests/controlled_delegatecall.sol",
+                "length": 120,
+                "lines": [
+                    8,
+                    9,
+                    10,
+                    11
+                ],
+                "start": 92
+            }
+        ],
+        "vuln": "controlled_delegatecall"
+    },
+    {
+        "contract": "C",
+        "function": "bad_delegate_call2",
+        "sourceMapping": [
+            {
+                "filename": "tests/controlled_delegatecall.sol",
+                "length": 36,
+                "lines": [
+                    19
+                ],
+                "start": 356
+            },
+            {
+                "filename": "tests/controlled_delegatecall.sol",
+                "length": 92,
+                "lines": [
+                    18,
+                    19,
+                    20
+                ],
+                "start": 307
+            }
+        ],
+        "vuln": "controlled_delegatecall"
+    }
+]

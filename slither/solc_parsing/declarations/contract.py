@@ -36,6 +36,9 @@ class ContractSolc04(Contract):
 
         self._is_analyzed = False
 
+        # use to remap inheritance id
+        self._remapping = {}
+
         # Export info
         if self.is_compact_ast:
             self._name = self._data['name']
@@ -49,6 +52,7 @@ class ContractSolc04(Contract):
         self._parse_contract_info()
         self._parse_contract_items()
 
+
     @property
     def is_analyzed(self):
         return self._is_analyzed
@@ -60,6 +64,10 @@ class ContractSolc04(Contract):
         if self.is_compact_ast:
             return key
         return 'children'
+
+    @property
+    def remapping(self):
+        return self._remapping
 
     @property
     def is_compact_ast(self):
@@ -81,6 +89,12 @@ class ContractSolc04(Contract):
             self._kind = attributes['contractKind']
         self.linearizedBaseContracts = attributes['linearizedBaseContracts']
         self.fullyImplemented = attributes['fullyImplemented']
+
+        # trufle does some re-mapping of id
+        if 'baseContracts' in self._data:
+            for elem in self._data['baseContracts']:
+                if elem['nodeType'] == 'InheritanceSpecifier':
+                    self._remapping[elem['baseName']['referencedDeclaration']] = elem['baseName']['name']
 
     def _parse_contract_items(self):
         if not self.get_children() in self._data: # empty contract
@@ -218,6 +232,7 @@ class ContractSolc04(Contract):
             event = EventSolc(event_to_parse, self)
             event.analyze(self)
             event.set_contract(self)
+            event.set_offset(event_to_parse['src'], self.slither)
             self._events[event.full_name] = event
 
         self._eventsNotParsed = None
@@ -234,9 +249,14 @@ class ContractSolc04(Contract):
             self._variables[var.name] = var
 
     def analyze_constant_state_variables(self):
+        from slither.solc_parsing.expressions.expression_parsing import VariableNotFound
         for var in self.variables:
             if var.is_constant:
-                var.analyze(self)
+                # cant parse constant expression based on function calls
+                try:
+                    var.analyze(self)
+                except VariableNotFound:
+                    pass
         return
 
     def analyze_state_variables(self):

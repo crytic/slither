@@ -1,4 +1,5 @@
 import re
+import os
 from slither.core.context.context import Context
 
 class SourceMapping(Context):
@@ -10,6 +11,26 @@ class SourceMapping(Context):
     @property
     def source_mapping(self):
         return self._source_mapping
+
+    @staticmethod
+    def _compute_line(source_code, start, length):
+        """
+            Compute line(s) number from a start/end offset
+            Not done in an efficient way
+        """
+        total_length = len(source_code)
+        source_code = source_code.split('\n')
+        counter = 0
+        i = 0
+        lines = []
+        while counter < total_length:
+            counter += len(source_code[i]) +1
+            i = i+1
+            if counter > start:
+                lines.append(i)
+            if counter > start+length:
+                break
+        return lines
 
     @staticmethod
     def _convert_source_mapping(offset, slither):
@@ -33,8 +54,39 @@ class SourceMapping(Context):
         if f not in sourceUnits:
             return {'start':s, 'length':l}
         filename = sourceUnits[f]
-        return {'start':s, 'length':l, 'filename': filename}
+
+        lines = []
+
+        if filename in slither.source_code:
+            lines = SourceMapping._compute_line(slither.source_code[filename], s, l)
+
+        return {'start':s, 'length':l, 'filename': filename, 'lines' : lines }
 
     def set_offset(self, offset, slither):
-        self._source_mapping = self._convert_source_mapping(offset, slither)
+        if isinstance(offset, dict):
+            self._source_mapping = offset
+        else:
+            self._source_mapping = self._convert_source_mapping(offset, slither)
+
+
+    @property
+    def source_mapping_str(self):
+
+        def relative_path(path):
+            # Remove absolute path for printing
+            # Truffle returns absolutePath
+            splited_path = path.split(os.sep)
+            if 'contracts' in splited_path:
+                idx = splited_path.index('contracts')
+                return os.sep.join(splited_path[idx-1:])
+            return path
+
+        lines = self.source_mapping['lines']
+        if not lines:
+            lines = ''
+        elif len(lines) == 1:
+            lines = '#{}'.format(lines[0])
+        else:
+            lines = '#{}-{}'.format(lines[0], lines[-1])
+        return '{}{}'.format(relative_path(self.source_mapping['filename']), lines)
 

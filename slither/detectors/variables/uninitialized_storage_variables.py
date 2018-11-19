@@ -19,6 +19,7 @@ class UninitializedStorageVars(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-storage-variables'
 
     # node.context[self.key] contains the uninitialized storage variables
     key = "UNINITIALIZEDSTORAGE"
@@ -82,10 +83,9 @@ class UninitializedStorageVars(AbstractDetector):
         for(function, uninitialized_storage_variable) in self.results:
             var_name = uninitialized_storage_variable.name
 
-            info = "Uninitialized storage variables in %s, " % self.filename + \
-                   "Contract: %s, Function: %s, Variable %s" % (function.contract.name,
-                                                                function.name,
-                                                                var_name)
+            info = "{} in {}.{} ({}) is a storage variable never initialiazed\n"
+            info = info.format(var_name, function.contract.name, function.name, uninitialized_storage_variable.source_mapping_str)
+
             self.log(info)
 
             source = [function.source_mapping, uninitialized_storage_variable.source_mapping]

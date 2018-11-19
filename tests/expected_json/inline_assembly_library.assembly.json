@@ -1,0 +1,58 @@
+[
+    {
+        "contract": "VectorSum",
+        "filename": "tests/inline_assembly_library.sol",
+        "function": "sumAsm",
+        "sourceMapping": [
+            {
+                "filename": "tests/inline_assembly_library.sol",
+                "length": 114,
+                "lines": [
+                    18,
+                    19,
+                    20,
+                    21
+                ],
+                "start": 720
+            }
+        ],
+        "vuln": "Assembly"
+    },
+    {
+        "contract": "VectorSum",
+        "filename": "tests/inline_assembly_library.sol",
+        "function": "sumPureAsm",
+        "sourceMapping": [
+            {
+                "filename": "tests/inline_assembly_library.sol",
+                "length": 677,
+                "lines": [
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47
+                ],
+                "start": 1000
+            }
+        ],
+        "vuln": "Assembly"
+    }
+]

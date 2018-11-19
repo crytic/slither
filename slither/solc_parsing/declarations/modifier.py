@@ -65,7 +65,7 @@ class ModifierSolc(Modifier, FunctionSolc):
     def _parse_statement(self, statement, node):
         name = statement[self.get_key()]
         if name == 'PlaceholderStatement':
-            placeholder_node = self._new_node(NodeType.PLACEHOLDER)
+            placeholder_node = self._new_node(NodeType.PLACEHOLDER, statement['src'])
             link_nodes(node, placeholder_node)
             return placeholder_node
         return super(ModifierSolc, self)._parse_statement(statement, node)

@@ -23,6 +23,8 @@ class ConstCandidateStateVars(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variables-that-could-be-declared-constant'
+
     @staticmethod
     def lvalues_of_operations_with_lvalue(contract):
         ret = []
@@ -54,6 +56,7 @@ class ConstCandidateStateVars(AbstractDetector):
         """ Detect state variables that could be const
         """
         results = []
+        all_info = ''
         for c in self.slither.contracts_derived:
             const_candidates = self.detect_const_candidates(c)
             if const_candidates:
@@ -64,10 +67,8 @@ class ConstCandidateStateVars(AbstractDetector):
 
                 for contract, variables in variables_by_contract.items():
                     variable_names = [v.name for v in variables]
-                    info = "State variables that could be const in %s, Contract: %s, Vars %s" % (self.filename,
-                                                                                                 contract,
-                                                                                                 str(variable_names))
-                    self.log(info)
+                    for v in variables:
+                        all_info += "{}.{} should be constant ({})\n".format(contract, v.name, v.source_mapping_str)
 
                     sourceMapping = [v.source_mapping for v in const_candidates]
 
@@ -76,4 +77,6 @@ class ConstCandidateStateVars(AbstractDetector):
                                     'filename': self.filename,
                                     'contract': c.name,
                                     'unusedVars': variable_names})
+        if all_info != '':
+            self.log(all_info)
         return results

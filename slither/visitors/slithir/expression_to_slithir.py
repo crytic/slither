@@ -44,7 +44,7 @@ def convert_assignment(left, right, t, return_type):
     elif t == AssignmentOperationType.ASSIGN_LEFT_SHIFT:
         return Binary(left, left, right, BinaryType.LEFT_SHIFT)
     elif t == AssignmentOperationType.ASSIGN_RIGHT_SHIFT:
-        return Binary(left, left, right, BinaryType.RIGHT_SHIT)
+        return Binary(left, left, right, BinaryType.RIGHT_SHIFT)
     elif t == AssignmentOperationType.ASSIGN_ADDITION:
         return Binary(left, left, right, BinaryType.ADDITION)
     elif t == AssignmentOperationType.ASSIGN_SUBTRACTION:

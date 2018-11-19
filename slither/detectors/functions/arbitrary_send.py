@@ -5,12 +5,12 @@
         - If msg.sender is used as index (withdraw situation)
         - If the function is protected
         - If the value sent is msg.value (repay situation)
+        - If there is a call to transferFrom
 
     TODO: dont report if the value is tainted by msg.value
 """
-
-from slither.analyses.taint.calls import KEY
-from slither.analyses.taint.calls import run_taint as run_taint_calls
+from slither.core.declarations import Function
+from slither.analyses.taint.all_variables import is_tainted as is_tainted_from_inputs
 from slither.analyses.taint.specific_variable import is_tainted
 from slither.analyses.taint.specific_variable import \
     run_taint as run_taint_variable
@@ -31,9 +31,10 @@ class ArbitrarySend(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    @staticmethod
-    def arbitrary_send(func):
-        """ 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#functions-that-send-ether-to-arbitrary-destinations'
+
+    def arbitrary_send(self, func):
+        """
         """
         if func.is_protected():
             return []
@@ -50,6 +51,10 @@ class ArbitrarySend(AbstractDetector):
                     if is_tainted(ir.variable_right, SolidityVariableComposed('msg.sender')):
                         return False
                 if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
+                    if isinstance(ir, (HighLevelCall)):
+                        if isinstance(ir.function, Function):
+                            if ir.function.full_name == 'transferFrom(address,address,uint256)':
+                                return False
                     if ir.call_value is None:
                         continue
                     if ir.call_value == SolidityVariableComposed('msg.value'):
@@ -57,9 +62,10 @@ class ArbitrarySend(AbstractDetector):
                     if is_tainted(ir.call_value, SolidityVariableComposed('msg.value')):
                         continue
 
-                    if KEY in ir.context:
-                        if ir.context[KEY]:
-                            ret.append(node)
+                    if is_tainted_from_inputs(self.slither, ir.destination):
+                        ret.append(node)
+
+
         return ret
 
 
@@ -83,9 +89,6 @@ class ArbitrarySend(AbstractDetector):
         """
         results = []
 
-        # Look if the destination of a call is tainted
-        run_taint_calls(self.slither)
-
         # Taint msg.value
         taint = SolidityVariableComposed('msg.value')
         run_taint_variable(self.slither, taint)
@@ -97,24 +100,25 @@ class ArbitrarySend(AbstractDetector):
         for c in self.contracts:
             arbitrary_send = self.detect_arbitrary_send(c)
             for (func, nodes) in arbitrary_send:
-                func_name = func.name
                 calls_str = [str(node.expression) for node in nodes]
 
-                txt = "Arbitrary send in {} Contract: {}, Function: {}, Calls: {}"
-                info = txt.format(self.filename,
-                                  c.name,
-                                  func_name,
-                                  calls_str)
+                info = "{}.{} ({}) sends eth to arbirary user\n"
+                info = info.format(func.contract.name,
+                                   func.name,
+                                   func.source_mapping_str)
+                info += '\tDangerous calls:\n'
+                for node in nodes:
+                    info += '\t- {} ({})\n'.format(node.expression, node.source_mapping_str)
 
                 self.log(info)
 
                 source_mapping = [node.source_mapping for node in nodes]
 
-                results.append({'vuln': 'SuicidalFunc',
+                results.append({'vuln': 'ArbitrarySend',
                                 'sourceMapping': source_mapping,
                                 'filename': self.filename,
-                                'contract': c.name,
-                                'func': func_name,
+                                'contract': func.contract.name,
+                                'function': func.name,
                                 'calls': calls_str})
 
         return results
