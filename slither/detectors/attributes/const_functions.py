@@ -10,7 +10,7 @@ class ConstantFunctions(AbstractDetector):
     Constant function detector
     """
 
-    ARGUMENT = 'constant-func'  # run the detector with slither.py --ARGUMENT
+    ARGUMENT = 'constant-function'  # run the detector with slither.py --ARGUMENT
     HELP = 'Constant functions changing the state'  # help information
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
