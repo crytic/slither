@@ -66,7 +66,7 @@ class SplitTernaryExpression(object):
         if isinstance(expression, ConditionalExpression):
              raise Exception('Nested ternary operator not handled')
 
-        if isinstance(expression, (Literal, Identifier, IndexAccess)):
+        if isinstance(expression, (Literal, Identifier, IndexAccess, NewArray)):
             return None
 
         # case of lib
@@ -117,5 +117,5 @@ class SplitTernaryExpression(object):
                                      false_expression.expression)
 
         else:
-            raise Exception('Ternary operation not handled {}'.format(type(expression)))
+            raise Exception('Ternary operation not handled {}({})'.format(expression, type(expression)))
 

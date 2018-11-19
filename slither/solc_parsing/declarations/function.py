@@ -14,6 +14,7 @@ from slither.solc_parsing.variables.variable_declaration import MultipleVariable
 
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 
+from slither.core.expressions import AssignmentOperation
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
 
@@ -848,12 +849,16 @@ class FunctionSolc(Function):
         true_node = self._new_node(node.type, node.source_mapping)
         if node.type == NodeType.VARIABLE:
             true_node.add_variable_declaration(node.variable_declaration)
+            assert isinstance(true_expr, AssignmentOperation)
+            true_expr = true_expr.expression_right
         true_node.add_expression(true_expr)
         true_node.analyze_expressions(self)
 
         false_node = self._new_node(node.type, node.source_mapping)
         if node.type == NodeType.VARIABLE:
             false_node.add_variable_declaration(node.variable_declaration)
+            assert isinstance(false_expr, AssignmentOperation)
+            false_expr = false_expr.expression_right
         false_node.add_expression(false_expr)
         false_node.analyze_expressions(self)
 
