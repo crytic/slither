@@ -63,7 +63,7 @@ Num | Detector | What it Detects | Impact | Confidence
 8 | `constant-func` | [Constant functions changing the state](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#constant-functions-changing-the-state) | Medium | Medium
 9 | `tx-origin` | [Dangerous usage of `tx.origin`](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#dangerous-usage-of-txorigin) | Medium | Medium
 10 | `uninitialized-local` | [Uninitialized local variables](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-local-variables) | Medium | Medium
-11 | `unused-return` | Unused return values | Low | Medium
+11 | `unused-return` | [Unused return values](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-return) | Low | Medium
 12 | `assembly` | [Assembly usage](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#assembly-usage) | Informational | High
 13 | `constable-states` | [State variables that could be declared constant](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variables-that-could-be-declared-constant) | Informational | High
 14 | `external-function` | [Public function that could be declared as external](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#public-function-that-could-be-declared-as-external) | Informational | High
