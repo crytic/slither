@@ -14,7 +14,7 @@ class UnusedReturnValues(AbstractDetector):
 
     ARGUMENT = 'unused-return'
     HELP = 'Unused return values'
-    IMPACT = DetectorClassification.LOW
+    IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-return'
