@@ -6,6 +6,7 @@ from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types import ElementaryType, UserDefinedType, MappingType, ArrayType, FunctionType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Call,
+                                        E
                                         Condition, Delete, EventCall,
                                         HighLevelCall, Index, InitArray,
                                         InternalCall, InternalDynamicCall, LibraryCall,
@@ -155,13 +156,15 @@ def propage_type_and_convert_call(result, node):
 
         new_ins = propagate_types(ins, node)
         if new_ins:
-            new_ins.set_node(ins.node)
             if isinstance(new_ins, (list,)):
                 assert len(new_ins) == 2
+                new_ins[0].set_node(ins.node)
+                new_ins[1].set_node(ins.node)
                 result.insert(idx, new_ins[0])
                 result.insert(idx+1, new_ins[1])
                 idx = idx + 1 
             else:
+                new_ins.set_node(ins.node)
                 result[idx] = new_ins
         idx = idx +1
     return result
