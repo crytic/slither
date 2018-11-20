@@ -72,7 +72,6 @@ class ReentrancyDataflow(Dataflow):
         return False
 
     def _transfer_function(self, node, values):
-        values['read'] = list(set(values['read'] + node.state_variables_read))
         for ir in node.irs:
             if self._contains_call(ir):
                 values['calls'] = list(set(values['calls'] + [ir.node]))
@@ -89,6 +88,9 @@ class ReentrancyDataflow(Dataflow):
                 state_vars_written += internal_call.all_state_variables_written()
 
         read_then_written = [(v, node.source_mapping_str) for v in state_vars_written if v in values['read']]
+
+        # Add read valures after read_then_written, to not consider variables read within the node
+        values['read'] = list(set(values['read'] + node.state_variables_read))
 
         # If a state variables was read and is then written, there is a dangerous call and
         # ether were sent
