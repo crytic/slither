@@ -11,7 +11,7 @@
             },
             {
                 "filename": "tests/pragma.0.4.24.sol",
-                "length": 23,
+                "length": 24,
                 "lines": [
                     1
                 ],
@@ -19,8 +19,8 @@
             }
         ],
         "versions": [
-            "0.4.24",
-            "^0.4.23"
+            "^0.4.23",
+            "^0.4.24"
         ],
         "vuln": "ConstantPragma"
     }

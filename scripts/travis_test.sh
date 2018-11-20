@@ -19,6 +19,15 @@ test_slither(){
     # remove the raw un-prettified json file
     rm "$DIR/tmp-test.json"
 
+    if [ ! -f "$expected" ]; then
+      rm "$actual"
+        echo ""
+        echo "Missing expected file"
+        echo ""
+        echo "$expected"
+        exit 1
+    fi 
+
     result=$(diff "$expected" "$actual")
 
     if [ "$result" != "" ]; then
@@ -77,6 +86,10 @@ test_slither tests/external_function.sol "external-function"
 test_slither tests/naming_convention.sol "naming-convention"
 #test_slither tests/complex_func.sol "complex-function"
 test_slither tests/controlled_delegatecall.sol "controlled-delegatecall"
+test_slither tests/constant.sol "constant-function"
+# TODO: update to the new testing framework
+test_slither tests/unused_return.sol "unused-return"
+
 
 ### Test scripts
 

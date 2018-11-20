@@ -26,7 +26,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         for s in ret:
             if s['contractShadower'] not in functions_shadowed:
                 functions_shadowed[s['contractShadower']] = []
-            functions_shadowed[s['contractShadower']] += s['funcs']
+            functions_shadowed[s['contractShadower']] += s['functions']
         self.functions_shadowed = functions_shadowed
 
     def _get_pattern_func(self, func, contract):
@@ -111,6 +111,8 @@ class PrinterInheritanceGraph(AbstractPrinter):
             Args:
                 filename(string)
         """
+        if filename == '':
+            filename = 'export'
         if not filename.endswith('.dot'):
             filename += ".dot"
         info = 'Inheritance Graph: ' + filename

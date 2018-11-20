@@ -124,6 +124,7 @@ def propage_type_and_convert_call(result, node):
         if isinstance(ins, TmpCall):
             new_ins = extract_tmp_call(ins)
             if new_ins:
+                new_ins.set_node(ins.node)
                 ins = new_ins
                 result[idx] = ins
 
@@ -156,10 +157,13 @@ def propage_type_and_convert_call(result, node):
         if new_ins:
             if isinstance(new_ins, (list,)):
                 assert len(new_ins) == 2
+                new_ins[0].set_node(ins.node)
+                new_ins[1].set_node(ins.node)
                 result.insert(idx, new_ins[0])
                 result.insert(idx+1, new_ins[1])
                 idx = idx + 1 
             else:
+                new_ins.set_node(ins.node)
                 result[idx] = new_ins
         idx = idx +1
     return result
@@ -250,6 +254,7 @@ def look_for_library(contract, ir, node, using_for, t):
             lib_call.arguments = [ir.destination] + ir.arguments
             new_ir = convert_type_library_call(lib_call, lib_contract)
             if new_ir:
+                new_ir.set_node(ir.node)
                 return new_ir
     return None
 
@@ -600,6 +605,11 @@ def extract_tmp_call(ins):
     assert isinstance(ins, TmpCall)
     if isinstance(ins.ori, Member):
         if isinstance(ins.ori.variable_left, Contract):
+            st = ins.ori.variable_left.get_structure_from_name(ins.ori.variable_right)
+            if st:
+                op = NewStructure(st, ins.lvalue)
+                op.call_id = ins.call_id
+                return op
             libcall = LibraryCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
             libcall.call_id = ins.call_id
             return libcall

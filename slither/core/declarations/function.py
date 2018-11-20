@@ -54,7 +54,11 @@ class Function(ChildContract, SourceMapping):
         self._expression_modifiers = []
         self._modifiers = []
         self._payable = False
+        self._contains_assembly = False
 
+    @property
+    def contains_assembly(self):
+        return self._contains_assembly
 
     @property
     def return_type(self):
@@ -619,10 +623,10 @@ class Function(ChildContract, SourceMapping):
         """
             Return the function summary
         Returns:
-            (str, str, list(str), list(str), listr(str), list(str), list(str);
-            name, visibility, modifiers, vars read, vars written, internal_calls, external_calls_as_expressions
+            (str, str, str, list(str), list(str), listr(str), list(str), list(str);
+            contract_name, name, visibility, modifiers, vars read, vars written, internal_calls, external_calls_as_expressions
         """
-        return (self.name, self.visibility,
+        return (self.contract.name, self.full_name, self.visibility,
                 [str(x) for x in self.modifiers],
                 [str(x) for x in self.state_variables_read + self.solidity_variables_read],
                 [str(x) for x in self.state_variables_written],

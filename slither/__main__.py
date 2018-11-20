@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 
 from pkg_resources import iter_entry_points, require
 
@@ -58,10 +59,22 @@ def _process(slither, detector_classes, printer_classes):
     return results, analyzed_contracts_count
 
 def process_truffle(dirname, args, detector_classes, printer_classes):
+    cmd = ['truffle','compile']
+    logger.info('truffle compile running...')
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    stdout, stderr = process.communicate()
+    stdout, stderr = stdout.decode(), stderr.decode()  # convert bytestrings to unicode strings
+
+    logger.info(stdout)
+
+    if stderr:
+        logger.error(stderr)
+
     if not os.path.isdir(os.path.join(dirname, 'build'))\
         or not os.path.isdir(os.path.join(dirname, 'build', 'contracts')):
         logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
-        return (0,0)
+        return ([], 0)
 
     filenames = glob.glob(os.path.join(dirname,'build','contracts', '*.json'))
 
@@ -109,9 +122,11 @@ def get_detectors_and_printers():
     from slither.detectors.statements.tx_origin import TxOrigin
     from slither.detectors.statements.assembly import Assembly
     from slither.detectors.operations.low_level_calls import LowLevelCalls
+    from slither.detectors.operations.unused_return_values import UnusedReturnValues
     from slither.detectors.naming_convention.naming_convention import NamingConvention
     from slither.detectors.functions.external_function import ExternalFunction
     from slither.detectors.statements.controlled_delegatecall import ControlledDelegateCall
+    from slither.detectors.attributes.const_functions import ConstantFunctions
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -130,8 +145,10 @@ def get_detectors_and_printers():
                  NamingConvention,
                  ConstCandidateStateVars,
                  #ComplexFunction,
+                 UnusedReturnValues,
                  ExternalFunction,
-                 ControlledDelegateCall]
+                 ControlledDelegateCall,
+                 ConstantFunctions]
 
     from slither.printers.summary.function import FunctionSummary
     from slither.printers.summary.contract import ContractSummary
@@ -288,7 +305,7 @@ def parse_args(detector_classes, printer_classes):
                                default=False)
 
 
-    group_detector.add_argument('--exclude-detectors',
+    group_detector.add_argument('--exclude',
                                 help='Comma-separated list of detectors that should be excluded',
                                 action='store',
                                 dest='detectors_to_exclude',

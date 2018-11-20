@@ -14,6 +14,7 @@ from slither.solc_parsing.variables.variable_declaration import MultipleVariable
 
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 
+from slither.core.expressions import AssignmentOperation
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
 
@@ -134,33 +135,6 @@ class FunctionSolc(Function):
         else:
             link_nodes(condition_node, endIf_node)
         return endIf_node
-
-#    def _parse_if(self, ifStatement, node):
-#        # IfStatement = 'if' '(' Expression ')' Statement ( 'else' Statement )?
-#
-#        children = ifStatement[self.get_children('children')]
-#        condition_node = self._new_node(NodeType.IF)
-#        #condition = parse_expression(children[0], self)
-#        condition = children[0]
-#        condition_node.add_unparsed_expression(condition)
-#
-#        link_nodes(node, condition_node)
-#
-#        trueStatement = self._parse_statement(children[1], condition_node)
-#
-#        
-#        endIf_node = self._new_node(NodeType.ENDIF)
-#        link_nodes(trueStatement, endIf_node)
-#
-#        if len(children) == 3:
-#            falseStatement = self._parse_statement(children[2], condition_node)
-#
-#            link_nodes(falseStatement, endIf_node)
-#
-#        else:
-#            link_nodes(condition_node, endIf_node)
-#
-#        return endIf_node
 
     def _parse_while(self, whileStatement, node):
         # WhileStatement = 'while' '(' Expression ')' Statement
@@ -536,6 +510,7 @@ class FunctionSolc(Function):
             node = self._parse_block(statement, node)
         elif name == 'InlineAssembly':
             break_node = self._new_node(NodeType.ASSEMBLY, statement['src'])
+            self._contains_assembly = True
             link_nodes(node, break_node)
             node = break_node
         elif name == 'DoWhileStatement':
@@ -874,12 +849,16 @@ class FunctionSolc(Function):
         true_node = self._new_node(node.type, node.source_mapping)
         if node.type == NodeType.VARIABLE:
             true_node.add_variable_declaration(node.variable_declaration)
+            assert isinstance(true_expr, AssignmentOperation)
+            true_expr = true_expr.expression_right
         true_node.add_expression(true_expr)
         true_node.analyze_expressions(self)
 
         false_node = self._new_node(node.type, node.source_mapping)
         if node.type == NodeType.VARIABLE:
             false_node.add_variable_declaration(node.variable_declaration)
+            assert isinstance(false_expr, AssignmentOperation)
+            false_expr = false_expr.expression_right
         false_node.add_expression(false_expr)
         false_node.analyze_expressions(self)
 

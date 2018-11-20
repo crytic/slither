@@ -6,7 +6,7 @@
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-
+from slither.core.cfg.node import NodeType
 from slither.visitors.expression.find_push import FindPush
 
 
@@ -16,8 +16,8 @@ class UninitializedLocalVars(AbstractDetector):
 
     ARGUMENT = 'uninitialized-local'
     HELP = 'Uninitialized local variables'
-    IMPACT = DetectorClassification.HIGH
-    CONFIDENCE = DetectorClassification.HIGH
+    IMPACT = DetectorClassification.MEDIUM
+    CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-local-variables'
 
@@ -75,6 +75,8 @@ class UninitializedLocalVars(AbstractDetector):
         for contract in self.slither.contracts:
             for function in contract.functions:
                 if function.is_implemented:
+                    if function.contains_assembly:
+                        continue
                     # dont consider storage variable, as they are detected by another detector
                     uninitialized_local_variables = [v for v in function.local_variables if not v.is_storage and v.uninitialized]
                     function.entry_point.context[self.key] = uninitialized_local_variables
