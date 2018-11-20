@@ -6,7 +6,6 @@ from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types import ElementaryType, UserDefinedType, MappingType, ArrayType, FunctionType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Call,
-                                        E
                                         Condition, Delete, EventCall,
                                         HighLevelCall, Index, InitArray,
                                         InternalCall, InternalDynamicCall, LibraryCall,
