@@ -315,9 +315,25 @@ class ContractSolc04(Contract):
                          if not v.contract in contracts_visited}
             contracts_visited.append(father)
             self._functions.update(functions)
+
+        # If there is a constructor in the functions
+        # We remove the previous constructor
+        # As only one constructor is present per contracts
+        #
+        # Note: contract.all_functions_called returns the constructors of the base contracts
+        has_constructor = False
         for function in self._functions_no_params:
             function.analyze_params()
+            if function.is_constructor:
+                has_constructor = True
+
+        if has_constructor:
+            _functions = {k:v for (k, v) in self._functions.items() if not v.is_constructor}
+            self._functions = _functions
+
+        for function in self._functions_no_params:
             self._functions[function.full_name] = function
+
         self._functions_no_params = []
         return
 
