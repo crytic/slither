@@ -36,13 +36,10 @@ class ConstantFunctions(AbstractDetector):
                         info = info.format(f.contract.name, f.name, f.source_mapping_str, attr)
                         self.log(info)
                         sourceMapping = [f.source_mapping]
-                        results.append({'vuln': 'ConstFunction',
-                                        'sourceMapping': sourceMapping,
-                                        'filename': self.filename,
-                                        'contract': c.name,
-                                        'function_name': f.name,
+                        results.append({'check':self.ARGUMENT,
+                                        'function':{'name': f.name, 'source_mapping': f.source_mapping},
                                         'contains_assembly': True,
-                                        'varsWritten': []})
+                                        'variables_written': []})
 
                     variables_written = f.all_state_variables_written()
                     if variables_written:
@@ -53,11 +50,9 @@ class ConstantFunctions(AbstractDetector):
                             info += '\t- {}.{}\n'.format(variable_written.contract.name,
                                                        variable_written.name)
                         self.log(info)
-                        results.append({'vuln': 'ConstFunction',
-                                        'sourceMapping': f.source_mapping,
-                                        'filename': self.filename,
-                                        'contract': c.name,
-                                        'function_name': f.name,
-                                        'contains_assembly': False,
-                                        'varsWritten': [str(x) for x in variables_written]})
+
+                        results.append({'check':self.ARGUMENT,
+                                        'function':{'name': f.name, 'source_mapping': f.source_mapping},
+                                        'variables_written': [v.name for v in variables_written],
+                                        'contains_assembly': False})
         return results

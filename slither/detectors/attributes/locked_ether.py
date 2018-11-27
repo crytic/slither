@@ -58,9 +58,8 @@ class LockedEther(AbstractDetector):
 
                     source = [f.source_mapping for f in funcs_payable]
 
-                    results.append({'vuln': 'LockedEther',
-                                    'functions_payable' : [f.name for f in funcs_payable],
-                                    'contract': contract.name,
-                                    'sourceMapping': source})
+                    funcs_json = [{'name': f.name, 'source_mapping': f.source_mapping} for f in funcs_payable]
+                    results.append({'check': self.ARGUMENT,
+                                    'functions_payable' : funcs_json})
 
         return results
