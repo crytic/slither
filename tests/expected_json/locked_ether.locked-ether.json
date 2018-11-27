@@ -1,21 +1,20 @@
 [
     {
-        "contract": "OnlyLocked",
+        "check": "locked-ether",
         "functions_payable": [
-            "receive"
-        ],
-        "sourceMapping": [
             {
-                "filename": "tests/locked_ether.sol",
-                "length": 72,
-                "lines": [
-                    4,
-                    5,
-                    6
-                ],
-                "start": 47
+                "name": "receive",
+                "source_mapping": {
+                    "filename": "tests/locked_ether.sol",
+                    "length": 72,
+                    "lines": [
+                        4,
+                        5,
+                        6
+                    ],
+                    "start": 47
+                }
             }
-        ],
-        "vuln": "LockedEther"
+        ]
     }
 ]

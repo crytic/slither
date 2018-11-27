@@ -30,10 +30,8 @@ class ConstantPragma(AbstractDetector):
                 info += "\t- {} declares {}\n".format(p.source_mapping_str, str(p))
             self.log(info)
 
-            source = [p.source_mapping for p in pragma]
-
-            results.append({'vuln': 'ConstantPragma',
-                            'versions': versions,
-                            'sourceMapping': source})
+            pragma_json = [{'version': p.version, 'source_mapping': p.source_mapping} for p in pragma]
+            results.append({'check': self.ARGUMENT,
+                            'pragmas': pragma_json})
 
         return results

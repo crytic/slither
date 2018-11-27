@@ -1,51 +1,50 @@
 [
     {
+        "check": "constant-function",
         "contains_assembly": false,
-        "contract": "Constant",
-        "filename": "tests/constant.sol",
-        "function_name": "test_constant_bug",
-        "sourceMapping": {
-            "filename": "tests/constant.sol",
-            "length": 66,
-            "lines": [
-                9,
-                10,
-                11
-            ],
-            "start": 113
+        "function": {
+            "name": "test_view_bug",
+            "source_mapping": {
+                "filename": "tests/constant.sol",
+                "length": 58,
+                "lines": [
+                    5,
+                    6,
+                    7
+                ],
+                "start": 45
+            }
         },
-        "varsWritten": [
+        "variables_written": [
             "a"
-        ],
-        "vuln": "ConstFunction"
+        ]
     },
     {
+        "check": "constant-function",
         "contains_assembly": false,
-        "contract": "Constant",
-        "filename": "tests/constant.sol",
-        "function_name": "test_view_bug",
-        "sourceMapping": {
-            "filename": "tests/constant.sol",
-            "length": 58,
-            "lines": [
-                5,
-                6,
-                7
-            ],
-            "start": 45
+        "function": {
+            "name": "test_constant_bug",
+            "source_mapping": {
+                "filename": "tests/constant.sol",
+                "length": 66,
+                "lines": [
+                    9,
+                    10,
+                    11
+                ],
+                "start": 113
+            }
         },
-        "varsWritten": [
+        "variables_written": [
             "a"
-        ],
-        "vuln": "ConstFunction"
+        ]
     },
     {
+        "check": "constant-function",
         "contains_assembly": true,
-        "contract": "Constant",
-        "filename": "tests/constant.sol",
-        "function_name": "test_assembly_bug",
-        "sourceMapping": [
-            {
+        "function": {
+            "name": "test_assembly_bug",
+            "source_mapping": {
                 "filename": "tests/constant.sol",
                 "length": 66,
                 "lines": [
@@ -55,8 +54,7 @@
                 ],
                 "start": 324
             }
-        ],
-        "varsWritten": [],
-        "vuln": "ConstFunction"
+        },
+        "variables_written": []
     }
 ]
