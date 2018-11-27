@@ -50,7 +50,7 @@ class ModifierSolc(Modifier, FunctionSolc):
                 assert len(children) == 2
                 block = children[1]
                 assert block['name'] == 'Block'
-                self._isImplemented = True
+                self._is_implemented = True
                 self._parse_cfg(block)
 
         for local_vars in self.variables:
