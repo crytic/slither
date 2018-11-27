@@ -142,7 +142,7 @@ class Function(ChildContract, SourceMapping):
     @property
     def is_empty(self):
         """
-            bool: True if the function is empty
+            bool: True if the function is empty, None if the function is an interface
         """
         return self._is_empty
 
