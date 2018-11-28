@@ -1,29 +1,52 @@
 [
     {
-        "contract": "User",
-        "expressions": [
-            "a.add(0)",
-            "t.f()"
-        ],
-        "filename": "tests/unused_return.sol",
-        "sourceMapping": [
-            {
+        "check": "unused-return",
+        "function": {
+            "name": "test",
+            "source_mapping": {
                 "filename": "tests/unused_return.sol",
-                "length": 5,
+                "length": 347,
                 "lines": [
-                    18
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29
                 ],
-                "start": 263
+                "start": 230
+            }
+        },
+        "unused_returns": [
+            {
+                "expression": "a.add(0)",
+                "source_mapping": {
+                    "filename": "tests/unused_return.sol",
+                    "length": 8,
+                    "lines": [
+                        22
+                    ],
+                    "start": 337
+                }
             },
             {
-                "filename": "tests/unused_return.sol",
-                "length": 8,
-                "lines": [
-                    22
-                ],
-                "start": 337
+                "expression": "t.f()",
+                "source_mapping": {
+                    "filename": "tests/unused_return.sol",
+                    "length": 5,
+                    "lines": [
+                        18
+                    ],
+                    "start": 263
+                }
             }
-        ],
-        "vuln": "UnusedReturn"
+        ]
     }
 ]

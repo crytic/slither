@@ -65,6 +65,8 @@ class Suicidal(AbstractDetector):
                 self.log(info)
 
                 results.append({'check':self.ARGUMENT,
-                                'function':{'name': func.name, 'source_mapping': func.source_mapping}})
+                                'function':{
+                                    'name': func.name,
+                                    'source_mapping': func.source_mapping}})
 
         return results
