@@ -45,17 +45,21 @@ class LowLevelCalls(AbstractDetector):
         for c in self.contracts:
             values = self.detect_low_level_calls(c)
             for func, nodes in values:
-                info = "Low level call in {}.{} ({})\n"
+                info = "Low level call in {}.{} ({}):\n"
                 info = info.format(func.contract.name, func.name, func.source_mapping_str)
+                for node in nodes:
+                    info += "\t-{} {}\n".format(str(node.expression), node.source_mapping_str)
                 all_info += info
 
-                sourceMapping = [n.source_mapping for n in nodes]
+                results.append({'check':self.ARGUMENT,
+                                'function':{
+                                    'name': func.name,
+                                    'source_mapping': func.source_mapping},
+                                'low_level_calls': [
+                                    {'expression': str(node.expression),
+                                     'source_mapping':node.source_mapping} for node in nodes]})
 
-                results.append({'vuln': 'Low level call',
-                                'sourceMapping': sourceMapping,
-                                'filename': self.filename,
-                                'contract': func.contract.name,
-                                'function': func.name})
+
 
         if all_info != '':
             self.log(all_info)

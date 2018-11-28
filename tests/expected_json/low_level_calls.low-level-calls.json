@@ -1,18 +1,31 @@
 [
     {
-        "contract": "Sender",
-        "filename": "tests/low_level_calls.sol",
-        "function": "send",
-        "sourceMapping": [
-            {
+        "check": "low-level-calls",
+        "function": {
+            "name": "send",
+            "source_mapping": {
                 "filename": "tests/low_level_calls.sol",
-                "length": 43,
+                "length": 101,
                 "lines": [
-                    6
+                    5,
+                    6,
+                    7
                 ],
-                "start": 100
+                "start": 49
             }
-        ],
-        "vuln": "Low level call"
+        },
+        "low_level_calls": [
+            {
+                "expression": "_receiver.call.value(msg.value).gas(7777)()",
+                "source_mapping": {
+                    "filename": "tests/low_level_calls.sol",
+                    "length": 43,
+                    "lines": [
+                        6
+                    ],
+                    "start": 100
+                }
+            }
+        ]
     }
 ]

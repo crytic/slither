@@ -1,36 +1,64 @@
 [
     {
-        "contract": "TxOrigin",
-        "filename": "tests/tx_origin.sol",
-        "function": "bug0",
-        "sourceMapping": [
-            {
+        "check": "tx-origin",
+        "function": {
+            "name": "bug0",
+            "source_mapping": {
                 "filename": "tests/tx_origin.sol",
-                "length": 27,
+                "length": 60,
                 "lines": [
-                    10
+                    9,
+                    10,
+                    11
                 ],
-                "start": 140
+                "start": 114
             }
-        ],
-        "vuln": "TxOrigin"
+        },
+        "tx_origin": [
+            {
+                "expression": "require(bool)(tx.origin == owner)",
+                "source_mapping": {
+                    "filename": "tests/tx_origin.sol",
+                    "length": 27,
+                    "lines": [
+                        10
+                    ],
+                    "start": 140
+                }
+            }
+        ]
     },
     {
-        "contract": "TxOrigin",
-        "filename": "tests/tx_origin.sol",
-        "function": "bug2",
-        "sourceMapping": [
-            {
+        "check": "tx-origin",
+        "function": {
+            "name": "bug2",
+            "source_mapping": {
                 "filename": "tests/tx_origin.sol",
-                "length": 57,
+                "length": 89,
                 "lines": [
+                    13,
                     14,
                     15,
-                    16
+                    16,
+                    17
                 ],
-                "start": 206
+                "start": 180
             }
-        ],
-        "vuln": "TxOrigin"
+        },
+        "tx_origin": [
+            {
+                "expression": "tx.origin != owner",
+                "source_mapping": {
+                    "filename": "tests/tx_origin.sol",
+                    "length": 57,
+                    "lines": [
+                        14,
+                        15,
+                        16
+                    ],
+                    "start": 206
+                }
+            }
+        ]
     }
 ]

@@ -60,11 +60,13 @@ class UnusedReturnValues(AbstractDetector):
                         info += "\t-{} ({})\n".format(node.expression, node.source_mapping_str)
                     self.log(info)
 
-                    sourceMapping = [v.source_mapping for v in unused_return]
+                    results.append({'check':self.ARGUMENT,
+                                    'function':{
+                                        'name': f.name,
+                                        'source_mapping': f.source_mapping},
+                                    'unused_returns': [
+                                        {'expression': str(node.expression),
+                                         'source_mapping': node.source_mapping}
+                                        for node in unused_return]})
 
-                    results.append({'vuln': 'UnusedReturn',
-                                    'sourceMapping': sourceMapping,
-                                    'filename': self.filename,
-                                    'contract': c.name,
-                                    'expressions':[str(n.expression) for n in unused_return]})
         return results

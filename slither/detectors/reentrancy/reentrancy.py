@@ -128,7 +128,7 @@ class Reentrancy(AbstractDetector):
             if isinstance(internal_call, Function):
                 state_vars_written += internal_call.all_state_variables_written()
 
-        read_then_written = [(v, node.source_mapping_str) for v in state_vars_written if v in node.context[self.key]['read']]
+        read_then_written = [(v, node) for v in state_vars_written if v in node.context[self.key]['read']]
 
         node.context[self.key]['read'] = list(set(node.context[self.key]['read'] + node.state_variables_read))
         # If a state variables was read and is then written, there is a dangerous call and
@@ -194,21 +194,29 @@ class Reentrancy(AbstractDetector):
                 for call_info in send_eth:
                     info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
             info += '\tState variables written after the call(s):\n'
-            for (v, mapping) in varsWritten:
-                info +=  '\t- {} ({})\n'.format(v, mapping)
+            for (v, node) in varsWritten:
+                info +=  '\t- {} ({})\n'.format(v, node.source_mapping_str)
             self.log(info)
 
-            source = [v.source_mapping for (v,_) in varsWritten]
-            source += [node.source_mapping for node in calls]
-            source += [node.source_mapping for node in send_eth]
+            sending_eth_json = []
+            if calls != send_eth:
+                sending_eth_json = [{'expression': str(call_info.expression),
+                                     'source_mapping': call_info.source_mapping}
+                                    for call_info in calls]
 
-            results.append({'vuln': 'Reentrancy',
-                            'sourceMapping': source,
-                            'filename': self.filename,
-                            'contract': func.contract.name,
-                            'function': func.name,
-                            'calls': [str(x.expression) for x in calls],
-                            'send_eth': [str(x.expression) for x in send_eth],
-                            'varsWritten': [str(x) for (x,_) in varsWritten]})
+            results.append({'check':self.ARGUMENT,
+                            'function':{
+                                'name': func.name,
+                                'source_mapping': func.source_mapping},
+                            'external_calls':[
+                                {'expression': str(call_info.expression),
+                                 'source_mapping': call_info.source_mapping}
+                                for call_info in calls],
+                            'external_calls_sending_eth': sending_eth_json,
+                            'variables_written':[
+                                {'name': v.name,
+                                 'expression': str(node.expression),
+                                 'source_mapping': node.source_mapping}
+                                for (v, node) in varsWritten]})
 
         return results

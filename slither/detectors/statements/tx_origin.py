@@ -58,12 +58,12 @@ class TxOrigin(AbstractDetector):
 
                 self.log(info)
 
-                sourceMapping = [n.source_mapping for n in nodes]
-
-                results.append({'vuln': 'TxOrigin',
-                                'sourceMapping': sourceMapping,
-                                'filename': self.filename,
-                                'contract': func.contract.name,
-                                'function': func.name})
+                results.append({'check':self.ARGUMENT,
+                                'function':{
+                                    'name': func.name,
+                                    'source_mapping': func.source_mapping},
+                                'tx_origin': [
+                                    {'expression': str(node.expression),
+                                     'source_mapping':node.source_mapping} for node in nodes]})
 
         return results

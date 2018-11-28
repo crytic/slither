@@ -1,13 +1,38 @@
 [
     {
-        "contract": "GetCode",
-        "filename": "tests/inline_assembly_contract.sol",
-        "function": "at",
-        "sourceMapping": [
+        "assembly": [
             {
+                "source_mapping": {
+                    "filename": "tests/inline_assembly_contract.sol",
+                    "length": 628,
+                    "lines": [
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20
+                    ],
+                    "start": 191
+                }
+            }
+        ],
+        "check": "assembly",
+        "function": {
+            "name": "at",
+            "source_mapping": {
                 "filename": "tests/inline_assembly_contract.sol",
-                "length": 628,
+                "length": 700,
                 "lines": [
+                    6,
                     7,
                     8,
                     9,
@@ -23,9 +48,8 @@
                     19,
                     20
                 ],
-                "start": 191
+                "start": 119
             }
-        ],
-        "vuln": "Assembly"
+        }
     }
 ]
