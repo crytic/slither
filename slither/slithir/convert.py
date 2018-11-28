@@ -363,7 +363,14 @@ def convert_type_of_high_level_call(ir, contract):
     else:
         # otherwise its a variable (getter)
         if isinstance(func.type, MappingType):
-            return_type = func.type.type_to
+            # iterate over the lenght of arguments
+            # ex:
+            #   mapping ( uint => mapping ( uint => uint)) my_var
+            # is accessed through  contract.my_var(0,0)
+            tmp = func.type
+            for _ in range(len(ir.arguments)):
+                tmp = tmp.type_to
+            return_type = tmp
         elif isinstance(func.type, ArrayType):
             return_type = func.type.type
         else:
