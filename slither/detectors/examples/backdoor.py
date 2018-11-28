@@ -25,6 +25,6 @@ class Backdoor(AbstractDetector):
                     self.log(info)
                     # Add the result in ret
                     source = f.source_mapping
-                    ret.append({'vuln': 'backdoor', 'contract': contract.name, 'sourceMapping' : source})
+                    ret.append({'check': self.ARGUMENT, 'function': f.name, 'source_mapping' : source})
 
         return ret

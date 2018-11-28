@@ -64,11 +64,8 @@ class ExternalFunction(AbstractDetector):
                                   func.name,
                                   func.source_mapping_str)
                 all_info += info
-                results.append({'vuln': 'ExternalFunc',
-                                'sourceMapping': func.source_mapping,
-                                'filename': self.filename,
-                                'contract': func.contract.name,
-                                'function': func.name})
+                results.append({'check':self.ARGUMENT,
+                                'function':{'name': func.name, 'source_mapping': func.source_mapping}})
         if all_info != '':
             self.log(all_info)
         return results

@@ -1,40 +1,58 @@
 [
     {
-        "calls": [
-            "msg.sender.send(this.balance)"
-        ],
-        "contract": "Test",
-        "filename": "tests/arbitrary_send.sol",
-        "function": "direct",
-        "sourceMapping": [
+        "check": "arbitrary-send",
+        "dangerous_calls": [
             {
-                "filename": "tests/arbitrary_send.sol",
-                "length": 29,
-                "lines": [
-                    12
-                ],
-                "start": 174
+                "source_mapping": {
+                    "filename": "tests/arbitrary_send.sol",
+                    "length": 29,
+                    "lines": [
+                        12
+                    ],
+                    "start": 174
+                }
             }
         ],
-        "vuln": "ArbitrarySend"
+        "function": {
+            "name": "direct",
+            "source_mapping": {
+                "filename": "tests/arbitrary_send.sol",
+                "length": 63,
+                "lines": [
+                    11,
+                    12,
+                    13
+                ],
+                "start": 147
+            }
+        }
     },
     {
-        "calls": [
-            "destination.send(this.balance)"
-        ],
-        "contract": "Test",
-        "filename": "tests/arbitrary_send.sol",
-        "function": "indirect",
-        "sourceMapping": [
+        "check": "arbitrary-send",
+        "dangerous_calls": [
             {
-                "filename": "tests/arbitrary_send.sol",
-                "length": 30,
-                "lines": [
-                    20
-                ],
-                "start": 307
+                "source_mapping": {
+                    "filename": "tests/arbitrary_send.sol",
+                    "length": 30,
+                    "lines": [
+                        20
+                    ],
+                    "start": 307
+                }
             }
         ],
-        "vuln": "ArbitrarySend"
+        "function": {
+            "name": "indirect",
+            "source_mapping": {
+                "filename": "tests/arbitrary_send.sol",
+                "length": 66,
+                "lines": [
+                    19,
+                    20,
+                    21
+                ],
+                "start": 278
+            }
+        }
     }
 ]
