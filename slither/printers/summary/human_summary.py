@@ -26,7 +26,7 @@ class PrinterHumanSummary(AbstractPrinter):
             else:
                 mint_limited = True
         else:
-            mint = None # no minting
+            mint_limited = None # no minting
 
         race_condition_mitigated = 'increaseApproval' in functions_name or\
                                    'safeIncreaseAllowance' in functions_name
