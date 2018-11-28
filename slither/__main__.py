@@ -225,7 +225,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         if os.path.isfile(filename):
             (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
 
-        elif os.path.isfile(os.path.join(filename, 'truffle.js')):
+        elif os.path.isfile(os.path.join(filename, 'truffle.js')) or os.path.isfile(os.path.join(filename, 'truffle-config.js')):
             (results, number_contracts) = process_truffle(filename, args, detector_classes, printer_classes)
 
         elif os.path.isdir(filename) or len(globbed_filenames) > 0:
