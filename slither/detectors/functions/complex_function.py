@@ -3,7 +3,7 @@ from slither.core.declarations.solidity_variables import (SolidityFunction,
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.slithir.operations import (HighLevelCall,
-                                        LowLevelCall, 
+                                        LowLevelCall,
                                         LibraryCall)
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 
@@ -33,7 +33,7 @@ class ComplexFunction(AbstractDetector):
 
 
     @staticmethod
-    def detect_complex_func(func):        
+    def detect_complex_func(func):
         """Detect the cyclomatic complexity of the contract functions
            shouldn't be greater than 7
         """
@@ -60,7 +60,7 @@ class ComplexFunction(AbstractDetector):
                 "func": func,
                 "cause": ComplexFunction.CAUSE_EXTERNAL_CALL
             })
-        
+
         """Checks the number of the state variables written
            shouldn't be greater than 10
         """
@@ -74,13 +74,13 @@ class ComplexFunction(AbstractDetector):
 
     def detect_complex(self, contract):
         ret = []
-        
+
         for func in contract.all_functions_called:
             result = self.detect_complex_func(func)
             ret.extend(result)
 
         return ret
-    
+
     def detect(self):
         results = []
 
@@ -89,9 +89,8 @@ class ComplexFunction(AbstractDetector):
 
             for issue in issues:
                 func, cause = issue.values()
-                func_name = func.name
 
-                txt = "Complex function in {}\n\t- {}.{} ({})\n"
+                txt = "{}.{} ({}) is a complex function:\n"
 
                 if cause == self.CAUSE_EXTERNAL_CALL:
                     txt += "\t- Reason: High number of external calls"
@@ -100,17 +99,18 @@ class ComplexFunction(AbstractDetector):
                 if cause == self.CAUSE_STATE_VARS:
                     txt += "\t- Reason: High number of modified state variables"
 
-                info = txt.format(self.filename,
-                                    contract.name,
-                                    func_name,
-                                    func.source_mapping_str)
+                info = txt.format(func.contract.name,
+                                  func.name,
+                                  func.source_mapping_str)
                 info = info + "\n"
                 self.log(info)
 
-                results.append({'vuln': 'ComplexFunc',
-                                'sourceMapping': func.source_mapping,
-                                'filename': self.filename,
-                                'contract': contract.name,
-                                'function': func_name})
+                results.append({'check': self.ARGUMENT,
+                                'function':{
+                                    'name': func.name,
+                                    'source_mapping': func.source_mapping},
+                                'high_number_of_external_calls':cause == self.CAUSE_EXTERNAL_CALL,
+                                'high_number_of_branches':cause == self.CAUSE_CYCLOMATIC,
+                                'high_number_of_state_variables':cause == self.CAUSE_STATE_VARS})
         return results
 
