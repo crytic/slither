@@ -204,19 +204,16 @@ class Reentrancy(AbstractDetector):
                                      'source_mapping': call_info.source_mapping}
                                     for call_info in calls]
 
-            results.append({'check':self.ARGUMENT,
-                            'function':{
-                                'name': func.name,
-                                'source_mapping': func.source_mapping},
-                            'external_calls':[
-                                {'expression': str(call_info.expression),
-                                 'source_mapping': call_info.source_mapping}
-                                for call_info in calls],
-                            'external_calls_sending_eth': sending_eth_json,
-                            'variables_written':[
-                                {'name': v.name,
-                                 'expression': str(node.expression),
-                                 'source_mapping': node.source_mapping}
-                                for (v, node) in varsWritten]})
+            json = self.generate_json_result()
+            self.add_function_to_json(func, json)
+            json['external_calls'] = [{'expression': str(call_info.expression),
+                                       'source_mapping': call_info.source_mapping}
+                                      for call_info in calls]
+            json['external_calls_sending_eth'] = sending_eth_json
+            json['variables_written'] = [{'name': v.name,
+                                          'expression': str(node.expression),
+                                          'source_mapping': node.source_mapping}
+                                         for (v, node) in varsWritten]
+            results.append(json)
 
         return results

@@ -51,13 +51,10 @@ class LowLevelCalls(AbstractDetector):
                     info += "\t-{} {}\n".format(str(node.expression), node.source_mapping_str)
                 all_info += info
 
-                results.append({'check':self.ARGUMENT,
-                                'function':{
-                                    'name': func.name,
-                                    'source_mapping': func.source_mapping},
-                                'expressions': [
-                                    {'expression': str(node.expression),
-                                     'source_mapping':node.source_mapping} for node in nodes]})
+                json = self.generate_json_result()
+                self.add_function_to_json(func, json)
+                self.add_nodes_to_json(nodes, json)
+                results.append(json)
 
 
 

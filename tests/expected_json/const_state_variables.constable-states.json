@@ -3,7 +3,6 @@
         "check": "constable-states",
         "variables": [
             {
-                "contract": "A",
                 "name": "myFriendsAddress",
                 "source_mapping": {
                     "filename": "tests/const_state_variables.sol",
@@ -15,7 +14,6 @@
                 }
             },
             {
-                "contract": "A",
                 "name": "test",
                 "source_mapping": {
                     "filename": "tests/const_state_variables.sol",
@@ -27,7 +25,6 @@
                 }
             },
             {
-                "contract": "A",
                 "name": "text2",
                 "source_mapping": {
                     "filename": "tests/const_state_variables.sol",
@@ -44,7 +41,6 @@
         "check": "constable-states",
         "variables": [
             {
-                "contract": "B",
                 "name": "mySistersAddress",
                 "source_mapping": {
                     "filename": "tests/const_state_variables.sol",

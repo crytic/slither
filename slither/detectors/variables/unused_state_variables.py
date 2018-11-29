@@ -45,10 +45,10 @@ class UnusedStateVars(AbstractDetector):
 
                 all_info += info
 
-                results.append({'check': self.ARGUMENT,
-                                'variables':[{'name': variable.name,
-                                              'source_mapping': variable.source_mapping}
-                                             for variable in unusedVars]})
+                json = self.generate_json_result()
+                self.add_variables_to_json(unusedVars, json)
+                results.append(json)
+
         if all_info != '':
             self.log(all_info)
         return results

@@ -111,15 +111,10 @@ class ArbitrarySend(AbstractDetector):
 
                 self.log(info)
 
-                results.append({'check': self.ARGUMENT,
-                                'function':{
-                                    'name' : func.name,
-                                    'source_mapping': func.source_mapping
-                                },
-                                'expressions':[{
-                                    'expression': str(n.expression),
-                                    'source_mapping':n.source_mapping}
-                                    for n in nodes]
-                                })
+
+                json = self.generate_json_result()
+                self.add_function_to_json(func, json)
+                self.add_nodes_to_json(nodes, json)
+                results.append(json)
 
         return results

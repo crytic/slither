@@ -37,11 +37,9 @@ class ControlledDelegateCall(AbstractDetector):
                         info += '\t{} ({})\n'.format(node.expression, node.source_mapping_str)
                     self.log(info)
 
-                    results.append({'check':self.ARGUMENT,
-                                    'function':{
-                                        'name': f.name,
-                                        'source_mapping': f.source_mapping},
-                                    'expressions': [
-                                        {'expression': str(node.expression),
-                                         'source_mapping':node.source_mapping} for node in nodes]})
+                    json = self.generate_json_result()
+                    self.add_function_to_json(f, json)
+                    self.add_nodes_to_json(nodes, json)
+                    results.append(json)
+
         return results

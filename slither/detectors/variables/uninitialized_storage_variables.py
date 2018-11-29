@@ -88,10 +88,11 @@ class UninitializedStorageVars(AbstractDetector):
 
             self.log(info)
 
-            results.append({'check': self.ARGUMENT,
-                            'variable':{'name': uninitialized_storage_variable.name,
-                                        'source_mapping': uninitialized_storage_variable.source_mapping},
-                            'function':{'name':function.name,
-                                        'source_mapping': function.source_mapping}})
+
+
+            json = self.generate_json_result()
+            self.add_variable_to_json(uninitialized_storage_variable, json)
+            self.add_function_to_json(function, json)
+            results.append(json)
 
         return results
