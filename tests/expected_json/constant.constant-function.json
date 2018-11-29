@@ -15,8 +15,18 @@
                 "start": 45
             }
         },
-        "variables_written": [
-            "a"
+        "variables": [
+            {
+                "name": "a",
+                "source_mapping": {
+                    "filename": "tests/constant.sol",
+                    "length": 6,
+                    "lines": [
+                        3
+                    ],
+                    "start": 28
+                }
+            }
         ]
     },
     {
@@ -35,8 +45,18 @@
                 "start": 113
             }
         },
-        "variables_written": [
-            "a"
+        "variables": [
+            {
+                "name": "a",
+                "source_mapping": {
+                    "filename": "tests/constant.sol",
+                    "length": 6,
+                    "lines": [
+                        3
+                    ],
+                    "start": 28
+                }
+            }
         ]
     },
     {
@@ -55,6 +75,6 @@
                 "start": 324
             }
         },
-        "variables_written": []
+        "variables": []
     }
 ]

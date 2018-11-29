@@ -1,8 +1,9 @@
 [
     {
         "check": "pragma",
-        "pragmas": [
+        "expressions": [
             {
+                "expression": "^0.4.23",
                 "source_mapping": {
                     "filename": "tests/pragma.0.4.23.sol",
                     "length": 24,
@@ -10,10 +11,10 @@
                         1
                     ],
                     "start": 0
-                },
-                "version": "^0.4.23"
+                }
             },
             {
+                "expression": "^0.4.24",
                 "source_mapping": {
                     "filename": "tests/pragma.0.4.24.sol",
                     "length": 24,
@@ -21,8 +22,7 @@
                         1
                     ],
                     "start": 0
-                },
-                "version": "^0.4.24"
+                }
             }
         ]
     }

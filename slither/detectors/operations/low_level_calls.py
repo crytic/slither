@@ -55,7 +55,7 @@ class LowLevelCalls(AbstractDetector):
                                 'function':{
                                     'name': func.name,
                                     'source_mapping': func.source_mapping},
-                                'low_level_calls': [
+                                'expressions': [
                                     {'expression': str(node.expression),
                                      'source_mapping':node.source_mapping} for node in nodes]})
 

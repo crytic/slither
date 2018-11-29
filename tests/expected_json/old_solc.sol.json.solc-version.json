@@ -1,15 +1,15 @@
 [
     {
         "check": "solc-version",
-        "pragmas": [
+        "expressions": [
             {
+                "expression": "0.4.21",
                 "source_mapping": {
                     "filename": "old_solc.sol",
                     "length": 23,
                     "lines": [],
                     "start": 0
-                },
-                "version": "0.4.21"
+                }
             }
         ]
     }

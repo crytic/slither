@@ -75,7 +75,9 @@ class UninitializedStateVarsDetection(AbstractDetector):
             ret = self.detect_uninitialized(c)
             for variable, functions in ret:
                 info = "{}.{} ({}) is never initialized. It is used in:\n"
-                info = info.format(variable.contract.name, variable.name, variable.source_mapping_str)
+                info = info.format(variable.contract.name,
+                                   variable.name,
+                                   variable.source_mapping_str)
                 for f in functions:
                     info += "\t- {} ({})\n".format(f.name, f.source_mapping_str)
                 self.log(info)
@@ -83,11 +85,12 @@ class UninitializedStateVarsDetection(AbstractDetector):
                 source = [variable.source_mapping]
                 source += [f.source_mapping for f in functions]
 
-                results.append({'vuln': 'UninitializedStateVars',
-                                'sourceMapping': source,
-                                'filename': self.filename,
-                                'contract': c.name,
-                                'functions': [str(f) for f in functions],
-                                'variable': str(variable)})
+                results.append({'check': self.ARGUMENT,
+                                'variable':{'name': variable.name,
+                                            'source_mapping': variable.source_mapping},
+                                'functions':[
+                                    {'name':function.name,
+                                     'source_mapping': function.source_mapping}
+                                    for function in functions]})
 
         return results
