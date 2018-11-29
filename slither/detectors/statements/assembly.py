@@ -49,15 +49,17 @@ class Assembly(AbstractDetector):
             for func, nodes in values:
                 info = "{}.{} uses assembly ({})\n"
                 info = info.format(func.contract.name, func.name, func.source_mapping_str)
+
+                for node in nodes:
+                    info += "\t- {}\n".format(node.source_mapping_str)
+
                 all_info += info
 
-                sourceMapping = [n.source_mapping for n in nodes]
-
-                results.append({'vuln': 'Assembly',
-                                'sourceMapping': sourceMapping,
-                                'filename': self.filename,
-                                'contract': func.contract.name,
-                                'function': func.name})
+                json = self.generate_json_result()
+                self.add_function_to_json(func, json)
+                json['assembly'] = [{'source_mapping': node.source_mapping}
+                                    for node in nodes]
+                results.append(json)
 
         if all_info != '':
             self.log(all_info)

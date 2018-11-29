@@ -1,17 +1,22 @@
 [
     {
-        "contract": "C",
-        "function": "bad_delegate_call",
-        "sourceMapping": [
+        "check": "controlled-delegatecall",
+        "expressions": [
             {
-                "filename": "tests/controlled_delegatecall.sol",
-                "length": 27,
-                "lines": [
-                    10
-                ],
-                "start": 178
-            },
-            {
+                "expression": "addr_bad.delegatecall(data)",
+                "source_mapping": {
+                    "filename": "tests/controlled_delegatecall.sol",
+                    "length": 27,
+                    "lines": [
+                        10
+                    ],
+                    "start": 178
+                }
+            }
+        ],
+        "function": {
+            "name": "bad_delegate_call",
+            "source_mapping": {
                 "filename": "tests/controlled_delegatecall.sol",
                 "length": 120,
                 "lines": [
@@ -22,22 +27,26 @@
                 ],
                 "start": 92
             }
-        ],
-        "vuln": "controlled_delegatecall"
+        }
     },
     {
-        "contract": "C",
-        "function": "bad_delegate_call2",
-        "sourceMapping": [
+        "check": "controlled-delegatecall",
+        "expressions": [
             {
-                "filename": "tests/controlled_delegatecall.sol",
-                "length": 36,
-                "lines": [
-                    19
-                ],
-                "start": 356
-            },
-            {
+                "expression": "addr_bad.delegatecall(func_id,data)",
+                "source_mapping": {
+                    "filename": "tests/controlled_delegatecall.sol",
+                    "length": 36,
+                    "lines": [
+                        19
+                    ],
+                    "start": 356
+                }
+            }
+        ],
+        "function": {
+            "name": "bad_delegate_call2",
+            "source_mapping": {
                 "filename": "tests/controlled_delegatecall.sol",
                 "length": 92,
                 "lines": [
@@ -47,7 +56,6 @@
                 ],
                 "start": 307
             }
-        ],
-        "vuln": "controlled_delegatecall"
+        }
     }
 ]

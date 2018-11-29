@@ -1,88 +1,56 @@
 [
     {
-        "contract": "B",
-        "filename": "tests/const_state_variables.sol",
-        "sourceMapping": [
+        "check": "constable-states",
+        "variables": [
             {
-                "filename": "tests/const_state_variables.sol",
-                "length": 20,
-                "lines": [
-                    10
-                ],
-                "start": 235
+                "name": "myFriendsAddress",
+                "source_mapping": {
+                    "filename": "tests/const_state_variables.sol",
+                    "length": 76,
+                    "lines": [
+                        7
+                    ],
+                    "start": 130
+                }
             },
             {
-                "filename": "tests/const_state_variables.sol",
-                "length": 20,
-                "lines": [
-                    14
-                ],
-                "start": 331
+                "name": "test",
+                "source_mapping": {
+                    "filename": "tests/const_state_variables.sol",
+                    "length": 20,
+                    "lines": [
+                        10
+                    ],
+                    "start": 235
+                }
             },
             {
-                "filename": "tests/const_state_variables.sol",
-                "length": 76,
-                "lines": [
-                    7
-                ],
-                "start": 130
-            },
-            {
-                "filename": "tests/const_state_variables.sol",
-                "length": 76,
-                "lines": [
-                    26
-                ],
-                "start": 494
+                "name": "text2",
+                "source_mapping": {
+                    "filename": "tests/const_state_variables.sol",
+                    "length": 20,
+                    "lines": [
+                        14
+                    ],
+                    "start": 331
+                }
             }
-        ],
-        "unusedVars": [
-            "myFriendsAddress",
-            "test",
-            "text2"
-        ],
-        "vuln": "ConstStateVariableCandidates"
+        ]
     },
     {
-        "contract": "B",
-        "filename": "tests/const_state_variables.sol",
-        "sourceMapping": [
+        "check": "constable-states",
+        "variables": [
             {
-                "filename": "tests/const_state_variables.sol",
-                "length": 20,
-                "lines": [
-                    10
-                ],
-                "start": 235
-            },
-            {
-                "filename": "tests/const_state_variables.sol",
-                "length": 20,
-                "lines": [
-                    14
-                ],
-                "start": 331
-            },
-            {
-                "filename": "tests/const_state_variables.sol",
-                "length": 76,
-                "lines": [
-                    7
-                ],
-                "start": 130
-            },
-            {
-                "filename": "tests/const_state_variables.sol",
-                "length": 76,
-                "lines": [
-                    26
-                ],
-                "start": 494
+                "name": "mySistersAddress",
+                "source_mapping": {
+                    "filename": "tests/const_state_variables.sol",
+                    "length": 76,
+                    "lines": [
+                        26
+                    ],
+                    "start": 494
+                }
             }
-        ],
-        "unusedVars": [
-            "mySistersAddress"
-        ],
-        "vuln": "ConstStateVariableCandidates"
+        ]
     }
 ]

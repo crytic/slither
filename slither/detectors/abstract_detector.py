@@ -79,3 +79,37 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     @property
     def color(self):
         return classification_colors[self.IMPACT]
+
+    def generate_json_result(self):
+        return {'check': self.ARGUMENT}
+
+    @staticmethod
+    def add_variable_to_json(variable, d):
+        assert 'variable' not in d
+        d['variable'] = {'name': variable.name, 'source_mapping': variable.source_mapping}
+
+    @staticmethod
+    def add_variables_to_json(variables, d):
+        assert 'variables' not in d
+        d['variables'] = [{'name': variable.name,
+                           'source_mapping': variable.source_mapping}
+                          for variable in variables]
+
+    @staticmethod
+    def add_function_to_json(function, d):
+        assert 'function' not in d
+        d['function'] = {'name': function.name, 'source_mapping': function.source_mapping}
+
+    @staticmethod
+    def add_functions_to_json(functions, d):
+        assert 'functions' not in d
+        d['functions'] = [{'name': function.name,
+                           'source_mapping': function.source_mapping}
+                          for function in functions]
+
+    @staticmethod
+    def add_nodes_to_json(nodes, d):
+        assert 'expressions' not in d
+        d['expressions'] = [{'expression': str(node.expression),
+                             'source_mapping': node.source_mapping}
+                            for node in nodes]

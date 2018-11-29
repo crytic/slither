@@ -1,18 +1,9 @@
 [
     {
-        "contract": "Uninitialized",
-        "filename": "tests/uninitialized_storage_pointer.sol",
-        "function": "func",
-        "sourceMapping": [
-            {
-                "filename": "tests/uninitialized_storage_pointer.sol",
-                "length": 9,
-                "lines": [
-                    10
-                ],
-                "start": 171
-            },
-            {
+        "check": "uninitialized-storage",
+        "function": {
+            "name": "func",
+            "source_mapping": {
                 "filename": "tests/uninitialized_storage_pointer.sol",
                 "length": 138,
                 "lines": [
@@ -25,8 +16,17 @@
                 ],
                 "start": 67
             }
-        ],
-        "variable": "st_bug",
-        "vuln": "UninitializedStorageVars"
+        },
+        "variable": {
+            "name": "st_bug",
+            "source_mapping": {
+                "filename": "tests/uninitialized_storage_pointer.sol",
+                "length": 9,
+                "lines": [
+                    10
+                ],
+                "start": 171
+            }
+        }
     }
 ]

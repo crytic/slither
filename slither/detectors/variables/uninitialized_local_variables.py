@@ -86,17 +86,16 @@ class UninitializedLocalVars(AbstractDetector):
             var_name = uninitialized_local_variable.name
 
             info = "{} in {}.{} ({}) is a local variable never initialiazed\n"
-            info = info.format(var_name, function.contract.name, function.name, uninitialized_local_variable.source_mapping_str)
+            info = info.format(var_name,
+                               function.contract.name,
+                               function.name,
+                               uninitialized_local_variable.source_mapping_str)
 
             self.log(info)
 
-            source = [function.source_mapping, uninitialized_local_variable.source_mapping]
-
-            results.append({'vuln': 'UninitializedLocalVars',
-                            'sourceMapping': source,
-                            'filename': self.filename,
-                            'contract': function.contract.name,
-                            'function': function.name,
-                            'variable': var_name})
+            json = self.generate_json_result()
+            self.add_variable_to_json(uninitialized_local_variable, json)
+            self.add_function_to_json(function, json)
+            results.append(json)
 
         return results

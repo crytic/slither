@@ -12,6 +12,11 @@ test_slither(){
 
     # run slither detector on input file and save output as json
     slither "$1" --disable-solc-warnings --detect "$2" --json "$DIR/tmp-test.json"
+    if [ $? -eq 255 ]
+    then
+        echo "Slither crashed"
+        exit -1
+    fi
 
     # convert json file to pretty print and write to destination folder
     python "$DIR/pretty_print_and_sort_json.py" "$DIR/tmp-test.json" "$actual"
@@ -87,7 +92,6 @@ test_slither tests/naming_convention.sol "naming-convention"
 #test_slither tests/complex_func.sol "complex-function"
 test_slither tests/controlled_delegatecall.sol "controlled-delegatecall"
 test_slither tests/constant.sol "constant-function"
-# TODO: update to the new testing framework
 test_slither tests/unused_return.sol "unused-return"
 
 

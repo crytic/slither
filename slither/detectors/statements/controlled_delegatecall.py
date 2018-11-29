@@ -23,7 +23,7 @@ class ControlledDelegateCall(AbstractDetector):
         return ret
 
     def detect(self):
-        ret = []
+        results = []
 
         for contract in self.slither.contracts:
             for f in contract.functions:
@@ -34,12 +34,12 @@ class ControlledDelegateCall(AbstractDetector):
                     info = '{}.{} ({}) uses delegatecall to a input-controlled function id\n'
                     info = info.format(contract.name, f.name, f.source_mapping_str)
                     for node in nodes:
-                        info += '\t{} ({})'.format(node.expression, node.source_mapping_str)
+                        info += '\t{} ({})\n'.format(node.expression, node.source_mapping_str)
                     self.log(info)
-                    source = [f.source_mapping] + [node.source_mapping for node in nodes]
-                    ret.append({'vuln': 'controlled_delegatecall',
-                                'contract': contract.name,
-                                'function':f.name,
-                                'sourceMapping' : source})
 
-        return ret
+                    json = self.generate_json_result()
+                    self.add_function_to_json(f, json)
+                    self.add_nodes_to_json(nodes, json)
+                    results.append(json)
+
+        return results
