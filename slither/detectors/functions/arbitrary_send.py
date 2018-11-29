@@ -116,6 +116,10 @@ class ArbitrarySend(AbstractDetector):
                                     'name' : func.name,
                                     'source_mapping': func.source_mapping
                                 },
-                                'dangerous_calls':[{'source_mapping':n.source_mapping} for n in nodes]})
+                                'expressions':[{
+                                    'expression': str(n.expression),
+                                    'source_mapping':n.source_mapping}
+                                    for n in nodes]
+                                })
 
         return results

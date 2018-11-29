@@ -1,20 +1,18 @@
 [
     {
-        "contract": "B",
-        "filename": "tests/unused_state.sol",
-        "sourceMapping": [
+        "check": "unused-state",
+        "variables": [
             {
-                "filename": "tests/unused_state.sol",
-                "length": 14,
-                "lines": [
-                    4
-                ],
-                "start": 42
+                "name": "unused",
+                "source_mapping": {
+                    "filename": "tests/unused_state.sol",
+                    "length": 14,
+                    "lines": [
+                        4
+                    ],
+                    "start": 42
+                }
             }
-        ],
-        "unusedVars": [
-            "unused"
-        ],
-        "vuln": "unusedStateVars"
+        ]
     }
 ]

@@ -64,7 +64,7 @@ class UnusedReturnValues(AbstractDetector):
                                     'function':{
                                         'name': f.name,
                                         'source_mapping': f.source_mapping},
-                                    'unused_returns': [
+                                    'expressions': [
                                         {'expression': str(node.expression),
                                          'source_mapping': node.source_mapping}
                                         for node in unused_return]})

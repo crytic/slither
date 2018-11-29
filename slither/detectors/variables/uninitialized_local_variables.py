@@ -92,11 +92,10 @@ class UninitializedLocalVars(AbstractDetector):
 
             source = [function.source_mapping, uninitialized_local_variable.source_mapping]
 
-            results.append({'vuln': 'UninitializedLocalVars',
-                            'sourceMapping': source,
-                            'filename': self.filename,
-                            'contract': function.contract.name,
-                            'function': function.name,
-                            'variable': var_name})
+            results.append({'check': self.ARGUMENT,
+                            'variable':{'name': uninitialized_local_variable.name,
+                                        'source_mapping': uninitialized_local_variable.source_mapping},
+                            'function':{'name':function.name,
+                                        'source_mapping': function.source_mapping}})
 
         return results

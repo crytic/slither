@@ -36,7 +36,6 @@ class UnusedStateVars(AbstractDetector):
         for c in self.slither.contracts_derived:
             unusedVars = self.detect_unused(c)
             if unusedVars:
-                unusedVarsName = [v.name for v in unusedVars]
                 info = ''
                 for var in unusedVars:
                     info += "{}.{} ({}) is never used in {}\n".format(var.contract.name,
@@ -45,13 +44,11 @@ class UnusedStateVars(AbstractDetector):
                                                                       c.name)
 
                 all_info += info
-                sourceMapping = [v.source_mapping for v in unusedVars]
 
-                results.append({'vuln': 'unusedStateVars',
-                                'sourceMapping': sourceMapping,
-                                'filename': self.filename,
-                                'contract': c.name,
-                                'unusedVars': unusedVarsName})
+                results.append({'check': self.ARGUMENT,
+                                'variables':[{'name': variable.name,
+                                              'source_mapping': variable.source_mapping}
+                                             for variable in unusedVars]})
         if all_info != '':
             self.log(all_info)
         return results

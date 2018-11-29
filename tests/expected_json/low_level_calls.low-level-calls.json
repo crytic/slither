@@ -1,6 +1,19 @@
 [
     {
         "check": "low-level-calls",
+        "expressions": [
+            {
+                "expression": "_receiver.call.value(msg.value).gas(7777)()",
+                "source_mapping": {
+                    "filename": "tests/low_level_calls.sol",
+                    "length": 43,
+                    "lines": [
+                        6
+                    ],
+                    "start": 100
+                }
+            }
+        ],
         "function": {
             "name": "send",
             "source_mapping": {
@@ -13,19 +26,6 @@
                 ],
                 "start": 49
             }
-        },
-        "low_level_calls": [
-            {
-                "expression": "_receiver.call.value(msg.value).gas(7777)()",
-                "source_mapping": {
-                    "filename": "tests/low_level_calls.sol",
-                    "length": 43,
-                    "lines": [
-                        6
-                    ],
-                    "start": 100
-                }
-            }
-        ]
+        }
     }
 ]

@@ -41,7 +41,7 @@ class ControlledDelegateCall(AbstractDetector):
                                     'function':{
                                         'name': f.name,
                                         'source_mapping': f.source_mapping},
-                                    'controlled_delegatecalls': [
+                                    'expressions': [
                                         {'expression': str(node.expression),
                                          'source_mapping':node.source_mapping} for node in nodes]})
         return results

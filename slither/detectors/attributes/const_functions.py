@@ -39,7 +39,7 @@ class ConstantFunctions(AbstractDetector):
                         results.append({'check':self.ARGUMENT,
                                         'function':{'name': f.name, 'source_mapping': f.source_mapping},
                                         'contains_assembly': True,
-                                        'variables_written': []})
+                                        'variables': []})
 
                     variables_written = f.all_state_variables_written()
                     if variables_written:
@@ -53,6 +53,8 @@ class ConstantFunctions(AbstractDetector):
 
                         results.append({'check':self.ARGUMENT,
                                         'function':{'name': f.name, 'source_mapping': f.source_mapping},
-                                        'variables_written': [v.name for v in variables_written],
+                                        'variables': [{'name': v.name,
+                                                       'source_mapping': v.source_mapping}
+                                                      for v in variables_written],
                                         'contains_assembly': False})
         return results

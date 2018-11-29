@@ -1,8 +1,9 @@
 [
     {
         "check": "arbitrary-send",
-        "dangerous_calls": [
+        "expressions": [
             {
+                "expression": "msg.sender.send(this.balance)",
                 "source_mapping": {
                     "filename": "tests/arbitrary_send.sol",
                     "length": 29,
@@ -29,8 +30,9 @@
     },
     {
         "check": "arbitrary-send",
-        "dangerous_calls": [
+        "expressions": [
             {
+                "expression": "destination.send(this.balance)",
                 "source_mapping": {
                     "filename": "tests/arbitrary_send.sol",
                     "length": 30,
