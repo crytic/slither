@@ -64,9 +64,8 @@ class Suicidal(AbstractDetector):
 
                 self.log(info)
 
-                results.append({'check':self.ARGUMENT,
-                                'function':{
-                                    'name': func.name,
-                                    'source_mapping': func.source_mapping}})
+                json = self.generate_json_result()
+                self.add_function_to_json(func, json)
+                results.append(json)
 
         return results

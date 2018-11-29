@@ -12,6 +12,11 @@ test_slither(){
 
     # run slither detector on input file and save output as json
     slither "$1" --disable-solc-warnings --detect "$2" --json "$DIR/tmp-test.json"
+    if [ $? -eq 255 ]
+    then
+        echo "Slither crashed"
+        exit -1
+    fi
 
     # convert json file to pretty print and write to destination folder
     python "$DIR/pretty_print_and_sort_json.py" "$DIR/tmp-test.json" "$actual"

@@ -55,14 +55,11 @@ class Assembly(AbstractDetector):
 
                 all_info += info
 
-                results.append({'check':self.ARGUMENT,
-                                'function':{
-                                    'name': func.name,
-                                    'source_mapping': func.source_mapping},
-                                'assembly':[
-                                    {'source_mapping': node.source_mapping}
-                                    for node in nodes]})
-
+                json = self.generate_json_result()
+                self.add_function_to_json(func, json)
+                json['assembly'] = [{'source_mapping': node.source_mapping}
+                                    for node in nodes]
+                results.append(json)
 
         if all_info != '':
             self.log(all_info)

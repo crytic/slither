@@ -71,13 +71,10 @@ class ConstCandidateStateVars(AbstractDetector):
                                                                              v.name,
                                                                              v.source_mapping_str)
 
+                    json = self.generate_json_result()
+                    self.add_variables_to_json(variables, json)
+                    results.append(json)
 
-                    results.append({'check':self.ARGUMENT,
-                                    'variables': [
-                                        {'contract': v.contract.name,
-                                         'name': v.name,
-                                         'source_mapping':v.source_mapping}
-                                        for v in variables]})
         if all_info != '':
             self.log(all_info)
         return results

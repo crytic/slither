@@ -56,10 +56,8 @@ class LockedEther(AbstractDetector):
                                       [f.name for f in funcs_payable])
                     self.log(info)
 
-                    source = [f.source_mapping for f in funcs_payable]
-
-                    funcs_json = [{'name': f.name, 'source_mapping': f.source_mapping} for f in funcs_payable]
-                    results.append({'check': self.ARGUMENT,
-                                    'functions_payable' : funcs_json})
+                    json = self.generate_json_result()
+                    self.add_functions_to_json(funcs_payable, json)
+                    results.append(json)
 
         return results
