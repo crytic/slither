@@ -64,10 +64,8 @@ class Suicidal(AbstractDetector):
 
                 self.log(info)
 
-                results.append({'vuln': 'SuicidalFunc',
-                                'sourceMapping': func.source_mapping,
-                                'filename': self.filename,
-                                'contract': c.name,
-                                'function': func.name})
+                json = self.generate_json_result()
+                self.add_function_to_json(func, json)
+                results.append(json)
 
         return results

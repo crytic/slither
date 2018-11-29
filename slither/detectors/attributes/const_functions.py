@@ -35,14 +35,11 @@ class ConstantFunctions(AbstractDetector):
                         info = '{}.{} ({}) is declared {} but contains assembly code\n'
                         info = info.format(f.contract.name, f.name, f.source_mapping_str, attr)
                         self.log(info)
-                        sourceMapping = [f.source_mapping]
-                        results.append({'vuln': 'ConstFunction',
-                                        'sourceMapping': sourceMapping,
-                                        'filename': self.filename,
-                                        'contract': c.name,
-                                        'function_name': f.name,
-                                        'contains_assembly': True,
-                                        'varsWritten': []})
+                        json = self.generate_json_result()
+                        self.add_function_to_json(f, json)
+                        json['variables'] = []
+                        json['contains_assembly'] = True
+                        results.append(json)
 
                     variables_written = f.all_state_variables_written()
                     if variables_written:
@@ -51,13 +48,14 @@ class ConstantFunctions(AbstractDetector):
                         info = info.format(f.contract.name, f.name, f.source_mapping_str, attr)
                         for variable_written in variables_written:
                             info += '\t- {}.{}\n'.format(variable_written.contract.name,
-                                                       variable_written.name)
+                                                         variable_written.name)
                         self.log(info)
-                        results.append({'vuln': 'ConstFunction',
-                                        'sourceMapping': f.source_mapping,
-                                        'filename': self.filename,
-                                        'contract': c.name,
-                                        'function_name': f.name,
-                                        'contains_assembly': False,
-                                        'varsWritten': [str(x) for x in variables_written]})
+
+
+                        json = self.generate_json_result()
+                        self.add_function_to_json(f, json)
+                        self.add_variables_to_json(variables_written, json)
+                        json['contains_assembly'] = False
+                        results.append(json)
+
         return results

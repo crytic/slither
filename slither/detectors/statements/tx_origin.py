@@ -58,12 +58,9 @@ class TxOrigin(AbstractDetector):
 
                 self.log(info)
 
-                sourceMapping = [n.source_mapping for n in nodes]
-
-                results.append({'vuln': 'TxOrigin',
-                                'sourceMapping': sourceMapping,
-                                'filename': self.filename,
-                                'contract': func.contract.name,
-                                'function': func.name})
+                json = self.generate_json_result()
+                self.add_function_to_json(func, json)
+                self.add_nodes_to_json(nodes, json)
+                results.append(json)
 
         return results

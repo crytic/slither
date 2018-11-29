@@ -66,17 +66,15 @@ class ConstCandidateStateVars(AbstractDetector):
                     variables_by_contract[state_var.contract.name].append(state_var)
 
                 for contract, variables in variables_by_contract.items():
-                    variable_names = [v.name for v in variables]
                     for v in variables:
-                        all_info += "{}.{} should be constant ({})\n".format(contract, v.name, v.source_mapping_str)
+                        all_info += "{}.{} should be constant ({})\n".format(contract,
+                                                                             v.name,
+                                                                             v.source_mapping_str)
 
-                    sourceMapping = [v.source_mapping for v in const_candidates]
+                    json = self.generate_json_result()
+                    self.add_variables_to_json(variables, json)
+                    results.append(json)
 
-                    results.append({'vuln': 'ConstStateVariableCandidates',
-                                    'sourceMapping': sourceMapping,
-                                    'filename': self.filename,
-                                    'contract': c.name,
-                                    'unusedVars': variable_names})
         if all_info != '':
             self.log(all_info)
         return results

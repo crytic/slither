@@ -1,47 +1,53 @@
 [
     {
-        "calls": [
-            "! (msg.sender.call.value(userBalance[msg.sender])())"
-        ],
-        "contract": "Reentrancy",
-        "filename": "tests/reentrancy.sol",
-        "function": "withdrawBalance",
-        "send_eth": [
-            "! (msg.sender.call.value(userBalance[msg.sender])())"
-        ],
-        "sourceMapping": [
+        "check": "reentrancy",
+        "external_calls": [
             {
-                "filename": "tests/reentrancy.sol",
-                "length": 37,
-                "lines": [
-                    4
-                ],
-                "start": 52
-            },
-            {
-                "filename": "tests/reentrancy.sol",
-                "length": 92,
-                "lines": [
-                    17,
-                    18,
-                    19
-                ],
-                "start": 478
-            },
-            {
-                "filename": "tests/reentrancy.sol",
-                "length": 92,
-                "lines": [
-                    17,
-                    18,
-                    19
-                ],
-                "start": 478
+                "expression": "! (msg.sender.call.value(userBalance[msg.sender])())",
+                "source_mapping": {
+                    "filename": "tests/reentrancy.sol",
+                    "length": 92,
+                    "lines": [
+                        17,
+                        18,
+                        19
+                    ],
+                    "start": 478
+                }
             }
         ],
-        "varsWritten": [
-            "userBalance"
-        ],
-        "vuln": "Reentrancy"
+        "external_calls_sending_eth": [],
+        "function": {
+            "name": "withdrawBalance",
+            "source_mapping": {
+                "filename": "tests/reentrancy.sol",
+                "length": 314,
+                "lines": [
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21
+                ],
+                "start": 299
+            }
+        },
+        "variables_written": [
+            {
+                "expression": "userBalance[msg.sender] = 0",
+                "name": "userBalance",
+                "source_mapping": {
+                    "filename": "tests/reentrancy.sol",
+                    "length": 27,
+                    "lines": [
+                        20
+                    ],
+                    "start": 579
+                }
+            }
+        ]
     }
 ]

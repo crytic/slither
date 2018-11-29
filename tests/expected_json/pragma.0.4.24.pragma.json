@@ -1,27 +1,29 @@
 [
     {
-        "sourceMapping": [
+        "check": "pragma",
+        "expressions": [
             {
-                "filename": "tests/pragma.0.4.23.sol",
-                "length": 24,
-                "lines": [
-                    1
-                ],
-                "start": 0
+                "expression": "^0.4.23",
+                "source_mapping": {
+                    "filename": "tests/pragma.0.4.23.sol",
+                    "length": 24,
+                    "lines": [
+                        1
+                    ],
+                    "start": 0
+                }
             },
             {
-                "filename": "tests/pragma.0.4.24.sol",
-                "length": 24,
-                "lines": [
-                    1
-                ],
-                "start": 0
+                "expression": "^0.4.24",
+                "source_mapping": {
+                    "filename": "tests/pragma.0.4.24.sol",
+                    "length": 24,
+                    "lines": [
+                        1
+                    ],
+                    "start": 0
+                }
             }
-        ],
-        "versions": [
-            "^0.4.23",
-            "^0.4.24"
-        ],
-        "vuln": "ConstantPragma"
+        ]
     }
 ]

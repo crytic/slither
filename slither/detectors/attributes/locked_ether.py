@@ -56,11 +56,8 @@ class LockedEther(AbstractDetector):
                                       [f.name for f in funcs_payable])
                     self.log(info)
 
-                    source = [f.source_mapping for f in funcs_payable]
-
-                    results.append({'vuln': 'LockedEther',
-                                    'functions_payable' : [f.name for f in funcs_payable],
-                                    'contract': contract.name,
-                                    'sourceMapping': source})
+                    json = self.generate_json_result()
+                    self.add_functions_to_json(funcs_payable, json)
+                    results.append(json)
 
         return results

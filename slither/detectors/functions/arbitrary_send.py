@@ -100,7 +100,6 @@ class ArbitrarySend(AbstractDetector):
         for c in self.contracts:
             arbitrary_send = self.detect_arbitrary_send(c)
             for (func, nodes) in arbitrary_send:
-                calls_str = [str(node.expression) for node in nodes]
 
                 info = "{}.{} ({}) sends eth to arbirary user\n"
                 info = info.format(func.contract.name,
@@ -112,13 +111,10 @@ class ArbitrarySend(AbstractDetector):
 
                 self.log(info)
 
-                source_mapping = [node.source_mapping for node in nodes]
 
-                results.append({'vuln': 'ArbitrarySend',
-                                'sourceMapping': source_mapping,
-                                'filename': self.filename,
-                                'contract': func.contract.name,
-                                'function': func.name,
-                                'calls': calls_str})
+                json = self.generate_json_result()
+                self.add_function_to_json(func, json)
+                self.add_nodes_to_json(nodes, json)
+                results.append(json)
 
         return results
