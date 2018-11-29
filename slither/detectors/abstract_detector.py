@@ -96,6 +96,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                           for variable in variables]
 
     @staticmethod
+    def add_contract_to_json(contract, d):
+        assert 'contract' not in d
+        d['contract'] = {'name': contract.name, 'source_mapping': contract.source_mapping}
+
+    @staticmethod
     def add_function_to_json(function, d):
         assert 'function' not in d
         d['function'] = {'name': function.name, 'source_mapping': function.source_mapping}
