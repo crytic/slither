@@ -58,6 +58,7 @@ class LockedEther(AbstractDetector):
 
                     json = self.generate_json_result()
                     self.add_functions_to_json(funcs_payable, json)
+                    self.add_contract_to_json(contract, json)
                     results.append(json)
 
         return results

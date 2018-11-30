@@ -10,13 +10,8 @@ generate_expected_json(){
     output_filename="$(basename $1 .sol).$2.json"
 
     # run slither detector on input file and save output as json
-    slither "$1" --disable-solc-warnings --detect "$2" --json "$DIR/tmp-gen.json"
+    slither "$1" --disable-solc-warnings --detect "$2" --json "$DIR/../tests/expected_json/$output_filename"
 
-    # convert json file to pretty print and write to destination folder
-    python "$DIR/pretty_print_and_sort_json.py" "$DIR/tmp-gen.json" "$DIR/../tests/expected_json/$output_filename"
-
-    # remove the raw un-prettified json file
-    rm "$DIR/tmp-gen.json"
 }
 
 #generate_expected_json tests/uninitialized.sol "uninitialized-state"
@@ -28,7 +23,7 @@ generate_expected_json(){
 #generate_expected_json tests/uninitialized_storage_pointer.sol "uninitialized-storage"
 #generate_expected_json tests/tx_origin.sol "tx-origin"
 #generate_expected_json tests/unused_state.sol "unused-state"
-#generate_expected_json tests/locked_ether.sol "locked-ether"
+generate_expected_json tests/locked_ether.sol "locked-ether"
 #generate_expected_json tests/arbitrary_send.sol "arbitrary-send"
 #generate_expected_json tests/inline_assembly_contract.sol "assembly"
 #generate_expected_json tests/inline_assembly_library.sol "assembly"
