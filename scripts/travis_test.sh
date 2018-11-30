@@ -8,7 +8,6 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 test_slither(){
 
     expected="$DIR/../tests/expected_json/$(basename $1 .sol).$2.json"
-    actual="$DIR/$(basename $1 .sol).$2.json"
 
     # run slither detector on input file and save output as json
     slither "$1" --disable-solc-warnings --detect "$2" --json "$DIR/tmp-test.json"
@@ -18,56 +17,50 @@ test_slither(){
         exit -1
     fi
 
-    # convert json file to pretty print and write to destination folder
-    python "$DIR/pretty_print_and_sort_json.py" "$DIR/tmp-test.json" "$actual"
-
-    # remove the raw un-prettified json file
-    rm "$DIR/tmp-test.json"
-
-    if [ ! -f "$expected" ]; then
-      rm "$actual"
+    if [ ! -f "$DIR/tmp-test.json" ]; then
         echo ""
-        echo "Missing expected file"
+        echo "Missing generated file"
         echo ""
-        echo "$expected"
         exit 1
-    fi 
+    fi
 
-    result=$(diff "$expected" "$actual")
+    result=$(python "$DIR/json_diff.py" "$expected" "$DIR/tmp-test.json")
 
-    if [ "$result" != "" ]; then
-      rm "$actual"
+    rm "$DIR/tmp-test.json"
+    if [ "$result" != "{}" ]; then
       echo ""
       echo "failed test of file: $1, detector: $2"
       echo ""
       echo "$result"
       echo ""
       exit 1
-    else
-      rm "$actual"
     fi
 
     # run slither detector on input file and save output as json
     slither "$1" --disable-solc-warnings --detect "$2" --compact-ast --json "$DIR/tmp-test.json"
+    if [ $? -eq 255 ]
+    then
+        echo "Slither crashed"
+        exit -1
+    fi
 
-    # convert json file to pretty print and write to destination folder
-    python "$DIR/pretty_print_and_sort_json.py" "$DIR/tmp-test.json" "$actual"
+    if [ ! -f "$DIR/tmp-test.json" ]; then
+        echo ""
+        echo "Missing generated file"
+        echo ""
+        exit 1
+    fi
 
-    # remove the raw un-prettified json file
+    result=$(python "$DIR/json_diff.py" "$expected" "$DIR/tmp-test.json")
+
     rm "$DIR/tmp-test.json"
-
-    result=$(diff "$expected" "$actual")
-
-    if [ "$result" != "" ]; then
-      rm "$actual"
+    if [ "$result" != "{}" ]; then
       echo ""
       echo "failed test of file: $1, detector: $2"
       echo ""
       echo "$result"
       echo ""
       exit 1
-    else
-      rm "$actual"
     fi
 }
 

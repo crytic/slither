@@ -3,6 +3,7 @@ import re
 
 from slither.utils.colors import green, yellow, red
 
+from collections import OrderedDict
 
 class IncorrectDetectorInitialization(Exception):
     pass
@@ -81,7 +82,9 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return classification_colors[self.IMPACT]
 
     def generate_json_result(self):
-        return {'check': self.ARGUMENT}
+        d = OrderedDict()
+        d['check'] = self.ARGUMENT
+        return d
 
     @staticmethod
     def add_variable_to_json(variable, d):
