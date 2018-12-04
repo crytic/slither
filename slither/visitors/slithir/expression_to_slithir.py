@@ -1,6 +1,6 @@
 import logging
 
-from slither.core.declarations import Function, Structure, SolidityVariable, SolidityFunction
+from slither.core.declarations import Function, Structure, SolidityVariable, SolidityFunction, Contract, Enum, Structure
 from slither.core.expressions import (AssignmentOperationType,
                                       UnaryOperationType)
 from slither.core.solidity_types.array_type import ArrayType
@@ -161,7 +161,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         elif isinstance(expression.value, LocalVariable):
             set_val(expression, LocalIRVariable(expression.value))
         else:
-            assert isinstance(expression.value, (SolidityVariable, SolidityFunction))
+            assert isinstance(expression.value, (SolidityVariable, SolidityFunction, Function, Contract, Enum, Structure))
             set_val(expression, expression.value)
 
     def _post_index_access(self, expression):
