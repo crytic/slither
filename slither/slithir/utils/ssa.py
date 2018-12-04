@@ -24,7 +24,12 @@ def transform_slithir_vars_to_ssa(function):
         tuple_variables[idx].index = idx
 
 def add_phi_operations(function):
-    add_phi_origins(function.entry_point)
+    init_definition = dict()
+    for v in function.parameters+function.returns:
+        if v.name:
+            init_definition[v.name] = function.entry_point
+
+    add_phi_origins(function.entry_point, init_definition)
 
     for node in function.nodes:
         for variable_name, nodes in node.phi_origins.items():
@@ -40,7 +45,12 @@ def add_phi_operations(function):
                 variable = n.variable_declaration
             node.add_pre_ir(Phi(LocalIRVariable(variable), nodes))
 
-    rename_variables(function.entry_point)
+    init_local_variables_counter = dict()
+    for v in function.parameters+function.returns:
+        if v.name:
+            init_local_variables_counter[v.name] = 0
+    init_global_variables_counter = dict(init_local_variables_counter)
+    rename_variables(function.entry_point, init_local_variables_counter, init_global_variables_counter)
 
     fix_phi_operations(function.nodes)
 
@@ -58,11 +68,7 @@ def fix_phi_operations(nodes):
                 variables = [last_name(dst, ir.lvalue) for dst in ir.nodes]
                 ir.rvalues = variables
 
-def rename_variables(node, local_variables_counter=None, global_variables_counter=None):
-    if local_variables_counter is None:
-        local_variables_counter = dict()
-    if global_variables_counter is None:
-        global_variables_counter = dict()
+def rename_variables(node, local_variables_counter, global_variables_counter):
 
     if node.variable_declaration:
         local_variables_counter[node.variable_declaration.name] = 0
@@ -85,9 +91,7 @@ def rename_variables(node, local_variables_counter=None, global_variables_counte
     for succ in node.dominator_successors:
         rename_variables(succ, dict(local_variables_counter), global_variables_counter)
 
-def add_phi_origins(node, variables_definition=None):
-    if variables_definition is None:
-        variables_definition = dict()
+def add_phi_origins(node, variables_definition):
 
     # Add new key to variables_definition
     # the key is the variable_name and the value the node where its written
@@ -103,8 +107,6 @@ def add_phi_origins(node, variables_definition=None):
     # while most of the ssa textbook would represent following nodes as one
     if node.dominance_frontier and len(node.dominator_successors) != 1:
         for phi_node in node.dominance_frontier:
-            print(phi_node.node_id)
-            print(variables_definition)
             for variable_name, n in variables_definition.items():
                 phi_node.add_phi_origin(variable_name, n)
 
