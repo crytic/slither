@@ -449,7 +449,7 @@ class Node(SourceMapping, ChildFunction):
                     while isinstance(var, ReferenceVariable):
                         var = var.points_to
                 # Only store non-slithIR variables
-                if not is_slithir_var(var):
+                if not is_slithir_var(var) and var:
                     self._vars_written.append(var)
 
             if isinstance(ir, InternalCall):
