@@ -11,11 +11,6 @@ class Variable(SourceMapping):
     def __init__(self):
         super(Variable, self).__init__()
         self._name = None
-        self._typeName = None
-        self._arrayDepth = None
-        self._isMapping = None
-        self._mappingFrom = None
-        self._mappingTo = None
         self._initial_expression = None
         self._type = None
         self._initialized = None
@@ -82,3 +77,10 @@ class Variable(SourceMapping):
     def __str__(self):
         return self._name
 
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        if not isinstance(other, Variable):
+            return False
+        return other.name == self.name

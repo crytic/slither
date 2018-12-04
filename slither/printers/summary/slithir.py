@@ -29,6 +29,10 @@ class PrinterSlithIR(AbstractPrinter):
                             print('\t\tIRs:')
                             for ir in node.irs:
                                 print('\t\t\t{}'.format(ir))
+                        elif node.irs:
+                            print('\t\tIRs:')
+                            for ir in node.irs:
+                                print('\t\t\t{}'.format(ir))
             for modifier in contract.modifiers:
                 if modifier.contract == contract:
                     print('\tModifier {}'.format(modifier.full_name))

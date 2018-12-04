@@ -9,11 +9,11 @@ class Delete(OperationWithLValue):
         of its operand
     """
 
-    def __init__(self, variable):
+    def __init__(self, lvalue, variable):
         assert is_valid_lvalue(variable)
         super(Delete, self).__init__()
         self._variable = variable
-        self._lvalue = variable
+        self._lvalue = lvalue
 
     @property
     def read(self):
