@@ -1,10 +1,10 @@
 
+from .variable import SlithIRVariable
 from slither.core.children.child_node import ChildNode
 from slither.core.declarations import Contract, Enum, SolidityVariable
-from slither.core.variables.variable import Variable
 
 
-class ReferenceVariable(ChildNode, Variable):
+class ReferenceVariable(ChildNode, SlithIRVariable):
 
     COUNTER = 0
 

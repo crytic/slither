@@ -36,6 +36,12 @@ class NodeType:
     ASSEMBLY = 0x14
     IFLOOP = 0x15
 
+    # Merging nodes
+    # Can have phi IR operation
+    ENDIF = 0x50
+    STARTLOOP = 0x51
+    ENDLOOP = 0x52
+
     # Below the nodes have no expression
     # But are used to expression CFG structure
 
@@ -49,11 +55,6 @@ class NodeType:
     # Only modifier node
     PLACEHOLDER = 0x40
 
-    # Merging nodes
-    # Unclear if they will be necessary
-    ENDIF = 0x50
-    STARTLOOP = 0x51
-    ENDLOOP = 0x52
 
 #    @staticmethod
     def str(t):
@@ -100,8 +101,25 @@ class Node(SourceMapping, ChildFunction):
     def __init__(self, node_type, node_id):
         super(Node, self).__init__()
         self._node_type = node_type
+
+        # TODO: rename to explicit CFG 
         self._sons = []
         self._fathers = []
+
+        ## Dominators info
+        # Dominators nodes
+        self._dominators = set()
+        self._immediate_dominator = None
+        ## Nodes of the dominators tree
+        #self._dom_predecessors = set()
+        self._dom_successors = set()
+        # Dominance frontier
+        self._dominance_frontier = set()
+        # Phi origin
+        # key are variable name
+        # values are list of Node
+        self._phi_origins = {}
+
         self._expression = None
         self._variable_declaration = None
         self._node_id = node_id
@@ -121,6 +139,56 @@ class Node(SourceMapping, ChildFunction):
         self._expression_vars_written = []
         self._expression_vars_read = []
         self._expression_calls = []
+
+
+    @property
+    def dominators(self):
+        '''
+            Returns:
+                set(Node)
+        '''
+        return self._dominators
+
+    @property
+    def immediate_dominator(self):
+        '''
+            Returns:
+                Node or None
+        '''
+        return self._immediate_dominator
+
+    @property
+    def dominance_frontier(self):
+        '''
+            Returns:
+                set(Node)
+        '''
+        return self._dominance_frontier
+
+    @property
+    def dominator_successors(self):
+        return self._dom_successors
+
+    @dominators.setter
+    def dominators(self, dom):
+        self._dominators = dom
+
+    @immediate_dominator.setter
+    def immediate_dominator(self, idom):
+        self._immediate_dominator = idom
+
+    @dominance_frontier.setter
+    def dominance_frontier(self, dom):
+        self._dominance_frontier = dom
+
+    @property
+    def phi_origins(self):
+        return self._phi_origins
+
+    def add_phi_origin(self, variable_name, node):
+        if variable_name not in self._phi_origins:
+            self._phi_origins[variable_name] = set()
+        self._phi_origins[variable_name].add(node)
 
     @property
     def slither(self):
@@ -356,6 +424,9 @@ class Node(SourceMapping, ChildFunction):
         """
         return self._irs
 
+    def add_pre_ir(self, ir):
+        self._irs.insert(0, ir)
+
     def slithir_generation(self):
         if self.expression:
             expression = self.expression
@@ -408,4 +479,5 @@ class Node(SourceMapping, ChildFunction):
         self._solidity_calls = list(set(self._solidity_calls))
         self._high_level_calls = list(set(self._high_level_calls))
         self._low_level_calls = list(set(self._low_level_calls))
+
 

@@ -38,7 +38,7 @@ class FunctionSummary(AbstractPrinter):
                                  "Write",
                                  "Internal Calls",
                                  "External Calls"])
-            for (f_name, visi, modifiers, read, write, internal_calls, external_calls) in func_summaries:
+            for (f_name, _, visi, modifiers, read, write, internal_calls, external_calls) in func_summaries:
                 read = self._convert(read)
                 write = self._convert(write)
                 internal_calls = self._convert(internal_calls)
