@@ -13,7 +13,7 @@ class HighLevelCall(Call, OperationWithLValue):
 
     def __init__(self, destination, function_name, nbr_arguments, result, type_call):
         assert isinstance(function_name, Constant)
-        assert is_valid_lvalue(result)
+        assert is_valid_lvalue(result) or result is None
         self._check_destination(destination)
         super(HighLevelCall, self).__init__()
         self._destination = destination

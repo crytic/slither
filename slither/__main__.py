@@ -157,6 +157,7 @@ def get_detectors_and_printers():
     from slither.printers.call.call_graph import PrinterCallGraph
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
     from slither.printers.summary.slithir import PrinterSlithIR
+    from slither.printers.summary.slithir_ssa import PrinterSlithIRSSA
     from slither.printers.summary.human_summary import PrinterHumanSummary
 
     printers = [FunctionSummary,
@@ -166,6 +167,7 @@ def get_detectors_and_printers():
                 PrinterCallGraph,
                 PrinterWrittenVariablesAndAuthorization,
                 PrinterSlithIR,
+                PrinterSlithIRSSA,
                 PrinterHumanSummary]
 
     # Handle plugins!
@@ -213,6 +215,7 @@ def main_impl(all_detector_classes, all_printer_classes):
                               ('FunctionSolc', default_log),
                               ('ExpressionParsing', default_log),
                               ('TypeParsing', default_log),
+                              ('SSA_Conversion', default_log),
                               ('Printers', default_log)]:
         l = logging.getLogger(l_name)
         l.setLevel(l_level)

@@ -20,7 +20,7 @@ from slither.visitors.expression.has_conditional import HasConditional
 
 from slither.utils.expression_manipulations import SplitTernaryExpression
 
-from slither.slithir.utils.ssa import transform_slithir_vars_to_ssa, add_phi_operations
+from slither.slithir.utils.ssa import transform_slithir_vars_to_ssa, add_ssa_ir
 
 from slither.core.dominators.utils import compute_dominators, compute_dominance_frontier
 logger = logging.getLogger("FunctionSolc")
@@ -839,8 +839,8 @@ class FunctionSolc(Function):
         compute_dominance_frontier(self.nodes)
         for node in self.nodes:
             node.slithir_generation()
-        add_phi_operations(self)
         transform_slithir_vars_to_ssa(self)
+        add_ssa_ir(self)
         self._analyze_read_write()
         self._analyze_calls()
  
