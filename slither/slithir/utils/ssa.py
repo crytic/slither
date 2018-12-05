@@ -59,12 +59,14 @@ def add_ssa_ir(function):
         for variable_name, nodes in node.phi_origins.items():
             if len(nodes)<2 :
                 continue
+            if not is_used_later(node, variable_name, []):
+                continue
             # assumption: at this level we can retrieve 
             # an instance of the variable
             # by looking at the variables written
             # of any of the nodes
             for n in nodes:
-                variable = next((v for v in n.variables_written if v.name == variable_name), None)
+                variable = next((v for v in n.local_variables_written if v.name == variable_name), None)
                 if variable is None:
                     variable = n.variable_declaration
                 if variable:
@@ -135,6 +137,25 @@ def update_lvalue(new_ir, node, local_variables_instances, global_variables_inst
                     to_update = to_update.points_to
                 to_update.points_to = new_var
 
+def is_used_later(node, variable_name, visited):
+    # TODO: does not handle the case where its read and written in the declaration node
+    # It can be problematic if this happens in a loop/if structure
+    # Ex:
+    # for(;true;){
+    #   if(true){
+    #     uint a = a;
+    #    }
+    #     ..
+    if node in visited:
+        return False
+    # shared visited
+    visited.append(node)
+    if any(v.name == variable_name for v in node.local_variables_read):
+        return True
+    if any(v.name == variable_name for v in node.local_variables_written):
+        return False
+    return any(is_used_later(son, variable_name, visited) for son in node.sons)
+
 def generate_ssa_irs(node, local_variables_instances, global_variables_instances):
 
     if node.variable_declaration:
@@ -161,7 +182,7 @@ def add_phi_origins(node, variables_definition):
     # Add new key to variables_definition
     # the key is the variable_name and the value the node where its written
     variables_definition = dict(variables_definition,
-                                **{v.name: node for v in node.variables_written})
+                                **{v.name: node for v in node.local_variables_written})
 
     # For unini variable declaration
     if node.variable_declaration and\
