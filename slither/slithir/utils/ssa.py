@@ -90,8 +90,11 @@ def fix_phi_operations(nodes, init_vars):
         # Todo optimize by creating a variables_ssa_written attribute
         for ir_ssa in n.irs_ssa:
             if isinstance(ir_ssa, OperationWithLValue):
-                if ir_ssa.lvalue and ir_ssa.lvalue.name == var.name:
-                    candidates.append(ir_ssa.lvalue)
+                lvalue = ir_ssa.lvalue
+                while isinstance(lvalue, ReferenceVariable):
+                    lvalue = lvalue.points_to
+                if lvalue and lvalue.name == var.name:
+                    candidates.append(lvalue)
         if n.variable_declaration and n.variable_declaration.name == var.name:
             candidates.append(LocalIRVariable(n.variable_declaration))
         if n.type == NodeType.ENTRYPOINT:
@@ -102,9 +105,35 @@ def fix_phi_operations(nodes, init_vars):
 
     for node in nodes:
         for ir in node.irs_ssa:
-            if isinstance(ir, Phi):
+            if isinstance(ir, Phi) and not ir.rvalues:
                 variables = [last_name(dst, ir.lvalue) for dst in ir.nodes]
                 ir.rvalues = variables
+
+def update_lvalue(new_ir, node, local_variables_instances, global_variables_instances):
+    if isinstance(new_ir, OperationWithLValue):
+        lvalue = new_ir.lvalue
+        update_through_ref = False
+        if isinstance(new_ir, Assignment):
+            if isinstance(lvalue, ReferenceVariable):
+                update_through_ref = True
+                while isinstance(lvalue, ReferenceVariable):
+                    lvalue = lvalue.points_to
+        if isinstance(lvalue, LocalIRVariable):
+            new_var = LocalIRVariable(lvalue)
+            new_var.index = global_variables_instances[lvalue.name].index + 1
+            if update_through_ref:
+                phi_operation = Phi(new_var, {node})
+                phi_operation.rvalues = [lvalue]
+                node.add_ssa_ir(phi_operation)
+            global_variables_instances[lvalue.name] = new_var
+            local_variables_instances[lvalue.name] = new_var
+            if not isinstance(new_ir.lvalue, ReferenceVariable):
+                new_ir.lvalue = new_var
+            else:
+                to_update = new_ir.lvalue
+                while isinstance(to_update.points_to, ReferenceVariable):
+                    to_update = to_update.points_to
+                to_update.points_to = new_var
 
 def generate_ssa_irs(node, local_variables_instances, global_variables_instances):
 
@@ -113,22 +142,16 @@ def generate_ssa_irs(node, local_variables_instances, global_variables_instances
         local_variables_instances[node.variable_declaration.name] = new_var
         global_variables_instances[node.variable_declaration.name] = new_var
 
+    for ir in node.irs_ssa:
+        assert isinstance(ir, Phi)
+        update_lvalue(ir, node, local_variables_instances, global_variables_instances)
+
     for ir in node.irs:
-#        ir = node.irs[idx]
-#        for used in ir.used:
-#            if isinstance(used, LocalIRVariable):
-#                used.index = local_variables_instances[used.name]
         new_ir = copy_ir(ir, local_variables_instances)
+        update_lvalue(new_ir, node, local_variables_instances, global_variables_instances)
+
         if new_ir:
             node.add_ssa_ir(new_ir)
-
-        if isinstance(new_ir, OperationWithLValue):
-            if isinstance(new_ir.lvalue, LocalIRVariable):
-                new_var = LocalIRVariable(new_ir.lvalue)
-                new_var.index = global_variables_instances[new_ir.lvalue.name].index + 1
-                global_variables_instances[new_ir.lvalue.name] = new_var
-                local_variables_instances[new_ir.lvalue.name] = new_var
-                new_ir.lvalue = new_var
 
     for succ in node.dominator_successors:
         generate_ssa_irs(succ, dict(local_variables_instances), global_variables_instances)
@@ -164,17 +187,30 @@ def copy_ir(ir, variables_instances):
         variables_instances(dict(str -> Variable))
     '''
 
+    def get(variable):
+        if isinstance(variable, LocalVariable) and variable.name in variables_instances:
+            return variables_instances[variable.name]
+        elif isinstance(variable, ReferenceVariable):
+            new_variable = ReferenceVariable(variable.node, index=variable.index)
+            if variable.points_to:
+                new_variable.points_to = get(variable.points_to)
+            new_variable.set_type(variable.type)
+            return new_variable
+        elif isinstance(variable, TemporaryVariable):
+            new_variable = TemporaryVariable(variable.node, index=variable.index)
+            new_variable.set_type(variable.type)
+            return new_variable
+        return variable
+
     def get_variable(ir, f):
         variable = f(ir)
-        if isinstance(variable, LocalVariable) and variable.name in variables_instances:
-            variable = variables_instances[variable.name]
+        variable = get(variable)
         return variable
 
     def get_arguments(ir):
         arguments = []
         for arg in ir.arguments:
-            if isinstance(arg, LocalVariable) and arg.name in variables_instances:
-                arg = variables_instances[arg.name]
+            arg = get(arg)
             arguments.append(arg)
         return arguments
 
@@ -189,8 +225,7 @@ def copy_ir(ir, variables_instances):
                 if isinstance(v, list):
                     v = traversal(v)
                 else:
-                    if isinstance(v, LocalVariable) and v.name in variables_instances:
-                        v = variables_instances[v.name]
+                    v = get(v)
                 ret.append(v)
             return ret
 
