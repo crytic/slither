@@ -1,12 +1,14 @@
 import logging
 
-from slither.core.declarations import Function, Structure, SolidityVariable, SolidityFunction, Contract, Enum, Structure
+from slither.core.declarations import (Contract, Enum, Function,
+                                       SolidityFunction, SolidityVariable,
+                                       Structure)
 from slither.core.expressions import (AssignmentOperationType,
                                       UnaryOperationType)
-from slither.core.solidity_types.array_type import ArrayType
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
                                         Index, InitArray, InternalCall, Member,
-                                        NewArray, NewContract, NewStructure,
                                         TypeConversion, Unary, Unpack)
 from slither.slithir.tmp_operations.argument import Argument
 from slither.slithir.tmp_operations.tmp_call import TmpCall
@@ -14,12 +16,10 @@ from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import \
     TmpNewElementaryType
-from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import (Constant, ReferenceVariable,
                                        TemporaryVariable, TupleVariable)
 from slither.visitors.expression.expression import ExpressionVisitor
-from slither.core.variables.state_variable import StateVariable
-from slither.core.variables.local_variable import LocalVariable
+
 #from slither.slithir.variables.state_variable import StateIRVariable
 #from slither.slithir.variables.local_variable import LocalIRVariable
 
@@ -37,9 +37,6 @@ def set_val(expression, val):
     expression.context[key] = val
 
 def convert_assignment(left, right, t, return_type):
-#    if isinstance(left, LocalVariable):
-#        left = LocalIRVariable(left)
-#        print(left)
     if t == AssignmentOperationType.ASSIGN:
         return Assignment(left, right, return_type)
     elif t == AssignmentOperationType.ASSIGN_OR:
@@ -109,7 +106,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
                 # Return left to handle
                 # a = b = 1; 
-                set_val(expression, operation.lvalue)
+                set_val(expression, left)
 
     def _post_binary_operation(self, expression):
         left = get(expression.expression_left)
@@ -157,13 +154,15 @@ class ExpressionToSlithIR(ExpressionVisitor):
         set_val(expression, expression.type)
 
     def _post_identifier(self, expression):
-#        if isinstance(expression.value, StateVariable):
-#            set_val(expression, StateIRVariable(expression.value))
-#        elif isinstance(expression.value, LocalVariable):
-#            set_val(expression, LocalIRVariable(expression.value))
-#        else:
-            assert isinstance(expression.value, (SolidityVariable, SolidityFunction, Function, Contract, Enum, Structure, StateVariable, LocalVariable))
-            set_val(expression, expression.value)
+        assert isinstance(expression.value, (SolidityVariable,
+                                             SolidityFunction,
+                                             Function,
+                                             Contract,
+                                             Enum,
+                                             Structure,
+                                             StateVariable,
+                                             LocalVariable))
+        set_val(expression, expression.value)
 
     def _post_index_access(self, expression):
         left = get(expression.expression_left)
@@ -219,39 +218,35 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
     def _post_unary_operation(self, expression):
         value = get(expression.expression)
-        new_value = value
-     #   # need new instance for ssa
-     #   if isinstance(new_value, LocalVariable):
-     #       new_value = LocalIRVariable(new_value)
         if expression.type in [UnaryOperationType.BANG, UnaryOperationType.TILD]:
             lvalue = TemporaryVariable(self._node)
             operation = Unary(lvalue, value, expression.type)
             self._result.append(operation)
             set_val(expression, lvalue)
         elif expression.type in [UnaryOperationType.DELETE]:
-            operation = Delete(new_value, value)
+            operation = Delete(value, value)
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.PLUSPLUS_PRE]:
-            operation = Binary(new_value, value, Constant("1"), BinaryType.ADDITION)
+            operation = Binary(value, value, Constant("1"), BinaryType.ADDITION)
             self._result.append(operation)
-            set_val(expression, new_value)
+            set_val(expression, value)
         elif expression.type in [UnaryOperationType.MINUSMINUS_PRE]:
-            operation = Binary(new_value, value, Constant("1"), BinaryType.SUBTRACTION)
+            operation = Binary(value, value, Constant("1"), BinaryType.SUBTRACTION)
             self._result.append(operation)
-            set_val(expression, new_value)
+            set_val(expression, value)
         elif expression.type in [UnaryOperationType.PLUSPLUS_POST]:
             lvalue = TemporaryVariable(self._node)
             operation = Assignment(lvalue, value, value.type)
             self._result.append(operation)
-            operation = Binary(new_value, value, Constant("1"), BinaryType.ADDITION)
+            operation = Binary(value, value, Constant("1"), BinaryType.ADDITION)
             self._result.append(operation)
             set_val(expression, lvalue)
         elif expression.type in [UnaryOperationType.MINUSMINUS_POST]:
             lvalue = TemporaryVariable(self._node)
             operation = Assignment(lvalue, value, value.type)
             self._result.append(operation)
-            operation = Binary(new_value, value, Constant("1"), BinaryType.SUBTRACTION)
+            operation = Binary(value, value, Constant("1"), BinaryType.SUBTRACTION)
             self._result.append(operation)
             set_val(expression, lvalue)
         elif expression.type in [UnaryOperationType.PLUS_PRE]:
