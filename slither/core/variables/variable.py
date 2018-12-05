@@ -77,10 +77,4 @@ class Variable(SourceMapping):
     def __str__(self):
         return self._name
 
-    def __hash__(self):
-        return hash(self.name)
 
-    def __eq__(self, other):
-        if not isinstance(other, Variable):
-            return False
-        return other.name == self.name

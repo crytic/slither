@@ -3,7 +3,7 @@ from .variable import SlithIRVariable
 from slither.core.variables.variable import Variable
 from slither.core.children.child_node import ChildNode
 
-class TemporaryVariable(ChildNode, SlithIRVariable):
+class TemporaryVariable(ChildNode, Variable):
 
     COUNTER = 0
 
