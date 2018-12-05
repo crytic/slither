@@ -9,10 +9,13 @@ class ReferenceVariable(ChildNode, Variable):
 
     COUNTER = 0
 
-    def __init__(self, node):
+    def __init__(self, node, index=None):
         super(ReferenceVariable, self).__init__()
-        self._index = ReferenceVariable.COUNTER
-        ReferenceVariable.COUNTER += 1
+        if index is None:
+            self._index = ReferenceVariable.COUNTER
+            ReferenceVariable.COUNTER += 1
+        else:
+            self._index = index
         self._points_to = None
         self._node = node
 
