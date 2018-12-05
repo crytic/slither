@@ -9,6 +9,7 @@ from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariable)
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.convert import convert_expression
 from slither.slithir.operations import (Balance, HighLevelCall, Index,
@@ -137,6 +138,9 @@ class Node(SourceMapping, ChildFunction):
         self._state_vars_read = []
         self._solidity_vars_read = []
 
+        self._local_vars_read = []
+        self._local_vars_written = []
+
         self._expression_vars_written = []
         self._expression_vars_read = []
         self._expression_calls = []
@@ -222,6 +226,13 @@ class Node(SourceMapping, ChildFunction):
         return list(self._state_vars_read)
 
     @property
+    def local_variables_read(self):
+        """
+            list(LocalVariable): Local variables read
+        """
+        return list(self._local_vars_read)
+
+    @property
     def solidity_variables_read(self):
         """
             list(SolidityVariable): State variables read
@@ -245,6 +256,13 @@ class Node(SourceMapping, ChildFunction):
             list(StateVariable): State variables written
         """
         return list(self._state_vars_written)
+
+    @property
+    def local_variables_written(self):
+        """
+            list(LocalVariable): Local variables written
+        """
+        return list(self._local_vars_written)
 
     @property
     def variables_written_as_expression(self):
@@ -311,6 +329,7 @@ class Node(SourceMapping, ChildFunction):
         self._variable_declaration = var
         if var.expression:
             self._vars_written += [var]
+            self._local_vars_written += [var]
 
     @property
     def variable_declaration(self):
@@ -489,9 +508,11 @@ class Node(SourceMapping, ChildFunction):
 
         self._vars_read = list(set(self._vars_read))
         self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
+        self._local_vars_read = [v for v in self._vars_read if isinstance(v, LocalVariable)]
         self._solidity_vars_read = [v for v in self._vars_read if isinstance(v, SolidityVariable)]
         self._vars_written = list(set(self._vars_written))
         self._state_vars_written = [v for v in self._vars_written if isinstance(v, StateVariable)]
+        self._local_vars_written = [v for v in self._vars_written if isinstance(v, LocalVariable)]
         self._internal_calls = list(set(self._internal_calls))
         self._solidity_calls = list(set(self._solidity_calls))
         self._high_level_calls = list(set(self._high_level_calls))
