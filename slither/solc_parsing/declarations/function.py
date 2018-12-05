@@ -846,19 +846,20 @@ class FunctionSolc(Function):
         condition_node.add_expression(condition)
         condition_node.analyze_expressions(self)
 
-        true_node = self._new_node(node.type, node.source_mapping)
         if node.type == NodeType.VARIABLE:
-            true_node.add_variable_declaration(node.variable_declaration)
+            condition_node.add_variable_declaration(node.variable_declaration)
+
+        true_node = self._new_node(NodeType.EXPRESSION, node.source_mapping)
+        if node.type == NodeType.VARIABLE:
             assert isinstance(true_expr, AssignmentOperation)
-            true_expr = true_expr.expression_right
+            #true_expr = true_expr.expression_right
         true_node.add_expression(true_expr)
         true_node.analyze_expressions(self)
 
-        false_node = self._new_node(node.type, node.source_mapping)
+        false_node = self._new_node(NodeType.EXPRESSION, node.source_mapping)
         if node.type == NodeType.VARIABLE:
-            false_node.add_variable_declaration(node.variable_declaration)
             assert isinstance(false_expr, AssignmentOperation)
-            false_expr = false_expr.expression_right
+            #false_expr = false_expr.expression_right
         false_node.add_expression(false_expr)
         false_node.analyze_expressions(self)
 
