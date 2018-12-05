@@ -131,6 +131,7 @@ class Node(SourceMapping, ChildFunction):
         self._low_level_calls = []
         self._external_calls_as_expressions = []
         self._irs = []
+        self._irs_ssa = []
 
         self._state_vars_written = []
         self._state_vars_read = []
@@ -424,8 +425,24 @@ class Node(SourceMapping, ChildFunction):
         """
         return self._irs
 
-    def add_pre_ir(self, ir):
-        self._irs.insert(0, ir)
+    @property
+    def irs_ssa(self):
+        """ Returns the slithIR representation with SSA
+
+        return
+            list(slithIR.Operation)
+        """
+        return self._irs_ssa
+
+    @irs_ssa.setter
+    def irs_ssa(self, irs):
+       self._irs_ssa = irs
+
+    def add_ssa_ir(self, ir):
+        '''
+            Use to place phi operation
+        '''
+        self._irs_ssa.append(ir)
 
     def slithir_generation(self):
         if self.expression:

@@ -20,8 +20,8 @@ from slither.slithir.variables import (Constant, ReferenceVariable,
 from slither.visitors.expression.expression import ExpressionVisitor
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.local_variable import LocalVariable
-from slither.slithir.variables.state_variable import StateIRVariable
-from slither.slithir.variables.local_variable import LocalIRVariable
+#from slither.slithir.variables.state_variable import StateIRVariable
+#from slither.slithir.variables.local_variable import LocalIRVariable
 
 logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
 
@@ -37,8 +37,9 @@ def set_val(expression, val):
     expression.context[key] = val
 
 def convert_assignment(left, right, t, return_type):
-    if isinstance(left, LocalVariable):
-        left = LocalIRVariable(left)
+#    if isinstance(left, LocalVariable):
+#        left = LocalIRVariable(left)
+#        print(left)
     if t == AssignmentOperationType.ASSIGN:
         return Assignment(left, right, return_type)
     elif t == AssignmentOperationType.ASSIGN_OR:
@@ -108,7 +109,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
                 # Return left to handle
                 # a = b = 1; 
-                set_val(expression, left)
+                set_val(expression, operation.lvalue)
 
     def _post_binary_operation(self, expression):
         left = get(expression.expression_left)
@@ -156,12 +157,12 @@ class ExpressionToSlithIR(ExpressionVisitor):
         set_val(expression, expression.type)
 
     def _post_identifier(self, expression):
-        if isinstance(expression.value, StateVariable):
-            set_val(expression, StateIRVariable(expression.value))
-        elif isinstance(expression.value, LocalVariable):
-            set_val(expression, LocalIRVariable(expression.value))
-        else:
-            assert isinstance(expression.value, (SolidityVariable, SolidityFunction, Function, Contract, Enum, Structure))
+#        if isinstance(expression.value, StateVariable):
+#            set_val(expression, StateIRVariable(expression.value))
+#        elif isinstance(expression.value, LocalVariable):
+#            set_val(expression, LocalIRVariable(expression.value))
+#        else:
+            assert isinstance(expression.value, (SolidityVariable, SolidityFunction, Function, Contract, Enum, Structure, StateVariable, LocalVariable))
             set_val(expression, expression.value)
 
     def _post_index_access(self, expression):
@@ -219,9 +220,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def _post_unary_operation(self, expression):
         value = get(expression.expression)
         new_value = value
-        # need new instance for ssa
-        if isinstance(new_value, LocalVariable):
-            new_value = LocalIRVariable(new_value)
+     #   # need new instance for ssa
+     #   if isinstance(new_value, LocalVariable):
+     #       new_value = LocalIRVariable(new_value)
         if expression.type in [UnaryOperationType.BANG, UnaryOperationType.TILD]:
             lvalue = TemporaryVariable(self._node)
             operation = Unary(lvalue, value, expression.type)
