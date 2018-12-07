@@ -119,7 +119,8 @@ class Node(SourceMapping, ChildFunction):
         # Phi origin
         # key are variable name
         # values are list of Node
-        self._phi_origins = {}
+        self._phi_origins_state_variables = {}
+        self._phi_origins_local_variables = {}
 
         self._expression = None
         self._variable_declaration = None
@@ -187,13 +188,26 @@ class Node(SourceMapping, ChildFunction):
         self._dominance_frontier = dom
 
     @property
-    def phi_origins(self):
-        return self._phi_origins
+    def phi_origins_local_variables(self):
+        return self._phi_origins_local_variables
 
-    def add_phi_origin(self, variable_name, node):
-        if variable_name not in self._phi_origins:
-            self._phi_origins[variable_name] = set()
-        self._phi_origins[variable_name].add(node)
+    @property
+    def phi_origins_state_variables(self):
+        return self._phi_origins_state_variables
+
+    def add_phi_origin_local_variable(self, variable, node):
+        if variable.name not in self._phi_origins_local_variables:
+            self._phi_origins_local_variables[variable.name] = (variable, set())
+        (v, nodes) = self._phi_origins_local_variables[variable.name]
+        assert v == variable
+        nodes.add(node)
+
+    def add_phi_origin_state_variable(self, variable, node):
+        if variable.canonical_name not in self._phi_origins_state_variables:
+            self._phi_origins_state_variables[variable.canonical_name] = (variable, set())
+        (v, nodes) = self._phi_origins_state_variables[variable.canonical_name]
+        assert v == variable
+        nodes.add(node)
 
     @property
     def slither(self):

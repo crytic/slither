@@ -23,6 +23,11 @@ from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.slithir.utils.ssa import transform_slithir_vars_to_ssa, add_ssa_ir
 
 from slither.core.dominators.utils import compute_dominators, compute_dominance_frontier
+
+from slither.core.variables.state_variable import StateVariable
+from slither.slithir.operations import OperationWithLValue, PhiCallback
+from slither.slithir.variables import ReferenceVariable
+
 logger = logging.getLogger("FunctionSolc")
 
 class FunctionSolc(Function):
@@ -833,14 +838,48 @@ class FunctionSolc(Function):
                     break
         self._remove_alone_endif()
 
+    def get_last_ssa_state_variables_instances(self):
+        last_instances = dict()
 
-    def convert_expression_to_slithir(self):
+        def explore(node, visited, values):
+            if node in visited:
+                return dict()
+            visited = visited + [node]
+            # Todo optimize by creating a variables_ssa_written attribute
+            for ir_ssa in node.irs_ssa:
+                if isinstance(ir_ssa, OperationWithLValue):
+                    lvalue = ir_ssa.lvalue
+                    while isinstance(lvalue, ReferenceVariable):
+                        lvalue = lvalue.points_to
+                    if isinstance(lvalue, StateVariable):
+                        values[lvalue.canonical_name] = [lvalue]
+
+            if len(node.sons) == 0 and node.type != NodeType.THROW:
+                return values
+            merge_sons = dict()
+            for son in node.sons:
+                for name, instances in explore(son, visited, dict(values)).items():
+                    if not name in merge_sons:
+                        merge_sons[name] = []
+                    merge_sons[name] += instances
+            return merge_sons
+        return explore(self.entry_point, [], dict())
+
+
+    def fix_phi_callback(self, last_state_variables_instances):
+        for node in self.nodes:
+            for ir in node.irs_ssa:
+                if isinstance(ir, PhiCallback):
+                    additional = last_state_variables_instances[ir.lvalue.canonical_name]
+                    ir.rvalues = list(set(additional + ir.rvalues))
+
+    def convert_expression_to_slithir(self, all_ssa_state_variables_instances):
         compute_dominators(self.nodes)
         compute_dominance_frontier(self.nodes)
         for node in self.nodes:
             node.slithir_generation()
         transform_slithir_vars_to_ssa(self)
-        add_ssa_ir(self)
+        add_ssa_ir(self, all_ssa_state_variables_instances)
         self._analyze_read_write()
         self._analyze_calls()
  

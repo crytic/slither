@@ -8,10 +8,13 @@ from .phi import Phi
 
 class PhiCallback(Phi):
 
-    def __init__(self, left_variable, nodes):
+    def __init__(self, left_variable, nodes, call_ir, rvalue):
         assert is_valid_lvalue(left_variable)
         assert isinstance(nodes, set)
         super(PhiCallback, self).__init__(left_variable, nodes)
+        self._call_ir = call_ir
+        self._rvalues = [rvalue]
+        self._rvalue_no_callback = rvalue
 
     @property
     def read(self):
@@ -26,12 +29,11 @@ class PhiCallback(Phi):
         '''
             rvalue if callback are not considered
         '''
-        return self._rvalues[0]
+        return self._rvalue_no_callback
 
     @rvalues.setter
     def rvalues(self, vals):
         self._rvalues = vals
-
 
     @property
     def nodes(self):
