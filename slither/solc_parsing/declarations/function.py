@@ -839,6 +839,8 @@ class FunctionSolc(Function):
         self._remove_alone_endif()
 
     def get_last_ssa_state_variables_instances(self):
+        if not self.is_implemented:
+            return dict()
         last_instances = dict()
 
         def explore(node, visited, values):
