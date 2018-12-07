@@ -66,6 +66,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
         self._node = node
         self._result = []
         self._visit_expression(self.expression)
+        for ir in self._result:
+            ir.set_node(node)
 
     def result(self):
         return self._result

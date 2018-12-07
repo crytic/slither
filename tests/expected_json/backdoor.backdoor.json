@@ -1,16 +1,18 @@
 [
     {
-        "contract": "C",
-        "sourceMapping": {
-            "filename": "tests/backdoor.sol",
-            "length": 74,
-            "lines": [
-                5,
-                6,
-                7
-            ],
-            "start": 43
-        },
-        "vuln": "backdoor"
+        "check": "backdoor",
+        "function": {
+            "name": "i_am_a_backdoor",
+            "source_mapping": {
+                "filename": "tests/backdoor.sol",
+                "length": 74,
+                "lines": [
+                    5,
+                    6,
+                    7
+                ],
+                "start": 43
+            }
+        }
     }
 ]

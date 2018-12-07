@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 import traceback
+import subprocess
 
 from pkg_resources import iter_entry_points, require
 
@@ -72,6 +73,18 @@ def _process(slither, detector_classes, printer_classes):
     return results, analyzed_contracts_count
 
 def process_truffle(dirname, args, detector_classes, printer_classes):
+    cmd = ['truffle','compile']
+    logger.info('truffle compile running...')
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    stdout, stderr = process.communicate()
+    stdout, stderr = stdout.decode(), stderr.decode()  # convert bytestrings to unicode strings
+
+    logger.info(stdout)
+
+    if stderr:
+        logger.error(stderr)
+
     if not os.path.isdir(os.path.join(dirname, 'build'))\
         or not os.path.isdir(os.path.join(dirname, 'build', 'contracts')):
         logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
@@ -123,9 +136,11 @@ def get_detectors_and_printers():
     from slither.detectors.statements.tx_origin import TxOrigin
     from slither.detectors.statements.assembly import Assembly
     from slither.detectors.operations.low_level_calls import LowLevelCalls
+    from slither.detectors.operations.unused_return_values import UnusedReturnValues
     from slither.detectors.naming_convention.naming_convention import NamingConvention
     from slither.detectors.functions.external_function import ExternalFunction
     from slither.detectors.statements.controlled_delegatecall import ControlledDelegateCall
+    from slither.detectors.attributes.const_functions import ConstantFunctions
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -144,8 +159,10 @@ def get_detectors_and_printers():
                  NamingConvention,
                  ConstCandidateStateVars,
                  #ComplexFunction,
+                 UnusedReturnValues,
                  ExternalFunction,
-                 ControlledDelegateCall]
+                 ControlledDelegateCall,
+                 ConstantFunctions]
 
     from slither.printers.summary.function import FunctionSummary
     from slither.printers.summary.contract import ContractSummary
@@ -226,7 +243,7 @@ def main_impl(all_detector_classes, all_printer_classes):
             else:
                 (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
 
-        elif os.path.isfile(os.path.join(filename, 'truffle.js')):
+        elif os.path.isfile(os.path.join(filename, 'truffle.js')) or os.path.isfile(os.path.join(filename, 'truffle-config.js')):
             (results, number_contracts) = process_truffle(filename, args, detector_classes, printer_classes)
 
         elif os.path.isdir(filename) or len(globbed_filenames) > 0:
@@ -306,7 +323,7 @@ def parse_args(detector_classes, printer_classes):
                                default=False)
 
 
-    group_detector.add_argument('--exclude-detectors',
+    group_detector.add_argument('--exclude',
                                 help='Comma-separated list of detectors that should be excluded',
                                 action='store',
                                 dest='detectors_to_exclude',
@@ -422,6 +439,7 @@ def choose_detectors(args, all_detector_classes):
                 detectors_to_run.append(detectors[d])
             else:
                 raise Exception('Error: {} is not a detector'.format(d))
+        detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
     if args.exclude_informational:
@@ -439,6 +457,9 @@ def choose_detectors(args, all_detector_classes):
     if args.detectors_to_exclude:
         detectors_to_run = [d for d in detectors_to_run if
                             d.ARGUMENT not in args.detectors_to_exclude]
+
+    detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+
     return detectors_to_run
 
 

@@ -6,7 +6,7 @@
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-
+from slither.core.cfg.node import NodeType
 from slither.visitors.expression.find_push import FindPush
 
 
@@ -16,8 +16,8 @@ class UninitializedLocalVars(AbstractDetector):
 
     ARGUMENT = 'uninitialized-local'
     HELP = 'Uninitialized local variables'
-    IMPACT = DetectorClassification.HIGH
-    CONFIDENCE = DetectorClassification.HIGH
+    IMPACT = DetectorClassification.MEDIUM
+    CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-local-variables'
 
@@ -75,6 +75,8 @@ class UninitializedLocalVars(AbstractDetector):
         for contract in self.slither.contracts:
             for function in contract.functions:
                 if function.is_implemented:
+                    if function.contains_assembly:
+                        continue
                     # dont consider storage variable, as they are detected by another detector
                     uninitialized_local_variables = [v for v in function.local_variables if not v.is_storage and v.uninitialized]
                     function.entry_point.context[self.key] = uninitialized_local_variables
@@ -84,17 +86,16 @@ class UninitializedLocalVars(AbstractDetector):
             var_name = uninitialized_local_variable.name
 
             info = "{} in {}.{} ({}) is a local variable never initialiazed\n"
-            info = info.format(var_name, function.contract.name, function.name, uninitialized_local_variable.source_mapping_str)
+            info = info.format(var_name,
+                               function.contract.name,
+                               function.name,
+                               uninitialized_local_variable.source_mapping_str)
 
             self.log(info)
 
-            source = [function.source_mapping, uninitialized_local_variable.source_mapping]
-
-            results.append({'vuln': 'UninitializedLocalVars',
-                            'sourceMapping': source,
-                            'filename': self.filename,
-                            'contract': function.contract.name,
-                            'function': function.name,
-                            'variable': var_name})
+            json = self.generate_json_result()
+            self.add_variable_to_json(uninitialized_local_variable, json)
+            self.add_function_to_json(function, json)
+            results.append(json)
 
         return results

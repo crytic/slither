@@ -124,6 +124,7 @@ def propage_type_and_convert_call(result, node):
         if isinstance(ins, TmpCall):
             new_ins = extract_tmp_call(ins)
             if new_ins:
+                new_ins.set_node(ins.node)
                 ins = new_ins
                 result[idx] = ins
 
@@ -156,10 +157,13 @@ def propage_type_and_convert_call(result, node):
         if new_ins:
             if isinstance(new_ins, (list,)):
                 assert len(new_ins) == 2
+                new_ins[0].set_node(ins.node)
+                new_ins[1].set_node(ins.node)
                 result.insert(idx, new_ins[0])
                 result.insert(idx+1, new_ins[1])
                 idx = idx + 1 
             else:
+                new_ins.set_node(ins.node)
                 result[idx] = new_ins
         idx = idx +1
     return result
@@ -250,6 +254,7 @@ def look_for_library(contract, ir, node, using_for, t):
             lib_call.arguments = [ir.destination] + ir.arguments
             new_ir = convert_type_library_call(lib_call, lib_contract)
             if new_ir:
+                new_ir.set_node(ir.node)
                 return new_ir
     return None
 
@@ -358,7 +363,14 @@ def convert_type_of_high_level_call(ir, contract):
     else:
         # otherwise its a variable (getter)
         if isinstance(func.type, MappingType):
-            return_type = func.type.type_to
+            # iterate over the lenght of arguments
+            # ex:
+            #   mapping ( uint => mapping ( uint => uint)) my_var
+            # is accessed through  contract.my_var(0,0)
+            tmp = func.type
+            for _ in range(len(ir.arguments)):
+                tmp = tmp.type_to
+            return_type = tmp
         elif isinstance(func.type, ArrayType):
             return_type = func.type.type
         else:

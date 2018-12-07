@@ -88,13 +88,11 @@ class UninitializedStorageVars(AbstractDetector):
 
             self.log(info)
 
-            source = [function.source_mapping, uninitialized_storage_variable.source_mapping]
 
-            results.append({'vuln': 'UninitializedStorageVars',
-                            'sourceMapping': source,
-                            'filename': self.filename,
-                            'contract': function.contract.name,
-                            'function': function.name,
-                            'variable': var_name})
+
+            json = self.generate_json_result()
+            self.add_variable_to_json(uninitialized_storage_variable, json)
+            self.add_function_to_json(function, json)
+            results.append(json)
 
         return results

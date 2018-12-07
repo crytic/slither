@@ -54,7 +54,11 @@ class Function(ChildContract, SourceMapping):
         self._expression_modifiers = []
         self._modifiers = []
         self._payable = False
+        self._contains_assembly = False
 
+    @property
+    def contains_assembly(self):
+        return self._contains_assembly
 
     @property
     def return_type(self):
@@ -138,7 +142,7 @@ class Function(ChildContract, SourceMapping):
     @property
     def is_empty(self):
         """
-            bool: True if the function is empty
+            bool: True if the function is empty, None if the function is an interface
         """
         return self._is_empty
 

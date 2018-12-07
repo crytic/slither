@@ -64,11 +64,10 @@ class ExternalFunction(AbstractDetector):
                                   func.name,
                                   func.source_mapping_str)
                 all_info += info
-                results.append({'vuln': 'ExternalFunc',
-                                'sourceMapping': func.source_mapping,
-                                'filename': self.filename,
-                                'contract': func.contract.name,
-                                'function': func.name})
+
+                json = self.generate_json_result()
+                self.add_function_to_json(func, json)
+                results.append(json)
         if all_info != '':
             self.log(all_info)
         return results
