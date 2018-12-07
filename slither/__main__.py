@@ -421,6 +421,7 @@ def choose_detectors(args, all_detector_classes):
                 detectors_to_run.append(detectors[d])
             else:
                 raise Exception('Error: {} is not a detector'.format(d))
+        detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
     if args.exclude_informational:
@@ -438,6 +439,9 @@ def choose_detectors(args, all_detector_classes):
     if args.detectors_to_exclude:
         detectors_to_run = [d for d in detectors_to_run if
                             d.ARGUMENT not in args.detectors_to_exclude]
+
+    detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+
     return detectors_to_run
 
 
