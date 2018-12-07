@@ -1,3 +1,5 @@
+from slither.core.cfg.node import NodeType
+
 def intersection_predecessor(node):
     if not node.fathers:
         return set()
@@ -53,6 +55,10 @@ def compute_dominance_frontier(nodes):
         if len(node.fathers) >= 2:
             for father in node.fathers:
                 runner = father
+                # Corner case: if there is a if without else
+                # we need to add update the conditional node 
+                if runner == node.immediate_dominator and runner.type == NodeType.IF and node.type == NodeType.ENDIF:
+                    runner.dominance_frontier = runner.dominance_frontier.union({node})
                 while runner != node.immediate_dominator:
                     runner.dominance_frontier = runner.dominance_frontier.union({node})
                     runner = runner.immediate_dominator

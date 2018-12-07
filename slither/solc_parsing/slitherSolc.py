@@ -312,6 +312,5 @@ class SlitherSolc(Slither):
 
     def _convert_to_slithir(self):
         for contract in self.contracts:
-            for func in contract.functions + contract.modifiers:
-                if func.contract == contract:
-                    func.convert_expression_to_slithir()
+            contract.convert_expression_to_slithir()
+
