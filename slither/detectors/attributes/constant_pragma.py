@@ -21,7 +21,7 @@ class ConstantPragma(AbstractDetector):
         results = []
         pragma = self.slither.pragma_directives
         versions = [p.version for p in pragma]
-        versions = list(set(versions))
+        versions = sorted(list(set(versions)))
 
         if len(versions) > 1:
             info = "Different versions of Solidity is used in {}:\n".format(self.filename)
@@ -30,7 +30,7 @@ class ConstantPragma(AbstractDetector):
                 info += "\t- {} declares {}\n".format(p.source_mapping_str, str(p))
             self.log(info)
 
-            json = self.generate_json_result()
+            json = self.generate_json_result(info)
             # follow the same format than add_nodes_to_json
             json['expressions'] = [{'expression': p.version,
                                     'source_mapping': p.source_mapping} for p in pragma]

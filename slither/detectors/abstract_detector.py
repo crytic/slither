@@ -81,9 +81,10 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     def color(self):
         return classification_colors[self.IMPACT]
 
-    def generate_json_result(self):
+    def generate_json_result(self, info):
         d = OrderedDict()
         d['check'] = self.ARGUMENT
+        d['description'] = info
         return d
 
     @staticmethod
@@ -106,14 +107,18 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     @staticmethod
     def add_function_to_json(function, d):
         assert 'function' not in d
-        d['function'] = {'name': function.name, 'source_mapping': function.source_mapping}
+        contract = dict()
+        AbstractDetector.add_contract_to_json(function.contract, contract)
+        d['function'] = {'name': function.name, 'source_mapping': function.source_mapping, 'contract': contract['contract']}
 
     @staticmethod
     def add_functions_to_json(functions, d):
         assert 'functions' not in d
-        d['functions'] = [{'name': function.name,
-                           'source_mapping': function.source_mapping}
-                          for function in functions]
+        d['functions'] = []
+        for function in functions:
+            func_dict = dict()
+            AbstractDetector.add_function_to_json(function, func_dict)
+            d['functions'].append(func_dict['function'])
 
     @staticmethod
     def add_nodes_to_json(nodes, d):

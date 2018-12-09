@@ -85,7 +85,7 @@ class UninitializedStateVarsDetection(AbstractDetector):
                 source = [variable.source_mapping]
                 source += [f.source_mapping for f in functions]
 
-                json = self.generate_json_result()
+                json = self.generate_json_result(info)
                 self.add_variable_to_json(variable, json)
                 self.add_functions_to_json(functions, json)
                 results.append(json)

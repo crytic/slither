@@ -66,12 +66,13 @@ class ConstCandidateStateVars(AbstractDetector):
                     variables_by_contract[state_var.contract.name].append(state_var)
 
                 for contract, variables in variables_by_contract.items():
+                    info = ''
                     for v in variables:
-                        all_info += "{}.{} should be constant ({})\n".format(contract,
-                                                                             v.name,
-                                                                             v.source_mapping_str)
-
-                    json = self.generate_json_result()
+                        info += "{}.{} should be constant ({})\n".format(contract,
+                                                                         v.name,
+                                                                         v.source_mapping_str)
+                    all_info += info
+                    json = self.generate_json_result(info)
                     self.add_variables_to_json(variables, json)
                     results.append(json)
 

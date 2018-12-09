@@ -204,7 +204,7 @@ class Reentrancy(AbstractDetector):
                                      'source_mapping': call_info.source_mapping}
                                     for call_info in calls]
 
-            json = self.generate_json_result()
+            json = self.generate_json_result(info)
             self.add_function_to_json(func, json)
             json['external_calls'] = [{'expression': str(call_info.expression),
                                        'source_mapping': call_info.source_mapping}
