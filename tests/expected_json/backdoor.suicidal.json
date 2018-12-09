@@ -1,18 +1,1 @@
-[
-    {
-        "check": "suicidal",
-        "function": {
-            "name": "i_am_a_backdoor",
-            "source_mapping": {
-                "filename": "tests/backdoor.sol",
-                "length": 74,
-                "lines": [
-                    5,
-                    6,
-                    7
-                ],
-                "start": 43
-            }
-        }
-    }
-]
+[{"check": "suicidal", "description": "C.i_am_a_backdoor (tests/backdoor.sol#5-7) allows anyone to destruct the contract\n", "function": {"name": "i_am_a_backdoor", "source_mapping": {"start": 43, "length": 74, "filename": "tests/backdoor.sol", "lines": [5, 6, 7]}, "contract": {"name": "C", "source_mapping": {"start": 26, "length": 94, "filename": "tests/backdoor.sol", "lines": [3, 4, 5, 6, 7, 8, 9]}}}}]
