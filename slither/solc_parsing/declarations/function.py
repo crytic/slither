@@ -804,11 +804,12 @@ class FunctionSolc(Function):
                 if child[self.get_key()] == 'Block':
                     self._is_implemented = True
                     self._parse_cfg(child)
-                    continue
-
-                assert child[self.get_key()] == 'ModifierInvocation'
-
-                self._parse_modifier(child)
+    
+            # Parse modifier after parsing all the block
+            # In the case a local variable is used in the modifier
+            for child in children[2:]:
+                if child[self.get_key()] == 'ModifierInvocation':
+                    self._parse_modifier(child)
 
         for local_vars in self.variables:
             local_vars.analyze(self)
