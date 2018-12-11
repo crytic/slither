@@ -79,6 +79,10 @@ class FunctionSolc(Function):
         if 'isConstructor' in attributes:
             self._is_constructor = attributes['isConstructor']
 
+        if 'kind' in attributes:
+            if attributes['kind'] == 'constructor':
+                self._is_constructor = True
+
         if 'visibility' in attributes:
             self._visibility = attributes['visibility']
         # old solc
