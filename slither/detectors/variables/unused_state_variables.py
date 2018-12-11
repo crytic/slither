@@ -45,7 +45,7 @@ class UnusedStateVars(AbstractDetector):
 
                 all_info += info
 
-                json = self.generate_json_result()
+                json = self.generate_json_result(info)
                 self.add_variables_to_json(unusedVars, json)
                 results.append(json)
 

@@ -177,7 +177,8 @@ class Reentrancy(AbstractDetector):
 
         results = []
 
-        for (func, calls, send_eth), varsWritten in self.result.items():
+        result_sorted = sorted(list(self.result.items()), key=lambda x:x[0][0].name)
+        for (func, calls, send_eth), varsWritten in result_sorted:
             calls = list(set(calls))
             send_eth = list(set(send_eth))
 #            if calls == send_eth:
@@ -204,7 +205,7 @@ class Reentrancy(AbstractDetector):
                                      'source_mapping': call_info.source_mapping}
                                     for call_info in calls]
 
-            json = self.generate_json_result()
+            json = self.generate_json_result(info)
             self.add_function_to_json(func, json)
             json['external_calls'] = [{'expression': str(call_info.expression),
                                        'source_mapping': call_info.source_mapping}

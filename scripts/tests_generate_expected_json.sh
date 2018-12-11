@@ -23,7 +23,7 @@ generate_expected_json(){
 #generate_expected_json tests/uninitialized_storage_pointer.sol "uninitialized-storage"
 #generate_expected_json tests/tx_origin.sol "tx-origin"
 #generate_expected_json tests/unused_state.sol "unused-state"
-generate_expected_json tests/locked_ether.sol "locked-ether"
+#generate_expected_json tests/locked_ether.sol "locked-ether"
 #generate_expected_json tests/arbitrary_send.sol "arbitrary-send"
 #generate_expected_json tests/inline_assembly_contract.sol "assembly"
 #generate_expected_json tests/inline_assembly_library.sol "assembly"
