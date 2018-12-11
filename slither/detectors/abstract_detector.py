@@ -99,7 +99,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         assert 'variables' not in d
         d['variables'] = [{'name': variable.name,
                            'source_mapping': variable.source_mapping}
-                          for variable in variables]
+                          for variable in sorted(variables, key=lambda x:x.name)]
 
     @staticmethod
     def add_contract_to_json(contract, d):
@@ -117,7 +117,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     def add_functions_to_json(functions, d):
         assert 'functions' not in d
         d['functions'] = []
-        for function in functions:
+        for function in sorted(functions, key=lambda x: x.name):
             func_dict = dict()
             AbstractDetector.add_function_to_json(function, func_dict)
             d['functions'].append(func_dict['function'])
@@ -127,4 +127,4 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         assert 'expressions' not in d
         d['expressions'] = [{'expression': str(node.expression),
                              'source_mapping': node.source_mapping}
-                            for node in nodes]
+                            for node in sorted(nodes, key=lambda x: x.node_id)]
