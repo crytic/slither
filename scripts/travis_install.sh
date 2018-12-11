@@ -8,6 +8,8 @@ function install_solc {
     sudo chmod +x /usr/bin/solc-0.4.25
     sudo wget -O /usr/bin/solc-0.5.1 https://github.com/ethereum/solidity/releases/download/v0.5.1/solc-static-linux
     sudo chmod +x /usr/bin/solc-0.5.1
+
+    sudo cp /usr/bin/solc-0.5.1 /usr/bin/solc
 }
 
 install_solc
