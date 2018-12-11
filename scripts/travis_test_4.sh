@@ -88,20 +88,4 @@ test_slither tests/constant.sol "constant-function"
 test_slither tests/unused_return.sol "unused-return"
 
 
-### Test scripts
 
-python examples/scripts/functions_called.py examples/scripts/functions_called.sol
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-
-python examples/scripts/functions_writing.py examples/scripts/functions_writing.sol
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-
-python examples/scripts/variable_in_condition.py examples/scripts/variable_in_condition.sol
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-exit 0
