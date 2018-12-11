@@ -90,7 +90,7 @@ class UninitializedStorageVars(AbstractDetector):
 
 
 
-            json = self.generate_json_result()
+            json = self.generate_json_result(info)
             self.add_variable_to_json(uninitialized_storage_variable, json)
             self.add_function_to_json(function, json)
             results.append(json)

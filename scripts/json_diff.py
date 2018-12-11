@@ -14,4 +14,14 @@ with open(sys.argv[2]) as f:
     d2 = json.load(f)
 
 
+# Remove description field to allow non deterministic print
+for elem in d1:
+    if 'description' in elem:
+        del elem['description']
+for elem in d2:
+    if 'description' in elem:
+        del elem['description']
+
+
+
 pprint(DeepDiff(d1, d2, ignore_order=True, verbose_level=2))
