@@ -84,6 +84,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     def generate_json_result(self, info):
         d = OrderedDict()
         d['check'] = self.ARGUMENT
+        d['impact'] = classification_txt[self.IMPACT]
+        d['confidence'] = classification_txt[self.CONFIDENCE]
         d['description'] = info
         return d
 
