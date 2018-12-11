@@ -304,10 +304,9 @@ class FunctionSolc(Function):
         node_endDoWhile = self._new_node(NodeType.ENDLOOP, doWhilestatement['src'])
 
         link_nodes(node, node_startDoWhile)
-        link_nodes(node_startDoWhile, statement)
+        link_nodes(node_startDoWhile, node_condition.sons[0])
         link_nodes(statement, node_condition)
         link_nodes(node_condition, node_endDoWhile)
-
         return node_endDoWhile
 
     def _parse_variable_definition(self, statement, node):
