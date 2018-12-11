@@ -36,8 +36,10 @@ SOLIDITY_FUNCTIONS = {"gasleft()":['uint256'],
                       "keccak256()":['bytes32'],
                       "keccak256(bytes)":['bytes32'], # Solidity 0.5
                       "sha256()":['bytes32'],
+                      "sha256(bytes)":['bytes32'], # Solidity 0.5
                       "sha3()":['bytes32'],
                       "ripemd160()":['bytes32'],
+                      "ripemd160(bytes)":['bytes32'], # Solidity 0.5
                       "ecrecover(bytes32,uint8,bytes32,bytes32)":['address'],
                       "selfdestruct(address)":[],
                       "suicide(address)":[],
