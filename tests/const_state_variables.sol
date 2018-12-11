@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+//pragma solidity ^0.4.24;
 
 
 contract A {
@@ -25,7 +25,7 @@ contract B is A {
 
     address public mySistersAddress = 0x999999cf1046e68e36E1aA2E0E07105eDDD1f08E;
 
-    function () public {
+    function () external {
         used = 0;
     }
 

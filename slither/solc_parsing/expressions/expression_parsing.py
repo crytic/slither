@@ -380,7 +380,7 @@ def parse_expression(expression, caller_context):
 
         if is_compact_ast:
             value = expression['value']
-            if not value:
+            if not value and value != "":
                 value = '0x'+expression['hexValue']
         else:
             value = expression['attributes']['value']
