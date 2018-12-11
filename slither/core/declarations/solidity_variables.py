@@ -34,6 +34,7 @@ SOLIDITY_FUNCTIONS = {"gasleft()":['uint256'],
                       "addmod(uint256,uint256,uint256)":['uint256'],
                       "mulmod(uint256,uint256,uint256)":['uint256'],
                       "keccak256()":['bytes32'],
+                      "keccak256(bytes)":['bytes32'], # Solidity 0.5
                       "sha256()":['bytes32'],
                       "sha3()":['bytes32'],
                       "ripemd160()":['bytes32'],
