@@ -1,18 +1,1 @@
-[
-    {
-        "check": "unused-state",
-        "variables": [
-            {
-                "name": "unused",
-                "source_mapping": {
-                    "filename": "tests/unused_state.sol",
-                    "length": 14,
-                    "lines": [
-                        4
-                    ],
-                    "start": 42
-                }
-            }
-        ]
-    }
-]
+[{"check": "unused-state", "impact": "Informational", "confidence": "High", "description": "A.unused (tests/unused_state.sol#4) is never used in B\n", "variables": [{"name": "unused", "source_mapping": {"start": 42, "length": 14, "filename": "tests/unused_state.sol", "lines": [4]}}]}]
