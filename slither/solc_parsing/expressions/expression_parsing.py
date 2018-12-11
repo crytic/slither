@@ -216,6 +216,7 @@ def filter_name(value):
     value = value.replace(' pure', '')
     value = value.replace(' view', '')
     value = value.replace(' constant', '')
+    value = value.replace(' payable', '')
     value = value.replace('function (', 'function(')
     value = value.replace('returns (', 'returns(')
 
