@@ -64,7 +64,7 @@ class Suicidal(AbstractDetector):
 
                 self.log(info)
 
-                json = self.generate_json_result()
+                json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)
                 results.append(json)
 

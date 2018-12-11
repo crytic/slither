@@ -25,7 +25,7 @@ class OldSolc(AbstractDetector):
     def detect(self):
         results = []
         pragma = self.slither.pragma_directives
-        old_pragma = [p for p in pragma if self._convert_pragma(p.version) not in ['0.4.23', '0.4.24']]
+        old_pragma = sorted([p for p in pragma if self._convert_pragma(p.version) not in ['0.4.23', '0.4.24']], key=lambda x:str(x))
 
         if old_pragma:
             info = "Old version (<0.4.23) of Solidity used in {}:\n".format(self.filename)
@@ -33,7 +33,7 @@ class OldSolc(AbstractDetector):
                 info += "\t- {} declares {}\n".format(p.source_mapping_str, str(p))
             self.log(info)
 
-            json = self.generate_json_result()
+            json = self.generate_json_result(info)
             # follow the same format than add_nodes_to_json
             json['expressions'] = [{'expression': p.version,
                                     'source_mapping': p.source_mapping} for p in old_pragma]
