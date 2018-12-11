@@ -177,7 +177,8 @@ class Reentrancy(AbstractDetector):
 
         results = []
 
-        for (func, calls, send_eth), varsWritten in self.result.items():
+        result_sorted = sorted(list(self.result.items()), key=lambda x:x[0][0].name)
+        for (func, calls, send_eth), varsWritten in result_sorted:
             calls = list(set(calls))
             send_eth = list(set(send_eth))
 #            if calls == send_eth:
