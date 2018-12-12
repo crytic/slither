@@ -14,6 +14,9 @@ RUN wget https://github.com/ethereum/solidity/releases/download/v0.4.25/solc-sta
  && chmod +x solc-static-linux \
  && mv solc-static-linux /usr/bin/solc
 
+# If this fails, the solc-static-linux binary has changed while it should not.
+RUN [ "c9b268750506b88fe71371100050e9dd1e7edcf8f69da34d1cd09557ecb24580  /usr/bin/solc" = "$(sha256sum /usr/bin/solc)" ]
+
 RUN git clone https://github.com/trailofbits/slither.git
 WORKDIR slither
 
