@@ -1,10 +1,10 @@
 contract Test{
 
-    address destination;
+    address payable destination;
 
     mapping (address => uint) balances;
 
-    constructor(){
+    constructor() public{
         balances[msg.sender] = 0;
     }
 

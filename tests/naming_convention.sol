@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+//pragma solidity ^0.4.24;
 
 contract naming {
 
@@ -12,27 +12,27 @@ contract naming {
     uint varTwo = 2;
 
     struct test {
-
+        uint a;
     }
 
     struct Test {
-
+        uint a;
     }
 
     event Event_(uint);
     event event_(uint);
 
-    function getOne() constant returns (uint)
+    function getOne() view public returns(uint) 
     {
         return 1;
     }
 
-    function GetOne() constant returns (uint)
+    function GetOne() view public returns (uint) 
     {
         return 1;
     }
 
-    function setInt(uint number1, uint Number2)
+    function setInt(uint number1, uint Number2) public
     {
 
     }
@@ -56,7 +56,7 @@ contract T {
     uint _myPublicVar;
 
 
-    function test(uint _unused, uint _used) returns(uint){
+    function test(uint _unused, uint _used) public returns(uint){
         return _used;}
 
 

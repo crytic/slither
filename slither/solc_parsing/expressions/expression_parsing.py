@@ -216,6 +216,7 @@ def filter_name(value):
     value = value.replace(' pure', '')
     value = value.replace(' view', '')
     value = value.replace(' constant', '')
+    value = value.replace(' payable', '')
     value = value.replace('function (', 'function(')
     value = value.replace('returns (', 'returns(')
 
@@ -379,7 +380,7 @@ def parse_expression(expression, caller_context):
 
         if is_compact_ast:
             value = expression['value']
-            if not value:
+            if not value and value != "":
                 value = '0x'+expression['hexValue']
         else:
             value = expression['attributes']['value']
