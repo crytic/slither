@@ -2,7 +2,7 @@ import logging
 
 from slither.core.declarations import (Contract, Enum, Event, SolidityFunction,
                                        Structure, SolidityVariableComposed, Function, SolidityVariable)
-from slither.core.expressions import Identifier, Literal
+from slither.core.expressions import Identifier, Literal, TupleExpression
 from slither.core.solidity_types import ElementaryType, UserDefinedType, MappingType, ArrayType, FunctionType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Call,
@@ -667,18 +667,15 @@ def convert_expression(expression, node):
     # handle standlone expression
     # such as return true;
     from slither.core.cfg.node import NodeType
-    if isinstance(expression, Literal) and node.type == NodeType.RETURN:
-        result =  [Return(Constant(expression.value))]
-        return result
-    if isinstance(expression, Identifier) and node.type == NodeType.RETURN:
-        result =  [Return(expression.value)]
-        return result
+
     if isinstance(expression, Literal) and node.type in [NodeType.IF, NodeType.IFLOOP]:
         result =  [Condition(Constant(expression.value))]
         return result
     if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
         result =  [Condition(expression.value)]
         return result
+
+
     visitor = ExpressionToSlithIR(expression, node)
     result = visitor.result()
 
