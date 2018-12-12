@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+//pragma solidity ^0.4.24;
 
 library SafeMath{
     function add(uint a, uint b) public returns(uint){
@@ -7,14 +7,14 @@ library SafeMath{
 }
 
 contract Target{
-    function f() returns(uint);
+    function f() public returns(uint);
 }
 
 contract User{
 
     using SafeMath for uint;
 
-    function test(Target t){
+    function test(Target t) public{
         t.f();
     
         // example with library usage

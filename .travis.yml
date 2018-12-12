@@ -14,6 +14,7 @@ install:
   - scripts/travis_install.sh
 
 script:
-  - scripts/travis_test.sh
+  - scripts/travis_test_4.sh
+  - scripts/travis_test_5.sh
 
 

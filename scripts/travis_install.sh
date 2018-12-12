@@ -4,8 +4,12 @@ python setup.py install
 pip install deepdiff
 
 function install_solc {
-    sudo wget -O /usr/bin/solc https://github.com/ethereum/solidity/releases/download/v0.4.24/solc-static-linux
-    sudo chmod +x /usr/bin/solc
+    sudo wget -O /usr/bin/solc-0.4.25 https://github.com/ethereum/solidity/releases/download/v0.4.25/solc-static-linux
+    sudo chmod +x /usr/bin/solc-0.4.25
+    sudo wget -O /usr/bin/solc-0.5.1 https://github.com/ethereum/solidity/releases/download/v0.5.1/solc-static-linux
+    sudo chmod +x /usr/bin/solc-0.5.1
+
+    sudo cp /usr/bin/solc-0.5.1 /usr/bin/solc
 }
 
 install_solc

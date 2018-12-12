@@ -2,12 +2,12 @@ contract Contract{
 
     uint a;
 
-    function write(){
+    function write() public{
         a++;
     }
 
     // shadowing of a
-    function dont_write(uint a){
+    function dont_write(uint a) public{
         a = a +1;
     }
 
