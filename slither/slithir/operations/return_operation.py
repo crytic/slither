@@ -7,21 +7,27 @@ class Return(Operation):
        Return
        Only present as last operation in RETURN node
     """
-    def __init__(self, value):
+    def __init__(self, values):
         # Note: Can return None 
         # ex: return call()
         # where call() dont return
-        assert is_valid_rvalue(value) or isinstance(value, TupleVariable) or value == None
+        if not isinstance(values, list):
+            assert is_valid_rvalue(values) or isinstance(values, TupleVariable) or values == None
+            if not values is None:
+                values = [values]
+        else:
+            for value in values:
+                assert is_valid_rvalue(value) or isinstance(value, TupleVariable)
         super(Return, self).__init__()
-        self._value = value
+        self._values = values
 
     @property
     def read(self):
-        return [self.value]
+        return self.values
 
     @property
-    def value(self):
-        return self._value
+    def values(self):
+        return self._values
 
     def __str__(self):
-        return "RETURN {}".format(self.value)
+        return "RETURN {}".format(','.join(['{}'.format(x) for x in self.values]))
