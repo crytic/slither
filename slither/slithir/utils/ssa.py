@@ -395,7 +395,7 @@ def copy_ir(ir, local_variables_instances, state_variables_instances):
         lvalue = get_variable(ir, lambda x: ir.lvalue)
         return Push(array, lvalue)
     elif isinstance(ir, Return):
-        value = get_variable(ir, lambda x: ir.value)
+        value = get_variable(ir, lambda x: ir.values)
         return Return(value)
     elif isinstance(ir, Send):
         destination = get_variable(ir, lambda x: ir.destination)
