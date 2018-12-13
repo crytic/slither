@@ -59,7 +59,7 @@ def _process(slither, detector_classes, printer_classes):
     return results, analyzed_contracts_count
 
 def process_truffle(dirname, args, detector_classes, printer_classes):
-    cmd = ['truffle','compile']
+    cmd =  ['npx',args.truffle_local,'compile'] if args.truffle_local else ['truffle','compile']
     logger.info('truffle compile running...')
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -364,6 +364,10 @@ def parse_args(detector_classes, printer_classes):
                             help='Export results as JSON',
                             action='store',
                             default=None)
+    group_misc.add_argument('--truffle-local',
+                            help='Use a local Truffle execution (with npx)',
+                            action='store',
+                            default=False)
 
 
 
