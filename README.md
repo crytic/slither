@@ -111,6 +111,8 @@ $ git clone https://github.com/trailofbits/slither.git && cd slither
 $ python setup.py install 
 ```
 
+We recommend to use a Python virtual environment to install slither from git (see the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation))
+
 ## Getting Help
 
 Feel free to stop by our [Slack channel](https://empireslacking.herokuapp.com) (#ethereum) for help using or extending Slither.
