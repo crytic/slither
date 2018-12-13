@@ -88,6 +88,7 @@ test_slither tests/constant.sol "constant-function"
 test_slither tests/unused_return.sol "unused-return"
 test_slither tests/shadowing_abstract.sol "shadowing-abstract"
 test_slither tests/shadowing_state_variable.sol "shadowing-state"
+test_slither tests/timestamp.sol "timestamp"
 
 
 
