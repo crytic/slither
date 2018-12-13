@@ -5,7 +5,8 @@ from slither.core.expressions import (AssignmentOperationType,
                                       UnaryOperationType)
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
                                         Index, InitArray, InternalCall, Member,
-                                        TypeConversion, Unary, Unpack)
+                                        NewArray, NewContract, NewStructure,
+                                        TypeConversion, Unary, Unpack, Return)
 from slither.slithir.tmp_operations.argument import Argument
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -62,10 +63,13 @@ def convert_assignment(left, right, t, return_type):
 class ExpressionToSlithIR(ExpressionVisitor):
 
     def __init__(self, expression, node):
+        from slither.core.cfg.node import NodeType
         self._expression = expression
         self._node = node
         self._result = []
         self._visit_expression(self.expression)
+        if node.type == NodeType.RETURN:
+            self._result.append(Return(get(self.expression)))
         for ir in self._result:
             ir.set_node(node)
 

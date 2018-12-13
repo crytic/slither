@@ -59,7 +59,7 @@ def _process(slither, detector_classes, printer_classes):
     return results, analyzed_contracts_count
 
 def process_truffle(dirname, args, detector_classes, printer_classes):
-    cmd = ['truffle','compile']
+    cmd =  ['npx',args.truffle_version,'compile'] if args.truffle_version else ['truffle','compile']
     logger.info('truffle compile running...')
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -127,6 +127,11 @@ def get_detectors_and_printers():
     from slither.detectors.functions.external_function import ExternalFunction
     from slither.detectors.statements.controlled_delegatecall import ControlledDelegateCall
     from slither.detectors.attributes.const_functions import ConstantFunctions
+    from slither.detectors.attributes.const_functions import ConstantFunctions
+    from slither.detectors.attributes.const_functions import ConstantFunctions
+    from slither.detectors.shadowing.abstract import ShadowingAbstractDetection
+    from slither.detectors.shadowing.state import StateShadowing
+    from slither.detectors.operations.block_timestamp import Timestamp
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -148,7 +153,10 @@ def get_detectors_and_printers():
                  UnusedReturnValues,
                  ExternalFunction,
                  ControlledDelegateCall,
-                 ConstantFunctions]
+                 ConstantFunctions,
+                 ShadowingAbstractDetection,
+                 StateShadowing,
+                 Timestamp]
 
     from slither.printers.summary.function import FunctionSummary
     from slither.printers.summary.contract import ContractSummary
@@ -359,6 +367,10 @@ def parse_args(detector_classes, printer_classes):
                             help='Export results as JSON',
                             action='store',
                             default=None)
+    group_misc.add_argument('--truffle-version',
+                            help='Use a local Truffle version (with npx)',
+                            action='store',
+                            default=False)
 
 
 
@@ -424,6 +436,7 @@ def choose_detectors(args, all_detector_classes):
                 detectors_to_run.append(detectors[d])
             else:
                 raise Exception('Error: {} is not a detector'.format(d))
+        detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
     if args.exclude_informational:
@@ -441,6 +454,9 @@ def choose_detectors(args, all_detector_classes):
     if args.detectors_to_exclude:
         detectors_to_run = [d for d in detectors_to_run if
                             d.ARGUMENT not in args.detectors_to_exclude]
+
+    detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+
     return detectors_to_run
 
 

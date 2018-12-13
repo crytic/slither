@@ -2,17 +2,17 @@ contract Contract{
 
     uint a;
 
-    function condition(){
+    function condition() public{
         if(a==0){
 
         }
     }
 
-    function call_require(){
+    function call_require() public{
         require(a==0);
     }
     
-    function read_and_write(){
+    function read_and_write() public{
         a = a + 1;
     }
 
