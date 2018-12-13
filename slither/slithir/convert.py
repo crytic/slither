@@ -2,7 +2,7 @@ import logging
 
 from slither.core.declarations import (Contract, Enum, Event, SolidityFunction,
                                        Structure, SolidityVariableComposed, Function, SolidityVariable)
-from slither.core.expressions import Identifier, Literal
+from slither.core.expressions import Identifier, Literal, TupleExpression
 from slither.core.solidity_types import ElementaryType, UserDefinedType, MappingType, ArrayType, FunctionType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Call,
@@ -362,17 +362,20 @@ def convert_type_of_high_level_call(ir, contract):
             return_type = return_type[0]
     else:
         # otherwise its a variable (getter)
-        if isinstance(func.type, MappingType):
-            # iterate over the lenght of arguments
-            # ex:
-            #   mapping ( uint => mapping ( uint => uint)) my_var
-            # is accessed through  contract.my_var(0,0)
+        # If its a mapping or a array
+        # we iterate until we find the final type
+        # mapping and array can be mixed together
+        # ex:
+        #    mapping ( uint => mapping ( uint => uint)) my_var
+        #    mapping(uint => uint)[] test;p
+        if isinstance(func.type, (MappingType, ArrayType)):
             tmp = func.type
-            for _ in range(len(ir.arguments)):
-                tmp = tmp.type_to
+            while isinstance(tmp, (MappingType, ArrayType)):
+                if isinstance(tmp, MappingType):
+                    tmp = tmp.type_to
+                else:
+                    tmp = tmp.type
             return_type = tmp
-        elif isinstance(func.type, ArrayType):
-            return_type = func.type.type
         else:
             return_type = func.type
     if return_type:
@@ -660,18 +663,15 @@ def convert_expression(expression, node):
     # handle standlone expression
     # such as return true;
     from slither.core.cfg.node import NodeType
-    if isinstance(expression, Literal) and node.type == NodeType.RETURN:
-        result =  [Return(Constant(expression.value))]
-        return result
-    if isinstance(expression, Identifier) and node.type == NodeType.RETURN:
-        result =  [Return(expression.value)]
-        return result
+
     if isinstance(expression, Literal) and node.type in [NodeType.IF, NodeType.IFLOOP]:
         result =  [Condition(Constant(expression.value))]
         return result
     if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
         result =  [Condition(expression.value)]
         return result
+
+
     visitor = ExpressionToSlithIR(expression, node)
     result = visitor.result()
 

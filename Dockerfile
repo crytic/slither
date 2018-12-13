@@ -1,4 +1,4 @@
-FROM alpine:3.6
+FROM ubuntu:bionic
 
 LABEL name slither
 LABEL src "https://github.com/trailofbits/slither"
@@ -6,16 +6,19 @@ LABEL creator trailofbits
 LABEL dockerfile_maintenance trailofbits
 LABEL desc "Static Analyzer for Solidity"
 
-# Mostly stolen from ethereum/solc.
-RUN apk add --no-cache git python3 build-base cmake boost-dev \
-&& sed -i -E -e 's/include <sys\/poll.h>/include <poll.h>/' /usr/include/boost/asio/detail/socket_types.hpp \
-&& git clone --depth 1 --recursive -b release https://github.com/ethereum/solidity \
-&& cd /solidity && cmake -DCMAKE_BUILD_TYPE=Release -DTESTS=0 -DSTATIC_LINKING=1 \
-&& cd /solidity && make solc && install -s  solc/solc /usr/bin \
-&& cd / && rm -rf solidity \
-&& rm -rf /var/cache/apk/* \
-&& git clone https://github.com/trailofbits/slither.git
+RUN apt update \
+  && apt upgrade -y \
+  && apt install -y git python3 python3-setuptools wget software-properties-common
+
+RUN wget https://github.com/ethereum/solidity/releases/download/v0.4.25/solc-static-linux \
+ && chmod +x solc-static-linux \
+ && mv solc-static-linux /usr/bin/solc
+
+# If this fails, the solc-static-linux binary has changed while it should not.
+RUN [ "c9b268750506b88fe71371100050e9dd1e7edcf8f69da34d1cd09557ecb24580  /usr/bin/solc" = "$(sha256sum /usr/bin/solc)" ]
+
+RUN git clone https://github.com/trailofbits/slither.git
 WORKDIR slither
+
 RUN python3 setup.py install
-ENTRYPOINT ["slither"]
-CMD ["tests/uninitialized.sol"]
+CMD /bin/bash

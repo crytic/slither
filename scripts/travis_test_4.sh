@@ -10,7 +10,7 @@ test_slither(){
     expected="$DIR/../tests/expected_json/$(basename $1 .sol).$2.json"
 
     # run slither detector on input file and save output as json
-    slither "$1" --disable-solc-warnings --detect "$2" --json "$DIR/tmp-test.json"
+    slither "$1" --disable-solc-warnings --detect "$2" --json "$DIR/tmp-test.json" --solc solc-0.4.25
     if [ $? -eq 255 ]
     then
         echo "Slither crashed"
@@ -37,7 +37,7 @@ test_slither(){
     fi
 
     # run slither detector on input file and save output as json
-    slither "$1" --disable-solc-warnings --detect "$2" --compact-ast --json "$DIR/tmp-test.json"
+    slither "$1" --disable-solc-warnings --detect "$2" --compact-ast --json "$DIR/tmp-test.json" --solc solc-0.4.25
     if [ $? -eq 255 ]
     then
         echo "Slither crashed"
@@ -86,22 +86,9 @@ test_slither tests/naming_convention.sol "naming-convention"
 test_slither tests/controlled_delegatecall.sol "controlled-delegatecall"
 test_slither tests/constant.sol "constant-function"
 test_slither tests/unused_return.sol "unused-return"
+test_slither tests/shadowing_abstract.sol "shadowing-abstract"
+test_slither tests/shadowing_state_variable.sol "shadowing-state"
+test_slither tests/timestamp.sol "timestamp"
 
 
-### Test scripts
 
-python examples/scripts/functions_called.py examples/scripts/functions_called.sol
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-
-python examples/scripts/functions_writing.py examples/scripts/functions_writing.sol
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-
-python examples/scripts/variable_in_condition.py examples/scripts/variable_in_condition.sol
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-exit 0

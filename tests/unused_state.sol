@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+//pragma solidity ^0.4.24;
 
 contract A{
     address unused;
@@ -7,7 +7,7 @@ contract A{
 
 contract B is A{
 
-    function () public{
-        used = 0;
+    function () external{
+        used = address(0);
     }
 }

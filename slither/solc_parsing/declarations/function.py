@@ -85,6 +85,10 @@ class FunctionSolc(Function):
         if 'isConstructor' in attributes:
             self._is_constructor = attributes['isConstructor']
 
+        if 'kind' in attributes:
+            if attributes['kind'] == 'constructor':
+                self._is_constructor = True
+
         if 'visibility' in attributes:
             self._visibility = attributes['visibility']
         # old solc
@@ -310,10 +314,9 @@ class FunctionSolc(Function):
         node_endDoWhile = self._new_node(NodeType.ENDLOOP, doWhilestatement['src'])
 
         link_nodes(node, node_startDoWhile)
-        link_nodes(node_startDoWhile, statement)
+        link_nodes(node_startDoWhile, node_condition.sons[0])
         link_nodes(statement, node_condition)
         link_nodes(node_condition, node_endDoWhile)
-
         return node_endDoWhile
 
     def _parse_variable_definition(self, statement, node):
@@ -810,11 +813,12 @@ class FunctionSolc(Function):
                 if child[self.get_key()] == 'Block':
                     self._is_implemented = True
                     self._parse_cfg(child)
-                    continue
-
-                assert child[self.get_key()] == 'ModifierInvocation'
-
-                self._parse_modifier(child)
+    
+            # Parse modifier after parsing all the block
+            # In the case a local variable is used in the modifier
+            for child in children[2:]:
+                if child[self.get_key()] == 'ModifierInvocation':
+                    self._parse_modifier(child)
 
         for local_vars in self.variables:
             local_vars.analyze(self)
