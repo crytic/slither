@@ -57,8 +57,7 @@ class Assembly(AbstractDetector):
 
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)
-                json['assembly'] = [{'source_mapping': node.source_mapping}
-                                    for node in nodes]
+                self.add_nodes_to_json(nodes, json)
                 results.append(json)
 
         if all_info != '':
