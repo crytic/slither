@@ -127,8 +127,6 @@ def get_detectors_and_printers():
     from slither.detectors.functions.external_function import ExternalFunction
     from slither.detectors.statements.controlled_delegatecall import ControlledDelegateCall
     from slither.detectors.attributes.const_functions import ConstantFunctions
-    from slither.detectors.attributes.const_functions import ConstantFunctions
-    from slither.detectors.attributes.const_functions import ConstantFunctions
     from slither.detectors.shadowing.abstract import ShadowingAbstractDetection
     from slither.detectors.shadowing.state import StateShadowing
     from slither.detectors.operations.block_timestamp import Timestamp
