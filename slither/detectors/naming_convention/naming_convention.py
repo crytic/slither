@@ -53,10 +53,12 @@ class NamingConvention(AbstractDetector):
                 all_info += info
 
                 json = self.generate_json_result(info)
-                json['type'] = 'contract'
-                json['convention'] = 'CapWords'
-                json['name'] = {'name': contract.name,
-                                'source_mapping': contract.source_mapping}
+                elem = dict()
+                elem['target'] = 'contract'
+                elem['convention'] = 'CapWords'
+                elem['name'] = contract.name
+                elem['source_mapping'] = contract.source_mapping
+                json['elements'] = [elem]
                 results.append(json)
 
             for struct in contract.structures:
@@ -69,10 +71,12 @@ class NamingConvention(AbstractDetector):
                     all_info += info
 
                     json = self.generate_json_result(info)
-                    json['type'] = 'structure'
-                    json['convention'] = 'CapWords'
-                    json['name'] = {'name': struct.name,
-                                    'source_mapping': struct.source_mapping}
+                    elem = dict()
+                    elem['target'] = 'structure'
+                    elem['convention'] = 'CapWords'
+                    elem['name'] = struct.name
+                    elem['source_mapping'] = struct.source_mapping
+                    json['elements'] = [elem]
                     results.append(json)
             for event in contract.events:
                 if event.contract != contract:
@@ -84,10 +88,12 @@ class NamingConvention(AbstractDetector):
                     all_info += info
 
                     json = self.generate_json_result(info)
-                    json['type'] = 'event'
-                    json['convention'] = 'CapWords'
-                    json['name'] = {'name': event.name,
-                                    'source_mapping': event.source_mapping}
+                    elem = dict()
+                    elem['target'] = 'event'
+                    elem['convention'] = 'CapWords'
+                    elem['name'] = event.name
+                    elem['source_mapping'] = event.source_mapping
+                    json['elements'] = [elem]
                     results.append(json)
 
             for func in contract.functions:
@@ -100,10 +106,12 @@ class NamingConvention(AbstractDetector):
                     all_info += info
 
                     json = self.generate_json_result(info)
-                    json['type'] = 'function'
-                    json['convention'] = 'mixedCase'
-                    json['name'] = {'name': func.name,
-                                    'source_mapping': func.source_mapping}
+                    elem = dict()
+                    elem['target'] = 'function'
+                    elem['convention'] = 'mixedCase'
+                    elem['name'] = func.name
+                    elem['source_mapping'] = func.source_mapping
+                    json['elements'] = [elem]
                     results.append(json)
 
                 for argument in func.parameters:
@@ -120,10 +128,12 @@ class NamingConvention(AbstractDetector):
                         all_info += info
 
                         json = self.generate_json_result(info)
-                        json['type'] = 'parameter'
-                        json['convention'] = 'mixedCase'
-                        json['name'] = {'name': argument.name,
-                                        'source_mapping': argument.source_mapping}
+                        elem = dict()
+                        elem['target'] = 'parameter'
+                        elem['convention'] = 'mixedCase'
+                        elem['name'] = argument.name
+                        elem['source_mapping'] = argument.source_mapping
+                        json['elements'] = [elem]
                         results.append(json)
 
             for var in contract.state_variables:
@@ -137,10 +147,12 @@ class NamingConvention(AbstractDetector):
                         all_info += info
 
                         json = self.generate_json_result(info)
-                        json['type'] = 'variable'
-                        json['convention'] = 'l_O_I_should_not_be_used'
-                        json['name'] = {'name': var.name,
-                                        'source_mapping': var.source_mapping}
+                        elem = dict()
+                        elem['target'] = 'variable'
+                        elem['convention'] = 'l_O_I_should_not_be_used'
+                        elem['name'] = var.name
+                        elem['source_mapping'] = var.source_mapping
+                        json['elements'] = [elem]
                         results.append(json)
 
                 if var.is_constant is True:
@@ -154,10 +166,12 @@ class NamingConvention(AbstractDetector):
                         all_info += info
 
                         json = self.generate_json_result(info)
-                        json['type'] = 'variable_constant'
-                        json['convention'] = 'UPPER_CASE_WITH_UNDERSCORES'
-                        json['name'] = {'name': var.name,
-                                        'source_mapping': var.source_mapping}
+                        elem = dict()
+                        elem['target'] = 'variable_constant'
+                        elem['convention'] = 'UPPER_CASE_WITH_UNDERSCORES'
+                        elem['name'] = var.name
+                        elem['source_mapping'] = var.source_mapping
+                        json['elements'] = [elem]
                         results.append(json)
 
                 else:
@@ -171,10 +185,12 @@ class NamingConvention(AbstractDetector):
                         all_info += info
 
                         json = self.generate_json_result(info)
-                        json['type'] = 'variable'
-                        json['convention'] = 'mixedCase'
-                        json['name'] = {'name': var.name,
-                                        'source_mapping': var.source_mapping}
+                        elem = dict()
+                        elem['target'] = 'variable'
+                        elem['convention'] = 'mixedCase'
+                        elem['name'] = var.name
+                        elem['source_mapping'] = var.source_mapping
+                        json['elements'] = [elem]
                         results.append(json)
 
             for enum in contract.enums:
@@ -187,10 +203,12 @@ class NamingConvention(AbstractDetector):
                     all_info += info
 
                     json = self.generate_json_result(info)
-                    json['type'] = 'enum'
-                    json['convention'] = 'CapWords'
-                    json['name'] = {'name': enum.name,
-                                    'source_mapping': enum.source_mapping}
+                    elem = dict()
+                    elem['target'] = 'enum'
+                    elem['convention'] = 'CapWords'
+                    elem['name'] = enum.name
+                    elem['source_mapping'] = enum.source_mapping
+                    json['elements'] = [elem]
                     results.append(json)
 
 
@@ -206,10 +224,12 @@ class NamingConvention(AbstractDetector):
                     all_info += info
 
                     json = self.generate_json_result(info)
-                    json['type'] = 'modifier'
-                    json['convention'] = 'mixedCase'
-                    json['name'] = {'name': modifier.name,
-                                    'source_mapping': modifier.source_mapping}
+                    elem = dict()
+                    elem['target'] = 'modifier'
+                    elem['convention'] = 'mixedCase'
+                    elem['name'] = modifier.name
+                    elem['source_mapping'] = modifier.source_mapping
+                    json['elements'] = [elem]
                     results.append(json)
 
         if all_info != '':

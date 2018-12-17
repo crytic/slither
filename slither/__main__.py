@@ -127,11 +127,11 @@ def get_detectors_and_printers():
     from slither.detectors.functions.external_function import ExternalFunction
     from slither.detectors.statements.controlled_delegatecall import ControlledDelegateCall
     from slither.detectors.attributes.const_functions import ConstantFunctions
-    from slither.detectors.attributes.const_functions import ConstantFunctions
-    from slither.detectors.attributes.const_functions import ConstantFunctions
     from slither.detectors.shadowing.abstract import ShadowingAbstractDetection
     from slither.detectors.shadowing.state import StateShadowing
     from slither.detectors.operations.block_timestamp import Timestamp
+    from slither.detectors.statements.calls_in_loop import MultipleCallsInLoop
+
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -156,7 +156,8 @@ def get_detectors_and_printers():
                  ConstantFunctions,
                  ShadowingAbstractDetection,
                  StateShadowing,
-                 Timestamp]
+                 Timestamp,
+                 MultipleCallsInLoop]
 
     from slither.printers.summary.function import FunctionSummary
     from slither.printers.summary.contract import ContractSummary
