@@ -56,11 +56,13 @@ def add_ssa_ir(function, all_state_variables_instances):
             init_definition[v.name] = (v, function.entry_point)
     add_phi_origins(function.entry_point, init_definition, dict())
 
+
+
     for node in function.nodes:
         for (variable, nodes) in node.phi_origins_local_variables.values():
             if len(nodes)<2:
                 continue
-            if not is_used_later(node, variable.name, []):
+            if not is_used_later(node, variable, []):
                 continue
             node.add_ssa_ir(Phi(LocalIRVariable(variable), nodes))
         for (variable, nodes) in node.phi_origins_state_variables.values():
@@ -147,7 +149,7 @@ def update_lvalue(new_ir, node, local_variables_instances, all_local_variables_i
                     to_update = to_update.points_to
                 to_update.points_to = new_var
 
-def is_used_later(node, variable_name, visited):
+def is_used_later(node, variable, visited):
     # TODO: does not handle the case where its read and written in the declaration node
     # It can be problematic if this happens in a loop/if structure
     # Ex:
@@ -160,11 +162,17 @@ def is_used_later(node, variable_name, visited):
         return False
     # shared visited
     visited.append(node)
-    if any(v.name == variable_name for v in node.local_variables_read):
-        return True
-    if any(v.name == variable_name for v in node.local_variables_written):
-        return False
-    return any(is_used_later(son, variable_name, visited) for son in node.sons)
+    if isinstance(variable, LocalVariable):
+        if any(v.name == variable.name for v in node.local_variables_read):
+            return True
+        if any(v.name == variable.name for v in node.local_variables_written):
+            return False
+    if isinstance(variable, StateVariable):
+        if any(v.name == variable.name and v.contract == variable.contract for v in node.state_variables_read):
+            return True
+        if any(v.name == variable.name and v.contract == variable.contract for v in node.state_variables_written):
+            return False
+    return any(is_used_later(son, variable, visited) for son in node.sons)
 
 def generate_ssa_irs(node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances):
 
@@ -185,6 +193,8 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
             node.add_ssa_ir(new_ir)
             if isinstance(ir, (InternalCall, HighLevelCall, InternalDynamicCall, LowLevelCall)):
                 for variable in all_state_variables_instances.values():
+                    if not is_used_later(node, variable, []):
+                        continue
                     new_var = StateIRVariable(variable)
                     new_var.index = all_state_variables_instances[variable.canonical_name].index + 1
                     all_state_variables_instances[variable.canonical_name] = new_var
@@ -213,7 +223,6 @@ def add_phi_origins(node, local_variables_definition, state_variables_definition
        not node.variable_declaration.name in local_variables_definition:
         local_variables_definition[node.variable_declaration.name] = (node.variable_declaration, node)
 
-    print(state_variables_definition)
     # filter length of successors because we have node with one successor
     # while most of the ssa textbook would represent following nodes as one
     if node.dominance_frontier and len(node.dominator_successors) != 1:
