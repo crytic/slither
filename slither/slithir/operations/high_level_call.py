@@ -69,7 +69,7 @@ class HighLevelCall(Call, OperationWithLValue):
             return ret
         all_read = [self.destination, self.call_gas, self.call_value] + unroll(self.arguments)
         # remove None
-        return [x for x in all_read if x]
+        return [x for x in all_read if x] + [self.destination]
 
     @property
     def destination(self):

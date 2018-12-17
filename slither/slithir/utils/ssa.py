@@ -54,8 +54,13 @@ def add_ssa_ir(function, all_state_variables_instances):
     for v in function.parameters+function.returns:
         if v.name:
             init_definition[v.name] = (v, function.entry_point)
-    add_phi_origins(function.entry_point, init_definition, dict())
 
+    for (_, variable_instance) in all_state_variables_instances.items():
+        if is_used_later(function.entry_point, variable_instance, []):
+            # rvalues are fixed in solc_parsing.declaration.function
+            function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
+
+    add_phi_origins(function.entry_point, init_definition, dict())
 
 
     for node in function.nodes:
@@ -200,6 +205,7 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
                     all_state_variables_instances[variable.canonical_name] = new_var
                     state_variables_instances[variable.canonical_name] = new_var
                     phi_ir = PhiCallback(new_var, {node}, new_ir, variable)
+                    # rvalues are fixed in solc_parsing.declaration.function
                     node.add_ssa_ir(phi_ir)
 
 

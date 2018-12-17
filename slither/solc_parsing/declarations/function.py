@@ -875,7 +875,7 @@ class FunctionSolc(Function):
     def fix_phi_callback(self, last_state_variables_instances):
         for node in self.nodes:
             for ir in node.irs_ssa:
-                if isinstance(ir, PhiCallback):
+                if isinstance(ir, PhiCallback) or node == self.entry_point:
                     additional = last_state_variables_instances[ir.lvalue.canonical_name]
                     ir.rvalues = list(set(additional + ir.rvalues))
 
