@@ -63,10 +63,8 @@ def add_ssa_ir(function, all_state_variables_instances, all_state_variables_writ
     # The state variable is used
     # And if the state variables is written in another function (otherwise its stay at index 0)
     for (canonical_name, variable_instance) in all_state_variables_instances.items():
-        print(canonical_name)
-        print(all_state_variables_written)
-        if is_used_later(function.entry_point, variable_instance, [])\
-            and canonical_name in all_state_variables_written:
+        if is_used_later(function.entry_point, variable_instance, []):
+#            and canonical_name in all_state_variables_written:
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
@@ -101,10 +99,29 @@ def add_ssa_ir(function, all_state_variables_instances, all_state_variables_writ
                      dict(init_local_variables_instances),
                      all_init_local_variables_instances,
                      dict(init_state_variables_instances),
-                     all_state_variables_instances)
+                     all_state_variables_instances,
+                     init_local_variables_instances,
+                     [])
 
-    fix_phi_operations(function.nodes, init_local_variables_instances)
+    #fix_phi_operations(function.nodes, init_local_variables_instances)
 
+def last_name(n, var, init_vars):
+    candidates = []
+    # Todo optimize by creating a variables_ssa_written attribute
+    for ir_ssa in n.irs_ssa:
+        if isinstance(ir_ssa, OperationWithLValue):
+            lvalue = ir_ssa.lvalue
+            while isinstance(lvalue, ReferenceVariable):
+                lvalue = lvalue.points_to
+            if lvalue and lvalue.name == var.name:
+                candidates.append(lvalue)
+    if n.variable_declaration and n.variable_declaration.name == var.name:
+        candidates.append(LocalIRVariable(n.variable_declaration))
+    if n.type == NodeType.ENTRYPOINT:
+        if var.name in init_vars:
+            candidates.append(init_vars[var.name])
+    assert candidates
+    return max(candidates, key=lambda v: v.index)
 
 def fix_phi_operations(nodes, init_vars):
     def last_name(n, var):
@@ -122,7 +139,6 @@ def fix_phi_operations(nodes, init_vars):
         if n.type == NodeType.ENTRYPOINT:
             if var.name in init_vars:
                 candidates.append(init_vars[var.name])
-        print(candidates)
         assert candidates
         return max(candidates, key=lambda v: v.index)
 
@@ -189,7 +205,16 @@ def is_used_later(node, variable, visited):
             return False
     return any(is_used_later(son, variable, visited) for son in node.sons)
 
-def generate_ssa_irs(node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances):
+def generate_ssa_irs(node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances, init_local_variables_instances, visited):
+
+    if node in visited:
+        return
+
+    if node.fathers and any(not father in visited for father in node.fathers):
+        return
+
+    # visited is shared
+    visited.append(node)
 
     if node.variable_declaration:
         new_var = LocalIRVariable(node.variable_declaration)
@@ -205,6 +230,7 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
         update_lvalue(new_ir, node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances)
 
         if new_ir:
+
             node.add_ssa_ir(new_ir)
             if isinstance(ir, (InternalCall, HighLevelCall, InternalDynamicCall, LowLevelCall)):
                 for variable in all_state_variables_instances.values():
@@ -218,9 +244,40 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
                     # rvalues are fixed in solc_parsing.declaration.function
                     node.add_ssa_ir(phi_ir)
 
+            if isinstance(new_ir, Assignment):
+                if isinstance(new_ir.lvalue, LocalIRVariable):
+                    if new_ir.lvalue.is_storage:
+                        new_ir.lvalue.add_points_to(new_ir.rvalue)
+
+    for ir in node.irs_ssa:
+        if isinstance(ir, (Phi)) and not ir.rvalues:
+            variables = [last_name(dst, ir.lvalue, init_local_variables_instances) for dst in ir.nodes]
+            ir.rvalues = variables
+        if isinstance(ir, (Phi, PhiCallback)):
+            if isinstance(ir.lvalue, LocalIRVariable):
+                if ir.lvalue.is_storage:
+                    l = [v.points_to for v in ir.rvalues]
+                    l = [item for sublist in l for item in sublist]
+                    ir.lvalue.points_to = set(l)
+
+        if isinstance(ir, Assignment):
+            if isinstance(ir.lvalue, ReferenceVariable):
+                origin = ir.lvalue.points_to_origin
+
+                if isinstance(origin, LocalIRVariable):
+                    if origin.is_storage:
+                        for points_to in origin.points_to:
+                            phi_ir = Phi(points_to, {node})
+                            phi_ir.rvalues = [origin]
+                            node.add_ssa_ir(phi_ir)
+                            update_lvalue(phi_ir, node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances)
+
 
     for succ in node.dominator_successors:
-        generate_ssa_irs(succ, dict(local_variables_instances), all_local_variables_instances, dict(state_variables_instances), all_state_variables_instances)
+        generate_ssa_irs(succ, dict(local_variables_instances), all_local_variables_instances, dict(state_variables_instances), all_state_variables_instances, init_local_variables_instances, visited)
+
+    for dominated in node.dominance_frontier:
+        generate_ssa_irs(dominated, dict(local_variables_instances), all_local_variables_instances, dict(state_variables_instances), all_state_variables_instances, init_local_variables_instances, visited)
 
 def add_phi_origins(node, local_variables_definition, state_variables_definition):
 
