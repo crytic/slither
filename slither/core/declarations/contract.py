@@ -31,6 +31,8 @@ class Contract(ChildSlither, SourceMapping):
         self._kind = None
 
 
+        self._initial_state_variables = [] # ssa
+
     def __eq__(self, other):
         if isinstance(other, str):
             return other == self.name

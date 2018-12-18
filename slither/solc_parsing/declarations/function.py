@@ -2,31 +2,30 @@
     Event module
 """
 import logging
+
+from slither.core.cfg.node import NodeType, link_nodes
 from slither.core.declarations.function import Function
-from slither.core.cfg.node import NodeType
-from slither.solc_parsing.cfg.node import NodeSolc
-from slither.core.cfg.node import NodeType
-from slither.core.cfg.node import link_nodes
-
-from slither.solc_parsing.variables.local_variable import LocalVariableSolc
-from slither.solc_parsing.variables.local_variable_init_from_tuple import LocalVariableInitFromTupleSolc
-from slither.solc_parsing.variables.variable_declaration import MultipleVariablesDeclaration
-
-from slither.solc_parsing.expressions.expression_parsing import parse_expression
-
+from slither.core.dominators.utils import (compute_dominance_frontier,
+                                           compute_dominators)
 from slither.core.expressions import AssignmentOperation
+from slither.core.variables.state_variable import StateVariable
+from slither.slithir.operations import (Assignment, HighLevelCall,
+                                        InternalCall, InternalDynamicCall,
+                                        LowLevelCall, OperationWithLValue, Phi,
+                                        PhiCallback, LibraryCall)
+from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
+from slither.slithir.variables import LocalIRVariable, ReferenceVariable
+from slither.solc_parsing.cfg.node import NodeSolc
+from slither.solc_parsing.expressions.expression_parsing import \
+    parse_expression
+from slither.solc_parsing.variables.local_variable import LocalVariableSolc
+from slither.solc_parsing.variables.local_variable_init_from_tuple import \
+    LocalVariableInitFromTupleSolc
+from slither.solc_parsing.variables.variable_declaration import \
+    MultipleVariablesDeclaration
+from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
-
-from slither.utils.expression_manipulations import SplitTernaryExpression
-
-from slither.slithir.utils.ssa import transform_slithir_vars_to_ssa, add_ssa_ir
-
-from slither.core.dominators.utils import compute_dominators, compute_dominance_frontier
-
-from slither.core.variables.state_variable import StateVariable
-from slither.slithir.operations import OperationWithLValue, Assignment, Phi, PhiCallback
-from slither.slithir.variables import ReferenceVariable, LocalIRVariable
 
 logger = logging.getLogger("FunctionSolc")
 
@@ -883,12 +882,24 @@ class FunctionSolc(Function):
             return True
         return ir.rvalues[0] == ir.lvalue
 
-    def fix_phi(self, last_state_variables_instances):
+    def fix_phi(self, last_state_variables_instances, initial_state_variables_instances):
         for node in self.nodes:
             for ir in node.irs_ssa:
-                if isinstance(ir, PhiCallback) or node == self.entry_point:
-                    additional = last_state_variables_instances[ir.lvalue.canonical_name]
+                if node == self.entry_point:
+                    additional = [initial_state_variables_instances[ir.lvalue.canonical_name]]
+                    additional += last_state_variables_instances[ir.lvalue.canonical_name]
                     ir.rvalues = list(set(additional + ir.rvalues))
+                if isinstance(ir, PhiCallback):
+                    callee_ir = ir.callee_ir
+                    if isinstance(callee_ir, InternalCall):
+                        last_ssa = callee_ir.function.get_last_ssa_state_variables_instances()
+                        if ir.lvalue.canonical_name in last_ssa:
+                            ir.rvalues = last_ssa[ir.lvalue.canonical_name]
+                        else:
+                            ir.rvalues = [ir.lvalue]
+                    else:
+                        additional = last_state_variables_instances[ir.lvalue.canonical_name]
+                        ir.rvalues = list(set(additional + ir.rvalues))
 
             node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
 
@@ -949,5 +960,4 @@ class FunctionSolc(Function):
             link_nodes(false_node, endif_node)
 
         self._nodes = [n for n in self._nodes if n.node_id != node.node_id]
-
 
