@@ -26,6 +26,10 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
 
         self._index = 0
 
+        # Additional field
+        # points to state variables
+        self._points_to = set()
+
     @property
     def index(self):
         return self._index
@@ -33,6 +37,18 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
     @index.setter
     def index(self, idx):
         self._index = idx
+
+    @property
+    def points_to(self):
+        if self.is_storage:
+            return self._points_to
+        return set()
+
+
+    @points_to.setter
+    def points_to(self, variables):
+        self._points_to = variables
+
 
     @property
     def ssa_name(self):
