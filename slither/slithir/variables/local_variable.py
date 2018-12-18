@@ -44,12 +44,15 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
             return self._points_to
         return set()
 
-
     @points_to.setter
     def points_to(self, variables):
         self._points_to = variables
 
+    def add_points_to(self, variable):
+        self._points_to.add(variable)
 
     @property
     def ssa_name(self):
+        if self.is_storage:
+            return '{}_{} (-> {})'.format(self._name, self.index, [v.ssa_name for v in self.points_to])
         return '{}_{}'.format(self._name, self.index)

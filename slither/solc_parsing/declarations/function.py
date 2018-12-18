@@ -25,8 +25,8 @@ from slither.slithir.utils.ssa import transform_slithir_vars_to_ssa, add_ssa_ir
 from slither.core.dominators.utils import compute_dominators, compute_dominance_frontier
 
 from slither.core.variables.state_variable import StateVariable
-from slither.slithir.operations import OperationWithLValue, Phi, PhiCallback
-from slither.slithir.variables import ReferenceVariable
+from slither.slithir.operations import OperationWithLValue, Assignment, Phi, PhiCallback
+from slither.slithir.variables import ReferenceVariable, LocalIRVariable
 
 logger = logging.getLogger("FunctionSolc")
 
