@@ -17,6 +17,10 @@ class PhiCallback(Phi):
         self._rvalue_no_callback = rvalue
 
     @property
+    def callee_ir(self):
+        return self._call_ir
+
+    @property
     def read(self):
         return [self.rvalues]
 

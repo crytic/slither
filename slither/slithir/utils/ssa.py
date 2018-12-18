@@ -57,7 +57,12 @@ def add_ssa_ir(function, all_state_variables_instances, all_state_variables_writ
     init_definition = dict()
     for v in function.parameters+function.returns:
         if v.name:
-            init_definition[v.name] = (v, function.entry_point)
+            new_var = LocalIRVariable(v)
+            print(new_var.name)
+            print(new_var.is_storage)
+            if new_var.is_storage:
+                new_var.points_to = {v}
+            init_definition[new_var.name] = (new_var, function.entry_point)
 
     # We only add phi function for state variable at entry node if
     # The state variable is used
@@ -84,8 +89,6 @@ def add_ssa_ir(function, all_state_variables_instances, all_state_variables_writ
             #if not is_used_later(node, variable.name, []):
             #    continue
             node.add_ssa_ir(Phi(StateIRVariable(variable), nodes))
-
-
 
     init_local_variables_instances = dict()
     for v in function.parameters+function.returns:
@@ -233,6 +236,8 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
 
             node.add_ssa_ir(new_ir)
             if isinstance(ir, (InternalCall, HighLevelCall, InternalDynamicCall, LowLevelCall)):
+                if isinstance(ir, LibraryCall):
+                    continue
                 for variable in all_state_variables_instances.values():
                     if not is_used_later(node, variable, []):
                         continue
