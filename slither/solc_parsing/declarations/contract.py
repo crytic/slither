@@ -350,23 +350,30 @@ class ContractSolc04(Contract):
 
 
     def convert_expression_to_slithir(self):
+        for func in self.functions + self.modifiers:
+            if func.contract == self:
+                func.generate_slithir_and_analyze()
+
         all_ssa_state_variables_instances = dict()
-        last_state_variables_instances = dict() 
+        last_state_variables_instances = dict()
+        all_state_variables_written = {v.canonical_name for v in self.all_state_variables_written}
 
         for contract in self.inheritance:
             for v in contract.variables:
                 if v.contract == contract:
-                    all_ssa_state_variables_instances[v.canonical_name] = StateIRVariable(v)
-                    last_state_variables_instances[v.canonical_name] = []
+                    new_var = StateIRVariable(v)
+                    all_ssa_state_variables_instances[v.canonical_name] = new_var
+                    last_state_variables_instances[v.canonical_name] = [new_var]
         for v in self.variables:
             if v.contract == self:
-                all_ssa_state_variables_instances[v.canonical_name] = StateIRVariable(v)
-                last_state_variables_instances[v.canonical_name] = []
+                new_var = StateIRVariable(v)
+                all_ssa_state_variables_instances[v.canonical_name] = new_var
+                last_state_variables_instances[v.canonical_name] = [new_var]
 
         for func in self.functions + self.modifiers:
             if func.contract == self:
-                print('### Analyze {}'.format(func.name))
-                func.convert_expression_to_slithir(all_ssa_state_variables_instances)
+                func.generate_slithir_ssa(all_ssa_state_variables_instances,
+                                          all_state_variables_written)
 
         for func in self.functions + self.modifiers:
             result = func.get_last_ssa_state_variables_instances()
@@ -374,7 +381,7 @@ class ContractSolc04(Contract):
                 last_state_variables_instances[variable_name] += instances
 
         for func in self.functions + self.modifiers:
-            func.fix_phi_callback(last_state_variables_instances)
+            func.fix_phi(last_state_variables_instances)
 
     def __hash__(self):
         return self._id

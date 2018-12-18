@@ -42,9 +42,13 @@ def transform_slithir_vars_to_ssa(function):
     for idx in range(len(tuple_variables)):
         tuple_variables[idx].index = idx
 
-def add_ssa_ir(function, all_state_variables_instances):
+def add_ssa_ir(function, all_state_variables_instances, all_state_variables_written):
     '''
         Add SSA version of the IR
+    Args:
+        function
+        all_state_variables_instances
+        all_state_variables_written (set(str)): canonical name of all the state variables written
     '''
 
     if not function.is_implemented:
@@ -55,8 +59,14 @@ def add_ssa_ir(function, all_state_variables_instances):
         if v.name:
             init_definition[v.name] = (v, function.entry_point)
 
-    for (_, variable_instance) in all_state_variables_instances.items():
-        if is_used_later(function.entry_point, variable_instance, []):
+    # We only add phi function for state variable at entry node if
+    # The state variable is used
+    # And if the state variables is written in another function (otherwise its stay at index 0)
+    for (canonical_name, variable_instance) in all_state_variables_instances.items():
+        print(canonical_name)
+        print(all_state_variables_written)
+        if is_used_later(function.entry_point, variable_instance, [])\
+            and canonical_name in all_state_variables_written:
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
