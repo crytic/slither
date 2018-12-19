@@ -2,6 +2,7 @@ from .variable import Variable
 from slither.core.children.child_function import ChildFunction
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.solidity_types.array_type import ArrayType
+from slither.core.solidity_types.mapping_type import MappingType
 
 from slither.core.declarations.structure import Structure
 
@@ -36,10 +37,13 @@ class LocalVariable(ChildFunction, Variable):
         """
         if self.location == 'memory':
             return False
+        # Use by slithIR SSA
+        if self.location == 'reference_to_storage':
+            return False
         if self.location == 'storage':
             return True
 
-        if isinstance(self.type, ArrayType):
+        if isinstance(self.type, (ArrayType, MappingType)):
             return True
 
         if isinstance(self.type, UserDefinedType):

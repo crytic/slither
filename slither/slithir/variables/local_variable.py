@@ -49,10 +49,13 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
         self._points_to = variables
 
     def add_points_to(self, variable):
+        assert isinstance(variable, SlithIRVariable)
         self._points_to.add(variable)
 
     @property
     def ssa_name(self):
         if self.is_storage:
-            return '{}_{} (-> {})'.format(self._name, self.index, [v.ssa_name for v in self.points_to])
-        return '{}_{}'.format(self._name, self.index)
+            return '{}_{} (-> {})'.format(self._name,
+                                             self.index,
+                                             [v.name for v in self.points_to])
+        return '{}_{} ({})'.format(self._name, self.index, self.location)
