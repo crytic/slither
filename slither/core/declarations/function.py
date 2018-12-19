@@ -669,3 +669,13 @@ class Function(ChildContract, SourceMapping):
         conditional_vars = self.all_conditional_solidity_variables_read()
         args_vars = self.all_solidity_variables_used_as_args()
         return SolidityVariableComposed('msg.sender') in conditional_vars + args_vars
+
+    def get_local_variable_from_name(self, variable_name):
+        """
+            Return a local variable from a name
+        Args:
+            varible_name (str): name of the variable
+        Returns:
+            LocalVariable
+        """
+        return next((v for v in self.variables if v.name == variable_name), None)

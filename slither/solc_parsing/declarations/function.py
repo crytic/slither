@@ -914,7 +914,11 @@ class FunctionSolc(Function):
         compute_dominance_frontier(self.nodes)
         transform_slithir_vars_to_ssa(self)
         add_ssa_ir(self, all_ssa_state_variables_instances, all_written_state_variables)
- 
+
+    def update_read_write_using_ssa(self):
+        for node in self.nodes:
+            node.update_read_write_using_ssa()
+        self._analyze_read_write()
 
     def split_ternary_node(self, node, condition, true_expr, false_expr):
         condition_node = self._new_node(NodeType.IF, node.source_mapping)
@@ -960,4 +964,5 @@ class FunctionSolc(Function):
             link_nodes(false_node, endif_node)
 
         self._nodes = [n for n in self._nodes if n.node_id != node.node_id]
+
 

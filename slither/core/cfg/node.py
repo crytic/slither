@@ -15,9 +15,9 @@ from slither.slithir.convert import convert_expression
 from slither.slithir.operations import (Balance, HighLevelCall, Index,
                                         InternalCall, Length, LibraryCall,
                                         LowLevelCall, Member,
-                                        OperationWithLValue, SolidityCall)
+                                        OperationWithLValue, SolidityCall, Phi, PhiCallback)
 from slither.slithir.variables import (Constant, ReferenceVariable,
-                                       TemporaryVariable, TupleVariable)
+                                       TemporaryVariable, TupleVariable, StateIRVariable, LocalIRVariable)
 from slither.visitors.expression.expression_printer import ExpressionPrinter
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
@@ -125,8 +125,13 @@ class Node(SourceMapping, ChildFunction):
         self._expression = None
         self._variable_declaration = None
         self._node_id = node_id
+
         self._vars_written = []
         self._vars_read = []
+
+        self._ssa_vars_written = []
+        self._ssa_vars_read = []
+
         self._internal_calls = []
         self._solidity_calls = []
         self._high_level_calls = []
@@ -139,8 +144,14 @@ class Node(SourceMapping, ChildFunction):
         self._state_vars_read = []
         self._solidity_vars_read = []
 
+        self._ssa_state_vars_written = []
+        self._ssa_state_vars_read = []
+
         self._local_vars_read = []
         self._local_vars_written = []
+
+        self._ssa_local_vars_read = []
+        self._ssa_local_vars_written = []
 
         self._expression_vars_written = []
         self._expression_vars_read = []
@@ -484,22 +495,22 @@ class Node(SourceMapping, ChildFunction):
 
         self._find_read_write_call()
 
+    @staticmethod
+    def _is_slithir_var(var):
+        return isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
+
     def _find_read_write_call(self):
 
-        def is_slithir_var(var):
-            return isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
         for ir in self.irs:
-            self._vars_read += [v for v in ir.read if not is_slithir_var(v)]
+            self._vars_read += [v for v in ir.read if not self._is_slithir_var(v)]
             if isinstance(ir, OperationWithLValue):
                 if isinstance(ir, (Index, Member, Length, Balance)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
                 var = ir.lvalue
-                # If its a reference, we loop until finding the origin
                 if isinstance(var, (ReferenceVariable)):
-                    while isinstance(var, ReferenceVariable):
-                        var = var.points_to
+                    var = var.points_to_origin
                 # Only store non-slithIR variables
-                if not is_slithir_var(var) and var:
+                if not self._is_slithir_var(var) and var:
                     self._vars_written.append(var)
 
             if isinstance(ir, InternalCall):
@@ -532,4 +543,51 @@ class Node(SourceMapping, ChildFunction):
         self._high_level_calls = list(set(self._high_level_calls))
         self._low_level_calls = list(set(self._low_level_calls))
 
+    @staticmethod
+    def _convert_ssa(v):
+        if isinstance(v, StateIRVariable):
+            contract = v.contract
+            non_ssa_var = contract.get_state_variable_from_name(v.name)
+            return non_ssa_var
+        assert isinstance(v, LocalIRVariable)
+        function = v.function
+        non_ssa_var = function.get_local_variable_from_name(v.name)
+        return non_ssa_var
 
+    def update_read_write_using_ssa(self):
+        if not self.expression:
+            return
+        for ir in self.irs_ssa:
+            self._ssa_vars_read += [v for v in ir.read if isinstance(v,
+                                                                     (StateIRVariable,
+                                                                      LocalIRVariable))]
+            if isinstance(ir, OperationWithLValue):
+                if isinstance(ir, (Index, Member, Length, Balance)):
+                    continue  # Don't consider Member and Index operations -> ReferenceVariable
+                var = ir.lvalue
+                if isinstance(var, (ReferenceVariable)):
+                    var = var.points_to_origin
+                # Only store non-slithIR variables
+                if var and isinstance(var, (StateIRVariable, LocalIRVariable)):
+                    if isinstance(ir, (PhiCallback)):
+                        continue
+                    self._ssa_vars_written.append(var)
+
+        self._ssa_vars_read = list(set(self._ssa_vars_read))
+        self._ssa_state_vars_read = [v for v in self._ssa_vars_read if isinstance(v, StateVariable)]
+        self._ssa_local_vars_read = [v for v in self._ssa_vars_read if isinstance(v, LocalVariable)]
+        self._ssa_vars_written = list(set(self._ssa_vars_written))
+        self._ssa_state_vars_written = [v for v in self._ssa_vars_written if isinstance(v, StateVariable)]
+        self._ssa_local_vars_written = [v for v in self._ssa_vars_written if isinstance(v, LocalVariable)]
+
+        vars_read = [self._convert_ssa(x) for x in self._ssa_vars_read]
+        vars_written = [self._convert_ssa(x) for x in self._ssa_vars_written]
+
+
+        self._vars_read += [v for v in vars_read if v not in self._vars_read]
+        self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
+        self._local_vars_read = [v for v in self._vars_read if isinstance(v, LocalVariable)]
+
+        self._vars_written += [v for v in vars_written if v not in self._vars_written]
+        self._state_vars_written = [v for v in self._vars_written if isinstance(v, StateVariable)]
+        self._local_vars_written = [v for v in self._vars_written if isinstance(v, LocalVariable)]
