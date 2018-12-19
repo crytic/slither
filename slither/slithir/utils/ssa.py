@@ -57,19 +57,13 @@ def add_ssa_ir(function, all_state_variables_instances, all_state_variables_writ
     init_definition = dict()
     for v in function.parameters+function.returns:
         if v.name:
-            new_var = LocalIRVariable(v)
-            print(new_var.name)
-            print(new_var.is_storage)
-            if new_var.is_storage:
-                new_var.points_to = {v}
-            init_definition[new_var.name] = (new_var, function.entry_point)
+            init_definition[v.name] = (v, function.entry_point)
 
     # We only add phi function for state variable at entry node if
     # The state variable is used
     # And if the state variables is written in another function (otherwise its stay at index 0)
-    for (canonical_name, variable_instance) in all_state_variables_instances.items():
+    for (_, variable_instance) in all_state_variables_instances.items():
         if is_used_later(function.entry_point, variable_instance, []):
-#            and canonical_name in all_state_variables_written:
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
@@ -93,7 +87,14 @@ def add_ssa_ir(function, all_state_variables_instances, all_state_variables_writ
     init_local_variables_instances = dict()
     for v in function.parameters+function.returns:
         if v.name:
-            init_local_variables_instances[v.name] = LocalIRVariable(v)
+            new_var = LocalIRVariable(v)
+            if new_var.is_storage:
+                fake_variable = LocalIRVariable(v)
+                fake_variable.name = 'STORAGE_'+fake_variable.name
+                fake_variable.set_location('reference_to_storage')
+                new_var.points_to = {fake_variable}
+                init_local_variables_instances[fake_variable.name] = fake_variable
+            init_local_variables_instances[v.name] = new_var
     all_init_local_variables_instances = dict(init_local_variables_instances)
 
     init_state_variables_instances = dict(all_state_variables_instances)
@@ -106,7 +107,6 @@ def add_ssa_ir(function, all_state_variables_instances, all_state_variables_writ
                      init_local_variables_instances,
                      [])
 
-    #fix_phi_operations(function.nodes, init_local_variables_instances)
 
 def last_name(n, var, init_vars):
     candidates = []
@@ -125,31 +125,6 @@ def last_name(n, var, init_vars):
             candidates.append(init_vars[var.name])
     assert candidates
     return max(candidates, key=lambda v: v.index)
-
-def fix_phi_operations(nodes, init_vars):
-    def last_name(n, var):
-        candidates = []
-        # Todo optimize by creating a variables_ssa_written attribute
-        for ir_ssa in n.irs_ssa:
-            if isinstance(ir_ssa, OperationWithLValue):
-                lvalue = ir_ssa.lvalue
-                while isinstance(lvalue, ReferenceVariable):
-                    lvalue = lvalue.points_to
-                if lvalue and lvalue.name == var.name:
-                    candidates.append(lvalue)
-        if n.variable_declaration and n.variable_declaration.name == var.name:
-            candidates.append(LocalIRVariable(n.variable_declaration))
-        if n.type == NodeType.ENTRYPOINT:
-            if var.name in init_vars:
-                candidates.append(init_vars[var.name])
-        assert candidates
-        return max(candidates, key=lambda v: v.index)
-
-    for node in nodes:
-        for ir in node.irs_ssa:
-            if isinstance(ir, Phi) and not ir.rvalues:
-                variables = [last_name(dst, ir.lvalue) for dst in ir.nodes]
-                ir.rvalues = variables
 
 def update_lvalue(new_ir, node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances):
     if isinstance(new_ir, OperationWithLValue):
@@ -252,7 +227,11 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
             if isinstance(new_ir, Assignment):
                 if isinstance(new_ir.lvalue, LocalIRVariable):
                     if new_ir.lvalue.is_storage:
-                        new_ir.lvalue.add_points_to(new_ir.rvalue)
+                        if isinstance(new_ir.rvalue, ReferenceVariable):
+                            points_to = new_ir.rvalue.points_to_origin
+                            new_ir.lvalue.add_points_to(points_to)
+                        else:
+                            new_ir.lvalue.add_points_to(new_ir.rvalue)
 
     for ir in node.irs_ssa:
         if isinstance(ir, (Phi)) and not ir.rvalues:
@@ -525,9 +504,4 @@ def copy_ir(ir, local_variables_instances, state_variables_instances):
     logger.error('Impossible ir copy on {} ({})'.format(ir, type(ir)))
     exit(-1)
 
-def transform_localir_vars_to_ssa(function):
-    """
-        Transform slithIR vars to SSA
-    """
-    pass
 
