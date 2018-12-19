@@ -390,5 +390,6 @@ class ContractSolc04(Contract):
         for func in self.functions + self.modifiers:
             func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
 
+
     def __hash__(self):
         return self._id

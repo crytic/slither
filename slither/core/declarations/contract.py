@@ -329,6 +329,10 @@ class Contract(ChildSlither, SourceMapping):
                'transferFrom(address,address,uint256)' in full_names and\
                'approve(address,uint256)' in full_names
 
+    def update_read_write_using_ssa(self):
+        for function in self.functions + self.modifiers:
+            function.update_read_write_using_ssa()
+
     def get_summary(self):
         """ Return the function summary
 
