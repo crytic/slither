@@ -72,6 +72,14 @@ class Function(ChildContract, SourceMapping):
         return None
 
     @property
+    def type(self):
+        """
+            Return the list of return type
+            If no return, return None
+        """
+        return self.return_type
+
+    @property
     def name(self):
         """
             str: function name

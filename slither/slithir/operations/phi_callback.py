@@ -22,7 +22,7 @@ class PhiCallback(Phi):
 
     @property
     def read(self):
-        return [self.rvalues]
+        return self.rvalues
 
     @property
     def rvalues(self):
