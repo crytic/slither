@@ -42,13 +42,12 @@ def transform_slithir_vars_to_ssa(function):
     for idx in range(len(tuple_variables)):
         tuple_variables[idx].index = idx
 
-def add_ssa_ir(function, all_state_variables_instances, all_state_variables_written):
+def add_ssa_ir(function, all_state_variables_instances):
     '''
         Add SSA version of the IR
     Args:
         function
         all_state_variables_instances
-        all_state_variables_written (set(str)): canonical name of all the state variables written
     '''
 
     if not function.is_implemented:
@@ -106,6 +105,12 @@ def add_ssa_ir(function, all_state_variables_instances, all_state_variables_writ
                      all_state_variables_instances,
                      init_local_variables_instances,
                      [])
+    fix_phi_rvalues_and_storage_ref(function.entry_point,
+                     dict(init_local_variables_instances),
+                     all_init_local_variables_instances,
+                     dict(init_state_variables_instances),
+                     all_state_variables_instances,
+                     init_local_variables_instances)
 
 
 def last_name(n, var, init_vars):
@@ -188,7 +193,7 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
     if node in visited:
         return
 
-    if node.fathers and any(not father in visited for father in node.fathers):
+    if node.type in [NodeType.ENDIF, NodeType.ENDLOOP] and any(not father in visited for father in node.fathers):
         return
 
     # visited is shared
@@ -203,8 +208,14 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
         assert isinstance(ir, Phi)
         update_lvalue(ir, node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances)
 
+
+    # these variables are lived only during the liveness of the block
+    # They dont need phi function
+    temporary_variables_instances = dict()
+    reference_variables_instances = dict()
+
     for ir in node.irs:
-        new_ir = copy_ir(ir, local_variables_instances, state_variables_instances)
+        new_ir = copy_ir(ir, local_variables_instances, state_variables_instances, temporary_variables_instances, reference_variables_instances)
         update_lvalue(new_ir, node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances)
 
         if new_ir:
@@ -233,6 +244,14 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
                         else:
                             new_ir.lvalue.add_points_to(new_ir.rvalue)
 
+
+    for succ in node.dominator_successors:
+        generate_ssa_irs(succ, dict(local_variables_instances), all_local_variables_instances, dict(state_variables_instances), all_state_variables_instances, init_local_variables_instances, visited)
+
+    for dominated in node.dominance_frontier:
+        generate_ssa_irs(dominated, dict(local_variables_instances), all_local_variables_instances, dict(state_variables_instances), all_state_variables_instances, init_local_variables_instances, visited)
+
+def fix_phi_rvalues_and_storage_ref(node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances, init_local_variables_instances):
     for ir in node.irs_ssa:
         if isinstance(ir, (Phi)) and not ir.rvalues:
             variables = [last_name(dst, ir.lvalue, init_local_variables_instances) for dst in ir.nodes]
@@ -255,13 +274,10 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
                             phi_ir.rvalues = [origin]
                             node.add_ssa_ir(phi_ir)
                             update_lvalue(phi_ir, node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances)
-
-
     for succ in node.dominator_successors:
-        generate_ssa_irs(succ, dict(local_variables_instances), all_local_variables_instances, dict(state_variables_instances), all_state_variables_instances, init_local_variables_instances, visited)
+        fix_phi_rvalues_and_storage_ref(succ, dict(local_variables_instances), all_local_variables_instances, dict(state_variables_instances), all_state_variables_instances, init_local_variables_instances)
 
-    for dominated in node.dominance_frontier:
-        generate_ssa_irs(dominated, dict(local_variables_instances), all_local_variables_instances, dict(state_variables_instances), all_state_variables_instances, init_local_variables_instances, visited)
+
 
 def add_phi_origins(node, local_variables_definition, state_variables_definition):
 
@@ -294,11 +310,16 @@ def add_phi_origins(node, local_variables_definition, state_variables_definition
     for succ in node.dominator_successors:
         add_phi_origins(succ, local_variables_definition, state_variables_definition)
 
-def copy_ir(ir, local_variables_instances, state_variables_instances):
+def copy_ir(ir, local_variables_instances, state_variables_instances, temporary_variables_instances, reference_variables_instances):
     '''
     Args:
         ir (Operation)
-        variables_instances(dict(str -> Variable))
+        local_variables_instances(dict(str -> LocalVariable))
+        state_variables_instances(dict(str -> StateVariable))
+        temporary_variables_instances(dict(int -> Variable))
+        reference_variables_instances(dict(int -> Variable))
+
+    Note: temporary and reference can be indexed by int, as they dont need phi functions
     '''
 
     def get(variable):
@@ -307,15 +328,19 @@ def copy_ir(ir, local_variables_instances, state_variables_instances):
         if isinstance(variable, StateVariable) and variable.canonical_name in state_variables_instances:
             return state_variables_instances[variable.canonical_name]
         elif isinstance(variable, ReferenceVariable):
-            new_variable = ReferenceVariable(variable.node, index=variable.index)
-            if variable.points_to:
-                new_variable.points_to = get(variable.points_to)
-            new_variable.set_type(variable.type)
-            return new_variable
+            if not variable.index in reference_variables_instances:
+                new_variable = ReferenceVariable(variable.node, index=variable.index)
+                if variable.points_to:
+                    new_variable.points_to = get(variable.points_to)
+                new_variable.set_type(variable.type)
+                reference_variables_instances[variable.index] = new_variable
+            return reference_variables_instances[variable.index]
         elif isinstance(variable, TemporaryVariable):
-            new_variable = TemporaryVariable(variable.node, index=variable.index)
-            new_variable.set_type(variable.type)
-            return new_variable
+            if not variable.index in temporary_variables_instances:
+                new_variable = TemporaryVariable(variable.node, index=variable.index)
+                new_variable.set_type(variable.type)
+                temporary_variables_instances[variable.index] = new_variable
+            return temporary_variables_instances[variable.index]
         return variable
 
     def get_variable(ir, f):

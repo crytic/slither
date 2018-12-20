@@ -355,7 +355,6 @@ class ContractSolc04(Contract):
                 func.generate_slithir_and_analyze()
 
         all_ssa_state_variables_instances = dict()
-        all_state_variables_written = {v.canonical_name for v in self.all_state_variables_written}
 
         for contract in self.inheritance:
             for v in contract.variables:
@@ -372,8 +371,7 @@ class ContractSolc04(Contract):
 
         for func in self.functions + self.modifiers:
             if func.contract == self:
-                func.generate_slithir_ssa(all_ssa_state_variables_instances,
-                                          all_state_variables_written)
+                func.generate_slithir_ssa(all_ssa_state_variables_instances)
 
     def fix_phi(self):
         last_state_variables_instances = dict()

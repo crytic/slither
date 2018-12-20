@@ -58,4 +58,4 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
             return '{}_{} (-> {})'.format(self._name,
                                              self.index,
                                              [v.name for v in self.points_to])
-        return '{}_{} ({})'.format(self._name, self.index, self.location)
+        return '{}_{}'.format(self._name, self.index)
