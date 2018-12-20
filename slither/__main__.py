@@ -16,7 +16,7 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils.colors import red
-from slither.utils.command_line import output_to_markdown, output_detectors, output_printers
+from slither.utils.command_line import output_to_markdown, output_detectors, output_printers, output_detectors_json
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -384,6 +384,12 @@ def parse_args(detector_classes, printer_classes):
                         nargs=0,
                         default=False)
 
+    parser.add_argument('--list-detectors-json',
+                        help=argparse.SUPPRESS,
+                        action=ListDetectorsJson,
+                        nargs=0,
+                        default=False)
+
     parser.add_argument('--compact-ast',
                         help=argparse.SUPPRESS,
                         action='store_true',
@@ -403,6 +409,12 @@ class ListDetectors(argparse.Action):
         output_detectors(detectors)
         parser.exit()
 
+class ListDetectorsJson(argparse.Action):
+    def __call__(self, parser, *args, **kwargs):
+        detectors, _ = get_detectors_and_printers()
+        output_detectors_json(detectors)
+        parser.exit()
+
 class ListPrinters(argparse.Action):
     def __call__(self, parser, *args, **kwargs):
         _, printers = get_detectors_and_printers()
@@ -414,6 +426,7 @@ class OutputMarkdown(argparse.Action):
         detectors, printers = get_detectors_and_printers()
         output_to_markdown(detectors, printers)
         parser.exit()
+
 
 
 def choose_detectors(args, all_detector_classes):
