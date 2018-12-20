@@ -12,8 +12,10 @@ class Return(Operation):
         # ex: return call()
         # where call() dont return
         if not isinstance(values, list):
-            assert is_valid_rvalue(values) or isinstance(values, TupleVariable) or values == None
-            if not values is None:
+            assert is_valid_rvalue(values) or isinstance(values, TupleVariable) or values is None
+            if values is None:
+                values = []
+            else:
                 values = [values]
         else:
             for value in values:
