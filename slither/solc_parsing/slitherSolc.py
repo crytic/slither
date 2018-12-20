@@ -9,6 +9,7 @@ from slither.solc_parsing.declarations.contract import ContractSolc04
 from slither.core.slither_core import Slither
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.import_directive import Import
+from slither.analyses.data_depencency.data_depency import compute_dependency
 
 class SlitherSolc(Slither):
 
@@ -190,6 +191,8 @@ class SlitherSolc(Slither):
 
         self._convert_to_slithir()
 
+        compute_dependency(self)
+
     # TODO refactor the following functions, and use a lambda function
 
     @property
@@ -317,3 +320,4 @@ class SlitherSolc(Slither):
             contract.fix_phi()
             contract.update_read_write_using_ssa()
 
+        

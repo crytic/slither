@@ -21,9 +21,18 @@ class Phi(OperationWithLValue):
         self._rvalues = []
         self._nodes = nodes
 
+    def _unroll(self, l):
+        ret = []
+        for x in l:
+            if not isinstance(x, list):
+                ret += [x]
+            else:
+                ret += self._unroll(x)
+        return ret
+
     @property
     def read(self):
-        return [self.rvalues]
+        return self.rvalues
 
     @property
     def rvalues(self):

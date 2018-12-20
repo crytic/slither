@@ -909,11 +909,11 @@ class FunctionSolc(Function):
         self._analyze_read_write()
         self._analyze_calls()
 
-    def generate_slithir_ssa(self, all_ssa_state_variables_instances, all_written_state_variables):
+    def generate_slithir_ssa(self, all_ssa_state_variables_instances):
         compute_dominators(self.nodes)
         compute_dominance_frontier(self.nodes)
         transform_slithir_vars_to_ssa(self)
-        add_ssa_ir(self, all_ssa_state_variables_instances, all_written_state_variables)
+        add_ssa_ir(self, all_ssa_state_variables_instances)
 
     def update_read_write_using_ssa(self):
         for node in self.nodes:
