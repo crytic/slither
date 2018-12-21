@@ -846,33 +846,49 @@ class FunctionSolc(Function):
             return dict()
         last_instances = dict()
 
-        def explore(node, visited, values):
-            if node in visited:
-                return dict()
-            visited = visited + [node]
-            # Todo optimize by creating a variables_ssa_written attribute
-            # Do not consider phi operation on entry point
-            # As valid last ssa variable, we want to catch only state variables written
-            # In the function
+        # node, values 
+        to_explore = [(self._entry_point, dict())]
+        # node -> values
+        explored = dict()
+        # name -> instances
+        ret = dict()
+
+        while to_explore:
+            node, values = to_explore[0]
+            to_explore = to_explore[1::]
+
+            # Return condition
+            if not node.sons and node.type != NodeType.THROW:
+                for name, instances in values.items():
+                    if name not in ret:
+                        ret[name] = set()
+                    ret[name] |= instances
+
             if node.type != NodeType.ENTRYPOINT:
                 for ir_ssa in node.irs_ssa:
                     if isinstance(ir_ssa, OperationWithLValue):
                         lvalue = ir_ssa.lvalue
-                        while isinstance(lvalue, ReferenceVariable):
-                            lvalue = lvalue.points_to
+                        if isinstance(lvalue, ReferenceVariable):
+                            lvalue = lvalue.points_to_origin
                         if isinstance(lvalue, StateVariable):
-                            values[lvalue.canonical_name] = [lvalue]
+                            values[lvalue.canonical_name] = {lvalue}
 
-            if len(node.sons) == 0 and node.type != NodeType.THROW:
-                return values
-            merge_sons = dict()
+            # Check for fixpoint
+            if node in explored:
+                if values == explored[node]:
+                    continue
+                for k, instances in values.items():
+                    if not k in explored[node]:
+                        explored[node][k] = set()
+                    explored[node][k] |= instances
+                values = explored[node]
+            else:
+                explored[node] = values
+
             for son in node.sons:
-                for name, instances in explore(son, visited, dict(values)).items():
-                    if not name in merge_sons:
-                        merge_sons[name] = []
-                    merge_sons[name] += instances
-            return merge_sons
-        return explore(self.entry_point, [], dict())
+                to_explore.append((son, dict(values)))
+
+        return ret
 
     @staticmethod
     def _unchange_phi(ir):
