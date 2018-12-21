@@ -1,5 +1,6 @@
 
 from .variable import SlithIRVariable
+from .temporary import TemporaryVariable
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.children.child_node import ChildNode
 
@@ -49,7 +50,9 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
         self._points_to = variables
 
     def add_points_to(self, variable):
-        assert isinstance(variable, SlithIRVariable)
+        # It is a temporaryVariable if its the return of a new ..
+        # ex: string[] memory dynargs = new string[](1);
+        assert isinstance(variable, (SlithIRVariable, TemporaryVariable))
         self._points_to.add(variable)
 
     @property
