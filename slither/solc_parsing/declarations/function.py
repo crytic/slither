@@ -910,7 +910,7 @@ class FunctionSolc(Function):
                     if isinstance(callee_ir, InternalCall):
                         last_ssa = callee_ir.function.get_last_ssa_state_variables_instances()
                         if ir.lvalue.canonical_name in last_ssa:
-                            ir.rvalues = last_ssa[ir.lvalue.canonical_name]
+                            ir.rvalues = list(last_ssa[ir.lvalue.canonical_name])
                         else:
                             ir.rvalues = [ir.lvalue]
                     else:
