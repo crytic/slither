@@ -128,6 +128,7 @@ def last_name(n, var, init_vars):
     if n.type == NodeType.ENTRYPOINT:
         if var.name in init_vars:
             candidates.append(init_vars[var.name])
+    print(n)
     assert candidates
     return max(candidates, key=lambda v: v.index)
 
@@ -207,6 +208,8 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
 
     if node.variable_declaration:
         new_var = LocalIRVariable(node.variable_declaration)
+        if new_var.name in all_local_variables_instances:
+                new_var.index = all_local_variables_instances[new_var.name].index + 1
         local_variables_instances[node.variable_declaration.name] = new_var
         all_local_variables_instances[node.variable_declaration.name] = new_var
 
@@ -221,8 +224,19 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
     reference_variables_instances = dict()
 
     for ir in node.irs:
-        new_ir = copy_ir(ir, local_variables_instances, state_variables_instances, temporary_variables_instances, reference_variables_instances)
-        update_lvalue(new_ir, node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances)
+        new_ir = copy_ir(ir,
+                         local_variables_instances,
+                         state_variables_instances,
+                         temporary_variables_instances,
+                         reference_variables_instances,
+                         all_local_variables_instances)
+
+        update_lvalue(new_ir,
+                      node,
+                      local_variables_instances,
+                      all_local_variables_instances,
+                      state_variables_instances,
+                      all_state_variables_instances)
 
         if new_ir:
 
@@ -259,6 +273,7 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
 
 def fix_phi_rvalues_and_storage_ref(node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances, init_local_variables_instances):
     for ir in node.irs_ssa:
+        print(ir)
         if isinstance(ir, (Phi)) and not ir.rvalues:
             variables = [last_name(dst, ir.lvalue, init_local_variables_instances) for dst in ir.nodes]
             ir.rvalues = variables
@@ -316,7 +331,7 @@ def add_phi_origins(node, local_variables_definition, state_variables_definition
     for succ in node.dominator_successors:
         add_phi_origins(succ, local_variables_definition, state_variables_definition)
 
-def copy_ir(ir, local_variables_instances, state_variables_instances, temporary_variables_instances, reference_variables_instances):
+def copy_ir(ir, local_variables_instances, state_variables_instances, temporary_variables_instances, reference_variables_instances, all_local_variables_instances):
     '''
     Args:
         ir (Operation)
@@ -329,8 +344,13 @@ def copy_ir(ir, local_variables_instances, state_variables_instances, temporary_
     '''
 
     def get(variable):
-        if isinstance(variable, LocalVariable) and variable.name in local_variables_instances:
-            return local_variables_instances[variable.name]
+        if isinstance(variable, LocalVariable):
+            if variable.name in local_variables_instances:
+                return local_variables_instances[variable.name]
+            new_var = LocalIRVariable(variable)
+            local_variables_instances[variable.name] = new_var
+            all_local_variables_instances[variable.name] = new_var
+            return new_var
         if isinstance(variable, StateVariable) and variable.canonical_name in state_variables_instances:
             return state_variables_instances[variable.canonical_name]
         elif isinstance(variable, ReferenceVariable):
