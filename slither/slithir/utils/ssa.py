@@ -62,7 +62,7 @@ def add_ssa_ir(function, all_state_variables_instances):
     # The state variable is used
     # And if the state variables is written in another function (otherwise its stay at index 0)
     for (_, variable_instance) in all_state_variables_instances.items():
-        if is_used_later(function.entry_point, variable_instance, []):
+        if is_used_later(function.entry_point, variable_instance):
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
@@ -73,7 +73,7 @@ def add_ssa_ir(function, all_state_variables_instances):
         for (variable, nodes) in node.phi_origins_local_variables.values():
             if len(nodes)<2:
                 continue
-            if not is_used_later(node, variable, []):
+            if not is_used_later(node, variable):
                 continue
             node.add_ssa_ir(Phi(LocalIRVariable(variable), nodes))
         for (variable, nodes) in node.phi_origins_state_variables.values():
@@ -163,7 +163,7 @@ def update_lvalue(new_ir, node, local_variables_instances, all_local_variables_i
                     to_update = to_update.points_to
                 to_update.points_to = new_var
 
-def is_used_later(node, variable, visited):
+def is_used_later(initial_node, variable):
     # TODO: does not handle the case where its read and written in the declaration node
     # It can be problematic if this happens in a loop/if structure
     # Ex:
@@ -172,21 +172,27 @@ def is_used_later(node, variable, visited):
     #     uint a = a;
     #    }
     #     ..
-    if node in visited:
-        return False
-    # shared visited
-    visited.append(node)
-    if isinstance(variable, LocalVariable):
-        if any(v.name == variable.name for v in node.local_variables_read):
-            return True
-        if any(v.name == variable.name for v in node.local_variables_written):
-            return False
-    if isinstance(variable, StateVariable):
-        if any(v.name == variable.name and v.contract == variable.contract for v in node.state_variables_read):
-            return True
-        if any(v.name == variable.name and v.contract == variable.contract for v in node.state_variables_written):
-            return False
-    return any(is_used_later(son, variable, visited) for son in node.sons)
+    to_explore = {initial_node}
+    explored = set()
+
+    while to_explore:
+        node = to_explore.pop()
+        explored.add(node)
+        if isinstance(variable, LocalVariable):
+            if any(v.name == variable.name for v in node.local_variables_read):
+                return True
+            if any(v.name == variable.name for v in node.local_variables_written):
+                return False
+        if isinstance(variable, StateVariable):
+            if any(v.name == variable.name and v.contract == variable.contract for v in node.state_variables_read):
+                return True
+            if any(v.name == variable.name and v.contract == variable.contract for v in node.state_variables_written):
+                return False
+        for son in node.sons:
+            if not son in explored:
+                to_explore.add(son)
+
+    return False
 
 def generate_ssa_irs(node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances, init_local_variables_instances, visited):
 
@@ -225,7 +231,7 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
                 if isinstance(ir, LibraryCall):
                     continue
                 for variable in all_state_variables_instances.values():
-                    if not is_used_later(node, variable, []):
+                    if not is_used_later(node, variable):
                         continue
                     new_var = StateIRVariable(variable)
                     new_var.index = all_state_variables_instances[variable.canonical_name].index + 1

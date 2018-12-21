@@ -31,16 +31,18 @@ def compute_dominators(nodes):
 
     # compute immediate dominator
     for node in nodes:
-        all_dom = []
+        idom_candidates = set(node.dominators)
+        idom_candidates.remove(node)
+
         for dominator in node.dominators:
-            doms = list(dominator.dominators)
-            doms.remove(dominator)
-            all_dom = all_dom + doms
-        idom = [d for d in all_dom if all_dom.count(d) == 1]
-        assert len(idom)<=1
-        if idom:
-            node.immediate_dominator = idom[0]
-            idom[0].dominator_successors.add(node)
+            if dominator != node:
+                [idom_candidates.remove(d) for d in dominator.dominators if d in idom_candidates and d!=dominator]
+
+        assert len(idom_candidates)<=1
+        if idom_candidates:
+            idom = idom_candidates.pop()
+            node.immediate_dominator = idom
+            idom.dominator_successors.add(node)
 
 
 
