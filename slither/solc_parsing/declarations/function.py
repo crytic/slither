@@ -857,12 +857,16 @@ class FunctionSolc(Function):
         if node.type == NodeType.VARIABLE:
             assert isinstance(true_expr, AssignmentOperation)
             #true_expr = true_expr.expression_right
+        elif node.type == NodeType.RETURN:
+            true_node.type = NodeType.RETURN
         true_node.add_expression(true_expr)
         true_node.analyze_expressions(self)
 
         false_node = self._new_node(NodeType.EXPRESSION, node.source_mapping)
         if node.type == NodeType.VARIABLE:
             assert isinstance(false_expr, AssignmentOperation)
+        elif node.type == NodeType.RETURN:
+            false_node.type = NodeType.RETURN
             #false_expr = false_expr.expression_right
         false_node.add_expression(false_expr)
         false_node.analyze_expressions(self)
