@@ -5,7 +5,7 @@
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.slithir.operations import (HighLevelCall, LowLevelCall, Send,
-                                        Transfer)
+                                        Transfer, NewContract)
 
 
 class LockedEther(AbstractDetector):
@@ -28,7 +28,7 @@ class LockedEther(AbstractDetector):
                 return False
             for node in function.nodes:
                 for ir in node.irs:
-                    if isinstance(ir, (Send, Transfer, HighLevelCall, LowLevelCall)):
+                    if isinstance(ir, (Send, Transfer, HighLevelCall, LowLevelCall, NewContract)):
                         if ir.call_value and ir.call_value != 0:
                             return False
                     if isinstance(ir, (LowLevelCall)):
