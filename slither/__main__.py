@@ -76,16 +76,17 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
         logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
         return ([], 0)
 
-    filenames = glob.glob(os.path.join(dirname,'build','contracts', '*.json'))
+    filenames = glob.glob(os.path.join(dirname, 'build', 'contracts', '*.json'))
 
+    return process_files(filenames, args, detector_classes, printer_classes)
+
+def process_files(filenames, args, detector_classes, printer_classes):
     all_contracts = []
-    all_filenames = []
 
     for filename in filenames:
         with open(filename) as f:
             contract_loaded = json.load(f)
             all_contracts.append(contract_loaded['ast'])
-            all_filenames.append(contract_loaded['sourcePath'])
 
     slither = Slither(all_contracts, args.solc, args.disable_solc_warnings, args.solc_args)
     return _process(slither, detector_classes, printer_classes)
@@ -240,14 +241,17 @@ def main_impl(all_detector_classes, all_printer_classes):
         elif os.path.isdir(filename) or len(globbed_filenames) > 0:
             extension = "*.sol" if not args.solc_ast else "*.json"
             filenames = glob.glob(os.path.join(filename, extension))
-            if len(filenames) == 0:
+            if not filenames:
                 filenames = globbed_filenames
             number_contracts = 0
             results = []
-            for filename in filenames:
-                (results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
-                number_contracts += number_contracts_tmp
-                results += results_tmp
+            if args.splitted and args.solc_ast:
+                (results, number_contracts) = process_files(filenames, args, detector_classes, printer_classes)
+            else:
+                for filename in filenames:
+                    (results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
+                    number_contracts += number_contracts_tmp
+                    results += results_tmp
 
 
         else:
@@ -391,6 +395,12 @@ def parse_args(detector_classes, printer_classes):
                         default=False)
 
     parser.add_argument('--compact-ast',
+                        help=argparse.SUPPRESS,
+                        action='store_true',
+                        default=False)
+
+    # if the json is splitted in different files
+    parser.add_argument('--splitted',
                         help=argparse.SUPPRESS,
                         action='store_true',
                         default=False)
