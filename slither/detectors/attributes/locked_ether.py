@@ -50,7 +50,7 @@ class LockedEther(AbstractDetector):
                     txt += "\tContract {} has payable functions:\n".format(contract.name)
                     for function in funcs_payable:
                         txt += "\t - {} ({})\n".format(function.name, function.source_mapping_str)
-                    txt += "\tBut has not function to withdraw the ether\n"
+                    txt += "\tBut does not have a function to withdraw the ether\n"
                     info = txt.format(self.filename,
                                       contract.name,
                                       [f.name for f in funcs_payable])
