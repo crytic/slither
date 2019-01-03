@@ -52,7 +52,7 @@ class LowLevelCall(Call, OperationWithLValue):
     def read(self):
         all_read = [self.destination, self.call_gas, self.call_value] + self.arguments
         # remove None
-        return [x for x in all_read if x]
+        return self._unroll([x for x in all_read if x])
 
     @property
     def destination(self):
