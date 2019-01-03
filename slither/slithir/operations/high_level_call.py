@@ -58,16 +58,7 @@ class HighLevelCall(Call, OperationWithLValue):
 
     @property
     def read(self):
-        # if array inside the parameters
-        def unroll(l):
-            ret = []
-            for x in l:
-                if not isinstance(x, list):
-                    ret += [x]
-                else:
-                    ret += unroll(x)
-            return ret
-        all_read = [self.destination, self.call_gas, self.call_value] + unroll(self.arguments)
+        all_read = [self.destination, self.call_gas, self.call_value] + self._unroll(self.arguments)
         # remove None
         return [x for x in all_read if x]
 

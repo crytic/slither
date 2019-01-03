@@ -15,3 +15,12 @@ class Call(Operation):
     def arguments(self, v):
         self._arguments = v
 
+    # if array inside the parameters
+    def _unroll(self, l):
+        ret = []
+        for x in l:
+            if not isinstance(x, list):
+                ret += [x]
+            else:
+                ret += self._unroll(x)
+        return ret

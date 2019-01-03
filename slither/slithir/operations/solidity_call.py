@@ -16,7 +16,7 @@ class SolidityCall(Call, OperationWithLValue):
 
     @property
     def read(self):
-        return list(self.arguments)
+        return self._unroll(self.arguments)
 
     @property
     def function(self):
