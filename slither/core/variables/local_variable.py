@@ -13,7 +13,6 @@ class LocalVariable(ChildFunction, Variable):
         super(LocalVariable, self).__init__()
         self._location = None
 
-
     def set_location(self, loc):
         self._location = loc
 
@@ -50,3 +49,4 @@ class LocalVariable(ChildFunction, Variable):
             return isinstance(self.type.type, Structure)
 
         return False
+
