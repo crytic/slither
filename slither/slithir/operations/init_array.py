@@ -21,16 +21,6 @@ class InitArray(OperationWithLValue):
         self._init_values = init_values
         self._lvalue = lvalue
 
-    # if array inside the init values
-    def _unroll(self, l):
-        ret = []
-        for x in l:
-            if not isinstance(x, list):
-                ret += [x]
-            else:
-                ret += self._unroll(x)
-        return ret
-
     @property
     def read(self):
         return self._unroll(self.init_values)
