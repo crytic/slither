@@ -29,7 +29,7 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
 
         # Additional field
         # points to state variables
-        self._points_to = set()
+        self._refers_to = set()
 
     @property
     def index(self):
@@ -40,25 +40,25 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
         self._index = idx
 
     @property
-    def points_to(self):
+    def refers_to(self):
         if self.is_storage:
-            return self._points_to
+            return self._refers_to
         return set()
 
-    @points_to.setter
-    def points_to(self, variables):
-        self._points_to = variables
+    @refers_to.setter
+    def refers_to(self, variables):
+        self._refers_to = variables
 
-    def add_points_to(self, variable):
+    def add_refers_to(self, variable):
         # It is a temporaryVariable if its the return of a new ..
         # ex: string[] memory dynargs = new string[](1);
         assert isinstance(variable, (SlithIRVariable, TemporaryVariable))
-        self._points_to.add(variable)
+        self._refers_to.add(variable)
 
     @property
     def ssa_name(self):
         if self.is_storage:
             return '{}_{} (-> {})'.format(self._name,
                                              self.index,
-                                             [v.name for v in self.points_to])
+                                             [v.name for v in self.refers_to])
         return '{}_{}'.format(self._name, self.index)

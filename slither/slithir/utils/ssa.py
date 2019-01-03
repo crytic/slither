@@ -91,7 +91,7 @@ def add_ssa_ir(function, all_state_variables_instances):
                 fake_variable = LocalIRVariable(v)
                 fake_variable.name = 'STORAGE_'+fake_variable.name
                 fake_variable.set_location('reference_to_storage')
-                new_var.points_to = {fake_variable}
+                new_var.refers_to = {fake_variable}
                 init_local_variables_instances[fake_variable.name] = fake_variable
             init_local_variables_instances[v.name] = new_var
     all_init_local_variables_instances = dict(init_local_variables_instances)
@@ -105,12 +105,13 @@ def add_ssa_ir(function, all_state_variables_instances):
                      all_state_variables_instances,
                      init_local_variables_instances,
                      [])
+
     fix_phi_rvalues_and_storage_ref(function.entry_point,
-                     dict(init_local_variables_instances),
-                     all_init_local_variables_instances,
-                     dict(init_state_variables_instances),
-                     all_state_variables_instances,
-                     init_local_variables_instances)
+                                    dict(init_local_variables_instances),
+                                    all_init_local_variables_instances,
+                                    dict(init_state_variables_instances),
+                                    all_state_variables_instances,
+                                    init_local_variables_instances)
 
 
 def last_name(n, var, init_vars):
@@ -209,7 +210,7 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
     if node.variable_declaration:
         new_var = LocalIRVariable(node.variable_declaration)
         if new_var.name in all_local_variables_instances:
-                new_var.index = all_local_variables_instances[new_var.name].index + 1
+            new_var.index = all_local_variables_instances[new_var.name].index + 1
         local_variables_instances[node.variable_declaration.name] = new_var
         all_local_variables_instances[node.variable_declaration.name] = new_var
 
@@ -241,6 +242,7 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
         if new_ir:
 
             node.add_ssa_ir(new_ir)
+
             if isinstance(ir, (InternalCall, HighLevelCall, InternalDynamicCall, LowLevelCall)):
                 if isinstance(ir, LibraryCall):
                     continue
@@ -259,17 +261,29 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
                 if isinstance(new_ir.lvalue, LocalIRVariable):
                     if new_ir.lvalue.is_storage:
                         if isinstance(new_ir.rvalue, ReferenceVariable):
-                            points_to = new_ir.rvalue.points_to_origin
-                            new_ir.lvalue.add_points_to(points_to)
+                            refers_to = new_ir.rvalue.points_to_origin
+                            new_ir.lvalue.add_refers_to(refers_to)
                         else:
-                            new_ir.lvalue.add_points_to(new_ir.rvalue)
+                            new_ir.lvalue.add_refers_to(new_ir.rvalue)
 
 
     for succ in node.dominator_successors:
-        generate_ssa_irs(succ, dict(local_variables_instances), all_local_variables_instances, dict(state_variables_instances), all_state_variables_instances, init_local_variables_instances, visited)
+        generate_ssa_irs(succ,
+                         dict(local_variables_instances),
+                         all_local_variables_instances,
+                         dict(state_variables_instances),
+                         all_state_variables_instances,
+                         init_local_variables_instances,
+                         visited)
 
     for dominated in node.dominance_frontier:
-        generate_ssa_irs(dominated, dict(local_variables_instances), all_local_variables_instances, dict(state_variables_instances), all_state_variables_instances, init_local_variables_instances, visited)
+        generate_ssa_irs(dominated,
+                         dict(local_variables_instances),
+                         all_local_variables_instances,
+                         dict(state_variables_instances),
+                         all_state_variables_instances,
+                         init_local_variables_instances,
+                         visited)
 
 def fix_phi_rvalues_and_storage_ref(node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances, init_local_variables_instances):
     for ir in node.irs_ssa:
@@ -280,9 +294,9 @@ def fix_phi_rvalues_and_storage_ref(node, local_variables_instances, all_local_v
         if isinstance(ir, (Phi, PhiCallback)):
             if isinstance(ir.lvalue, LocalIRVariable):
                 if ir.lvalue.is_storage:
-                    l = [v.points_to for v in ir.rvalues]
+                    l = [v.refers_to for v in ir.rvalues]
                     l = [item for sublist in l for item in sublist]
-                    ir.lvalue.points_to = set(l)
+                    ir.lvalue.refers_to = set(l)
 
         if isinstance(ir, Assignment):
             if isinstance(ir.lvalue, ReferenceVariable):
@@ -290,8 +304,8 @@ def fix_phi_rvalues_and_storage_ref(node, local_variables_instances, all_local_v
 
                 if isinstance(origin, LocalIRVariable):
                     if origin.is_storage:
-                        for points_to in origin.points_to:
-                            phi_ir = Phi(points_to, {node})
+                        for refers_to in origin.refers_to:
+                            phi_ir = Phi(refers_to, {node})
                             phi_ir.rvalues = [origin]
                             node.add_ssa_ir(phi_ir)
                             update_lvalue(phi_ir, node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances)
