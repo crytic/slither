@@ -15,15 +15,15 @@ from slither.slithir.operations import (HighLevelCall, LowLevelCall,
                                         LibraryCall,
                                         Send, Transfer)
 
-class Reentrancy(AbstractDetector):
+class ReentrancyEth(AbstractDetector):
     ARGUMENT = 'reentrancy'
-    HELP = 'Reentrancy vulnerabilities'
+    HELP = 'Reentrancy vulnerabilities (theft of ethers)'
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities'
 
-    key = 'REENTRANCY'
+    key = 'REENTRANCY-ETHERS'
 
     @staticmethod
     def _can_callback(node):
@@ -55,7 +55,7 @@ class Reentrancy(AbstractDetector):
                     return True
         return False
 
-    def _check_on_call_returned(self, node):
+    def _filter_if(self, node):
         """
             Check if the node is a condtional node where
             there is an external call checked
@@ -69,7 +69,7 @@ class Reentrancy(AbstractDetector):
         return isinstance(node.expression, UnaryOperation)\
             and node.expression.type == UnaryOperationType.BANG
 
-    def _explore(self, node, visited):
+    def _explore(self, node, visited, skip_father=None):
         """
             Explore the CFG and look for re-entrancy
             Heuristic: There is a re-entrancy if a state variable is written
@@ -93,8 +93,8 @@ class Reentrancy(AbstractDetector):
 
         for father in node.fathers:
             if self.key in father.context:
-                fathers_context['send_eth'] += father.context[self.key]['send_eth']
-                fathers_context['calls'] += father.context[self.key]['calls']
+                fathers_context['send_eth'] += [s for s in father.context[self.key]['send_eth'] if s!=skip_father]
+                fathers_context['calls'] += [c for c in father.context[self.key]['calls'] if c!=skip_father]
                 fathers_context['read'] += father.context[self.key]['read']
 
         # Exclude path that dont bring further information
@@ -147,8 +147,16 @@ class Reentrancy(AbstractDetector):
             self.result[finding_key] = list(set(self.result[finding_key] + finding_vars))
 
         sons = node.sons
-        if contains_call and self._check_on_call_returned(node):
-            sons = sons[1:]
+        if contains_call and node.type in [NodeType.IF, NodeType.IFLOOP]:
+            if self._filter_if(node):
+                son = sons[0]
+                self._explore(son, visited, node)
+                sons = sons[1:]
+            else:
+                son = sons[1]
+                self._explore(son, visited, node)
+                sons = [sons[0]]
+
 
         for son in sons:
             self._explore(son, visited)
