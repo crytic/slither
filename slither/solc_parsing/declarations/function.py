@@ -617,6 +617,10 @@ class FunctionSolc(Function):
         if node.type == NodeType.ENDLOOP:
             return node
 
+        # nested loop
+        if node.type == NodeType.STARTLOOP:
+            return None
+
         visited = visited + [node]
         for son in node.sons:
             ret = self._find_end_loop(son, visited)
