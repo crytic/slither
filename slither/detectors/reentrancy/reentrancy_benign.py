@@ -15,15 +15,15 @@ from slither.slithir.operations import (HighLevelCall, LowLevelCall,
                                         LibraryCall,
                                         Send, Transfer)
 
-class ReentrancyEth(AbstractDetector):
-    ARGUMENT = 'reentrancy-eth'
-    HELP = 'Reentrancy vulnerabilities (theft of ethers)'
-    IMPACT = DetectorClassification.HIGH
+class ReentrancyBenign(AbstractDetector):
+    ARGUMENT = 'reentrancy-benign'
+    HELP = 'Benign reentrancy vulnerabilities'
+    IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities'
 
-    key = 'REENTRANCY-ETHERS'
+    key = 'REENTRANCY-BENIGN'
 
     @staticmethod
     def _can_callback(node):
@@ -128,20 +128,19 @@ class ReentrancyEth(AbstractDetector):
             if isinstance(internal_call, Function):
                 state_vars_written += internal_call.all_state_variables_written()
 
-        read_then_written = [(v, node) for v in state_vars_written if v in node.context[self.key]['read']]
+        not_read_then_written = [(v, node) for v in state_vars_written if v not in node.context[self.key]['read']]
 
         node.context[self.key]['read'] = list(set(node.context[self.key]['read'] + node.state_variables_read))
         # If a state variables was read and is then written, there is a dangerous call and
         # ether were sent
         # We found a potential re-entrancy bug
-        if (read_then_written and
+        if (not_read_then_written and
                 node.context[self.key]['calls'] and
-                node.context[self.key]['send_eth']):
+                not node.context[self.key]['send_eth']):
             # calls are ordered
             finding_key = (node.function,
-                           tuple(set(node.context[self.key]['calls'])),
-                           tuple(set(node.context[self.key]['send_eth'])))
-            finding_vars = read_then_written
+                           tuple(set(node.context[self.key]['calls'])))
+            finding_vars = not_read_then_written
             if finding_key not in self.result:
                 self.result[finding_key] = []
             self.result[finding_key] = list(set(self.result[finding_key] + finding_vars))
@@ -186,33 +185,19 @@ class ReentrancyEth(AbstractDetector):
         results = []
 
         result_sorted = sorted(list(self.result.items()), key=lambda x:x[0][0].name)
-        for (func, calls, send_eth), varsWritten in result_sorted:
+        for (func, calls), varsWritten in result_sorted:
             calls = list(set(calls))
-            send_eth = list(set(send_eth))
-#            if calls == send_eth:
-#                calls_info = 'Call: {},'.format(calls_str)
-#            else:
-#                calls_info = 'Call: {}, Ether sent: {},'.format(calls_str, send_eth_str)
             info = 'Reentrancy in {}.{} ({}):\n'
             info = info.format(func.contract.name, func.name, func.source_mapping_str)
             info += '\tExternal calls:\n'
             for call_info in calls:
                 info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
-            if calls != send_eth:
-                info += '\tExternal calls sending eth:\n'
-                for call_info in send_eth:
-                    info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
             info += '\tState variables written after the call(s):\n'
             for (v, node) in varsWritten:
                 info +=  '\t- {} ({})\n'.format(v, node.source_mapping_str)
             self.log(info)
 
             sending_eth_json = []
-            if calls != send_eth:
-                sending_eth_json = [{'type' : 'external_calls_sending_eth',
-                                     'expression': str(call_info.expression),
-                                     'source_mapping': call_info.source_mapping}
-                                    for call_info in send_eth]
 
             json = self.generate_json_result(info)
             self.add_function_to_json(func, json)
