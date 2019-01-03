@@ -156,12 +156,23 @@ def propage_type_and_convert_call(result, node):
         new_ins = propagate_types(ins, node)
         if new_ins:
             if isinstance(new_ins, (list,)):
-                assert len(new_ins) == 2
-                new_ins[0].set_node(ins.node)
-                new_ins[1].set_node(ins.node)
-                result.insert(idx, new_ins[0])
-                result.insert(idx+1, new_ins[1])
-                idx = idx + 1 
+                if len(new_ins) == 2:
+                    new_ins[0].set_node(ins.node)
+                    new_ins[1].set_node(ins.node)
+                    del result[idx]
+                    result.insert(idx, new_ins[0])
+                    result.insert(idx+1, new_ins[1])
+                    idx = idx + 1
+                else:
+                    assert len(new_ins) == 3
+                    new_ins[0].set_node(ins.node)
+                    new_ins[1].set_node(ins.node)
+                    new_ins[2].set_node(ins.node)
+                    del result[idx]
+                    result.insert(idx, new_ins[0])
+                    result.insert(idx+1, new_ins[1])
+                    result.insert(idx+2, new_ins[2])
+                    idx = idx + 2
             else:
                 new_ins.set_node(ins.node)
                 result[idx] = new_ins
@@ -220,8 +231,12 @@ def convert_to_push(ir, node):
     The checks must be done by the caller
 
     May necessitate to create an intermediate operation (InitArray)
+    Necessitate to return the lenght (see push documentation)
     As a result, the function return may return a list
     """
+
+
+    lvalue = ir.lvalue
     if isinstance(ir.arguments[0], list):
         ret = []
 
@@ -236,9 +251,25 @@ def convert_to_push(ir, node):
         ir.lvalue.set_type(ArrayType(t, length))
 
         ret.append(ir)
+
+        if lvalue:
+            length = Length(ir.array, lvalue)
+            length.lvalue.points_to = ir.lvalue
+            ret.append(length)
+
         return ret
 
     ir = Push(ir.destination, ir.arguments[0])
+
+    if lvalue:
+        ret = []
+        ret.append(ir)
+
+        length = Length(ir.array, lvalue)
+        length.lvalue.points_to = ir.lvalue
+        ret.append(length)
+        return ret
+
     return ir
 
 def look_for_library(contract, ir, node, using_for, t):
@@ -472,11 +503,11 @@ def propagate_types(ir, node):
                 assert False
             elif isinstance(ir, Member):
                 # TODO we should convert the reference to a temporary if the member is a length or a balance
-                if ir.variable_right == 'length' and isinstance(ir.variable_left.type, (ElementaryType, ArrayType)):
+                if ir.variable_right == 'length' and not isinstance(ir.variable_left, Contract) and isinstance(ir.variable_left.type, (ElementaryType, ArrayType)):
                     length = Length(ir.variable_left, ir.lvalue)
                     ir.lvalue.points_to = ir.variable_left
                     return ir
-                if ir.variable_right == 'balance' and isinstance(ir.variable_left.type, ElementaryType):
+                if ir.variable_right == 'balance'and not isinstance(ir.variable_left, Contract)  and isinstance(ir.variable_left.type, ElementaryType):
                     return Balance(ir.variable_left, ir.lvalue)
                 left = ir.variable_left
                 if isinstance(left, (Variable, SolidityVariable)):
