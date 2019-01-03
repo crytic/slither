@@ -168,6 +168,7 @@ def get_detectors_and_printers():
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
     from slither.printers.summary.slithir import PrinterSlithIR
     from slither.printers.summary.human_summary import PrinterHumanSummary
+    from slither.printers.functions.cfg import CFG
 
     printers = [FunctionSummary,
                 ContractSummary,
@@ -176,7 +177,8 @@ def get_detectors_and_printers():
                 PrinterCallGraph,
                 PrinterWrittenVariablesAndAuthorization,
                 PrinterSlithIR,
-                PrinterHumanSummary]
+                PrinterHumanSummary,
+                CFG]
 
     # Handle plugins!
     for entry_point in iter_entry_points(group='slither_analyzer.plugin', name=None):
