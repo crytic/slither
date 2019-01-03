@@ -5,7 +5,7 @@
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.slithir.operations import (HighLevelCall, LowLevelCall, Send,
-                                        Transfer)
+                                        Transfer, NewContract)
 
 
 class LockedEther(AbstractDetector):
@@ -28,7 +28,7 @@ class LockedEther(AbstractDetector):
                 return False
             for node in function.nodes:
                 for ir in node.irs:
-                    if isinstance(ir, (Send, Transfer, HighLevelCall, LowLevelCall)):
+                    if isinstance(ir, (Send, Transfer, HighLevelCall, LowLevelCall, NewContract)):
                         if ir.call_value and ir.call_value != 0:
                             return False
                     if isinstance(ir, (LowLevelCall)):
@@ -50,7 +50,7 @@ class LockedEther(AbstractDetector):
                     txt += "\tContract {} has payable functions:\n".format(contract.name)
                     for function in funcs_payable:
                         txt += "\t - {} ({})\n".format(function.name, function.source_mapping_str)
-                    txt += "\tBut has not function to withdraw the ether\n"
+                    txt += "\tBut does not have a function to withdraw the ether\n"
                     info = txt.format(self.filename,
                                       contract.name,
                                       [f.name for f in funcs_payable])
