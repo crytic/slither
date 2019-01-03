@@ -18,14 +18,20 @@ class Return(Operation):
             else:
                 values = [values]
         else:
-            for value in values:
-                assert is_valid_rvalue(value) or isinstance(value, TupleVariable)
+            self._valid_value(values)
         super(Return, self).__init__()
         self._values = values
 
+    def _valid_value(self, value):
+        if isinstance(value, list):
+            assert all(self._valid_value(v) for v in value)
+        else:
+            assert is_valid_rvalue(value) or isinstance(value, TupleVariable)
+        return True
+
     @property
     def read(self):
-        return self.values
+        return self._unroll(self.values)
 
     @property
     def values(self):
