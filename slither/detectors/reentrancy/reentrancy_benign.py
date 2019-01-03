@@ -135,11 +135,11 @@ class ReentrancyBenign(AbstractDetector):
         # ether were sent
         # We found a potential re-entrancy bug
         if (not_read_then_written and
-                node.context[self.key]['calls'] and
-                not node.context[self.key]['send_eth']):
+                node.context[self.key]['calls']):
             # calls are ordered
             finding_key = (node.function,
-                           tuple(set(node.context[self.key]['calls'])))
+                           tuple(set(node.context[self.key]['calls'])),
+                           tuple(set(node.context[self.key]['send_eth'])))
             finding_vars = not_read_then_written
             if finding_key not in self.result:
                 self.result[finding_key] = []
@@ -185,19 +185,29 @@ class ReentrancyBenign(AbstractDetector):
         results = []
 
         result_sorted = sorted(list(self.result.items()), key=lambda x:x[0][0].name)
-        for (func, calls), varsWritten in result_sorted:
+        for (func, calls, send_eth), varsWritten in result_sorted:
             calls = list(set(calls))
+            send_eth = list(set(send_eth))
             info = 'Reentrancy in {}.{} ({}):\n'
             info = info.format(func.contract.name, func.name, func.source_mapping_str)
             info += '\tExternal calls:\n'
             for call_info in calls:
                 info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
+            if calls != send_eth:
+                info += '\tExternal calls sending eth:\n'
+                for call_info in send_eth:
+                    info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
             info += '\tState variables written after the call(s):\n'
             for (v, node) in varsWritten:
                 info +=  '\t- {} ({})\n'.format(v, node.source_mapping_str)
             self.log(info)
 
             sending_eth_json = []
+            if calls != send_eth:
+                sending_eth_json = [{'type' : 'external_calls_sending_eth',
+                                     'expression': str(call_info.expression),
+                                     'source_mapping': call_info.source_mapping}
+                                    for call_info in send_eth]
 
             json = self.generate_json_result(info)
             self.add_function_to_json(func, json)
