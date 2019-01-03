@@ -236,6 +236,10 @@ class Node(SourceMapping, ChildFunction):
         """
         return self._node_type
 
+    @type.setter
+    def type(self, t):
+        self._node_type = t
+
     @property
     def variables_read(self):
         """
