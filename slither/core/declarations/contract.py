@@ -163,17 +163,6 @@ class Contract(ChildSlither, SourceMapping):
         '''
         return self.functions_not_inherited + self.modifiers_not_inherited
 
-    def get_functions_overridden_by(self, function):
-        '''
-            Return the list of functions overriden by the function
-        Args:
-            (core.Function)
-        Returns:
-            list(core.Function)
-
-        '''
-        candidates = self.functions_inherited
-        return [f for f in candidates if f.name == function]
 
     @property
     def all_functions_called(self):
