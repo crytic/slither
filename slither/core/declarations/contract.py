@@ -69,6 +69,14 @@ class Contract(ChildSlither, SourceMapping):
         self._inheritance = inheritance
 
     @property
+    def derived_contracts(self):
+        '''
+            list(Contract): Return the list of contracts derived from self
+        '''
+        candidates = self.slither.contracts
+        return [c for c in candidates if self in c.inheritance]
+
+    @property
     def structures(self):
         '''
             list(Structure): List of the structures
@@ -163,6 +171,18 @@ class Contract(ChildSlither, SourceMapping):
         '''
         return self.functions_not_inherited + self.modifiers_not_inherited
 
+    def get_functions_overridden_by(self, function):
+        '''
+            Return the list of functions overriden by the function
+        Args:
+            (core.Function)
+        Returns:
+            list(core.Function)
+
+        '''
+        candidates = [c.functions_not_inherited for c in self.inheritance]
+        candidates = [candidate for sublist in candidates for candidate in sublist]
+        return [f for f in candidates if f.full_name == function.full_name]
 
     @property
     def all_functions_called(self):
