@@ -129,7 +129,6 @@ def last_name(n, var, init_vars):
     if n.type == NodeType.ENTRYPOINT:
         if var.name in init_vars:
             candidates.append(init_vars[var.name])
-    print(n)
     assert candidates
     return max(candidates, key=lambda v: v.index)
 
@@ -287,7 +286,6 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
 
 def fix_phi_rvalues_and_storage_ref(node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances, init_local_variables_instances):
     for ir in node.irs_ssa:
-        print(ir)
         if isinstance(ir, (Phi)) and not ir.rvalues:
             variables = [last_name(dst, ir.lvalue, init_local_variables_instances) for dst in ir.nodes]
             ir.rvalues = variables
