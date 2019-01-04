@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+//pragma solidity ^0.4.24;
 
 import "./external_function_test_2.sol";
 
@@ -31,8 +31,8 @@ contract ContractWithFunctionNotCalled {
 contract ContractWithFunctionNotCalled2 is ContractWithFunctionCalledSuper {
     function funcNotCalled() public {
         uint256 i = 0;
-        address three = new ContractWithFunctionNotCalled();
-        three.call(bytes4(keccak256("helloTwo()")));
+        address three = address(new ContractWithFunctionNotCalled());
+        three.call(abi.encode(bytes4(keccak256("helloTwo()"))));
         super.callWithSuper();
         ContractWithFunctionCalled c = new ContractWithFunctionCalled();
         c.funcCalled();

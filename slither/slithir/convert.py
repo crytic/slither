@@ -2,7 +2,7 @@ import logging
 
 from slither.core.declarations import (Contract, Enum, Event, SolidityFunction,
                                        Structure, SolidityVariableComposed, Function, SolidityVariable)
-from slither.core.expressions import Identifier, Literal
+from slither.core.expressions import Identifier, Literal, TupleExpression
 from slither.core.solidity_types import ElementaryType, UserDefinedType, MappingType, ArrayType, FunctionType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Call,
@@ -156,12 +156,23 @@ def propage_type_and_convert_call(result, node):
         new_ins = propagate_types(ins, node)
         if new_ins:
             if isinstance(new_ins, (list,)):
-                assert len(new_ins) == 2
-                new_ins[0].set_node(ins.node)
-                new_ins[1].set_node(ins.node)
-                result.insert(idx, new_ins[0])
-                result.insert(idx+1, new_ins[1])
-                idx = idx + 1 
+                if len(new_ins) == 2:
+                    new_ins[0].set_node(ins.node)
+                    new_ins[1].set_node(ins.node)
+                    del result[idx]
+                    result.insert(idx, new_ins[0])
+                    result.insert(idx+1, new_ins[1])
+                    idx = idx + 1
+                else:
+                    assert len(new_ins) == 3
+                    new_ins[0].set_node(ins.node)
+                    new_ins[1].set_node(ins.node)
+                    new_ins[2].set_node(ins.node)
+                    del result[idx]
+                    result.insert(idx, new_ins[0])
+                    result.insert(idx+1, new_ins[1])
+                    result.insert(idx+2, new_ins[2])
+                    idx = idx + 2
             else:
                 new_ins.set_node(ins.node)
                 result[idx] = new_ins
@@ -220,8 +231,12 @@ def convert_to_push(ir, node):
     The checks must be done by the caller
 
     May necessitate to create an intermediate operation (InitArray)
+    Necessitate to return the lenght (see push documentation)
     As a result, the function return may return a list
     """
+
+
+    lvalue = ir.lvalue
     if isinstance(ir.arguments[0], list):
         ret = []
 
@@ -236,9 +251,25 @@ def convert_to_push(ir, node):
         ir.lvalue.set_type(ArrayType(t, length))
 
         ret.append(ir)
+
+        if lvalue:
+            length = Length(ir.array, lvalue)
+            length.lvalue.points_to = ir.lvalue
+            ret.append(length)
+
         return ret
 
     ir = Push(ir.destination, ir.arguments[0])
+
+    if lvalue:
+        ret = []
+        ret.append(ir)
+
+        length = Length(ir.array, lvalue)
+        length.lvalue.points_to = ir.lvalue
+        ret.append(length)
+        return ret
+
     return ir
 
 def look_for_library(contract, ir, node, using_for, t):
@@ -362,17 +393,20 @@ def convert_type_of_high_level_call(ir, contract):
             return_type = return_type[0]
     else:
         # otherwise its a variable (getter)
-        if isinstance(func.type, MappingType):
-            # iterate over the lenght of arguments
-            # ex:
-            #   mapping ( uint => mapping ( uint => uint)) my_var
-            # is accessed through  contract.my_var(0,0)
+        # If its a mapping or a array
+        # we iterate until we find the final type
+        # mapping and array can be mixed together
+        # ex:
+        #    mapping ( uint => mapping ( uint => uint)) my_var
+        #    mapping(uint => uint)[] test;p
+        if isinstance(func.type, (MappingType, ArrayType)):
             tmp = func.type
-            for _ in range(len(ir.arguments)):
-                tmp = tmp.type_to
+            while isinstance(tmp, (MappingType, ArrayType)):
+                if isinstance(tmp, MappingType):
+                    tmp = tmp.type_to
+                else:
+                    tmp = tmp.type
             return_type = tmp
-        elif isinstance(func.type, ArrayType):
-            return_type = func.type.type
         else:
             return_type = func.type
     if return_type:
@@ -469,11 +503,11 @@ def propagate_types(ir, node):
                 assert False
             elif isinstance(ir, Member):
                 # TODO we should convert the reference to a temporary if the member is a length or a balance
-                if ir.variable_right == 'length' and isinstance(ir.variable_left.type, (ElementaryType, ArrayType)):
+                if ir.variable_right == 'length' and not isinstance(ir.variable_left, Contract) and isinstance(ir.variable_left.type, (ElementaryType, ArrayType)):
                     length = Length(ir.variable_left, ir.lvalue)
                     ir.lvalue.points_to = ir.variable_left
                     return ir
-                if ir.variable_right == 'balance' and isinstance(ir.variable_left.type, ElementaryType):
+                if ir.variable_right == 'balance'and not isinstance(ir.variable_left, Contract)  and isinstance(ir.variable_left.type, ElementaryType):
                     return Balance(ir.variable_left, ir.lvalue)
                 left = ir.variable_left
                 if isinstance(left, (Variable, SolidityVariable)):
@@ -664,18 +698,15 @@ def convert_expression(expression, node):
     # handle standlone expression
     # such as return true;
     from slither.core.cfg.node import NodeType
-    if isinstance(expression, Literal) and node.type == NodeType.RETURN:
-        result =  [Return(Constant(expression.value))]
-        return result
-    if isinstance(expression, Identifier) and node.type == NodeType.RETURN:
-        result =  [Return(expression.value)]
-        return result
+
     if isinstance(expression, Literal) and node.type in [NodeType.IF, NodeType.IFLOOP]:
         result =  [Condition(Constant(expression.value))]
         return result
     if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
         result =  [Condition(expression.value)]
         return result
+
+
     visitor = ExpressionToSlithIR(expression, node)
     result = visitor.result()
 

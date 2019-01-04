@@ -58,7 +58,7 @@ class TxOrigin(AbstractDetector):
 
                 self.log(info)
 
-                json = self.generate_json_result()
+                json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)
                 self.add_nodes_to_json(nodes, json)
                 results.append(json)

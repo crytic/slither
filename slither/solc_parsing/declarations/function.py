@@ -79,6 +79,10 @@ class FunctionSolc(Function):
         if 'isConstructor' in attributes:
             self._is_constructor = attributes['isConstructor']
 
+        if 'kind' in attributes:
+            if attributes['kind'] == 'constructor':
+                self._is_constructor = True
+
         if 'visibility' in attributes:
             self._visibility = attributes['visibility']
         # old solc
@@ -304,10 +308,9 @@ class FunctionSolc(Function):
         node_endDoWhile = self._new_node(NodeType.ENDLOOP, doWhilestatement['src'])
 
         link_nodes(node, node_startDoWhile)
-        link_nodes(node_startDoWhile, statement)
+        link_nodes(node_startDoWhile, node_condition.sons[0])
         link_nodes(statement, node_condition)
         link_nodes(node_condition, node_endDoWhile)
-
         return node_endDoWhile
 
     def _parse_variable_definition(self, statement, node):
@@ -614,6 +617,10 @@ class FunctionSolc(Function):
         if node.type == NodeType.ENDLOOP:
             return node
 
+        # nested loop
+        if node.type == NodeType.STARTLOOP:
+            return None
+
         visited = visited + [node]
         for son in node.sons:
             ret = self._find_end_loop(son, visited)
@@ -804,11 +811,12 @@ class FunctionSolc(Function):
                 if child[self.get_key()] == 'Block':
                     self._is_implemented = True
                     self._parse_cfg(child)
-                    continue
-
-                assert child[self.get_key()] == 'ModifierInvocation'
-
-                self._parse_modifier(child)
+    
+            # Parse modifier after parsing all the block
+            # In the case a local variable is used in the modifier
+            for child in children[2:]:
+                if child[self.get_key()] == 'ModifierInvocation':
+                    self._parse_modifier(child)
 
         for local_vars in self.variables:
             local_vars.analyze(self)
@@ -853,12 +861,16 @@ class FunctionSolc(Function):
         if node.type == NodeType.VARIABLE:
             assert isinstance(true_expr, AssignmentOperation)
             #true_expr = true_expr.expression_right
+        elif node.type == NodeType.RETURN:
+            true_node.type = NodeType.RETURN
         true_node.add_expression(true_expr)
         true_node.analyze_expressions(self)
 
         false_node = self._new_node(NodeType.EXPRESSION, node.source_mapping)
         if node.type == NodeType.VARIABLE:
             assert isinstance(false_expr, AssignmentOperation)
+        elif node.type == NodeType.RETURN:
+            false_node.type = NodeType.RETURN
             #false_expr = false_expr.expression_right
         false_node.add_expression(false_expr)
         false_node.analyze_expressions(self)

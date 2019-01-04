@@ -52,11 +52,14 @@ class NamingConvention(AbstractDetector):
                                                                         contract.source_mapping_str)
                 all_info += info
 
-                results.append({'check': self.ARGUMENT,
-                                'type': 'contract',
-                                'convention':'CapWords',
-                                'name':{'name': contract.name,
-                                        'source_mapping': contract.source_mapping}})
+                json = self.generate_json_result(info)
+                elem = dict()
+                elem['target'] = 'contract'
+                elem['convention'] = 'CapWords'
+                elem['name'] = contract.name
+                elem['source_mapping'] = contract.source_mapping
+                json['elements'] = [elem]
+                results.append(json)
 
             for struct in contract.structures:
                 if struct.contract != contract:
@@ -67,13 +70,14 @@ class NamingConvention(AbstractDetector):
                     info = info.format(struct.contract.name, struct.name, struct.source_mapping_str)
                     all_info += info
 
-
-                    results.append({'check': self.ARGUMENT,
-                                    'type': 'structure',
-                                    'convention':'CapWords',
-                                    'name':{'name': struct.name,
-                                            'source_mapping': struct.source_mapping}})
-
+                    json = self.generate_json_result(info)
+                    elem = dict()
+                    elem['target'] = 'structure'
+                    elem['convention'] = 'CapWords'
+                    elem['name'] = struct.name
+                    elem['source_mapping'] = struct.source_mapping
+                    json['elements'] = [elem]
+                    results.append(json)
             for event in contract.events:
                 if event.contract != contract:
                     continue
@@ -83,12 +87,14 @@ class NamingConvention(AbstractDetector):
                     info = info.format(event.contract.name, event.name, event.source_mapping_str)
                     all_info += info
 
-
-                    results.append({'check': self.ARGUMENT,
-                                    'type': 'event',
-                                    'convention':'CapWords',
-                                    'name':{'name': event.name,
-                                            'source_mapping': event.source_mapping}})
+                    json = self.generate_json_result(info)
+                    elem = dict()
+                    elem['target'] = 'event'
+                    elem['convention'] = 'CapWords'
+                    elem['name'] = event.name
+                    elem['source_mapping'] = event.source_mapping
+                    json['elements'] = [elem]
+                    results.append(json)
 
             for func in contract.functions:
                 if func.contract != contract:
@@ -99,11 +105,14 @@ class NamingConvention(AbstractDetector):
                     info = info.format(func.contract.name, func.name, func.source_mapping_str)
                     all_info += info
 
-                    results.append({'check': self.ARGUMENT,
-                                    'type': 'function',
-                                    'convention':'mixedCase',
-                                    'name':{'name': func.name,
-                                            'source_mapping': func.source_mapping}})
+                    json = self.generate_json_result(info)
+                    elem = dict()
+                    elem['target'] = 'function'
+                    elem['convention'] = 'mixedCase'
+                    elem['name'] = func.name
+                    elem['source_mapping'] = func.source_mapping
+                    json['elements'] = [elem]
+                    results.append(json)
 
                 for argument in func.parameters:
                     if argument in func.variables_read_or_written:
@@ -118,11 +127,14 @@ class NamingConvention(AbstractDetector):
                                            argument.source_mapping_str)
                         all_info += info
 
-                        results.append({'check': self.ARGUMENT,
-                                        'type': 'parameter',
-                                        'convention':'mixedCase',
-                                        'name':{'name': argument.name,
-                                                'source_mapping': argument.source_mapping}})
+                        json = self.generate_json_result(info)
+                        elem = dict()
+                        elem['target'] = 'parameter'
+                        elem['convention'] = 'mixedCase'
+                        elem['name'] = argument.name
+                        elem['source_mapping'] = argument.source_mapping
+                        json['elements'] = [elem]
+                        results.append(json)
 
             for var in contract.state_variables:
                 if var.contract != contract:
@@ -134,11 +146,14 @@ class NamingConvention(AbstractDetector):
                         info = info.format(var.contract.name, var.name, var.source_mapping_str)
                         all_info += info
 
-                        results.append({'check': self.ARGUMENT,
-                                        'type': 'variable',
-                                        'convention':'l_O_I_should_not_be_used',
-                                        'name':{'name': var.name,
-                                                'source_mapping': var.source_mapping}})
+                        json = self.generate_json_result(info)
+                        elem = dict()
+                        elem['target'] = 'variable'
+                        elem['convention'] = 'l_O_I_should_not_be_used'
+                        elem['name'] = var.name
+                        elem['source_mapping'] = var.source_mapping
+                        json['elements'] = [elem]
+                        results.append(json)
 
                 if var.is_constant is True:
                     # For ERC20 compatibility
@@ -150,11 +165,15 @@ class NamingConvention(AbstractDetector):
                         info = info.format(var.contract.name, var.name, var.source_mapping_str)
                         all_info += info
 
-                        results.append({'check': self.ARGUMENT,
-                                        'type': 'variable_constant',
-                                        'convention':'UPPER_CASE_WITH_UNDERSCORES',
-                                        'name':{'name': var.name,
-                                                'source_mapping': var.source_mapping}})
+                        json = self.generate_json_result(info)
+                        elem = dict()
+                        elem['target'] = 'variable_constant'
+                        elem['convention'] = 'UPPER_CASE_WITH_UNDERSCORES'
+                        elem['name'] = var.name
+                        elem['source_mapping'] = var.source_mapping
+                        json['elements'] = [elem]
+                        results.append(json)
+
                 else:
                     if var.visibility == 'private':
                         correct_naming = self.is_mixed_case_with_underscore(var.name)
@@ -165,11 +184,14 @@ class NamingConvention(AbstractDetector):
                         info = info.format(var.contract.name, var.name, var.source_mapping_str)
                         all_info += info
 
-                        results.append({'check': self.ARGUMENT,
-                                        'type': 'variable',
-                                        'convention':'mixedCase',
-                                        'name':{'name': var.name,
-                                                'source_mapping': var.source_mapping}})
+                        json = self.generate_json_result(info)
+                        elem = dict()
+                        elem['target'] = 'variable'
+                        elem['convention'] = 'mixedCase'
+                        elem['name'] = var.name
+                        elem['source_mapping'] = var.source_mapping
+                        json['elements'] = [elem]
+                        results.append(json)
 
             for enum in contract.enums:
                 if enum.contract != contract:
@@ -180,11 +202,15 @@ class NamingConvention(AbstractDetector):
                     info = info.format(enum.contract.name, enum.name, enum.source_mapping_str)
                     all_info += info
 
-                    results.append({'check': self.ARGUMENT,
-                                    'type': 'enum',
-                                    'convention':'CapWords',
-                                    'name':{'name': enum.name,
-                                            'source_mapping': enum.source_mapping}})
+                    json = self.generate_json_result(info)
+                    elem = dict()
+                    elem['target'] = 'enum'
+                    elem['convention'] = 'CapWords'
+                    elem['name'] = enum.name
+                    elem['source_mapping'] = enum.source_mapping
+                    json['elements'] = [elem]
+                    results.append(json)
+
 
             for modifier in contract.modifiers:
                 if modifier.contract != contract:
@@ -197,11 +223,15 @@ class NamingConvention(AbstractDetector):
                                        modifier.source_mapping_str)
                     all_info += info
 
-                    results.append({'check': self.ARGUMENT,
-                                    'type': 'modifier',
-                                    'convention':'mixedCase',
-                                    'name':{'name': modifier.name,
-                                            'source_mapping': modifier.source_mapping}})
+                    json = self.generate_json_result(info)
+                    elem = dict()
+                    elem['target'] = 'modifier'
+                    elem['convention'] = 'mixedCase'
+                    elem['name'] = modifier.name
+                    elem['source_mapping'] = modifier.source_mapping
+                    json['elements'] = [elem]
+                    results.append(json)
+
         if all_info != '':
             self.log(all_info)
 

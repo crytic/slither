@@ -74,15 +74,15 @@ class UninitializedLocalVars(AbstractDetector):
 
         for contract in self.slither.contracts:
             for function in contract.functions:
-                if function.is_implemented:
+                if function.is_implemented and function.contract == contract:
                     if function.contains_assembly:
                         continue
                     # dont consider storage variable, as they are detected by another detector
                     uninitialized_local_variables = [v for v in function.local_variables if not v.is_storage and v.uninitialized]
                     function.entry_point.context[self.key] = uninitialized_local_variables
                     self._detect_uninitialized(function, function.entry_point, [])
-
-        for(function, uninitialized_local_variable) in self.results:
+        all_results = list(set(self.results))
+        for(function, uninitialized_local_variable) in all_results:
             var_name = uninitialized_local_variable.name
 
             info = "{} in {}.{} ({}) is a local variable never initialiazed\n"
@@ -93,7 +93,7 @@ class UninitializedLocalVars(AbstractDetector):
 
             self.log(info)
 
-            json = self.generate_json_result()
+            json = self.generate_json_result(info)
             self.add_variable_to_json(uninitialized_local_variable, json)
             self.add_function_to_json(function, json)
             results.append(json)

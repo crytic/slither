@@ -17,7 +17,7 @@ from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither_solidity import Slither as SlitherSolidity
 from slither.slither_vyper import Slither as SlitherVyper
 from slither.utils.colors import red
-from slither.utils.command_line import output_to_markdown, output_detectors, output_printers
+from slither.utils.command_line import output_to_markdown, output_detectors, output_printers, output_detectors_json
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -73,7 +73,7 @@ def _process(slither, detector_classes, printer_classes):
     return results, analyzed_contracts_count
 
 def process_truffle(dirname, args, detector_classes, printer_classes):
-    cmd = ['truffle','compile']
+    cmd =  ['npx',args.truffle_version,'compile'] if args.truffle_version else ['truffle','compile']
     logger.info('truffle compile running...')
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -90,16 +90,17 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
         logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
         return ([], 0)
 
-    filenames = glob.glob(os.path.join(dirname,'build','contracts', '*.json'))
+    filenames = glob.glob(os.path.join(dirname, 'build', 'contracts', '*.json'))
 
+    return process_files(filenames, args, detector_classes, printer_classes)
+
+def process_files(filenames, args, detector_classes, printer_classes):
     all_contracts = []
-    all_filenames = []
 
     for filename in filenames:
         with open(filename) as f:
             contract_loaded = json.load(f)
             all_contracts.append(contract_loaded['ast'])
-            all_filenames.append(contract_loaded['sourcePath'])
 
     slither = SlitherSolidity(all_contracts, args.solc, args.disable_solc_warnings, args.solc_args)
     return _process(slither, detector_classes, printer_classes)
@@ -141,6 +142,11 @@ def get_detectors_and_printers():
     from slither.detectors.functions.external_function import ExternalFunction
     from slither.detectors.statements.controlled_delegatecall import ControlledDelegateCall
     from slither.detectors.attributes.const_functions import ConstantFunctions
+    from slither.detectors.shadowing.abstract import ShadowingAbstractDetection
+    from slither.detectors.shadowing.state import StateShadowing
+    from slither.detectors.operations.block_timestamp import Timestamp
+    from slither.detectors.statements.calls_in_loop import MultipleCallsInLoop
+
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -162,7 +168,11 @@ def get_detectors_and_printers():
                  UnusedReturnValues,
                  ExternalFunction,
                  ControlledDelegateCall,
-                 ConstantFunctions]
+                 ConstantFunctions,
+                 ShadowingAbstractDetection,
+                 StateShadowing,
+                 Timestamp,
+                 MultipleCallsInLoop]
 
     from slither.printers.summary.function import FunctionSummary
     from slither.printers.summary.contract import ContractSummary
@@ -172,6 +182,7 @@ def get_detectors_and_printers():
     from slither.printers.functions.authorization import PrinterWrittenVariablesAndAuthorization
     from slither.printers.summary.slithir import PrinterSlithIR
     from slither.printers.summary.human_summary import PrinterHumanSummary
+    from slither.printers.functions.cfg import CFG
 
     printers = [FunctionSummary,
                 ContractSummary,
@@ -180,7 +191,8 @@ def get_detectors_and_printers():
                 PrinterCallGraph,
                 PrinterWrittenVariablesAndAuthorization,
                 PrinterSlithIR,
-                PrinterHumanSummary]
+                PrinterHumanSummary,
+                CFG]
 
     # Handle plugins!
     for entry_point in iter_entry_points(group='slither_analyzer.plugin', name=None):
@@ -249,14 +261,17 @@ def main_impl(all_detector_classes, all_printer_classes):
         elif os.path.isdir(filename) or len(globbed_filenames) > 0:
             extension = "*.sol" if not args.solc_ast else "*.json"
             filenames = glob.glob(os.path.join(filename, extension))
-            if len(filenames) == 0:
+            if not filenames:
                 filenames = globbed_filenames
             number_contracts = 0
             results = []
-            for filename in filenames:
-                (results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
-                number_contracts += number_contracts_tmp
-                results += results_tmp
+            if args.splitted and args.solc_ast:
+                (results, number_contracts) = process_files(filenames, args, detector_classes, printer_classes)
+            else:
+                for filename in filenames:
+                    (results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
+                    number_contracts += number_contracts_tmp
+                    results += results_tmp
 
 
         else:
@@ -374,6 +389,10 @@ def parse_args(detector_classes, printer_classes):
                             help='Export results as JSON',
                             action='store',
                             default=None)
+    group_misc.add_argument('--truffle-version',
+                            help='Use a local Truffle version (with npx)',
+                            action='store',
+                            default=False)
 
 
 
@@ -389,7 +408,19 @@ def parse_args(detector_classes, printer_classes):
                         nargs=0,
                         default=False)
 
+    parser.add_argument('--list-detectors-json',
+                        help=argparse.SUPPRESS,
+                        action=ListDetectorsJson,
+                        nargs=0,
+                        default=False)
+
     parser.add_argument('--compact-ast',
+                        help=argparse.SUPPRESS,
+                        action='store_true',
+                        default=False)
+
+    # if the json is splitted in different files
+    parser.add_argument('--splitted',
                         help=argparse.SUPPRESS,
                         action='store_true',
                         default=False)
@@ -408,6 +439,12 @@ class ListDetectors(argparse.Action):
         output_detectors(detectors)
         parser.exit()
 
+class ListDetectorsJson(argparse.Action):
+    def __call__(self, parser, *args, **kwargs):
+        detectors, _ = get_detectors_and_printers()
+        output_detectors_json(detectors)
+        parser.exit()
+
 class ListPrinters(argparse.Action):
     def __call__(self, parser, *args, **kwargs):
         _, printers = get_detectors_and_printers()
@@ -419,6 +456,7 @@ class OutputMarkdown(argparse.Action):
         detectors, printers = get_detectors_and_printers()
         output_to_markdown(detectors, printers)
         parser.exit()
+
 
 
 def choose_detectors(args, all_detector_classes):

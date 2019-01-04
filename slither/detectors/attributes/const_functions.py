@@ -35,10 +35,10 @@ class ConstantFunctions(AbstractDetector):
                         info = '{}.{} ({}) is declared {} but contains assembly code\n'
                         info = info.format(f.contract.name, f.name, f.source_mapping_str, attr)
                         self.log(info)
-                        json = self.generate_json_result()
+                        json = self.generate_json_result(info)
                         self.add_function_to_json(f, json)
-                        json['variables'] = []
-                        json['contains_assembly'] = True
+                        json['elements'] = [{'type': 'info',
+                                             'contains_assembly' : True}]
                         results.append(json)
 
                     variables_written = f.all_state_variables_written()
@@ -52,10 +52,11 @@ class ConstantFunctions(AbstractDetector):
                         self.log(info)
 
 
-                        json = self.generate_json_result()
+                        json = self.generate_json_result(info)
                         self.add_function_to_json(f, json)
                         self.add_variables_to_json(variables_written, json)
-                        json['contains_assembly'] = False
+                        json['elements'].append({'type': 'info',
+                                                  'contains_assembly' : False})
                         results.append(json)
 
         return results
