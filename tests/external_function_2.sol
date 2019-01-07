@@ -28,11 +28,11 @@ contract ContractWithDynamicCall {
         return 2;
     }
 
-    function set_test1() external{
+    function setTest1() external{
         ptr = test1;
     }
 
-    function set_test2() external{
+    function setTest2() external{
         ptr = test2;
     }
 
@@ -46,7 +46,7 @@ contract DerivesFromDynamicCall is ContractWithDynamicCall{
         // This should not be recommended because it is called dynamically.
         return 3;
     }
-    function set_test3() public {
+    function setTest3() public {
         // This should not be recommended because we inherit from a contract that calls dynamically, and we cannot be
         // sure it did not somehow call this function.
 
