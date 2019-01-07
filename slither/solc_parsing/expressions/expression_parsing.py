@@ -240,30 +240,31 @@ def filter_name(value):
 def convert_subdenomination(value, sub):
     if sub is None:
         return value
-    value = int(value)
+    # to allow 0.1 ether conversion
+    value = float(value)
     if sub == 'wei':
-        return value
+        return int(value)
     if sub == 'szabo':
-        return value * int(1e12)
+        return int(value * int(1e12))
     if sub == 'finney':
-        return value * int(1e15)
+        return int(value * int(1e15))
     if sub == 'ether':
-        return value * int(1e18)
+        return int(value * int(1e18))
     if sub == 'seconds':
-        return value
+        return int(value)
     if sub == 'minutes':
-        return value * 60
+        return int(value * 60)
     if sub == 'hours':
-        return value * 60 * 60
+        return int(value * 60 * 60)
     if sub == 'days':
-        return value * 60 * 60 * 24
+        return int(value * 60 * 60 * 24)
     if sub == 'weeks':
-        return value * 60 * 60 * 24 * 7
+        return int(value * 60 * 60 * 24 * 7)
     if sub == 'years':
-        return value * 60 * 60 * 24 * 7 * 365
+        return int(value * 60 * 60 * 24 * 7 * 365)
 
     logger.error('Subdemoniation not found {}'.format(sub))
-    return value
+    return int(value)
 
 def parse_expression(expression, caller_context):
     """
