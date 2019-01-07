@@ -1,4 +1,4 @@
-//pragma solidity ^0.4.24;
+// This file is imported by external_function.sol
 
 contract ContractWithFunctionCalled {
     function funcCalled() external  {
