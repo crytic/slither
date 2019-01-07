@@ -10,6 +10,8 @@ from slither.core.slither_core import Slither
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.import_directive import Import
 
+from slither.utils.colors import red
+
 class SlitherSolc(Slither):
 
     def __init__(self, filename):
@@ -157,11 +159,18 @@ class SlitherSolc(Slither):
         for contract in self._contractsNotParsed:
             # remove the first elem in linearizedBaseContracts as it is the contract itself
             fathers = []
-            for i in contract.linearizedBaseContracts[1:]:
-                if i in contract.remapping:
-                    fathers.append(self.get_contract_from_name(contract.remapping[i]))
-                else:
-                    fathers.append(self._contracts_by_id[i])
+            try:
+                for i in contract.linearizedBaseContracts[1:]:
+                    if i in contract.remapping:
+                        fathers.append(self.get_contract_from_name(contract.remapping[i]))
+                    else:
+                        fathers.append(self._contracts_by_id[i])
+            except KeyError:
+                logger.error(red('A contract was not find, it is likely that your codebase contains muliple contracts with the same name'))
+                logger.error(red('Truffle does not handle this case during compilation'))
+                logger.error(red('Please read https://github.com/trailofbits/slither/wiki#keyerror-or-nonetype-error'))
+                logger.error(red('And update your code to remove the dupplicate'))
+                exit(-1)
             contract.setInheritance(fathers)
 
         contracts_to_be_analyzed = self.contracts
