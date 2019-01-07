@@ -143,7 +143,7 @@ class ExternalFunction(AbstractDetector):
                 sources_with_dynamic_calls = set(all_possible_sources) & dynamic_call_contracts
                 if sources_with_dynamic_calls:
                     functions_in_dynamic_call_sources = set([f for dyn_contract in sources_with_dynamic_calls
-                                                             for f in dyn_contract if not f.is_constructor])
+                                                             for f in dyn_contract.functions if not f.is_constructor])
                     completed_functions = completed_functions.union(functions_in_dynamic_call_sources)
                     continue
 
