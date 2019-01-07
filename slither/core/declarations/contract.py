@@ -71,6 +71,14 @@ class Contract(ChildSlither, SourceMapping):
         self._inheritance = inheritance
 
     @property
+    def derived_contracts(self):
+        '''
+            list(Contract): Return the list of contracts derived from self
+        '''
+        candidates = self.slither.contracts
+        return [c for c in candidates if self in c.inheritance]
+
+    @property
     def structures(self):
         '''
             list(Structure): List of the structures
@@ -87,12 +95,6 @@ class Contract(ChildSlither, SourceMapping):
     def enums_as_dict(self):
         return self._enums
 
-    @property
-    def modifiers(self):
-        '''
-            list(Modifier): List of the modifiers
-        '''
-        return list(self._modifiers.values())
 
     def modifiers_as_dict(self):
         return self._modifiers
@@ -114,6 +116,75 @@ class Contract(ChildSlither, SourceMapping):
             list(Function): List of the inherited functions
         '''
         return [f for f in self.functions if f.contract != self]
+
+    @property
+    def functions_not_inherited(self):
+        '''
+            list(Function): List of the functions defined within the contract (not inherited)
+        '''
+        return [f for f in self.functions if f.contract == self]
+
+    @property
+    def functions_entry_points(self):
+        '''
+            list(Functions): List of public and external functions
+        '''
+        return [f for f in self.functions if f.visibility in ['public', 'external']]
+
+    @property
+    def modifiers(self):
+        '''
+            list(Modifier): List of the modifiers
+        '''
+        return list(self._modifiers.values())
+
+    @property
+    def modifiers_inherited(self):
+        '''
+            list(Modifier): List of the inherited modifiers
+        '''
+        return [m for m in self.modifiers if m.contract != self]
+
+    @property
+    def modifiers_not_inherited(self):
+        '''
+            list(Modifier): List of the modifiers defined within the contract (not inherited)
+        '''
+        return [m for m in self.modifiers if m.contract == self]
+
+    @property
+    def functions_and_modifiers(self):
+        '''
+            list(Function|Modifier): List of the functions and modifiers
+        '''
+        return self.functions + self.modifiers
+
+    @property
+    def functions_and_modifiers_inherited(self):
+        '''
+            list(Function|Modifier): List of the inherited functions and modifiers
+        '''
+        return self.functions_inherited + self.modifiers_inherited
+
+    @property
+    def functions_and_modifiers_not_inherited(self):
+        '''
+            list(Function|Modifier): List of the functions and modifiers defined within the contract (not inherited)
+        '''
+        return self.functions_not_inherited + self.modifiers_not_inherited
+
+    def get_functions_overridden_by(self, function):
+        '''
+            Return the list of functions overriden by the function
+        Args:
+            (core.Function)
+        Returns:
+            list(core.Function)
+
+        '''
+        candidates = [c.functions_not_inherited for c in self.inheritance]
+        candidates = [candidate for sublist in candidates for candidate in sublist]
+        return [f for f in candidates if f.full_name == function.full_name]
 
     @property
     def all_functions_called(self):

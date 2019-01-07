@@ -327,6 +327,18 @@ class Function(ChildContract, SourceMapping):
         name, parameters, _ = self.signature
         return name+'('+','.join(parameters)+')'
 
+    @property
+    def functions_shadowed(self):
+        '''
+            Return the list of functions shadowed
+        Returns:
+            list(core.Function)
+
+        '''
+        candidates = [c.functions_not_inherited for c in self.contract.inheritance]
+        candidates = [candidate for sublist in candidates for candidate in sublist]
+        return [f for f in candidates if f.full_name == self.full_name]
+
 
     @property
     def slither(self):

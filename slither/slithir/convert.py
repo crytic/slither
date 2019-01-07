@@ -316,10 +316,19 @@ def get_type(t):
     return str(t)
 
 def get_sig(ir):
+    '''
+        Return a list of potential signature
+        It is a list, as Constant variables can be converted to int256
+    Args:
+        ir (slithIR.operation)
+    Returns:
+        list(str)
+    '''
     sig = '{}({})'
     name = ir.function_name
 
-    args = []
+    # list of list of arguments
+    argss = [[]]
     for arg in ir.arguments:
         if isinstance(arg, (list,)):
             type_arg = '{}[{}]'.format(get_type(arg[0].type), len(arg))
@@ -327,14 +336,31 @@ def get_sig(ir):
             type_arg = arg.signature_str
         else:
             type_arg = get_type(arg.type)
-        args.append(type_arg)
-    return sig.format(name, ','.join(args))
+        if isinstance(arg, Constant) and arg.type == ElementaryType('uint256'):
+            # If it is a constant
+            # We dupplicate the existing list
+            # And we add uint256 and int256 cases
+            # There is no potential collision, as the compiler
+            # Prevent it with a 
+            # "not unique after argument-dependent loopkup" issue
+            argss_new = [list(args) for args in argss]
+            for args in argss:
+                args.append(str(ElementaryType('uint256')))
+            for args in argss_new:
+                args.append(str(ElementaryType('int256')))
+            argss = argss + argss_new
+        else:
+            for args in argss:
+                args.append(type_arg)
+    return [sig.format(name, ','.join(args)) for args in argss]
 
 def convert_type_library_call(ir, lib_contract):
-    sig = get_sig(ir)
-    func = lib_contract.get_function_from_signature(sig)
-    if not func:
-        func = lib_contract.get_state_variable_from_name(ir.function_name)
+    sigs = get_sig(ir)
+    func = None
+    for sig in sigs:
+        func = lib_contract.get_function_from_signature(sig)
+        if not func:
+            func = lib_contract.get_state_variable_from_name(ir.function_name)
     # In case of multiple binding to the same type
     if not func:
         # specific lookup when the compiler does implicit conversion
@@ -363,10 +389,12 @@ def convert_type_library_call(ir, lib_contract):
     return ir
 
 def convert_type_of_high_level_call(ir, contract):
-    sig = get_sig(ir)
-    func = contract.get_function_from_signature(sig)
-    if not func:
-        func = contract.get_state_variable_from_name(ir.function_name)
+    func = None
+    sigs = get_sig(ir)
+    for sig in sigs:
+        func = contract.get_function_from_signature(sig)
+        if not func:
+            func = contract.get_state_variable_from_name(ir.function_name)
     if not func:
         # specific lookup when the compiler does implicit conversion
         # for example
