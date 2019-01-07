@@ -18,6 +18,11 @@ class Return(Operation):
             else:
                 values = [values]
         else:
+            # Remove None
+            # Prior Solidity 0.5
+            # return (0,)
+            # was valid for returns(uint)
+            values = [v for v in values if not v is None]
             self._valid_value(values)
         super(Return, self).__init__()
         self._values = values
