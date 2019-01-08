@@ -1,9 +1,8 @@
 import logging
 
-from slither.core.declarations import Function, Structure
+from slither.core.declarations import Function
 from slither.core.expressions import (AssignmentOperationType,
                                       UnaryOperationType)
-from slither.core.solidity_types.array_type import ArrayType
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
                                         Index, InitArray, InternalCall, Member,
                                         NewArray, NewContract, NewStructure,
@@ -14,10 +13,12 @@ from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import \
     TmpNewElementaryType
-from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import (Constant, ReferenceVariable,
                                        TemporaryVariable, TupleVariable)
 from slither.visitors.expression.expression import ExpressionVisitor
+
+#from slither.slithir.variables.state_variable import StateIRVariable
+#from slither.slithir.variables.local_variable import LocalIRVariable
 
 logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
 
@@ -215,7 +216,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
             set_val(expression, lvalue)
         elif expression.type in [UnaryOperationType.DELETE]:
-            operation = Delete(value)
+            operation = Delete(value, value)
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.PLUSPLUS_PRE]:

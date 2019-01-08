@@ -5,9 +5,9 @@
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.colors import blue, green, magenta
 
-class PrinterSlithIR(AbstractPrinter):
+class PrinterSlithIRSSA(AbstractPrinter):
 
-    ARGUMENT = 'slithir'
+    ARGUMENT = 'slithir-ssa'
     HELP = 'Print the slithIR representation of the functions'
 
     def output(self, _filename):
@@ -26,12 +26,9 @@ class PrinterSlithIR(AbstractPrinter):
                     for node in function.nodes:
                         if node.expression:
                             print('\t\tExpression: {}'.format(node.expression))
+                        if node.irs_ssa:
                             print('\t\tIRs:')
-                            for ir in node.irs:
-                                print('\t\t\t{}'.format(ir))
-                        elif node.irs:
-                            print('\t\tIRs:')
-                            for ir in node.irs:
+                            for ir in node.irs_ssa:
                                 print('\t\t\t{}'.format(ir))
             for modifier in contract.modifiers:
                 if modifier.contract == contract:
@@ -40,7 +37,8 @@ class PrinterSlithIR(AbstractPrinter):
                         print(node)
                         if node.expression:
                             print('\t\tExpression: {}'.format(node.expression))
+                        if node.irs_ssa:
                             print('\t\tIRs:')
-                            for ir in node.irs:
+                            for ir in node.irs_ssa:
                                 print('\t\t\t{}'.format(ir))
         self.info(txt)
