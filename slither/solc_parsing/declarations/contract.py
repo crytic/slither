@@ -9,8 +9,9 @@ from slither.solc_parsing.declarations.modifier import ModifierSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
-
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
+
+from slither.slithir.variables import StateIRVariable
 
 logger = logging.getLogger("ContractSolcParsing")
 
@@ -346,6 +347,47 @@ class ContractSolc04(Contract):
         for function in self.functions:
             function.analyze_content()
         return
+
+
+    def convert_expression_to_slithir(self):
+        for func in self.functions + self.modifiers:
+            if func.contract == self:
+                func.generate_slithir_and_analyze()
+
+        all_ssa_state_variables_instances = dict()
+
+        for contract in self.inheritance:
+            for v in contract.variables:
+                if v.contract == contract:
+                    new_var = StateIRVariable(v)
+                    all_ssa_state_variables_instances[v.canonical_name] = new_var
+                    self._initial_state_variables.append(new_var)
+
+        for v in self.variables:
+            if v.contract == self:
+                new_var = StateIRVariable(v)
+                all_ssa_state_variables_instances[v.canonical_name] = new_var
+                self._initial_state_variables.append(new_var)
+
+        for func in self.functions + self.modifiers:
+            if func.contract == self:
+                func.generate_slithir_ssa(all_ssa_state_variables_instances)
+
+    def fix_phi(self):
+        last_state_variables_instances = dict()
+        initial_state_variables_instances = dict()
+        for v in self._initial_state_variables:
+            last_state_variables_instances[v.canonical_name] = []
+            initial_state_variables_instances[v.canonical_name] = v
+
+        for func in self.functions + self.modifiers:
+            result = func.get_last_ssa_state_variables_instances()
+            for variable_name, instances in result.items():
+                last_state_variables_instances[variable_name] += instances
+
+        for func in self.functions + self.modifiers:
+            func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
+
 
     def __hash__(self):
         return self._id

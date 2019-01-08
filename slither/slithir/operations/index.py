@@ -33,5 +33,9 @@ class Index(OperationWithLValue):
     def variable_right(self):
         return self._variables[1]
 
+    @property
+    def index_type(self):
+        return self._type
+
     def __str__(self):
         return "{}({}) -> {}[{}]".format(self.lvalue, self.lvalue.type, self.variable_left, self.variable_right)

@@ -600,13 +600,9 @@ def apply_ir_heuristics(irs, node):
     irs = integrate_value_gas(irs)
 
     irs = propage_type_and_convert_call(irs, node)
-#    irs = remove_temporary(irs)
-#    irs = replace_calls(irs)
     irs = remove_unused(irs)
-
     find_references_origin(irs)
 
-    #reset_variable_number(irs)
 
     return irs
 

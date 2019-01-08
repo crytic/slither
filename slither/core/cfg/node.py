@@ -9,14 +9,15 @@ from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariable)
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.convert import convert_expression
 from slither.slithir.operations import (Balance, HighLevelCall, Index,
                                         InternalCall, Length, LibraryCall,
                                         LowLevelCall, Member,
-                                        OperationWithLValue, SolidityCall)
+                                        OperationWithLValue, SolidityCall, Phi, PhiCallback)
 from slither.slithir.variables import (Constant, ReferenceVariable,
-                                       TemporaryVariable, TupleVariable)
+                                       TemporaryVariable, TupleVariable, StateIRVariable, LocalIRVariable)
 from slither.visitors.expression.expression_printer import ExpressionPrinter
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
@@ -36,6 +37,12 @@ class NodeType:
     ASSEMBLY = 0x14
     IFLOOP = 0x15
 
+    # Merging nodes
+    # Can have phi IR operation
+    ENDIF = 0x50
+    STARTLOOP = 0x51
+    ENDLOOP = 0x52
+
     # Below the nodes have no expression
     # But are used to expression CFG structure
 
@@ -49,11 +56,6 @@ class NodeType:
     # Only modifier node
     PLACEHOLDER = 0x40
 
-    # Merging nodes
-    # Unclear if they will be necessary
-    ENDIF = 0x50
-    STARTLOOP = 0x51
-    ENDLOOP = 0x52
 
 #    @staticmethod
     def str(t):
@@ -100,27 +102,123 @@ class Node(SourceMapping, ChildFunction):
     def __init__(self, node_type, node_id):
         super(Node, self).__init__()
         self._node_type = node_type
+
+        # TODO: rename to explicit CFG 
         self._sons = []
         self._fathers = []
+
+        ## Dominators info
+        # Dominators nodes
+        self._dominators = set()
+        self._immediate_dominator = None
+        ## Nodes of the dominators tree
+        #self._dom_predecessors = set()
+        self._dom_successors = set()
+        # Dominance frontier
+        self._dominance_frontier = set()
+        # Phi origin
+        # key are variable name
+        # values are list of Node
+        self._phi_origins_state_variables = {}
+        self._phi_origins_local_variables = {}
+
         self._expression = None
         self._variable_declaration = None
         self._node_id = node_id
+
         self._vars_written = []
         self._vars_read = []
+
+        self._ssa_vars_written = []
+        self._ssa_vars_read = []
+
         self._internal_calls = []
         self._solidity_calls = []
         self._high_level_calls = []
         self._low_level_calls = []
         self._external_calls_as_expressions = []
         self._irs = []
+        self._irs_ssa = []
 
         self._state_vars_written = []
         self._state_vars_read = []
         self._solidity_vars_read = []
 
+        self._ssa_state_vars_written = []
+        self._ssa_state_vars_read = []
+
+        self._local_vars_read = []
+        self._local_vars_written = []
+
+        self._ssa_local_vars_read = []
+        self._ssa_local_vars_written = []
+
         self._expression_vars_written = []
         self._expression_vars_read = []
         self._expression_calls = []
+
+
+    @property
+    def dominators(self):
+        '''
+            Returns:
+                set(Node)
+        '''
+        return self._dominators
+
+    @property
+    def immediate_dominator(self):
+        '''
+            Returns:
+                Node or None
+        '''
+        return self._immediate_dominator
+
+    @property
+    def dominance_frontier(self):
+        '''
+            Returns:
+                set(Node)
+        '''
+        return self._dominance_frontier
+
+    @property
+    def dominator_successors(self):
+        return self._dom_successors
+
+    @dominators.setter
+    def dominators(self, dom):
+        self._dominators = dom
+
+    @immediate_dominator.setter
+    def immediate_dominator(self, idom):
+        self._immediate_dominator = idom
+
+    @dominance_frontier.setter
+    def dominance_frontier(self, dom):
+        self._dominance_frontier = dom
+
+    @property
+    def phi_origins_local_variables(self):
+        return self._phi_origins_local_variables
+
+    @property
+    def phi_origins_state_variables(self):
+        return self._phi_origins_state_variables
+
+    def add_phi_origin_local_variable(self, variable, node):
+        if variable.name not in self._phi_origins_local_variables:
+            self._phi_origins_local_variables[variable.name] = (variable, set())
+        (v, nodes) = self._phi_origins_local_variables[variable.name]
+        assert v == variable
+        nodes.add(node)
+
+    def add_phi_origin_state_variable(self, variable, node):
+        if variable.canonical_name not in self._phi_origins_state_variables:
+            self._phi_origins_state_variables[variable.canonical_name] = (variable, set())
+        (v, nodes) = self._phi_origins_state_variables[variable.canonical_name]
+        assert v == variable
+        nodes.add(node)
 
     @property
     def slither(self):
@@ -157,6 +255,13 @@ class Node(SourceMapping, ChildFunction):
         return list(self._state_vars_read)
 
     @property
+    def local_variables_read(self):
+        """
+            list(LocalVariable): Local variables read
+        """
+        return list(self._local_vars_read)
+
+    @property
     def solidity_variables_read(self):
         """
             list(SolidityVariable): State variables read
@@ -180,6 +285,13 @@ class Node(SourceMapping, ChildFunction):
             list(StateVariable): State variables written
         """
         return list(self._state_vars_written)
+
+    @property
+    def local_variables_written(self):
+        """
+            list(LocalVariable): Local variables written
+        """
+        return list(self._local_vars_written)
 
     @property
     def variables_written_as_expression(self):
@@ -246,6 +358,7 @@ class Node(SourceMapping, ChildFunction):
         self._variable_declaration = var
         if var.expression:
             self._vars_written += [var]
+            self._local_vars_written += [var]
 
     @property
     def variable_declaration(self):
@@ -360,6 +473,25 @@ class Node(SourceMapping, ChildFunction):
         """
         return self._irs
 
+    @property
+    def irs_ssa(self):
+        """ Returns the slithIR representation with SSA
+
+        return
+            list(slithIR.Operation)
+        """
+        return self._irs_ssa
+
+    @irs_ssa.setter
+    def irs_ssa(self, irs):
+       self._irs_ssa = irs
+
+    def add_ssa_ir(self, ir):
+        '''
+            Use to place phi operation
+        '''
+        self._irs_ssa.append(ir)
+
     def slithir_generation(self):
         if self.expression:
             expression = self.expression
@@ -367,22 +499,22 @@ class Node(SourceMapping, ChildFunction):
 
         self._find_read_write_call()
 
+    @staticmethod
+    def _is_slithir_var(var):
+        return isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
+
     def _find_read_write_call(self):
 
-        def is_slithir_var(var):
-            return isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
         for ir in self.irs:
-            self._vars_read += [v for v in ir.read if not is_slithir_var(v)]
+            self._vars_read += [v for v in ir.read if not self._is_slithir_var(v)]
             if isinstance(ir, OperationWithLValue):
                 if isinstance(ir, (Index, Member, Length, Balance)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
                 var = ir.lvalue
-                # If its a reference, we loop until finding the origin
                 if isinstance(var, (ReferenceVariable)):
-                    while isinstance(var, ReferenceVariable):
-                        var = var.points_to
+                    var = var.points_to_origin
                 # Only store non-slithIR variables
-                if not is_slithir_var(var) and var:
+                if not self._is_slithir_var(var) and var:
                     self._vars_written.append(var)
 
             if isinstance(ir, InternalCall):
@@ -405,11 +537,61 @@ class Node(SourceMapping, ChildFunction):
 
         self._vars_read = list(set(self._vars_read))
         self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
+        self._local_vars_read = [v for v in self._vars_read if isinstance(v, LocalVariable)]
         self._solidity_vars_read = [v for v in self._vars_read if isinstance(v, SolidityVariable)]
         self._vars_written = list(set(self._vars_written))
         self._state_vars_written = [v for v in self._vars_written if isinstance(v, StateVariable)]
+        self._local_vars_written = [v for v in self._vars_written if isinstance(v, LocalVariable)]
         self._internal_calls = list(set(self._internal_calls))
         self._solidity_calls = list(set(self._solidity_calls))
         self._high_level_calls = list(set(self._high_level_calls))
         self._low_level_calls = list(set(self._low_level_calls))
 
+    @staticmethod
+    def _convert_ssa(v):
+        if isinstance(v, StateIRVariable):
+            contract = v.contract
+            non_ssa_var = contract.get_state_variable_from_name(v.name)
+            return non_ssa_var
+        assert isinstance(v, LocalIRVariable)
+        function = v.function
+        non_ssa_var = function.get_local_variable_from_name(v.name)
+        return non_ssa_var
+
+    def update_read_write_using_ssa(self):
+        if not self.expression:
+            return
+        for ir in self.irs_ssa:
+            self._ssa_vars_read += [v for v in ir.read if isinstance(v,
+                                                                     (StateIRVariable,
+                                                                      LocalIRVariable))]
+            if isinstance(ir, OperationWithLValue):
+                if isinstance(ir, (Index, Member, Length, Balance)):
+                    continue  # Don't consider Member and Index operations -> ReferenceVariable
+                var = ir.lvalue
+                if isinstance(var, (ReferenceVariable)):
+                    var = var.points_to_origin
+                # Only store non-slithIR variables
+                if var and isinstance(var, (StateIRVariable, LocalIRVariable)):
+                    if isinstance(ir, (PhiCallback)):
+                        continue
+                    self._ssa_vars_written.append(var)
+
+        self._ssa_vars_read = list(set(self._ssa_vars_read))
+        self._ssa_state_vars_read = [v for v in self._ssa_vars_read if isinstance(v, StateVariable)]
+        self._ssa_local_vars_read = [v for v in self._ssa_vars_read if isinstance(v, LocalVariable)]
+        self._ssa_vars_written = list(set(self._ssa_vars_written))
+        self._ssa_state_vars_written = [v for v in self._ssa_vars_written if isinstance(v, StateVariable)]
+        self._ssa_local_vars_written = [v for v in self._ssa_vars_written if isinstance(v, LocalVariable)]
+
+        vars_read = [self._convert_ssa(x) for x in self._ssa_vars_read]
+        vars_written = [self._convert_ssa(x) for x in self._ssa_vars_written]
+
+
+        self._vars_read += [v for v in vars_read if v not in self._vars_read]
+        self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
+        self._local_vars_read = [v for v in self._vars_read if isinstance(v, LocalVariable)]
+
+        self._vars_written += [v for v in vars_written if v not in self._vars_written]
+        self._state_vars_written = [v for v in self._vars_written if isinstance(v, StateVariable)]
+        self._local_vars_written = [v for v in self._vars_written if isinstance(v, LocalVariable)]

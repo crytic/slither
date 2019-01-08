@@ -2,25 +2,30 @@
     Event module
 """
 import logging
+
+from slither.core.cfg.node import NodeType, link_nodes
 from slither.core.declarations.function import Function
-from slither.core.cfg.node import NodeType
-from slither.solc_parsing.cfg.node import NodeSolc
-from slither.core.cfg.node import NodeType
-from slither.core.cfg.node import link_nodes
-
-from slither.solc_parsing.variables.local_variable import LocalVariableSolc
-from slither.solc_parsing.variables.local_variable_init_from_tuple import LocalVariableInitFromTupleSolc
-from slither.solc_parsing.variables.variable_declaration import MultipleVariablesDeclaration
-
-from slither.solc_parsing.expressions.expression_parsing import parse_expression
-
+from slither.core.dominators.utils import (compute_dominance_frontier,
+                                           compute_dominators)
 from slither.core.expressions import AssignmentOperation
+from slither.core.variables.state_variable import StateVariable
+from slither.slithir.operations import (Assignment, HighLevelCall,
+                                        InternalCall, InternalDynamicCall,
+                                        LowLevelCall, OperationWithLValue, Phi,
+                                        PhiCallback, LibraryCall)
+from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
+from slither.slithir.variables import LocalIRVariable, ReferenceVariable
+from slither.solc_parsing.cfg.node import NodeSolc
+from slither.solc_parsing.expressions.expression_parsing import \
+    parse_expression
+from slither.solc_parsing.variables.local_variable import LocalVariableSolc
+from slither.solc_parsing.variables.local_variable_init_from_tuple import \
+    LocalVariableInitFromTupleSolc
+from slither.solc_parsing.variables.variable_declaration import \
+    MultipleVariablesDeclaration
+from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
-
-from slither.utils.expression_manipulations import SplitTernaryExpression
-
-from slither.slithir.utils.variable_number import transform_slithir_vars_to_ssa
 
 logger = logging.getLogger("FunctionSolc")
 
@@ -840,14 +845,100 @@ class FunctionSolc(Function):
                     break
         self._remove_alone_endif()
 
+    def get_last_ssa_state_variables_instances(self):
+        if not self.is_implemented:
+            return dict()
+        last_instances = dict()
 
-    def convert_expression_to_slithir(self):
+        # node, values 
+        to_explore = [(self._entry_point, dict())]
+        # node -> values
+        explored = dict()
+        # name -> instances
+        ret = dict()
+
+        while to_explore:
+            node, values = to_explore[0]
+            to_explore = to_explore[1::]
+
+            # Return condition
+            if not node.sons and node.type != NodeType.THROW:
+                for name, instances in values.items():
+                    if name not in ret:
+                        ret[name] = set()
+                    ret[name] |= instances
+
+            if node.type != NodeType.ENTRYPOINT:
+                for ir_ssa in node.irs_ssa:
+                    if isinstance(ir_ssa, OperationWithLValue):
+                        lvalue = ir_ssa.lvalue
+                        if isinstance(lvalue, ReferenceVariable):
+                            lvalue = lvalue.points_to_origin
+                        if isinstance(lvalue, StateVariable):
+                            values[lvalue.canonical_name] = {lvalue}
+
+            # Check for fixpoint
+            if node in explored:
+                if values == explored[node]:
+                    continue
+                for k, instances in values.items():
+                    if not k in explored[node]:
+                        explored[node][k] = set()
+                    explored[node][k] |= instances
+                values = explored[node]
+            else:
+                explored[node] = values
+
+            for son in node.sons:
+                to_explore.append((son, dict(values)))
+
+        return ret
+
+    @staticmethod
+    def _unchange_phi(ir):
+        if not isinstance(ir, (Phi, PhiCallback)) or len(ir.rvalues) > 1:
+            return False
+        if not ir.rvalues:
+            return True
+        return ir.rvalues[0] == ir.lvalue
+
+    def fix_phi(self, last_state_variables_instances, initial_state_variables_instances):
+        for node in self.nodes:
+            for ir in node.irs_ssa:
+                if node == self.entry_point:
+                    additional = [initial_state_variables_instances[ir.lvalue.canonical_name]]
+                    additional += last_state_variables_instances[ir.lvalue.canonical_name]
+                    ir.rvalues = list(set(additional + ir.rvalues))
+                if isinstance(ir, PhiCallback):
+                    callee_ir = ir.callee_ir
+                    if isinstance(callee_ir, InternalCall):
+                        last_ssa = callee_ir.function.get_last_ssa_state_variables_instances()
+                        if ir.lvalue.canonical_name in last_ssa:
+                            ir.rvalues = list(last_ssa[ir.lvalue.canonical_name])
+                        else:
+                            ir.rvalues = [ir.lvalue]
+                    else:
+                        additional = last_state_variables_instances[ir.lvalue.canonical_name]
+                        ir.rvalues = list(set(additional + ir.rvalues))
+
+            node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
+
+    def generate_slithir_and_analyze(self):
         for node in self.nodes:
             node.slithir_generation()
-        transform_slithir_vars_to_ssa(self)
         self._analyze_read_write()
         self._analyze_calls()
- 
+
+    def generate_slithir_ssa(self, all_ssa_state_variables_instances):
+        compute_dominators(self.nodes)
+        compute_dominance_frontier(self.nodes)
+        transform_slithir_vars_to_ssa(self)
+        add_ssa_ir(self, all_ssa_state_variables_instances)
+
+    def update_read_write_using_ssa(self):
+        for node in self.nodes:
+            node.update_read_write_using_ssa()
+        self._analyze_read_write()
 
     def split_ternary_node(self, node, condition, true_expr, false_expr):
         condition_node = self._new_node(NodeType.IF, node.source_mapping)

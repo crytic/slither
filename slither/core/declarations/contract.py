@@ -31,6 +31,8 @@ class Contract(ChildSlither, SourceMapping):
         self._kind = None
 
 
+        self._initial_state_variables = [] # ssa
+
     def __eq__(self, other):
         if isinstance(other, str):
             return other == self.name
@@ -189,7 +191,7 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(Function): List of functions reachable from the contract (include super)
         '''
-        all_calls = (f.all_internal_calls() for f in self.functions)
+        all_calls = [f.all_internal_calls() for f in self.functions + self.modifiers]
         all_calls = [item for sublist in all_calls for item in sublist] + self.functions
         all_calls = list(set(all_calls))
 
@@ -199,6 +201,23 @@ class Contract(ChildSlither, SourceMapping):
         all_calls = set(all_calls+all_constructors)
 
         return [c for c in all_calls if isinstance(c, Function)]
+
+    @property
+    def all_state_variables_written(self):
+        '''
+            list(StateVariable): List all of the state variables written
+        '''
+        all_state_variables_written = [f.all_state_variables_written() for f in self.functions + self.modifiers]
+        all_state_variables_written = [item for sublist in all_state_variables_written for item in sublist]
+        return list(set(all_state_variables_written))
+    @property
+    def all_state_variables_read(self):
+        '''
+            list(StateVariable): List all of the state variables read
+        '''
+        all_state_variables_read = [f.all_state_variables_read() for f in self.functions + self.modifiers]
+        all_state_variables_read = [item for sublist in all_state_variables_read for item in sublist]
+        return list(set(all_state_variables_read))
 
     def functions_as_dict(self):
         return self._functions
@@ -380,6 +399,10 @@ class Contract(ChildSlither, SourceMapping):
         return 'transfer(address,uint256)' in full_names and\
                'transferFrom(address,address,uint256)' in full_names and\
                'approve(address,uint256)' in full_names
+
+    def update_read_write_using_ssa(self):
+        for function in self.functions + self.modifiers:
+            function.update_read_write_using_ssa()
 
     def get_summary(self):
         """ Return the function summary

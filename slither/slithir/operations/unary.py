@@ -49,6 +49,10 @@ class Unary(OperationWithLValue):
         return self._variable
 
     @property
+    def type(self):
+        return self._type
+
+    @property
     def type_str(self):
         return UnaryType.str(self._type)
 

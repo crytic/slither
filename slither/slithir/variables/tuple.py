@@ -1,8 +1,8 @@
-
+from .variable import SlithIRVariable
 from slither.core.variables.variable import Variable
 
 from slither.core.solidity_types.type import Type
-class TupleVariable(Variable):
+class TupleVariable(SlithIRVariable):
 
     COUNTER = 0
 
