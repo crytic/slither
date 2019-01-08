@@ -109,8 +109,8 @@ class ExternalFunction(AbstractDetector):
             if self._contains_internal_dynamic_call(contract):
                 dynamic_call_contracts.add(contract)
 
-        # Loop through all not-inherited contracts.
-        for contract in self.slither.contracts_derived:
+        # Loop through all contracts
+        for contract in self.contracts:
 
             # Filter false-positives: Immediately filter this contract if it's in blacklist
             if contract in dynamic_call_contracts:
@@ -143,7 +143,7 @@ class ExternalFunction(AbstractDetector):
                 sources_with_dynamic_calls = set(all_possible_sources) & dynamic_call_contracts
                 if sources_with_dynamic_calls:
                     functions_in_dynamic_call_sources = set([f for dyn_contract in sources_with_dynamic_calls
-                                                             for f in dyn_contract if not f.is_constructor])
+                                                             for f in dyn_contract.functions if not f.is_constructor])
                     completed_functions = completed_functions.union(functions_in_dynamic_call_sources)
                     continue
 
