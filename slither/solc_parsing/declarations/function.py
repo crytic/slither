@@ -848,7 +848,6 @@ class FunctionSolc(Function):
     def get_last_ssa_state_variables_instances(self):
         if not self.is_implemented:
             return dict()
-        last_instances = dict()
 
         # node, values 
         to_explore = [(self._entry_point, dict())]
@@ -860,13 +859,6 @@ class FunctionSolc(Function):
         while to_explore:
             node, values = to_explore[0]
             to_explore = to_explore[1::]
-
-            # Return condition
-            if not node.sons and node.type != NodeType.THROW:
-                for name, instances in values.items():
-                    if name not in ret:
-                        ret[name] = set()
-                    ret[name] |= instances
 
             if node.type != NodeType.ENTRYPOINT:
                 for ir_ssa in node.irs_ssa:
@@ -888,6 +880,13 @@ class FunctionSolc(Function):
                 values = explored[node]
             else:
                 explored[node] = values
+
+            # Return condition
+            if not node.sons and node.type != NodeType.THROW:
+                for name, instances in values.items():
+                    if name not in ret:
+                        ret[name] = set()
+                    ret[name] |= instances
 
             for son in node.sons:
                 to_explore.append((son, dict(values)))
