@@ -1,77 +1,186 @@
 """
     Compute the data depenency between all the SSA variables
 """
+from slither.core.declarations import Contract, Function
 from slither.slithir.operations import Index, Member, OperationWithLValue
 from slither.slithir.variables import ReferenceVariable, Constant
 from slither.slithir.variables import (Constant, LocalIRVariable, StateIRVariable,
                                        ReferenceVariable, TemporaryVariable,
                                        TupleVariable)
 
-KEY = "DATA_DEPENDENCY_SSA"
+KEY_SSA = "DATA_DEPENDENCY_SSA"
 KEY_NON_SSA = "DATA_DEPENDENCY"
 
-def compute_dependency(slither):
-    for contract in slither.contracts:
-        compute_dependency_contract(contract)
+# Only for unprotected functions
+KEY_SSA_UNPROTECTED = "DATA_DEPENDENCY_SSA_UNPROTECTED"
+KEY_NON_SSA_UNPROTECTED = "DATA_DEPENDENCY_UNPROTECTED"
 
-def compute_dependency_contract(contract):
-    if KEY in contract.context:
+KEY_INPUT = "DATA_DEPENDENCY_INPUT"
+KEY_INPUT_SSA = "DATA_DEPENDENCY_INPUT_SSA"
+
+def pprint_dependency(context):
+    print('#### SSA ####')
+    context = context.context
+    for k, values in context[KEY_SSA].items():
+        print('{}:'.format(k))
+        for v in values:
+            print('\t- {}'.format(v))
+
+    print('#### NON SSA ####')
+    for k, values in context[KEY_NON_SSA].items():
+        print('{}:'.format(k))
+        for v in values:
+            print('\t- {}'.format(v))
+
+
+def is_dependent(variable, source, context, only_unprotected=False):
+    '''
+    Args:
+        variable (Variable)
+        source (Variable)
+        context (Contract|Function)
+        only_unprotected (bool): True only unprotected function are considered
+    Returns:
+        bool
+    '''
+    assert isinstance(context, (Contract, Function))
+    context = context.context
+    if only_unprotected:
+        return variable in context[KEY_NON_SSA_UNPROTECTED] and source in context[KEY_NON_SSA_UNPROTECTED][variable]
+    return variable in context[KEY_NON_SSA] and source in context[KEY_NON_SSA][variable]
+
+def is_dependent_ssa(variable, taint, context, only_unprotected=False):
+    '''
+    Args:
+        variable (Variable)
+        taint (Variable)
+        context (Contract|Function)
+        only_unprotected (bool): True only unprotected function are considered
+    Returns:
+        bool
+    '''
+    assert isinstance(context, (Contract, Function))
+    context = context.context
+    if only_unprotected:
+        return variable in context[KEY_SSA_UNPROTECTED] and taint in context[KEY_SSA_UNPROTECTED][variable]
+    return variable in context[KEY_SSA] and taint in context[KEY_SSA][variable]
+
+def is_tainted(variable, context, slither, only_unprotected=False):
+    '''
+        Args:
+        variable
+        context (Contract|Function)
+        only_unprotected (bool): True only unprotected function are considered
+    Returns:
+        bool
+    '''
+    assert isinstance(context, (Contract, Function))
+    taints = slither.context[KEY_INPUT]
+    return any(is_dependent(variable, t, context, only_unprotected) for t in taints)
+
+def is_tainted_ssa(variable, context, slither, only_unprotected=False):
+    '''
+    Args:
+        variable
+        context (Contract|Function)
+        only_unprotected (bool): True only unprotected function are considered
+    Returns:
+        bool
+    '''
+    assert isinstance(context, (Contract, Function))
+    taints = slither.context[KEY_INPUT_SSA]
+    return any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
+
+def compute_dependency(slither):
+
+    slither.context[KEY_INPUT] = set()
+    slither.context[KEY_INPUT_SSA] = set()
+
+    for contract in slither.contracts:
+        compute_dependency_contract(contract, slither)
+
+def compute_dependency_contract(contract, slither):
+    if KEY_SSA in contract.context:
         return
 
-    contract.context[KEY] = dict()
+    contract.context[KEY_SSA] = dict()
+    contract.context[KEY_SSA_UNPROTECTED] = dict()
+
     for function in contract.all_functions_called:
         compute_dependency_function(function)
-        data_depencencies = function.context[KEY]
- 
-        for (key, values) in data_depencencies.items():
-            if not key in contract.context[KEY]:
-                contract.context[KEY][key] = set(values)
-            else:
-                contract.context[KEY][key].union(values)
 
+        propagate_function(contract, function, KEY_SSA)
+        propagate_function(contract, function, KEY_SSA_UNPROTECTED)
+
+        [slither.context[KEY_INPUT].add(p) for p in function.parameters]
+        [slither.context[KEY_INPUT_SSA].add(p) for p in function.parameters_ssa]
+
+    propagate_contract(contract, KEY_SSA, KEY_NON_SSA)
+    propagate_contract(contract, KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED)
+
+def propagate_function(contract, function, context_key):
+    # Propage data dependency
+    data_depencencies = function.context[context_key]
+    for (key, values) in data_depencencies.items():
+        if not key in contract.context[context_key]:
+            contract.context[context_key][key] = set(values)
+        else:
+            contract.context[context_key][key].union(values)
+
+def propagate_contract(contract, context_key, context_key_non_ssa):
     # transitive closure
     changed = True
     while changed:
         changed = False
         # Need to create new set() as its changed during iteration
-        data_depencencies = {k: set([v for v in values]) for k, values in  contract.context[KEY].items()}
+        data_depencencies = {k: set([v for v in values]) for k, values in  contract.context[context_key].items()}
         for key, items in data_depencencies.items():
             for item in items:
                 if item in data_depencencies:
-                    additional_items = contract.context[KEY][item]
+                    additional_items = contract.context[context_key][item]
                     for additional_item in additional_items:
                         if not additional_item in items and additional_item != key:
                             changed = True
-                            contract.context[KEY][key].add(additional_item)
+                            print(additional_item)
+                            contract.context[context_key][key].add(additional_item)
+    contract.context[context_key_non_ssa] = convert_to_non_ssa(contract.context[context_key])
 
-
-    contract.context[KEY_NON_SSA] = convert_to_non_ssa(contract.context[KEY])
-
+def add_dependency(lvalue, function, ir, is_protected):
+    if not lvalue in function.context[KEY_SSA]:
+        function.context[KEY_SSA][lvalue] = set()
+        if not is_protected:
+            function.context[KEY_SSA_UNPROTECTED][lvalue] = set()
+    if isinstance(ir, Index):
+        read = [ir.variable_left]
+    else:
+        read = ir.read
+    [function.context[KEY_SSA][lvalue].add(v) for v in read if not isinstance(v, Constant)]
+    if not is_protected:
+        [function.context[KEY_SSA_UNPROTECTED][lvalue].add(v) for v in read if not isinstance(v, Constant)]
 
 
 def compute_dependency_function(function):
-    if KEY in function.context:
-        return function.context[KEY]
+    if KEY_SSA in function.context:
+        return
 
-    function.context[KEY] = dict()
+    function.context[KEY_SSA] = dict()
+    function.context[KEY_SSA_UNPROTECTED] = dict()
+
+    is_protected = function.is_protected
+
     for node in function.nodes:
         for ir in node.irs_ssa:
             if isinstance(ir, OperationWithLValue) and ir.lvalue:
-                lvalue = ir.lvalue
-               # if isinstance(ir.lvalue, ReferenceVariable):
-               #     lvalue = lvalue.points_to_origin
-               #     # TODO fix incorrect points_to for BALANCE
-               #     if not lvalue:
-               #         continue
-                if not lvalue in function.context[KEY]:
-                    function.context[KEY][lvalue] = set()
-                if isinstance(ir, Index):
-                    read = [ir.variable_left]
-                else:
-                    read = ir.read
-                [function.context[KEY][lvalue].add(v) for v in read if not isinstance(v, Constant)]
+                if isinstance(ir.lvalue, LocalIRVariable) and ir.lvalue.is_storage:
+                    continue
+                if isinstance(ir.lvalue, ReferenceVariable):
+                    lvalue = ir.lvalue.points_to
+                    if lvalue:
+                        add_dependency(lvalue, function, ir, is_protected)
+                add_dependency(ir.lvalue, function, ir, is_protected)
 
-    function.context[KEY_NON_SSA] = convert_to_non_ssa(function.context[KEY])
+    function.context[KEY_NON_SSA] = convert_to_non_ssa(function.context[KEY_SSA])
+    function.context[KEY_NON_SSA_UNPROTECTED] = convert_to_non_ssa(function.context[KEY_SSA_UNPROTECTED])
 
 def valid_non_ssa(v):
     if isinstance(v, (TemporaryVariable,
