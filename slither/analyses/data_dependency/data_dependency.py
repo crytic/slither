@@ -141,7 +141,6 @@ def propagate_contract(contract, context_key, context_key_non_ssa):
                     for additional_item in additional_items:
                         if not additional_item in items and additional_item != key:
                             changed = True
-                            print(additional_item)
                             contract.context[context_key][key].add(additional_item)
     contract.context[context_key_non_ssa] = convert_to_non_ssa(contract.context[context_key])
 
