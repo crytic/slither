@@ -166,10 +166,10 @@ class SlitherSolc(Slither):
                     else:
                         fathers.append(self._contracts_by_id[i])
             except KeyError:
-                logger.error(red('A contract was not find, it is likely that your codebase contains muliple contracts with the same name'))
+                logger.error(red('A contract was not found, it is likely that your codebase contains muliple contracts with the same name'))
                 logger.error(red('Truffle does not handle this case during compilation'))
                 logger.error(red('Please read https://github.com/trailofbits/slither/wiki#keyerror-or-nonetype-error'))
-                logger.error(red('And update your code to remove the dupplicate'))
+                logger.error(red('And update your code to remove the duplicate'))
                 exit(-1)
             contract.setInheritance(fathers)
 
