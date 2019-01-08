@@ -10,7 +10,6 @@ from slither.core.declarations import Function, SolidityFunction
 from slither.core.expressions import UnaryOperation, UnaryOperationType
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
-from slither.visitors.expression.export_values import ExportValues
 from slither.slithir.operations import (HighLevelCall, LowLevelCall,
                                         LibraryCall,
                                         Send, Transfer)

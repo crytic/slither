@@ -63,13 +63,21 @@ class Function(ChildContract, SourceMapping):
     @property
     def return_type(self):
         """
-            Return the list of return type 
+            Return the list of return type
             If no return, return None
         """
         returns = self.returns
         if returns:
             return [r.type for r in returns]
         return None
+
+    @property
+    def type(self):
+        """
+            Return the list of return type
+            If no return, return None
+        """
+        return self.return_type
 
     @property
     def name(self):
@@ -618,13 +626,35 @@ class Function(ChildContract, SourceMapping):
         with open(filename, 'w') as f:
             f.write('digraph{\n')
             for node in self.nodes:
-                label = 'Node Type: {}\n'.format(NodeType.str(node.type))
+                label = 'Node Type: {} {}\n'.format(NodeType.str(node.type), node.node_id)
                 if node.expression:
                     label += '\nEXPRESSION:\n{}\n'.format(node.expression)
+                if node.irs:
                     label += '\nIRs:\n' + '\n'.join([str(ir) for ir in node.irs])
                 f.write('{}[label="{}"];\n'.format(node.node_id, label))
                 for son in node.sons:
                     f.write('{}->{};\n'.format(node.node_id, son.node_id))
+
+            f.write("}\n")
+
+    def dominator_tree_to_dot(self, filename):
+        """
+            Export the dominator tree of the function to a dot file
+        Args:
+            filename (str)
+        """
+        def description(node):
+            desc ='{}\n'.format(node)
+            desc += 'id: {}'.format(node.node_id)
+            if node.dominance_frontier:
+                desc += '\ndominance frontier: {}'.format([n.node_id for n in node.dominance_frontier])
+            return desc
+        with open(filename, 'w') as f:
+            f.write('digraph{\n')
+            for node in self.nodes:
+                f.write('{}[label="{}"];\n'.format(node.node_id, description(node)))
+                if node.immediate_dominator:
+                    f.write('{}->{};\n'.format(node.immediate_dominator.node_id, node.node_id))
 
             f.write("}\n")
 
@@ -659,3 +689,13 @@ class Function(ChildContract, SourceMapping):
         conditional_vars = self.all_conditional_solidity_variables_read()
         args_vars = self.all_solidity_variables_used_as_args()
         return SolidityVariableComposed('msg.sender') in conditional_vars + args_vars
+
+    def get_local_variable_from_name(self, variable_name):
+        """
+            Return a local variable from a name
+        Args:
+            varible_name (str): name of the variable
+        Returns:
+            LocalVariable
+        """
+        return next((v for v in self.variables if v.name == variable_name), None)

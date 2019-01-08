@@ -1,7 +1,7 @@
-from slither.core.variables.variable import Variable
+from .variable import SlithIRVariable
 from slither.core.solidity_types.elementary_type import ElementaryType
 
-class Constant(Variable):
+class Constant(SlithIRVariable):
 
     def __init__(self, val):
         super(Constant, self).__init__()
@@ -27,6 +27,9 @@ class Constant(Variable):
     def __str__(self):
         return str(self.value)
 
+    @property
+    def name(self):
+        return str(self)
 
     def __eq__(self, other):
         return self.value == other
