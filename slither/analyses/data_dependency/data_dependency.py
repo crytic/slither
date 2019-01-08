@@ -92,6 +92,8 @@ def is_tainted(variable, context, slither, only_unprotected=False):
         bool
     '''
     assert isinstance(context, (Contract, Function))
+    if isinstance(variable, Constant):
+        return False
     taints = slither.context[KEY_INPUT]
     taints |= GENERIC_TAINT
     return variable in taints or any(is_dependent(variable, t, context, only_unprotected) for t in taints)
@@ -106,6 +108,8 @@ def is_tainted_ssa(variable, context, slither, only_unprotected=False):
         bool
     '''
     assert isinstance(context, (Contract, Function))
+    if isinstance(variable, Constant):
+        return False
     taints = slither.context[KEY_INPUT_SSA]
     taints |= GENERIC_TAINT
     return variable in taints or any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
