@@ -8,6 +8,10 @@ from slither.slithir.variables import (Constant, LocalIRVariable, StateIRVariabl
                                        ReferenceVariable, TemporaryVariable,
                                        TupleVariable)
 
+
+from slither.core.declarations.solidity_variables import \
+    SolidityVariableComposed
+
 KEY_SSA = "DATA_DEPENDENCY_SSA"
 KEY_NON_SSA = "DATA_DEPENDENCY"
 
@@ -65,6 +69,11 @@ def is_dependent_ssa(variable, taint, context, only_unprotected=False):
         return variable in context[KEY_SSA_UNPROTECTED] and taint in context[KEY_SSA_UNPROTECTED][variable]
     return variable in context[KEY_SSA] and taint in context[KEY_SSA][variable]
 
+GENERIC_TAINT = {SolidityVariableComposed('msg.sender'),
+                 SolidityVariableComposed('msg.value'),
+                 SolidityVariableComposed('msg.data'),
+                 SolidityVariableComposed('tx.origin')}
+
 def is_tainted(variable, context, slither, only_unprotected=False):
     '''
         Args:
@@ -76,6 +85,7 @@ def is_tainted(variable, context, slither, only_unprotected=False):
     '''
     assert isinstance(context, (Contract, Function))
     taints = slither.context[KEY_INPUT]
+    taints |= GENERIC_TAINT
     return any(is_dependent(variable, t, context, only_unprotected) for t in taints)
 
 def is_tainted_ssa(variable, context, slither, only_unprotected=False):
@@ -89,6 +99,7 @@ def is_tainted_ssa(variable, context, slither, only_unprotected=False):
     '''
     assert isinstance(context, (Contract, Function))
     taints = slither.context[KEY_INPUT_SSA]
+    taints |= GENERIC_TAINT
     return any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
 
 def compute_dependency(slither):
