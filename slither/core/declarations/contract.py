@@ -219,6 +219,15 @@ class Contract(ChildSlither, SourceMapping):
         all_state_variables_read = [item for sublist in all_state_variables_read for item in sublist]
         return list(set(all_state_variables_read))
 
+    @property
+    def slithir_variables(self):
+        '''
+            List all of the slithir variables (non SSA)
+        '''
+        slithir_variables = [f.slithir_variables for f in self.functions + self.modifiers]
+        slithir_variables = [item for sublist in slithir_variables for item in sublist]
+        return list(set(slithir_variables))
+
     def functions_as_dict(self):
         return self._functions
 

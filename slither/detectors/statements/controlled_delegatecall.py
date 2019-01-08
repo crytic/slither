@@ -1,6 +1,6 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall
-from slither.analyses.taint.all_variables import is_tainted
+from slither.analyses.data_dependency.data_dependency import is_tainted
 
 class ControlledDelegateCall(AbstractDetector):
     """
@@ -18,7 +18,7 @@ class ControlledDelegateCall(AbstractDetector):
         for node in function.nodes:
             for ir in node.irs:
                 if isinstance(ir, LowLevelCall) and ir.function_name in ['delegatecall', 'codecall']:
-                    if is_tainted(self.slither, ir.destination):
+                    if is_tainted(ir.destination, function.contract, self.slither):
                         ret.append(node)
         return ret
 

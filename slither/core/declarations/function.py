@@ -35,6 +35,7 @@ class Function(ChildContract, SourceMapping):
         self._entry_point = None
         self._nodes = []
         self._variables = {}
+        self._slithir_variables = set() # slithir Temporary and references variables (but not SSA)
         self._parameters = []
         self._parameters_ssa = []
         self._returns = []
@@ -268,6 +269,14 @@ class Function(ChildContract, SourceMapping):
     def variables_written_as_expression(self):
         return self._expression_vars_written
 
+    @property 
+    def slithir_variables(self):
+        '''
+            Temporary and Reference Variables (not SSA form)
+        '''
+
+        return list(self._slithir_variables)
+
     @property
     def internal_calls(self):
         """
@@ -424,6 +433,10 @@ class Function(ChildContract, SourceMapping):
                                     isinstance(x, (SolidityVariable))]
 
         self._vars_read_or_written = self._vars_written + self._vars_read
+
+        slithir_variables = [x.slithir_variables for x in self.nodes]
+        slithir_variables = [x for x in slithir_variables if x]
+        self._slithir_variables = [item for sublist in slithir_variables for item in sublist]
 
     def _analyze_calls(self):
         calls = [x.calls_as_expression for x in self.nodes]

@@ -26,13 +26,13 @@ def pprint_dependency(context):
     print('#### SSA ####')
     context = context.context
     for k, values in context[KEY_SSA].items():
-        print('{}:'.format(k))
+        print('{} ({}):'.format(k, id(k)))
         for v in values:
             print('\t- {}'.format(v))
 
     print('#### NON SSA ####')
     for k, values in context[KEY_NON_SSA].items():
-        print('{}:'.format(k))
+        print('{} ({}):'.format(k, hex(id(k))))
         for v in values:
             print('\t- {}'.format(v))
 
@@ -48,12 +48,16 @@ def is_dependent(variable, source, context, only_unprotected=False):
         bool
     '''
     assert isinstance(context, (Contract, Function))
+    if isinstance(variable, Constant):
+        return False
+    if variable == source:
+        return True
     context = context.context
     if only_unprotected:
         return variable in context[KEY_NON_SSA_UNPROTECTED] and source in context[KEY_NON_SSA_UNPROTECTED][variable]
     return variable in context[KEY_NON_SSA] and source in context[KEY_NON_SSA][variable]
 
-def is_dependent_ssa(variable, taint, context, only_unprotected=False):
+def is_dependent_ssa(variable, source, context, only_unprotected=False):
     '''
     Args:
         variable (Variable)
@@ -65,9 +69,13 @@ def is_dependent_ssa(variable, taint, context, only_unprotected=False):
     '''
     assert isinstance(context, (Contract, Function))
     context = context.context
+    if isinstance(variable, Constant):
+        return False
+    if variable == source:
+        return True
     if only_unprotected:
-        return variable in context[KEY_SSA_UNPROTECTED] and taint in context[KEY_SSA_UNPROTECTED][variable]
-    return variable in context[KEY_SSA] and taint in context[KEY_SSA][variable]
+        return variable in context[KEY_SSA_UNPROTECTED] and source in context[KEY_SSA_UNPROTECTED][variable]
+    return variable in context[KEY_SSA] and source in context[KEY_SSA][variable]
 
 GENERIC_TAINT = {SolidityVariableComposed('msg.sender'),
                  SolidityVariableComposed('msg.value'),
@@ -86,7 +94,7 @@ def is_tainted(variable, context, slither, only_unprotected=False):
     assert isinstance(context, (Contract, Function))
     taints = slither.context[KEY_INPUT]
     taints |= GENERIC_TAINT
-    return any(is_dependent(variable, t, context, only_unprotected) for t in taints)
+    return variable in taints or any(is_dependent(variable, t, context, only_unprotected) for t in taints)
 
 def is_tainted_ssa(variable, context, slither, only_unprotected=False):
     '''
@@ -100,7 +108,7 @@ def is_tainted_ssa(variable, context, slither, only_unprotected=False):
     assert isinstance(context, (Contract, Function))
     taints = slither.context[KEY_INPUT_SSA]
     taints |= GENERIC_TAINT
-    return any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
+    return variable in taints or any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
 
 def compute_dependency(slither):
 
@@ -192,13 +200,6 @@ def compute_dependency_function(function):
     function.context[KEY_NON_SSA] = convert_to_non_ssa(function.context[KEY_SSA])
     function.context[KEY_NON_SSA_UNPROTECTED] = convert_to_non_ssa(function.context[KEY_SSA_UNPROTECTED])
 
-def valid_non_ssa(v):
-    if isinstance(v, (TemporaryVariable,
-                      ReferenceVariable,
-                      TupleVariable)):
-        return False
-    return True
-
 def convert_variable_to_non_ssa(v):
     if isinstance(v, (LocalIRVariable, StateIRVariable)):
         if isinstance(v, LocalIRVariable):
@@ -207,18 +208,18 @@ def convert_variable_to_non_ssa(v):
         else:
             contract = v.contract
             return contract.get_state_variable_from_name(v.name)
+    if isinstance(v, (TemporaryVariable, ReferenceVariable)):
+        return next((variable for variable in v.function.slithir_variables if variable.name == v.name))
     return v
 
 def convert_to_non_ssa(data_depencies):
     # Need to create new set() as its changed during iteration
     ret = dict()
     for (k, values) in data_depencies.items():
-        if not valid_non_ssa(k):
-            continue
         var = convert_variable_to_non_ssa(k)
         if not var in ret:
             ret[var] = set()
         ret[var] = ret[var].union(set([convert_variable_to_non_ssa(v) for v in
-                                       values if valid_non_ssa(v)]))
+                                       values]))
 
     return ret
