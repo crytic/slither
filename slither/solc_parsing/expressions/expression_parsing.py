@@ -237,6 +237,35 @@ def filter_name(value):
         value = value[:idx+1]
     return value
 
+def convert_subdenomination(value, sub):
+    if sub is None:
+        return value
+    # to allow 0.1 ether conversion
+    value = float(value)
+    if sub == 'wei':
+        return int(value)
+    if sub == 'szabo':
+        return int(value * int(1e12))
+    if sub == 'finney':
+        return int(value * int(1e15))
+    if sub == 'ether':
+        return int(value * int(1e18))
+    if sub == 'seconds':
+        return int(value)
+    if sub == 'minutes':
+        return int(value * 60)
+    if sub == 'hours':
+        return int(value * 60 * 60)
+    if sub == 'days':
+        return int(value * 60 * 60 * 24)
+    if sub == 'weeks':
+        return int(value * 60 * 60 * 24 * 7)
+    if sub == 'years':
+        return int(value * 60 * 60 * 24 * 7 * 365)
+
+    logger.error('Subdemoniation not found {}'.format(sub))
+    return int(value)
+
 def parse_expression(expression, caller_context):
     """
 
@@ -380,11 +409,17 @@ def parse_expression(expression, caller_context):
 
         if is_compact_ast:
             value = expression['value']
-            if not value and value != "":
+            if value:
+                if 'subdenomination' in expression and expression['subdenomination']:
+                    value = str(convert_subdenomination(value, expression['subdenomination']))
+            elif not value and value != "":
                 value = '0x'+expression['hexValue']
         else:
             value = expression['attributes']['value']
-            if value is None:
+            if value:
+                if 'subdenomination' in expression['attributes'] and expression['attributes']['subdenomination']:
+                    value = str(convert_subdenomination(value, expression['attributes']['subdenomination']))
+            elif value is None:
                 # for literal declared as hex
                 # see https://solidity.readthedocs.io/en/v0.4.25/types.html?highlight=hex#hexadecimal-literals
                 assert 'hexvalue' in expression['attributes']

@@ -156,12 +156,23 @@ def propage_type_and_convert_call(result, node):
         new_ins = propagate_types(ins, node)
         if new_ins:
             if isinstance(new_ins, (list,)):
-                assert len(new_ins) == 2
-                new_ins[0].set_node(ins.node)
-                new_ins[1].set_node(ins.node)
-                result.insert(idx, new_ins[0])
-                result.insert(idx+1, new_ins[1])
-                idx = idx + 1 
+                if len(new_ins) == 2:
+                    new_ins[0].set_node(ins.node)
+                    new_ins[1].set_node(ins.node)
+                    del result[idx]
+                    result.insert(idx, new_ins[0])
+                    result.insert(idx+1, new_ins[1])
+                    idx = idx + 1
+                else:
+                    assert len(new_ins) == 3
+                    new_ins[0].set_node(ins.node)
+                    new_ins[1].set_node(ins.node)
+                    new_ins[2].set_node(ins.node)
+                    del result[idx]
+                    result.insert(idx, new_ins[0])
+                    result.insert(idx+1, new_ins[1])
+                    result.insert(idx+2, new_ins[2])
+                    idx = idx + 2
             else:
                 new_ins.set_node(ins.node)
                 result[idx] = new_ins
@@ -220,8 +231,12 @@ def convert_to_push(ir, node):
     The checks must be done by the caller
 
     May necessitate to create an intermediate operation (InitArray)
+    Necessitate to return the lenght (see push documentation)
     As a result, the function return may return a list
     """
+
+
+    lvalue = ir.lvalue
     if isinstance(ir.arguments[0], list):
         ret = []
 
@@ -236,9 +251,25 @@ def convert_to_push(ir, node):
         ir.lvalue.set_type(ArrayType(t, length))
 
         ret.append(ir)
+
+        if lvalue:
+            length = Length(ir.array, lvalue)
+            length.lvalue.points_to = ir.lvalue
+            ret.append(length)
+
         return ret
 
     ir = Push(ir.destination, ir.arguments[0])
+
+    if lvalue:
+        ret = []
+        ret.append(ir)
+
+        length = Length(ir.array, lvalue)
+        length.lvalue.points_to = ir.lvalue
+        ret.append(length)
+        return ret
+
     return ir
 
 def look_for_library(contract, ir, node, using_for, t):
@@ -285,10 +316,19 @@ def get_type(t):
     return str(t)
 
 def get_sig(ir):
+    '''
+        Return a list of potential signature
+        It is a list, as Constant variables can be converted to int256
+    Args:
+        ir (slithIR.operation)
+    Returns:
+        list(str)
+    '''
     sig = '{}({})'
     name = ir.function_name
 
-    args = []
+    # list of list of arguments
+    argss = [[]]
     for arg in ir.arguments:
         if isinstance(arg, (list,)):
             type_arg = '{}[{}]'.format(get_type(arg[0].type), len(arg))
@@ -296,14 +336,31 @@ def get_sig(ir):
             type_arg = arg.signature_str
         else:
             type_arg = get_type(arg.type)
-        args.append(type_arg)
-    return sig.format(name, ','.join(args))
+        if isinstance(arg, Constant) and arg.type == ElementaryType('uint256'):
+            # If it is a constant
+            # We dupplicate the existing list
+            # And we add uint256 and int256 cases
+            # There is no potential collision, as the compiler
+            # Prevent it with a 
+            # "not unique after argument-dependent loopkup" issue
+            argss_new = [list(args) for args in argss]
+            for args in argss:
+                args.append(str(ElementaryType('uint256')))
+            for args in argss_new:
+                args.append(str(ElementaryType('int256')))
+            argss = argss + argss_new
+        else:
+            for args in argss:
+                args.append(type_arg)
+    return [sig.format(name, ','.join(args)) for args in argss]
 
 def convert_type_library_call(ir, lib_contract):
-    sig = get_sig(ir)
-    func = lib_contract.get_function_from_signature(sig)
-    if not func:
-        func = lib_contract.get_state_variable_from_name(ir.function_name)
+    sigs = get_sig(ir)
+    func = None
+    for sig in sigs:
+        func = lib_contract.get_function_from_signature(sig)
+        if not func:
+            func = lib_contract.get_state_variable_from_name(ir.function_name)
     # In case of multiple binding to the same type
     if not func:
         # specific lookup when the compiler does implicit conversion
@@ -332,10 +389,12 @@ def convert_type_library_call(ir, lib_contract):
     return ir
 
 def convert_type_of_high_level_call(ir, contract):
-    sig = get_sig(ir)
-    func = contract.get_function_from_signature(sig)
-    if not func:
-        func = contract.get_state_variable_from_name(ir.function_name)
+    func = None
+    sigs = get_sig(ir)
+    for sig in sigs:
+        func = contract.get_function_from_signature(sig)
+        if not func:
+            func = contract.get_state_variable_from_name(ir.function_name)
     if not func:
         # specific lookup when the compiler does implicit conversion
         # for example
@@ -472,11 +531,11 @@ def propagate_types(ir, node):
                 assert False
             elif isinstance(ir, Member):
                 # TODO we should convert the reference to a temporary if the member is a length or a balance
-                if ir.variable_right == 'length' and isinstance(ir.variable_left.type, (ElementaryType, ArrayType)):
+                if ir.variable_right == 'length' and not isinstance(ir.variable_left, Contract) and isinstance(ir.variable_left.type, (ElementaryType, ArrayType)):
                     length = Length(ir.variable_left, ir.lvalue)
                     ir.lvalue.points_to = ir.variable_left
                     return ir
-                if ir.variable_right == 'balance' and isinstance(ir.variable_left.type, ElementaryType):
+                if ir.variable_right == 'balance'and not isinstance(ir.variable_left, Contract)  and isinstance(ir.variable_left.type, ElementaryType):
                     return Balance(ir.variable_left, ir.lvalue)
                 left = ir.variable_left
                 if isinstance(left, (Variable, SolidityVariable)):

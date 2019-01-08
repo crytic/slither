@@ -39,16 +39,7 @@ class NewContract(Call, OperationWithLValue):
 
     @property
     def read(self):
-        # if array inside the parameters
-        def unroll(l):
-            ret = []
-            for x in l:
-                if not isinstance(x, list):
-                    ret += [x]
-                else:
-                    ret += unroll(x)
-            return ret
-        return unroll(self.arguments)
+        return self._unroll(self.arguments)
 
     def __str__(self):
         value = ''

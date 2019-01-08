@@ -191,9 +191,9 @@ class FunctionSolc(Function):
 
         if loop_expression:
             node_LoopExpression = self._parse_statement(loop_expression, node_body)
-            link_nodes(node_LoopExpression, node_startLoop)
+            link_nodes(node_LoopExpression, node_condition)
         else:
-            link_nodes(node_body, node_startLoop)
+            link_nodes(node_body, node_condition)
 
         if not condition:
             if not loop_expression:
@@ -286,7 +286,7 @@ class FunctionSolc(Function):
         if not hasCondition and not hasLoopExpression:
             link_nodes(node, node_endLoop)
 
-        link_nodes(node_LoopExpression, node_startLoop)
+        link_nodes(node_LoopExpression, node_condition)
 
         return node_endLoop
 
@@ -616,6 +616,10 @@ class FunctionSolc(Function):
 
         if node.type == NodeType.ENDLOOP:
             return node
+
+        # nested loop
+        if node.type == NodeType.STARTLOOP:
+            return None
 
         visited = visited + [node]
         for son in node.sons:
