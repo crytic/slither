@@ -10,19 +10,20 @@ from slither.core.declarations import Function, SolidityFunction
 from slither.core.expressions import UnaryOperation, UnaryOperationType
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
+from slither.visitors.expression.export_values import ExportValues
 from slither.slithir.operations import (HighLevelCall, LowLevelCall,
                                         LibraryCall,
                                         Send, Transfer)
 
-class Reentrancy(AbstractDetector):
-    ARGUMENT = 'reentrancy'
-    HELP = 'Reentrancy vulnerabilities'
-    IMPACT = DetectorClassification.HIGH
+class ReentrancyReadBeforeWritten(AbstractDetector):
+    ARGUMENT = 'reentrancy-no-eth'
+    HELP = 'Reentrancy vulnerabilities (no theft of ethers)'
+    IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities'
 
-    key = 'REENTRANCY'
+    key = 'REENTRANCY-NO-ETHER'
 
     @staticmethod
     def _can_callback(node):
@@ -54,7 +55,7 @@ class Reentrancy(AbstractDetector):
                     return True
         return False
 
-    def _check_on_call_returned(self, node):
+    def _filter_if(self, node):
         """
             Check if the node is a condtional node where
             there is an external call checked
@@ -68,7 +69,7 @@ class Reentrancy(AbstractDetector):
         return isinstance(node.expression, UnaryOperation)\
             and node.expression.type == UnaryOperationType.BANG
 
-    def _explore(self, node, visited):
+    def _explore(self, node, visited, skip_father=None):
         """
             Explore the CFG and look for re-entrancy
             Heuristic: There is a re-entrancy if a state variable is written
@@ -92,8 +93,8 @@ class Reentrancy(AbstractDetector):
 
         for father in node.fathers:
             if self.key in father.context:
-                fathers_context['send_eth'] += father.context[self.key]['send_eth']
-                fathers_context['calls'] += father.context[self.key]['calls']
+                fathers_context['send_eth'] += [s for s in father.context[self.key]['send_eth'] if s!=skip_father]
+                fathers_context['calls'] += [c for c in father.context[self.key]['calls'] if c!=skip_father]
                 fathers_context['read'] += father.context[self.key]['read']
 
         # Exclude path that dont bring further information
@@ -135,19 +136,26 @@ class Reentrancy(AbstractDetector):
         # We found a potential re-entrancy bug
         if (read_then_written and
                 node.context[self.key]['calls'] and
-                node.context[self.key]['send_eth']):
+                not node.context[self.key]['send_eth']):
             # calls are ordered
             finding_key = (node.function,
-                           tuple(set(node.context[self.key]['calls'])),
-                           tuple(set(node.context[self.key]['send_eth'])))
+                           tuple(set(node.context[self.key]['calls'])))
             finding_vars = read_then_written
             if finding_key not in self.result:
                 self.result[finding_key] = []
             self.result[finding_key] = list(set(self.result[finding_key] + finding_vars))
 
         sons = node.sons
-        if contains_call and self._check_on_call_returned(node):
-            sons = sons[1:]
+        if contains_call and node.type in [NodeType.IF, NodeType.IFLOOP]:
+            if self._filter_if(node):
+                son = sons[0]
+                self._explore(son, visited, node)
+                sons = sons[1:]
+            else:
+                son = sons[1]
+                self._explore(son, visited, node)
+                sons = [sons[0]]
+
 
         for son in sons:
             self._explore(son, visited)
@@ -177,33 +185,19 @@ class Reentrancy(AbstractDetector):
         results = []
 
         result_sorted = sorted(list(self.result.items()), key=lambda x:x[0][0].name)
-        for (func, calls, send_eth), varsWritten in result_sorted:
+        for (func, calls), varsWritten in result_sorted:
             calls = list(set(calls))
-            send_eth = list(set(send_eth))
-#            if calls == send_eth:
-#                calls_info = 'Call: {},'.format(calls_str)
-#            else:
-#                calls_info = 'Call: {}, Ether sent: {},'.format(calls_str, send_eth_str)
             info = 'Reentrancy in {}.{} ({}):\n'
             info = info.format(func.contract.name, func.name, func.source_mapping_str)
             info += '\tExternal calls:\n'
             for call_info in calls:
                 info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
-            if calls != send_eth:
-                info += '\tExternal calls sending eth:\n'
-                for call_info in send_eth:
-                    info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
             info += '\tState variables written after the call(s):\n'
             for (v, node) in varsWritten:
                 info +=  '\t- {} ({})\n'.format(v, node.source_mapping_str)
             self.log(info)
 
             sending_eth_json = []
-            if calls != send_eth:
-                sending_eth_json = [{'type' : 'external_calls_sending_eth',
-                                     'expression': str(call_info.expression),
-                                     'source_mapping': call_info.source_mapping}
-                                    for call_info in calls]
 
             json = self.generate_json_result(info)
             self.add_function_to_json(func, json)
