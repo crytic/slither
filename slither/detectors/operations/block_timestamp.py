@@ -10,10 +10,7 @@
     TODO: dont report if the value is tainted by msg.value
 """
 from slither.core.declarations import Function
-from slither.analyses.taint.all_variables import is_tainted as is_tainted_from_inputs
-from slither.analyses.taint.specific_variable import is_tainted
-from slither.analyses.taint.specific_variable import \
-    run_taint as run_taint_variable
+from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
 from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariableComposed)
 from slither.detectors.abstract_detector import (AbstractDetector,
@@ -40,12 +37,12 @@ class Timestamp(AbstractDetector):
         for node in func.nodes:
             if node.contains_require_or_assert():
                 for var in node.variables_read:
-                    if is_tainted(var, SolidityVariableComposed('block.timestamp')):
+                    if is_dependent(var, SolidityVariableComposed('block.timestamp'), func.contract):
                         ret.add(node)
             for ir in node.irs:
                 if isinstance(ir, Binary) and BinaryType.return_bool(ir.type):
                     for var in ir.read:
-                        if is_tainted(var, SolidityVariableComposed('block.timestamp')):
+                        if is_dependent(var, SolidityVariableComposed('block.timestamp'), func.contract):
                             ret.add(node)
         return list(ret)
 
@@ -68,10 +65,6 @@ class Timestamp(AbstractDetector):
         """
         """
         results = []
-
-        # Taint block.timestamp
-        taint = SolidityVariableComposed('block.timestamp')
-        run_taint_variable(self.slither, taint)
 
         for c in self.contracts:
             dangerous_timestamp = self.detect_dangerous_timestamp(c)

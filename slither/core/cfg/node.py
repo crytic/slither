@@ -150,6 +150,8 @@ class Node(SourceMapping, ChildFunction):
         self._local_vars_read = []
         self._local_vars_written = []
 
+        self._slithir_vars = set() # non SSA
+
         self._ssa_local_vars_read = []
         self._ssa_local_vars_written = []
 
@@ -271,6 +273,10 @@ class Node(SourceMapping, ChildFunction):
     @property
     def variables_read_as_expression(self):
         return self._expression_vars_read
+
+    @property
+    def slithir_variables(self):
+        return list(self._slithir_vars)
 
     @property
     def variables_written(self):
@@ -500,22 +506,32 @@ class Node(SourceMapping, ChildFunction):
         self._find_read_write_call()
 
     @staticmethod
-    def _is_slithir_var(var):
-        return isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
+    def _is_non_slithir_var(var):
+        return not isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
+
+    @staticmethod
+    def _is_valid_slithir_var(var):
+        return isinstance(var, (ReferenceVariable, TemporaryVariable, TupleVariable))
 
     def _find_read_write_call(self):
 
         for ir in self.irs:
-            self._vars_read += [v for v in ir.read if not self._is_slithir_var(v)]
+
+            self._slithir_vars |= set([v for v in ir.read if self._is_valid_slithir_var(v)])
+            if isinstance(ir, OperationWithLValue):
+                var = ir.lvalue
+                if var and self._is_valid_slithir_var(var):
+                    self._slithir_vars.add(var)
+
+            self._vars_read += [v for v in ir.read if self._is_non_slithir_var(v)]
             if isinstance(ir, OperationWithLValue):
                 if isinstance(ir, (Index, Member, Length, Balance)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
                 var = ir.lvalue
                 if isinstance(var, (ReferenceVariable)):
                     var = var.points_to_origin
-                # Only store non-slithIR variables
-                if not self._is_slithir_var(var) and var:
-                    self._vars_written.append(var)
+                if var and self._is_non_slithir_var(var):
+                        self._vars_written.append(var)
 
             if isinstance(ir, InternalCall):
                 self._internal_calls.append(ir.function)

@@ -31,3 +31,4 @@ class TemporaryVariable(ChildNode, Variable):
 
     def __str__(self):
         return self.name
+

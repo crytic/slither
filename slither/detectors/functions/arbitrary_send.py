@@ -10,10 +10,7 @@
     TODO: dont report if the value is tainted by msg.value
 """
 from slither.core.declarations import Function
-from slither.analyses.taint.all_variables import is_tainted as is_tainted_from_inputs
-from slither.analyses.taint.specific_variable import is_tainted
-from slither.analyses.taint.specific_variable import \
-    run_taint as run_taint_variable
+from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
 from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariableComposed)
 from slither.detectors.abstract_detector import (AbstractDetector,
@@ -48,7 +45,7 @@ class ArbitrarySend(AbstractDetector):
                 if isinstance(ir, Index):
                     if ir.variable_right == SolidityVariableComposed('msg.sender'):
                         return False
-                    if is_tainted(ir.variable_right, SolidityVariableComposed('msg.sender')):
+                    if is_dependent(ir.variable_right, SolidityVariableComposed('msg.sender'), func.contract):
                         return False
                 if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
                     if isinstance(ir, (HighLevelCall)):
@@ -59,10 +56,10 @@ class ArbitrarySend(AbstractDetector):
                         continue
                     if ir.call_value == SolidityVariableComposed('msg.value'):
                         continue
-                    if is_tainted(ir.call_value, SolidityVariableComposed('msg.value')):
+                    if is_dependent(ir.call_value, SolidityVariableComposed('msg.value'), func.contract):
                         continue
 
-                    if is_tainted_from_inputs(self.slither, ir.destination):
+                    if is_tainted(ir.destination, func.contract, self.slither):
                         ret.append(node)
 
 
@@ -88,14 +85,6 @@ class ArbitrarySend(AbstractDetector):
         """
         """
         results = []
-
-        # Taint msg.value
-        taint = SolidityVariableComposed('msg.value')
-        run_taint_variable(self.slither, taint)
-
-        # Taint msg.sender
-        taint = SolidityVariableComposed('msg.sender')
-        run_taint_variable(self.slither, taint)
 
         for c in self.contracts:
             arbitrary_send = self.detect_arbitrary_send(c)
