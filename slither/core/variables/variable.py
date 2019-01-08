@@ -11,11 +11,6 @@ class Variable(SourceMapping):
     def __init__(self):
         super(Variable, self).__init__()
         self._name = None
-        self._typeName = None
-        self._arrayDepth = None
-        self._isMapping = None
-        self._mappingFrom = None
-        self._mappingTo = None
         self._initial_expression = None
         self._type = None
         self._initialized = None
@@ -58,6 +53,10 @@ class Variable(SourceMapping):
         '''
         return self._name
 
+    @name.setter
+    def name(self, name):
+        self._name = name
+
     @property
     def type(self):
         return self._type
@@ -81,4 +80,5 @@ class Variable(SourceMapping):
 
     def __str__(self):
         return self._name
+
 
