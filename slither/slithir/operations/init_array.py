@@ -23,16 +23,7 @@ class InitArray(OperationWithLValue):
 
     @property
     def read(self):
-        # if array inside the init values
-        def unroll(l):
-            ret = []
-            for x in l:
-                if not isinstance(x, list):
-                    ret += [x]
-                else:
-                    ret += unroll(x)
-            return ret
-        return unroll(self.init_values)
+        return self._unroll(self.init_values)
 
     @property
     def init_values(self):
