@@ -84,9 +84,10 @@ def add_ssa_ir(function, all_state_variables_instances):
             node.add_ssa_ir(Phi(StateIRVariable(variable), nodes))
 
     init_local_variables_instances = dict()
-    for v in function.parameters+function.returns:
+    for v in function.parameters:
         if v.name:
             new_var = LocalIRVariable(v)
+            function.add_parameter_ssa(new_var)
             if new_var.is_storage:
                 fake_variable = LocalIRVariable(v)
                 fake_variable.name = 'STORAGE_'+fake_variable.name
@@ -94,6 +95,19 @@ def add_ssa_ir(function, all_state_variables_instances):
                 new_var.refers_to = {fake_variable}
                 init_local_variables_instances[fake_variable.name] = fake_variable
             init_local_variables_instances[v.name] = new_var
+
+    for v in function.returns:
+        if v.name:
+            new_var = LocalIRVariable(v)
+            function.add_return_ssa(new_var)
+            if new_var.is_storage:
+                fake_variable = LocalIRVariable(v)
+                fake_variable.name = 'STORAGE_'+fake_variable.name
+                fake_variable.set_location('reference_to_storage')
+                new_var.refers_to = {fake_variable}
+                init_local_variables_instances[fake_variable.name] = fake_variable
+            init_local_variables_instances[v.name] = new_var
+
     all_init_local_variables_instances = dict(init_local_variables_instances)
 
     init_state_variables_instances = dict(all_state_variables_instances)

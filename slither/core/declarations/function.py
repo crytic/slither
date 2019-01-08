@@ -36,7 +36,9 @@ class Function(ChildContract, SourceMapping):
         self._nodes = []
         self._variables = {}
         self._parameters = []
+        self._parameters_ssa = []
         self._returns = []
+        self._returns_ssa = []
         self._vars_read = []
         self._vars_written = []
         self._state_vars_read = []
@@ -162,11 +164,31 @@ class Function(ChildContract, SourceMapping):
         return list(self._parameters)
 
     @property
+    def parameters_ssa(self):
+        """
+            list(LocalIRVariable): List of the parameters (SSA form)
+        """
+        return list(self._parameters_ssa)
+
+    def add_parameter_ssa(self, var):
+        self._parameters_ssa.append(var)
+
+    @property
     def returns(self):
         """
             list(LocalVariable): List of the return variables
         """
         return list(self._returns)
+
+    @property
+    def returns_ssa(self):
+        """
+            list(LocalIRVariable): List of the return variables (SSA form)
+        """
+        return list(self._returns_ssa)
+
+    def add_return_ssa(self, var):
+        self._returns_ssa.append(var)
 
     @property
     def modifiers(self):

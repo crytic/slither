@@ -9,7 +9,7 @@ from slither.solc_parsing.declarations.contract import ContractSolc04
 from slither.core.slither_core import Slither
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.import_directive import Import
-from slither.analyses.data_depencency.data_depency import compute_dependency
+from slither.analyses.data_dependency.data_dependency import compute_dependency
 
 from slither.utils.colors import red
 
