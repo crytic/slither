@@ -112,6 +112,8 @@ def add_ssa_ir(function, all_state_variables_instances):
 
     init_state_variables_instances = dict(all_state_variables_instances)
 
+    initiate_all_local_variables_instances(function.nodes, init_local_variables_instances, all_init_local_variables_instances)
+
     generate_ssa_irs(function.entry_point,
                      dict(init_local_variables_instances),
                      all_init_local_variables_instances,
@@ -209,6 +211,16 @@ def is_used_later(initial_node, variable):
 
     return False
 
+
+def initiate_all_local_variables_instances(nodes, local_variables_instances, all_local_variables_instances):
+    for node in nodes:
+        if node.variable_declaration:
+            new_var = LocalIRVariable(node.variable_declaration)
+            if new_var.name in all_local_variables_instances:
+                new_var.index = all_local_variables_instances[new_var.name].index + 1
+            local_variables_instances[node.variable_declaration.name] = new_var
+            all_local_variables_instances[node.variable_declaration.name] = new_var
+
 def generate_ssa_irs(node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances, init_local_variables_instances, visited):
 
     if node in visited:
@@ -219,13 +231,6 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
 
     # visited is shared
     visited.append(node)
-
-    if node.variable_declaration:
-        new_var = LocalIRVariable(node.variable_declaration)
-        if new_var.name in all_local_variables_instances:
-            new_var.index = all_local_variables_instances[new_var.name].index + 1
-        local_variables_instances[node.variable_declaration.name] = new_var
-        all_local_variables_instances[node.variable_declaration.name] = new_var
 
     for ir in node.irs_ssa:
         assert isinstance(ir, Phi)
