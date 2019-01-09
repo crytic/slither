@@ -35,3 +35,18 @@ contract B is A {
         }
     }
 }
+
+contract MyConc{
+
+    uint constant A = 1;
+    bytes32 should_be_constant = sha256('abc');
+    uint should_be_constant_2 = A + 1;
+    address not_constant = msg.sender;
+    uint not_constant_2 = getNumber();
+    uint not_constant_3 = 10 + block.number;
+    
+    function getNumber() public returns(uint){
+        return block.number;
+    }
+
+}
