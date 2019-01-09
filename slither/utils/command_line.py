@@ -3,7 +3,7 @@ from prettytable import PrettyTable
 
 from slither.detectors.abstract_detector import classification_txt
 
-def output_to_markdown(detector_classes, printer_classes):
+def output_to_markdown(detector_classes, printer_classes, filter_wiki):
 
     def extract_help(detector):
         if detector.WIKI == '':
@@ -11,10 +11,13 @@ def output_to_markdown(detector_classes, printer_classes):
         return '[{}]({})'.format(detector.HELP, detector.WIKI)
 
     detectors_list = []
+    print(filter_wiki)
     for detector in detector_classes:
         argument = detector.ARGUMENT
         # dont show the backdoor example
         if argument == 'backdoor':
+            continue
+        if not filter_wiki in detector.WIKI:
             continue
         help_info = extract_help(detector)
         impact = detector.IMPACT

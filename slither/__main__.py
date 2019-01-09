@@ -394,7 +394,6 @@ def parse_args(detector_classes, printer_classes):
     parser.add_argument('--markdown',
                         help=argparse.SUPPRESS,
                         action=OutputMarkdown,
-                        nargs=0,
                         default=False)
 
     parser.add_argument('--list-detectors-json',
@@ -441,9 +440,9 @@ class ListPrinters(argparse.Action):
         parser.exit()
 
 class OutputMarkdown(argparse.Action):
-    def __call__(self, parser, *args, **kwargs):
+    def __call__(self, parser, args, values, option_string=None):
         detectors, printers = get_detectors_and_printers()
-        output_to_markdown(detectors, printers)
+        output_to_markdown(detectors, printers, values)
         parser.exit()
 
 
