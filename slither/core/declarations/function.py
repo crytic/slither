@@ -528,7 +528,7 @@ class Function(ChildContract, SourceMapping):
         """
         return self._explore_functions(lambda x: x.internal_calls)
 
-    def all_conditional_state_variables_read(self):
+    def all_conditional_state_variables_read(self, include_loop=True):
         """
             Return the state variable used in a condition
 
@@ -536,11 +536,11 @@ class Function(ChildContract, SourceMapping):
             It won't work if the variable is assigned to a temp variable
         """
         def _explore_func(func):
-            ret = [n.state_variables_read for n in func.nodes if n.is_conditional()]
+            ret = [n.state_variables_read for n in func.nodes if n.is_conditional(include_loop)]
             return [item for sublist in ret for item in sublist]
         return self._explore_functions(lambda x: _explore_func(x))
 
-    def all_conditional_solidity_variables_read(self):
+    def all_conditional_solidity_variables_read(self, include_loop=True):
         """
             Return the Soldiity variables directly used in a condtion
 
@@ -556,7 +556,7 @@ class Function(ChildContract, SourceMapping):
                     ret += ir.read
             return [var for var in ret if isinstance(var, SolidityVariable)]
         def _explore_func(func, f):
-            ret = [f(n) for n in func.nodes if n.is_conditional()]
+            ret = [f(n) for n in func.nodes if n.is_conditional(include_loop)]
             return [item for sublist in ret for item in sublist]
         return self._explore_functions(lambda x: _explore_func(x, _solidity_variable_in_node))
 
@@ -721,7 +721,7 @@ class Function(ChildContract, SourceMapping):
 
         if self.is_constructor:
             return True
-        conditional_vars = self.all_conditional_solidity_variables_read()
+        conditional_vars = self.all_conditional_solidity_variables_read(include_loop=False)
         args_vars = self.all_solidity_variables_used_as_args()
         return SolidityVariableComposed('msg.sender') in conditional_vars + args_vars
 
