@@ -152,7 +152,7 @@ def update_lvalue(new_ir, node, local_variables_instances, all_local_variables_i
     if isinstance(new_ir, OperationWithLValue):
         lvalue = new_ir.lvalue
         update_through_ref = False
-        if isinstance(new_ir, Assignment):
+        if isinstance(new_ir, (Assignment, Binary)):
             if isinstance(lvalue, ReferenceVariable):
                 update_through_ref = True
                 while isinstance(lvalue, ReferenceVariable):
@@ -275,7 +275,7 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
                     # rvalues are fixed in solc_parsing.declaration.function
                     node.add_ssa_ir(phi_ir)
 
-            if isinstance(new_ir, Assignment):
+            if isinstance(new_ir, (Assignment, Binary)):
                 if isinstance(new_ir.lvalue, LocalIRVariable):
                     if new_ir.lvalue.is_storage:
                         if isinstance(new_ir.rvalue, ReferenceVariable):
@@ -315,7 +315,7 @@ def fix_phi_rvalues_and_storage_ref(node, local_variables_instances, all_local_v
                     l = [item for sublist in l for item in sublist]
                     ir.lvalue.refers_to = set(l)
 
-        if isinstance(ir, Assignment):
+        if isinstance(ir, (Assignment, Binary)):
             if isinstance(ir.lvalue, ReferenceVariable):
                 origin = ir.lvalue.points_to_origin
 

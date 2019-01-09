@@ -3,6 +3,7 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.core.solidity_types import ElementaryType
+from slither.slithir.variables import ReferenceVariable
 
 logger = logging.getLogger("BinaryOperationIR")
 
@@ -165,6 +166,15 @@ class Binary(OperationWithLValue):
         return BinaryType.str(self._type)
 
     def __str__(self):
+        if isinstance(self.lvalue, ReferenceVariable):
+            points = self.lvalue.points_to
+            while isinstance(points, ReferenceVariable):
+                points = points.points_to
+            return '{}(-> {}) = {} {} {}'.format(str(self.lvalue),
+                                              points,
+                                              self.variable_left,
+                                              self.type_str,
+                                              self.variable_right)
         return '{}({}) = {} {} {}'.format(str(self.lvalue),
                                           self.lvalue.type,
                                           self.variable_left,
