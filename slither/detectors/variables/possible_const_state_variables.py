@@ -2,13 +2,8 @@
 Module detecting state variables that could be declared as constant
 """
 
-from collections import defaultdict
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import OperationWithLValue
-from slither.core.variables.state_variable import StateVariable
-from slither.core.expressions.literal import Literal
-
 
 class ConstCandidateStateVars(AbstractDetector):
     """
@@ -26,56 +21,38 @@ class ConstCandidateStateVars(AbstractDetector):
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variables-that-could-be-declared-constant'
 
     @staticmethod
-    def lvalues_of_operations_with_lvalue(contract):
-        ret = []
-        for f in contract.all_functions_called + contract.modifiers:
-            for n in f.nodes:
-                for ir in n.irs:
-                    if isinstance(ir, OperationWithLValue) and isinstance(ir.lvalue, StateVariable):
-                        ret.append(ir.lvalue)
-        return ret
-
-    @staticmethod
-    def non_const_state_variables(contract):
-        return [variable for variable in contract.state_variables
-                if not variable.is_constant and type(variable.expression) == Literal]
-
-    def detect_const_candidates(self, contract):
-        const_candidates = []
-        non_const_state_vars = self.non_const_state_variables(contract)
-        lvalues_of_operations = self.lvalues_of_operations_with_lvalue(contract)
-        for non_const in non_const_state_vars:
-            if non_const not in lvalues_of_operations \
-                    and non_const not in const_candidates \
-                    and isinstance(non_const.type, ElementaryType):
-                const_candidates.append(non_const)
-
-        return const_candidates
+    def _valid_candidate(v):
+        return isinstance(v.type, ElementaryType) and not v.is_constant
 
     def detect(self):
         """ Detect state variables that could be const
         """
         results = []
         all_info = ''
-        for c in self.slither.contracts_derived:
-            const_candidates = self.detect_const_candidates(c)
-            if const_candidates:
-                variables_by_contract = defaultdict(list)
 
-                for state_var in const_candidates:
-                    variables_by_contract[state_var.contract.name].append(state_var)
+        all_variables = [c.state_variables for c in self.slither.contracts]
+        all_variables = set([item for sublist in all_variables for item in sublist])
+        all_non_constant_elementary_variables = set([v for v in all_variables
+                                                     if self._valid_candidate(v)])
 
-                for contract, variables in variables_by_contract.items():
-                    info = ''
-                    for v in variables:
-                        info += "{}.{} should be constant ({})\n".format(contract,
-                                                                         v.name,
-                                                                         v.source_mapping_str)
-                    all_info += info
-                    json = self.generate_json_result(info)
-                    self.add_variables_to_json(variables, json)
-                    results.append(json)
+        all_functions = [c.all_functions_called for c in self.slither.contracts]
+        all_functions = list(set([item for sublist in all_functions for item in sublist]))
 
+        all_variables_written = [f.state_variables_written for f in all_functions]
+        all_variables_written = set([item for sublist in all_variables_written for item in sublist])
+
+        constable_variables = [v for v in all_non_constant_elementary_variables
+                               if not v in all_variables_written]
+        # Order for deterministic results
+        constable_variables = sorted(constable_variables, key=lambda x: x.canonical_name)
+        for v in constable_variables:
+            info = "{}.{} should be constant ({})\n".format(v.contract.name,
+                                                            v.name,
+                                                            v.source_mapping_str)
+            all_info += info
         if all_info != '':
+            json = self.generate_json_result(all_info)
+            self.add_variables_to_json(constable_variables, json)
+            results.append(json)
             self.log(all_info)
         return results
