@@ -31,7 +31,7 @@ class Function(ChildContract, SourceMapping):
         self._visibility = None
         self._is_constructor = None
         self._is_implemented = None
-        self._is_empty = None
+        self._is_empty = True
         self._entry_point = None
         self._nodes = []
         self._variables = {}
