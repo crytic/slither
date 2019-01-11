@@ -580,6 +580,8 @@ class Node(SourceMapping, ChildFunction):
         if not self.expression:
             return
         for ir in self.irs_ssa:
+            if isinstance(ir, (PhiCallback)):
+                continue
             self._ssa_vars_read += [v for v in ir.read if isinstance(v,
                                                                      (StateIRVariable,
                                                                       LocalIRVariable))]
