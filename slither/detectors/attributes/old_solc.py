@@ -358,17 +358,23 @@ class OldSolc(AbstractDetector):
         # TODO: Remove this once all testing is complete.
         self.test_versions()
 
-        # TODO: Obtain "pragma" variable that is only version specifications, not other pragma statements.
-        # TODO: Verify this file could be compiled at all. If it failed to compile, "pragma" will be [] and we will
-        # TODO: assume no pragma exists in this file.
+        # Detect all version related pragmas and check if they are disallowed.
         results = []
         pragma = self.slither.pragma_directives
         disallowed_pragmas = []
+        detected_version = False
         for p in pragma:
+            # Skip any pragma directives which do not refer to version
+            if len(p.directive) < 1 or p.directive[0] != "solidity":
+                continue
+
+            # This is version, so we test if this is disallowed.
+            detected_version = True
             reason = self._is_disallowed_pragma(p.version)
             if reason:
                 disallowed_pragmas.append((reason, p))
 
+        # If we found any disallowed pragmas, we output our findings.
         if disallowed_pragmas:
             info = "Detected issues with version pragma in {}:\n".format(self.filename)
             for (reason, p) in disallowed_pragmas:
@@ -382,7 +388,8 @@ class OldSolc(AbstractDetector):
                                     'source_mapping': p.source_mapping} for (reason, p) in disallowed_pragmas]
             results.append(json)
 
-        elif len(pragma) == 0:
+        # If we never detected a version-related pragma statement, output an error.
+        elif not detected_version:
             # If we had no pragma statements, we warn the user that no version spec was included in this file.
             info = "No version pragma detected in {}\n".format(self.filename)
             self.log(info)
