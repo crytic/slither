@@ -22,12 +22,13 @@ class OldSolc(AbstractDetector):
     VERSION_PATTERN = "(?:(?:\d+|\*|x|X)\.(?:\d+|\*|x|X)\.(?:\d+|\*|x|X)|(?:\d+|\*|x|X)\.(?:\d+|\*|x|X)|(?:\d+|\*|x|X))"
     SPEC_PATTERN = re.compile(f"(?:(?:(\^|\~|\>\s*=|\<\s*\=|\<|\>|\=|v)\s*({VERSION_PATTERN}))|(?:\s*({VERSION_PATTERN})\s*(\-)\s*({VERSION_PATTERN})\s*))(\s*\|\|\s*|\s*)")
 
-
     # Indicates the highest disallowed version.
     DISALLOWED_THRESHOLD = "0.4.22"
 
     class SemVerVersion(object):
-
+        """
+        Represents a version in semver. Wildcards are supported.
+        """
         MAX_DIGIT_VALUE = 2**256
         MIN_DIGIT_VALUE = -(2**256)
 
@@ -112,6 +113,9 @@ class OldSolc(AbstractDetector):
             return OldSolc.SemVerVersion([v if v is not None else self.MAX_DIGIT_VALUE for v in self.version])
 
     class SemVerRange:
+        """
+        Represents a range of versions supported in semver.
+        """
         def __init__(self, lower, upper, lower_inclusive=True, upper_inclusive=True):
             self.lower = lower
             self.upper = upper
@@ -138,6 +142,10 @@ class OldSolc(AbstractDetector):
 
         @property
         def is_valid(self):
+            """
+            Indicates whether the range can encapsulate any values.
+            :return: Returns True if the range can encapsulate any possible value, False if it is an invalid range.
+            """
             return self.lower < self.upper or \
                    (self.lower == self.upper and (self.lower_inclusive or self.upper_inclusive))
 
@@ -175,7 +183,12 @@ class OldSolc(AbstractDetector):
         return OldSolc.SemVerVersion(match, original_length)
 
     def _get_range(self, operation, version):
-
+        """
+        Obtains a SemVerRange given an operation and version (a single spec item).
+        :param operation: A string (typically single char) denoting the operation to perform on the provided version.
+        :param version: The version string to perform an operation on to obtain a range.
+        :return: Returns a SemVerRange that represents the range of values yielded from the given operation.
+        """
         # Assert our version state
         assert version.original_length > 0, "Original version should specify at least one digit"
 
@@ -302,62 +315,11 @@ class OldSolc(AbstractDetector):
         else:
             return None
 
-    def test_versions(self):
-        # TODO: Remove this once all testing is complete.
-        # Basic equality
-        spec_range = self._get_range("", self._parse_version("0.4.23"))
-        assert str(spec_range.lower) == "0.4.23" and str(spec_range.upper) == "0.4.23" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is True
-        spec_range = self._get_range("=", self._parse_version("0.4.23"))
-        assert str(spec_range.lower) == "0.4.23" and str(spec_range.upper) == "0.4.23" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is True
-        spec_range = self._get_range("v", self._parse_version("0.4.23"))
-        assert str(spec_range.lower) == "0.4.23" and str(spec_range.upper) == "0.4.23" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is True
-        spec_range = self._get_range(">", self._parse_version("0.4.23"))
-        assert str(spec_range.lower) == "0.4.23" and str(spec_range.upper) == str(self.max_version) and spec_range.lower_inclusive is False and spec_range.upper_inclusive is True
-        spec_range = self._get_range(">=", self._parse_version("0.4.23"))
-        assert str(spec_range.lower) == "0.4.23" and str(spec_range.upper) == str(self.max_version) and spec_range.lower_inclusive is True and spec_range.upper_inclusive is True
-        spec_range = self._get_range("<", self._parse_version("0.4.23"))
-        assert str(spec_range.lower) == str(self.min_version) and str(spec_range.upper) == "0.4.23" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False
-        spec_range = self._get_range("<=", self._parse_version("0.4.23"))
-        assert str(spec_range.lower) == str(self.min_version) and str(spec_range.upper) == "0.4.23" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is True
-        # Tilda
-        spec_range = self._get_range("~", self._parse_version("1.2.3"))
-        assert str(spec_range.lower) == "1.2.3" and str(spec_range.upper) == "1.3.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False
-        spec_range = self._get_range("~", self._parse_version("1.2"))
-        assert str(spec_range.lower) == "1.2.0" and str(spec_range.upper) == "1.3.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False
-        spec_range = self._get_range("~", self._parse_version("1"))
-        assert str(spec_range.lower) == "1.0.0" and str(spec_range.upper) == "2.0.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False
-        spec_range = self._get_range("~", self._parse_version("0.2.3"))
-        assert str(spec_range.lower) == "0.2.3" and str(spec_range.upper) == "0.3.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False
-        spec_range = self._get_range("~", self._parse_version("0.2"))
-        assert str(spec_range.lower) == "0.2.0" and str(spec_range.upper) == "0.3.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False
-        spec_range = self._get_range("~", self._parse_version("0"))
-        assert str(spec_range.lower) == "0.0.0" and str(spec_range.upper) == "1.0.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False
-        # Caret
-        spec_range = self._get_range("^", self._parse_version("1.2.3"))
-        assert str(spec_range.lower) == "1.2.3" and str(spec_range.upper) == "2.0.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False
-        spec_range = self._get_range("^", self._parse_version("0.2.3"))
-        assert str(spec_range.lower) == "0.2.3" and str(spec_range.upper) == "0.3.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False
-        spec_range = self._get_range("^", self._parse_version("0.0.3"))
-        assert str(spec_range.lower) == "0.0.3" and str(spec_range.upper) == "0.0.4" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False
-
-        # Caret-Special Cases
-        spec_range = self._get_range("^", self._parse_version("1.2.x"))
-        assert str(spec_range.upper) == "2.0.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False
-        spec_range = self._get_range("^", self._parse_version("0.0.x"))
-        assert str(spec_range.upper) == "0.1.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False, spec_range
-        spec_range = self._get_range("^", self._parse_version("0.0"))
-        assert str(spec_range.lower) == "0.0.0" and str(spec_range.upper) == "0.1.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False, spec_range
-
-        # Caret-Special Cases 2
-        spec_range = self._get_range("^", self._parse_version("1.x"))
-        assert str(spec_range.lower) == f"1.{OldSolc.SemVerVersion.MIN_DIGIT_VALUE}.0" and str(spec_range.upper) == "2.0.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False, spec_range
-        spec_range = self._get_range("^", self._parse_version("0.x"))
-        assert str(spec_range.lower) == f"0.{OldSolc.SemVerVersion.MIN_DIGIT_VALUE}.0" and str(spec_range.upper) == "1.0.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False, spec_range
-
     def detect(self):
-        # TODO: Remove this once all testing is complete.
-        self.test_versions()
-
+        """
+        Detects pragma statements that allow for outdated solc versions.
+        :return: Returns the relevant JSON data for the findings.
+        """
         # Detect all version related pragmas and check if they are disallowed.
         results = []
         pragma = self.slither.pragma_directives
