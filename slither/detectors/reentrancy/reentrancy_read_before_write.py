@@ -115,16 +115,7 @@ class ReentrancyReadBeforeWritten(AbstractDetector):
 
         node.context[self.key] = fathers_context
 
-        contains_call = False
-        if self._can_callback(node):
-            node.context[self.key]['calls'] = list(set(node.context[self.key]['calls'] + [node]))
-            node.context[self.key]['read_prior_calls'] = list(set(node.context[self.key]['read_prior_calls'] + node.context[self.key]['read'] + node.state_variables_read))
-            node.context[self.key]['read'] = []
-            contains_call = True
-        if self._can_send_eth(node):
-            node.context[self.key]['send_eth'] = list(set(node.context[self.key]['send_eth'] + [node]))
-
-
+        state_vars_read = node.state_variables_read
         # All the state variables written
         state_vars_written = node.state_variables_written
         # Add the state variables written in internal calls
@@ -132,10 +123,20 @@ class ReentrancyReadBeforeWritten(AbstractDetector):
             # Filter to Function, as internal_call can be a solidity call
             if isinstance(internal_call, Function):
                 state_vars_written += internal_call.all_state_variables_written()
+                state_vars_read += internal_call.all_state_variables_read()
+
+        contains_call = False
+        if self._can_callback(node):
+            node.context[self.key]['calls'] = list(set(node.context[self.key]['calls'] + [node]))
+            node.context[self.key]['read_prior_calls'] = list(set(node.context[self.key]['read_prior_calls'] + node.context[self.key]['read'] + state_vars_read))
+            node.context[self.key]['read'] = []
+            contains_call = True
+        if self._can_send_eth(node):
+            node.context[self.key]['send_eth'] = list(set(node.context[self.key]['send_eth'] + [node]))
 
         read_then_written = [(v, node) for v in state_vars_written if v in node.context[self.key]['read_prior_calls']]
 
-        node.context[self.key]['read'] = list(set(node.context[self.key]['read'] + node.state_variables_read))
+        node.context[self.key]['read'] = list(set(node.context[self.key]['read'] + state_vars_read))
         # If a state variables was read and is then written, there is a dangerous call and
         # ether were sent
         # We found a potential re-entrancy bug
