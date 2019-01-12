@@ -205,6 +205,9 @@ class OldSolc(AbstractDetector):
             # Determine the first significant digit (non-zero) from left.
             digit_index = len(high.version) - 1
             for i in range(0, len(high.version)):
+                if version.original_length < i + 1 or version.version[i] is None:
+                    digit_index = max(0, i - 1)
+                    break
                 if high.version[i] != 0:
                     digit_index = i
                     break
@@ -320,7 +323,9 @@ class OldSolc(AbstractDetector):
 
         # Caret-Special Cases 2
         spec_range = self._get_range("^", self._parse_version("1.x"))
-        assert str(spec_range.lower) == "1.0.0" and str(spec_range.upper) == "0.1.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False, spec_range
+        assert str(spec_range.lower) == f"1.{OldSolc.SemVerVersion.MIN_DIGIT_VALUE}.0" and str(spec_range.upper) == "2.0.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False, spec_range
+        spec_range = self._get_range("^", self._parse_version("0.x"))
+        assert str(spec_range.lower) == f"0.{OldSolc.SemVerVersion.MIN_DIGIT_VALUE}.0" and str(spec_range.upper) == "1.0.0" and spec_range.lower_inclusive is True and spec_range.upper_inclusive is False, spec_range
 
     def detect(self):
         # TODO: Remove this once all testing is complete.
