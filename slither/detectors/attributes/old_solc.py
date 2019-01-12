@@ -20,7 +20,7 @@ class OldSolc(AbstractDetector):
 
     CAPTURING_VERSION_PATTERN = re.compile("(?:(\d+|\*|x|X)\.(\d+|\*|x|X)\.(\d+|\*|x|X)|(\d+|\*|x|X)\.(\d+|\*|x|X)|(\d+|\*|x|X))")
     VERSION_PATTERN = "(?:(?:\d+|\*|x|X)\.(?:\d+|\*|x|X)\.(?:\d+|\*|x|X)|(?:\d+|\*|x|X)\.(?:\d+|\*|x|X)|(?:\d+|\*|x|X))"
-    SPEC_PATTERN = re.compile(f"(?:(?:(\^|\~|\>\s*=|\<\s*\=|\<|\>|\=|v)\s*({VERSION_PATTERN}))|(?:\s*({VERSION_PATTERN})\s*(\-)\s*({VERSION_PATTERN})\s*))(?:\s*\|\|\s*|\s*)")
+    SPEC_PATTERN = re.compile(f"(?:(?:(\^|\~|\>\s*=|\<\s*\=|\<|\>|\=|v)\s*({VERSION_PATTERN}))|(?:\s*({VERSION_PATTERN})\s*(\-)\s*({VERSION_PATTERN})\s*))(\s*\|\|\s*|\s*)")
 
 
     # Indicates the highest disallowed version.
@@ -121,7 +121,12 @@ class OldSolc(AbstractDetector):
         def __str__(self):
             return f"{{SemVerRange: {self.lower} <{'=' if self.upper_inclusive else ''} Version <{'=' if self.upper_inclusive else ''} {self.upper}}}"
 
-        def constrain(self, other):
+        def intersection(self, other):
+            """
+            Performs an intersection operation on both ranges.
+            :param other: The other SemVerRange to perform the intersection with.
+            :return: Returns a SemVerRange which is the intersection of this and the other range provided.
+            """
             low, high, low_inc, high_inc = self.lower, self.upper, self.lower_inclusive, self.upper_inclusive
             if other.lower > low or (other.lower == low and not other.lower_inclusive):
                 low = other.lower
@@ -130,6 +135,11 @@ class OldSolc(AbstractDetector):
                 high = other.upper
                 high_inc = other.upper_inclusive
             return OldSolc.SemVerRange(low, high, low_inc, high_inc)
+
+        @property
+        def is_valid(self):
+            return self.lower < self.upper or \
+                   (self.lower == self.upper and (self.lower_inclusive or self.upper_inclusive))
 
 
     @property
@@ -220,62 +230,79 @@ class OldSolc(AbstractDetector):
             # Our result is an exclusive upper bound, and inclusive lower.
             return OldSolc.SemVerRange(low, high, True, False)
 
-    def _is_allowed_pragma(self, version):
+    def _is_disallowed_pragma(self, version):
         """
         Determines if a given version pragma is allowed (not outdated).
         :param version: The version string to check Solidity's semver is satisfied.
-        :return: Returns True if the version is allowed, False otherwise.
+        :return: Returns a string with a reason why the pragma is disallowed, or returns None if it is valid.
         """
-
-        # TODO: Sanitize the version string so it only contains the portions after the "solidity" text. This is
-        # already the case in this environment, but maybe other solidity versions differ? Verify this.
 
         # First we parse the overall pragma statement, which could have multiple spec items in it (> x, <= y, etc).
         spec_items = self.SPEC_PATTERN.findall(version)
 
         # If we don't have any items, we return the appropriate error
         if not spec_items:
-            # TODO: Return an error that the pragma was malformed or untraditional.
-            return False
+            return f"Untraditional or complex version spec"
 
         # Loop for each spec item, of which there are two kinds:
-        # (1) <operator><version> (standard)
+        # (1) <operator><version_operand> (standard)
         # (2) <version1> - <version2> (range)
-        result_range = None
+        result_ranges = []
+        intersecting = False  # True if this is an AND operation, False if it is an OR operation.
         for spec_item in spec_items:
 
             # Skip any results that don't have 5 items (to be safe)
-            if len(spec_item) < 5:
+            if len(spec_item) < 6:
                 continue
 
             # If the first item exists, it's case (1)
             if spec_item[0]:
                 # This is a range specified by a standard operation applied on a version.
-                operation, version = spec_item[0], self._parse_version(spec_item[1])
-                spec_range = self._get_range(operation, version)
+                operation, version_operand = spec_item[0], self._parse_version(spec_item[1])
+                spec_range = self._get_range(operation, version_operand)
             else:
                 # This is a range from a lower bound to upper bound.
                 version_lower, operation, version_higher = self._parse_version(spec_item[2]), spec_item[3], \
                                                            self._parse_version(spec_item[4])
                 spec_range = OldSolc.SemVerRange(version_lower.lower(), version_higher.upper(), True, True)
 
-            # Constrain our range further.
-            if result_range is None:
-                result_range = spec_range
+            # If we have no items, or we are performing a union, we simply add the range to our list
+            if len(result_ranges) == 0 or not intersecting:
+                result_ranges.append(spec_range)
             else:
-                result_range = result_range.constrain(spec_range)
+                # If we are intersecting, we only intersect with the most recent versions.
+                result_ranges[-1] = result_ranges[-1].intersection(spec_range)
+
+            # Set our operation (AND/OR) from the captured end of this.
+            intersecting = "||" not in spec_item[5]
 
         # Parse the newest disallowed version, and determine if we fall into the lower bound.
         newest_disallowed = self._parse_version(self.DISALLOWED_THRESHOLD)
 
-        self.log(f"FINAL RANGE: {result_range}\n")
-        if result_range.lower_inclusive:
-            return newest_disallowed < result_range.lower
+        # Verify any range doesn't allow as old or older than our newest disallowed.
+        valid_ranges = 0
+        for result_range in result_ranges:
+
+            # Skip any invalid ranges that would allow no versions through.
+            if not result_range.is_valid:
+                continue
+
+            # Increment our valid ranges.
+            valid_ranges += 1
+
+            # We now know this range allows some values through. If it's lower bound is less than the newest disallowed,
+            # then it lets through the newest disallowed, or some lower values.
+            if (result_range.lower_inclusive and newest_disallowed >= result_range.lower) \
+                    or newest_disallowed > result_range.lower:
+                return f"Version spec allows old versions of solidity (<={self.DISALLOWED_THRESHOLD})"
+
+        # Verify we did allow some valid range of versions through.
+        if valid_ranges == 0:
+            return "Version spec does not allow any valid range of versions"
         else:
-            return newest_disallowed <= result_range.lower
+            return None
 
-
-    def tests(self):
+    def test_versions(self):
         # TODO: Remove this once all testing is complete.
         # Basic equality
         spec_range = self._get_range("", self._parse_version("0.4.23"))
@@ -329,21 +356,38 @@ class OldSolc(AbstractDetector):
 
     def detect(self):
         # TODO: Remove this once all testing is complete.
-        self.tests()
+        self.test_versions()
+
+        # TODO: Obtain "pragma" variable that is only version specifications, not other pragma statements.
+        # TODO: Verify this file could be compiled at all. If it failed to compile, "pragma" will be [] and we will
+        # TODO: assume no pragma exists in this file.
         results = []
         pragma = self.slither.pragma_directives
-        old_pragma = sorted([p for p in pragma if not self._is_allowed_pragma(p.version)], key=lambda x:str(x))
+        disallowed_pragmas = []
+        for p in pragma:
+            reason = self._is_disallowed_pragma(p.version)
+            if reason:
+                disallowed_pragmas.append((reason, p))
 
-        if old_pragma:
-            info = "Old version (<0.4.23) of Solidity allowed in {}:\n".format(self.filename)
-            for p in old_pragma:
-                info += "\t- {} declares {}\n".format(p.source_mapping_str, str(p))
+        if disallowed_pragmas:
+            info = "Detected issues with version pragma in {}:\n".format(self.filename)
+            for (reason, p) in disallowed_pragmas:
+                info += "\t- {} ({})\n".format(reason, p.source_mapping_str)
             self.log(info)
 
             json = self.generate_json_result(info)
+
             # follow the same format than add_nodes_to_json
             json['expressions'] = [{'expression': p.version,
-                                    'source_mapping': p.source_mapping} for p in old_pragma]
+                                    'source_mapping': p.source_mapping} for (reason, p) in disallowed_pragmas]
+            results.append(json)
+
+        elif len(pragma) == 0:
+            # If we had no pragma statements, we warn the user that no version spec was included in this file.
+            info = "No version pragma detected in {}\n".format(self.filename)
+            self.log(info)
+
+            json = self.generate_json_result(info)
             results.append(json)
 
         return results
