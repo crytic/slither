@@ -20,7 +20,7 @@ class OldSolc(AbstractDetector):
 
     CAPTURING_VERSION_PATTERN = re.compile("(?:(\d+|\*|x|X)\.(\d+|\*|x|X)\.(\d+|\*|x|X)|(\d+|\*|x|X)\.(\d+|\*|x|X)|(\d+|\*|x|X))")
     VERSION_PATTERN = "(?:(?:\d+|\*|x|X)\.(?:\d+|\*|x|X)\.(?:\d+|\*|x|X)|(?:\d+|\*|x|X)\.(?:\d+|\*|x|X)|(?:\d+|\*|x|X))"
-    SPEC_PATTERN = re.compile(f"(?:(?:(\^|\~|\>\s*=|\<\s*\=|\<|\>|\=|v)\s*({VERSION_PATTERN}))|(?:\s*({VERSION_PATTERN})\s*(\-)\s*({VERSION_PATTERN})\s*))(\s*\|\|\s*|\s*)")
+    SPEC_PATTERN = re.compile(f"(?:(?:\s*({VERSION_PATTERN})\s*(\-)\s*({VERSION_PATTERN})\s*)|(?:(\^|\~|\>\s*=|\<\s*\=|\<|\>|\=|v|)\s*({VERSION_PATTERN})))(\s*\|\|\s*|\s*)")
 
     # Indicates the highest disallowed version.
     DISALLOWED_THRESHOLD = "0.4.22"
@@ -264,19 +264,19 @@ class OldSolc(AbstractDetector):
         intersecting = False  # True if this is an AND operation, False if it is an OR operation.
         for spec_item in spec_items:
 
-            # Skip any results that don't have 5 items (to be safe)
-            if len(spec_item) < 6:
+            # Skip any results that don't have the correct count of items (to be safe)
+            if len(spec_item) != 6:
                 continue
 
-            # If the first item exists, it's case (1)
-            if spec_item[0]:
+            # If the first item does not exist, it is a case (1).
+            if not spec_item[0]:
                 # This is a range specified by a standard operation applied on a version.
-                operation, version_operand = spec_item[0], self._parse_version(spec_item[1])
+                operation, version_operand = spec_item[3], self._parse_version(spec_item[4])
                 spec_range = self._get_range(operation, version_operand)
             else:
                 # This is a range from a lower bound to upper bound.
-                version_lower, operation, version_higher = self._parse_version(spec_item[2]), spec_item[3], \
-                                                           self._parse_version(spec_item[4])
+                version_lower, operation, version_higher = self._parse_version(spec_item[0]), spec_item[1], \
+                                                           self._parse_version(spec_item[2])
                 spec_range = OldSolc.SemVerRange(version_lower.lower(), version_higher.upper(), True, True)
 
             # If we have no items, or we are performing a union, we simply add the range to our list
