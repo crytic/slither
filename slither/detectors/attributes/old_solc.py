@@ -159,7 +159,7 @@ class OldSolc(AbstractDetector):
         return OldSolc.SemVerVersion([OldSolc.SemVerVersion.MIN_DIGIT_VALUE] * 3)
 
     @staticmethod
-    def _parse_version(version):
+    def _parse_version(version, unspecified_digit=None):
         """
         Returns a 3-item array where each item is [major, minor, patch] version.
             -Either each number is an integer, or if it is a wildcard, it is None.
@@ -179,7 +179,7 @@ class OldSolc(AbstractDetector):
 
         # Extend the array to a length of 3 and return it.
         original_length = len(match)
-        match += [0] * max(0, 3 - original_length)
+        match += [unspecified_digit] * max(0, 3 - original_length)
         return OldSolc.SemVerVersion(match, original_length)
 
     def _get_range(self, operation, version):
@@ -275,8 +275,8 @@ class OldSolc(AbstractDetector):
                 spec_range = self._get_range(operation, version_operand)
             else:
                 # This is a range from a lower bound to upper bound.
-                version_lower, operation, version_higher = self._parse_version(spec_item[0]), spec_item[1], \
-                                                           self._parse_version(spec_item[2])
+                version_lower, operation, version_higher = self._parse_version(spec_item[0]).lower(), spec_item[1], \
+                                                           self._parse_version(spec_item[2]).upper()
                 spec_range = OldSolc.SemVerRange(version_lower.lower(), version_higher.upper(), True, True)
 
             # If we have no items, or we are performing a union, we simply add the range to our list
@@ -290,7 +290,7 @@ class OldSolc(AbstractDetector):
             intersecting = "||" not in spec_item[5]
 
         # Parse the newest disallowed version, and determine if we fall into the lower bound.
-        newest_disallowed = self._parse_version(self.DISALLOWED_THRESHOLD)
+        newest_disallowed = self._parse_version(self.DISALLOWED_THRESHOLD, 0)
 
         # Verify any range doesn't allow as old or older than our newest disallowed.
         valid_ranges = 0
