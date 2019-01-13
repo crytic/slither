@@ -147,7 +147,7 @@ class OldSolc(AbstractDetector):
             :return: Returns True if the range can encapsulate any possible value, False if it is an invalid range.
             """
             return self.lower < self.upper or \
-                   (self.lower == self.upper and (self.lower_inclusive or self.upper_inclusive))
+                   (self.lower == self.upper and (self.lower_inclusive and self.upper_inclusive))
 
 
     @property
