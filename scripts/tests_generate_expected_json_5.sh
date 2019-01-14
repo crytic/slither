@@ -28,3 +28,4 @@ generate_expected_json(){
 #generate_expected_json tests/inline_assembly_contract-0.5.1.sol "assembly"
 #generate_expected_json tests/inline_assembly_library-0.5.1.sol "assembly"
 #generate_expected_json tests/constant-0.5.1.sol "constant-function"
+#generate_expected_json tests/incorrect_equality.sol "incorrect-equality"

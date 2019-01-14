@@ -86,7 +86,7 @@ test_slither tests/controlled_delegatecall.sol "controlled-delegatecall"
 test_slither tests/constant-0.5.1.sol "constant-function"
 test_slither tests/unused_return.sol "unused-return"
 test_slither tests/timestamp.sol "timestamp"
-
+test_slither tests/incorrect_equality.sol "incorrect-equality"
 
 ### Test scripts
 
