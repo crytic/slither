@@ -42,3 +42,4 @@ generate_expected_json(){
 #generate_expected_json tests/multiple_calls_in_loop.sol "calls-loop"
 #generate_expected_json tests/shadowing_builtin_symbols.sol "shadowing-builtin"
 #generate_expected_json tests/shadowing_local_variable.sol "shadowing-local"
+#generate_expected_json tests/solc_version_incorrect.sol "solc-version"

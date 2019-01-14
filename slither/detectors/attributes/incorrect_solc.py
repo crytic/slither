@@ -19,7 +19,7 @@ class IncorrectSolc(AbstractDetector):
     """
 
     ARGUMENT = 'solc-version'
-    HELP = 'Incorrect Solidity version (< 0.4.25 or complex pragma)'
+    HELP = 'Incorrect Solidity version (< 0.4.24 or complex pragma)'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
