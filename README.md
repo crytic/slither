@@ -64,14 +64,14 @@ Num | Detector | What it Detects | Impact | Confidence
 9 | `locked-ether` | [Contracts that lock ether](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#contracts-that-lock-ether) | Medium | High
 10 | `shadowing-abstract` | [State variables shadowing from abstract contracts](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variable-shadowing-from-abstract-contracts) | Medium | High
 11 | `constant-function` | [Constant functions changing the state](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#constant-functions-changing-the-state) | Medium | Medium
-12 | `reentrancy-no-eth` | [Reentrancy vulnerabilities (no theft of ethers)](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities) | Medium | Medium
+12 | `reentrancy-no-eth` | [Reentrancy vulnerabilities (no theft of ethers)](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities-1) | Medium | Medium
 13 | `tx-origin` | [Dangerous usage of `tx.origin`](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#dangerous-usage-of-txorigin) | Medium | Medium
 14 | `uninitialized-local` | [Uninitialized local variables](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-local-variables) | Medium | Medium
 15 | `unused-return` | [Unused return values](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-return) | Medium | Medium
 16 | `shadowing-builtin` | [Built-in symbol shadowing](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#builtin-symbol-shadowing) | Low | High
 17 | `shadowing-local` | [Local variables shadowing](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#local-variable-shadowing) | Low | High
 18 | `calls-loop` | [Multiple calls in a loop](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description/_edit#calls-inside-a-loop) | Low | Medium
-19 | `reentrancy-benign` | [Benign reentrancy vulnerabilities](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities) | Low | Medium
+19 | `reentrancy-benign` | [Benign reentrancy vulnerabilities](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities-2) | Low | Medium
 20 | `timestamp` | [Dangerous usage of `block.timestamp`](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#block-timestamp) | Low | Medium
 21 | `assembly` | [Assembly usage](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#assembly-usage) | Informational | High
 22 | `constable-states` | [State variables that could be declared constant](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variables-that-could-be-declared-constant) | Informational | High
