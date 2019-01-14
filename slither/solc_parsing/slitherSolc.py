@@ -159,9 +159,18 @@ class SlitherSolc(Slither):
         # Update of the inheritance 
         for contract in self._contractsNotParsed:
             # remove the first elem in linearizedBaseContracts as it is the contract itself
+            ancestors = []
             fathers = []
             try:
+                # Resolve linearized base contracts.
                 for i in contract.linearizedBaseContracts[1:]:
+                    if i in contract.remapping:
+                        ancestors.append(self.get_contract_from_name(contract.remapping[i]))
+                    else:
+                        ancestors.append(self._contracts_by_id[i])
+
+                # Resolve immediate base contracts
+                for i in contract.baseContracts:
                     if i in contract.remapping:
                         fathers.append(self.get_contract_from_name(contract.remapping[i]))
                     else:
@@ -172,7 +181,7 @@ class SlitherSolc(Slither):
                 logger.error(red('Please read https://github.com/trailofbits/slither/wiki#keyerror-or-nonetype-error'))
                 logger.error(red('And update your code to remove the duplicate'))
                 exit(-1)
-            contract.setInheritance(fathers)
+            contract.setInheritance(ancestors, fathers)
 
         contracts_to_be_analyzed = self.contracts
 
