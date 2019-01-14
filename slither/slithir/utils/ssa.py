@@ -469,7 +469,7 @@ def copy_ir(ir, local_variables_instances, state_variables_instances, temporary_
         new_ir.call_value = get_variable(ir, lambda x: ir.call_value)
         new_ir.call_gas = get_variable(ir, lambda x: ir.call_gas)
         new_ir.arguments = get_arguments(ir)
-        new_ir.function_instance = ir.function
+        new_ir.function = ir.function
         return new_ir
     elif isinstance(ir, Index):
         lvalue = get_variable(ir, lambda x: ir.lvalue)
