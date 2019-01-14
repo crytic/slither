@@ -132,9 +132,11 @@ def get_detectors_and_printers():
     from slither.detectors.attributes.const_functions import ConstantFunctions
     from slither.detectors.shadowing.abstract import ShadowingAbstractDetection
     from slither.detectors.shadowing.state import StateShadowing
+    from slither.detectors.shadowing.local import LocalShadowing
+    from slither.detectors.shadowing.builtin_symbols import BuiltinSymbolShadowing
     from slither.detectors.operations.block_timestamp import Timestamp
     from slither.detectors.statements.calls_in_loop import MultipleCallsInLoop
-
+    from slither.detectors.statements.incorrect_strict_equality import IncorrectStrictEquality
 
     detectors = [Backdoor,
                  UninitializedStateVarsDetection,
@@ -162,7 +164,10 @@ def get_detectors_and_printers():
                  ShadowingAbstractDetection,
                  StateShadowing,
                  Timestamp,
-                 MultipleCallsInLoop]
+                 MultipleCallsInLoop,
+                 IncorrectStrictEquality,
+                 LocalShadowing,
+                 BuiltinSymbolShadowing]
 
     from slither.printers.summary.function import FunctionSummary
     from slither.printers.summary.contract import ContractSummary
