@@ -30,7 +30,7 @@ class IncorrectSolc(AbstractDetector):
     LESS_THAN = "it uses lesser than"
 
     # Indicates the allowed versions.
-    ALLOWED_VERSIONS = ["0.4.25", "0.5.2", "0.5.3"]
+    ALLOWED_VERSIONS = ["0.4.24", "0.4.25", "0.5.2", "0.5.3"]
 
     def _check_version(self, version):
         op = version[0]
