@@ -112,7 +112,7 @@ def get_detectors_and_printers():
     from slither.detectors.variables.uninitialized_storage_variables import UninitializedStorageVars
     from slither.detectors.variables.uninitialized_local_variables import UninitializedLocalVars
     from slither.detectors.attributes.constant_pragma import ConstantPragma
-    from slither.detectors.attributes.old_solc import OldSolc
+    from slither.detectors.attributes.incorrect_solc import IncorrectSolc
     from slither.detectors.attributes.locked_ether import LockedEther
     from slither.detectors.functions.arbitrary_send import ArbitrarySend
     from slither.detectors.functions.suicidal import Suicidal
@@ -143,7 +143,7 @@ def get_detectors_and_printers():
                  UninitializedStorageVars,
                  UninitializedLocalVars,
                  ConstantPragma,
-                 OldSolc,
+                 IncorrectSolc,
                  ReentrancyBenign,
                  ReentrancyReadBeforeWritten,
                  ReentrancyEth,
