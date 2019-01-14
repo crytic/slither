@@ -274,6 +274,8 @@ def main_impl(all_detector_classes, all_printer_classes):
         if args.json:
             output_json(results, args.json)
         # Dont print the number of result for printers
+        if number_contracts == 0:
+            logger.warn(red('No contract was analyzed'))
         if printer_classes:
             logger.info('%s analyzed (%d contracts)', filename, number_contracts)
         else:
