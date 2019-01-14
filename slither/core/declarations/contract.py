@@ -20,6 +20,7 @@ class Contract(ChildSlither, SourceMapping):
         self._name = None
         self._id = None
         self._inheritance = []
+        self._immediate_inheritance = []
 
         self._enums = {}
         self._structures = {}
@@ -61,14 +62,22 @@ class Contract(ChildSlither, SourceMapping):
         return list(self._inheritance)
 
     @property
+    def immediate_inheritance(self):
+        '''
+            list(Contract): List of contracts immediately inherited from (fathers). Order: order of declaration.
+        '''
+        return list(self._immediate_inheritance)
+
+    @property
     def inheritance_reverse(self):
         '''
             list(Contract): Inheritance list. Order: the last elem is the first father to be executed
         '''
         return reversed(self._inheritance)
 
-    def setInheritance(self, inheritance):
+    def setInheritance(self, inheritance, immediate_inheritance):
         self._inheritance = inheritance
+        self._immediate_inheritance = immediate_inheritance
 
     @property
     def derived_contracts(self):

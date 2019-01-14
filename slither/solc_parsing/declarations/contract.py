@@ -91,6 +91,18 @@ class ContractSolc04(Contract):
         self.linearizedBaseContracts = attributes['linearizedBaseContracts']
         self.fullyImplemented = attributes['fullyImplemented']
 
+        # Parse base contracts (immediate, non-linearized)
+        self.baseContracts = []
+        if self.is_compact_ast:
+            if 'baseContracts' in attributes:
+                for base_contract in attributes['baseContracts']:
+                    if base_contract['nodeType'] == 'InheritanceSpecifier':
+                        if 'baseName' in base_contract and 'referencedDeclaration' in base_contract['baseName']:
+                            self.baseContracts.append(base_contract['baseName']['referencedDeclaration'])
+        else:
+            # TODO: Parse from legacy-ast. 'baseContracts' is unreliable here. Possibly use 'children'.
+            pass
+
         # trufle does some re-mapping of id
         if 'baseContracts' in self._data:
             for elem in self._data['baseContracts']:
