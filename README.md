@@ -79,7 +79,7 @@ Num | Detector | What it Detects | Impact | Confidence
 24 | `low-level-calls` | [Low level calls](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#low-level-calls) | Informational | High
 25 | `naming-convention` | [Conformance to Solidity naming conventions](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#conformance-to-solidity-naming-conventions) | Informational | High
 26 | `pragma` | [If different pragma directives are used](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#different-pragma-directives-are-used) | Informational | High
-27 | `solc-version` | [Old versions of Solidity (< 0.4.23)](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#old-versions-of-solidity) | Informational | High
+27 | `solc-version` | [Incorrect Solidity version (< 0.4.24 or complex pragma)](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#incorrect-version-of-solidity) | Informational | High
 28 | `unused-state` | [Unused state variables](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-state-variables) | Informational | High
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
