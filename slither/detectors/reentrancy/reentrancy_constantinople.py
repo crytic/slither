@@ -11,10 +11,11 @@ from slither.core.expressions import UnaryOperation, UnaryOperationType
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.slithir.operations import (HighLevelCall, LowLevelCall,
-                                        LibraryCall,
+                                        LibraryCall, Index,
                                         Send, Transfer, OperationWithLValue)
 
 from slither.core.variables.state_variable import StateVariable
+from slither.slithir.variables import ReferenceVariable
 
 class ReentrancyConstantinople(AbstractDetector):
     ARGUMENT = 'reentrancy-sstore'
@@ -159,8 +160,13 @@ class ReentrancyConstantinople(AbstractDetector):
             return False
         for node in function.nodes:
             for ir in node.irs:
+                if isinstance(ir, Index):
+                    continue
                 if isinstance(ir, OperationWithLValue):
-                    if isinstance(ir.lvalue, StateVariable):
+                    lvalue = ir.lvalue
+                    if isinstance(lvalue, ReferenceVariable):
+                        lvalue = lvalue.points_to_origin
+                    if isinstance(lvalue, StateVariable):
                         if counter>0:
                             return False
                         counter = 1
