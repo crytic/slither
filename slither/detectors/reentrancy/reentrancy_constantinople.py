@@ -148,17 +148,17 @@ class ReentrancyConstantinople(AbstractDetector):
         """
         for function in contract.functions:
             if function.is_implemented:
-                if function.is_protected:
-                    continue
+                #if function.is_protected:
+                #    continue
                 self._explore(function.entry_point, [])
 
     def _get_variables_written_by_other_functions(self, contract):
         all_functions = contract.all_functions_called
 
         for function in all_functions:
-            #if function in self.variables_written:
-             #   continue
-            var = [v.state_variables_written for v in all_functions if v!=function]
+            if function in self.variables_written:
+                continue
+            var = [v.state_variables_written for v in all_functions ]
             var = [item for sublist in var for item in sublist]
             self.variables_written[function] = var
         
