@@ -120,6 +120,8 @@ def get_detectors_and_printers():
     from slither.detectors.reentrancy.reentrancy_benign import ReentrancyBenign
     from slither.detectors.reentrancy.reentrancy_read_before_write import ReentrancyReadBeforeWritten
     from slither.detectors.reentrancy.reentrancy_eth import ReentrancyEth
+    from slither.detectors.reentrancy.reentrancy_eth import ReentrancyEth
+    from slither.detectors.reentrancy.reentrancy_constantinople import ReentrancyConstantinople
     from slither.detectors.variables.unused_state_variables import UnusedStateVars
     from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
     from slither.detectors.statements.tx_origin import TxOrigin
@@ -147,6 +149,7 @@ def get_detectors_and_printers():
                  ReentrancyBenign,
                  ReentrancyReadBeforeWritten,
                  ReentrancyEth,
+                 ReentrancyConstantinople,
                  LockedEther,
                  ArbitrarySend,
                  Suicidal,
