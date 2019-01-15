@@ -12,7 +12,9 @@ from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.slithir.operations import (HighLevelCall, LowLevelCall,
                                         LibraryCall,
-                                        Send, Transfer)
+                                        Send, Transfer, OperationWithLValue)
+
+from slither.core.variables.state_variable import StateVariable
 
 class ReentrancyConstantinople(AbstractDetector):
     ARGUMENT = 'reentrancy-sstore'
@@ -112,7 +114,7 @@ class ReentrancyConstantinople(AbstractDetector):
             node.context[self.key]['read'] = []
             contains_call = True
 
-        read_then_written = [(v, node) for v in state_vars_written + state_vars_read if v in self.variables_written[node.function]]
+        read_then_written = [(v, node) for v in state_vars_written + state_vars_read if v in self.variables_written]
 
         node.context[self.key]['read'] = list(set(node.context[self.key]['read'] + state_vars_read))
         # If a state variables was read and is then written, there is a dangerous call and
@@ -148,26 +150,39 @@ class ReentrancyConstantinople(AbstractDetector):
         """
         for function in contract.functions:
             if function.is_implemented:
-                #if function.is_protected:
-                #    continue
                 self._explore(function.entry_point, [])
+
+    @staticmethod
+    def filter(function):
+        counter = 0
+        if function.is_protected():
+            return False
+        for node in function.nodes:
+            for ir in node.irs:
+                if isinstance(ir, OperationWithLValue):
+                    if isinstance(ir.lvalue, StateVariable):
+                        if counter>0:
+                            return False
+                        counter = 1
+        return True
 
     def _get_variables_written_by_other_functions(self, contract):
         all_functions = contract.all_functions_called
-
+    
+        variables_written = []
         for function in all_functions:
-            if function in self.variables_written:
-                continue
-            var = [v.state_variables_written for v in all_functions ]
-            var = [item for sublist in var for item in sublist]
-            self.variables_written[function] = var
+            if self.filter(function):
+                var = function.state_variables_written
+                if var:
+                    variables_written += var
+        self.variables_written = list(set(variables_written))
         
     def detect(self):
         """
         """
         self.result = {}
 
-        self.variables_written = {}
+        self.variables_written = []
 
         # if a node was already visited by another path
         # we will only explore it if the traversal brings
