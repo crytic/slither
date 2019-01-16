@@ -11,7 +11,7 @@ from slither.core.expressions import UnaryOperation, UnaryOperationType
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.slithir.operations import (HighLevelCall, LowLevelCall,
-                                        LibraryCall, Index,
+                                        LibraryCall, Index, Balance, NewContract,
                                         Send, Transfer, OperationWithLValue)
 
 from slither.core.variables.state_variable import StateVariable
@@ -157,11 +157,15 @@ class ReentrancyConstantinople(AbstractDetector):
 
     @staticmethod
     def filter(function):
-        counter = 0
+        gas_cost = 0
+        if not function.visibility in ['public', 'external']:
+            return False
         if function.is_protected():
             return False
         for node in function.nodes:
             for ir in node.irs:
+                if isinstance(ir, NewContract):
+                    return False
                 if isinstance(ir, Index):
                     continue
                 if isinstance(ir, OperationWithLValue):
@@ -169,12 +173,18 @@ class ReentrancyConstantinople(AbstractDetector):
                     if isinstance(lvalue, ReferenceVariable):
                         lvalue = lvalue.points_to_origin
                     if isinstance(lvalue, StateVariable):
-                        if counter>3:
-                            return False
-                        counter += 1 
+                        gas_cost += 200
                 if isinstance(ir, (LowLevelCall, Send, Transfer, HighLevelCall)):
-                    counter = counter + 1
-        return True
+                    gas_cost += 700
+                if isinstance(ir, (Balance)):
+                    gas_cost += 400
+                for read in ir.read:
+                    if isinstance(read, ReferenceVariable):
+                        read = read.points_to_origin
+                    if isinstance(read, StateVariable):
+                        gas_cost += 200
+
+        return gas_cost < 1600
 
     def _get_variables_written_by_other_functions(self, contract):
         all_functions = contract.all_functions_called
