@@ -229,7 +229,8 @@ class ReentrancyConstantinople(AbstractDetector):
 
             info += '\tState variables read/written after the call(s):\n'
             for (v, node) in varsWritten:
-                info +=  '\t- {} ({}) ({})\n'.format(v, node.source_mapping_str, ','.join([source.name for source in self.map_var_to_func[v]]))
+                if v in self.map_var_to_func:
+                    info +=  '\t- {} ({}) ({})\n'.format(v, node.source_mapping_str, ','.join([source.name for source in self.map_var_to_func[v]]))
             self.log(info)
 
             sending_eth_json = []
