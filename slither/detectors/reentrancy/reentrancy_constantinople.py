@@ -175,7 +175,8 @@ class ReentrancyConstantinople(AbstractDetector):
                     if isinstance(lvalue, StateVariable):
                         gas_cost += 200
                 if isinstance(ir, (LowLevelCall, Send, Transfer, HighLevelCall)):
-                    gas_cost += 700
+                    return False
+                  #  gas_cost += 700
                 if isinstance(ir, (Balance)):
                     gas_cost += 400
                 for read in ir.read:
