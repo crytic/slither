@@ -16,6 +16,7 @@ from slither.slithir.operations import (HighLevelCall, LowLevelCall,
 
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.variables import ReferenceVariable
+from slither.analyses.data_dependency.data_dependency import is_tainted
 
 class ReentrancyConstantinople(AbstractDetector):
     ARGUMENT = 'reentrancy-sstore'
@@ -39,7 +40,8 @@ class ReentrancyConstantinople(AbstractDetector):
         """
         for ir in node.irs:
             if isinstance(ir, (Send, Transfer)):
-                return True
+                if is_tainted(ir.destination, node.function, node.function.slither, True):
+                    return True
         return False
 
     def _filter_if(self, node):
@@ -167,19 +169,27 @@ class ReentrancyConstantinople(AbstractDetector):
                     if isinstance(lvalue, ReferenceVariable):
                         lvalue = lvalue.points_to_origin
                     if isinstance(lvalue, StateVariable):
-                        if counter>0:
+                        if counter>3:
                             return False
-                        counter = 1
+                        counter += 1 
+                if isinstance(ir, (LowLevelCall, Send, Transfer, HighLevelCall)):
+                    counter = counter + 1
         return True
 
     def _get_variables_written_by_other_functions(self, contract):
         all_functions = contract.all_functions_called
     
+
+        self.map_var_to_func = {}
         variables_written = []
         for function in all_functions:
             if self.filter(function):
                 var = function.state_variables_written
                 if var:
+                    for v in var:
+                        if not v in self.map_var_to_func:
+                            self.map_var_to_func[v] = []
+                        self.map_var_to_func[v].append(function)
                     variables_written += var
         self.variables_written = list(set(variables_written))
         
@@ -219,7 +229,7 @@ class ReentrancyConstantinople(AbstractDetector):
 
             info += '\tState variables read/written after the call(s):\n'
             for (v, node) in varsWritten:
-                info +=  '\t- {} ({})\n'.format(v, node.source_mapping_str)
+                info +=  '\t- {} ({}) ({})\n'.format(v, node.source_mapping_str, ','.join([source.name for source in self.map_var_to_func[v]]))
             self.log(info)
 
             sending_eth_json = []
