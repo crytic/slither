@@ -40,7 +40,7 @@ class ReentrancyConstantinople(AbstractDetector):
         """
         for ir in node.irs:
             if isinstance(ir, (Send, Transfer)):
-                if is_tainted(ir.destination, node.function.contract, node.function.slither, False):
+                if is_tainted(ir.destination, node.function.contract, node.function.slither, True):
                     return True
         return False
 
@@ -114,10 +114,12 @@ class ReentrancyConstantinople(AbstractDetector):
         contains_call = False
         if self._can_callback(node):
             node.context[self.key]['calls'] = list(set(node.context[self.key]['calls'] + [node]))
+
+            node.context[self.key]['read_prior_calls'] = list(set(node.context[self.key]['read_prior_calls'] + node.context[self.key]['read'] + state_vars_read))
             node.context[self.key]['read'] = []
             contains_call = True
 
-        read_then_written = [(v, node) for v in state_vars_written + state_vars_read if v in self.variables_written]
+        read_then_written = [(v, node) for v in state_vars_written + state_vars_read if v in self.variables_written and v in node.context[self.key]['read_prior_calls']]
 
         node.context[self.key]['read'] = list(set(node.context[self.key]['read'] + state_vars_read))
         # If a state variables was read and is then written, there is a dangerous call and
@@ -184,7 +186,6 @@ class ReentrancyConstantinople(AbstractDetector):
                         read = read.points_to_origin
                     if isinstance(read, StateVariable):
                         gas_cost += 200
-
         return gas_cost < 1600
 
     def _get_variables_written_by_other_functions(self, contract):
