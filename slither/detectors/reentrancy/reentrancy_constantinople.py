@@ -40,7 +40,7 @@ class ReentrancyConstantinople(AbstractDetector):
         """
         for ir in node.irs:
             if isinstance(ir, (Send, Transfer)):
-                if is_tainted(ir.destination, node.function, node.function.slither, True):
+                if is_tainted(ir.destination, node.function.contract, node.function.slither, False):
                     return True
         return False
 
