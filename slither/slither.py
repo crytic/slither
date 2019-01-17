@@ -117,7 +117,7 @@ class Slither(SlitherSolc):
             raise Exception('Incorrect file format')
 
         if is_ast_file:
-            with open(filename) as astFile:
+            with open(filename, encoding='utf8') as astFile:
                 stdout = astFile.read()
                 if not stdout:
                     logger.info('Empty AST file: %s', filename)
