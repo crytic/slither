@@ -241,7 +241,10 @@ def convert_subdenomination(value, sub):
     if sub is None:
         return value
     # to allow 0.1 ether conversion
-    value = float(value)
+    if value[0:2] == "0x":
+        value = float(int(value, 16))
+    else:
+        value = float(value)
     if sub == 'wei':
         return int(value)
     if sub == 'szabo':
