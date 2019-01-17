@@ -7,10 +7,10 @@ if len(sys.argv) !=3:
     print('Usage: python json_diff.py 1.json 2.json')
     exit(-1)
 
-with open(sys.argv[1]) as f:
+with open(sys.argv[1], encoding='utf8') as f:
     d1 = json.load(f)
 
-with open(sys.argv[2]) as f:
+with open(sys.argv[2], encoding='utf8') as f:
     d2 = json.load(f)
 
 
