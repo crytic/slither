@@ -10,7 +10,7 @@ from slither.core.declarations import Function, SolidityFunction
 from slither.core.expressions import UnaryOperation, UnaryOperationType
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
-from slither.slithir.operations import (HighLevelCall, LowLevelCall,
+from slither.slithir.operations import (HighLevelCall, LowLevelCall, EventCall,
                                         LibraryCall, Index, Balance, NewContract,
                                         Send, Transfer, OperationWithLValue)
 
@@ -119,7 +119,8 @@ class ReentrancyConstantinople(AbstractDetector):
             node.context[self.key]['read'] = []
             contains_call = True
 
-        read_then_written = [(v, node) for v in state_vars_written + state_vars_read if v in self.variables_written and v in node.context[self.key]['read_prior_calls']]
+        read_then_written = [(v, node) for v in state_vars_written if v in self.variables_written and v in node.context[self.key]['read_prior_calls']]
+        #read_then_written = [(v, node) for v in state_vars_written + state_vars_read if v in self.variables_written and v in node.context[self.key]['read_prior_calls']]
 
         node.context[self.key]['read'] = list(set(node.context[self.key]['read'] + state_vars_read))
         # If a state variables was read and is then written, there is a dangerous call and
@@ -179,6 +180,13 @@ class ReentrancyConstantinople(AbstractDetector):
                 if isinstance(ir, (LowLevelCall, Send, Transfer, HighLevelCall)):
                     return False
                   #  gas_cost += 700
+                if isinstance(ir, EventCall):
+                    if not ir.arguments:
+                        gas_cost += 375
+                    elif len(ir.arguments) == 1:
+                        gas_cost += 750
+                    else:
+                        return False
                 if isinstance(ir, (Balance)):
                     gas_cost += 400
                 for read in ir.read:
