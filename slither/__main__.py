@@ -84,7 +84,7 @@ def process_files(filenames, args, detector_classes, printer_classes):
     all_contracts = []
 
     for filename in filenames:
-        with open(filename) as f:
+        with open(filename, encoding='utf8') as f:
             contract_loaded = json.load(f)
             all_contracts.append(contract_loaded['ast'])
 
@@ -93,7 +93,7 @@ def process_files(filenames, args, detector_classes, printer_classes):
 
 
 def output_json(results, filename):
-    with open(filename, 'w') as f:
+    with open(filename, 'w', encoding='utf8') as f:
         json.dump(results, f)
 
 
