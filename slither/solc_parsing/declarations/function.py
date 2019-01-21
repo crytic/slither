@@ -313,7 +313,11 @@ class FunctionSolc(Function):
         node_endDoWhile = self._new_node(NodeType.ENDLOOP, doWhilestatement['src'])
 
         link_nodes(node, node_startDoWhile)
-        link_nodes(node_startDoWhile, node_condition.sons[0])
+        # empty block, loop from the start to the condition
+        if not node_condition.sons:
+            link_nodes(node_startDoWhile, node_condition)
+        else:
+            link_nodes(node_startDoWhile, node_condition.sons[0])
         link_nodes(statement, node_condition)
         link_nodes(node_condition, node_endDoWhile)
         return node_endDoWhile
@@ -829,6 +833,10 @@ class FunctionSolc(Function):
         for node in self.nodes:
             node.analyze_expressions(self)
 
+        self._filter_ternary()
+        self._remove_alone_endif()
+
+    def _filter_ternary(self):
         ternary_found = True
         while ternary_found:
             ternary_found = False
@@ -843,7 +851,6 @@ class FunctionSolc(Function):
                     self.split_ternary_node(node, condition, true_expr, false_expr)
                     ternary_found = True
                     break
-        self._remove_alone_endif()
 
     def get_last_ssa_state_variables_instances(self):
         if not self.is_implemented:
