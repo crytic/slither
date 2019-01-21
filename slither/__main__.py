@@ -180,7 +180,7 @@ def get_detectors_and_printers():
     from slither.printers.summary.human_summary import PrinterHumanSummary
     from slither.printers.functions.cfg import CFG
     from slither.printers.summary.function_ids import FunctionIds
-
+    from slither.printers.summary.variables_order import VariablesOrder
     printers = [FunctionSummary,
                 ContractSummary,
                 PrinterInheritance,
@@ -191,7 +191,8 @@ def get_detectors_and_printers():
                 PrinterSlithIRSSA,
                 PrinterHumanSummary,
                 CFG,
-                FunctionIds]
+                FunctionIds,
+                VariablesOrder]
 
     # Handle plugins!
     for entry_point in iter_entry_points(group='slither_analyzer.plugin', name=None):

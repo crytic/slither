@@ -21,7 +21,7 @@ class FunctionIds(AbstractPrinter):
 
         txt = ''
         for contract in self.slither.contracts_derived:
-            txt = '\n{}:\n'.format(contract.name)
+            txt += '\n{}:\n'.format(contract.name)
             table = PrettyTable(['Name', 'ID'])
             for function in contract.functions:
                 if function.visibility in ['public', 'external']:
