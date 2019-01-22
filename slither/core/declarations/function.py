@@ -56,6 +56,7 @@ class Function(ChildContract, SourceMapping):
         self._expression_calls = []
         self._expression_modifiers = []
         self._modifiers = []
+        self._base_constructor_contracts_called = []
         self._payable = False
         self._contains_assembly = False
 
@@ -197,6 +198,14 @@ class Function(ChildContract, SourceMapping):
             list(Modifier): List of the modifiers
         """
         return list(self._modifiers)
+
+    @property
+    def base_constructors_called(self):
+        """
+            list(Function): List of the base constructors invoked by this presumed constructor by definition, not via
+                            calls within the function body.
+        """
+        return [c.constructor for c in self._base_constructor_contracts_called if c.constructor]
 
     def __str__(self):
         return self._name
