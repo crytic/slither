@@ -21,7 +21,7 @@ class Contract(ChildSlither, SourceMapping):
         self._id = None
         self._inheritance = []
         self._immediate_inheritance = []
-        self._base_constructor_contracts_called = []
+        self._explicit_base_constructor_calls = []
 
         self._enums = {}
         self._structures = {}
@@ -79,7 +79,7 @@ class Contract(ChildSlither, SourceMapping):
     def setInheritance(self, inheritance, immediate_inheritance, called_base_constructor_contracts):
         self._inheritance = inheritance
         self._immediate_inheritance = immediate_inheritance
-        self._base_constructor_contracts_called = called_base_constructor_contracts
+        self._explicit_base_constructor_calls = called_base_constructor_contracts
 
     @property
     def derived_contracts(self):
@@ -143,27 +143,16 @@ class Contract(ChildSlither, SourceMapping):
         return [f for f in self.functions if f.visibility in ['public', 'external']]
 
     @property
-    def base_constructors_called(self):
+    def explicit_base_constructor_calls(self):
         """
-            list(Function): List of the base constructors invoked by this contract definition, not via
-                            this contract's constructor definition.
+            list(Function): List of the base constructors called explicitly by this contract definition.
 
-                            NOTE: Base constructors can also be called from the constructor definition!
+                            Base constructors called by any constructor definition will not be included.
+                            Base constructors implicitly called by the contract definition (without
+                            parenthesis) will not be included.
         """
-        return [c.constructor for c in self._base_constructor_contracts_called if c.constructor]
-
-    @property
-    def all_base_constructors_called(self):
-        """
-            list(Function): List of the base constructors invoked by this contract definition, or the
-                            underlying constructor definition. They should be in order of declaration,
-                            starting first with contract definition's base constructor calls, then the
-                            constructor definition's base constructor calls.
-
-                            NOTE: Duplicates may occur if the same base contracts are called in both
-                            the contract and constructor definition.
-        """
-        return self.base_constructors_called + self.constructor.base_constructors_called
+        # This is a list of contracts internally, so we convert it to a list of constructor functions.
+        return [c.constructor for c in self._explicit_base_constructor_calls if c.constructor]
 
     @property
     def modifiers(self):
