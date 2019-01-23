@@ -204,6 +204,8 @@ class Function(ChildContract, SourceMapping):
         """
             list(Function): List of the base constructors invoked by this presumed constructor by definition, not via
                             calls within the function body.
+
+                            NOTE: Base constructors can also be called from the contract definition!
         """
         return [c.constructor for c in self._base_constructor_contracts_called if c.constructor]
 

@@ -161,6 +161,7 @@ class SlitherSolc(Slither):
             # remove the first elem in linearizedBaseContracts as it is the contract itself
             ancestors = []
             fathers = []
+            father_constructors = []
             try:
                 # Resolve linearized base contracts.
                 for i in contract.linearizedBaseContracts[1:]:
@@ -175,13 +176,21 @@ class SlitherSolc(Slither):
                         fathers.append(self.get_contract_from_name(contract.remapping[i]))
                     else:
                         fathers.append(self._contracts_by_id[i])
+
+                # Resolve immediate base constructor calls
+                for i in contract.baseConstructorContractsCalled:
+                    if i in contract.remapping:
+                        father_constructors.append(self.get_contract_from_name(contract.remapping[i]))
+                    else:
+                        father_constructors.append(self._contracts_by_id[i])
+
             except KeyError:
                 logger.error(red('A contract was not found, it is likely that your codebase contains muliple contracts with the same name'))
                 logger.error(red('Truffle does not handle this case during compilation'))
                 logger.error(red('Please read https://github.com/trailofbits/slither/wiki#keyerror-or-nonetype-error'))
                 logger.error(red('And update your code to remove the duplicate'))
                 exit(-1)
-            contract.setInheritance(ancestors, fathers)
+            contract.setInheritance(ancestors, fathers, father_constructors)
 
         contracts_to_be_analyzed = self.contracts
 
