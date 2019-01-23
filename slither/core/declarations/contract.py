@@ -21,6 +21,7 @@ class Contract(ChildSlither, SourceMapping):
         self._id = None
         self._inheritance = []
         self._immediate_inheritance = []
+        self._base_constructor_contracts_called = []
 
         self._enums = {}
         self._structures = {}
@@ -75,9 +76,10 @@ class Contract(ChildSlither, SourceMapping):
         '''
         return reversed(self._inheritance)
 
-    def setInheritance(self, inheritance, immediate_inheritance):
+    def setInheritance(self, inheritance, immediate_inheritance, called_base_constructor_contracts):
         self._inheritance = inheritance
         self._immediate_inheritance = immediate_inheritance
+        self._base_constructor_contracts_called = called_base_constructor_contracts
 
     @property
     def derived_contracts(self):
@@ -139,6 +141,29 @@ class Contract(ChildSlither, SourceMapping):
             list(Functions): List of public and external functions
         '''
         return [f for f in self.functions if f.visibility in ['public', 'external']]
+
+    @property
+    def base_constructors_called(self):
+        """
+            list(Function): List of the base constructors invoked by this contract definition, not via
+                            this contract's constructor definition.
+
+                            NOTE: Base constructors can also be called from the constructor definition!
+        """
+        return [c.constructor for c in self._base_constructor_contracts_called if c.constructor]
+
+    @property
+    def all_base_constructors_called(self):
+        """
+            list(Function): List of the base constructors invoked by this contract definition, or the
+                            underlying constructor definition. They should be in order of declaration,
+                            starting first with contract definition's base constructor calls, then the
+                            constructor definition's base constructor calls.
+
+                            NOTE: Duplicates may occur if the same base contracts are called in both
+                            the contract and constructor definition.
+        """
+        return self.base_constructors_called + self.constructor.base_constructors_called
 
     @property
     def modifiers(self):

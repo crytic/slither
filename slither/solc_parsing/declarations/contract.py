@@ -91,23 +91,61 @@ class ContractSolc04(Contract):
         self.linearizedBaseContracts = attributes['linearizedBaseContracts']
         self.fullyImplemented = attributes['fullyImplemented']
 
-        # Parse base contracts (immediate, non-linearized)
-        self.baseContracts = []
-        if self.is_compact_ast:
-            if 'baseContracts' in attributes:
-                for base_contract in attributes['baseContracts']:
-                    if base_contract['nodeType'] == 'InheritanceSpecifier':
-                        if 'baseName' in base_contract and 'referencedDeclaration' in base_contract['baseName']:
-                            self.baseContracts.append(base_contract['baseName']['referencedDeclaration'])
-        else:
-            # TODO: Parse from legacy-ast. 'baseContracts' is unreliable here. Possibly use 'children'.
-            pass
+        # Parse base contract information
+        self._parse_base_contract_info()
 
         # trufle does some re-mapping of id
         if 'baseContracts' in self._data:
             for elem in self._data['baseContracts']:
                 if elem['nodeType'] == 'InheritanceSpecifier':
                     self._remapping[elem['baseName']['referencedDeclaration']] = elem['baseName']['name']
+
+    def _parse_base_contract_info(self):
+        # Parse base contracts (immediate, non-linearized)
+        self.baseContracts = []
+        self.baseConstructorContractsCalled = []
+        if self.is_compact_ast:
+            # Parse base contracts + constructors in compact-ast
+            if 'baseContracts' in self._data:
+                for base_contract in self._data['baseContracts']:
+                    if base_contract['nodeType'] != 'InheritanceSpecifier':
+                        continue
+                    if 'baseName' not in base_contract or 'referencedDeclaration' not in base_contract['baseName']:
+                        continue
+
+                    # Obtain our contract reference and add it to our base contract list
+                    referencedDeclaration = base_contract['baseName']['referencedDeclaration']
+                    self.baseContracts.append(referencedDeclaration)
+
+                    # If we have defined arguments in our arguments object, this is a constructor invocation.
+                    # (note: 'arguments' can be [], which is not the same as None. [] implies a constructor was
+                    #  called with no arguments, while None implies no constructor was called).
+                    if 'arguments' in base_contract and base_contract['arguments'] is not None:
+                        self.baseConstructorContractsCalled.append(referencedDeclaration)
+        else:
+            # Parse base contracts + constructors in legacy-ast
+            if 'children' in self._data:
+                for base_contract in self._data['children']:
+                    if base_contract['name'] != 'InheritanceSpecifier':
+                        continue
+                    if 'children' not in base_contract or len(base_contract['children']) == 0:
+                        continue
+                    # Obtain all items for this base contract specification (base contract, followed by arguments)
+                    base_contract_items = base_contract['children']
+                    if 'name' not in base_contract_items[0] or base_contract_items[0]['name'] != 'UserDefinedTypeName':
+                        continue
+                    if 'attributes' not in base_contract_items[0] or 'referencedDeclaration' not in \
+                            base_contract_items[0]['attributes']:
+                        continue
+
+                    # Obtain our contract reference and add it to our base contract list
+                    referencedDeclaration = base_contract_items[0]['attributes']['referencedDeclaration']
+                    self.baseContracts.append(referencedDeclaration)
+
+                    # If we have an 'attributes'->'arguments' which is None, this is not a constructor call.
+                    if 'attributes' not in base_contract or 'arguments' not in base_contract['attributes'] or \
+                            base_contract['attributes']['arguments'] is not None:
+                        self.baseConstructorContractsCalled.append(referencedDeclaration)
 
     def _parse_contract_items(self):
         if not self.get_children() in self._data: # empty contract
