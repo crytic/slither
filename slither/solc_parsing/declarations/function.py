@@ -773,7 +773,7 @@ class FunctionSolc(Function):
             if isinstance(m, Function):
                 self._modifiers.append(m)
             elif isinstance(m, Contract):
-                self._base_constructor_contracts_called.append(m)
+                self._explicit_base_constructor_calls.append(m)
 
 
     def analyze_params(self):
