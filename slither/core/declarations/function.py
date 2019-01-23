@@ -208,7 +208,7 @@ class Function(ChildContract, SourceMapping):
                             included.
         """
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
-        return [c.constructor for c in self._explicit_base_constructor_calls if c.constructor]
+        return [c.constructor_not_inherited for c in self._explicit_base_constructor_calls if c.constructor_not_inherited]
 
     def __str__(self):
         return self._name

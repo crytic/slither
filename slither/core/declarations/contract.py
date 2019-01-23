@@ -115,6 +115,10 @@ class Contract(ChildSlither, SourceMapping):
         return next((func for func in self.functions if func.is_constructor), None)
 
     @property
+    def constructor_not_inherited(self):
+        return next((func for func in self.functions if func.is_constructor and func.contract == self), None)
+
+    @property
     def functions(self):
         '''
             list(Function): List of the functions
@@ -152,7 +156,7 @@ class Contract(ChildSlither, SourceMapping):
                             parenthesis) will not be included.
         """
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
-        return [c.constructor for c in self._explicit_base_constructor_calls if c.constructor]
+        return [c.constructor_not_inherited for c in self._explicit_base_constructor_calls if c.constructor_not_inherited]
 
     @property
     def modifiers(self):
@@ -233,6 +237,7 @@ class Contract(ChildSlither, SourceMapping):
         all_state_variables_written = [f.all_state_variables_written() for f in self.functions + self.modifiers]
         all_state_variables_written = [item for sublist in all_state_variables_written for item in sublist]
         return list(set(all_state_variables_written))
+
     @property
     def all_state_variables_read(self):
         '''
