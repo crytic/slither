@@ -1,12 +1,15 @@
 from slither.core.variables.variable import Variable
 from slither.core.solidity_types.type import Type
 from slither.core.expressions.expression import Expression
+from slither.core.expressions import Literal
 
 class ArrayType(Type):
 
     def __init__(self, t, length):
         assert isinstance(t, Type)
         if length:
+            if isinstance(length, int):
+                length = Literal(length)
             assert isinstance(length, Expression)
         super(ArrayType, self).__init__()
         self._type = t

@@ -117,7 +117,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
             filename += ".dot"
         info = 'Inheritance Graph: ' + filename
         self.info(info)
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf8') as f:
             f.write('digraph{\n')
             for c in self.contracts:
                 f.write(self._summary(c))

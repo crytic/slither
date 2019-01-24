@@ -59,6 +59,9 @@ class ModifierSolc(Modifier, FunctionSolc):
         for node in self.nodes:
             node.analyze_expressions(self)
 
+        self._filter_ternary()
+        self._remove_alone_endif()
+
         self._analyze_read_write()
         self._analyze_calls()
 

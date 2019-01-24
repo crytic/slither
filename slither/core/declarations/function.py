@@ -654,7 +654,7 @@ class Function(ChildContract, SourceMapping):
         Args:
             filename (str)
         """
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf8') as f:
             f.write('digraph{\n')
             for node in self.nodes:
                 f.write('{}[label="{}"];\n'.format(node.node_id, str(node)))
@@ -670,7 +670,7 @@ class Function(ChildContract, SourceMapping):
             filename (str)
         """
         from slither.core.cfg.node import NodeType
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf8') as f:
             f.write('digraph{\n')
             for node in self.nodes:
                 label = 'Node Type: {} {}\n'.format(NodeType.str(node.type), node.node_id)
@@ -696,7 +696,7 @@ class Function(ChildContract, SourceMapping):
             if node.dominance_frontier:
                 desc += '\ndominance frontier: {}'.format([n.node_id for n in node.dominance_frontier])
             return desc
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf8') as f:
             f.write('digraph{\n')
             for node in self.nodes:
                 f.write('{}[label="{}"];\n'.format(node.node_id, description(node)))
