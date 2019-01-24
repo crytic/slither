@@ -139,7 +139,7 @@ def propage_type_and_convert_call(result, node):
                 assert ins.get_type() == ArgumentType.CALL
                 call_data.append(ins.argument)
 
-        if isinstance(ins, (HighLevelCall, NewContract)):
+        if isinstance(ins, (HighLevelCall, NewContract, InternalDynamicCall)):
             if ins.call_id in calls_value:
                 ins.call_value = calls_value[ins.call_id]
             if ins.call_id in calls_gas:
@@ -668,6 +668,11 @@ def remove_unused(result):
 
 def extract_tmp_call(ins):
     assert isinstance(ins, TmpCall)
+
+    if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
+        call = InternalDynamicCall(ins.lvalue, ins.called, ins.called.type)
+        call.call_id = ins.call_id
+        return call
     if isinstance(ins.ori, Member):
         if isinstance(ins.ori.variable_left, Contract):
             st = ins.ori.variable_left.get_structure_from_name(ins.ori.variable_right)
@@ -713,8 +718,6 @@ def extract_tmp_call(ins):
     if isinstance(ins.called, Event):
         return EventCall(ins.called.name)
 
-    if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
-        return InternalDynamicCall(ins.lvalue, ins.called, ins.called.type)
 
     raise Exception('Not extracted {} {}'.format(type(ins.called), ins))
 

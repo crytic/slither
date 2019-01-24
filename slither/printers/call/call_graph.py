@@ -145,7 +145,7 @@ class PrinterCallGraph(AbstractPrinter):
 
         self.info(f'Call Graph: {filename}')
 
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf8') as f:
             f.write('\n'.join([
                 'strict digraph {',
                 self._render_internal_calls(),

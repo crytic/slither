@@ -241,7 +241,10 @@ def convert_subdenomination(value, sub):
     if sub is None:
         return value
     # to allow 0.1 ether conversion
-    value = float(value)
+    if value[0:2] == "0x":
+        value = float(int(value, 16))
+    else:
+        value = float(value)
     if sub == 'wei':
         return int(value)
     if sub == 'szabo':
@@ -548,6 +551,8 @@ def parse_expression(expression, caller_context):
                     array_type = parse_type(UnknownType(type_name['name']), caller_context)
                 else:
                     array_type = parse_type(UnknownType(type_name['attributes']['name']), caller_context)
+            elif type_name[caller_context.get_key()] == 'FunctionTypeName':
+                array_type = parse_type(type_name, caller_context)
             else:
                 logger.error('Incorrect type array {}'.format(type_name))
                 exit(-1)
