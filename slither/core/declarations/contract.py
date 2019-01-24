@@ -121,14 +121,18 @@ class Contract(ChildSlither, SourceMapping):
             executed, following the c3 linearization
             Return None if there is no constructor.
         '''
-        cst = next((func for func in self.functions if func.is_constructor and func.contract == self), None)
+        cst = self.constructor_not_inherited
         if cst:
             return cst
         for inherited_contract in self.inheritance:
-            cst = inherited_contract.constructor
+            cst = inherited_contract.constructor_not_inherited
             if cst:
                 return cst
         return None
+
+    @property
+    def constructor_not_inherited(self):
+        return next((func for func in self.functions if func.is_constructor and func.contract == self), None)
 
     @property
     def constructors(self):
