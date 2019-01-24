@@ -19,8 +19,11 @@ class Contract(ChildSlither, SourceMapping):
 
         self._name = None
         self._id = None
-        self._inheritance = []
-        self._immediate_inheritance = []
+        self._inheritance = [] # all contract inherited, c3 linearization
+        self._immediate_inheritance = [] # immediate inheritance
+
+        # Constructors called on contract's definition
+        # contract B is A(1) { ..
         self._explicit_base_constructor_calls = []
 
         self._enums = {}
@@ -112,11 +115,28 @@ class Contract(ChildSlither, SourceMapping):
 
     @property
     def constructor(self):
-        return next((func for func in self.functions if func.is_constructor), None)
+        '''
+            Return the contract's immediate constructor.
+            If there is no immediate constructor, returns the first constructor
+            executed, following the c3 linearization
+            Return None if there is no constructor.
+        '''
+        cst = next((func for func in self.functions if func.is_constructor and func.contract == self), None)
+        if cst:
+            return cst
+        for inherited_contract in self.inheritance:
+            cst = inherited_contract.constructor
+            if cst:
+                return cst
+        return None
 
     @property
-    def constructor_not_inherited(self):
-        return next((func for func in self.functions if func.is_constructor and func.contract == self), None)
+    def constructors(self):
+        '''
+            Return the list of constructors (including inherited)
+        '''
+        return [func for func in self.functions if func.is_constructor]
+
 
     @property
     def functions(self):
@@ -154,9 +174,10 @@ class Contract(ChildSlither, SourceMapping):
                             Base constructors called by any constructor definition will not be included.
                             Base constructors implicitly called by the contract definition (without
                             parenthesis) will not be included.
+
+                            On "contract B is A(){..}" it returns the constructor of A
         """
-        # This is a list of contracts internally, so we convert it to a list of constructor functions.
-        return [c.constructor_not_inherited for c in self._explicit_base_constructor_calls if c.constructor_not_inherited]
+        return [c.constructor for c in self._explicit_base_constructor_calls if c.constructor]
 
     @property
     def modifiers(self):
