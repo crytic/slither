@@ -55,7 +55,9 @@ SOLIDITY_FUNCTIONS = {"gasleft()":['uint256'],
                       "abi.encode()":['bytes'],
                       "abi.encodePacked()":['bytes'],
                       "abi.encodeWithSelector()":["bytes"],
-                      "abi.encodeWithSignature()":["bytes"]}
+                      "abi.encodeWithSignature()":["bytes"],
+                      # abi.decode returns an a list arbitrary types
+                      "abi.decode()":[]}
 
 def solidity_function_signature(name):
     """

@@ -199,7 +199,8 @@ def convert_to_low_level(ir):
     elif ir.destination.name ==  'abi' and ir.function_name in ['encode',
                                                                 'encodePacked',
                                                                 'encodeWithSelector',
-                                                                'encodeWithSignature']:
+                                                                'encodeWithSignature',
+                                                                'decode']:
 
         call = SolidityFunction('abi.{}()'.format(ir.function_name))
         new_ir = SolidityCall(call, ir.nbr_arguments, ir.lvalue, ir.type_call)
