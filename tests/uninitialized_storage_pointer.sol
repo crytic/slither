@@ -8,7 +8,7 @@ contract Uninitialized{
         St st; // non init, but never read so its fine
         St memory st2;
         St st_bug;
-        st_bug.a;
+        st_bug.a += 1;
     }    
 
 }

@@ -26,6 +26,7 @@ from slither.solc_parsing.variables.variable_declaration import \
 from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
+from slither.core.declarations.contract import Contract
 
 logger = logging.getLogger("FunctionSolc")
 
@@ -772,7 +773,11 @@ class FunctionSolc(Function):
     def _parse_modifier(self, modifier):
         m = parse_expression(modifier, self)
         self._expression_modifiers.append(m)
-        self._modifiers += [m for m in ExportValues(m).result() if isinstance(m, Function)]
+        for m in ExportValues(m).result():
+            if isinstance(m, Function):
+                self._modifiers.append(m)
+            elif isinstance(m, Contract):
+                self._explicit_base_constructor_calls.append(m)
 
 
     def analyze_params(self):
