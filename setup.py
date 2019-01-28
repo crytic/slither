@@ -13,7 +13,8 @@ setup(
     long_description=open('README.md').read(),
     entry_points={
         'console_scripts': [
-            'slither = slither.__main__:main'
+            'slither = slither.__main__:main',
+            'slither-check-upgradability = utils.upgradability.__main__:main'
         ]
     }
 )
