@@ -19,7 +19,12 @@ class Contract(ChildSlither, SourceMapping):
 
         self._name = None
         self._id = None
-        self._inheritance = []
+        self._inheritance = [] # all contract inherited, c3 linearization
+        self._immediate_inheritance = [] # immediate inheritance
+
+        # Constructors called on contract's definition
+        # contract B is A(1) { ..
+        self._explicit_base_constructor_calls = []
 
         self._enums = {}
         self._structures = {}
@@ -61,14 +66,23 @@ class Contract(ChildSlither, SourceMapping):
         return list(self._inheritance)
 
     @property
+    def immediate_inheritance(self):
+        '''
+            list(Contract): List of contracts immediately inherited from (fathers). Order: order of declaration.
+        '''
+        return list(self._immediate_inheritance)
+
+    @property
     def inheritance_reverse(self):
         '''
             list(Contract): Inheritance list. Order: the last elem is the first father to be executed
         '''
         return reversed(self._inheritance)
 
-    def setInheritance(self, inheritance):
+    def setInheritance(self, inheritance, immediate_inheritance, called_base_constructor_contracts):
         self._inheritance = inheritance
+        self._immediate_inheritance = immediate_inheritance
+        self._explicit_base_constructor_calls = called_base_constructor_contracts
 
     @property
     def derived_contracts(self):
@@ -101,7 +115,32 @@ class Contract(ChildSlither, SourceMapping):
 
     @property
     def constructor(self):
-        return next((func for func in self.functions if func.is_constructor), None)
+        '''
+            Return the contract's immediate constructor.
+            If there is no immediate constructor, returns the first constructor
+            executed, following the c3 linearization
+            Return None if there is no constructor.
+        '''
+        cst = self.constructor_not_inherited
+        if cst:
+            return cst
+        for inherited_contract in self.inheritance:
+            cst = inherited_contract.constructor_not_inherited
+            if cst:
+                return cst
+        return None
+
+    @property
+    def constructor_not_inherited(self):
+        return next((func for func in self.functions if func.is_constructor and func.contract == self), None)
+
+    @property
+    def constructors(self):
+        '''
+            Return the list of constructors (including inherited)
+        '''
+        return [func for func in self.functions if func.is_constructor]
+
 
     @property
     def functions(self):
@@ -130,6 +169,19 @@ class Contract(ChildSlither, SourceMapping):
             list(Functions): List of public and external functions
         '''
         return [f for f in self.functions if f.visibility in ['public', 'external']]
+
+    @property
+    def explicit_base_constructor_calls(self):
+        """
+            list(Function): List of the base constructors called explicitly by this contract definition.
+
+                            Base constructors called by any constructor definition will not be included.
+                            Base constructors implicitly called by the contract definition (without
+                            parenthesis) will not be included.
+
+                            On "contract B is A(){..}" it returns the constructor of A
+        """
+        return [c.constructor for c in self._explicit_base_constructor_calls if c.constructor]
 
     @property
     def modifiers(self):
@@ -210,6 +262,7 @@ class Contract(ChildSlither, SourceMapping):
         all_state_variables_written = [f.all_state_variables_written() for f in self.functions + self.modifiers]
         all_state_variables_written = [item for sublist in all_state_variables_written for item in sublist]
         return list(set(all_state_variables_written))
+
     @property
     def all_state_variables_read(self):
         '''
