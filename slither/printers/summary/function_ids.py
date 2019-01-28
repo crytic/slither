@@ -10,7 +10,7 @@ from slither.utils.function import get_function_id
 class FunctionIds(AbstractPrinter):
 
     ARGUMENT = 'function-id'
-    HELP = 'Print the heccack256 signature of the functions'
+    HELP = 'Print the keccack256 signature of the functions'
 
     def output(self, _filename):
         """
