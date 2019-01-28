@@ -525,7 +525,12 @@ class Node(SourceMapping, ChildFunction):
                 if var and self._is_valid_slithir_var(var):
                     self._slithir_vars.add(var)
 
-            self._vars_read += [v for v in ir.read if self._is_non_slithir_var(v)]
+            if not isinstance(ir, (Phi, Index, Member)):
+                self._vars_read += [v for v in ir.read if self._is_non_slithir_var(v)]
+                for var in ir.read:
+                    if isinstance(var, (ReferenceVariable)):
+                        self._vars_read.append(var.points_to_origin)
+
             if isinstance(ir, OperationWithLValue):
                 if isinstance(ir, (Index, Member, Length, Balance)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
@@ -582,9 +587,13 @@ class Node(SourceMapping, ChildFunction):
         for ir in self.irs_ssa:
             if isinstance(ir, (PhiCallback)):
                 continue
-            self._ssa_vars_read += [v for v in ir.read if isinstance(v,
-                                                                     (StateIRVariable,
-                                                                      LocalIRVariable))]
+            if not isinstance(ir, (Phi, Index, Member)):
+                self._ssa_vars_read += [v for v in ir.read if isinstance(v,
+                                                                         (StateIRVariable,
+                                                                          LocalIRVariable))]
+                for var in ir.read:
+                    if isinstance(var, (ReferenceVariable)):
+                        self._vars_read.append(var.points_to_origin)
             if isinstance(ir, OperationWithLValue):
                 if isinstance(ir, (Index, Member, Length, Balance)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
@@ -596,7 +605,6 @@ class Node(SourceMapping, ChildFunction):
                     if isinstance(ir, (PhiCallback)):
                         continue
                     self._ssa_vars_written.append(var)
-
         self._ssa_vars_read = list(set(self._ssa_vars_read))
         self._ssa_state_vars_read = [v for v in self._ssa_vars_read if isinstance(v, StateVariable)]
         self._ssa_local_vars_read = [v for v in self._ssa_vars_read if isinstance(v, LocalVariable)]
