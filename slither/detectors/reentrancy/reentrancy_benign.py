@@ -30,6 +30,8 @@ class ReentrancyBenign(Reentrancy):
             for f in contract.functions_and_modifiers_not_inherited:
                 for node in f.nodes:
                     if node.context[self.KEY]['calls']:
+                        if not any(n!=node for n in node.context[self.KEY]['calls']):
+                            continue
                         read_then_written = []
                         for c in node.context[self.KEY]['calls']:
                             read_then_written += [v for v in node.context[self.KEY]['written']
