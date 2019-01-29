@@ -30,8 +30,12 @@ class ReentrancyBenign(Reentrancy):
             for f in contract.functions_and_modifiers_not_inherited:
                 for node in f.nodes:
                     if node.context[self.KEY]['calls']:
+                        read_then_written = []
+                        for c in node.context[self.KEY]['calls']:
+                            read_then_written += [v for v in node.context[self.KEY]['written']
+                                                 if v in node.context[self.KEY]['read_prior_calls'][c]]
                         not_read_then_written = [(v, node) for v in node.context[self.KEY]['written']
-                                                 if v not in node.context[self.KEY]['read']]
+                                                 if v not in read_then_written]
                         if not_read_then_written:
 
                             # calls are ordered
