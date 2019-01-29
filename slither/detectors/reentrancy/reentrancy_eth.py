@@ -31,6 +31,8 @@ class ReentrancyEth(Reentrancy):
             for f in contract.functions_and_modifiers_not_inherited:
                 for node in f.nodes:
                     if node.context[self.KEY]['calls'] and node.context[self.KEY]['send_eth']:
+                        if not any(n!=node for n in node.context[self.KEY]['send_eth']):
+                            continue
                         read_then_written = []
                         for c in node.context[self.KEY]['calls']:
                             if c == node:
