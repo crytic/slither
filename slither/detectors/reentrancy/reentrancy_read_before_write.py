@@ -42,7 +42,7 @@ class ReentrancyReadBeforeWritten(Reentrancy):
                             finding_key = (node.function,
                                            tuple(set(node.context[self.KEY]['calls'])))
                             finding_vars = read_then_written
-                            if finding_key not in self.result:
+                            if finding_key not in result:
                                 result[finding_key] = []
                             result[finding_key] = list(set(result[finding_key] + finding_vars))
         return result
