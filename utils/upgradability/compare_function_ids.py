@@ -34,9 +34,9 @@ def compare_function_ids(implem, proxy):
     for (k, _) in signatures_ids_implem.items():
         if k in signatures_ids_proxy:
             found = True
-            logger.info(red('Collision found {} {}'.format(signatures_ids_implem[k],
-                                                           signatures_ids_proxy[k])))
+            logger.info(red('Function id collision found {} {}'.format(signatures_ids_implem[k],
+                                                                       signatures_ids_proxy[k])))
 
     if not found:
-        logger.info(green('No collision found'))
+        logger.info(green('No function id collision found'))
 
