@@ -33,6 +33,8 @@ class ReentrancyReadBeforeWritten(Reentrancy):
                     if node.context[self.KEY]['calls'] and not node.context[self.KEY]['send_eth']:
                         read_then_written = []
                         for c in node.context[self.KEY]['calls']:
+                            if c == node:
+                                continue
                             read_then_written += [(v, node) for v in node.context[self.KEY]['written']
                                                   if v in node.context[self.KEY]['read_prior_calls'][c]]
 
