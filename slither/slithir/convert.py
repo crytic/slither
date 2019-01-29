@@ -534,8 +534,8 @@ def propagate_types(ir, node):
                 # TODO we should convert the reference to a temporary if the member is a length or a balance
                 if ir.variable_right == 'length' and not isinstance(ir.variable_left, Contract) and isinstance(ir.variable_left.type, (ElementaryType, ArrayType)):
                     length = Length(ir.variable_left, ir.lvalue)
-                    ir.lvalue.points_to = ir.variable_left
-                    return ir
+                    length.lvalue.points_to = ir.variable_left
+                    return length
                 if ir.variable_right == 'balance'and not isinstance(ir.variable_left, Contract)  and isinstance(ir.variable_left.type, ElementaryType):
                     return Balance(ir.variable_left, ir.lvalue)
                 left = ir.variable_left
