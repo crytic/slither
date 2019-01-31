@@ -22,7 +22,7 @@ class NamingConvention(AbstractDetector):
     WIKI_TITLE = 'Conformance to Solidity naming conventions'
     WIKI_DESCRIPTION = '''
 Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.25/style-guide.html#naming-conventions) that should be followed.
-### Rules exceptions
+#### Rules exceptions
 - Allow constant variables name/symbol/decimals to be lowercase (ERC20)
 - Allow `_` at the beginning of the mixed_case match for private variables and unused parameters.'''
 
