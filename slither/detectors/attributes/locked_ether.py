@@ -19,6 +19,21 @@ class LockedEther(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#contracts-that-lock-ether'
 
+
+    WIKI_TITLE = 'Contracts that lock ether'
+    WIKI_DESCRIPTION = 'Contract with a `payable` function, but without a withdraw capacity.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+pragma solidity 0.4.24;
+contract Locked{
+    function receive() payable public{
+    }
+}
+```
+Every ethers send to `Locked` will be lost.'''
+
+    WIKI_RECOMMENDATION = 'Remove the payable attribute or add a withdraw function.'
+
     @staticmethod
     def do_no_send_ether(contract):
         functions = contract.all_functions_called

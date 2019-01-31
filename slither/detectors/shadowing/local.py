@@ -17,7 +17,31 @@ class LocalShadowing(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#local-variable-shadowing'
 
-    vuln_name = 'ShadowingLocalVariable'
+    WIKI_TITLE = 'Local Variable Shadowing'
+    WIKI_DESCRIPTION = 'Detection of shadowing using local variables.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+pragma solidity ^0.4.24;
+
+contract Bug {
+    uint owner;
+
+    function sensitive_function(address owner) public {
+        // ...
+        require(owner == msg.sender);
+    }
+
+    function alternate_sensitive_function() public {
+        address owner = msg.sender;
+        // ...
+        require(owner == msg.sender);
+    }
+}
+```
+`sensitive_function.owner` shadows `Bug.owner`. As a result, the use of `owner` inside `sensitive_function` might be incorrect.'''
+
+    WIKI_RECOMMENDATION = 'Rename the local variable so as not to mistakenly overshadow any state variable/function/modifier/event definitions.'
+
 
     OVERSHADOWED_FUNCTION = "function"
     OVERSHADOWED_MODIFIER = "modifier"

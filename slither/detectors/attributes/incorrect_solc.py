@@ -25,6 +25,12 @@ class IncorrectSolc(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#incorrect-version-of-solidity'
 
+    WIKI_TITLE = 'Incorrect versions of Solidity'
+    WIKI_DESCRIPTION = '''
+Solc frequently releases new compiler versions. Using an old version prevent access to new Solidity security checks.
+We recommend avoiding complex pragma statement.'''
+    WIKI_RECOMMENDATION = 'Use Solidity 0.4.25 or 0.5.2.'
+
     COMPLEX_PRAGMA = "is has a complex pragma"
     OLD_VERSION = "it allows old versions"
     LESS_THAN = "it uses lesser than"

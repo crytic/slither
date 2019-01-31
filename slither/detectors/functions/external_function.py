@@ -18,6 +18,11 @@ class ExternalFunction(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#public-function-that-could-be-declared-as-external'
 
+
+    WIKI_TITLE = 'Public function that could be declared as external'
+    WIKI_DESCRIPTION = '`public` functions that are never called by the contract should be declared `external` to save gas.'
+    WIKI_RECOMMENDATION = 'Use the `external` attribute for functions never called from the contract.'
+
     @staticmethod
     def detect_functions_called(contract):
         """ Returns a list of InternallCall, SolidityCall

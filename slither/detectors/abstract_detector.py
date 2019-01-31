@@ -38,6 +38,12 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     WIKI = ''
 
+    WIKI_TITLE = ''
+    WIKI_DESCRIPTION = ''
+    WIKI_EXPLOIT_SCENARIO = ''
+    WIKI_RECOMMENDATION = ''
+
+
     def __init__(self, slither, logger):
         self.slither = slither
         self.contracts = slither.contracts
@@ -49,6 +55,18 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
         if not self.ARGUMENT:
             raise IncorrectDetectorInitialization('ARGUMENT is not initialized {}'.format(self.__class__.__name__))
+
+        if not self.WIKI_TITLE:
+            raise IncorrectDetectorInitialization('WIKI_TITLE is not initialized {}'.format(self.__class__.__name__))
+
+        if not self.WIKI_DESCRIPTION:
+            raise IncorrectDetectorInitialization('WIKI_DESCRIPTION is not initialized {}'.format(self.__class__.__name__))
+
+        if not self.WIKI_EXPLOIT_SCENARIO and self.IMPACT != DetectorClassification.INFORMATIONAL:
+            raise IncorrectDetectorInitialization('WIKI_EXPLOIT_SCENARIO is not initialized {}'.format(self.__class__.__name__))
+
+        if not self.WIKI_RECOMMENDATION:
+            raise IncorrectDetectorInitialization('WIKI_RECOMMENDATION is not initialized {}'.format(self.__class__.__name__))
 
         if re.match('^[a-zA-Z0-9_-]*$', self.ARGUMENT) is None:
             raise IncorrectDetectorInitialization('ARGUMENT has illegal character {}'.format(self.__class__.__name__))

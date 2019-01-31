@@ -19,6 +19,22 @@ class UnusedReturnValues(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-return'
 
+
+    WIKI_TITLE = 'Unused return'
+    WIKI_DESCRIPTION = 'The return value of an external call is not stored in a local or state variable.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract MyConc{
+    using SafeMath for uint;   
+    function my_func(uint a, uint b) public{
+        a.add(b);
+    }
+}
+```
+`MyConc` call `add` of safemath, but does not store the result in `a`. As a result, the computation has no effect.'''
+
+    WIKI_RECOMMENDATION = 'Ensure that all the return value of the function call are stored in a local or state variable.'
+
     def detect_unused_return_values(self, f):
         """
             Return the nodes where the return value of a call is unused

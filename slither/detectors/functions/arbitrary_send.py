@@ -30,6 +30,25 @@ class ArbitrarySend(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#functions-that-send-ether-to-arbitrary-destinations'
 
+    WIKI_TITLE = 'Functions that send ether to arbitrary destinations'
+    WIKI_DESCRIPTION = 'Unprotected call to a function executing sending ethers to an arbitrary address.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract ArbitrarySend{
+    address destination;
+    function setDestination(){
+        destination = msg.sender;
+    }
+
+    function withdraw() public{
+        destination.transfer(this.balance);
+    }
+}
+```
+Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract's balance.'''
+
+    WIKI_RECOMMENDATION = 'Ensure that an arbitrary user cannot withdraw unauthorize funds.'
+
     def arbitrary_send(self, func):
         """
         """
