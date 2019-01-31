@@ -45,6 +45,27 @@ class ElementaryType(Type):
     def name(self):
         return self.type
 
+    @property
+    def size(self):
+        '''
+            Return the size in bits
+            Return None if the size is not known
+        Returns:
+            int
+        '''
+        t = self._type
+        if t.startswith('uint'):
+            return int(t[len('uint'):])
+        if t.startswith('int'):
+            return int(t[len('int'):])
+        if t == 'bool':
+            return int(8)
+        if t == 'address':
+            return int(160)
+        if t.startswith('bytes'):
+            return int(t[len('bytes'):])
+        return None
+
     def __str__(self):
         return self._type
 

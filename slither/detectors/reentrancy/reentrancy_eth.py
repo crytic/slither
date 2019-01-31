@@ -4,7 +4,6 @@
     Based on heuristics, it may lead to FP and FN
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
-
 from slither.core.cfg.node import NodeType
 from slither.core.declarations import Function, SolidityFunction
 from slither.core.expressions import UnaryOperation, UnaryOperationType
@@ -23,13 +22,14 @@ class ReentrancyEth(Reentrancy):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities'
 
-    key = 'REENTRANCY-ETHERS'
-
     def find_reentrancies(self):
         result = {}
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_not_inherited:
                 for node in f.nodes:
+                    # dead code
+                    if not self.KEY in node.context:
+                        continue
                     if node.context[self.KEY]['calls'] and node.context[self.KEY]['send_eth']:
                         if not any(n!=node for n in node.context[self.KEY]['send_eth']):
                             continue
@@ -43,8 +43,8 @@ class ReentrancyEth(Reentrancy):
                         if read_then_written:
                             # calls are ordered
                             finding_key = (node.function,
-                                           tuple(set(node.context[self.KEY]['calls'])),
-                                           tuple(set(node.context[self.KEY]['send_eth'])))
+                                           tuple(sorted(list(node.context[self.KEY]['calls']), key=lambda x:x.node_id)),
+                                           tuple(sorted(list(node.context[self.KEY]['send_eth']), key=lambda x:x.node_id)))
                             finding_vars = read_then_written
                             if finding_key not in result:
                                 result[finding_key] = []
