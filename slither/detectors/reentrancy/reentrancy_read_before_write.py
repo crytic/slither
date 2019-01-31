@@ -30,6 +30,9 @@ class ReentrancyReadBeforeWritten(Reentrancy):
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_not_inherited:
                 for node in f.nodes:
+                    # dead code
+                    if not self.KEY in node.context:
+                        continue
                     if node.context[self.KEY]['calls'] and not node.context[self.KEY]['send_eth']:
                         read_then_written = []
                         for c in node.context[self.KEY]['calls']:
@@ -42,7 +45,7 @@ class ReentrancyReadBeforeWritten(Reentrancy):
                         if read_then_written:
                             # calls are ordered
                             finding_key = (node.function,
-                                           tuple(set(node.context[self.KEY]['calls'])))
+                                           tuple(sorted(list(node.context[self.KEY]['calls']), key=lambda x:x.node_id)))
                             finding_vars = read_then_written
                             if finding_key not in result:
                                 result[finding_key] = []
