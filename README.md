@@ -123,7 +123,7 @@ We recommend using an Python virtual environment, as detailed in the [Developer 
 
 ### Using Docker
 
-Use the [`eth-security-toolbox`](https://github.com/trailofbits/eth-security-toolbox/) docker image. It includes all of our security tools and every major version of Solidity in a single image.
+Use the [`eth-security-toolbox`](https://github.com/trailofbits/eth-security-toolbox/) docker image. It includes all of our security tools and every major version of Solidity in a single image. `/home/share` will be mounted to `/share`  in the container. Use [`solc-select`](https://github.com/trailofbits/eth-security-toolbox/#usage) to switch the Solidity version.
 
 ```
 docker pull trailofbits/eth-security-toolbox
@@ -134,8 +134,6 @@ To share a directory in the container:
 ```
 docker run -it -v /home/share:/share trailofbits/eth-security-toolbox
 ```
-
-`/home/share` will be mounted to `/share`  in the container. Use [`solc-select`](https://github.com/trailofbits/eth-security-toolbox/#usage) to switch the Solidity version.
 
 ## Getting Help
 
