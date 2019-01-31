@@ -18,6 +18,10 @@ class LowLevelCalls(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#low-level-calls'
 
+    WIKI_TITLE = 'Low level calls'
+    WIKI_DESCRIPTION = 'The use of low-level calls is error-prone. Low-level calls do not check for [code existence](https://solidity.readthedocs.io/en/v0.4.25/control-structures.html#error-handling-assert-require-revert-and-exceptions) or call success.'
+    WIKI_RECOMMENDATION = 'Avoid low-level calls. Check the call success. If the call is meant for a contract, check for code existence.'
+
     @staticmethod
     def _contains_low_level_calls(node):
         """

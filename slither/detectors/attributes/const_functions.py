@@ -17,6 +17,30 @@ class ConstantFunctions(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#constant-functions-changing-the-state'
 
+    WIKI_TITLE = 'Constant functions changing the state'
+    WIKI_DESCRIPTION = '''
+Functions declared as `constant`/`pure`/`view` changing the state or using assembly code.
+
+`constant`/`pure`/`view` was not enforced prior Solidity 0.5.
+Starting from Solidity 0.5, a call to a `constant`/`pure`/`view` function uses the `STATICCALL` opcode, which reverts in case of state modification.
+
+As a result, a call to an [incorrectly labeled function may trap a contract compiled with Solidity 0.5](https://solidity.readthedocs.io/en/develop/050-breaking-changes.html#interoperability-with-older-contracts).'''
+
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract Constant{
+    uint counter;
+    function get() public view returns(uint){
+       counter = counter +1;
+       return counter
+    }
+}
+```
+`Constant` was deployed with Solidity 0.4.25. Bob writes a smart contract interacting with `Constant` in Solidity 0.5.0. 
+All the calls to `get` reverts, breaking Bob's smart contract execution.'''
+
+    WIKI_RECOMMENDATION = 'Ensure that the attributes of contracts compiled prior Solidity 0.5.0 are correct.'
+
     def detect(self):
         """ Detect the constant function changing the state
 

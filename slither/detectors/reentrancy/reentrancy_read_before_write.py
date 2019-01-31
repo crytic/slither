@@ -25,6 +25,24 @@ class ReentrancyReadBeforeWritten(Reentrancy):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities-1'
 
+    WIKI_TITLE = 'Reentrancy vulnerabilities'
+    WIKI_DESCRIPTION = '''
+Detection of the [re-entrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
+Do not report reentrancies that involve ethers (see `reentrancy-eth`)'''
+
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+    function bug(){
+        require(not_called);
+        if( ! (msg.sender.call() ) ){
+            throw;
+        }
+        not_called = False;
+    }   
+```
+'''
+    WIKI_RECOMMENDATION = 'Apply the [check-effects-interactions pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy).'
+
     def find_reentrancies(self):
         result = {}
         for contract in self.contracts:

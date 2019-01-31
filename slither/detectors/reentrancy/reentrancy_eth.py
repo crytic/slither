@@ -22,6 +22,28 @@ class ReentrancyEth(Reentrancy):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities'
 
+    WIKI_TITLE = 'Reentrancy vulnerabilities'
+    WIKI_DESCRIPTION = '''
+Detection of the [re-entrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
+Do not report reentrancies that don't involve ethers (see `reentrancy-no-eth`)'''
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+    function withdrawBalance(){
+        // send userBalance[msg.sender] ethers to msg.sender
+        // if mgs.sender is a contract, it will call its fallback function
+        if( ! (msg.sender.call.value(userBalance[msg.sender])() ) ){
+            throw;
+        }
+        userBalance[msg.sender] = 0;
+    }
+```
+
+Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw more than its initial deposit to the contract.'''
+
+
+    WIKI_RECOMMENDATION = 'Apply the [check-effects-interactions pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy).'
+
+
     def find_reentrancies(self):
         result = {}
         for contract in self.contracts:

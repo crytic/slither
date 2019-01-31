@@ -18,6 +18,21 @@ class Suicidal(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#suicidal'
 
+
+    WIKI_TITLE = 'Suicidal'
+    WIKI_DESCRIPTION = 'Unprotected call to a function executing `selfdestruct`/`suicide`.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract Suicidal{
+    function kill() public{
+        selfdestruct(msg.value);
+    }
+}
+```
+Bob calls `kill` and destruct the contract.'''
+
+    WIKI_RECOMMENDATION = 'Protect access to all sensitive functions.'
+
     @staticmethod
     def detect_suicidal_func(func):
         """ Detect if the function is suicidal
