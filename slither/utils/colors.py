@@ -25,33 +25,38 @@ def enable_windows_virtual_terminal_sequences():
     Reference: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
     """
 
-    from ctypes import windll, byref
-    from ctypes.wintypes import DWORD, HANDLE
+    try:
+        from ctypes import windll, byref
+        from ctypes.wintypes import DWORD, HANDLE
 
-    kernel32 = windll.kernel32
-    virtual_terminal_flag = 0x04  # ENABLE_VIRTUAL_TERMINAL_PROCESSING
+        kernel32 = windll.kernel32
+        virtual_terminal_flag = 0x04  # ENABLE_VIRTUAL_TERMINAL_PROCESSING
 
-    # Obtain our stdout/stderr handles.
-    # Reference: https://docs.microsoft.com/en-us/windows/console/getstdhandle
-    handle_stdout = kernel32.GetStdHandle(-11)
-    handle_stderr = kernel32.GetStdHandle(-12)
+        # Obtain our stdout/stderr handles.
+        # Reference: https://docs.microsoft.com/en-us/windows/console/getstdhandle
+        handle_stdout = kernel32.GetStdHandle(-11)
+        handle_stderr = kernel32.GetStdHandle(-12)
 
-    # Loop for each stdout/stderr handle.
-    for current_handle in [handle_stdout, handle_stderr]:
+        # Loop for each stdout/stderr handle.
+        for current_handle in [handle_stdout, handle_stderr]:
 
-        # If we get a null handle, or fail any subsequent calls in this scope, we do not colorize any output.
-        if current_handle is None or current_handle == HANDLE(-1):
-            return False
-
-        # Try to obtain the current flags for the console.
-        current_mode = DWORD()
-        if not kernel32.GetConsoleMode(current_handle, byref(current_mode)):
-            return False
-
-        # If the virtual terminal sequence processing is not yet enabled, we enable it.
-        if (current_mode.value & virtual_terminal_flag) == 0:
-            if not kernel32.SetConsoleMode(current_handle, current_mode.value | virtual_terminal_flag):
+            # If we get a null handle, or fail any subsequent calls in this scope, we do not colorize any output.
+            if current_handle is None or current_handle == HANDLE(-1):
                 return False
+
+            # Try to obtain the current flags for the console.
+            current_mode = DWORD()
+            if not kernel32.GetConsoleMode(current_handle, byref(current_mode)):
+                return False
+
+            # If the virtual terminal sequence processing is not yet enabled, we enable it.
+            if (current_mode.value & virtual_terminal_flag) == 0:
+                if not kernel32.SetConsoleMode(current_handle, current_mode.value | virtual_terminal_flag):
+                    return False
+    except:
+        # Any generic failure (possibly from calling these methods on older Windows builds where they do not exist)
+        # will fall back onto disabling colorization.
+        return False
 
     return True
 
