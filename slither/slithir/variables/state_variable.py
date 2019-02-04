@@ -23,6 +23,12 @@ class StateIRVariable(StateVariable, SlithIRVariable):
 
         self._index = 0
 
+        # keep un-ssa version
+        if isinstance(state_variable, StateIRVariable):
+            self._non_ssa_version = state_variable.non_ssa_version
+        else:
+            self._non_ssa_version = state_variable
+
     @property
     def index(self):
         return self._index
@@ -30,6 +36,10 @@ class StateIRVariable(StateVariable, SlithIRVariable):
     @index.setter
     def index(self, idx):
         self._index = idx
+
+    @property
+    def non_ssa_version(self):
+        return self._non_ssa_version
 
     @property
     def ssa_name(self):

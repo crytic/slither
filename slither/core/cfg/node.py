@@ -271,6 +271,29 @@ class Node(SourceMapping, ChildFunction):
         return list(self._solidity_vars_read)
 
     @property
+    def ssa_variables_read(self):
+        """
+            list(Variable): Variables read (local/state/solidity)
+        """
+        return list(self._ssa_vars_read)
+
+    @property
+    def ssa_state_variables_read(self):
+        """
+            list(StateVariable): State variables read
+        """
+        return list(self._ssa_state_vars_read)
+
+    @property
+    def ssa_local_variables_read(self):
+        """
+            list(LocalVariable): Local variables read
+        """
+        return list(self._ssa_local_vars_read)
+
+
+
+    @property
     def variables_read_as_expression(self):
         return self._expression_vars_read
 
@@ -298,6 +321,27 @@ class Node(SourceMapping, ChildFunction):
             list(LocalVariable): Local variables written
         """
         return list(self._local_vars_written)
+
+    @property
+    def ssa_variables_written(self):
+        """
+            list(Variable): Variables written (local/state/solidity)
+        """
+        return list(self._ssa_vars_written)
+
+    @property
+    def ssa_state_variables_written(self):
+        """
+            list(StateVariable): State variables written
+        """
+        return list(self._ssa_state_vars_written)
+
+    @property
+    def ssa_local_variables_written(self):
+        """
+            list(LocalVariable): Local variables written
+        """
+        return list(self._ssa_local_vars_written)
 
     @property
     def variables_written_as_expression(self):
