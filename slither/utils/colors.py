@@ -32,6 +32,7 @@ def enable_windows_virtual_terminal_sequences():
     virtual_terminal_flag = 0x04  # ENABLE_VIRTUAL_TERMINAL_PROCESSING
 
     # Obtain our stdout/stderr handles.
+    # Reference: https://docs.microsoft.com/en-us/windows/console/getstdhandle
     handle_stdout = kernel32.GetStdHandle(-11)
     handle_stderr = kernel32.GetStdHandle(-12)
 
