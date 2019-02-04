@@ -59,8 +59,17 @@ def _process(slither, detector_classes, printer_classes):
     return results, analyzed_contracts_count
 
 def process_truffle(dirname, args, detector_classes, printer_classes):
-    cmd =  ['npx',args.truffle_version,'compile'] if args.truffle_version else ['truffle','compile']
-    logger.info('truffle compile running...')
+    if args.truffle_version:
+        cmd = ['npx',args.truffle_version,'compile']
+    elif os.path.isfile('package.json'):
+        cmd = ['truffle', 'compile']
+        with open('package.json') as f:
+                package = json.load(f)
+                if 'devDependencies' in package:
+                    if 'truffle' in package['devDependencies']:
+                        truffle_version = 'truffle@{}'.format(package['devDependencies']['truffle'])
+                        cmd = ['npx', truffle_version,'compile']
+    logger.info("'{}' running (use --truffle-version truffle@x.x.x to use specific version)".format(' '.join(cmd)))
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     stdout, stderr = process.communicate()
