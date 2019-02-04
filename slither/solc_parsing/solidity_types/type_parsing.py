@@ -160,7 +160,7 @@ def parse_type(t, caller_context):
     elif t[key] == 'UserDefinedTypeName':
         if is_compact_ast:
             return _find_from_type_name(t['typeDescriptions']['typeString'], contract, contracts, structures, enums)
-        return _find_from_type_name(t['attributes'][key], contract, contracts, structures, enums)
+        return _find_from_type_name(t['attributes']['type'], contract, contracts, structures, enums)
 
     elif t[key] == 'ArrayTypeName':
         length = None
