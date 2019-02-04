@@ -25,10 +25,10 @@ def enable_windows_virtual_terminal_sequences():
     Reference: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
     """
 
-    import ctypes
+    from ctypes import windll, byref
     from ctypes.wintypes import DWORD, HANDLE
 
-    kernel32 = ctypes.windll.kernel32
+    kernel32 = windll.kernel32
     virtual_terminal_flag = 0x04  # ENABLE_VIRTUAL_TERMINAL_PROCESSING
 
     # Obtain our stdout/stderr handles.
@@ -43,8 +43,8 @@ def enable_windows_virtual_terminal_sequences():
             return False
 
         # Try to obtain the current flags for the console.
-        current_mode = ctypes.wintypes.DWORD()
-        if not kernel32.GetConsoleMode(current_handle, ctypes.byref(current_mode)):
+        current_mode = DWORD()
+        if not kernel32.GetConsoleMode(current_handle, byref(current_mode)):
             return False
 
         # If the virtual terminal sequence processing is not yet enabled, we enable it.
