@@ -2,6 +2,7 @@ from functools import partial
 
 
 class Colors:
+    COLORIZATION_ENABLED = True
     RED = '\033[91m'
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
@@ -11,7 +12,14 @@ class Colors:
 
 
 def colorize(color, txt):
-    return '{}{}{}'.format(color, txt, Colors.END)
+    if Colors.COLORIZATION_ENABLED:
+        return '{}{}{}'.format(color, txt, Colors.END)
+    else:
+        return txt
+
+
+def set_colorization_enabled(enabled):
+    Colors.COLORIZATION_ENABLED = enabled
 
 
 green = partial(colorize, Colors.GREEN)
