@@ -2,6 +2,8 @@ import logging
 import os
 import subprocess
 import sys
+import glob
+import json
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
@@ -17,12 +19,30 @@ logger_printer = logging.getLogger("Printers")
 
 class Slither(SlitherSolc):
 
-    def __init__(self, contract, solc='solc', disable_solc_warnings=False, solc_arguments='', ast_format='--ast-json'):
+    def __init__(self, contract, solc='solc', disable_solc_warnings=False, solc_arguments='', ast_format='--ast-compact-json', is_truffle=False):
         self._detectors = []
         self._printers = []
 
-        # json text provided
-        if isinstance(contract, list):
+        # truffle directory
+        if is_truffle:
+            if not os.path.isdir(os.path.join(contract, 'build'))\
+                or not os.path.isdir(os.path.join(contract, 'build', 'contracts')):
+                logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
+                sys.exit(-1)
+            super(Slither, self).__init__('')
+            filenames = glob.glob(os.path.join(contract, 'build', 'contracts', '*.json'))
+            for filename in filenames:
+                with open(filename, encoding='utf8') as f:
+                    contract_loaded = json.load(f)
+                    contract_loaded = contract_loaded['ast']
+                    if 'absolutePath' in contract_loaded:
+                        path = contract_loaded['absolutePath']
+                    else:
+                        path = contract_loaded['attributes']['absolutePath']
+                    self._parse_contracts_from_loaded_json(contract_loaded, path)
+
+        # list of files provided (see --splitted option)
+        elif isinstance(contract, list):
             super(Slither, self).__init__('')
             for c in contract:
                 if 'absolutePath' in c:
