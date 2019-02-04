@@ -37,7 +37,7 @@ test_slither(){
     fi
 
     # run slither detector on input file and save output as json
-    slither "$1" --disable-solc-warnings --detect "$2" --compact-ast --json "$DIR/tmp-test.json" --solc solc-0.4.25
+    slither "$1" --disable-solc-warnings --detect "$2" --legacy-ast --json "$DIR/tmp-test.json" --solc solc-0.4.25
     if [ $? -eq 255 ]
     then
         echo "Slither crashed"
