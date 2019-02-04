@@ -210,7 +210,10 @@ def convert_to_low_level(ir):
         else:
             new_ir.lvalue.set_type(call.return_type)
         return new_ir
-    elif ir.function_name in ['call', 'delegatecall', 'callcode']:
+    elif ir.function_name in ['call',
+                              'delegatecall',
+                              'callcode',
+                              'staticcall']:
         new_ir = LowLevelCall(ir.destination,
                           ir.function_name,
                           ir.nbr_arguments,
