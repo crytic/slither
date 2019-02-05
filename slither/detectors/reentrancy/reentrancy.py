@@ -13,6 +13,7 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 from slither.slithir.operations import (HighLevelCall, LowLevelCall,
                                         LibraryCall,
                                         Send, Transfer)
+from slither.core.variables.variable import Variable
 
 def union_dict(d1, d2):
     d3 = {k: d1.get(k, set()) | d2.get(k, set()) for k in set(list(d1.keys()) + list(d2.keys()))}
@@ -49,6 +50,10 @@ class Reentrancy(AbstractDetector):
             if isinstance(ir, LowLevelCall):
                 return True
             if isinstance(ir, HighLevelCall) and not isinstance(ir, LibraryCall):
+                if isinstance(ir.function, Function) and (ir.function.view or ir.function.pure):
+                    continue
+                if isinstance(ir.function, Variable):
+                    continue
                 return True
         return False
 
