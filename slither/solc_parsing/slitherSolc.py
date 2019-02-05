@@ -3,7 +3,9 @@ import json
 import re
 import logging
 
+logging.basicConfig()
 logger = logging.getLogger("SlitherSolcParsing")
+logger.setLevel(logging.INFO)
 
 from slither.solc_parsing.declarations.contract import ContractSolc04
 from slither.core.slither_core import Slither
@@ -138,6 +140,8 @@ class SlitherSolc(Slither):
 
 
     def _analyze_contracts(self):
+        if not self._contractsNotParsed:
+            logger.info(f'No contract were found in {self.filename}, check the correct compilation') 
         if self._analyzed:
             raise Exception('Contract analysis can be run only once!')
 
