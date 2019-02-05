@@ -16,5 +16,6 @@ install:
 script:
   - scripts/travis_test_4.sh
   - scripts/travis_test_5.sh
+  - scripts/travis_test_upgradability.sh
 
 

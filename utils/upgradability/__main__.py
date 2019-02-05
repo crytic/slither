@@ -24,6 +24,7 @@ def parse_args():
 
     parser.add_argument('--new-version', help='New implementation filename')
     parser.add_argument('--new-contract-name', help='New contract name (if changed)')
+    parser.add_argument('--solc', help='solc path', default='solc')
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -34,16 +35,16 @@ def parse_args():
 def main():
     args = parse_args()
 
-    proxy = Slither(vars(args)['proxy.sol'])
+    proxy = Slither(vars(args)['proxy.sol'], solc=args.solc)
     proxy_name = args.ProxyName
-    v1 = Slither(vars(args)['implem.sol'])
+    v1 = Slither(vars(args)['implem.sol'], solc=args.solc)
     v1_name = args.ContractName
 
     last_contract = v1
     last_name = v1_name
 
     if args.new_version:
-        v2 = Slither(args.new_version)
+        v2 = Slither(args.new_version, solc=args.solc)
         last_contract = v2
 
     if args.new_contract_name:

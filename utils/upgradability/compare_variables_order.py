@@ -36,7 +36,7 @@ def compare_variables_order_implementation(v1, contract_name1, v2, contract_name
 
         if (v1_name != v2_name) or (v1_type != v2_type):
             found = True
-            logger.info(red('Different variable: {} {} -> {} {}'.format(v1_name,
+            logger.info(red('Different variables between v1 and v2: {} {} -> {} {}'.format(v1_name,
                                                                         v1_type,
                                                                         v2_name,
                                                                         v2_type)))
@@ -76,7 +76,7 @@ def compare_variables_order_proxy(implem, implem_name, proxy, proxy_name):
 
         if (proxy_name != implem_name) or (proxy_type != implem_type):
             found = True
-            logger.info(red('Different variable: {} {} -> {} {}'.format(proxy_name,
+            logger.info(red('Different variables between proxy and implem: {} {} -> {} {}'.format(proxy_name,
                                                                         proxy_type,
                                                                         implem_name,
                                                                         implem_type)))
