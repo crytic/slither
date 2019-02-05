@@ -59,7 +59,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         """
         ret = ''
         # Add arrows
-        for i in contract.inheritance:
+        for i in contract.immediate_inheritance:
             ret += '%s -> %s;\n' % (contract.name, i)
 
         # Functions
