@@ -3,7 +3,7 @@ import platform
 
 
 class Colors:
-    COLORIZATION_ENABLED = False
+    COLORIZATION_ENABLED = True
     RED = '\033[91m'
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
@@ -80,3 +80,7 @@ yellow = partial(colorize, Colors.YELLOW)
 red = partial(colorize, Colors.RED)
 blue = partial(colorize, Colors.BLUE)
 magenta = partial(colorize, Colors.MAGENTA)
+
+# We enable colorization by default (this call is important as it will enable color mode on Windows by default),
+# regardless of whether Slither is interacted with from CLI or another script.
+set_colorization_enabled(True)
