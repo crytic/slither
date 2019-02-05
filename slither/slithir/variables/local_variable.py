@@ -1,6 +1,5 @@
 
 from .variable import SlithIRVariable
-from .constant import Constant
 from .temporary import TemporaryVariable
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.children.child_node import ChildNode
