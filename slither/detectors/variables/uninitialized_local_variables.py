@@ -21,6 +21,22 @@ class UninitializedLocalVars(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-local-variables'
 
+
+    WIKI_TITLE = 'Uninitialized local variables'
+    WIKI_DESCRIPTION = 'Uninitialized local variables.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract Uninitialized is Owner{
+    function withdraw() payable public onlyOwner{
+        address to;
+        to.transfer(this.balance)
+    }
+}
+```
+Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and are lost.'''
+
+    WIKI_RECOMMENDATION = 'Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero.'
+
     key = "UNINITIALIZEDLOCAL"
 
     def _detect_uninitialized(self, function, node, visited):

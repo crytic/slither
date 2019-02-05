@@ -17,6 +17,11 @@ class ConstantPragma(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#different-pragma-directives-are-used'
 
+
+    WIKI_TITLE = 'Different pragma directives are used'
+    WIKI_DESCRIPTION = 'Detect if different Solidity versions are used.'
+    WIKI_RECOMMENDATION = 'Use one Solidity version.'
+
     def detect(self):
         results = []
         pragma = self.slither.pragma_directives

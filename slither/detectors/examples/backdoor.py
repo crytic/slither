@@ -11,6 +11,12 @@ class Backdoor(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
+
+    WIKI_TITLE = 'Backdoor example'
+    WIKI_DESCRIPTION = 'Plugin example'
+    WIKI_EXPLOIT_SCENARIO = '..'
+    WIKI_RECOMMENDATION = '..'
+
     def detect(self):
         results = []
 

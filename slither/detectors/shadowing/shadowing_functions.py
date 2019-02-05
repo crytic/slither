@@ -18,6 +18,15 @@ class ShadowingFunctionsDetection(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
 
+    # This detector is not meant to be called as a generic detector
+    # It's only used by inheritances printers
+    WIKI = 'undefined'
+    WIKI_TITLE = 'undefined'
+    WIKI_DESCRIPTION = 'undefined'
+    WIKI_EXPLOIT_SCENARIO = 'undefined'
+    WIKI_RECOMMENDATION = 'undefined'
+
+
     def detect_shadowing(self, contract):
         functions_declared = set([x.full_name for x in contract.functions])
         ret = {}

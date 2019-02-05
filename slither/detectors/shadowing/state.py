@@ -17,7 +17,36 @@ class StateShadowing(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variable-shadowing'
 
-    vuln_name = 'Shadowing'
+    WIKI_TITLE = 'State variable shadowing'
+    WIKI_DESCRIPTION = 'Detection of state variables shadowed.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract BaseContract{
+    address owner;
+
+    modifier isOwner(){
+        require(owner == msg.sender);
+        _;
+    }
+
+}
+
+contract DerivedContract is BaseContract{
+    address owner;
+
+    constructor(){
+        owner = msg.sender;
+    }
+
+    function withdraw() isOwner() external{
+        msg.sender.transfer(this.balance);
+    }
+}
+```
+`owner` of `BaseContract` is never assigned and the modifier `isOwner` does not work.'''
+
+    WIKI_RECOMMENDATION = 'Remove the state variable shadowing.'
+
 
     def detect_shadowing(self, contract):
         ret = []

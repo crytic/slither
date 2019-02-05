@@ -29,6 +29,12 @@ class Timestamp(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#block-timestamp'
 
+
+    WIKI_TITLE = 'Block timestamp'
+    WIKI_DESCRIPTION = 'Dangerous usage of `block.timestamp`. `block.timestamp` can be manipulated by miners.'
+    WIKI_EXPLOIT_SCENARIO = '''"Bob's contract relies on `block.timestamp` for its randomness. Eve is a miner and manipulates `block.timestamp` to exploit Bob's contract.'''
+    WIKI_RECOMMENDATION = 'Avoid relying on `block.timestamp`.'
+
     def timestamp(self, func):
         """
         """

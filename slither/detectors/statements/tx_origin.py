@@ -16,6 +16,21 @@ class TxOrigin(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#dangerous-usage-of-txorigin'
 
+    WIKI_TITLE = 'Dangerous usage of `tx.origin`'
+    WIKI_DESCRIPTION = '`tx.origin`-based protection can be abused by malicious contract if a legitimate user interacts with the malicious contract.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract TxOrigin {
+    address owner = msg.sender;
+
+    function bug() {
+        require(tx.origin == owner);
+    }
+```
+Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contact calls `TxOrigin` and bypass the `tx.origin` protection.'''
+
+    WIKI_RECOMMENDATION = 'Do not use `tx.origin` for authentification.'
+
     @staticmethod
     def _contains_incorrect_tx_origin_use(node):
         """

@@ -18,6 +18,11 @@ class Assembly(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#assembly-usage'
 
+
+    WIKI_TITLE = 'Assembly usage'
+    WIKI_DESCRIPTION = 'The use of assembly is error-prone and should be avoided.'
+    WIKI_RECOMMENDATION = 'Do not use evm assembly.'
+
     @staticmethod
     def _contains_inline_assembly_use(node):
         """

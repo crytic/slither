@@ -19,6 +19,16 @@ class NamingConvention(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#conformance-to-solidity-naming-conventions'
 
+    WIKI_TITLE = 'Conformance to Solidity naming conventions'
+    WIKI_DESCRIPTION = '''
+Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.25/style-guide.html#naming-conventions) that should be followed.
+#### Rules exceptions
+- Allow constant variables name/symbol/decimals to be lowercase (ERC20)
+- Allow `_` at the beginning of the mixed_case match for private variables and unused parameters.'''
+
+    WIKI_RECOMMENDATION = 'Follow the Solidity [naming convention](https://solidity.readthedocs.io/en/v0.4.25/style-guide.html#naming-conventions).'
+
+
     @staticmethod
     def is_cap_words(name):
         return re.search('^[A-Z]([A-Za-z0-9]+)?_?$', name) is not None

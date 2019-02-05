@@ -271,6 +271,29 @@ class Node(SourceMapping, ChildFunction):
         return list(self._solidity_vars_read)
 
     @property
+    def ssa_variables_read(self):
+        """
+            list(Variable): Variables read (local/state/solidity)
+        """
+        return list(self._ssa_vars_read)
+
+    @property
+    def ssa_state_variables_read(self):
+        """
+            list(StateVariable): State variables read
+        """
+        return list(self._ssa_state_vars_read)
+
+    @property
+    def ssa_local_variables_read(self):
+        """
+            list(LocalVariable): Local variables read
+        """
+        return list(self._ssa_local_vars_read)
+
+
+
+    @property
     def variables_read_as_expression(self):
         return self._expression_vars_read
 
@@ -298,6 +321,27 @@ class Node(SourceMapping, ChildFunction):
             list(LocalVariable): Local variables written
         """
         return list(self._local_vars_written)
+
+    @property
+    def ssa_variables_written(self):
+        """
+            list(Variable): Variables written (local/state/solidity)
+        """
+        return list(self._ssa_vars_written)
+
+    @property
+    def ssa_state_variables_written(self):
+        """
+            list(StateVariable): State variables written
+        """
+        return list(self._ssa_state_vars_written)
+
+    @property
+    def ssa_local_variables_written(self):
+        """
+            list(LocalVariable): Local variables written
+        """
+        return list(self._ssa_local_vars_written)
 
     @property
     def variables_written_as_expression(self):
@@ -530,6 +574,13 @@ class Node(SourceMapping, ChildFunction):
                 for var in ir.read:
                     if isinstance(var, (ReferenceVariable)):
                         self._vars_read.append(var.points_to_origin)
+            elif isinstance(ir, (Member, Index)):
+                if self._is_non_slithir_var(ir.variable_right):
+                    self._vars_read.append(ir.variable_right)
+                if isinstance(ir.variable_right, (ReferenceVariable)):
+                    origin = ir.variable_right.points_to_origin
+                    if self._is_non_slithir_var:
+                        self._vars_read.append(origin)
 
             if isinstance(ir, OperationWithLValue):
                 if isinstance(ir, (Index, Member, Length, Balance)):
@@ -593,7 +644,18 @@ class Node(SourceMapping, ChildFunction):
                                                                           LocalIRVariable))]
                 for var in ir.read:
                     if isinstance(var, (ReferenceVariable)):
-                        self._vars_read.append(var.points_to_origin)
+                        origin = var.points_to_origin
+                        if isinstance(origin, (StateIRVariable, LocalIRVariable)):
+                            self._ssa_vars_read.append(origin)
+
+            elif isinstance(ir, (Member, Index)):
+                if isinstance(ir.variable_right, (StateIRVariable, LocalIRVariable)):
+                    self._ssa_vars_read.append(ir.variable_right)
+                if isinstance(ir.variable_right, (ReferenceVariable)):
+                    origin = ir.variable_right.points_to_origin
+                    if isinstance(origin, (StateIRVariable, LocalIRVariable)):
+                        self._ssa_vars_read.append(origin)
+
             if isinstance(ir, OperationWithLValue):
                 if isinstance(ir, (Index, Member, Length, Balance)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
