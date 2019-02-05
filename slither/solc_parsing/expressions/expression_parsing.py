@@ -60,6 +60,11 @@ def find_variable(var_name, caller_context, referenced_declaration=None):
         exit(-1)
 
     if function:
+        # We look for variable declared with the referencedDeclaration attr
+        func_variables = function.variables_renamed
+        if referenced_declaration and referenced_declaration in func_variables:
+            return func_variables[referenced_declaration]
+        # If not found, check for name
         func_variables = function.variables_as_dict()
         if var_name in func_variables:
             return func_variables[var_name]

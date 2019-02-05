@@ -48,6 +48,15 @@ class FunctionSolc(Function):
         self._content_was_analyzed = False
         self._counter_nodes = 0
 
+        self._counter_scope_local_variables = 0
+        # variable renamed will map the solc id
+        # to the variable. It only works for compact format
+        # Later if an expression provides the referencedDeclaration attr
+        # we can retrieve the variable
+        # It only matters if two variables have the same name in the function
+        # which is only possible with solc > 0.5
+        self._variables_renamed = {}
+
     def get_key(self):
         return self.slither.get_key()
 
@@ -59,6 +68,24 @@ class FunctionSolc(Function):
     @property
     def is_compact_ast(self):
         return self.slither.is_compact_ast
+
+    @property
+    def variables_renamed(self):
+        return self._variables_renamed
+
+    def _add_local_variable(self, local_var):
+        # If two local variables have the same name
+        # We add a suffix to the new variable
+        # This is done to prevent collision during SSA translation
+        # Use of while in case of collision
+        # In the worst case, the name will be really long
+        while local_var.name in self._variables:
+            local_var.name += "_scope_{}".format(self._counter_scope_local_variables)
+            self._counter_scope_local_variables += 1
+        if not local_var.reference_id is None:
+            self._variables_renamed[local_var.reference_id] = local_var
+        self._variables[local_var.name] = local_var
+
 
     def _analyze_attributes(self):
         if self.is_compact_ast:
@@ -329,7 +356,7 @@ class FunctionSolc(Function):
             local_var.set_function(self)
             local_var.set_offset(statement['src'], self.contract.slither)
 
-            self._variables[local_var.name] = local_var
+            self._add_local_variable(local_var)
             #local_var.analyze(self)
 
             new_node = self._new_node(NodeType.VARIABLE, statement['src'])
@@ -491,7 +518,7 @@ class FunctionSolc(Function):
         local_var.set_function(self)
         local_var.set_offset(statement['src'], self.contract.slither)
 
-        self._variables[local_var.name] = local_var
+        self._add_local_variable(local_var)
 #        local_var.analyze(self)
 
         new_node = self._new_node(NodeType.VARIABLE, statement['src'])
@@ -741,7 +768,7 @@ class FunctionSolc(Function):
             if local_var.location == 'default':
                 local_var.set_location('memory')
 
-            self._variables[local_var.name] = local_var
+            self._add_local_variable(local_var)
             self._parameters.append(local_var)
 
     def _parse_returns(self, returns):
@@ -766,7 +793,7 @@ class FunctionSolc(Function):
             if local_var.location == 'default':
                 local_var.set_location('memory')
 
-            self._variables[local_var.name] = local_var
+            self._add_local_variable(local_var)
             self._returns.append(local_var)
 
 
