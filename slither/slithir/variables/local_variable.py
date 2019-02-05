@@ -1,5 +1,6 @@
 
 from .variable import SlithIRVariable
+from .constant import Constant
 from .temporary import TemporaryVariable
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.children.child_node import ChildNode
@@ -23,8 +24,8 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
         self._is_constant = local_variable.is_constant
 
         # initiate LocalVariable
-        self._location = self.location
-        self._is_storage = self.is_storage
+        self._location = local_variable.location
+        self._is_storage = local_variable.is_storage
 
         self._index = 0
 
