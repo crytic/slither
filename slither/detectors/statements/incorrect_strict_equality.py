@@ -25,6 +25,19 @@ class IncorrectStrictEquality(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#dangerous-strict-equalities'
 
+    WIKI_TITLE = 'Dangerous strict equalities'
+    WIKI_DESCRIPTION = 'Use of strick equalities that can be easily manipulated by an attacker.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract Crowdsale{
+    function fund_reached() public returns(bool){
+        return this.balance == 100 ether;
+    }
+```
+`Crowdsale` relies on `fund_reached` to know when to stop the sale of tokens. `Crowdsale` reaches 100 ether. Bob sends 0.1 ether. As a result, `fund_reached` is always false and the crowdsale never ends.'''
+
+    WIKI_RECOMMENDATION = '''Don't use strict equality to determine if an account has enough ethers or tokens.'''
+
     sources_taint = [SolidityVariable('now'),
                      SolidityVariableComposed('block.number'),
                      SolidityVariableComposed('block.timestamp')]

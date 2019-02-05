@@ -396,6 +396,7 @@ class ContractSolc04(Contract):
     def analyze_content_functions(self):
         for function in self.functions:
             function.analyze_content()
+
         return
 
 

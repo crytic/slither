@@ -17,7 +17,28 @@ class BuiltinSymbolShadowing(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#builtin-symbol-shadowing'
 
-    vuln_name = 'ShadowingBuiltinSymbols'
+
+    WIKI_TITLE = 'Builtin Symbol Shadowing'
+    WIKI_DESCRIPTION = 'Detection of shadowing built-in symbols using local variables/state variables/functions/modifiers/events.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+pragma solidity ^0.4.24;
+
+contract Bug {
+    uint now; // Overshadows current time stamp.
+
+    function assert(bool condition) public {
+        // Overshadows built-in symbol for providing assertions.
+    }
+
+    function get_next_expiration(uint earlier_time) private returns (uint) {
+        return now + 259200; // References overshadowed timestamp.
+    }
+}
+```
+`now` is defined as a state variable, and shadows with the built-in symbol `now`. The function `assert` overshadows the built-in `assert` function. Any use of either of these built-in symbols may lead to unexpected results.'''
+
+    WIKI_RECOMMENDATION = 'Rename the local variable/state variable/function/modifier/event, so as not to mistakenly overshadow any built-in symbol definitions.'
 
     SHADOWING_FUNCTION = "function"
     SHADOWING_MODIFIER = "modifier"

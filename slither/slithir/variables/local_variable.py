@@ -24,12 +24,20 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
 
         # initiate LocalVariable
         self._location = self.location
+        self._is_storage = self.is_storage
 
         self._index = 0
 
         # Additional field
         # points to state variables
         self._refers_to = set()
+
+        # keep un-ssa version
+        if isinstance(local_variable, LocalIRVariable):
+            self._non_ssa_version = local_variable.non_ssa_version
+        else:
+            self._non_ssa_version = local_variable
+        self._non_ssa_version = local_variable
 
     @property
     def index(self):
@@ -48,6 +56,10 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
     @refers_to.setter
     def refers_to(self, variables):
         self._refers_to = variables
+
+    @property
+    def non_ssa_version(self):
+        return self._non_ssa_version
 
     def add_refers_to(self, variable):
         # It is a temporaryVariable if its the return of a new ..

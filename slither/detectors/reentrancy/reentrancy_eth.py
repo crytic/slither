@@ -4,7 +4,6 @@
     Based on heuristics, it may lead to FP and FN
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
-
 from slither.core.cfg.node import NodeType
 from slither.core.declarations import Function, SolidityFunction
 from slither.core.expressions import UnaryOperation, UnaryOperationType
@@ -23,24 +22,51 @@ class ReentrancyEth(Reentrancy):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities'
 
-    key = 'REENTRANCY-ETHERS'
+    WIKI_TITLE = 'Reentrancy vulnerabilities'
+    WIKI_DESCRIPTION = '''
+Detection of the [re-entrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
+Do not report reentrancies that don't involve ethers (see `reentrancy-no-eth`)'''
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+    function withdrawBalance(){
+        // send userBalance[msg.sender] ethers to msg.sender
+        // if mgs.sender is a contract, it will call its fallback function
+        if( ! (msg.sender.call.value(userBalance[msg.sender])() ) ){
+            throw;
+        }
+        userBalance[msg.sender] = 0;
+    }
+```
+
+Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw more than its initial deposit to the contract.'''
+
+
+    WIKI_RECOMMENDATION = 'Apply the [check-effects-interactions pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy).'
+
 
     def find_reentrancies(self):
         result = {}
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_not_inherited:
                 for node in f.nodes:
+                    # dead code
+                    if not self.KEY in node.context:
+                        continue
                     if node.context[self.KEY]['calls'] and node.context[self.KEY]['send_eth']:
+                        if not any(n!=node for n in node.context[self.KEY]['send_eth']):
+                            continue
                         read_then_written = []
                         for c in node.context[self.KEY]['calls']:
+                            if c == node:
+                                continue
                             read_then_written += [(v, node) for v in node.context[self.KEY]['written']
                                                  if v in node.context[self.KEY]['read_prior_calls'][c]]
 
                         if read_then_written:
                             # calls are ordered
                             finding_key = (node.function,
-                                           tuple(set(node.context[self.KEY]['calls'])),
-                                           tuple(set(node.context[self.KEY]['send_eth'])))
+                                           tuple(sorted(list(node.context[self.KEY]['calls']), key=lambda x:x.node_id)),
+                                           tuple(sorted(list(node.context[self.KEY]['send_eth']), key=lambda x:x.node_id)))
                             finding_vars = read_then_written
                             if finding_key not in result:
                                 result[finding_key] = []

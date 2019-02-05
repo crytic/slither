@@ -16,6 +16,12 @@ class UnusedStateVars(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-state-variables'
 
+
+    WIKI_TITLE = 'Unused state variables'
+    WIKI_DESCRIPTION = 'Unused state variable.'
+    WIKI_EXPLOIT_SCENARIO = ''
+    WIKI_RECOMMENDATION = 'Remove unused state variables.'
+
     def detect_unused(self, contract):
         if contract.is_signature_only():
             return None

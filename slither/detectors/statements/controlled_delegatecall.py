@@ -13,6 +13,21 @@ class ControlledDelegateCall(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#controlled-delegatecall'
 
+
+    WIKI_TITLE = 'Controlled Delegatecall'
+    WIKI_DESCRIPTION = 'Delegatecall or callcode to an address controlled by the user.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract Delegatecall{
+    function delegate(address to, bytes data){
+        to.delegatecall(data);
+    }
+}
+```
+Bob calls `delegate` and delegate the execution to its malicious contract. As a result, Bob withdraws the funds of the contract and destruct it.'''
+
+    WIKI_RECOMMENDATION = 'Avoid using `delegatecall`. Use only trusted destinations.'
+
     def controlled_delegatecall(self, function):
         ret = []
         for node in function.nodes:

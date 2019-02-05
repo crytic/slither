@@ -25,14 +25,37 @@ class ReentrancyReadBeforeWritten(Reentrancy):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities-1'
 
+    WIKI_TITLE = 'Reentrancy vulnerabilities'
+    WIKI_DESCRIPTION = '''
+Detection of the [re-entrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
+Do not report reentrancies that involve ethers (see `reentrancy-eth`)'''
+
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+    function bug(){
+        require(not_called);
+        if( ! (msg.sender.call() ) ){
+            throw;
+        }
+        not_called = False;
+    }   
+```
+'''
+    WIKI_RECOMMENDATION = 'Apply the [check-effects-interactions pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy).'
+
     def find_reentrancies(self):
         result = {}
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_not_inherited:
                 for node in f.nodes:
+                    # dead code
+                    if not self.KEY in node.context:
+                        continue
                     if node.context[self.KEY]['calls'] and not node.context[self.KEY]['send_eth']:
                         read_then_written = []
                         for c in node.context[self.KEY]['calls']:
+                            if c == node:
+                                continue
                             read_then_written += [(v, node) for v in node.context[self.KEY]['written']
                                                   if v in node.context[self.KEY]['read_prior_calls'][c]]
 
@@ -40,9 +63,9 @@ class ReentrancyReadBeforeWritten(Reentrancy):
                         if read_then_written:
                             # calls are ordered
                             finding_key = (node.function,
-                                           tuple(set(node.context[self.KEY]['calls'])))
+                                           tuple(sorted(list(node.context[self.KEY]['calls']), key=lambda x:x.node_id)))
                             finding_vars = read_then_written
-                            if finding_key not in self.result:
+                            if finding_key not in result:
                                 result[finding_key] = []
                             result[finding_key] = list(set(result[finding_key] + finding_vars))
         return result

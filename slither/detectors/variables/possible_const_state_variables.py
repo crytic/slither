@@ -23,6 +23,11 @@ class ConstCandidateStateVars(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variables-that-could-be-declared-constant'
 
+
+    WIKI_TITLE = 'State variables that could be declared constant'
+    WIKI_DESCRIPTION = 'Constant state variable should be declared constant to save gas.'
+    WIKI_RECOMMENDATION = 'Add the `constant` attributes to the state variables that never change.'
+
     @staticmethod
     def _valid_candidate(v):
         return isinstance(v.type, ElementaryType) and not v.is_constant

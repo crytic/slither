@@ -15,7 +15,7 @@ from slither.slithir.operations import (HighLevelCall, LowLevelCall,
                                         Send, Transfer)
 
 def union_dict(d1, d2):
-    d3 = {k: d1.get(k, []) + d2.get(k, []) for k in set(list(d1.keys()) + list(d2.keys()))}
+    d3 = {k: d1.get(k, set()) | d2.get(k, set()) for k in set(list(d1.keys()) + list(d2.keys()))}
     return d3
 
 def dict_are_equal(d1, d2):
@@ -98,13 +98,13 @@ class Reentrancy(AbstractDetector):
         # calls returns the list of calls that can callback
         # read returns the variable read
         # read_prior_calls returns the variable read prior a call
-        fathers_context = {'send_eth':[], 'calls':[], 'read':[], 'read_prior_calls':{}}
+        fathers_context = {'send_eth':set(), 'calls':set(), 'read':set(), 'read_prior_calls':{}}
 
         for father in node.fathers:
             if self.KEY in father.context:
-                fathers_context['send_eth'] += [s for s in father.context[self.KEY]['send_eth'] if s!=skip_father]
-                fathers_context['calls'] += [c for c in father.context[self.KEY]['calls'] if c!=skip_father]
-                fathers_context['read'] += father.context[self.KEY]['read']
+                fathers_context['send_eth'] |= set([s for s in father.context[self.KEY]['send_eth'] if s!=skip_father])
+                fathers_context['calls'] |= set([c for c in father.context[self.KEY]['calls'] if c!=skip_father])
+                fathers_context['read'] |= set(father.context[self.KEY]['read'])
                 fathers_context['read_prior_calls'] = union_dict(fathers_context['read_prior_calls'], father.context[self.KEY]['read_prior_calls'])
 
         # Exclude path that dont bring further information
@@ -115,38 +115,38 @@ class Reentrancy(AbstractDetector):
                         if dict_are_equal(self.visited_all_paths[node]['read_prior_calls'], fathers_context['read_prior_calls']):
                             return
         else:
-            self.visited_all_paths[node] = {'send_eth':[], 'calls':[], 'read':[], 'read_prior_calls':{}}
+            self.visited_all_paths[node] = {'send_eth':set(), 'calls':set(), 'read':set(), 'read_prior_calls':{}}
 
-        self.visited_all_paths[node]['send_eth'] = list(set(self.visited_all_paths[node]['send_eth'] + fathers_context['send_eth']))
-        self.visited_all_paths[node]['calls'] = list(set(self.visited_all_paths[node]['calls'] + fathers_context['calls']))
-        self.visited_all_paths[node]['read'] = list(set(self.visited_all_paths[node]['read'] + fathers_context['read']))
+        self.visited_all_paths[node]['send_eth'] = set(self.visited_all_paths[node]['send_eth'] | fathers_context['send_eth'])
+        self.visited_all_paths[node]['calls'] = set(self.visited_all_paths[node]['calls'] | fathers_context['calls'])
+        self.visited_all_paths[node]['read'] = set(self.visited_all_paths[node]['read'] | fathers_context['read'])
         self.visited_all_paths[node]['read_prior_calls'] = union_dict(self.visited_all_paths[node]['read_prior_calls'], fathers_context['read_prior_calls'])
 
         node.context[self.KEY] = fathers_context
 
-        state_vars_read = node.state_variables_read
+        state_vars_read = set(node.state_variables_read)
 
         # All the state variables written
-        state_vars_written = node.state_variables_written
+        state_vars_written = set(node.state_variables_written)
         slithir_operations = []
         # Add the state variables written in internal calls
         for internal_call in node.internal_calls:
             # Filter to Function, as internal_call can be a solidity call
             if isinstance(internal_call, Function):
-                state_vars_written += internal_call.all_state_variables_written()
-                state_vars_read += internal_call.all_state_variables_read()
+                state_vars_written |= set(internal_call.all_state_variables_written())
+                state_vars_read |= set(internal_call.all_state_variables_read())
                 slithir_operations += internal_call.all_slithir_operations()
 
         contains_call = False
-        node.context[self.KEY]['written'] = state_vars_written
+        node.context[self.KEY]['written'] = set(state_vars_written)
         if self._can_callback(node.irs + slithir_operations):
-            node.context[self.KEY]['calls'] = list(set(node.context[self.KEY]['calls'] + [node]))
-            node.context[self.KEY]['read_prior_calls'][node] = list(set(node.context[self.KEY]['read_prior_calls'].get(node, []) + node.context[self.KEY]['read']+ state_vars_read))
+            node.context[self.KEY]['calls'] = set(node.context[self.KEY]['calls'] | {node})
+            node.context[self.KEY]['read_prior_calls'][node] = set(node.context[self.KEY]['read_prior_calls'].get(node, set()) | node.context[self.KEY]['read'] |state_vars_read)
             contains_call = True
         if self._can_send_eth(node.irs + slithir_operations):
-            node.context[self.KEY]['send_eth'] = list(set(node.context[self.KEY]['send_eth'] + [node]))
+            node.context[self.KEY]['send_eth'] = set(node.context[self.KEY]['send_eth'] | {node})
 
-        node.context[self.KEY]['read'] = list(set(node.context[self.KEY]['read'] + state_vars_read))
+        node.context[self.KEY]['read'] = set(node.context[self.KEY]['read'] | state_vars_read)
 
         sons = node.sons
         if contains_call and node.type in [NodeType.IF, NodeType.IFLOOP]:

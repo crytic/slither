@@ -119,6 +119,18 @@ $ python setup.py install
 
 We recommend to use a Python virtual environment to install slither from git (see the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation))
 
+### Using Docker
+We recommend to use [`eth-security-toolbox`](https://github.com/trailofbits/eth-security-toolbox/):
+```
+docker pull trailofbits/eth-security-toolbox
+```
+To share a directory in the container:
+```
+docker run -it -v /home/share:/share trailofbits/eth-security-toolbox
+```
+`/home/share` will be mounted to `/share`  in the container. 
+You can switch the solc version using [`solc-select`](https://github.com/trailofbits/eth-security-toolbox/#usage).
+
 ## Getting Help
 
 Feel free to stop by our [Slack channel](https://empireslacking.herokuapp.com) (#ethereum) for help using or extending Slither.

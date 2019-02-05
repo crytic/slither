@@ -30,6 +30,24 @@ class UninitializedStateVarsDetection(AbstractDetector):
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-state-variables'
 
+    WIKI_TITLE = 'Uninitialized state variables'
+    WIKI_DESCRIPTION = 'Uninitialized state variables.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract Uninitialized{
+    address destination;
+
+    function transfer() payable public{
+        destination.transfer(msg.value);
+    }
+}
+```
+Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and are lost.
+'''
+    WIKI_RECOMMENDATION = '''
+Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero.
+'''
+
     @staticmethod
     def written_variables(contract):
         ret = []
