@@ -5,7 +5,7 @@
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.slithir.operations import (HighLevelCall, LowLevelCall, Send,
-                                        Transfer, NewContract)
+                                        Transfer, NewContract, LibraryCall, InternalCall)
 
 
 class LockedEther(AbstractDetector):
@@ -37,18 +37,31 @@ Every ethers send to `Locked` will be lost.'''
     @staticmethod
     def do_no_send_ether(contract):
         functions = contract.all_functions_called
-        for function in functions:
-            calls = [c.name for c in function.internal_calls]
-            if 'suicide(address)' in calls or 'selfdestruct(address)' in calls:
-                return False
-            for node in function.nodes:
-                for ir in node.irs:
-                    if isinstance(ir, (Send, Transfer, HighLevelCall, LowLevelCall, NewContract)):
-                        if ir.call_value and ir.call_value != 0:
-                            return False
-                    if isinstance(ir, (LowLevelCall)):
-                        if ir.function_name in ['delegatecall', 'callcode']:
-                            return False
+        to_explore = functions
+        explored = []
+        while to_explore:
+            functions = to_explore
+            explored += to_explore
+            to_explore = []
+            for function in functions:
+                calls = [c.name for c in function.internal_calls]
+                if 'suicide(address)' in calls or 'selfdestruct(address)' in calls:
+                    return False
+                for node in function.nodes:
+                    for ir in node.irs:
+                        if isinstance(ir, (Send, Transfer, HighLevelCall, LowLevelCall, NewContract)):
+                            if ir.call_value and ir.call_value != 0:
+                                return False
+                        if isinstance(ir, (LowLevelCall)):
+                            if ir.function_name in ['delegatecall', 'callcode']:
+                                return False
+                        # If a new internal call or librarycall
+                        # Add it to the list to explore
+                        # InternalCall if to follow internal call in libraries
+                        if isinstance(ir, (InternalCall, LibraryCall)):
+                            if not ir.function in explored:
+                                to_explore.append(ir.function)
+
         return True
 
 
