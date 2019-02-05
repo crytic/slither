@@ -278,6 +278,8 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
             if isinstance(new_ir, (Assignment, Binary)):
                 if isinstance(new_ir.lvalue, LocalIRVariable):
                     if new_ir.lvalue.is_storage:
+                        print(new_ir)
+                        print(new_ir.lvalue.location)
                         if isinstance(new_ir.rvalue, ReferenceVariable):
                             refers_to = new_ir.rvalue.points_to_origin
                             new_ir.lvalue.add_refers_to(refers_to)
