@@ -35,6 +35,9 @@ class VariableDeclarationSolc(Variable):
 
         self._is_compact_ast = False
 
+        self._reference_id = None
+
+
         if 'nodeType' in var:
             self._is_compact_ast = True
             nodeType = var['nodeType']
@@ -80,6 +83,14 @@ class VariableDeclarationSolc(Variable):
     def uninitialized(self):
         return not self._initialized
 
+    @property
+    def reference_id(self):
+        '''
+            Return the solc id. It can be compared with the referencedDeclaration attr
+            Returns None if it was not parsed (legacy AST)
+        '''
+        return self._reference_id
+
     def _analyze_variable_attributes(self, attributes):
         if 'visibility' in attributes:
             self._visibility = attributes['visibility']
@@ -104,6 +115,12 @@ class VariableDeclarationSolc(Variable):
         self._mappingTo = False
         self._initial_expression = None
         self._type = None
+
+        # Only for comapct ast format
+        # the id can be used later if referencedDeclaration
+        # is provided
+        if 'id' in var:
+            self._reference_id = var['id']
 
         if 'constant' in attributes:
             self._is_constant = attributes['constant']
