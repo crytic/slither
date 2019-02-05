@@ -9,11 +9,13 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 
 * Detects vulnerable Solidity code with low false positives
 * Identifies where the error condition occurs in the source code
-* Easy integration into continuous integration and Truffle builds
+* Easily integrates into continuous integration and Truffle builds
 * Built-in 'printers' quickly report crucial contract information
 * Detector API to write custom analyses in Python
 * Ability to analyze contracts written with Solidity >= 0.4
 * Intermediate representation ([SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR)) enables simple, high-precision analyses
+* Correctly parses 99.9% of all public Solidity code
+* Average execution time of less than 1 second per contract
 
 ## Usage
 
@@ -117,19 +119,21 @@ $ git clone https://github.com/trailofbits/slither.git && cd slither
 $ python setup.py install 
 ```
 
-We recommend to use a Python virtual environment to install slither from git (see the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation))
+We recommend using an Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation), if you prefer to install Slither via git.
 
 ### Using Docker
-We recommend to use [`eth-security-toolbox`](https://github.com/trailofbits/eth-security-toolbox/):
+
+Use the [`eth-security-toolbox`](https://github.com/trailofbits/eth-security-toolbox/) docker image. It includes all of our security tools and every major version of Solidity in a single image. `/home/share` will be mounted to `/share`  in the container. Use [`solc-select`](https://github.com/trailofbits/eth-security-toolbox/#usage) to switch the Solidity version.
+
 ```
 docker pull trailofbits/eth-security-toolbox
 ```
+
 To share a directory in the container:
+
 ```
 docker run -it -v /home/share:/share trailofbits/eth-security-toolbox
 ```
-`/home/share` will be mounted to `/share`  in the container. 
-You can switch the solc version using [`solc-select`](https://github.com/trailofbits/eth-security-toolbox/#usage).
 
 ## Getting Help
 
