@@ -21,13 +21,21 @@ class PrinterInheritanceGraph(AbstractPrinter):
         inheritance = [x.inheritance for x in slither.contracts]
         self.inheritance = set([item for sublist in inheritance for item in sublist])
 
-        # Obtain functions shadowed through direct inheritance lines.
-        shadows = InheritanceAnalysis.detect_function_shadowing(slither.contracts)
+        # Obtain functions shadowed through direct/indirect inheritance.
         self.overshadowed_functions = set()
         self.overshadowing_functions = set()
+        shadows = InheritanceAnalysis.detect_function_shadowing(slither.contracts)
         for _, overshadowing_function, _, overshadowed_function in shadows:
             self.overshadowing_functions.add(overshadowing_function)
             self.overshadowed_functions.add(overshadowed_function)
+
+        # Obtain state variables shadowed through direct inheritance.
+        self.overshadowed_state_variables = set()
+        self.overshadowing_state_variables = set()
+        shadows = InheritanceAnalysis.detect_state_variable_shadowing(slither.contracts)
+        for _, overshadowing_state_var, _, overshadowed_state_var in shadows:
+            self.overshadowing_state_variables.add(overshadowing_state_var)
+            self.overshadowed_state_variables.add(overshadowed_state_var)
 
     def _get_pattern_func(self, func, contract):
         # Html pattern, each line is a row in a table
