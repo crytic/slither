@@ -6,15 +6,15 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
-class ShadowingFunctionsDetection(AbstractDetector):
+class FunctionShadowingInternal(AbstractDetector):
     """
     Functions shadowing detection
     """
 
     vuln_name = "ShadowingFunctionContract"
 
-    ARGUMENT = 'shadowing-function'
-    HELP = 'Function Shadowing'
+    ARGUMENT = 'shadowing-function-internal'
+    HELP = 'Function Shadowing (Internal)'
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
 
@@ -31,7 +31,7 @@ class ShadowingFunctionsDetection(AbstractDetector):
         functions_declared = set([x.full_name for x in contract.functions_and_modifiers_not_inherited])
         ret = {}
         for father in contract.inheritance:
-            functions_declared_father = ([x.full_name for x in father.functions_and_modifiers_not_inherited])
+            functions_declared_father = ([x.full_name for x in father.functions_and_modifiers_not_inherited if x.is_implemented])
             inter = functions_declared.intersection(functions_declared_father)
             if inter:
                 ret[father] = inter
