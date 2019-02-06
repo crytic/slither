@@ -51,11 +51,20 @@ class PrinterInheritanceGraph(AbstractPrinter):
         var_name = var.name
         pattern = '<TR><TD align="left">    %s</TD></TR>'
         pattern_contract = '<TR><TD align="left">    %s<font color="blue" POINT-SIZE="10"> (%s)</font></TD></TR>'
+        pattern_shadow = '<TR><TD align="left"><font color="#FFA500">    %s</font></TD></TR>'
+        pattern_contract_shadow = '<TR><TD align="left"><font color="#FFA500">    %s</font><font color="blue" POINT-SIZE="10"> (%s)</font></TD></TR>'
         # pattern_arrow  = '<TR><TD align="left" PORT="%s"><font color="blue">    %s</font></TD></TR>'
-        if isinstance(var.type, Contract):
-            return pattern_contract % (var_name, str(var.type))
-            # return pattern_arrow%(self._get_port_id(var, contract), var_name)
-        return pattern % var_name
+
+        if isinstance(var.type.type, Contract):
+            if var in self.overshadowing_state_variables:
+                return pattern_contract_shadow % (var_name, var.type.type.name)
+            else:
+                return pattern_contract % (var_name, var.type.type.name)
+        else:
+            if var in self.overshadowing_state_variables:
+                return pattern_shadow % var_name
+            else:
+                return pattern % var_name
 
     def _get_port_id(self, var, contract):
         return "%s%s" % (var.name, contract.name)
@@ -65,6 +74,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
             Build summary using HTML
         """
         ret = ''
+
         # Add arrows (number them if there is more than one path so we know order of declaration for inheritance).
         if len(contract.immediate_inheritance) == 1:
             ret += '%s -> %s;\n' % (contract.name, contract.immediate_inheritance[0])
@@ -80,16 +90,18 @@ class PrinterInheritanceGraph(AbstractPrinter):
         private_functions = [self._get_pattern_func(f, contract) for f in contract.functions if
                              not f.is_constructor and f.contract == contract and f.visibility not in visibilities]
         private_functions = ''.join(private_functions)
+
         # Modifiers
         modifiers = [self._get_pattern_func(m, contract) for m in contract.modifiers if m.contract == contract]
         modifiers = ''.join(modifiers)
+
         # Public variables
         public_variables = [self._get_pattern_var(v, contract) for v in contract.variables if
-                            v.visibility in visibilities]
+                            v.contract == contract and v.visibility in visibilities]
         public_variables = ''.join(public_variables)
 
         private_variables = [self._get_pattern_var(v, contract) for v in contract.variables if
-                             not v.visibility in visibilities]
+                             v.contract == contract and v.visibility not in visibilities]
         private_variables = ''.join(private_variables)
 
         # Build the node label
