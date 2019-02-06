@@ -140,7 +140,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         info = 'Inheritance Graph: ' + filename
         self.info(info)
         with open(filename, 'w', encoding='utf8') as f:
-            f.write('digraph{\n')
+            f.write('digraph "" {\n')
             for c in self.contracts:
                 f.write(self._summary(c))
             f.write('}')
