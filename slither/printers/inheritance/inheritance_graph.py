@@ -7,9 +7,9 @@
 """
 
 from slither.core.declarations.contract import Contract
-from slither.detectors.internal.function_shadowing_internal import FunctionShadowingInternal
-from slither.detectors.internal.c3_shadowing_internal import C3LinearizationShadowingInternal
+from slither.utils.inheritance_analysis import InheritanceAnalysis
 from slither.printers.abstract_printer import AbstractPrinter
+
 
 class PrinterInheritanceGraph(AbstractPrinter):
     ARGUMENT = 'inheritance-graph'
@@ -22,37 +22,20 @@ class PrinterInheritanceGraph(AbstractPrinter):
         self.inheritance = set([item for sublist in inheritance for item in sublist])
 
         # Obtain functions shadowed through direct inheritance lines.
-        shadow = FunctionShadowingInternal(slither, None)
-        ret = shadow.detect()
-        colliding_functions = {}
-        for s in ret:
-            # Add to the shadowing contract.
-            if s['contractShadower'] not in colliding_functions:
-                colliding_functions[s['contractShadower']] = set()
-            colliding_functions[s['contractShadower']].update(s['functions'])
-            # Add to the shadowed contract.
-            if s['contract'] not in colliding_functions:
-                colliding_functions[s['contract']] = set()
-            colliding_functions[s['contract']].update(s['functions'])
-
-        # Obtain functions shadowed through c3 linearization.
-        shadow = C3LinearizationShadowingInternal(slither, None)
-        ret = shadow.detect()
-        for s in ret:
-            if s['contract'] not in colliding_functions:
-                colliding_functions[s['contract']] = set()
-            colliding_functions[s['contract']].add(s['function'])
-
-        self.colliding_functions = colliding_functions
+        shadows = InheritanceAnalysis.detect_function_shadowing(slither.contracts)
+        self.overshadowed_functions = set()
+        self.overshadowing_functions = set()
+        for _, overshadowing_function, _, overshadowed_function in shadows:
+            self.overshadowing_functions.add(overshadowing_function)
+            self.overshadowed_functions.add(overshadowed_function)
 
     def _get_pattern_func(self, func, contract):
         # Html pattern, each line is a row in a table
         func_name = func.full_name
         pattern = '<TR><TD align="left">    %s</TD></TR>'
         pattern_shadow = '<TR><TD align="left"><font color="#FFA500">    %s</font></TD></TR>'
-        if contract.name in self.colliding_functions:
-            if func_name in self.colliding_functions[contract.name]:
-                return pattern_shadow % func_name
+        if func in self.overshadowed_functions.union(self.overshadowing_functions):
+            return pattern_shadow % func_name
         return pattern % func_name
 
     def _get_pattern_var(self, var, contract):
