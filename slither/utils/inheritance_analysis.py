@@ -102,7 +102,8 @@ class InheritanceAnalysis:
             shadows = InheritanceAnalysis.detect_c3_function_shadowing(contract)
             for colliding_functions in shadows:
                 for i in range(0, len(colliding_functions) - 1):
-                    results.add((colliding_functions[i + 1][0], colliding_functions[i + 1][1],
-                                 colliding_functions[i][0], colliding_functions[i][1]))
+                    if colliding_functions[i][1] != colliding_functions[-1][1]:
+                        results.add((colliding_functions[-1][0], colliding_functions[-1][1],
+                                     colliding_functions[i][0], colliding_functions[i][1]))
 
         return results
