@@ -43,8 +43,18 @@ class SlitherSolc(Slither):
     def _parse_contracts_from_json(self, json_data):
         try:
             data_loaded = json.loads(json_data)
-            self._parse_contracts_from_loaded_json(data_loaded['ast'], data_loaded['sourcePath'])
-            return True 
+            # Truffle AST
+            if 'ast' in data_loaded:
+                self._parse_contracts_from_loaded_json(data_loaded['ast'], data_loaded['sourcePath'])
+                return True
+            # solc AST, where the non-json text was removed
+            else:
+                if 'attributes' in data_loaded:
+                    filename = data_loaded['attributes']['absolutePath']
+                else:
+                    filename = data_loaded['absolutePath']
+                self._parse_contracts_from_loaded_json(data_loaded, filename)
+                return True
         except ValueError:
 
             first = json_data.find('{')
