@@ -34,7 +34,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         func_name = func.full_name
         pattern = '<TR><TD align="left">    %s</TD></TR>'
         pattern_shadow = '<TR><TD align="left"><font color="#FFA500">    %s</font></TD></TR>'
-        if func in self.overshadowed_functions.union(self.overshadowing_functions):
+        if func in self.overshadowed_functions:
             return pattern_shadow % func_name
         return pattern % func_name
 
