@@ -17,6 +17,7 @@ from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils.colors import red
 from slither.utils.command_line import output_to_markdown, output_detectors, output_printers, output_detectors_json, output_wiki
+from slither.utils.colors import set_colorization_enabled
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -232,6 +233,9 @@ def main_impl(all_detector_classes, all_printer_classes):
     """
     args = parse_args(all_detector_classes, all_printer_classes)
 
+    # Set colorization option
+    set_colorization_enabled(not args.disable_color)
+
     printer_classes = choose_printers(args, all_printer_classes)
     detector_classes = choose_detectors(args, all_detector_classes)
 
@@ -398,6 +402,10 @@ def parse_args(detector_classes, printer_classes):
     group_misc.add_argument('--truffle-version',
                             help='Use a local Truffle version (with npx)',
                             action='store',
+                            default=False)
+    group_misc.add_argument('--disable-color',
+                            help='Disable output colorization',
+                            action='store_true',
                             default=False)
 
 
