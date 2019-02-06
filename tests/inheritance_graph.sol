@@ -44,9 +44,6 @@ contract Good is A, B {
 }
 
 contract C is A {
-    TestContractVar public shadowed_public_contract;
-    TestContractVar internal shadowed_private_contract;
-
     function getValue() public pure returns (uint) {
         // This function should be marked as overshadowed indirectly by D (via 'F')
         return super.getValue() + 1;
@@ -57,6 +54,8 @@ contract D is B {
     // This should overshadow A's definitions.
     uint public shadowed_public_var = 2;
     uint internal shadowed_private_var = 2;
+    TestContractVar public shadowed_public_contract;
+    TestContractVar internal shadowed_private_contract;
 
     // This contract should use B's getValue() to overshadow C's definition indirectly (via 'F').
 }
