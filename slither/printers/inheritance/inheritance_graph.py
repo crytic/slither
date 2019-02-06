@@ -42,7 +42,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         func_name = func.full_name
         pattern = '<TR><TD align="left">    %s</TD></TR>'
         pattern_shadow = '<TR><TD align="left"><font color="#FFA500">    %s</font></TD></TR>'
-        if func in self.overshadowed_functions:
+        if func in self.overshadowing_functions:
             return pattern_shadow % func_name
         return pattern % func_name
 
@@ -65,9 +65,12 @@ class PrinterInheritanceGraph(AbstractPrinter):
             Build summary using HTML
         """
         ret = ''
-        # Add arrows
-        for i in contract.immediate_inheritance:
-            ret += '%s -> %s;\n' % (contract.name, i)
+        # Add arrows (number them if there is more than one path so we know order of declaration for inheritance).
+        if len(contract.immediate_inheritance) == 1:
+            ret += '%s -> %s;\n' % (contract.name, contract.immediate_inheritance[0])
+        else:
+            for i in range(0, len(contract.immediate_inheritance)):
+                ret += '%s -> %s [ label="%s" ];\n' % (contract.name, contract.immediate_inheritance[i], i + 1)
 
         # Functions
         visibilities = ['public', 'external']
