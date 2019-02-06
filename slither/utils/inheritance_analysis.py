@@ -85,9 +85,11 @@ class InheritanceAnalysis:
         :param direct_shadowing: Include results from direct inheritance/inheritance ancestry.
         :param indirect_shadowing: Include results from indirect inheritance collisions as a result of multiple
         inheritance/c3 linearization.
-        :return: Returns a set of tuples(overshadowing_contract, overshadowing_function, overshadowed_contract, overshadowed_function).
+        :return: Returns a set of tuples(overshadowing_contract, overshadowing_function, overshadowed_contract,
+        overshadowed_function).
         The contract-function pair's function does not need to be defined in its paired contract, it may have been
-        inherited within it.
+        inherited within it. The contract is simply included to denote the immediate inheritance path from which the
+        shadowed function originates.
         """
         results = set()
         for contract in contracts:
@@ -106,4 +108,25 @@ class InheritanceAnalysis:
                         results.add((colliding_functions[-1][0], colliding_functions[-1][1],
                                      colliding_functions[i][0], colliding_functions[i][1]))
 
+        return results
+
+    @staticmethod
+    def detect_state_variable_shadowing(contracts):
+        """
+        Detects all overshadowing and overshadowed state variables in the provided contracts.
+        :param contracts: The contracts to detect shadowing within.
+        :return: Returns a set of tuples (overshadowing_contract, overshadowing_state_var, overshadowed_contract,
+        overshadowed_state_var).
+        The contract-variable pair's variable does not need to be defined in its paired contract, it may have been
+        inherited. The contracts are simply included to denote the immediate inheritance path from which the shadowed
+        variable originates.
+        """
+        results = set()
+        for contract in contracts:
+            variables_declared = {variable.name: variable for variable in contract.variables
+                                  if variable.contract == contract}
+            for immediate_base_contract in contract.immediate_inheritance:
+                for variable in immediate_base_contract.variables:
+                    if variable.name in variables_declared:
+                        results.add((contract, variables_declared[variable.name], immediate_base_contract, variable))
         return results
