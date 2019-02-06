@@ -647,20 +647,23 @@ class FunctionSolc(Function):
             self._remove_incorrect_edges()
             self._remove_alone_endif()
 
-    def _find_end_loop(self, node, visited):
+    def _find_end_loop(self, node, visited, counter):
+        # counter allows to explore nested loop
         if node in visited:
             return None
 
         if node.type == NodeType.ENDLOOP:
-            return node
+            if counter == 0:
+                return node
+            counter -= 1
 
         # nested loop
         if node.type == NodeType.STARTLOOP:
-            return None
+            counter += 1
 
         visited = visited + [node]
         for son in node.sons:
-            ret = self._find_end_loop(son, visited)
+            ret = self._find_end_loop(son, visited, counter)
             if ret:
                 return ret
 
@@ -682,7 +685,7 @@ class FunctionSolc(Function):
         return None
 
     def _fix_break_node(self, node):
-        end_node = self._find_end_loop(node, [])
+        end_node = self._find_end_loop(node, [], 0)
 
         if not end_node:
             logger.error('Break in no-loop context {}'.format(node))
