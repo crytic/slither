@@ -51,8 +51,8 @@ class PrinterInheritanceGraph(AbstractPrinter):
         var_name = var.name
         pattern = '<TR><TD align="left">    %s</TD></TR>'
         pattern_contract = '<TR><TD align="left">    %s<font color="blue" POINT-SIZE="10"> (%s)</font></TD></TR>'
-        pattern_shadow = '<TR><TD align="left"><font color="#FFA500">    %s</font></TD></TR>'
-        pattern_contract_shadow = '<TR><TD align="left"><font color="#FFA500">    %s</font><font color="blue" POINT-SIZE="10"> (%s)</font></TD></TR>'
+        pattern_shadow = '<TR><TD align="left"><font color="red">    %s</font></TD></TR>'
+        pattern_contract_shadow = '<TR><TD align="left"><font color="red">    %s</font><font color="blue" POINT-SIZE="10"> (%s)</font></TD></TR>'
         # pattern_arrow  = '<TR><TD align="left" PORT="%s"><font color="blue">    %s</font></TD></TR>'
 
         if isinstance(var.type.type, Contract):
