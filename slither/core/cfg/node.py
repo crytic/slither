@@ -575,11 +575,12 @@ class Node(SourceMapping, ChildFunction):
                     if isinstance(var, (ReferenceVariable)):
                         self._vars_read.append(var.points_to_origin)
             elif isinstance(ir, (Member, Index)):
-                if self._is_non_slithir_var(ir.variable_right):
-                    self._vars_read.append(ir.variable_right)
-                if isinstance(ir.variable_right, (ReferenceVariable)):
-                    origin = ir.variable_right.points_to_origin
-                    if self._is_non_slithir_var:
+                var = ir.variable_left if isinstance(ir, Member) else ir.variable_right
+                if self._is_non_slithir_var(var):
+                    self._vars_read.append(var)
+                if isinstance(var, (ReferenceVariable)):
+                    origin = var.points_to_origin
+                    if self._is_non_slithir_var(origin):
                         self._vars_read.append(origin)
 
             if isinstance(ir, OperationWithLValue):
