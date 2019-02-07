@@ -1,8 +1,13 @@
+import sys
 from slither import Slither
 from slither.analyses.data_dependency.data_dependency import is_dependent, is_tainted, pprint_dependency
 from slither.core.declarations.solidity_variables import SolidityVariableComposed
 
-slither = Slither('data_dependency.sol')
+if len(sys.argv) != 2:
+    print('Usage: python data_dependency.py file.sol')
+    exit(-1)
+
+slither = Slither(sys.argv[1])
 
 contract = slither.get_contract_from_name('Simple')
 
