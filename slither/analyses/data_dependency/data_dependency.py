@@ -34,7 +34,7 @@ def pprint_dependency(context):
     for k, values in context[KEY_NON_SSA].items():
         print('{} ({}):'.format(k, hex(id(k))))
         for v in values:
-            print('\t- {}'.format(v))
+            print('\t- {} ({})'.format(v, hex(id(v))))
 
 
 def is_dependent(variable, source, context, only_unprotected=False):
@@ -53,6 +53,7 @@ def is_dependent(variable, source, context, only_unprotected=False):
     if variable == source:
         return True
     context = context.context
+
     if only_unprotected:
         return variable in context[KEY_NON_SSA_UNPROTECTED] and source in context[KEY_NON_SSA_UNPROTECTED][variable]
     return variable in context[KEY_NON_SSA] and source in context[KEY_NON_SSA][variable]
@@ -82,7 +83,7 @@ GENERIC_TAINT = {SolidityVariableComposed('msg.sender'),
                  SolidityVariableComposed('msg.data'),
                  SolidityVariableComposed('tx.origin')}
 
-def is_tainted(variable, context, slither, only_unprotected=False):
+def is_tainted(variable, context, only_unprotected=False):
     '''
         Args:
         variable
@@ -92,13 +93,15 @@ def is_tainted(variable, context, slither, only_unprotected=False):
         bool
     '''
     assert isinstance(context, (Contract, Function))
+    assert isinstance(only_unprotected, bool)
     if isinstance(variable, Constant):
         return False
+    slither = context.slither
     taints = slither.context[KEY_INPUT]
     taints |= GENERIC_TAINT
     return variable in taints or any(is_dependent(variable, t, context, only_unprotected) for t in taints)
 
-def is_tainted_ssa(variable, context, slither, only_unprotected=False):
+def is_tainted_ssa(variable, context, only_unprotected=False):
     '''
     Args:
         variable
@@ -108,8 +111,10 @@ def is_tainted_ssa(variable, context, slither, only_unprotected=False):
         bool
     '''
     assert isinstance(context, (Contract, Function))
+    assert isinstance(only_unprotected, bool)
     if isinstance(variable, Constant):
         return False
+    slither = context.slither
     taints = slither.context[KEY_INPUT_SSA]
     taints |= GENERIC_TAINT
     return variable in taints or any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
@@ -135,8 +140,9 @@ def compute_dependency_contract(contract, slither):
         propagate_function(contract, function, KEY_SSA)
         propagate_function(contract, function, KEY_SSA_UNPROTECTED)
 
-        [slither.context[KEY_INPUT].add(p) for p in function.parameters]
-        [slither.context[KEY_INPUT_SSA].add(p) for p in function.parameters_ssa]
+        if function.visibility in ['public', 'external']:
+            [slither.context[KEY_INPUT].add(p) for p in function.parameters]
+            [slither.context[KEY_INPUT_SSA].add(p) for p in function.parameters_ssa]
 
     propagate_contract(contract, KEY_SSA, KEY_NON_SSA)
     propagate_contract(contract, KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED)
@@ -188,7 +194,7 @@ def compute_dependency_function(function):
     function.context[KEY_SSA] = dict()
     function.context[KEY_SSA_UNPROTECTED] = dict()
 
-    is_protected = function.is_protected
+    is_protected = function.is_protected()
 
     for node in function.nodes:
         for ir in node.irs_ssa:
@@ -206,12 +212,7 @@ def compute_dependency_function(function):
 
 def convert_variable_to_non_ssa(v):
     if isinstance(v, (LocalIRVariable, StateIRVariable)):
-        if isinstance(v, LocalIRVariable):
-            function = v.function
-            return function.get_local_variable_from_name(v.name)
-        else:
-            contract = v.contract
-            return contract.get_state_variable_from_name(v.name)
+        return v.non_ssa_version
     if isinstance(v, (TemporaryVariable, ReferenceVariable)):
         return next((variable for variable in v.function.slithir_variables if variable.name == v.name))
     return v
