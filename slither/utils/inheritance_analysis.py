@@ -28,6 +28,7 @@ class InheritanceAnalysis:
 
                 # Define our list of function instances which overshadow each other.
                 functions_matching = [(inherited_contract1, function1)]
+                already_processed = set([function1])
 
                 # Loop again through other contracts and functions to compare to.
                 for x in range(i + 1, len(contract.immediate_inheritance)):
@@ -36,12 +37,13 @@ class InheritanceAnalysis:
                     # Loop for each function in this contract
                     for function2 in inherited_contract2.functions_and_modifiers:
                         # Skip this function if it is the last function that was shadowed.
-                        if function2 == functions_matching[-1][1] or function2.is_constructor or not function2.is_implemented:
+                        if function2 in already_processed or function2.is_constructor or not function2.is_implemented:
                             continue
 
                         # If this function does have the same full name, it is shadowing through C3 linearization.
                         if function1.full_name == function2.full_name:
                             functions_matching.append((inherited_contract2, function2))
+                            already_processed.add(function2)
 
                 # If we have more than one definition matching the same signature, we add it to the results.
                 if len(functions_matching) > 1:
@@ -95,21 +97,23 @@ class InheritanceAnalysis:
         for contract in contracts:
 
             # Detect immediate inheritance shadowing.
-            shadows = InheritanceAnalysis.detect_direct_function_shadowing(contract)
-
-            for (overshadowing_function, overshadowed_base_contract, overshadowed_function) in shadows:
-                results.add((contract, contract, overshadowing_function, overshadowed_base_contract, overshadowed_function))
+            if direct_shadowing:
+                shadows = InheritanceAnalysis.detect_direct_function_shadowing(contract)
+                for (overshadowing_function, overshadowed_base_contract, overshadowed_function) in shadows:
+                    results.add((contract, contract, overshadowing_function, overshadowed_base_contract,
+                                 overshadowed_function))
 
             # Detect c3 linearization shadowing (multi inheritance shadowing).
-            shadows = InheritanceAnalysis.detect_c3_function_shadowing(contract)
-            for colliding_functions in shadows:
-                for x in range(0, len(colliding_functions) - 1):
-                    for y in range(x + 1, len(colliding_functions)):
-                        # The same function definition can appear more than once in the inheritance chain,
-                        # overshadowing items between, so it is important to remember to filter it out here.
-                        if colliding_functions[y][1].contract != colliding_functions[x][1].contract:
-                            results.add((contract, colliding_functions[y][0], colliding_functions[y][1],
-                                         colliding_functions[x][0], colliding_functions[x][1]))
+            if indirect_shadowing:
+                shadows = InheritanceAnalysis.detect_c3_function_shadowing(contract)
+                for colliding_functions in shadows:
+                    for x in range(0, len(colliding_functions) - 1):
+                        for y in range(x + 1, len(colliding_functions)):
+                            # The same function definition can appear more than once in the inheritance chain,
+                            # overshadowing items between, so it is important to remember to filter it out here.
+                            if colliding_functions[y][1].contract != colliding_functions[x][1].contract:
+                                results.add((contract, colliding_functions[y][0], colliding_functions[y][1],
+                                             colliding_functions[x][0], colliding_functions[x][1]))
 
         return results
 
