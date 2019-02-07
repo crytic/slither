@@ -21,17 +21,16 @@ class PrinterInheritanceGraph(AbstractPrinter):
         inheritance = [x.inheritance for x in slither.contracts]
         self.inheritance = set([item for sublist in inheritance for item in sublist])
 
-        # Create a lookup of shadowing functions (direct + indirect)
-        self.overshadowing_functions = {}
-        shadows = InheritanceAnalysis.detect_function_shadowing(slither.contracts)
+        # Create a lookup of direct shadowing instances.
+        self.direct_overshadowing_functions = {}
+        shadows = InheritanceAnalysis.detect_function_shadowing(slither.contracts, True, False)
         for overshadowing_instance in shadows:
             overshadowing_function = overshadowing_instance[2]
-            overshadowed_function = overshadowing_instance[4]
 
             # Add overshadowing function entry.
-            if overshadowing_function not in self.overshadowing_functions:
-                self.overshadowing_functions[overshadowing_function] = set()
-            self.overshadowing_functions[overshadowing_function].add(overshadowing_instance)
+            if overshadowing_function not in self.direct_overshadowing_functions:
+                self.direct_overshadowing_functions[overshadowing_function] = set()
+            self.direct_overshadowing_functions[overshadowing_function].add(overshadowing_instance)
 
         # Create a lookup of shadowing state variables.
         # Format: { colliding_variable : set([colliding_variables]) }
@@ -51,7 +50,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         func_name = func.full_name
         pattern = '<TR><TD align="left">    %s</TD></TR>'
         pattern_shadow = '<TR><TD align="left"><font color="#FFA500">    %s</font></TD></TR>'
-        if func in self.overshadowing_functions:
+        if func in self.direct_overshadowing_functions:
             return pattern_shadow % func_name
         return pattern % func_name
 
@@ -74,7 +73,8 @@ class PrinterInheritanceGraph(AbstractPrinter):
             else:
                 return pattern % var_name
 
-    def _get_tooltip_func(self, func, contract):
+    @staticmethod
+    def _get_indirect_shadowing_information(contract):
         """
         Obtain a string that describes variable shadowing for the given variable. None if no shadowing exists.
         :param var: The variable to collect shadowing information for.
@@ -82,36 +82,15 @@ class PrinterInheritanceGraph(AbstractPrinter):
         :return: Returns a string describing variable shadowing for the given variable. None if no shadowing exists.
         """
         # If this variable is an overshadowing variable, we'll want to return information describing it.
-        result = None
-        if func in self.overshadowing_functions:
-            result = []
-            for contract_scope, shadowing_contract, shadowing_func, shadowed_contract, shadowed_func, in sorted(self.overshadowing_functions[func],
-                                                                                                                key=lambda x: (x[4].contract.name, x[0].name)):
-                # Check if this is shadowing through direct inheritance, or c3 linearization.
-                # If it shadows directly and indirectly, we skip outputting the indirect message.
-                if contract_scope == shadowing_contract:
-                    result.append(f"-'{func.name}' directly overshadows definition in {shadowed_func.contract.name}")
-                elif shadowed_func.contract not in shadowing_func.contract.inheritance:
-                    result.append(
-                        f"-'{func.name}' indirectly overshadows definition in {shadowed_func.contract.name} (via {contract_scope.name})")
-            result = '\n'.join(result)
-        return result
-
-    def _get_tooltip_var(self, var, contract):
-        """
-        Obtain a string that describes variable shadowing for the given variable. None if no shadowing exists.
-        :param var: The variable to collect shadowing information for.
-        :param contract: The contract in which this variable is being analyzed.
-        :return: Returns a string describing variable shadowing for the given variable. None if no shadowing exists.
-        """
-        # If this variable is an overshadowing variable, we'll want to return information describing it.
-        result = None
-        if var in self.overshadowing_state_variables:
-            result = []
-            for overshadowed_state_var in sorted(self.overshadowing_state_variables[var], key=lambda x: x.contract.name):
-                result.append(f"-'{var.name}' overshadows definition in {overshadowed_state_var.contract.name}")
-            result = '\n'.join(result)
-        return result
+        result = []
+        indirect_shadows = InheritanceAnalysis.detect_c3_function_shadowing(contract)
+        if indirect_shadows:
+            for collision_set in sorted(indirect_shadows, key=lambda x: x[0][1].name):
+                winner = collision_set[-1][1].contract.name
+                collision_steps = [colliding_function.contract.name for _, colliding_function in collision_set]
+                collision_steps = ', '.join(collision_steps)
+                result.append(f"'{collision_set[0][1].name}' collides in inherited contracts {collision_steps} where {winner} wins.")
+        return '\n'.join(result)
 
     def _get_port_id(self, var, contract):
         return "%s%s" % (var.name, contract.name)
@@ -138,10 +117,6 @@ class PrinterInheritanceGraph(AbstractPrinter):
                              not f.is_constructor and f.contract == contract and f.visibility not in visibilities]
         private_functions = ''.join(private_functions)
 
-        function_tooltip_lines = [self._get_tooltip_func(f, contract) for f in contract.functions + contract.modifiers
-                                  if not f.is_constructor and f.contract == contract]
-        function_tooltip_lines = '\n'.join(filter(None, function_tooltip_lines))
-
         # Modifiers
         modifiers = [self._get_pattern_func(m, contract) for m in contract.modifiers if m.contract == contract]
         modifiers = ''.join(modifiers)
@@ -155,12 +130,8 @@ class PrinterInheritanceGraph(AbstractPrinter):
                              v.contract == contract and v.visibility not in visibilities]
         private_variables = ''.join(private_variables)
 
-        variable_tooltip_lines = [self._get_tooltip_var(v, contract) for v in contract.variables
-                                  if v.contract == contract]
-        variable_tooltip_lines = '\n'.join(filter(None, variable_tooltip_lines))
-
-        # Declare the tooltip text for this node.
-        tooltip = ""
+        # Obtain any indirect shadowing information for this node.
+        indirect_shadowing_information = self._get_indirect_shadowing_information(contract)
 
         # Build the node label
         ret += '%s[shape="box"' % contract.name
@@ -182,18 +153,9 @@ class PrinterInheritanceGraph(AbstractPrinter):
             ret += '<TR><TD align="left"><I>Private Variables:</I></TD></TR>'
             ret += '%s' % private_variables
 
-        # Build the tooltip
-        if variable_tooltip_lines:
-            tooltip += "Shadowed variables:\n"
-            tooltip += variable_tooltip_lines
-        if function_tooltip_lines:
-            if tooltip:
-                tooltip += "\n\n"
-            tooltip += "Shadowed functions:\n"
-            tooltip += function_tooltip_lines
-        if tooltip:
-            tooltip = f"{contract.name}:\n\n{tooltip}"
-        ret += '</TABLE> >tooltip="%s"];\n' % tooltip
+        if indirect_shadowing_information:
+            ret += '<TR><TD><BR/></TD></TR><TR><TD align="left" border="1"><font color="gray" point-size="10">%s</font></TD></TR>' % indirect_shadowing_information.replace('\n', '<BR/>')
+        ret += '</TABLE> >];\n'
 
         return ret
 
