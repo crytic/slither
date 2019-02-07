@@ -7,6 +7,7 @@
 """
 
 from slither.core.declarations.contract import Contract
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.utils.inheritance_analysis import InheritanceAnalysis
 from slither.printers.abstract_printer import AbstractPrinter
 
@@ -62,7 +63,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         pattern_shadow = '<TR><TD align="left"><font color="red">    %s</font></TD></TR>'
         pattern_contract_shadow = '<TR><TD align="left"><font color="red">    %s</font><font color="blue" POINT-SIZE="10"> (%s)</font></TD></TR>'
 
-        if isinstance(var.type.type, Contract):
+        if isinstance(var.type, UserDefinedType) and isinstance(var.type.type, Contract):
             if var in self.overshadowing_state_variables:
                 return pattern_contract_shadow % (var_name, var.type.type.name)
             else:
