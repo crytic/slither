@@ -3,6 +3,7 @@
 """
 import os
 from slither.core.context.context import Context
+from slither.slithir.operations import InternalCall
 
 class Slither(Context):
     """
@@ -18,6 +19,8 @@ class Slither(Context):
         self._pragma_directives = []
         self._import_directives = []
         self._raw_source_code = {}
+        self._all_functions = set()
+        self._all_modifiers = set()
 
     @property
     def source_units(self):
@@ -38,6 +41,24 @@ class Slither(Context):
     def contracts_as_dict(self):
         """list(dict(str: Contract): List of contracts as dict: name -> Contract."""
         return self._contracts
+
+    @property
+    def functions(self):
+        return list(self._all_functions)
+
+    def add_function(self, func):
+        self._all_functions.add(func)
+
+    @property
+    def modifiers(self):
+        return list(self._all_modifiers)
+
+    def add_modifier(self, modif):
+        self._all_modifiers.add(modif)
+
+    @property
+    def functions_and_modifiers(self):
+        return self.functions + self.modifiers
 
     @property
     def filename(self):
@@ -63,6 +84,13 @@ class Slither(Context):
     def source_code(self):
         """ {filename: source_code}: source code """
         return self._raw_source_code
+
+    def _propagate_function_calls(self):
+        for f in self.functions_and_modifiers:
+            for node in f.nodes:
+                for ir in node.irs_ssa:
+                    if isinstance(ir, InternalCall):
+                        ir.function.add_reachable_from_node(node, ir)
 
     def get_contract_from_name(self, contract_name):
         """

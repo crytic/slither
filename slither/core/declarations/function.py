@@ -2,6 +2,7 @@
     Function module
 """
 import logging
+from collections import namedtuple
 from itertools import groupby
 
 from slither.core.children.child_contract import ChildContract
@@ -16,6 +17,8 @@ from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.state_variable import StateVariable
 
 logger = logging.getLogger("Function")
+
+ReacheableNode = namedtuple('ReacheableNode', ['node', 'ir'])
 
 class Function(ChildContract, SourceMapping):
     """
@@ -74,6 +77,10 @@ class Function(ChildContract, SourceMapping):
         self._all_conditional_state_variables_read = None
         self._all_conditional_solidity_variables_read = None
         self._all_solidity_variables_used_as_args = None
+
+        # set(ReacheableNode)
+        self._reachable_from_nodes = set()
+        self._reachable_from_functions = set()
 
     @property
     def contains_assembly(self):
@@ -414,6 +421,22 @@ class Function(ChildContract, SourceMapping):
     @property
     def slither(self):
         return self.contract.slither
+
+    @property
+    def reachable_from_nodes(self):
+        '''
+            Return
+                ReacheableNode
+        '''
+        return self._reachable_from_nodes
+
+    @property
+    def reachable_from_functions(self):
+        return self._reachable_from_functions
+
+    def add_reachable_from_node(self, n, ir):
+        self._reachable_from_nodes.add(ReacheableNode(n, ir))
+        self._reachable_from_functions.add(n.function)
 
     def _filter_state_variables_written(self, expressions):
         ret = []

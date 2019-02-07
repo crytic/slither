@@ -357,6 +357,7 @@ class SlitherSolc(Slither):
     def _convert_to_slithir(self):
         for contract in self.contracts:
             contract.convert_expression_to_slithir()
+        self._propagate_function_calls()
         for contract in self.contracts:
             contract.fix_phi()
             contract.update_read_write_using_ssa()
