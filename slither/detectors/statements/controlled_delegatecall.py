@@ -33,7 +33,7 @@ Bob calls `delegate` and delegate the execution to its malicious contract. As a 
         for node in function.nodes:
             for ir in node.irs:
                 if isinstance(ir, LowLevelCall) and ir.function_name in ['delegatecall', 'codecall']:
-                    if is_tainted(ir.destination, function.contract, self.slither):
+                    if is_tainted(ir.destination, function.contract):
                         ret.append(node)
         return ret
 

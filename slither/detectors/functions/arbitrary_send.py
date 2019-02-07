@@ -78,7 +78,7 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
                     if is_dependent(ir.call_value, SolidityVariableComposed('msg.value'), func.contract):
                         continue
 
-                    if is_tainted(ir.destination, func.contract, self.slither):
+                    if is_tainted(ir.destination, func.contract):
                         ret.append(node)
 
 
