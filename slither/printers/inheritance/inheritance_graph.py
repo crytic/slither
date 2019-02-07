@@ -21,8 +21,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         inheritance = [x.inheritance for x in slither.contracts]
         self.inheritance = set([item for sublist in inheritance for item in sublist])
 
-        # Obtain functions shadowed through direct/indirect inheritance.
-        self.overshadowed_functions = {}
+        # Create a lookup of shadowing functions (direct + indirect)
         self.overshadowing_functions = {}
         shadows = InheritanceAnalysis.detect_function_shadowing(slither.contracts)
         for overshadowing_instance in shadows:
@@ -34,14 +33,8 @@ class PrinterInheritanceGraph(AbstractPrinter):
                 self.overshadowing_functions[overshadowing_function] = set()
             self.overshadowing_functions[overshadowing_function].add(overshadowing_instance)
 
-            # Add overshadowed function entry.
-            if overshadowed_function not in self.overshadowed_functions:
-                self.overshadowed_functions[overshadowed_function] = set()
-            self.overshadowed_functions[overshadowed_function].add(overshadowing_instance)
-
-        # Create a lookup of overshadowed state variables, and those shadowing it.
+        # Create a lookup of shadowing state variables.
         # Format: { colliding_variable : set([colliding_variables]) }
-        self.overshadowed_state_variables = {}
         self.overshadowing_state_variables = {}
         shadows = InheritanceAnalysis.detect_state_variable_shadowing(slither.contracts)
         for overshadowing_instance in shadows:
@@ -52,11 +45,6 @@ class PrinterInheritanceGraph(AbstractPrinter):
             if overshadowing_state_var not in self.overshadowing_state_variables:
                 self.overshadowing_state_variables[overshadowing_state_var] = set()
             self.overshadowing_state_variables[overshadowing_state_var].add(overshadowed_state_var)
-
-            # Add overshadowed variable entry
-            if overshadowed_state_var not in self.overshadowed_state_variables:
-                self.overshadowed_state_variables[overshadowed_state_var] = set()
-            self.overshadowed_state_variables[overshadowed_state_var].add(overshadowing_state_var)
 
     def _get_pattern_func(self, func, contract):
         # Html pattern, each line is a row in a table
@@ -203,6 +191,8 @@ class PrinterInheritanceGraph(AbstractPrinter):
                 tooltip += "\n\n"
             tooltip += "Shadowed functions:\n"
             tooltip += function_tooltip_lines
+        if tooltip:
+            tooltip = f"{contract.name}:\n\n{tooltip}"
         ret += '</TABLE> >tooltip="%s"];\n' % tooltip
 
         return ret
