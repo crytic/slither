@@ -85,11 +85,11 @@ class InheritanceAnalysis:
         :param direct_shadowing: Include results from direct inheritance/inheritance ancestry.
         :param indirect_shadowing: Include results from indirect inheritance collisions as a result of multiple
         inheritance/c3 linearization.
-        :return: Returns a set of tuples(overshadowing_contract, overshadowing_function, overshadowed_contract,
-        overshadowed_function).
-        The contract-function pair's function does not need to be defined in its paired contract, it may have been
-        inherited within it. The contract is simply included to denote the immediate inheritance path from which the
-        shadowed function originates.
+        :return: Returns a set of tuples(contract_scope, overshadowing_contract, overshadowing_function,
+        overshadowed_contract, overshadowed_function), where:
+        -The contract_scope defines where the detection of shadowing is most immediately found.
+        -For each contract-function pair, contract is the first contract where the function is seen, while the function
+        refers to the actual definition. The function does not need to be defined in the contract (could be inherited).
         """
         results = set()
         for contract in contracts:
@@ -98,15 +98,18 @@ class InheritanceAnalysis:
             shadows = InheritanceAnalysis.detect_direct_function_shadowing(contract)
 
             for (overshadowing_function, overshadowed_base_contract, overshadowed_function) in shadows:
-                results.add((contract, overshadowing_function, overshadowed_base_contract, overshadowed_function))
+                results.add((contract, contract, overshadowing_function, overshadowed_base_contract, overshadowed_function))
 
             # Detect c3 linearization shadowing (multi inheritance shadowing).
             shadows = InheritanceAnalysis.detect_c3_function_shadowing(contract)
             for colliding_functions in shadows:
-                for i in range(0, len(colliding_functions) - 1):
-                    if colliding_functions[i][1] != colliding_functions[-1][1]:
-                        results.add((colliding_functions[-1][0], colliding_functions[-1][1],
-                                     colliding_functions[i][0], colliding_functions[i][1]))
+                for x in range(0, len(colliding_functions) - 1):
+                    for y in range(x + 1, len(colliding_functions)):
+                        # The same function definition can appear more than once in the inheritance chain,
+                        # overshadowing items between, so it is important to remember to filter it out here.
+                        if colliding_functions[y][1].contract != colliding_functions[x][1].contract:
+                            results.add((contract, colliding_functions[y][0], colliding_functions[y][1],
+                                         colliding_functions[x][0], colliding_functions[x][1]))
 
         return results
 
