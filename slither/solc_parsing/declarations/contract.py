@@ -320,6 +320,7 @@ class ContractSolc04(Contract):
         modif = ModifierSolc(modifier, self)
         modif.set_contract(self)
         modif.set_offset(modifier['src'], self.slither)
+        self.slither.add_modifier(modif)
         self._modifiers_no_params.append(modif)
 
     def parse_modifiers(self):
@@ -333,6 +334,7 @@ class ContractSolc04(Contract):
     def _parse_function(self, function):
         func = FunctionSolc(function, self)
         func.set_offset(function['src'], self.slither)
+        self.slither.add_function(func)
         self._functions_no_params.append(func)
 
     def parse_functions(self):
