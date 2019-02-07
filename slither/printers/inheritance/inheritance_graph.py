@@ -8,7 +8,9 @@
 
 from slither.core.declarations.contract import Contract
 from slither.core.solidity_types.user_defined_type import UserDefinedType
-from slither.utils.inheritance_analysis import *
+from slither.utils.inheritance_analysis import detect_function_shadowing, 
+                                               detect_c3_function_shadowing,
+                                               detect_state_variable_shadowing
 from slither.printers.abstract_printer import AbstractPrinter
 
 
