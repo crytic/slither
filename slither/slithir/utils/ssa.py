@@ -54,7 +54,12 @@ def add_ssa_ir(function, all_state_variables_instances):
         return
 
     init_definition = dict()
-    for v in function.parameters+function.returns:
+    for v in function.parameters:
+        if v.name:
+            init_definition[v.name] = (v, function.entry_point)
+            function.entry_point.add_ssa_ir(Phi(LocalIRVariable(v), set()))
+
+    for v in function.returns:
         if v.name:
             init_definition[v.name] = (v, function.entry_point)
 

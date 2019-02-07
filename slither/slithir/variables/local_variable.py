@@ -37,7 +37,6 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
             self._non_ssa_version = local_variable.non_ssa_version
         else:
             self._non_ssa_version = local_variable
-        self._non_ssa_version = local_variable
 
     @property
     def index(self):

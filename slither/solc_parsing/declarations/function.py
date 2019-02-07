@@ -28,6 +28,8 @@ from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
 from slither.core.declarations.contract import Contract
 
+from slither.slithir.variables import StateIRVariable, LocalIRVariable, Constant
+
 logger = logging.getLogger("FunctionSolc")
 
 class FunctionSolc(Function):
@@ -947,9 +949,18 @@ class FunctionSolc(Function):
         for node in self.nodes:
             for ir in node.irs_ssa:
                 if node == self.entry_point:
-                    additional = [initial_state_variables_instances[ir.lvalue.canonical_name]]
-                    additional += last_state_variables_instances[ir.lvalue.canonical_name]
-                    ir.rvalues = list(set(additional + ir.rvalues))
+                    if isinstance(ir.lvalue, StateIRVariable):
+                        additional = [initial_state_variables_instances[ir.lvalue.canonical_name]]
+                        additional += last_state_variables_instances[ir.lvalue.canonical_name]
+                        ir.rvalues = list(set(additional + ir.rvalues))
+                    # function parameter
+                    else:
+                        # find index of the parameter
+                        idx = self.parameters.index(ir.lvalue.non_ssa_version)
+                        # find non ssa version of that index
+                        additional = [n.ir.arguments[idx] for n in self.reachable_from_nodes]
+                        additional = [a for a in additional if not isinstance(a, Constant)]
+                        ir.rvalues = list(set(additional + ir.rvalues))
                 if isinstance(ir, PhiCallback):
                     callee_ir = ir.callee_ir
                     if isinstance(callee_ir, InternalCall):
