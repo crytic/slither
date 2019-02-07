@@ -8,7 +8,7 @@
 
 from slither.core.declarations.contract import Contract
 from slither.core.solidity_types.user_defined_type import UserDefinedType
-from slither.utils.inheritance_analysis import InheritanceAnalysis
+from slither.utils.inheritance_analysis import *
 from slither.printers.abstract_printer import AbstractPrinter
 
 
@@ -24,7 +24,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
         # Create a lookup of direct shadowing instances.
         self.direct_overshadowing_functions = {}
-        shadows = InheritanceAnalysis.detect_function_shadowing(slither.contracts, True, False)
+        shadows = detect_function_shadowing(slither.contracts, True, False)
         for overshadowing_instance in shadows:
             overshadowing_function = overshadowing_instance[2]
 
@@ -36,7 +36,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         # Create a lookup of shadowing state variables.
         # Format: { colliding_variable : set([colliding_variables]) }
         self.overshadowing_state_variables = {}
-        shadows = InheritanceAnalysis.detect_state_variable_shadowing(slither.contracts)
+        shadows = detect_state_variable_shadowing(slither.contracts)
         for overshadowing_instance in shadows:
             overshadowing_state_var = overshadowing_instance[1]
             overshadowed_state_var = overshadowing_instance[3]
@@ -84,7 +84,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         """
         # If this variable is an overshadowing variable, we'll want to return information describing it.
         result = []
-        indirect_shadows = InheritanceAnalysis.detect_c3_function_shadowing(contract)
+        indirect_shadows = detect_c3_function_shadowing(contract)
         if indirect_shadows:
             for collision_set in sorted(indirect_shadows, key=lambda x: x[0][1].name):
                 winner = collision_set[-1][1].contract.name
