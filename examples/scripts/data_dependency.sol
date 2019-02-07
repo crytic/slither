@@ -85,3 +85,20 @@ contract Derived is Base{
 
 
 }
+
+
+contract PropagateThroughArguments {
+    uint var_tainted;
+    uint var_not_tainted;
+    uint var_dependant;
+
+    function f(uint user_input) public {
+        f2(user_input, 4);
+        var_dependant = var_tainted;
+    }
+
+    function f2(uint x, uint y) internal {
+        var_tainted = x;
+        var_not_tainted = y;
+    }
+}

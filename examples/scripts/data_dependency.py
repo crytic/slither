@@ -77,3 +77,19 @@ assert not is_dependent(destination, source, contract)
 print('{} is dependent of {}: {} (derived)'.format(destination, source, is_dependent(destination, source, contract_derived)))
 assert is_dependent(destination, source, contract_derived)
 
+print('PropagateThroughArguments contract')
+contract = slither.get_contract_from_name('PropagateThroughArguments')
+var_tainted = contract.get_state_variable_from_name('var_tainted')
+var_not_tainted = contract.get_state_variable_from_name('var_not_tainted')
+var_dependant = contract.get_state_variable_from_name('var_dependant')
+
+f = contract.get_function_from_signature('f(uint256)')
+user_input = f.parameters[0]
+f2 = contract.get_function_from_signature('f2(uint256,uint256)')
+
+print('{} is dependent of {}: {} (base)'.format(var_dependant, user_input, is_dependent(var_dependant, user_input, contract)))
+assert is_dependent(var_dependant, user_input, contract)
+print('{} is tainted: {}'.format(var_tainted, is_tainted(var_tainted, contract)))
+assert is_tainted(var_tainted, contract)
+print('{} is tainted: {}'.format(var_not_tainted, is_tainted(var_not_tainted, contract)))
+assert not is_tainted(var_not_tainted, contract)
