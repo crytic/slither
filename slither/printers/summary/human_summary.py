@@ -10,7 +10,7 @@ from slither.utils.colors import green, red, yellow
 
 class PrinterHumanSummary(AbstractPrinter):
     ARGUMENT = 'human-summary'
-    HELP = 'Print a human readable summary of the contracts'
+    HELP = 'Print a human-readable summary of the contracts'
 
     @staticmethod
     def _get_summary_erc20(contract):

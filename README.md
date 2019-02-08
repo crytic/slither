@@ -95,13 +95,16 @@ Num | Printer | Description
 1 | `call-graph` | Export the call-graph of the contracts to a dot file
 2 | `cfg` | Export the CFG of each functions
 3 | `contract-summary` | Print a summary of the contracts
-4 | `function-summary` | Print a summary of the functions
-5 | `human-summary` | Print a human readable summary of the contracts
-6 | `inheritance` | Print the inheritance relations between contracts
-7 | `inheritance-graph` | Export the inheritance graph of each contract to a dot file
-8 | `slithir` | Print the slithIR representation of the functions
-9 | `slithir-ssa` | Print the slithIR representation of the functions
-10 | `vars-and-auth` | Print the state variables written and the authorization of the functions
+4 | `function-id` | Print the keccack256 signature of the functions
+5 | `function-summary` | Print a summary of the functions
+6 | `human-summary` | Print a human-readable summary of the contracts
+7 | `inheritance` | Print the inheritance relations between contracts
+8 | `inheritance-graph` | Export the inheritance graph of each contract to a dot file
+9 | `slithir` | Print the slithIR representation of the functions
+10 | `slithir-ssa` | Print the slithIR representation of the functions
+11 | `variables-order` | Print the storage order of the state variables
+12 | `vars-and-auth` | Print the state variables written and the authorization of the functions
+
 ## How to install
 
 Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
