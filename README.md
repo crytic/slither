@@ -92,18 +92,18 @@ To run a printer, use `--print` and a comma-separated list of printers.
 
 Num | Printer | Description
 --- | --- | ---
-1 | `call-graph` | Export the call-graph of the contracts to a dot file
-2 | `cfg` | Export the CFG of each functions
-3 | `contract-summary` | Print a summary of the contracts
-4 | `function-id` | Print the keccack256 signature of the functions
-5 | `function-summary` | Print a summary of the functions
-6 | `human-summary` | Print a human-readable summary of the contracts
-7 | `inheritance` | Print the inheritance relations between contracts
-8 | `inheritance-graph` | Export the inheritance graph of each contract to a dot file
-9 | `slithir` | Print the slithIR representation of the functions
-10 | `slithir-ssa` | Print the slithIR representation of the functions
-11 | `variables-order` | Print the storage order of the state variables
-12 | `vars-and-auth` | Print the state variables written and the authorization of the functions
+1 | `call-graph` | [Export the call-graph of the contracts to a dot file](https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph)
+2 | `cfg` | [Export the CFG of each functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#cfg)
+3 | `contract-summary` | [Print a summary of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#contract-summary)
+4 | `function-id` | [Print the keccack256 signature of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#function-id)
+5 | `function-summary` | [Print a summary of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#function-summary)
+6 | `human-summary` | [Print a human-readable summary of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#human-summary)
+7 | `inheritance` | [Print the inheritance relations between contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#inheritance)
+8 | `inheritance-graph` | [Export the inheritance graph of each contract to a dot file](https://github.com/trailofbits/slither/wiki/Printer-documentation#inheritance-graph)
+9 | `slithir` | [Print the slithIR representation of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir)
+10 | `slithir-ssa` | [Print the slithIR representation of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir-ssa)
+11 | `variables-order` | [Print the storage order of the state variables](https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization)
+12 | `vars-and-auth` | [Print the state variables written and the authorization of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization)
 
 ## How to install
 

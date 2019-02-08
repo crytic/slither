@@ -10,6 +10,8 @@ class ContractSummary(AbstractPrinter):
     ARGUMENT = 'contract-summary'
     HELP = 'Print a summary of the contracts'
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#contract-summary'
+
     def output(self, _filename):
         """
             _filename is not used

@@ -12,6 +12,8 @@ class FunctionIds(AbstractPrinter):
     ARGUMENT = 'function-id'
     HELP = 'Print the keccack256 signature of the functions'
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#function-id'
+
     def output(self, _filename):
         """
             _filename is not used

@@ -42,6 +42,8 @@ class PrinterCallGraph(AbstractPrinter):
     ARGUMENT = 'call-graph'
     HELP = 'Export the call-graph of the contracts to a dot file'
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph'
+
     def __init__(self, slither, logger):
         super(PrinterCallGraph, self).__init__(slither, logger)
 
