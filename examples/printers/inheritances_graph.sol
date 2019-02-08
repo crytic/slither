@@ -1,21 +1,21 @@
-contract Contract1{
+contract A {
+    function f() public pure returns (uint) {
+        return 0;
+    }
 
-    uint myvar;
-
-    function myfunc() public{}
+    function g() public pure returns (uint) {
+        return 0;
+    }
 }
 
-contract Contract2{
-
-    uint public myvar2;
-
-    function myfunc2() public{}
-
-    function privatefunc() private{}
+contract B {
+    function g() public pure returns (uint) {
+        return 0;
+    }
 }
 
-contract Contract3 is Contract1, Contract2{
-
-    function myfunc() public{} // override myfunc
-
+contract C is A, B {
+    function f() public pure returns (uint) {
+        return 0;
+    }
 }
