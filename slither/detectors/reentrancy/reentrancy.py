@@ -34,8 +34,7 @@ class Reentrancy(AbstractDetector):
 
     KEY = 'REENTRANCY'
 
-    @staticmethod
-    def _can_callback(irs):
+    def _can_callback(self, irs):
         """
             Detect if the node contains a call that can
             be used to re-entrance
@@ -50,10 +49,12 @@ class Reentrancy(AbstractDetector):
             if isinstance(ir, LowLevelCall):
                 return True
             if isinstance(ir, HighLevelCall) and not isinstance(ir, LibraryCall):
-                if isinstance(ir.function, Function) and (ir.function.view or ir.function.pure):
-                    continue
-                if isinstance(ir.function, Variable):
-                    continue
+                # If solidity >0.5, STATICCALL is used
+                if self.slither.solc_version and self.slither.solc_version.startswith('0.5.'):
+                    if isinstance(ir.function, Function) and (ir.function.view or ir.function.pure):
+                        continue
+                    if isinstance(ir.function, Variable):
+                        continue
                 return True
         return False
 
