@@ -29,6 +29,7 @@ from slither.visitors.expression.has_conditional import HasConditional
 from slither.core.declarations.contract import Contract
 
 from slither.slithir.variables import StateIRVariable, LocalIRVariable, Constant
+from slither.utils.utils import unroll
 
 logger = logging.getLogger("FunctionSolc")
 
@@ -257,14 +258,26 @@ class FunctionSolc(Function):
         # if the loop has a init value /condition or expression
         # There is no way to determine that for(a;;) and for(;a;) are different with old solc
         if 'attributes' in statement:
+            attributes = statement['attributes']
             if 'initializationExpression' in statement:
                 if not statement['initializationExpression']:
                     hasInitExession = False
+            elif 'initializationExpression' in attributes:
+                if not attributes['initializationExpression']:
+                    hasInitExession = False
+
             if 'condition' in statement:
                 if not statement['condition']:
                     hasCondition = False
+            elif 'condition' in attributes:
+                if not attributes['condition']:
+                    hasCondition = False
+
             if 'loopExpression' in statement:
                 if not statement['loopExpression']:
+                    hasLoopExpression = False
+            elif 'loopExpression' in attributes:
+                if not attributes['loopExpression']:
                     hasLoopExpression = False
 
 
@@ -959,6 +972,7 @@ class FunctionSolc(Function):
                         idx = self.parameters.index(ir.lvalue.non_ssa_version)
                         # find non ssa version of that index
                         additional = [n.ir.arguments[idx] for n in self.reachable_from_nodes]
+                        additional = unroll(additional)
                         additional = [a for a in additional if not isinstance(a, Constant)]
                         ir.rvalues = list(set(additional + ir.rvalues))
                 if isinstance(ir, PhiCallback):
