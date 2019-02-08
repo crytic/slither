@@ -5,10 +5,10 @@ from slither.detectors.abstract_detector import classification_txt
 
 def output_to_markdown(detector_classes, printer_classes, filter_wiki):
 
-    def extract_help(detector):
-        if detector.WIKI == '':
-            return detector.HELP
-        return '[{}]({})'.format(detector.HELP, detector.WIKI)
+    def extract_help(cls):
+        if cls.WIKI == '':
+            return cls.HELP
+        return '[{}]({})'.format(cls.HELP, cls.WIKI)
 
     detectors_list = []
     print(filter_wiki)
@@ -39,7 +39,7 @@ def output_to_markdown(detector_classes, printer_classes, filter_wiki):
     printers_list = []
     for printer in printer_classes:
         argument = printer.ARGUMENT
-        help_info = printer.HELP
+        help_info = extract_help(printer)
         printers_list.append((argument, help_info))
 
     # Sort by impact, confidence, and name

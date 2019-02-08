@@ -10,6 +10,8 @@ class FunctionSummary(AbstractPrinter):
     ARGUMENT = 'function-summary'
     HELP = 'Print a summary of the functions'
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#function-summary'
+
     @staticmethod
     def _convert(l):
         if l:

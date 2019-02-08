@@ -10,6 +10,8 @@ class PrinterSlithIR(AbstractPrinter):
     ARGUMENT = 'slithir'
     HELP = 'Print the slithIR representation of the functions'
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir'
+
     def output(self, _filename):
         """
             _filename is not used
