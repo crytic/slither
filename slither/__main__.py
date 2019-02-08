@@ -64,10 +64,10 @@ def _process(slither, detector_classes, printer_classes):
     return results, analyzed_contracts_count
 
 def process_truffle(dirname, args, detector_classes, printer_classes):
+    cmd = ['truffle', 'compile']
     if args.truffle_version:
         cmd = ['npx',args.truffle_version,'compile']
     elif os.path.isfile('package.json'):
-        cmd = ['truffle', 'compile']
         with open('package.json') as f:
                 package = json.load(f)
                 if 'devDependencies' in package:
