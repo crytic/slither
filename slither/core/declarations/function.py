@@ -82,9 +82,164 @@ class Function(ChildContract, SourceMapping):
         self._reachable_from_nodes = set()
         self._reachable_from_functions = set()
 
+    ###################################################################################
+    ###################################################################################
+    # region General properties
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def name(self):
+        """
+            str: function name
+        """
+        if self._name == '':
+            if self.is_constructor:
+                return 'constructor'
+            else:
+                return 'fallback'
+        return self._name
+
+    @property
+    def full_name(self):
+        """
+            str: func_name(type1,type2)
+            Return the function signature without the return values
+        """
+        name, parameters, _ = self.signature
+        return name+'('+','.join(parameters)+')'
+
+    @property
+    def is_constructor(self):
+        """
+            bool: True if the function is the constructor
+        """
+        return self._is_constructor or self._name == self.contract.name
+
     @property
     def contains_assembly(self):
         return self._contains_assembly
+
+    @property
+    def slither(self):
+        return self.contract.slither
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Payable
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def payable(self):
+        """
+            bool: True if the function is payable
+        """
+        return self._payable
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Visibility
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def visibility(self):
+        """
+            str: Function visibility
+        """
+        return self._visibility
+
+    @property
+    def view(self):
+        """
+            bool: True if the function is declared as view
+        """
+        return self._view
+
+    @property
+    def pure(self):
+        """
+            bool: True if the function is declared as pure
+        """
+        return self._pure
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Function's body
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def is_implemented(self):
+        """
+            bool: True if the function is implemented
+        """
+        return self._is_implemented
+
+    @property
+    def is_empty(self):
+        """
+            bool: True if the function is empty, None if the function is an interface
+        """
+        return self._is_empty
+
+
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Nodes
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def nodes(self):
+        """
+            list(Node): List of the nodes
+        """
+        return list(self._nodes)
+
+    @property
+    def entry_point(self):
+        """
+            Node: Entry point of the function
+        """
+        return self._entry_point
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Parameters
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def parameters(self):
+        """
+            list(LocalVariable): List of the parameters
+        """
+        return list(self._parameters)
+
+    @property
+    def parameters_ssa(self):
+        """
+            list(LocalIRVariable): List of the parameters (SSA form)
+        """
+        return list(self._parameters_ssa)
+
+    def add_parameter_ssa(self, var):
+        self._parameters_ssa.append(var)
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Return values
+    ###################################################################################
+    ###################################################################################
 
     @property
     def return_type(self):
@@ -106,98 +261,6 @@ class Function(ChildContract, SourceMapping):
         return self.return_type
 
     @property
-    def name(self):
-        """
-            str: function name
-        """
-        if self._name == '':
-            if self.is_constructor:
-                return 'constructor'
-            else:
-                return 'fallback'
-        return self._name
-
-    @property
-    def nodes(self):
-        """
-            list(Node): List of the nodes
-        """
-        return list(self._nodes)
-
-    @property
-    def entry_point(self):
-        """
-            Node: Entry point of the function
-        """
-        return self._entry_point
-
-    @property
-    def visibility(self):
-        """
-            str: Function visibility
-        """
-        return self._visibility
-
-    @property
-    def payable(self):
-        """
-            bool: True if the function is payable
-        """
-        return self._payable
-
-    @property
-    def is_constructor(self):
-        """
-            bool: True if the function is the constructor
-        """
-        return self._is_constructor or self._name == self.contract.name
-
-    @property
-    def view(self):
-        """
-            bool: True if the function is declared as view
-        """
-        return self._view
-
-    @property
-    def pure(self):
-        """
-            bool: True if the function is declared as pure
-        """
-        return self._pure
-
-    @property
-    def is_implemented(self):
-        """
-            bool: True if the function is implemented
-        """
-        return self._is_implemented
-
-    @property
-    def is_empty(self):
-        """
-            bool: True if the function is empty, None if the function is an interface
-        """
-        return self._is_empty
-
-    @property
-    def parameters(self):
-        """
-            list(LocalVariable): List of the parameters
-        """
-        return list(self._parameters)
-
-    @property
-    def parameters_ssa(self):
-        """
-            list(LocalIRVariable): List of the parameters (SSA form)
-        """
-        return list(self._parameters_ssa)
-
-    def add_parameter_ssa(self, var):
-        self._parameters_ssa.append(var)
-
-    @property
     def returns(self):
         """
             list(LocalVariable): List of the return variables
@@ -213,6 +276,13 @@ class Function(ChildContract, SourceMapping):
 
     def add_return_ssa(self, var):
         self._returns_ssa.append(var)
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Modifiers
+    ###################################################################################
+    ###################################################################################
 
     @property
     def modifiers(self):
@@ -232,8 +302,13 @@ class Function(ChildContract, SourceMapping):
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
         return [c.constructor_not_inherited for c in self._explicit_base_constructor_calls if c.constructor_not_inherited]
 
-    def __str__(self):
-        return self._name
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Variables
+    ###################################################################################
+    ###################################################################################
 
     @property
     def variables(self):
@@ -311,6 +386,13 @@ class Function(ChildContract, SourceMapping):
 
         return list(self._slithir_variables)
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Calls
+    ###################################################################################
+    ###################################################################################
+
     @property
     def internal_calls(self):
         """
@@ -353,6 +435,13 @@ class Function(ChildContract, SourceMapping):
         """
         return list(self._external_calls_as_expressions)
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Expressions
+    ###################################################################################
+    ###################################################################################
+
     @property
     def calls_as_expressions(self):
         return self._expression_calls
@@ -368,6 +457,13 @@ class Function(ChildContract, SourceMapping):
             self._expressions = expressions
         return self._expressions
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region SlithIR
+    ###################################################################################
+    ###################################################################################
+
     @property
     def slithir_operations(self):
         """
@@ -378,6 +474,13 @@ class Function(ChildContract, SourceMapping):
             operations = [item for sublist in operations for item in sublist if item]
             self._slithir_operations = operations
         return self._slithir_operations
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Signature
+    ###################################################################################
+    ###################################################################################
 
     @property
     def signature(self):
@@ -396,14 +499,12 @@ class Function(ChildContract, SourceMapping):
         name, parameters, returnVars = self.signature
         return name+'('+','.join(parameters)+') returns('+','.join(returnVars)+')'
 
-    @property
-    def full_name(self):
-        """
-            str: func_name(type1,type2)
-            Return the function signature without the return values
-        """
-        name, parameters, _ = self.signature
-        return name+'('+','.join(parameters)+')'
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Functions
+    ###################################################################################
+    ###################################################################################
 
     @property
     def functions_shadowed(self):
@@ -418,9 +519,12 @@ class Function(ChildContract, SourceMapping):
         return [f for f in candidates if f.full_name == self.full_name]
 
 
-    @property
-    def slither(self):
-        return self.contract.slither
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Reachable
+    ###################################################################################
+    ###################################################################################
 
     @property
     def reachable_from_nodes(self):
@@ -438,111 +542,12 @@ class Function(ChildContract, SourceMapping):
         self._reachable_from_nodes.add(ReacheableNode(n, ir))
         self._reachable_from_functions.add(n.function)
 
-    def _filter_state_variables_written(self, expressions):
-        ret = []
-        for expression in expressions:
-            if isinstance(expression, Identifier):
-                ret.append(expression)
-            if isinstance(expression, UnaryOperation):
-                ret.append(expression.expression)
-            if isinstance(expression, MemberAccess):
-                ret.append(expression.expression)
-            if isinstance(expression, IndexAccess):
-                ret.append(expression.expression_left)
-        return ret
-
-    def _analyze_read_write(self):
-        """ Compute variables read/written/...
-
-        """
-        write_var = [x.variables_written_as_expression for x in self.nodes]
-        write_var = [x for x in write_var if x]
-        write_var = [item for sublist in write_var for item in sublist]
-        write_var = list(set(write_var))
-        # Remove dupplicate if they share the same string representation
-        write_var = [next(obj) for i, obj in groupby(sorted(write_var, key=lambda x: str(x)), lambda x: str(x))]
-        self._expression_vars_written =  write_var
-
-        write_var = [x.variables_written for x in self.nodes]
-        write_var = [x for x in write_var if x]
-        write_var = [item for sublist in write_var for item in sublist]
-        write_var = list(set(write_var))
-        # Remove dupplicate if they share the same string representation
-        write_var = [next(obj) for i, obj in\
-                    groupby(sorted(write_var, key=lambda x: str(x)), lambda x: str(x))]
-        self._vars_written = write_var
-
-        read_var = [x.variables_read_as_expression for x in self.nodes]
-        read_var = [x for x in read_var if x]
-        read_var = [item for sublist in read_var for item in sublist]
-        # Remove dupplicate if they share the same string representation
-        read_var = [next(obj) for i, obj in\
-                    groupby(sorted(read_var, key=lambda x: str(x)), lambda x: str(x))]
-        self._expression_vars_read = read_var
-
-        read_var = [x.variables_read for x in self.nodes]
-        read_var = [x for x in read_var if x]
-        read_var = [item for sublist in read_var for item in sublist]
-        # Remove dupplicate if they share the same string representation
-        read_var = [next(obj) for i, obj in\
-                    groupby(sorted(read_var, key=lambda x: str(x)), lambda x: str(x))]
-        self._vars_read = read_var
-
-        self._state_vars_written = [x for x in self.variables_written if\
-                                    isinstance(x, StateVariable)]
-        self._state_vars_read = [x for x in self.variables_read if\
-                                    isinstance(x, (StateVariable))]
-        self._solidity_vars_read = [x for x in self.variables_read if\
-                                    isinstance(x, (SolidityVariable))]
-
-        self._vars_read_or_written = self._vars_written + self._vars_read
-
-        slithir_variables = [x.slithir_variables for x in self.nodes]
-        slithir_variables = [x for x in slithir_variables if x]
-        self._slithir_variables = [item for sublist in slithir_variables for item in sublist]
-
-    def _analyze_calls(self):
-        calls = [x.calls_as_expression for x in self.nodes]
-        calls = [x for x in calls if x]
-        calls = [item for sublist in calls for item in sublist]
-        # Remove dupplicate if they share the same string representation
-        # TODO: check if groupby is still necessary here
-        calls = [next(obj) for i, obj in\
-                 groupby(sorted(calls, key=lambda x: str(x)), lambda x: str(x))]
-        self._expression_calls = calls
-
-        internal_calls = [x.internal_calls for x in self.nodes]
-        internal_calls = [x for x in internal_calls if x]
-        internal_calls = [item for sublist in internal_calls for item in sublist]
-        internal_calls = [next(obj) for i, obj in
-                          groupby(sorted(internal_calls, key=lambda x: str(x)), lambda x: str(x))]
-        self._internal_calls = internal_calls
-
-        self._solidity_calls = [c for c in internal_calls if isinstance(c, SolidityFunction)]
-
-        low_level_calls = [x.low_level_calls for x in self.nodes]
-        low_level_calls = [x for x in low_level_calls if x]
-        low_level_calls = [item for sublist in low_level_calls for item in sublist]
-        low_level_calls = [next(obj) for i, obj in
-                          groupby(sorted(low_level_calls, key=lambda x: str(x)), lambda x: str(x))]
-
-        self._low_level_calls = low_level_calls
-
-        high_level_calls = [x.high_level_calls for x in self.nodes]
-        high_level_calls = [x for x in high_level_calls if x]
-        high_level_calls = [item for sublist in high_level_calls for item in sublist]
-        high_level_calls = [next(obj) for i, obj in
-                          groupby(sorted(high_level_calls, key=lambda x: str(x)), lambda x: str(x))]
-
-        self._high_level_calls = high_level_calls
-
-        external_calls_as_expressions = [x.external_calls_as_expressions for x in self.nodes]
-        external_calls_as_expressions = [x for x in external_calls_as_expressions if x]
-        external_calls_as_expressions = [item for sublist in external_calls_as_expressions for item in sublist]
-        external_calls_as_expressions = [next(obj) for i, obj in
-                          groupby(sorted(external_calls_as_expressions, key=lambda x: str(x)), lambda x: str(x))]
-        self._external_calls_as_expressions = external_calls_as_expressions
-
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Recursive getters
+    ###################################################################################
+    ###################################################################################
 
     def _explore_functions(self, f_new_values):
         values = f_new_values(self)
@@ -698,49 +703,12 @@ class Function(ChildContract, SourceMapping):
                 lambda x: self._explore_func_nodes(x, self._solidity_variable_in_internal_calls))
         return self._all_solidity_variables_used_as_args
 
-    def is_reading(self, variable):
-        """
-            Check if the function reads the variable
-        Args:
-            variable (Variable):
-        Returns:
-            bool: True if the variable is read
-        """
-        return variable in self.variables_read
-
-    def is_reading_in_conditional_node(self, variable):
-        """
-            Check if the function reads the variable in a IF node
-        Args:
-            variable (Variable):
-        Returns:
-            bool: True if the variable is read
-        """
-        variables_read = [n.variables_read for n in self.nodes if n.contains_if()]
-        variables_read = [item for sublist in variables_read for item in sublist]
-        return variable in variables_read
-
-    def is_reading_in_require_or_assert(self, variable):
-        """
-            Check if the function reads the variable in an require or assert
-        Args:
-            variable (Variable):
-        Returns:
-            bool: True if the variable is read
-        """
-        variables_read = [n.variables_read for n in self.nodes if n.contains_require_or_assert()]
-        variables_read = [item for sublist in variables_read for item in sublist]
-        return variable in variables_read
-
-    def is_writing(self, variable):
-        """
-            Check if the function writes the variable
-        Args:
-            variable (Variable):
-        Returns:
-            bool: True if the variable is written
-        """
-        return variable in self.variables_written
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Visitor
+    ###################################################################################
+    ###################################################################################
 
     def apply_visitor(self, Visitor):
         """
@@ -754,6 +722,29 @@ class Function(ChildContract, SourceMapping):
         v = [Visitor(e).result() for e in expressions]
         return [item for sublist in v for item in sublist]
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Getters from/to object
+    ###################################################################################
+    ###################################################################################
+
+    def get_local_variable_from_name(self, variable_name):
+        """
+            Return a local variable from a name
+        Args:
+            varible_name (str): name of the variable
+        Returns:
+            LocalVariable
+        """
+        return next((v for v in self.variables if v.name == variable_name), None)
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Export
+    ###################################################################################
+    ###################################################################################
 
     def cfg_to_dot(self, filename):
         """
@@ -812,6 +803,57 @@ class Function(ChildContract, SourceMapping):
 
             f.write("}\n")
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Summary information
+    ###################################################################################
+    ###################################################################################
+
+    def is_reading(self, variable):
+        """
+            Check if the function reads the variable
+        Args:
+            variable (Variable):
+        Returns:
+            bool: True if the variable is read
+        """
+        return variable in self.variables_read
+
+    def is_reading_in_conditional_node(self, variable):
+        """
+            Check if the function reads the variable in a IF node
+        Args:
+            variable (Variable):
+        Returns:
+            bool: True if the variable is read
+        """
+        variables_read = [n.variables_read for n in self.nodes if n.contains_if()]
+        variables_read = [item for sublist in variables_read for item in sublist]
+        return variable in variables_read
+
+    def is_reading_in_require_or_assert(self, variable):
+        """
+            Check if the function reads the variable in an require or assert
+        Args:
+            variable (Variable):
+        Returns:
+            bool: True if the variable is read
+        """
+        variables_read = [n.variables_read for n in self.nodes if n.contains_require_or_assert()]
+        variables_read = [item for sublist in variables_read for item in sublist]
+        return variable in variables_read
+
+    def is_writing(self, variable):
+        """
+            Check if the function writes the variable
+        Args:
+            variable (Variable):
+        Returns:
+            bool: True if the variable is written
+        """
+        return variable in self.variables_written
+
     def get_summary(self):
         """
             Return the function summary
@@ -844,12 +886,128 @@ class Function(ChildContract, SourceMapping):
         args_vars = self.all_solidity_variables_used_as_args()
         return SolidityVariableComposed('msg.sender') in conditional_vars + args_vars
 
-    def get_local_variable_from_name(self, variable_name):
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Analyses
+    ###################################################################################
+    ###################################################################################
+
+    def _filter_state_variables_written(self, expressions):
+        ret = []
+        for expression in expressions:
+            if isinstance(expression, Identifier):
+                ret.append(expression)
+            if isinstance(expression, UnaryOperation):
+                ret.append(expression.expression)
+            if isinstance(expression, MemberAccess):
+                ret.append(expression.expression)
+            if isinstance(expression, IndexAccess):
+                ret.append(expression.expression_left)
+        return ret
+
+    def _analyze_read_write(self):
+        """ Compute variables read/written/...
+
         """
-            Return a local variable from a name
-        Args:
-            varible_name (str): name of the variable
-        Returns:
-            LocalVariable
-        """
-        return next((v for v in self.variables if v.name == variable_name), None)
+        write_var = [x.variables_written_as_expression for x in self.nodes]
+        write_var = [x for x in write_var if x]
+        write_var = [item for sublist in write_var for item in sublist]
+        write_var = list(set(write_var))
+        # Remove dupplicate if they share the same string representation
+        write_var = [next(obj) for i, obj in groupby(sorted(write_var, key=lambda x: str(x)), lambda x: str(x))]
+        self._expression_vars_written =  write_var
+
+        write_var = [x.variables_written for x in self.nodes]
+        write_var = [x for x in write_var if x]
+        write_var = [item for sublist in write_var for item in sublist]
+        write_var = list(set(write_var))
+        # Remove dupplicate if they share the same string representation
+        write_var = [next(obj) for i, obj in\
+                    groupby(sorted(write_var, key=lambda x: str(x)), lambda x: str(x))]
+        self._vars_written = write_var
+
+        read_var = [x.variables_read_as_expression for x in self.nodes]
+        read_var = [x for x in read_var if x]
+        read_var = [item for sublist in read_var for item in sublist]
+        # Remove dupplicate if they share the same string representation
+        read_var = [next(obj) for i, obj in\
+                    groupby(sorted(read_var, key=lambda x: str(x)), lambda x: str(x))]
+        self._expression_vars_read = read_var
+
+        read_var = [x.variables_read for x in self.nodes]
+        read_var = [x for x in read_var if x]
+        read_var = [item for sublist in read_var for item in sublist]
+        # Remove dupplicate if they share the same string representation
+        read_var = [next(obj) for i, obj in\
+                    groupby(sorted(read_var, key=lambda x: str(x)), lambda x: str(x))]
+        self._vars_read = read_var
+
+        self._state_vars_written = [x for x in self.variables_written if\
+                                    isinstance(x, StateVariable)]
+        self._state_vars_read = [x for x in self.variables_read if\
+                                    isinstance(x, (StateVariable))]
+        self._solidity_vars_read = [x for x in self.variables_read if\
+                                    isinstance(x, (SolidityVariable))]
+
+        self._vars_read_or_written = self._vars_written + self._vars_read
+
+        slithir_variables = [x.slithir_variables for x in self.nodes]
+        slithir_variables = [x for x in slithir_variables if x]
+        self._slithir_variables = [item for sublist in slithir_variables for item in sublist]
+
+    def _analyze_calls(self):
+        calls = [x.calls_as_expression for x in self.nodes]
+        calls = [x for x in calls if x]
+        calls = [item for sublist in calls for item in sublist]
+        # Remove dupplicate if they share the same string representation
+        # TODO: check if groupby is still necessary here
+        calls = [next(obj) for i, obj in\
+                 groupby(sorted(calls, key=lambda x: str(x)), lambda x: str(x))]
+        self._expression_calls = calls
+
+        internal_calls = [x.internal_calls for x in self.nodes]
+        internal_calls = [x for x in internal_calls if x]
+        internal_calls = [item for sublist in internal_calls for item in sublist]
+        internal_calls = [next(obj) for i, obj in
+                          groupby(sorted(internal_calls, key=lambda x: str(x)), lambda x: str(x))]
+        self._internal_calls = internal_calls
+
+        self._solidity_calls = [c for c in internal_calls if isinstance(c, SolidityFunction)]
+
+        low_level_calls = [x.low_level_calls for x in self.nodes]
+        low_level_calls = [x for x in low_level_calls if x]
+        low_level_calls = [item for sublist in low_level_calls for item in sublist]
+        low_level_calls = [next(obj) for i, obj in
+                          groupby(sorted(low_level_calls, key=lambda x: str(x)), lambda x: str(x))]
+
+        self._low_level_calls = low_level_calls
+
+        high_level_calls = [x.high_level_calls for x in self.nodes]
+        high_level_calls = [x for x in high_level_calls if x]
+        high_level_calls = [item for sublist in high_level_calls for item in sublist]
+        high_level_calls = [next(obj) for i, obj in
+                          groupby(sorted(high_level_calls, key=lambda x: str(x)), lambda x: str(x))]
+
+        self._high_level_calls = high_level_calls
+
+        external_calls_as_expressions = [x.external_calls_as_expressions for x in self.nodes]
+        external_calls_as_expressions = [x for x in external_calls_as_expressions if x]
+        external_calls_as_expressions = [item for sublist in external_calls_as_expressions for item in sublist]
+        external_calls_as_expressions = [next(obj) for i, obj in
+                          groupby(sorted(external_calls_as_expressions, key=lambda x: str(x)), lambda x: str(x))]
+        self._external_calls_as_expressions = external_calls_as_expressions
+
+
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Built in definitions
+    ###################################################################################
+    ###################################################################################
+
+    def __str__(self):
+        return self._name
+
+    # endregion

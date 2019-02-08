@@ -1,6 +1,5 @@
 from slither.core.solidity_types.type import Type
 from slither.core.variables.function_type_variable import FunctionTypeVariable
-from slither.core.expressions.expression import Expression
 
 class FunctionType(Type):
 

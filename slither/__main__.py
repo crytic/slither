@@ -1,31 +1,37 @@
 #!/usr/bin/env python3
 
-import inspect
-
 import argparse
 import glob
+import inspect
 import json
 import logging
 import os
+import subprocess
 import sys
 import traceback
-import subprocess
 
 from pkg_resources import iter_entry_points, require
 
 from slither.detectors import all_detectors
-from slither.printers import all_printers
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
+from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
-from slither.utils.colors import red
-from slither.utils.command_line import output_to_markdown, output_detectors, output_printers, output_detectors_json, output_wiki
-from slither.utils.colors import set_colorization_enabled
+from slither.utils.colors import red, set_colorization_enabled
+from slither.utils.command_line import (output_detectors,
+                                        output_detectors_json, output_printers,
+                                        output_to_markdown, output_wiki)
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
+
+###################################################################################
+###################################################################################
+# region Process functions
+###################################################################################
+###################################################################################
 
 def process(filename, args, detector_classes, printer_classes):
     """
@@ -104,16 +110,36 @@ def process_files(filenames, args, detector_classes, printer_classes):
     slither = Slither(all_contracts, args.solc, args.disable_solc_warnings, args.solc_args)
     return _process(slither, detector_classes, printer_classes)
 
+# endregion
+###################################################################################
+###################################################################################
+# region Output
+###################################################################################
+###################################################################################
+
 def output_json(results, filename):
     with open(filename, 'w', encoding='utf8') as f:
         json.dump(results, f)
 
+# endregion
+###################################################################################
+###################################################################################
+# region Exit
+###################################################################################
+###################################################################################
 
 def exit(results):
     if not results:
         sys.exit(0)
     sys.exit(len(results))
 
+
+# endregion
+###################################################################################
+###################################################################################
+# region Detectors and printers
+###################################################################################
+###################################################################################
 
 def get_detectors_and_printers():
     """
@@ -144,87 +170,69 @@ def get_detectors_and_printers():
 
     return detectors, printers
 
-def main():
-    detectors, printers = get_detectors_and_printers()
+def choose_detectors(args, all_detector_classes):
+    # If detectors are specified, run only these ones
 
-    main_impl(all_detector_classes=detectors, all_printer_classes=printers)
+    detectors_to_run = []
+    detectors = {d.ARGUMENT: d for d in all_detector_classes}
 
-
-def main_impl(all_detector_classes, all_printer_classes):
-    """
-    :param all_detector_classes: A list of all detectors that can be included/excluded.
-    :param all_printer_classes: A list of all printers that can be included.
-    """
-    args = parse_args(all_detector_classes, all_printer_classes)
-
-    # Set colorization option
-    set_colorization_enabled(not args.disable_color)
-
-    printer_classes = choose_printers(args, all_printer_classes)
-    detector_classes = choose_detectors(args, all_detector_classes)
-
-    default_log = logging.INFO if not args.debug else logging.DEBUG
-
-    for (l_name, l_level) in [('Slither', default_log),
-                              ('Contract', default_log),
-                              ('Function', default_log),
-                              ('Node', default_log),
-                              ('Parsing', default_log),
-                              ('Detectors', default_log),
-                              ('FunctionSolc', default_log),
-                              ('ExpressionParsing', default_log),
-                              ('TypeParsing', default_log),
-                              ('SSA_Conversion', default_log),
-                              ('Printers', default_log)]:
-        l = logging.getLogger(l_name)
-        l.setLevel(l_level)
-
-    try:
-        filename = args.filename
-
-        globbed_filenames = glob.glob(filename, recursive=True)
-
-        if os.path.isfile(filename):
-            (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
-
-        elif os.path.isfile(os.path.join(filename, 'truffle.js')) or os.path.isfile(os.path.join(filename, 'truffle-config.js')):
-            (results, number_contracts) = process_truffle(filename, args, detector_classes, printer_classes)
-
-        elif os.path.isdir(filename) or len(globbed_filenames) > 0:
-            extension = "*.sol" if not args.solc_ast else "*.json"
-            filenames = glob.glob(os.path.join(filename, extension))
-            if not filenames:
-                filenames = globbed_filenames
-            number_contracts = 0
-            results = []
-            if args.splitted and args.solc_ast:
-                (results, number_contracts) = process_files(filenames, args, detector_classes, printer_classes)
+    if args.detectors_to_run == 'all':
+        detectors_to_run = all_detector_classes
+        detectors_excluded = args.detectors_to_exclude.split(',')
+        for d in detectors:
+            if d in detectors_excluded:
+                detectors_to_run.remove(detectors[d])
+    else:
+        for d in args.detectors_to_run.split(','):
+            if d in detectors:
+                detectors_to_run.append(detectors[d])
             else:
-                for filename in filenames:
-                    (results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
-                    number_contracts += number_contracts_tmp
-                    results += results_tmp
+                raise Exception('Error: {} is not a detector'.format(d))
+        detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+        return detectors_to_run
+
+    if args.exclude_informational:
+        detectors_to_run = [d for d in detectors_to_run if
+                            d.IMPACT != DetectorClassification.INFORMATIONAL]
+    if args.exclude_low:
+        detectors_to_run = [d for d in detectors_to_run if
+                            d.IMPACT != DetectorClassification.LOW]
+    if args.exclude_medium:
+        detectors_to_run = [d for d in detectors_to_run if
+                            d.IMPACT != DetectorClassification.MEDIUM]
+    if args.exclude_high:
+        detectors_to_run = [d for d in detectors_to_run if
+                            d.IMPACT != DetectorClassification.HIGH]
+    if args.detectors_to_exclude:
+        detectors_to_run = [d for d in detectors_to_run if
+                            d.ARGUMENT not in args.detectors_to_exclude]
+
+    detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+
+    return detectors_to_run
 
 
+def choose_printers(args, all_printer_classes):
+    printers_to_run = []
+
+    # disable default printer
+    if args.printers_to_run == '':
+        return []
+
+    printers = {p.ARGUMENT: p for p in all_printer_classes}
+    for p in args.printers_to_run.split(','):
+        if p in printers:
+            printers_to_run.append(printers[p])
         else:
-            raise Exception("Unrecognised file/dir path: '#{filename}'".format(filename=filename))
+            raise Exception('Error: {} is not a printer'.format(p))
+    return printers_to_run
 
-        if args.json:
-            output_json(results, args.json)
-        # Dont print the number of result for printers
-        if number_contracts == 0:
-            logger.warn(red('No contract was analyzed'))
-        if printer_classes:
-            logger.info('%s analyzed (%d contracts)', filename, number_contracts)
-        else:
-            logger.info('%s analyzed (%d contracts), %d result(s) found', filename, number_contracts, len(results))
-        exit(results)
-
-    except Exception:
-        logging.error('Error in %s' % args.filename)
-        logging.error(traceback.format_exc())
-        sys.exit(-1)
-
+# endregion
+###################################################################################
+###################################################################################
+# region Command line parsing
+###################################################################################
+###################################################################################
 
 def parse_args(detector_classes, printer_classes):
     parser = argparse.ArgumentParser(description='Slither',
@@ -405,63 +413,99 @@ class OutputWiki(argparse.Action):
         output_wiki(detectors, values)
         parser.exit()
 
-def choose_detectors(args, all_detector_classes):
-    # If detectors are specified, run only these ones
 
-    detectors_to_run = []
-    detectors = {d.ARGUMENT: d for d in all_detector_classes}
+# endregion
+###################################################################################
+###################################################################################
+# region Main
+###################################################################################
+###################################################################################
 
-    if args.detectors_to_run == 'all':
-        detectors_to_run = all_detector_classes
-        detectors_excluded = args.detectors_to_exclude.split(',')
-        for d in detectors:
-            if d in detectors_excluded:
-                detectors_to_run.remove(detectors[d])
-    else:
-        for d in args.detectors_to_run.split(','):
-            if d in detectors:
-                detectors_to_run.append(detectors[d])
+def main():
+    detectors, printers = get_detectors_and_printers()
+
+    main_impl(all_detector_classes=detectors, all_printer_classes=printers)
+
+
+def main_impl(all_detector_classes, all_printer_classes):
+    """
+    :param all_detector_classes: A list of all detectors that can be included/excluded.
+    :param all_printer_classes: A list of all printers that can be included.
+    """
+    args = parse_args(all_detector_classes, all_printer_classes)
+
+    # Set colorization option
+    set_colorization_enabled(not args.disable_color)
+
+    printer_classes = choose_printers(args, all_printer_classes)
+    detector_classes = choose_detectors(args, all_detector_classes)
+
+    default_log = logging.INFO if not args.debug else logging.DEBUG
+
+    for (l_name, l_level) in [('Slither', default_log),
+                              ('Contract', default_log),
+                              ('Function', default_log),
+                              ('Node', default_log),
+                              ('Parsing', default_log),
+                              ('Detectors', default_log),
+                              ('FunctionSolc', default_log),
+                              ('ExpressionParsing', default_log),
+                              ('TypeParsing', default_log),
+                              ('SSA_Conversion', default_log),
+                              ('Printers', default_log)]:
+        l = logging.getLogger(l_name)
+        l.setLevel(l_level)
+
+    try:
+        filename = args.filename
+
+        globbed_filenames = glob.glob(filename, recursive=True)
+
+        if os.path.isfile(filename):
+            (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
+
+        elif os.path.isfile(os.path.join(filename, 'truffle.js')) or os.path.isfile(os.path.join(filename, 'truffle-config.js')):
+            (results, number_contracts) = process_truffle(filename, args, detector_classes, printer_classes)
+
+        elif os.path.isdir(filename) or len(globbed_filenames) > 0:
+            extension = "*.sol" if not args.solc_ast else "*.json"
+            filenames = glob.glob(os.path.join(filename, extension))
+            if not filenames:
+                filenames = globbed_filenames
+            number_contracts = 0
+            results = []
+            if args.splitted and args.solc_ast:
+                (results, number_contracts) = process_files(filenames, args, detector_classes, printer_classes)
             else:
-                raise Exception('Error: {} is not a detector'.format(d))
-        detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
-        return detectors_to_run
-
-    if args.exclude_informational:
-        detectors_to_run = [d for d in detectors_to_run if
-                            d.IMPACT != DetectorClassification.INFORMATIONAL]
-    if args.exclude_low:
-        detectors_to_run = [d for d in detectors_to_run if
-                            d.IMPACT != DetectorClassification.LOW]
-    if args.exclude_medium:
-        detectors_to_run = [d for d in detectors_to_run if
-                            d.IMPACT != DetectorClassification.MEDIUM]
-    if args.exclude_high:
-        detectors_to_run = [d for d in detectors_to_run if
-                            d.IMPACT != DetectorClassification.HIGH]
-    if args.detectors_to_exclude:
-        detectors_to_run = [d for d in detectors_to_run if
-                            d.ARGUMENT not in args.detectors_to_exclude]
-
-    detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
-
-    return detectors_to_run
+                for filename in filenames:
+                    (results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
+                    number_contracts += number_contracts_tmp
+                    results += results_tmp
 
 
-def choose_printers(args, all_printer_classes):
-    printers_to_run = []
-
-    # disable default printer
-    if args.printers_to_run == '':
-        return []
-
-    printers = {p.ARGUMENT: p for p in all_printer_classes}
-    for p in args.printers_to_run.split(','):
-        if p in printers:
-            printers_to_run.append(printers[p])
         else:
-            raise Exception('Error: {} is not a printer'.format(p))
-    return printers_to_run
+            raise Exception("Unrecognised file/dir path: '#{filename}'".format(filename=filename))
+
+        if args.json:
+            output_json(results, args.json)
+        # Dont print the number of result for printers
+        if number_contracts == 0:
+            logger.warn(red('No contract was analyzed'))
+        if printer_classes:
+            logger.info('%s analyzed (%d contracts)', filename, number_contracts)
+        else:
+            logger.info('%s analyzed (%d contracts), %d result(s) found', filename, number_contracts, len(results))
+        exit(results)
+
+    except Exception:
+        logging.error('Error in %s' % args.filename)
+        logging.error(traceback.format_exc())
+        sys.exit(-1)
+
 
 
 if __name__ == '__main__':
     main()
+
+
+# endregion

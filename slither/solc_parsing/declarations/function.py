@@ -1,20 +1,19 @@
 """
-    Event module
 """
 import logging
 
 from slither.core.cfg.node import NodeType, link_nodes
+from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function
 from slither.core.dominators.utils import (compute_dominance_frontier,
                                            compute_dominators)
 from slither.core.expressions import AssignmentOperation
 from slither.core.variables.state_variable import StateVariable
-from slither.slithir.operations import (Assignment, HighLevelCall,
-                                        InternalCall, InternalDynamicCall,
-                                        LowLevelCall, OperationWithLValue, Phi,
-                                        PhiCallback, LibraryCall)
+from slither.slithir.operations import (InternalCall, OperationWithLValue, Phi,
+                                        PhiCallback)
 from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
-from slither.slithir.variables import LocalIRVariable, ReferenceVariable
+from slither.slithir.variables import (Constant, ReferenceVariable,
+                                       StateIRVariable)
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.expressions.expression_parsing import \
     parse_expression
@@ -24,18 +23,14 @@ from slither.solc_parsing.variables.local_variable_init_from_tuple import \
 from slither.solc_parsing.variables.variable_declaration import \
     MultipleVariablesDeclaration
 from slither.utils.expression_manipulations import SplitTernaryExpression
+from slither.utils.utils import unroll
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
-from slither.core.declarations.contract import Contract
-
-from slither.slithir.variables import StateIRVariable, LocalIRVariable, Constant
-from slither.utils.utils import unroll
 
 logger = logging.getLogger("FunctionSolc")
 
 class FunctionSolc(Function):
     """
-    Event class
     """
     # elems = [(type, name)]
 
@@ -60,6 +55,12 @@ class FunctionSolc(Function):
         # which is only possible with solc > 0.5
         self._variables_renamed = {}
 
+    ###################################################################################
+    ###################################################################################
+    # region AST format
+    ###################################################################################
+    ###################################################################################
+
     def get_key(self):
         return self.slither.get_key()
 
@@ -71,6 +72,13 @@ class FunctionSolc(Function):
     @property
     def is_compact_ast(self):
         return self.slither.is_compact_ast
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Variables
+    ###################################################################################
+    ###################################################################################
 
     @property
     def variables_renamed(self):
@@ -89,6 +97,12 @@ class FunctionSolc(Function):
             self._variables_renamed[local_var.reference_id] = local_var
         self._variables[local_var.name] = local_var
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Analyses
+    ###################################################################################
+    ###################################################################################
 
     def _analyze_attributes(self):
         if self.is_compact_ast:
@@ -133,6 +147,77 @@ class FunctionSolc(Function):
         if 'payable' in attributes:
             self._payable = attributes['payable']
 
+    def analyze_params(self):
+        # Can be re-analyzed due to inheritance
+        if self._params_was_analyzed:
+            return
+
+        self._params_was_analyzed = True
+
+        self._analyze_attributes()
+
+        if self.is_compact_ast:
+            params = self._functionNotParsed['parameters']
+            returns = self._functionNotParsed['returnParameters']
+        else:
+            children = self._functionNotParsed[self.get_children('children')]
+            params = children[0]
+            returns = children[1]
+
+        if params:
+            self._parse_params(params)
+        if returns:
+            self._parse_returns(returns)
+
+    def analyze_content(self):
+        if self._content_was_analyzed:
+            return
+
+        self._content_was_analyzed = True
+
+        if self.is_compact_ast:
+            body = self._functionNotParsed['body']
+
+            if body and body[self.get_key()] == 'Block':
+                self._is_implemented = True
+                self._parse_cfg(body)
+
+            for modifier in self._functionNotParsed['modifiers']:
+                self._parse_modifier(modifier)
+
+        else:
+            children = self._functionNotParsed[self.get_children('children')]
+            self._is_implemented = False
+            for child in children[2:]:
+                if child[self.get_key()] == 'Block':
+                    self._is_implemented = True
+                    self._parse_cfg(child)
+
+            # Parse modifier after parsing all the block
+            # In the case a local variable is used in the modifier
+            for child in children[2:]:
+                if child[self.get_key()] == 'ModifierInvocation':
+                    self._parse_modifier(child)
+
+        for local_vars in self.variables:
+            local_vars.analyze(self)
+
+        for node in self.nodes:
+            node.analyze_expressions(self)
+
+        self._filter_ternary()
+        self._remove_alone_endif()
+
+
+
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Nodes
+    ###################################################################################
+    ###################################################################################
+
     def _new_node(self, node_type, src):
         node = NodeSolc(node_type, self._counter_nodes)
         node.set_offset(src, self.slither)
@@ -140,6 +225,13 @@ class FunctionSolc(Function):
         node.set_function(self)
         self._nodes.append(node)
         return node
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Parsing function
+    ###################################################################################
+    ###################################################################################
 
     def _parse_if(self, ifStatement, node):
         # IfStatement = 'if' '(' Expression ')' Statement ( 'else' Statement )?
@@ -662,6 +754,13 @@ class FunctionSolc(Function):
             self._remove_incorrect_edges()
             self._remove_alone_endif()
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Loops
+    ###################################################################################
+    ###################################################################################
+
     def _find_end_loop(self, node, visited, counter):
         # counter allows to explore nested loop
         if node in visited:
@@ -723,48 +822,6 @@ class FunctionSolc(Function):
         node.set_sons([start_node])
         start_node.add_father(node)
 
-    def _remove_incorrect_edges(self):
-        for node in self._nodes:
-            if node.type in [NodeType.RETURN, NodeType.THROW]:
-                for son in node.sons:
-                    son.remove_father(node)
-                node.set_sons([])
-            if node.type in [NodeType.BREAK]:
-                self._fix_break_node(node)
-            if node.type in [NodeType.CONTINUE]:
-                self._fix_continue_node(node)
-
-    def _remove_alone_endif(self):
-        """
-            Can occur on:
-            if(..){
-                return
-            }
-            else{
-                return
-            }
-
-            Iterate until a fix point to remove the ENDIF node
-            creates on the following pattern
-            if(){
-                return
-            }
-            else if(){
-                return
-            }
-        """
-        prev_nodes = []
-        while set(prev_nodes) != set(self.nodes):
-            prev_nodes = self.nodes
-            to_remove = []
-            for node in self.nodes:
-                if node.type == NodeType.ENDIF and not node.fathers:
-                    for son in node.sons:
-                        son.remove_father(node)
-                    node.set_sons([])
-                    to_remove.append(node)
-            self._nodes = [n for n in self.nodes if not n in to_remove]
-#
     def _parse_params(self, params):
         assert params[self.get_key()] == 'ParameterList'
 
@@ -824,67 +881,61 @@ class FunctionSolc(Function):
             elif isinstance(m, Contract):
                 self._explicit_base_constructor_calls.append(m)
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Edges
+    ###################################################################################
+    ###################################################################################
 
-    def analyze_params(self):
-        # Can be re-analyzed due to inheritance
-        if self._params_was_analyzed:
-            return
+    def _remove_incorrect_edges(self):
+        for node in self._nodes:
+            if node.type in [NodeType.RETURN, NodeType.THROW]:
+                for son in node.sons:
+                    son.remove_father(node)
+                node.set_sons([])
+            if node.type in [NodeType.BREAK]:
+                self._fix_break_node(node)
+            if node.type in [NodeType.CONTINUE]:
+                self._fix_continue_node(node)
 
-        self._params_was_analyzed = True
+    def _remove_alone_endif(self):
+        """
+            Can occur on:
+            if(..){
+                return
+            }
+            else{
+                return
+            }
 
-        self._analyze_attributes()
+            Iterate until a fix point to remove the ENDIF node
+            creates on the following pattern
+            if(){
+                return
+            }
+            else if(){
+                return
+            }
+        """
+        prev_nodes = []
+        while set(prev_nodes) != set(self.nodes):
+            prev_nodes = self.nodes
+            to_remove = []
+            for node in self.nodes:
+                if node.type == NodeType.ENDIF and not node.fathers:
+                    for son in node.sons:
+                        son.remove_father(node)
+                    node.set_sons([])
+                    to_remove.append(node)
+            self._nodes = [n for n in self.nodes if not n in to_remove]
 
-        if self.is_compact_ast:
-            params = self._functionNotParsed['parameters']
-            returns = self._functionNotParsed['returnParameters']
-        else:
-            children = self._functionNotParsed[self.get_children('children')]
-            params = children[0]
-            returns = children[1]
-
-        if params:
-            self._parse_params(params)
-        if returns:
-            self._parse_returns(returns)
-
-    def analyze_content(self):
-        if self._content_was_analyzed:
-            return
-
-        self._content_was_analyzed = True
-
-        if self.is_compact_ast:
-            body = self._functionNotParsed['body']
-
-            if body and body[self.get_key()] == 'Block':
-                self._is_implemented = True
-                self._parse_cfg(body)
-
-            for modifier in self._functionNotParsed['modifiers']:
-                self._parse_modifier(modifier)
-
-        else:
-            children = self._functionNotParsed[self.get_children('children')]
-            self._is_implemented = False
-            for child in children[2:]:
-                if child[self.get_key()] == 'Block':
-                    self._is_implemented = True
-                    self._parse_cfg(child)
-    
-            # Parse modifier after parsing all the block
-            # In the case a local variable is used in the modifier
-            for child in children[2:]:
-                if child[self.get_key()] == 'ModifierInvocation':
-                    self._parse_modifier(child)
-
-        for local_vars in self.variables:
-            local_vars.analyze(self)
-
-        for node in self.nodes:
-            node.analyze_expressions(self)
-
-        self._filter_ternary()
-        self._remove_alone_endif()
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Ternary
+    ###################################################################################
+    ###################################################################################
 
     def _filter_ternary(self):
         ternary_found = True
@@ -901,6 +952,64 @@ class FunctionSolc(Function):
                     self.split_ternary_node(node, condition, true_expr, false_expr)
                     ternary_found = True
                     break
+
+    def split_ternary_node(self, node, condition, true_expr, false_expr):
+        condition_node = self._new_node(NodeType.IF, node.source_mapping)
+        condition_node.add_expression(condition)
+        condition_node.analyze_expressions(self)
+
+        if node.type == NodeType.VARIABLE:
+            condition_node.add_variable_declaration(node.variable_declaration)
+
+        true_node = self._new_node(NodeType.EXPRESSION, node.source_mapping)
+        if node.type == NodeType.VARIABLE:
+            assert isinstance(true_expr, AssignmentOperation)
+            #true_expr = true_expr.expression_right
+        elif node.type == NodeType.RETURN:
+            true_node.type = NodeType.RETURN
+        true_node.add_expression(true_expr)
+        true_node.analyze_expressions(self)
+
+        false_node = self._new_node(NodeType.EXPRESSION, node.source_mapping)
+        if node.type == NodeType.VARIABLE:
+            assert isinstance(false_expr, AssignmentOperation)
+        elif node.type == NodeType.RETURN:
+            false_node.type = NodeType.RETURN
+            #false_expr = false_expr.expression_right
+        false_node.add_expression(false_expr)
+        false_node.analyze_expressions(self)
+
+        endif_node = self._new_node(NodeType.ENDIF, node.source_mapping)
+
+        for father in node.fathers:
+            father.remove_son(node)
+            father.add_son(condition_node)
+            condition_node.add_father(father)
+
+        for son in node.sons:
+            son.remove_father(node)
+            son.add_father(endif_node)
+            endif_node.add_son(son)
+
+        link_nodes(condition_node, true_node)
+        link_nodes(condition_node, false_node)
+
+
+        if not true_node.type in [NodeType.THROW, NodeType.RETURN]:
+           link_nodes(true_node, endif_node)
+        if not false_node.type in [NodeType.THROW, NodeType.RETURN]:
+            link_nodes(false_node, endif_node)
+
+        self._nodes = [n for n in self._nodes if n.node_id != node.node_id]
+
+
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region SlithIr and SSA
+    ###################################################################################
+    ###################################################################################
 
     def get_last_ssa_state_variables_instances(self):
         if not self.is_implemented:
@@ -1005,54 +1114,4 @@ class FunctionSolc(Function):
         for node in self.nodes:
             node.update_read_write_using_ssa()
         self._analyze_read_write()
-
-    def split_ternary_node(self, node, condition, true_expr, false_expr):
-        condition_node = self._new_node(NodeType.IF, node.source_mapping)
-        condition_node.add_expression(condition)
-        condition_node.analyze_expressions(self)
-
-        if node.type == NodeType.VARIABLE:
-            condition_node.add_variable_declaration(node.variable_declaration)
-
-        true_node = self._new_node(NodeType.EXPRESSION, node.source_mapping)
-        if node.type == NodeType.VARIABLE:
-            assert isinstance(true_expr, AssignmentOperation)
-            #true_expr = true_expr.expression_right
-        elif node.type == NodeType.RETURN:
-            true_node.type = NodeType.RETURN
-        true_node.add_expression(true_expr)
-        true_node.analyze_expressions(self)
-
-        false_node = self._new_node(NodeType.EXPRESSION, node.source_mapping)
-        if node.type == NodeType.VARIABLE:
-            assert isinstance(false_expr, AssignmentOperation)
-        elif node.type == NodeType.RETURN:
-            false_node.type = NodeType.RETURN
-            #false_expr = false_expr.expression_right
-        false_node.add_expression(false_expr)
-        false_node.analyze_expressions(self)
-
-        endif_node = self._new_node(NodeType.ENDIF, node.source_mapping)
-
-        for father in node.fathers:
-            father.remove_son(node)
-            father.add_son(condition_node)
-            condition_node.add_father(father)
-
-        for son in node.sons:
-            son.remove_father(node)
-            son.add_father(endif_node)
-            endif_node.add_son(son)
-
-        link_nodes(condition_node, true_node)
-        link_nodes(condition_node, false_node)
-
-
-        if not true_node.type in [NodeType.THROW, NodeType.RETURN]:
-           link_nodes(true_node, endif_node)
-        if not false_node.type in [NodeType.THROW, NodeType.RETURN]:
-            link_nodes(false_node, endif_node)
-
-        self._nodes = [n for n in self._nodes if n.node_id != node.node_id]
-
 
