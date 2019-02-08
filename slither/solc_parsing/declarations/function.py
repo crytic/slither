@@ -29,6 +29,7 @@ from slither.visitors.expression.has_conditional import HasConditional
 from slither.core.declarations.contract import Contract
 
 from slither.slithir.variables import StateIRVariable, LocalIRVariable, Constant
+from slither.utils.utils import unroll
 
 logger = logging.getLogger("FunctionSolc")
 
@@ -971,6 +972,7 @@ class FunctionSolc(Function):
                         idx = self.parameters.index(ir.lvalue.non_ssa_version)
                         # find non ssa version of that index
                         additional = [n.ir.arguments[idx] for n in self.reachable_from_nodes]
+                        additional = unroll(additional)
                         additional = [a for a in additional if not isinstance(a, Constant)]
                         ir.rvalues = list(set(additional + ir.rvalues))
                 if isinstance(ir, PhiCallback):
