@@ -160,7 +160,10 @@ def parse_type(t, caller_context):
     elif t[key] == 'UserDefinedTypeName':
         if is_compact_ast:
             return _find_from_type_name(t['typeDescriptions']['typeString'], contract, contracts, structures, enums)
-        return _find_from_type_name(t['attributes']['type'], contract, contracts, structures, enums)
+
+        # Determine if we have a type node (otherwise we use the name node, as some older solc did not have 'type').
+        type_name_key = 'type' if 'type' in t['attributes'] else key
+        return _find_from_type_name(t['attributes'][type_name_key], contract, contracts, structures, enums)
 
     elif t[key] == 'ArrayTypeName':
         length = None
