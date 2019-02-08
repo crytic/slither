@@ -257,14 +257,26 @@ class FunctionSolc(Function):
         # if the loop has a init value /condition or expression
         # There is no way to determine that for(a;;) and for(;a;) are different with old solc
         if 'attributes' in statement:
+            attributes = statement['attributes']
             if 'initializationExpression' in statement:
                 if not statement['initializationExpression']:
                     hasInitExession = False
+            elif 'initializationExpression' in attributes:
+                if not attributes['initializationExpression']:
+                    hasInitExession = False
+
             if 'condition' in statement:
                 if not statement['condition']:
                     hasCondition = False
+            elif 'condition' in attributes:
+                if not attributes['condition']:
+                    hasCondition = False
+
             if 'loopExpression' in statement:
                 if not statement['loopExpression']:
+                    hasLoopExpression = False
+            elif 'loopExpression' in attributes:
+                if not attributes['loopExpression']:
                     hasLoopExpression = False
 
 
