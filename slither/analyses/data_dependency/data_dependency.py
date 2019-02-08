@@ -2,40 +2,18 @@
     Compute the data depenency between all the SSA variables
 """
 from slither.core.declarations import Contract, Function
-from slither.slithir.operations import Index, Member, OperationWithLValue
-from slither.slithir.variables import ReferenceVariable, Constant
-from slither.slithir.variables import (Constant, LocalIRVariable, StateIRVariable,
-                                       ReferenceVariable, TemporaryVariable,
-                                       TupleVariable)
-
-
 from slither.core.declarations.solidity_variables import \
     SolidityVariableComposed
+from slither.slithir.operations import Index, OperationWithLValue
+from slither.slithir.variables import (Constant, LocalIRVariable,
+                                       ReferenceVariable, StateIRVariable,
+                                       TemporaryVariable)
 
-KEY_SSA = "DATA_DEPENDENCY_SSA"
-KEY_NON_SSA = "DATA_DEPENDENCY"
-
-# Only for unprotected functions
-KEY_SSA_UNPROTECTED = "DATA_DEPENDENCY_SSA_UNPROTECTED"
-KEY_NON_SSA_UNPROTECTED = "DATA_DEPENDENCY_UNPROTECTED"
-
-KEY_INPUT = "DATA_DEPENDENCY_INPUT"
-KEY_INPUT_SSA = "DATA_DEPENDENCY_INPUT_SSA"
-
-def pprint_dependency(context):
-    print('#### SSA ####')
-    context = context.context
-    for k, values in context[KEY_SSA].items():
-        print('{} ({}):'.format(k, id(k)))
-        for v in values:
-            print('\t- {}'.format(v))
-
-    print('#### NON SSA ####')
-    for k, values in context[KEY_NON_SSA].items():
-        print('{} ({}):'.format(k, hex(id(k))))
-        for v in values:
-            print('\t- {} ({})'.format(v, hex(id(v))))
-
+###################################################################################
+###################################################################################
+# region User APIs
+###################################################################################
+###################################################################################
 
 def is_dependent(variable, source, context, only_unprotected=False):
     '''
@@ -118,6 +96,53 @@ def is_tainted_ssa(variable, context, only_unprotected=False):
     taints = slither.context[KEY_INPUT_SSA]
     taints |= GENERIC_TAINT
     return variable in taints or any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
+
+
+# endregion
+###################################################################################
+###################################################################################
+# region Module constants
+###################################################################################
+###################################################################################
+
+KEY_SSA = "DATA_DEPENDENCY_SSA"
+KEY_NON_SSA = "DATA_DEPENDENCY"
+
+# Only for unprotected functions
+KEY_SSA_UNPROTECTED = "DATA_DEPENDENCY_SSA_UNPROTECTED"
+KEY_NON_SSA_UNPROTECTED = "DATA_DEPENDENCY_UNPROTECTED"
+
+KEY_INPUT = "DATA_DEPENDENCY_INPUT"
+KEY_INPUT_SSA = "DATA_DEPENDENCY_INPUT_SSA"
+
+
+# endregion
+###################################################################################
+###################################################################################
+# region Debug
+###################################################################################
+###################################################################################
+
+def pprint_dependency(context):
+    print('#### SSA ####')
+    context = context.context
+    for k, values in context[KEY_SSA].items():
+        print('{} ({}):'.format(k, id(k)))
+        for v in values:
+            print('\t- {}'.format(v))
+
+    print('#### NON SSA ####')
+    for k, values in context[KEY_NON_SSA].items():
+        print('{} ({}):'.format(k, hex(id(k))))
+        for v in values:
+            print('\t- {} ({})'.format(v, hex(id(v))))
+
+# endregion
+###################################################################################
+###################################################################################
+# region Analyses
+###################################################################################
+###################################################################################
 
 def compute_dependency(slither):
 

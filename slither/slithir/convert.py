@@ -1,20 +1,24 @@
 import logging
 
-from slither.core.declarations import (Contract, Enum, Event, SolidityFunction,
-                                       Structure, SolidityVariableComposed, Function, SolidityVariable)
-from slither.core.expressions import Identifier, Literal, TupleExpression
-from slither.core.solidity_types import ElementaryType, UserDefinedType, MappingType, ArrayType, FunctionType
+from slither.core.declarations import (Contract, Enum, Event, Function,
+                                       SolidityFunction, SolidityVariable,
+                                       SolidityVariableComposed, Structure)
+from slither.core.expressions import Identifier, Literal
+from slither.core.solidity_types import (ArrayType, ElementaryType,
+                                         FunctionType, MappingType,
+                                         UserDefinedType)
 from slither.core.variables.variable import Variable
-from slither.slithir.operations import (Assignment, Binary, BinaryType, Call,
-                                        Condition, Delete, EventCall,
-                                        HighLevelCall, Index, InitArray,
-                                        InternalCall, InternalDynamicCall, LibraryCall,
-                                        LowLevelCall, Member, NewArray,
-                                        NewContract, NewElementaryType,
-                                        NewStructure, OperationWithLValue,
-                                        Push, Return, Send, SolidityCall,
-                                        Transfer, TypeConversion, Unary,
-                                        Unpack, Length, Balance)
+from slither.slithir.operations import (Assignment, Balance, Binary,
+                                        BinaryType, Call, Condition, Delete,
+                                        EventCall, HighLevelCall, Index,
+                                        InitArray, InternalCall,
+                                        InternalDynamicCall, Length,
+                                        LibraryCall, LowLevelCall, Member,
+                                        NewArray, NewContract,
+                                        NewElementaryType, NewStructure,
+                                        OperationWithLValue, Push, Return,
+                                        Send, SolidityCall, Transfer,
+                                        TypeConversion, Unary, Unpack)
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -23,10 +27,46 @@ from slither.slithir.tmp_operations.tmp_new_elementary_type import \
     TmpNewElementaryType
 from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import (Constant, ReferenceVariable,
-                                       TemporaryVariable, TupleVariable)
+                                       TemporaryVariable)
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 
 logger = logging.getLogger('ConvertToIR')
+
+def convert_expression(expression, node):
+    # handle standlone expression
+    # such as return true;
+    from slither.core.cfg.node import NodeType
+
+    if isinstance(expression, Literal) and node.type in [NodeType.IF, NodeType.IFLOOP]:
+        result =  [Condition(Constant(expression.value))]
+        return result
+    if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
+        result =  [Condition(expression.value)]
+        return result
+
+
+    visitor = ExpressionToSlithIR(expression, node)
+    result = visitor.result()
+
+    result = apply_ir_heuristics(result, node)
+
+    if result:
+        if node.type in [NodeType.IF, NodeType.IFLOOP]:
+            assert isinstance(result[-1], (OperationWithLValue))
+            result.append(Condition(result[-1].lvalue))
+        elif node.type == NodeType.RETURN:
+            # May return None
+            if isinstance(result[-1], (OperationWithLValue)):
+                result.append(Return(result[-1].lvalue))
+
+    return result
+
+
+###################################################################################
+###################################################################################
+# region Helpers
+###################################################################################
+###################################################################################
 
 def is_value(ins):
     if isinstance(ins, TmpCall):
@@ -42,7 +82,65 @@ def is_gas(ins):
                 return True
     return False
 
+def get_sig(ir):
+    '''
+        Return a list of potential signature
+        It is a list, as Constant variables can be converted to int256
+    Args:
+        ir (slithIR.operation)
+    Returns:
+        list(str)
+    '''
+    sig = '{}({})'
+    name = ir.function_name
+
+    # list of list of arguments
+    argss = [[]]
+    for arg in ir.arguments:
+        if isinstance(arg, (list,)):
+            type_arg = '{}[{}]'.format(get_type(arg[0].type), len(arg))
+        elif isinstance(arg, Function):
+            type_arg = arg.signature_str
+        else:
+            type_arg = get_type(arg.type)
+        if isinstance(arg, Constant) and arg.type == ElementaryType('uint256'):
+            # If it is a constant
+            # We dupplicate the existing list
+            # And we add uint256 and int256 cases
+            # There is no potential collision, as the compiler
+            # Prevent it with a 
+            # "not unique after argument-dependent loopkup" issue
+            argss_new = [list(args) for args in argss]
+            for args in argss:
+                args.append(str(ElementaryType('uint256')))
+            for args in argss_new:
+                args.append(str(ElementaryType('int256')))
+            argss = argss + argss_new
+        else:
+            for args in argss:
+                args.append(type_arg)
+    return [sig.format(name, ','.join(args)) for args in argss]
+
+def is_temporary(ins):
+    return isinstance(ins, (Argument,
+                            TmpNewElementaryType,
+                            TmpNewContract,
+                            TmpNewArray,
+                            TmpNewStructure))
+
+
+
+# endregion
+###################################################################################
+###################################################################################
+# region Calls modification
+###################################################################################
+###################################################################################
+
 def integrate_value_gas(result):
+    '''
+        Integrate value and gas temporary arguments to call instruction
+    '''
     was_changed = True
 
     calls = []
@@ -110,7 +208,17 @@ def integrate_value_gas(result):
 
     return result
 
-def propage_type_and_convert_call(result, node):
+# endregion
+###################################################################################
+###################################################################################
+# region Calls modification and Type propagation
+###################################################################################
+###################################################################################
+
+def propagate_type_and_convert_call(result, node):
+    '''
+        Propagate the types variables and convert tmp call to real call operation
+    '''
     calls_value = {}
     calls_gas = {}
 
@@ -178,275 +286,6 @@ def propage_type_and_convert_call(result, node):
                 result[idx] = new_ins
         idx = idx +1
     return result
-
-def convert_to_low_level(ir):
-    """
-        Convert to a transfer/send/or low level call
-        The funciton assume to receive a correct IR
-        The checks must be done by the caller
-
-        Additionally convert abi... to solidityfunction
-    """
-    if ir.function_name == 'transfer':
-        assert len(ir.arguments) == 1
-        ir = Transfer(ir.destination, ir.arguments[0])
-        return ir
-    elif ir.function_name == 'send':
-        assert len(ir.arguments) == 1
-        ir = Send(ir.destination, ir.arguments[0], ir.lvalue)
-        ir.lvalue.set_type(ElementaryType('bool'))
-        return ir
-    elif ir.destination.name ==  'abi' and ir.function_name in ['encode',
-                                                                'encodePacked',
-                                                                'encodeWithSelector',
-                                                                'encodeWithSignature',
-                                                                'decode']:
-
-        call = SolidityFunction('abi.{}()'.format(ir.function_name))
-        new_ir = SolidityCall(call, ir.nbr_arguments, ir.lvalue, ir.type_call)
-        new_ir.arguments = ir.arguments
-        if isinstance(call.return_type, list) and len(call.return_type) == 1:
-            new_ir.lvalue.set_type(call.return_type[0])
-        else:
-            new_ir.lvalue.set_type(call.return_type)
-        return new_ir
-    elif ir.function_name in ['call',
-                              'delegatecall',
-                              'callcode',
-                              'staticcall']:
-        new_ir = LowLevelCall(ir.destination,
-                          ir.function_name,
-                          ir.nbr_arguments,
-                          ir.lvalue,
-                          ir.type_call)
-        new_ir.call_gas = ir.call_gas
-        new_ir.call_value = ir.call_value
-        new_ir.arguments = ir.arguments
-        new_ir.lvalue.set_type(ElementaryType('bool'))
-        return new_ir
-    logger.error('Incorrect conversion to low level {}'.format(ir))
-    exit(-1)
-
-def convert_to_push(ir, node):
-    """
-    Convert a call to a PUSH operaiton
-
-    The funciton assume to receive a correct IR
-    The checks must be done by the caller
-
-    May necessitate to create an intermediate operation (InitArray)
-    Necessitate to return the lenght (see push documentation)
-    As a result, the function return may return a list
-    """
-
-
-    lvalue = ir.lvalue
-    if isinstance(ir.arguments[0], list):
-        ret = []
-
-        val = TemporaryVariable(node)
-        operation = InitArray(ir.arguments[0], val)
-        ret.append(operation)
-
-        ir = Push(ir.destination, val)
-
-        length = Literal(len(operation.init_values))
-        t = operation.init_values[0].type
-        ir.lvalue.set_type(ArrayType(t, length))
-
-        ret.append(ir)
-
-        if lvalue:
-            length = Length(ir.array, lvalue)
-            length.lvalue.points_to = ir.lvalue
-            ret.append(length)
-
-        return ret
-
-    ir = Push(ir.destination, ir.arguments[0])
-
-    if lvalue:
-        ret = []
-        ret.append(ir)
-
-        length = Length(ir.array, lvalue)
-        length.lvalue.points_to = ir.lvalue
-        ret.append(length)
-        return ret
-
-    return ir
-
-def look_for_library(contract, ir, node, using_for, t):
-    for destination in using_for[t]:
-        lib_contract = contract.slither.get_contract_from_name(str(destination))
-        if lib_contract:
-            lib_call = LibraryCall(lib_contract,
-                                   ir.function_name,
-                                   ir.nbr_arguments,
-                                   ir.lvalue,
-                                   ir.type_call)
-            lib_call.call_gas = ir.call_gas
-            lib_call.arguments = [ir.destination] + ir.arguments
-            new_ir = convert_type_library_call(lib_call, lib_contract)
-            if new_ir:
-                new_ir.set_node(ir.node)
-                return new_ir
-    return None
-
-def convert_to_library(ir, node, using_for):
-    contract = node.function.contract
-    t = ir.destination.type
-
-    if t in using_for:
-        new_ir = look_for_library(contract, ir, node, using_for, t)
-        if new_ir:
-            return new_ir
-
-    if '*' in using_for:
-        new_ir = look_for_library(contract, ir, node, using_for, '*')
-        if new_ir:
-            return new_ir
-
-    return None
-
-def get_type(t):
-    """
-        Convert a type to a str
-        If the instance is a Contract, return 'address' instead
-    """
-    if isinstance(t, UserDefinedType):
-        if isinstance(t.type, Contract):
-            return 'address'
-    return str(t)
-
-def get_sig(ir):
-    '''
-        Return a list of potential signature
-        It is a list, as Constant variables can be converted to int256
-    Args:
-        ir (slithIR.operation)
-    Returns:
-        list(str)
-    '''
-    sig = '{}({})'
-    name = ir.function_name
-
-    # list of list of arguments
-    argss = [[]]
-    for arg in ir.arguments:
-        if isinstance(arg, (list,)):
-            type_arg = '{}[{}]'.format(get_type(arg[0].type), len(arg))
-        elif isinstance(arg, Function):
-            type_arg = arg.signature_str
-        else:
-            type_arg = get_type(arg.type)
-        if isinstance(arg, Constant) and arg.type == ElementaryType('uint256'):
-            # If it is a constant
-            # We dupplicate the existing list
-            # And we add uint256 and int256 cases
-            # There is no potential collision, as the compiler
-            # Prevent it with a 
-            # "not unique after argument-dependent loopkup" issue
-            argss_new = [list(args) for args in argss]
-            for args in argss:
-                args.append(str(ElementaryType('uint256')))
-            for args in argss_new:
-                args.append(str(ElementaryType('int256')))
-            argss = argss + argss_new
-        else:
-            for args in argss:
-                args.append(type_arg)
-    return [sig.format(name, ','.join(args)) for args in argss]
-
-def convert_type_library_call(ir, lib_contract):
-    sigs = get_sig(ir)
-    func = None
-    for sig in sigs:
-        func = lib_contract.get_function_from_signature(sig)
-        if not func:
-            func = lib_contract.get_state_variable_from_name(ir.function_name)
-    # In case of multiple binding to the same type
-    if not func:
-        # specific lookup when the compiler does implicit conversion
-        # for example
-        # myFunc(uint)
-        # can be called with an uint8
-        for function in lib_contract.functions:
-            if function.name == ir.function_name and len(function.parameters) == len(ir.arguments):
-                func = function
-                break
-    if not func:
-        return None
-    ir.function = func
-    if isinstance(func, Function):
-        t = func.return_type
-        # if its not a tuple, return a singleton
-        if t and len(t) == 1:
-            t = t[0]
-    else:
-        # otherwise its a variable (getter)
-        t = func.type
-    if t:
-        ir.lvalue.set_type(t)
-    else:
-        ir.lvalue = None
-    return ir
-
-def convert_type_of_high_level_call(ir, contract):
-    func = None
-    sigs = get_sig(ir)
-    for sig in sigs:
-        func = contract.get_function_from_signature(sig)
-        if not func:
-            func = contract.get_state_variable_from_name(ir.function_name)
-    if not func:
-        # specific lookup when the compiler does implicit conversion
-        # for example
-        # myFunc(uint)
-        # can be called with an uint8
-        for function in contract.functions:
-            if function.name == ir.function_name and len(function.parameters) == len(ir.arguments):
-                func = function
-                break
-    # lowlelvel lookup needs to be done at last step
-    if not func and ir.function_name in ['call',
-                                         'delegatecall',
-                                         'codecall',
-                                         'transfer',
-                                         'send']:
-        return convert_to_low_level(ir)
-    if not func:
-        logger.error('Function not found {}'.format(sig))
-    ir.function = func
-    if isinstance(func, Function):
-        return_type = func.return_type
-        # if its not a tuple; return a singleton
-        if return_type and len(return_type) == 1:
-            return_type = return_type[0]
-    else:
-        # otherwise its a variable (getter)
-        # If its a mapping or a array
-        # we iterate until we find the final type
-        # mapping and array can be mixed together
-        # ex:
-        #    mapping ( uint => mapping ( uint => uint)) my_var
-        #    mapping(uint => uint)[] test;p
-        if isinstance(func.type, (MappingType, ArrayType)):
-            tmp = func.type
-            while isinstance(tmp, (MappingType, ArrayType)):
-                if isinstance(tmp, MappingType):
-                    tmp = tmp.type_to
-                else:
-                    tmp = tmp.type
-            return_type = tmp
-        else:
-            return_type = func.type
-    if return_type:
-        ir.lvalue.set_type(return_type)
-    else:
-        ir.lvalue = None
-
-    return None
 
 def propagate_types(ir, node):
     # propagate the type
@@ -596,80 +435,6 @@ def propagate_types(ir, node):
                 logger.error('Not handling {} during type propgation'.format(type(ir)))
                 exit(-1)
 
-def apply_ir_heuristics(irs, node):
-    """
-        Apply a set of heuristic to improve slithIR
-    """
-
-    irs = integrate_value_gas(irs)
-
-    irs = propage_type_and_convert_call(irs, node)
-    irs = remove_unused(irs)
-    find_references_origin(irs)
-
-
-    return irs
-
-def find_references_origin(irs):
-    """
-        Make lvalue of each Index, Member operation
-        points to the left variable
-    """
-    for ir in irs:
-        if isinstance(ir, (Index, Member)):
-            ir.lvalue.points_to = ir.variable_left
-
-def is_temporary(ins):
-    return isinstance(ins, (Argument,
-                            TmpNewElementaryType,
-                            TmpNewContract,
-                            TmpNewArray,
-                            TmpNewStructure))
-
-
-def remove_temporary(result):
-    result = [ins for ins in result if not isinstance(ins, (Argument,
-                                                            TmpNewElementaryType,
-                                                            TmpNewContract,
-                                                            TmpNewArray,
-                                                            TmpNewStructure))]
-
-    return result
-
-def remove_unused(result):
-    removed = True
-
-    if not result:
-        return result
-
-    # dont remove the last elem, as it may be used by RETURN
-    last_elem = result[-1]
-
-    while removed:
-        removed = False
-
-        to_keep = []
-        to_remove = []
-
-        # keep variables that are read
-        # and reference that are written
-        for ins in result:
-            to_keep += [str(x) for x in ins.read]
-            if isinstance(ins, OperationWithLValue) and not isinstance(ins, (Index, Member)):
-                if isinstance(ins.lvalue, ReferenceVariable):
-                    to_keep += [str(ins.lvalue)]
-
-        for ins in result:
-            if isinstance(ins, Member):
-                if not ins.lvalue.name in to_keep and ins != last_elem:
-                    to_remove.append(ins)
-                    removed = True
-
-        result = [i for i in result if not i in to_remove]
-    return result
-
-
-
 def extract_tmp_call(ins):
     assert isinstance(ins, TmpCall)
 
@@ -725,31 +490,325 @@ def extract_tmp_call(ins):
 
     raise Exception('Not extracted {} {}'.format(type(ins.called), ins))
 
-def convert_expression(expression, node):
-    # handle standlone expression
-    # such as return true;
-    from slither.core.cfg.node import NodeType
+# endregion
+###################################################################################
+###################################################################################
+# region Conversion operations
+###################################################################################
+###################################################################################
 
-    if isinstance(expression, Literal) and node.type in [NodeType.IF, NodeType.IFLOOP]:
-        result =  [Condition(Constant(expression.value))]
-        return result
-    if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
-        result =  [Condition(expression.value)]
-        return result
+def convert_to_low_level(ir):
+    """
+        Convert to a transfer/send/or low level call
+        The funciton assume to receive a correct IR
+        The checks must be done by the caller
+
+        Additionally convert abi... to solidityfunction
+    """
+    if ir.function_name == 'transfer':
+        assert len(ir.arguments) == 1
+        ir = Transfer(ir.destination, ir.arguments[0])
+        return ir
+    elif ir.function_name == 'send':
+        assert len(ir.arguments) == 1
+        ir = Send(ir.destination, ir.arguments[0], ir.lvalue)
+        ir.lvalue.set_type(ElementaryType('bool'))
+        return ir
+    elif ir.destination.name ==  'abi' and ir.function_name in ['encode',
+                                                                'encodePacked',
+                                                                'encodeWithSelector',
+                                                                'encodeWithSignature',
+                                                                'decode']:
+
+        call = SolidityFunction('abi.{}()'.format(ir.function_name))
+        new_ir = SolidityCall(call, ir.nbr_arguments, ir.lvalue, ir.type_call)
+        new_ir.arguments = ir.arguments
+        if isinstance(call.return_type, list) and len(call.return_type) == 1:
+            new_ir.lvalue.set_type(call.return_type[0])
+        else:
+            new_ir.lvalue.set_type(call.return_type)
+        return new_ir
+    elif ir.function_name in ['call',
+                              'delegatecall',
+                              'callcode',
+                              'staticcall']:
+        new_ir = LowLevelCall(ir.destination,
+                          ir.function_name,
+                          ir.nbr_arguments,
+                          ir.lvalue,
+                          ir.type_call)
+        new_ir.call_gas = ir.call_gas
+        new_ir.call_value = ir.call_value
+        new_ir.arguments = ir.arguments
+        new_ir.lvalue.set_type(ElementaryType('bool'))
+        return new_ir
+    logger.error('Incorrect conversion to low level {}'.format(ir))
+    exit(-1)
+
+def convert_to_push(ir, node):
+    """
+    Convert a call to a PUSH operaiton
+
+    The funciton assume to receive a correct IR
+    The checks must be done by the caller
+
+    May necessitate to create an intermediate operation (InitArray)
+    Necessitate to return the lenght (see push documentation)
+    As a result, the function return may return a list
+    """
 
 
-    visitor = ExpressionToSlithIR(expression, node)
-    result = visitor.result()
+    lvalue = ir.lvalue
+    if isinstance(ir.arguments[0], list):
+        ret = []
 
-    result = apply_ir_heuristics(result, node)
+        val = TemporaryVariable(node)
+        operation = InitArray(ir.arguments[0], val)
+        ret.append(operation)
 
-    if result:
-        if node.type in [NodeType.IF, NodeType.IFLOOP]:
-            assert isinstance(result[-1], (OperationWithLValue))
-            result.append(Condition(result[-1].lvalue))
-        elif node.type == NodeType.RETURN:
-            # May return None
-            if isinstance(result[-1], (OperationWithLValue)):
-                result.append(Return(result[-1].lvalue))
+        ir = Push(ir.destination, val)
+
+        length = Literal(len(operation.init_values))
+        t = operation.init_values[0].type
+        ir.lvalue.set_type(ArrayType(t, length))
+
+        ret.append(ir)
+
+        if lvalue:
+            length = Length(ir.array, lvalue)
+            length.lvalue.points_to = ir.lvalue
+            ret.append(length)
+
+        return ret
+
+    ir = Push(ir.destination, ir.arguments[0])
+
+    if lvalue:
+        ret = []
+        ret.append(ir)
+
+        length = Length(ir.array, lvalue)
+        length.lvalue.points_to = ir.lvalue
+        ret.append(length)
+        return ret
+
+    return ir
+
+def look_for_library(contract, ir, node, using_for, t):
+    for destination in using_for[t]:
+        lib_contract = contract.slither.get_contract_from_name(str(destination))
+        if lib_contract:
+            lib_call = LibraryCall(lib_contract,
+                                   ir.function_name,
+                                   ir.nbr_arguments,
+                                   ir.lvalue,
+                                   ir.type_call)
+            lib_call.call_gas = ir.call_gas
+            lib_call.arguments = [ir.destination] + ir.arguments
+            new_ir = convert_type_library_call(lib_call, lib_contract)
+            if new_ir:
+                new_ir.set_node(ir.node)
+                return new_ir
+    return None
+
+def convert_to_library(ir, node, using_for):
+    contract = node.function.contract
+    t = ir.destination.type
+
+    if t in using_for:
+        new_ir = look_for_library(contract, ir, node, using_for, t)
+        if new_ir:
+            return new_ir
+
+    if '*' in using_for:
+        new_ir = look_for_library(contract, ir, node, using_for, '*')
+        if new_ir:
+            return new_ir
+
+    return None
+
+def get_type(t):
+    """
+        Convert a type to a str
+        If the instance is a Contract, return 'address' instead
+    """
+    if isinstance(t, UserDefinedType):
+        if isinstance(t.type, Contract):
+            return 'address'
+    return str(t)
+
+def convert_type_library_call(ir, lib_contract):
+    sigs = get_sig(ir)
+    func = None
+    for sig in sigs:
+        func = lib_contract.get_function_from_signature(sig)
+        if not func:
+            func = lib_contract.get_state_variable_from_name(ir.function_name)
+    # In case of multiple binding to the same type
+    if not func:
+        # specific lookup when the compiler does implicit conversion
+        # for example
+        # myFunc(uint)
+        # can be called with an uint8
+        for function in lib_contract.functions:
+            if function.name == ir.function_name and len(function.parameters) == len(ir.arguments):
+                func = function
+                break
+    if not func:
+        return None
+    ir.function = func
+    if isinstance(func, Function):
+        t = func.return_type
+        # if its not a tuple, return a singleton
+        if t and len(t) == 1:
+            t = t[0]
+    else:
+        # otherwise its a variable (getter)
+        t = func.type
+    if t:
+        ir.lvalue.set_type(t)
+    else:
+        ir.lvalue = None
+    return ir
+
+def convert_type_of_high_level_call(ir, contract):
+    func = None
+    sigs = get_sig(ir)
+    for sig in sigs:
+        func = contract.get_function_from_signature(sig)
+        if not func:
+            func = contract.get_state_variable_from_name(ir.function_name)
+    if not func:
+        # specific lookup when the compiler does implicit conversion
+        # for example
+        # myFunc(uint)
+        # can be called with an uint8
+        for function in contract.functions:
+            if function.name == ir.function_name and len(function.parameters) == len(ir.arguments):
+                func = function
+                break
+    # lowlelvel lookup needs to be done at last step
+    if not func and ir.function_name in ['call',
+                                         'delegatecall',
+                                         'codecall',
+                                         'transfer',
+                                         'send']:
+        return convert_to_low_level(ir)
+    if not func:
+        logger.error('Function not found {}'.format(sig))
+    ir.function = func
+    if isinstance(func, Function):
+        return_type = func.return_type
+        # if its not a tuple; return a singleton
+        if return_type and len(return_type) == 1:
+            return_type = return_type[0]
+    else:
+        # otherwise its a variable (getter)
+        # If its a mapping or a array
+        # we iterate until we find the final type
+        # mapping and array can be mixed together
+        # ex:
+        #    mapping ( uint => mapping ( uint => uint)) my_var
+        #    mapping(uint => uint)[] test;p
+        if isinstance(func.type, (MappingType, ArrayType)):
+            tmp = func.type
+            while isinstance(tmp, (MappingType, ArrayType)):
+                if isinstance(tmp, MappingType):
+                    tmp = tmp.type_to
+                else:
+                    tmp = tmp.type
+            return_type = tmp
+        else:
+            return_type = func.type
+    if return_type:
+        ir.lvalue.set_type(return_type)
+    else:
+        ir.lvalue = None
+
+    return None
+
+# endregion
+###################################################################################
+###################################################################################
+# region Points to operation
+###################################################################################
+###################################################################################
+
+def find_references_origin(irs):
+    """
+        Make lvalue of each Index, Member operation
+        points to the left variable
+    """
+    for ir in irs:
+        if isinstance(ir, (Index, Member)):
+            ir.lvalue.points_to = ir.variable_left
+
+# endregion
+###################################################################################
+###################################################################################
+# region Operation filtering
+###################################################################################
+###################################################################################
+
+def remove_temporary(result):
+    result = [ins for ins in result if not isinstance(ins, (Argument,
+                                                            TmpNewElementaryType,
+                                                            TmpNewContract,
+                                                            TmpNewArray,
+                                                            TmpNewStructure))]
 
     return result
+
+def remove_unused(result):
+    removed = True
+
+    if not result:
+        return result
+
+    # dont remove the last elem, as it may be used by RETURN
+    last_elem = result[-1]
+
+    while removed:
+        removed = False
+
+        to_keep = []
+        to_remove = []
+
+        # keep variables that are read
+        # and reference that are written
+        for ins in result:
+            to_keep += [str(x) for x in ins.read]
+            if isinstance(ins, OperationWithLValue) and not isinstance(ins, (Index, Member)):
+                if isinstance(ins.lvalue, ReferenceVariable):
+                    to_keep += [str(ins.lvalue)]
+
+        for ins in result:
+            if isinstance(ins, Member):
+                if not ins.lvalue.name in to_keep and ins != last_elem:
+                    to_remove.append(ins)
+                    removed = True
+
+        result = [i for i in result if not i in to_remove]
+    return result
+
+# endregion
+###################################################################################
+###################################################################################
+# region Heuristics selection
+###################################################################################
+###################################################################################
+
+def apply_ir_heuristics(irs, node):
+    """
+        Apply a set of heuristic to improve slithIR
+    """
+
+    irs = integrate_value_gas(irs)
+
+    irs = propagate_type_and_convert_call(irs, node)
+    irs = remove_unused(irs)
+    find_references_origin(irs)
+
+
+    return irs
+

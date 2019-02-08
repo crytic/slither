@@ -2,16 +2,13 @@ import logging
 
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.enum import Enum
-
-from slither.solc_parsing.declarations.structure import StructureSolc
-from slither.solc_parsing.declarations.event import EventSolc
-from slither.solc_parsing.declarations.modifier import ModifierSolc
-from slither.solc_parsing.declarations.function import FunctionSolc
-
-from slither.solc_parsing.variables.state_variable import StateVariableSolc
-from slither.solc_parsing.solidity_types.type_parsing import parse_type
-
 from slither.slithir.variables import StateIRVariable
+from slither.solc_parsing.declarations.event import EventSolc
+from slither.solc_parsing.declarations.function import FunctionSolc
+from slither.solc_parsing.declarations.modifier import ModifierSolc
+from slither.solc_parsing.declarations.structure import StructureSolc
+from slither.solc_parsing.solidity_types.type_parsing import parse_type
+from slither.solc_parsing.variables.state_variable import StateVariableSolc
 
 logger = logging.getLogger("ContractSolcParsing")
 
@@ -54,9 +51,24 @@ class ContractSolc04(Contract):
         self._parse_contract_items()
 
 
+    ###################################################################################
+    ###################################################################################
+    # region General Properties
+    ###################################################################################
+    ###################################################################################
+
     @property
     def is_analyzed(self):
         return self._is_analyzed
+
+    def set_is_analyzed(self, is_analyzed):
+        self._is_analyzed = is_analyzed
+
+    ###################################################################################
+    ###################################################################################
+    # region AST
+    ###################################################################################
+    ###################################################################################
 
     def get_key(self):
         return self.slither.get_key()
@@ -74,8 +86,12 @@ class ContractSolc04(Contract):
     def is_compact_ast(self):
         return self.slither.is_compact_ast
 
-    def set_is_analyzed(self, is_analyzed):
-        self._is_analyzed = is_analyzed
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region SlithIR
+    ###################################################################################
+    ###################################################################################
 
     def _parse_contract_info(self):
         if self.is_compact_ast:
@@ -174,6 +190,155 @@ class ContractSolc04(Contract):
                 exit(-1)
         return
 
+    def _parse_struct(self, struct):
+        if self.is_compact_ast:
+            name = struct['name']
+            attributes = struct
+        else:
+            name = struct['attributes'][self.get_key()]
+            attributes = struct['attributes']
+        if 'canonicalName' in attributes:
+            canonicalName = attributes['canonicalName']
+        else:
+            canonicalName = self.name + '.' + name
+
+        if self.get_children('members') in struct:
+            children = struct[self.get_children('members')]
+        else:
+            children = [] # empty struct
+        st = StructureSolc(name, canonicalName, children)
+        st.set_contract(self)
+        st.set_offset(struct['src'], self.slither)
+        self._structures[name] = st
+
+    def parse_structs(self):
+        for father in self.inheritance_reverse:
+            self._structures.update(father.structures_as_dict())
+
+        for struct in self._structuresNotParsed:
+            self._parse_struct(struct)
+        self._structuresNotParsed = None
+
+    def parse_state_variables(self):
+        for father in self.inheritance_reverse:
+            self._variables.update(father.variables_as_dict())
+
+        for varNotParsed in self._variablesNotParsed:
+            var = StateVariableSolc(varNotParsed)
+            var.set_offset(varNotParsed['src'], self.slither)
+            var.set_contract(self)
+
+            self._variables[var.name] = var
+
+    def _parse_modifier(self, modifier):
+
+        modif = ModifierSolc(modifier, self)
+        modif.set_contract(self)
+        modif.set_offset(modifier['src'], self.slither)
+        self.slither.add_modifier(modif)
+        self._modifiers_no_params.append(modif)
+
+    def parse_modifiers(self):
+
+        for modifier in self._modifiersNotParsed:
+            self._parse_modifier(modifier)
+        self._modifiersNotParsed = None
+
+        return
+
+    def _parse_function(self, function):
+        func = FunctionSolc(function, self)
+        func.set_offset(function['src'], self.slither)
+        self.slither.add_function(func)
+        self._functions_no_params.append(func)
+
+    def parse_functions(self):
+
+        for function in self._functionsNotParsed:
+            self._parse_function(function)
+
+
+        self._functionsNotParsed = None
+
+        return
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Analyze
+    ###################################################################################
+    ###################################################################################
+
+    def analyze_content_modifiers(self):
+        for modifier in self.modifiers:
+            modifier.analyze_content()
+        return
+
+    def analyze_content_functions(self):
+        for function in self.functions:
+            function.analyze_content()
+
+        return
+
+    def analyze_params_modifiers(self):
+        for father in self.inheritance_reverse:
+            self._modifiers.update(father.modifiers_as_dict())
+
+        for modifier in self._modifiers_no_params:
+            modifier.analyze_params()
+            self._modifiers[modifier.full_name] = modifier
+
+        self._modifiers_no_params = []
+        return
+
+    def analyze_params_functions(self):
+        # keep track of the contracts visited
+        # to prevent an ovveride due to multiple inheritance of the same contract
+        # A is B, C, D is C, --> the second C was already seen
+        contracts_visited = []
+        for father in self.inheritance_reverse:
+            functions = {k:v for (k, v) in father.functions_as_dict().items()
+                         if not v.contract in contracts_visited}
+            contracts_visited.append(father)
+            self._functions.update(functions)
+
+        # If there is a constructor in the functions
+        # We remove the previous constructor
+        # As only one constructor is present per contracts
+        #
+        # Note: contract.all_functions_called returns the constructors of the base contracts
+        has_constructor = False
+        for function in self._functions_no_params:
+            function.analyze_params()
+            if function.is_constructor:
+                has_constructor = True
+
+        if has_constructor:
+            _functions = {k:v for (k, v) in self._functions.items() if not v.is_constructor}
+            self._functions = _functions
+
+        for function in self._functions_no_params:
+            self._functions[function.full_name] = function
+
+        self._functions_no_params = []
+        return
+
+    def analyze_constant_state_variables(self):
+        from slither.solc_parsing.expressions.expression_parsing import VariableNotFound
+        for var in self.variables:
+            if var.is_constant:
+                # cant parse constant expression based on function calls
+                try:
+                    var.analyze(self)
+                except VariableNotFound:
+                    pass
+        return
+
+    def analyze_state_variables(self):
+        for var in self.variables:
+            var.analyze(self)
+        return
+
     def analyze_using_for(self):
         for father in self.inheritance:
             self._using_for.update(father.using_for)
@@ -238,42 +403,12 @@ class ContractSolc04(Contract):
         new_enum.set_offset(enum['src'], self.slither)
         self._enums[canonicalName] = new_enum
 
-    def _parse_struct(self, struct):
-        if self.is_compact_ast:
-            name = struct['name']
-            attributes = struct
-        else:
-            name = struct['attributes'][self.get_key()]
-            attributes = struct['attributes']
-        if 'canonicalName' in attributes:
-            canonicalName = attributes['canonicalName']
-        else:
-            canonicalName = self.name + '.' + name
-
-        if self.get_children('members') in struct:
-            children = struct[self.get_children('members')]
-        else:
-            children = [] # empty struct
-        st = StructureSolc(name, canonicalName, children)
-        st.set_contract(self)
-        st.set_offset(struct['src'], self.slither)
-        self._structures[name] = st
-
     def _analyze_struct(self, struct):
         struct.analyze()
-
-    def parse_structs(self):
-        for father in self.inheritance_reverse:
-            self._structures.update(father.structures_as_dict())
-
-        for struct in self._structuresNotParsed:
-            self._parse_struct(struct)
-        self._structuresNotParsed = None
 
     def analyze_structs(self):
         for struct in self.structures:
             self._analyze_struct(struct)
-
 
     def analyze_events(self):
         for father in self.inheritance_reverse:
@@ -288,119 +423,14 @@ class ContractSolc04(Contract):
 
         self._eventsNotParsed = None
 
-    def parse_state_variables(self):
-        for father in self.inheritance_reverse:
-            self._variables.update(father.variables_as_dict())
-
-        for varNotParsed in self._variablesNotParsed:
-            var = StateVariableSolc(varNotParsed)
-            var.set_offset(varNotParsed['src'], self.slither)
-            var.set_contract(self)
-
-            self._variables[var.name] = var
-
-    def analyze_constant_state_variables(self):
-        from slither.solc_parsing.expressions.expression_parsing import VariableNotFound
-        for var in self.variables:
-            if var.is_constant:
-                # cant parse constant expression based on function calls
-                try:
-                    var.analyze(self)
-                except VariableNotFound:
-                    pass
-        return
-
-    def analyze_state_variables(self):
-        for var in self.variables:
-            var.analyze(self)
-        return
-
-    def _parse_modifier(self, modifier):
-
-        modif = ModifierSolc(modifier, self)
-        modif.set_contract(self)
-        modif.set_offset(modifier['src'], self.slither)
-        self.slither.add_modifier(modif)
-        self._modifiers_no_params.append(modif)
-
-    def parse_modifiers(self):
-
-        for modifier in self._modifiersNotParsed:
-            self._parse_modifier(modifier)
-        self._modifiersNotParsed = None
-
-        return
-
-    def _parse_function(self, function):
-        func = FunctionSolc(function, self)
-        func.set_offset(function['src'], self.slither)
-        self.slither.add_function(func)
-        self._functions_no_params.append(func)
-
-    def parse_functions(self):
-
-        for function in self._functionsNotParsed:
-            self._parse_function(function)
 
 
-        self._functionsNotParsed = None
-
-        return
-
-    def analyze_params_modifiers(self):
-        for father in self.inheritance_reverse:
-            self._modifiers.update(father.modifiers_as_dict())
-
-        for modifier in self._modifiers_no_params:
-            modifier.analyze_params()
-            self._modifiers[modifier.full_name] = modifier
-
-        self._modifiers_no_params = []
-        return
-
-    def analyze_params_functions(self):
-        # keep track of the contracts visited
-        # to prevent an ovveride due to multiple inheritance of the same contract
-        # A is B, C, D is C, --> the second C was already seen
-        contracts_visited = []
-        for father in self.inheritance_reverse:
-            functions = {k:v for (k, v) in father.functions_as_dict().items()
-                         if not v.contract in contracts_visited}
-            contracts_visited.append(father)
-            self._functions.update(functions)
-
-        # If there is a constructor in the functions
-        # We remove the previous constructor
-        # As only one constructor is present per contracts
-        #
-        # Note: contract.all_functions_called returns the constructors of the base contracts
-        has_constructor = False
-        for function in self._functions_no_params:
-            function.analyze_params()
-            if function.is_constructor:
-                has_constructor = True
-
-        if has_constructor:
-            _functions = {k:v for (k, v) in self._functions.items() if not v.is_constructor}
-            self._functions = _functions
-
-        for function in self._functions_no_params:
-            self._functions[function.full_name] = function
-
-        self._functions_no_params = []
-        return
-
-    def analyze_content_modifiers(self):
-        for modifier in self.modifiers:
-            modifier.analyze_content()
-        return
-
-    def analyze_content_functions(self):
-        for function in self.functions:
-            function.analyze_content()
-
-        return
-
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region SlithIR
+    ###################################################################################
+    ###################################################################################
 
     def convert_expression_to_slithir(self):
         for func in self.functions + self.modifiers:
@@ -442,5 +472,14 @@ class ContractSolc04(Contract):
             func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
 
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Built in definitions
+    ###################################################################################
+    ###################################################################################
+
     def __hash__(self):
         return self._id
+
+    # endregion

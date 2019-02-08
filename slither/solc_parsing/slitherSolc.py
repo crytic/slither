@@ -26,6 +26,13 @@ class SlitherSolc(Slither):
 
         self._is_compact_ast = False
 
+
+    ###################################################################################
+    ###################################################################################
+    # region AST
+    ###################################################################################
+    ###################################################################################
+
     def get_key(self):
         if self._is_compact_ast:
             return 'nodeType'
@@ -39,6 +46,13 @@ class SlitherSolc(Slither):
     @property
     def is_compact_ast(self):
         return self._is_compact_ast
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Parsing
+    ###################################################################################
+    ###################################################################################
 
     def _parse_contracts_from_json(self, json_data):
         try:
@@ -148,6 +162,16 @@ class SlitherSolc(Slither):
                     source_code = f.read()
                 self.source_code[name] = source_code
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Analyze
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def analyzed(self):
+        return self._analyzed
 
     def _analyze_contracts(self):
         if not self._contractsNotParsed:
@@ -234,11 +258,6 @@ class SlitherSolc(Slither):
 
         compute_dependency(self)
 
-    # TODO refactor the following functions, and use a lambda function
-
-    @property
-    def analyzed(self):
-        return self._analyzed
 
     def _analyze_all_enums(self, contracts_to_be_analyzed):
         while contracts_to_be_analyzed:
@@ -362,4 +381,4 @@ class SlitherSolc(Slither):
             contract.fix_phi()
             contract.update_read_write_using_ssa()
 
-        
+    # endregion

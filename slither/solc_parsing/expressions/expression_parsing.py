@@ -1,37 +1,58 @@
 import logging
 import re
-from slither.core.expressions.unary_operation import UnaryOperation, UnaryOperationType
-from slither.core.expressions.binary_operation import BinaryOperation, BinaryOperationType
-from slither.core.expressions.literal import Literal
-from slither.core.expressions.identifier import Identifier
-from slither.core.expressions.super_identifier import SuperIdentifier
-from slither.core.expressions.index_access import IndexAccess
-from slither.core.expressions.member_access import MemberAccess
-from slither.core.expressions.tuple_expression import TupleExpression
-from slither.core.expressions.conditional_expression import ConditionalExpression
-from slither.core.expressions.assignment_operation import AssignmentOperation, AssignmentOperationType
-from slither.core.expressions.type_conversion import TypeConversion
-from slither.core.expressions.call_expression import CallExpression
-from slither.core.expressions.super_call_expression import SuperCallExpression
-from slither.core.expressions.new_array import NewArray
-from slither.core.expressions.new_contract import NewContract
-from slither.core.expressions.new_elementary_type import NewElementaryType
-from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
-
-from slither.solc_parsing.solidity_types.type_parsing import parse_type, UnknownType
 
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function
-
-from slither.core.declarations.solidity_variables import SOLIDITY_VARIABLES, SOLIDITY_FUNCTIONS, SOLIDITY_VARIABLES_COMPOSED
-from slither.core.declarations.solidity_variables import SolidityVariable, SolidityFunction, SolidityVariableComposed, solidity_function_signature
-
-from slither.core.solidity_types import ElementaryType, ArrayType, MappingType, FunctionType
-
+from slither.core.declarations.solidity_variables import (SOLIDITY_FUNCTIONS,
+                                                          SOLIDITY_VARIABLES,
+                                                          SOLIDITY_VARIABLES_COMPOSED,
+                                                          SolidityFunction,
+                                                          SolidityVariable,
+                                                          SolidityVariableComposed)
+from slither.core.expressions.assignment_operation import (AssignmentOperation,
+                                                           AssignmentOperationType)
+from slither.core.expressions.binary_operation import (BinaryOperation,
+                                                       BinaryOperationType)
+from slither.core.expressions.call_expression import CallExpression
+from slither.core.expressions.conditional_expression import \
+    ConditionalExpression
+from slither.core.expressions.elementary_type_name_expression import \
+    ElementaryTypeNameExpression
+from slither.core.expressions.identifier import Identifier
+from slither.core.expressions.index_access import IndexAccess
+from slither.core.expressions.literal import Literal
+from slither.core.expressions.member_access import MemberAccess
+from slither.core.expressions.new_array import NewArray
+from slither.core.expressions.new_contract import NewContract
+from slither.core.expressions.new_elementary_type import NewElementaryType
+from slither.core.expressions.super_call_expression import SuperCallExpression
+from slither.core.expressions.super_identifier import SuperIdentifier
+from slither.core.expressions.tuple_expression import TupleExpression
+from slither.core.expressions.type_conversion import TypeConversion
+from slither.core.expressions.unary_operation import (UnaryOperation,
+                                                      UnaryOperationType)
+from slither.core.solidity_types import (ArrayType, ElementaryType,
+                                         FunctionType, MappingType)
+from slither.solc_parsing.solidity_types.type_parsing import (UnknownType,
+                                                              parse_type)
 
 logger = logging.getLogger("ExpressionParsing")
 
+
+###################################################################################
+###################################################################################
+# region Exception
+###################################################################################
+###################################################################################
+
 class VariableNotFound(Exception): pass
+
+# endregion
+###################################################################################
+###################################################################################
+# region Helpers
+###################################################################################
+###################################################################################
 
 def get_pointer_name(variable):
     curr_type = variable.type
@@ -135,6 +156,92 @@ def find_variable(var_name, caller_context, referenced_declaration=None):
 
     raise VariableNotFound('Variable not found: {}'.format(var_name))
 
+# endregion
+###################################################################################
+###################################################################################
+# region Filtering
+###################################################################################
+###################################################################################
+
+def filter_name(value):
+    value = value.replace(' memory', '')
+    value = value.replace(' storage', '')
+    value = value.replace(' external', '')
+    value = value.replace(' internal', '')
+    value = value.replace('struct ', '')
+    value = value.replace('contract ', '')
+    value = value.replace('enum ', '')
+    value = value.replace(' ref', '')
+    value = value.replace(' pointer', '')
+    value = value.replace(' pure', '')
+    value = value.replace(' view', '')
+    value = value.replace(' constant', '')
+    value = value.replace(' payable', '')
+    value = value.replace('function (', 'function(')
+    value = value.replace('returns (', 'returns(')
+
+    # remove the text remaining after functio(...)
+    # which should only be ..returns(...)
+    # nested parenthesis so we use a system of counter on parenthesis
+    idx = value.find('(')
+    if idx:
+        counter = 1
+        max_idx = len(value)
+        while counter:
+            assert idx < max_idx
+            idx = idx +1
+            if value[idx] == '(':
+                counter += 1
+            elif value[idx] == ')':
+                counter -= 1
+        value = value[:idx+1]
+    return value
+
+# endregion
+###################################################################################
+###################################################################################
+# region Conversion
+###################################################################################
+###################################################################################
+
+def convert_subdenomination(value, sub):
+    if sub is None:
+        return value
+    # to allow 0.1 ether conversion
+    if value[0:2] == "0x":
+        value = float(int(value, 16))
+    else:
+        value = float(value)
+    if sub == 'wei':
+        return int(value)
+    if sub == 'szabo':
+        return int(value * int(1e12))
+    if sub == 'finney':
+        return int(value * int(1e15))
+    if sub == 'ether':
+        return int(value * int(1e18))
+    if sub == 'seconds':
+        return int(value)
+    if sub == 'minutes':
+        return int(value * 60)
+    if sub == 'hours':
+        return int(value * 60 * 60)
+    if sub == 'days':
+        return int(value * 60 * 60 * 24)
+    if sub == 'weeks':
+        return int(value * 60 * 60 * 24 * 7)
+    if sub == 'years':
+        return int(value * 60 * 60 * 24 * 7 * 365)
+
+    logger.error('Subdemoniation not found {}'.format(sub))
+    return int(value)
+
+# endregion
+###################################################################################
+###################################################################################
+# region Parsing
+###################################################################################
+###################################################################################
 
 def parse_call(expression, caller_context):
 
@@ -207,72 +314,6 @@ def parse_super_name(expression, is_compact_ast):
         arguments = arguments[:arguments.find(' ')]
 
     return base_name+arguments
-
-def filter_name(value):
-    value = value.replace(' memory', '')
-    value = value.replace(' storage', '')
-    value = value.replace(' external', '')
-    value = value.replace(' internal', '')
-    value = value.replace('struct ', '')
-    value = value.replace('contract ', '')
-    value = value.replace('enum ', '')
-    value = value.replace(' ref', '')
-    value = value.replace(' pointer', '')
-    value = value.replace(' pure', '')
-    value = value.replace(' view', '')
-    value = value.replace(' constant', '')
-    value = value.replace(' payable', '')
-    value = value.replace('function (', 'function(')
-    value = value.replace('returns (', 'returns(')
-
-    # remove the text remaining after functio(...)
-    # which should only be ..returns(...)
-    # nested parenthesis so we use a system of counter on parenthesis
-    idx = value.find('(')
-    if idx:
-        counter = 1
-        max_idx = len(value)
-        while counter:
-            assert idx < max_idx
-            idx = idx +1
-            if value[idx] == '(':
-                counter += 1
-            elif value[idx] == ')':
-                counter -= 1
-        value = value[:idx+1]
-    return value
-
-def convert_subdenomination(value, sub):
-    if sub is None:
-        return value
-    # to allow 0.1 ether conversion
-    if value[0:2] == "0x":
-        value = float(int(value, 16))
-    else:
-        value = float(value)
-    if sub == 'wei':
-        return int(value)
-    if sub == 'szabo':
-        return int(value * int(1e12))
-    if sub == 'finney':
-        return int(value * int(1e15))
-    if sub == 'ether':
-        return int(value * int(1e18))
-    if sub == 'seconds':
-        return int(value)
-    if sub == 'minutes':
-        return int(value * 60)
-    if sub == 'hours':
-        return int(value * 60 * 60)
-    if sub == 'days':
-        return int(value * 60 * 60 * 24)
-    if sub == 'weeks':
-        return int(value * 60 * 60 * 24 * 7)
-    if sub == 'years':
-        return int(value * 60 * 60 * 24 * 7 * 365)
-
-    logger.error('Subdemoniation not found {}'.format(sub))
-    return int(value)
 
 def parse_expression(expression, caller_context):
     """
