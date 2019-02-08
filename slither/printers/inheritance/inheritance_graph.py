@@ -159,7 +159,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
             ret += '%s' % private_variables
 
         if indirect_shadowing_information:
-            ret += '<TR><TD><BR/></TD></TR><TR><TD align="left" border="1"><font color="gray" point-size="10">%s</font></TD></TR>' % indirect_shadowing_information.replace('\n', '<BR/>')
+            ret += '<TR><TD><BR/></TD></TR><TR><TD align="left" border="1"><font color="#777777" point-size="10">%s</font></TD></TR>' % indirect_shadowing_information.replace('\n', '<BR/>')
         ret += '</TABLE> >];\n'
 
         return ret
