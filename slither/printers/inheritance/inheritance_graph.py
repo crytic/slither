@@ -94,7 +94,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
                 winner = collision_set[-1][1].contract.name
                 collision_steps = [colliding_function.contract.name for _, colliding_function in collision_set]
                 collision_steps = ', '.join(collision_steps)
-                result.append(f"'{collision_set[0][1].name}' collides in inherited contracts {collision_steps} where {winner} wins.")
+                result.append(f"'{collision_set[0][1].full_name}' collides in inherited contracts {collision_steps} where {winner} is chosen.")
         return '\n'.join(result)
 
     def _get_port_id(self, var, contract):
