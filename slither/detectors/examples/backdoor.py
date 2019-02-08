@@ -12,6 +12,7 @@ class Backdoor(AbstractDetector):
     CONFIDENCE = DetectorClassification.HIGH
 
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Adding-a-new-detector'
     WIKI_TITLE = 'Backdoor example'
     WIKI_DESCRIPTION = 'Plugin example'
     WIKI_EXPLOIT_SCENARIO = '..'

@@ -56,6 +56,9 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if not self.ARGUMENT:
             raise IncorrectDetectorInitialization('ARGUMENT is not initialized {}'.format(self.__class__.__name__))
 
+        if not self.WIKI:
+            raise IncorrectDetectorInitialization('WIKI is not initialized {}'.format(self.__class__.__name__))
+
         if not self.WIKI_TITLE:
             raise IncorrectDetectorInitialization('WIKI_TITLE is not initialized {}'.format(self.__class__.__name__))
 
