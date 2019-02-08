@@ -3,5 +3,5 @@ A[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>A</B></TD></TR>
 B[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>B</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    g()</TD></TR></TABLE> >];
 C -> A [ label="1" ];
 C -> B [ label="2" ];
-C[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left"><font color="#FFA500">    f()</font></TD></TR><TR><TD><BR/></TD></TR><TR><TD align="left" border="1"><font color="#777777" point-size="10">'g' collides in inherited contracts A, B where B wins.</font></TD></TR></TABLE> >];
+C[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left"><font color="#FFA500">    f()</font></TD></TR><TR><TD><BR/></TD></TR><TR><TD align="left" border="1"><font color="#777777" point-size="10">'g()' collides in inherited contracts A, B where B is chosen.</font></TD></TR></TABLE> >];
 }
