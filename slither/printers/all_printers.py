@@ -10,3 +10,4 @@ from .summary.human_summary import PrinterHumanSummary
 from .functions.cfg import CFG
 from .summary.function_ids import FunctionIds
 from .summary.variables_order import VariablesOrder
+from .summary.data_depenency import DataDependency

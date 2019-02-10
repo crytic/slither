@@ -98,6 +98,21 @@ def is_tainted_ssa(variable, context, only_unprotected=False):
     return variable in taints or any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
 
 
+def get_dependencies(variable, context, only_unprotected=False):
+    '''
+    Args:
+        variable
+        context (Contract|Function)
+        only_unprotected (bool): True only unprotected function are considered
+    Returns:
+        list(Variable)
+    '''
+    assert isinstance(context, (Contract, Function))
+    assert isinstance(only_unprotected, bool)
+    if only_unprotected:
+        return context.context[KEY_NON_SSA].get(variable, [])
+    return context.context[KEY_NON_SSA_UNPROTECTED].get(variable, [])
+
 # endregion
 ###################################################################################
 ###################################################################################
@@ -162,8 +177,11 @@ def compute_dependency_contract(contract, slither):
     for function in contract.all_functions_called:
         compute_dependency_function(function)
 
-        propagate_function(contract, function, KEY_SSA)
-        propagate_function(contract, function, KEY_SSA_UNPROTECTED)
+        propagate_function(contract, function, KEY_SSA, KEY_NON_SSA)
+        propagate_function(contract,
+                           function,
+                           KEY_SSA_UNPROTECTED,
+                           KEY_NON_SSA_UNPROTECTED)
 
         if function.visibility in ['public', 'external']:
             [slither.context[KEY_INPUT].add(p) for p in function.parameters]
@@ -172,7 +190,8 @@ def compute_dependency_contract(contract, slither):
     propagate_contract(contract, KEY_SSA, KEY_NON_SSA)
     propagate_contract(contract, KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED)
 
-def propagate_function(contract, function, context_key):
+def propagate_function(contract, function, context_key, context_key_non_ssa):
+    transitive_close_dependencies(function, context_key, context_key_non_ssa)
     # Propage data dependency
     data_depencencies = function.context[context_key]
     for (key, values) in data_depencencies.items():
@@ -181,22 +200,26 @@ def propagate_function(contract, function, context_key):
         else:
             contract.context[context_key][key].union(values)
 
-def propagate_contract(contract, context_key, context_key_non_ssa):
+def transitive_close_dependencies(context, context_key, context_key_non_ssa):
     # transitive closure
     changed = True
     while changed:
         changed = False
         # Need to create new set() as its changed during iteration
-        data_depencencies = {k: set([v for v in values]) for k, values in  contract.context[context_key].items()}
+        data_depencencies = {k: set([v for v in values]) for k, values in context.context[context_key].items()}
         for key, items in data_depencencies.items():
             for item in items:
                 if item in data_depencencies:
-                    additional_items = contract.context[context_key][item]
+                    additional_items = context.context[context_key][item]
                     for additional_item in additional_items:
                         if not additional_item in items and additional_item != key:
                             changed = True
-                            contract.context[context_key][key].add(additional_item)
-    contract.context[context_key_non_ssa] = convert_to_non_ssa(contract.context[context_key])
+                            context.context[context_key][key].add(additional_item)
+    context.context[context_key_non_ssa] = convert_to_non_ssa(context.context[context_key])
+
+
+def propagate_contract(contract, context_key, context_key_non_ssa):
+    transitive_close_dependencies(contract, context_key, context_key_non_ssa)
 
 def add_dependency(lvalue, function, ir, is_protected):
     if not lvalue in function.context[KEY_SSA]:
