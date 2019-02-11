@@ -685,6 +685,8 @@ class Node(SourceMapping, ChildFunction):
             elif isinstance(ir, (HighLevelCall)) and not isinstance(ir, LibraryCall):
                 if isinstance(ir.destination.type, Contract):
                     self._high_level_calls.append((ir.destination.type, ir.function))
+                elif ir.destination == SolidityVariable('this'):
+                    self._high_level_calls.append((self.function.contract, ir.function))
                 else:
                     self._high_level_calls.append((ir.destination.type.type, ir.function))
             elif isinstance(ir, LibraryCall):
