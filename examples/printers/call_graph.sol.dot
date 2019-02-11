@@ -11,11 +11,11 @@ label = "ContractA"
 subgraph cluster_63_ContractB {
 label = "ContractB"
 "63_my_second_func_b" [label="my_second_func_b"]
+"63_my_func_b" [label="my_func_b"]
 "63_my_func_a" [label="my_func_a"]
 "63_constructor" [label="constructor"]
-"63_my_func_b" [label="my_func_b"]
-"63_my_func_b" -> "63_my_second_func_b"
 "63_my_func_a" -> "63_my_second_func_b"
+"63_my_func_b" -> "63_my_second_func_b"
 }
 subgraph cluster_solidity {
 label = "[Solidity]"

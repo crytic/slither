@@ -60,6 +60,8 @@ class Slither(SlitherSolc):
 
         self._analyze_contracts()
 
+        self.load_previous_results()
+
     @property
     def detectors(self):
         return self._detectors

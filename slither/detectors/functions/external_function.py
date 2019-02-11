@@ -96,10 +96,8 @@ class ExternalFunction(AbstractDetector):
                                        for function in derived_contract.functions
                                        if function.full_name == base_most_function.full_name]
 
-    def detect(self):
+    def _detect(self):
         results = []
-
-        all_info = ''
 
         # Create a set to track contracts with dynamic calls. All contracts with dynamic calls could potentially be
         # calling functions internally, and thus we can't assume any function in such contracts isn't called by them.
@@ -171,12 +169,9 @@ class ExternalFunction(AbstractDetector):
                     info = txt.format(function_definition.contract.name,
                                       function_definition.name,
                                       function_definition.source_mapping_str)
-                    all_info += info
 
                     json = self.generate_json_result(info)
                     self.add_function_to_json(function_definition, json)
                     results.append(json)
 
-        if all_info != '':
-            self.log(all_info)
         return results

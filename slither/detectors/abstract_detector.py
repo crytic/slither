@@ -86,17 +86,32 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                                        DetectorClassification.INFORMATIONAL]:
             raise IncorrectDetectorInitialization('CONFIDENCE is not initialized {}'.format(self.__class__.__name__))
 
-    def log(self, info):
-        if self.logger:
-            info = "\n"+info
-            if self.WIKI != '':
-                info += 'Reference: {}'.format(self.WIKI)
-            self.logger.info(self.color(info))
+#    def log(self, info):
+#        if self.logger:
+#            info = "\n"+info
+#            if self.WIKI != '':
+#                info += 'Reference: {}'.format(self.WIKI)
+#            self.logger.info(self.color(info))
+
+    def _log(self, info):
+        self.logger.info(self.color(info))
 
     @abc.abstractmethod
-    def detect(self):
+    def _detect(self):
         """TODO Documentation"""
         return
+
+    def detect(self):
+        results = self._detect()
+        results = [r for r in results if self.slither.valid_result(r)]
+        if results:
+            if self.logger:
+                for result in results:
+                    info = "\n"+result['description']
+                info += 'Reference: {}'.format(self.WIKI)
+                self._log(info)
+        return results
+
 
     @property
     def color(self):

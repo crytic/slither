@@ -89,7 +89,7 @@ contract Bug {
 
         return result
 
-    def detect(self):
+    def _detect(self):
         """ Detect shadowing local variables
 
         Recursively visit the calls
@@ -116,8 +116,6 @@ contract Bug {
                                                                overshadowed_entry[0],
                                                                overshadowed_entry[2].source_mapping_str)
 
-                    # Print relevant information to the log
-                    self.log(info)
 
                     # Generate relevant JSON data for this shadowing definition.
                     json = self.generate_json_result(info)

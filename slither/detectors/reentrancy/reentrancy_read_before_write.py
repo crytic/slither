@@ -70,11 +70,11 @@ Do not report reentrancies that involve ethers (see `reentrancy-eth`)'''
                             result[finding_key] = list(set(result[finding_key] + finding_vars))
         return result
 
-    def detect(self):
+    def _detect(self):
         """
         """
 
-        super().detect()
+        super()._detect()
         reentrancies = self.find_reentrancies()
 
         results = []
@@ -90,7 +90,6 @@ Do not report reentrancies that involve ethers (see `reentrancy-eth`)'''
             info += '\tState variables written after the call(s):\n'
             for (v, node) in varsWritten:
                 info +=  '\t- {} ({})\n'.format(v, node.source_mapping_str)
-            self.log(info)
 
             sending_eth_json = []
 

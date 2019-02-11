@@ -18,7 +18,7 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
-from slither.utils.colors import red, set_colorization_enabled
+from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors,
                                         output_detectors_json, output_printers,
                                         output_to_markdown, output_wiki)
@@ -118,8 +118,11 @@ def process_files(filenames, args, detector_classes, printer_classes):
 ###################################################################################
 
 def output_json(results, filename):
-    with open(filename, 'w', encoding='utf8') as f:
-        json.dump(results, f)
+    if os.path.isfile(filename):
+        logger.info(yellow(f'{filename} exists already, the overwrite is prevented'))
+    else:
+        with open(filename, 'w', encoding='utf8') as f:
+            json.dump(results, f)
 
 # endregion
 ###################################################################################
