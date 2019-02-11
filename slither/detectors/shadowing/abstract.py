@@ -50,7 +50,7 @@ contract DerivedContract is BaseContract{
         return ret
 
 
-    def detect(self):
+    def _detect(self):
         """ Detect shadowing
 
         Recursively visit the calls
@@ -72,7 +72,6 @@ contract DerivedContract is BaseContract{
                         info += "\t- {}.{} ({})\n".format(var.contract.name,
                                                        var.name,
                                                        var.source_mapping_str)
-                    self.log(info)
 
                     json = self.generate_json_result(info)
                     self.add_variables_to_json(all_variables, json)

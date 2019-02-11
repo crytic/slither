@@ -71,11 +71,11 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                             result[finding_key] = list(set(result[finding_key] + finding_vars))
         return result
 
-    def detect(self):
+    def _detect(self):
         """
         """
 
-        super().detect()
+        super()._detect()
         reentrancies = self.find_reentrancies()
 
         results = []
@@ -96,7 +96,6 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
             info += '\tState variables written after the call(s):\n'
             for (v, node) in varsWritten:
                 info +=  '\t- {} ({})\n'.format(v, node.source_mapping_str)
-            self.log(info)
 
             sending_eth_json = []
             if calls != send_eth:

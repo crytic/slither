@@ -4,6 +4,7 @@
 import os
 from slither.core.context.context import Context
 from slither.slithir.operations import InternalCall
+import json
 
 class Slither(Context):
     """
@@ -109,3 +110,12 @@ class Slither(Context):
         for c in self.contracts:
             for f in c.functions:
                 f.cfg_to_dot(os.path.join(d, '{}.{}.dot'.format(c.name, f.name)))
+
+    def valid_result(self, r):
+        return r['description'] not in self._previous_descriptions
+
+    def load_previous_results(self, filename='slither.db.json'):
+        if os.path.isfile(filename):
+            with open(filename) as f:
+                data = json.load(f)
+                self._previous_descriptions = [r['description'] for r in data]
