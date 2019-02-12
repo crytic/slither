@@ -22,7 +22,7 @@ class Slither(SlitherSolc):
     def __init__(self, contract, **kwargs):
         '''
             Args:
-                contract (str| list(json)
+                contract (str| list(json))
             Keyword Args:
                 solc (str): solc binary location (default 'solc')
                 disable_solc_warnings (bool): True to disable solc warnings (default false)
@@ -31,55 +31,70 @@ class Slither(SlitherSolc):
                 is_truffle (bool): is a truffle directory (default false)
                 paths_to_filter (list(str)): list of path to filter (default [])
         '''
-        solc = kwargs.get('solc', 'solc')
-        disable_solc_warnings = kwargs.get('disable_solc_warnings', False)
-        solc_arguments= kwargs.get('solc_arguments',  '')
-        ast_format = kwargs.get('ast_format', '--ast-compact-json')
+
         is_truffle = kwargs.get('is_truffle', False)
-        paths_to_filter = kwargs.get('paths_to_filter', [])
 
         # truffle directory
         if is_truffle:
-            if not os.path.isdir(os.path.join(contract, 'build'))\
-                or not os.path.isdir(os.path.join(contract, 'build', 'contracts')):
-                logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
-                sys.exit(-1)
-            super(Slither, self).__init__('')
-            filenames = glob.glob(os.path.join(contract, 'build', 'contracts', '*.json'))
-            for filename in filenames:
-                with open(filename, encoding='utf8') as f:
-                    contract_loaded = json.load(f)
-                    contract_loaded = contract_loaded['ast']
-                    if 'absolutePath' in contract_loaded:
-                        path = contract_loaded['absolutePath']
-                    else:
-                        path = contract_loaded['attributes']['absolutePath']
-                    self._parse_contracts_from_loaded_json(contract_loaded, path)
-
+            self._init_from_truffle(contract)
         # list of files provided (see --splitted option)
         elif isinstance(contract, list):
-            super(Slither, self).__init__('')
-            for c in contract:
-                if 'absolutePath' in c:
-                    path = c['absolutePath']
-                else:
-                    path = c['attributes']['absolutePath']
-                self._parse_contracts_from_loaded_json(c, path)
+            self._init_from_list(contract)
         # .json or .sol provided
         else:
-            contracts_json = self._run_solc(contract, solc, disable_solc_warnings, solc_arguments, ast_format)
-            super(Slither, self).__init__(contract)
-
-            for c in contracts_json:
-                self._parse_contracts_from_json(c)
+            self._init_from_solc(contract, **kwargs)
 
         self._detectors = []
         self._printers = []
+
+        paths_to_filter = kwargs.get('paths_to_filter', [])
         for p in paths_to_filter:
             self.add_path_to_filter(p)
 
         self._analyze_contracts()
         self.load_previous_results()
+
+    def _init_from_truffle(self, contract):
+        if not os.path.isdir(os.path.join(contract, 'build'))\
+            or not os.path.isdir(os.path.join(contract, 'build', 'contracts')):
+            logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
+            sys.exit(-1)
+        super(Slither, self).__init__('')
+        filenames = glob.glob(os.path.join(contract, 'build', 'contracts', '*.json'))
+        for filename in filenames:
+            with open(filename, encoding='utf8') as f:
+                contract_loaded = json.load(f)
+                contract_loaded = contract_loaded['ast']
+                if 'absolutePath' in contract_loaded:
+                    path = contract_loaded['absolutePath']
+                else:
+                    path = contract_loaded['attributes']['absolutePath']
+                self._parse_contracts_from_loaded_json(contract_loaded, path)
+
+    def _init_from_solc(self, contract, **kwargs):
+        solc = kwargs.get('solc', 'solc')
+        disable_solc_warnings = kwargs.get('disable_solc_warnings', False)
+        solc_arguments = kwargs.get('solc_arguments', '')
+        ast_format = kwargs.get('ast_format', '--ast-compact-json')
+
+        contracts_json = self._run_solc(contract,
+                                        solc,
+                                        disable_solc_warnings,
+                                        solc_arguments,
+                                        ast_format)
+        super(Slither, self).__init__(contract)
+
+        for c in contracts_json:
+            self._parse_contracts_from_json(c)
+
+    def _init_from_list(self, contract):
+        super(Slither, self).__init__('')
+        for c in contract:
+            if 'absolutePath' in c:
+                path = c['absolutePath']
+            else:
+                path = c['attributes']['absolutePath']
+            self._parse_contracts_from_loaded_json(c, path)
 
     @property
     def detectors(self):
