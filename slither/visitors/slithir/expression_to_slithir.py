@@ -128,7 +128,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
             # If tuple
             if expression.type_call.startswith('tuple(') and expression.type_call != 'tuple()':
-                val = TupleVariable()
+                val = TupleVariable(self._node)
             else:
                 val = TemporaryVariable(self._node)
             internal_call = InternalCall(called, len(args), val, expression.type_call)
@@ -139,7 +139,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
             # If tuple
             if expression.type_call.startswith('tuple(') and expression.type_call != 'tuple()':
-                val = TupleVariable()
+                val = TupleVariable(self._node)
             else:
                 val = TemporaryVariable(self._node)
 

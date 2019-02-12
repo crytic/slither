@@ -59,6 +59,8 @@ class Reentrancy(AbstractDetector):
                 # We can check that the function called is
                 # reentrancy-safe
                 if ir.destination == SolidityVariable('this'):
+                    if isinstance(ir.function, Variable):
+                        continue
                     if not ir.function.all_high_level_calls():
                         if not ir.function.all_low_level_calls():
                             continue
