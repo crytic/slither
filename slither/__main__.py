@@ -78,7 +78,10 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
                 package = json.load(f)
                 if 'devDependencies' in package:
                     if 'truffle' in package['devDependencies']:
-                        truffle_version = 'truffle@{}'.format(package['devDependencies']['truffle'])
+                        version = package['devDependencies']['truffle']
+                        if version.startswith('^'):
+                            version = version[1:]
+                        truffle_version = 'truffle@{}'.format(version)
                         cmd = ['npx', truffle_version,'compile']
     logger.info("'{}' running (use --truffle-version truffle@x.x.x to use specific version)".format(' '.join(cmd)))
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

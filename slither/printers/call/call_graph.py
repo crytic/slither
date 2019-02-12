@@ -142,6 +142,9 @@ class PrinterCallGraph(AbstractPrinter):
             Args:
                 filename(string)
         """
+        if not filename:
+            filename = "contracts.dot"
+
         if not filename.endswith('.dot'):
             filename += '.dot'
 
