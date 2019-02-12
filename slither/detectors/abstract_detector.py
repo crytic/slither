@@ -106,8 +106,9 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         results = [r for r in results if self.slither.valid_result(r)]
         if results:
             if self.logger:
+                info = ''
                 for result in results:
-                    info = "\n"+result['description']
+                    info += result['description']
                 info += 'Reference: {}'.format(self.WIKI)
                 self._log(info)
         return results

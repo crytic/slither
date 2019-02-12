@@ -19,9 +19,24 @@ logger_printer = logging.getLogger("Printers")
 
 class Slither(SlitherSolc):
 
-    def __init__(self, contract, solc='solc', disable_solc_warnings=False, solc_arguments='', ast_format='--ast-compact-json', is_truffle=False):
-        self._detectors = []
-        self._printers = []
+    def __init__(self, contract, **kwargs):
+        '''
+            Args:
+                contract (str| list(json)
+            Keyword Args:
+                solc (str): solc binary location (default 'solc')
+                disable_solc_warnings (bool): True to disable solc warnings (default false)
+                solc_argeuments (str): solc arguments (default '')
+                ast_format (str): ast format (default '--ast-compact-json')
+                is_truffle (bool): is a truffle directory (default false)
+                paths_to_filter (list(str)): list of path to filter (default [])
+        '''
+        solc = kwargs.get('solc', 'solc')
+        disable_solc_warnings = kwargs.get('disable_solc_warnings', False)
+        solc_arguments= kwargs.get('solc_arguments',  '')
+        ast_format = kwargs.get('ast_format', '--ast-compact-json')
+        is_truffle = kwargs.get('is_truffle', False)
+        paths_to_filter = kwargs.get('paths_to_filter', [])
 
         # truffle directory
         if is_truffle:
@@ -58,8 +73,12 @@ class Slither(SlitherSolc):
             for c in contracts_json:
                 self._parse_contracts_from_json(c)
 
-        self._analyze_contracts()
+        self._detectors = []
+        self._printers = []
+        for p in paths_to_filter:
+            self.add_path_to_filter(p)
 
+        self._analyze_contracts()
         self.load_previous_results()
 
     @property
