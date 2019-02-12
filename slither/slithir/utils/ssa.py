@@ -4,6 +4,7 @@ from slither.core.cfg.node import NodeType
 from slither.core.declarations import (Contract, Enum, Function,
                                        SolidityFunction, SolidityVariable,
                                        SolidityVariableComposed, Structure)
+from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (Assignment, Balance, Binary, Condition,
@@ -468,7 +469,8 @@ def get(variable, local_variables_instances, state_variables_instances, temporar
                                  Enum,
                                  SolidityFunction,
                                  Structure,
-                                 Function))
+                                 Function,
+                                 Type)) # type for abi.decode(.., t)
     return variable
 
 def get_variable(ir, f, *instances):
