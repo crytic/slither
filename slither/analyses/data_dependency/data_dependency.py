@@ -9,6 +9,7 @@ from slither.slithir.variables import (Constant, LocalIRVariable,
                                        ReferenceVariable, ReferenceVariableSSA,
                                        StateIRVariable, TemporaryVariable,
                                        TemporaryVariableSSA, TupleVariableSSA)
+from slither.core.solidity_types.type import Type
 
 ###################################################################################
 ###################################################################################
@@ -261,7 +262,7 @@ def compute_dependency_function(function):
 def convert_variable_to_non_ssa(v):
     if isinstance(v, (LocalIRVariable, StateIRVariable, TemporaryVariableSSA, ReferenceVariableSSA, TupleVariableSSA)):
         return v.non_ssa_version
-    assert isinstance(v, (Constant, SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function))
+    assert isinstance(v, (Constant, SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function, Type))
     return v
 
 def convert_to_non_ssa(data_depencies):
