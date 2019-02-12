@@ -1,13 +1,14 @@
 """
     Compute the data depenency between all the SSA variables
 """
-from slither.core.declarations import Contract, Function
-from slither.core.declarations.solidity_variables import \
-    SolidityVariableComposed
+from slither.core.declarations import (Contract, Enum, Function,
+                                       SolidityFunction, SolidityVariable,
+                                       SolidityVariableComposed, Structure)
 from slither.slithir.operations import Index, OperationWithLValue
 from slither.slithir.variables import (Constant, LocalIRVariable,
-                                       ReferenceVariable, StateIRVariable,
-                                       TemporaryVariable)
+                                       ReferenceVariable, ReferenceVariableSSA,
+                                       StateIRVariable, TemporaryVariable,
+                                       TemporaryVariableSSA, TupleVariableSSA)
 
 ###################################################################################
 ###################################################################################
@@ -243,7 +244,6 @@ def compute_dependency_function(function):
     function.context[KEY_SSA_UNPROTECTED] = dict()
 
     is_protected = function.is_protected()
-
     for node in function.nodes:
         for ir in node.irs_ssa:
             if isinstance(ir, OperationWithLValue) and ir.lvalue:
@@ -259,10 +259,9 @@ def compute_dependency_function(function):
     function.context[KEY_NON_SSA_UNPROTECTED] = convert_to_non_ssa(function.context[KEY_SSA_UNPROTECTED])
 
 def convert_variable_to_non_ssa(v):
-    if isinstance(v, (LocalIRVariable, StateIRVariable)):
+    if isinstance(v, (LocalIRVariable, StateIRVariable, TemporaryVariableSSA, ReferenceVariableSSA, TupleVariableSSA)):
         return v.non_ssa_version
-    if isinstance(v, (TemporaryVariable, ReferenceVariable)):
-        return next((variable for variable in v.function.slithir_variables if variable.name == v.name))
+    assert isinstance(v, (Constant, SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function))
     return v
 
 def convert_to_non_ssa(data_depencies):
