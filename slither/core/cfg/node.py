@@ -10,12 +10,13 @@ from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
+from slither.core.solidity_types import ElementaryType
 from slither.slithir.convert import convert_expression
 from slither.slithir.operations import (Balance, HighLevelCall, Index,
                                         InternalCall, Length, LibraryCall,
                                         LowLevelCall, Member,
                                         OperationWithLValue, Phi, PhiCallback,
-                                        SolidityCall)
+                                        SolidityCall, Return)
 from slither.slithir.variables import (Constant, LocalIRVariable,
                                        ReferenceVariable, StateIRVariable,
                                        TemporaryVariable, TupleVariable)
@@ -424,11 +425,21 @@ class Node(SourceMapping, ChildFunction):
     def is_conditional(self, include_loop=True):
         """
             Check if the node is a conditional node
-            A conditional node is either a IF or a require/assert
+            A conditional node is either a IF or a require/assert or a RETURN bool
         Returns:
             bool: True if the node is a conditional node
         """
-        return self.contains_if(include_loop) or self.contains_require_or_assert()
+        if self.contains_if(include_loop) or self.contains_require_or_assert():
+            return True
+        if self.irs:
+            last_ir = self.irs[-1]
+            if last_ir:
+                if isinstance(last_ir, Return):
+                    for r in last_ir.read:
+                        if r.type == ElementaryType('bool'):
+                            return True
+        return False
+
 
 
     # endregion
