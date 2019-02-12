@@ -43,7 +43,12 @@ def process(filename, args, detector_classes, printer_classes):
     ast = '--ast-compact-json'
     if args.legacy_ast:
         ast = '--ast-json'
-    slither = Slither(filename, args.solc, args.disable_solc_warnings, args.solc_args, ast)
+    slither = Slither(filename,
+                      solc=args.solc,
+                      disable_solc_warnings=args.disable_solc_warnings,
+                      solc_arguments=args.solc_args,
+                      ast_format=ast,
+                      paths_to_filter=parse_paths_to_filter(args))
 
     return _process(slither, detector_classes, printer_classes)
 
@@ -70,35 +75,38 @@ def _process(slither, detector_classes, printer_classes):
     return results, analyzed_contracts_count
 
 def process_truffle(dirname, args, detector_classes, printer_classes):
-    cmd = ['truffle', 'compile']
-    if args.truffle_version:
-        cmd = ['npx',args.truffle_version,'compile']
-    elif os.path.isfile('package.json'):
-        with open('package.json') as f:
-                package = json.load(f)
-                if 'devDependencies' in package:
-                    if 'truffle' in package['devDependencies']:
-                        version = package['devDependencies']['truffle']
-                        if version.startswith('^'):
-                            version = version[1:]
-                        truffle_version = 'truffle@{}'.format(version)
-                        cmd = ['npx', truffle_version,'compile']
-    logger.info("'{}' running (use --truffle-version truffle@x.x.x to use specific version)".format(' '.join(cmd)))
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if not args.ignore_truffle_compile:
+        cmd = ['truffle', 'compile']
+        if args.truffle_version:
+            cmd = ['npx',args.truffle_version,'compile']
+        elif os.path.isfile('package.json'):
+            with open('package.json') as f:
+                    package = json.load(f)
+                    if 'devDependencies' in package:
+                        if 'truffle' in package['devDependencies']:
+                            version = package['devDependencies']['truffle']
+                            if version.startswith('^'):
+                                version = version[1:]
+                            truffle_version = 'truffle@{}'.format(version)
+                            cmd = ['npx', truffle_version,'compile']
+        logger.info("'{}' running (use --truffle-version truffle@x.x.x to use specific version)".format(' '.join(cmd)))
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    stdout, stderr = process.communicate()
-    stdout, stderr = stdout.decode(), stderr.decode()  # convert bytestrings to unicode strings
+        stdout, stderr = process.communicate()
+        stdout, stderr = stdout.decode(), stderr.decode()  # convert bytestrings to unicode strings
 
-    logger.info(stdout)
+        logger.info(stdout)
 
-    if stderr:
-        logger.error(stderr)
+        if stderr:
+            logger.error(stderr)
 
     slither = Slither(dirname,
-                      args.solc,
-                      args.disable_solc_warnings,
-                      args.solc_args,
-                      is_truffle=True)
+                      solc=args.solc,
+                      disable_solc_warnings=args.disable_solc_warnings,
+                      solc_arguments=args.solc_args,
+                      is_truffle=True,
+                      paths_to_filter=parse_paths_to_filter(args))
+
     return _process(slither, detector_classes, printer_classes)
 
 
@@ -110,7 +118,12 @@ def process_files(filenames, args, detector_classes, printer_classes):
             contract_loaded = json.load(f)
             all_contracts.append(contract_loaded['ast'])
 
-    slither = Slither(all_contracts, args.solc, args.disable_solc_warnings, args.solc_args)
+    slither = Slither(all_contracts,
+                      solc=args.solc,
+                      disable_solc_warnings=args.disable_solc_warnings,
+                      solc_arguments=args.solc_args,
+                      paths_to_filter=parse_paths_to_filter(args))
+
     return _process(slither, detector_classes, printer_classes)
 
 # endregion
@@ -240,6 +253,11 @@ def choose_printers(args, all_printer_classes):
 ###################################################################################
 ###################################################################################
 
+def parse_paths_to_filter(args):
+    if args.paths_to_filter:
+        return args.paths_to_filter.split(',')
+    return []
+
 def parse_args(detector_classes, printer_classes):
     parser = argparse.ArgumentParser(description='Slither',
                                      usage="slither.py contract.sol [flag]")
@@ -285,7 +303,6 @@ def parse_args(detector_classes, printer_classes):
                                nargs=0,
                                default=False)
 
-
     group_detector.add_argument('--exclude',
                                 help='Comma-separated list of detectors that should be excluded',
                                 action='store',
@@ -311,7 +328,6 @@ def parse_args(detector_classes, printer_classes):
                                 help='Exclude high impact analyses',
                                 action='store_true',
                                 default=False)
-
 
     group_solc.add_argument('--solc',
                             help='solc path',
@@ -341,11 +357,23 @@ def parse_args(detector_classes, printer_classes):
                             help='Use a local Truffle version (with npx)',
                             action='store',
                             default=False)
+
     group_misc.add_argument('--disable-color',
                             help='Disable output colorization',
                             action='store_true',
                             default=False)
 
+    group_misc.add_argument('--filter-paths',
+                            help='Comma-separated list of paths for which results will be excluded',
+                            action='store',
+                            dest='paths_to_filter',
+                            default='')
+
+    group_misc.add_argument('--ignore-truffle-compile',
+                            help='Do not run truffle compile',
+                            action='store_true',
+                            dest='ignore_truffle_compile',
+                            default=False)
 
 
     # debugger command
