@@ -30,6 +30,7 @@ class Slither(SlitherSolc):
                 ast_format (str): ast format (default '--ast-compact-json')
                 is_truffle (bool): is a truffle directory (default false)
                 paths_to_filter (list(str)): list of path to filter (default [])
+                interactive_mode (bool): if true, switch to interactive mode (default false)
         '''
 
         is_truffle = kwargs.get('is_truffle', False)
@@ -51,8 +52,10 @@ class Slither(SlitherSolc):
         for p in paths_to_filter:
             self.add_path_to_filter(p)
 
+        interactive_mode = kwargs.get('interactive_mode', False)
+        self._interactive_mode = interactive_mode
+
         self._analyze_contracts()
-        self.load_previous_results()
 
     def _init_from_truffle(self, contract):
         if not os.path.isdir(os.path.join(contract, 'build'))\
@@ -139,7 +142,10 @@ class Slither(SlitherSolc):
         :return: List of registered detectors results.
         """
 
-        return [d.detect() for d in self._detectors]
+        self.load_previous_results()
+        results = [d.detect() for d in self._detectors]
+        self.write_results_to_hide()
+        return results
 
     def run_printers(self):
         """
@@ -209,3 +215,7 @@ class Slither(SlitherSolc):
         stdout = stdout.split('\n=')
 
         return stdout
+
+    @property
+    def interactive_mode(self):
+        return self._interactive_mode

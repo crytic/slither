@@ -106,11 +106,25 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         results = [r for r in results if self.slither.valid_result(r)]
         if results:
             if self.logger:
-                info = ''
-                for result in results:
+                info = '\n'
+                for idx, result in enumerate(results):
+                    if self.slither.interactive_mode:
+                        info += '{}: '.format(idx)
                     info += result['description']
                 info += 'Reference: {}'.format(self.WIKI)
                 self._log(info)
+        if results and self.slither.interactive_mode:
+            not_well_formed = True
+            while not_well_formed:
+                indexes = input('Results to hide "0,1,..." or "All" (enter to not hide results): '.format(len(results)))
+                if indexes == 'All':
+                    self.slither.save_results_to_hide(results)
+                    return []
+                if indexes == '':
+                    return results
+                indexes = [int(i) for i in indexes.split(',')]
+                self.slither.save_results_to_hide([r for (idx, r) in enumerate(results) if idx in indexes])
+                return [r for (idx, r) in enumerate(results) if idx not in indexes]
         return results
 
 

@@ -2,9 +2,14 @@
     Main module
 """
 import os
+import logging
+import json
 from slither.core.context.context import Context
 from slither.slithir.operations import InternalCall
-import json
+from slither.utils.colors import red
+
+logger = logging.getLogger("Slither")
+logging.basicConfig()
 
 class Slither(Context):
     """
@@ -23,7 +28,9 @@ class Slither(Context):
         self._all_functions = set()
         self._all_modifiers = set()
 
-        self._previous_descriptions = set()
+        self._previous_results_filename = 'slither.db.json'
+        self._results_to_hide = []
+        self._previous_results = []
         self._paths_to_filter = set()
 
 
@@ -167,13 +174,27 @@ class Slither(Context):
         '''
         if r['elements'] and all((any(path in elem['source_mapping']['filename'] for path in self._paths_to_filter) for elem in r['elements'])):
             return False
-        return not r['description'] in self._previous_descriptions
+        return not r['description'] in [pr['description'] for pr in self._previous_results]
 
-    def load_previous_results(self, filename='slither.db.json'):
-        if os.path.isfile(filename):
-            with open(filename) as f:
-                data = json.load(f)
-                self._previous_descriptions = set(r['description'] for r in data)
+    def load_previous_results(self):
+        filename = self._previous_results_filename
+        try:
+            if os.path.isfile(filename):
+                with open(filename) as f:
+                    self._previous_results = json.load(f)
+        except json.decoder.JSONDecodeError:
+            logger.error(red('Impossible to decode {}. Consider removing the file'.format(filename)))
+
+    def write_results_to_hide(self):
+        if not self._results_to_hide:
+            return
+        filename = self._previous_results_filename
+        with open(filename, 'w', encoding='utf8') as f:
+            results = self._results_to_hide + self._previous_results
+            json.dump(results, f)
+
+    def save_results_to_hide(self, results):
+        self._results_to_hide += results
 
     def add_path_to_filter(self, path):
         '''
