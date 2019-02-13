@@ -28,7 +28,7 @@ class DataDependency(AbstractPrinter):
         txt = ''
         for c in self.contracts:
             txt += "\nContract %s\n"%c.name
-            table = PrettyTable(['Variable', 'Depenencies'])
+            table = PrettyTable(['Variable', 'Dependencies'])
             for v in c.state_variables:
                 table.add_row([v.name, _get(v, c)])
 
@@ -37,7 +37,7 @@ class DataDependency(AbstractPrinter):
             txt += "\n"
             for f in c.functions_and_modifiers_not_inherited:
                 txt += "\nFunction %s\n"%f.full_name
-                table = PrettyTable(['Variable', 'Depenencies'])
+                table = PrettyTable(['Variable', 'Dependencies'])
                 for v in f.variables:
                     table.add_row([v.name, _get(v, f)])
                 for v in c.state_variables:
