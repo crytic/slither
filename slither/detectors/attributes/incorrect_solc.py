@@ -92,8 +92,9 @@ We recommend avoiding complex pragma statement.'''
             json = self.generate_json_result(info)
 
             # follow the same format than add_nodes_to_json
-            json['expressions'] = [{'expression': p.version,
-                                    'source_mapping': p.source_mapping} for (reason, p) in disallowed_pragmas]
+            json['elements'] = [{'type': 'expression',
+                                 'expression': p.version,
+                                 'source_mapping': p.source_mapping} for (reason, p) in disallowed_pragmas]
             results.append(json)
 
         return results
