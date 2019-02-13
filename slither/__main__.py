@@ -48,7 +48,8 @@ def process(filename, args, detector_classes, printer_classes):
                       disable_solc_warnings=args.disable_solc_warnings,
                       solc_arguments=args.solc_args,
                       ast_format=ast,
-                      paths_to_filter=parse_paths_to_filter(args))
+                      paths_to_filter=parse_paths_to_filter(args),
+                      interactive_mode=args.interactive_mode)
 
     return _process(slither, detector_classes, printer_classes)
 
@@ -105,7 +106,8 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
                       disable_solc_warnings=args.disable_solc_warnings,
                       solc_arguments=args.solc_args,
                       is_truffle=True,
-                      paths_to_filter=parse_paths_to_filter(args))
+                      paths_to_filter=parse_paths_to_filter(args),
+                      interactive_mode=args.interactive_mode)
 
     return _process(slither, detector_classes, printer_classes)
 
@@ -122,7 +124,8 @@ def process_files(filenames, args, detector_classes, printer_classes):
                       solc=args.solc,
                       disable_solc_warnings=args.disable_solc_warnings,
                       solc_arguments=args.solc_args,
-                      paths_to_filter=parse_paths_to_filter(args))
+                      paths_to_filter=parse_paths_to_filter(args),
+                      interactive_mode=args.interactive_mode)
 
     return _process(slither, detector_classes, printer_classes)
 
@@ -375,6 +378,11 @@ def parse_args(detector_classes, printer_classes):
                             dest='ignore_truffle_compile',
                             default=False)
 
+    group_misc.add_argument('--interactive-mode',
+                            help='Run interactive mode (save results in slither.db.json)',
+                            action='store_true',
+                            dest='interactive_mode',
+                            default=False)
 
     # debugger command
     parser.add_argument('--debug',
