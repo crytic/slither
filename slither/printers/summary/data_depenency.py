@@ -8,8 +8,8 @@ from slither.analyses.data_dependency.data_dependency import get_dependencies
 from slither.slithir.variables import TemporaryVariable, ReferenceVariable
 
 def _get(v, c):
-    return [d.name for d in get_dependencies(v, c) if not isinstance(d, (TemporaryVariable,
-                                                                        ReferenceVariable))]
+    return list(set([d.name for d in get_dependencies(v, c) if not isinstance(d, (TemporaryVariable,
+                                                                               ReferenceVariable))]))
 
 class DataDependency(AbstractPrinter):
 
