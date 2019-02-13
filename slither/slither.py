@@ -29,7 +29,7 @@ class Slither(SlitherSolc):
                 solc_argeuments (str): solc arguments (default '')
                 ast_format (str): ast format (default '--ast-compact-json')
                 is_truffle (bool): is a truffle directory (default false)
-                paths_to_filter (list(str)): list of path to filter (default [])
+                filter_paths (list(str)): list of path to filter (default [])
                 interactive_mode (bool): if true, switch to interactive mode (default false)
         '''
 
@@ -48,8 +48,8 @@ class Slither(SlitherSolc):
         self._detectors = []
         self._printers = []
 
-        paths_to_filter = kwargs.get('paths_to_filter', [])
-        for p in paths_to_filter:
+        filter_paths = kwargs.get('filter_paths', [])
+        for p in filter_paths:
             self.add_path_to_filter(p)
 
         interactive_mode = kwargs.get('interactive_mode', False)

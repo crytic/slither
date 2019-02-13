@@ -48,7 +48,7 @@ def process(filename, args, detector_classes, printer_classes):
                       disable_solc_warnings=args.disable_solc_warnings,
                       solc_arguments=args.solc_args,
                       ast_format=ast,
-                      paths_to_filter=parse_paths_to_filter(args),
+                      filter_paths=parse_filter_paths(args),
                       interactive_mode=args.interactive_mode)
 
     return _process(slither, detector_classes, printer_classes)
@@ -106,7 +106,7 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
                       disable_solc_warnings=args.disable_solc_warnings,
                       solc_arguments=args.solc_args,
                       is_truffle=True,
-                      paths_to_filter=parse_paths_to_filter(args),
+                      filter_paths=parse_filter_paths(args),
                       interactive_mode=args.interactive_mode)
 
     return _process(slither, detector_classes, printer_classes)
@@ -124,7 +124,7 @@ def process_files(filenames, args, detector_classes, printer_classes):
                       solc=args.solc,
                       disable_solc_warnings=args.disable_solc_warnings,
                       solc_arguments=args.solc_args,
-                      paths_to_filter=parse_paths_to_filter(args),
+                      filter_paths=parse_filter_paths(args),
                       interactive_mode=args.interactive_mode)
 
     return _process(slither, detector_classes, printer_classes)
@@ -200,10 +200,11 @@ def choose_detectors(args, all_detector_classes):
 
     if args.detectors_to_run == 'all':
         detectors_to_run = all_detector_classes
-        detectors_excluded = args.detectors_to_exclude.split(',')
-        for d in detectors:
-            if d in detectors_excluded:
-                detectors_to_run.remove(detectors[d])
+        if args.detectors_to_exclude:
+            detectors_excluded = args.detectors_to_exclude.split(',')
+            for d in detectors:
+                if d in detectors_excluded:
+                    detectors_to_run.remove(detectors[d])
     else:
         for d in args.detectors_to_run.split(','):
             if d in detectors:
@@ -238,7 +239,7 @@ def choose_printers(args, all_printer_classes):
     printers_to_run = []
 
     # disable default printer
-    if args.printers_to_run == '':
+    if args.printers_to_run is None:
         return []
 
     printers = {p.ARGUMENT: p for p in all_printer_classes}
@@ -256,10 +257,30 @@ def choose_printers(args, all_printer_classes):
 ###################################################################################
 ###################################################################################
 
-def parse_paths_to_filter(args):
-    if args.paths_to_filter:
-        return args.paths_to_filter.split(',')
+def parse_filter_paths(args):
+    if args.filter_paths:
+        return args.filter_paths.split(',')
     return []
+
+# Those are the flags shared by the command line and the config file
+defaults_flag_in_config = {
+    'detectors_to_run': 'all',
+    'printers_to_run': None,
+    'detectors_to_exclude': None,
+    'exclude_informational': False,
+    'exclude_low': False,
+    'exclude_medium': False,
+    'exclude_high': False,
+    'solc': 'solc',
+    'solc_args': None,
+    'disable_solc_warnings': False,
+    'json': None,
+    'truffle_version': None,
+    'disable_color': False,
+    'filter_paths': None,
+    'ignore_truffle_compile': False,
+    'legacy_ast': False
+    }
 
 def parse_args(detector_classes, printer_classes):
     parser = argparse.ArgumentParser(description='Slither',
@@ -284,7 +305,7 @@ def parse_args(detector_classes, printer_classes):
                                          ', '.join(d.ARGUMENT for d in detector_classes)),
                                 action='store',
                                 dest='detectors_to_run',
-                                default='all')
+                                default=defaults_flag_in_config['detectors_to_run'])
 
     group_printer.add_argument('--print',
                                help='Comma-separated list fo contract information printers, '
@@ -292,7 +313,7 @@ def parse_args(detector_classes, printer_classes):
                                         ', '.join(d.ARGUMENT for d in printer_classes)),
                                action='store',
                                dest='printers_to_run',
-                               default='')
+                               default=defaults_flag_in_config['printers_to_run'])
 
     group_detector.add_argument('--list-detectors',
                                 help='List available detectors',
@@ -310,42 +331,42 @@ def parse_args(detector_classes, printer_classes):
                                 help='Comma-separated list of detectors that should be excluded',
                                 action='store',
                                 dest='detectors_to_exclude',
-                                default='')
+                                default=defaults_flag_in_config['detectors_to_exclude'])
 
     group_detector.add_argument('--exclude-informational',
                                 help='Exclude informational impact analyses',
                                 action='store_true',
-                                default=False)
+                                default=defaults_flag_in_config['exclude_informational'])
 
     group_detector.add_argument('--exclude-low',
                                 help='Exclude low impact analyses',
                                 action='store_true',
-                                default=False)
+                                default=defaults_flag_in_config['exclude_low'])
 
     group_detector.add_argument('--exclude-medium',
                                 help='Exclude medium impact analyses',
                                 action='store_true',
-                                default=False)
+                                default=defaults_flag_in_config['exclude_medium'])
 
     group_detector.add_argument('--exclude-high',
                                 help='Exclude high impact analyses',
                                 action='store_true',
-                                default=False)
+                                default=defaults_flag_in_config['exclude_high'])
 
     group_solc.add_argument('--solc',
                             help='solc path',
                             action='store',
-                            default='solc')
+                            default=defaults_flag_in_config['solc'])
 
     group_solc.add_argument('--solc-args',
                             help='Add custom solc arguments. Example: --solc-args "--allow-path /tmp --evm-version byzantium".',
                             action='store',
-                            default=None)
+                            default=defaults_flag_in_config['solc_args'])
 
     group_solc.add_argument('--disable-solc-warnings',
                             help='Disable solc warnings',
                             action='store_true',
-                            default=False)
+                            default=defaults_flag_in_config['disable_solc_warnings'])
 
     group_solc.add_argument('--solc-ast',
                             help='Provide the ast solc file',
@@ -355,34 +376,40 @@ def parse_args(detector_classes, printer_classes):
     group_misc.add_argument('--json',
                             help='Export results as JSON',
                             action='store',
-                            default=None)
+                            default=defaults_flag_in_config['json'])
     group_misc.add_argument('--truffle-version',
                             help='Use a local Truffle version (with npx)',
                             action='store',
-                            default=False)
+                            default=defaults_flag_in_config['truffle_version'])
 
     group_misc.add_argument('--disable-color',
                             help='Disable output colorization',
                             action='store_true',
-                            default=False)
+                            default=defaults_flag_in_config['disable_color'])
 
     group_misc.add_argument('--filter-paths',
                             help='Comma-separated list of paths for which results will be excluded',
                             action='store',
-                            dest='paths_to_filter',
-                            default='')
+                            dest='filter_paths',
+                            default=defaults_flag_in_config['filter_paths'])
 
     group_misc.add_argument('--ignore-truffle-compile',
                             help='Do not run truffle compile',
                             action='store_true',
                             dest='ignore_truffle_compile',
-                            default=False)
+                            default=defaults_flag_in_config['ignore_truffle_compile'])
 
     group_misc.add_argument('--interactive-mode',
                             help='Run interactive mode (save results in slither.db.json)',
                             action='store_true',
                             dest='interactive_mode',
                             default=False)
+
+    group_misc.add_argument('--config-file',
+                            help='Provide a config file (default: slither.config.json)',
+                            action='store',
+                            dest='config_file',
+                            default='slither.config.json')
 
     # debugger command
     parser.add_argument('--debug',
@@ -409,7 +436,7 @@ def parse_args(detector_classes, printer_classes):
     parser.add_argument('--legacy-ast',
                         help=argparse.SUPPRESS,
                         action='store_true',
-                        default=False)
+                        default=defaults_flag_in_config['legacy_ast'])
 
     # if the json is splitted in different files
     parser.add_argument('--splitted',
@@ -422,6 +449,19 @@ def parse_args(detector_classes, printer_classes):
         sys.exit(1)
 
     args = parser.parse_args()
+
+    if os.path.isfile(args.config_file):
+        try:
+            with open(args.config_file) as f:
+                config = json.load(f)
+                for key, elem in config.items():
+                    if key not in defaults_flag_in_config:
+                        logger.info(yellow('{} has an unknown key: {} : {}'.format(args.config_file, key, elem)))
+                        continue
+                    if getattr(args, key) == defaults_flag_in_config[key]:
+                        setattr(args, key, elem)
+        except json.decoder.JSONDecodeError as e:
+            logger.error(red('Impossible to read {}, please check the file {}'.format(args.config_file, e)))
 
     return args
 
