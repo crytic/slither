@@ -27,27 +27,9 @@ slither .
 Run Slither on a single file:
 ``` 
 $ slither tests/uninitialized.sol 
-[..]
-INFO:Detectors:
-Uninitialized.destination (tests/uninitialized.sol#5) is never initialized. It is used in:
-	- transfer (tests/uninitialized.sol#7-9)
-Reference: https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-state-variables
-[..]
 ``` 
 
-Slither can be run on:
-- A `.sol` file
-- A Truffle directory
-- A directory containing `*.sol` files (all the `*.sol` files will be analyzed)
-- A glob (be sure to quote the argument when using a glob) 
-
-###  Configuration
-
-* `--solc SOLC`: Path to `solc` (default 'solc')
-* `--solc-args SOLC_ARGS`: Add custom solc arguments. `SOLC_ARGS` can contain multiple arguments
-* `--disable-solc-warnings`: Do not print solc warnings
-* `--solc-ast`: Use the solc AST file as input (`solc file.sol --ast-json > file.ast.json`)
-* `--json FILE`: Export results as JSON
+For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
 
 ## Detectors
 
@@ -104,7 +86,9 @@ Num | Printer | Description
 10 | `slithir` | [Print the slithIR representation of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir)
 11 | `slithir-ssa` | [Print the slithIR representation of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir-ssa)
 12 | `variables-order` | [Print the storage order of the state variables](https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization)
-13 | `vars-and-auth` | [Print the state variables written and the authorization of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization)## How to install
+13 | `vars-and-auth` | [Print the state variables written and the authorization of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization)
+
+## How to install
 
 Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
 
