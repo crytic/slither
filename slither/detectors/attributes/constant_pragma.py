@@ -36,8 +36,9 @@ class ConstantPragma(AbstractDetector):
 
             json = self.generate_json_result(info)
             # follow the same format than add_nodes_to_json
-            json['expressions'] = [{'expression': p.version,
-                                    'source_mapping': p.source_mapping} for p in pragma]
+            json['elements'] = [{'type': 'expression',
+                                 'expression': p.version,
+                                 'source_mapping': p.source_mapping} for p in pragma]
             results.append(json)
 
         return results
