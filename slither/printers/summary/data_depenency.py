@@ -8,8 +8,8 @@ from slither.analyses.data_dependency.data_dependency import get_dependencies
 from slither.slithir.variables import TemporaryVariable, ReferenceVariable
 
 def _get(v, c):
-    return [d.name for d in get_dependencies(v, c) if not isinstance(d, (TemporaryVariable,
-                                                                        ReferenceVariable))]
+    return list(set([d.name for d in get_dependencies(v, c) if not isinstance(d, (TemporaryVariable,
+                                                                               ReferenceVariable))]))
 
 class DataDependency(AbstractPrinter):
 
@@ -28,7 +28,7 @@ class DataDependency(AbstractPrinter):
         txt = ''
         for c in self.contracts:
             txt += "\nContract %s\n"%c.name
-            table = PrettyTable(['Variable', 'Depenencies'])
+            table = PrettyTable(['Variable', 'Dependencies'])
             for v in c.state_variables:
                 table.add_row([v.name, _get(v, c)])
 
@@ -37,7 +37,7 @@ class DataDependency(AbstractPrinter):
             txt += "\n"
             for f in c.functions_and_modifiers_not_inherited:
                 txt += "\nFunction %s\n"%f.full_name
-                table = PrettyTable(['Variable', 'Depenencies'])
+                table = PrettyTable(['Variable', 'Dependencies'])
                 for v in f.variables:
                     table.add_row([v.name, _get(v, f)])
                 for v in c.state_variables:
