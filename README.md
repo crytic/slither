@@ -29,7 +29,7 @@ Run Slither on a single file:
 $ slither tests/uninitialized.sol 
 ``` 
 
-For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage.md) documentation.
+For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
 
 ## Detectors
 
