@@ -151,7 +151,8 @@ class Node(SourceMapping, ChildFunction):
 
         self._internal_calls = []
         self._solidity_calls = []
-        self._high_level_calls = []
+        self._high_level_calls = [] # contains library calls
+        self._library_calls = []
         self._low_level_calls = []
         self._external_calls_as_expressions = []
         self._irs = []
@@ -343,6 +344,13 @@ class Node(SourceMapping, ChildFunction):
         """
         return list(self._high_level_calls)
 
+    @property
+    def library_calls(self):
+        """
+            list((Contract, Function)):
+            Include library calls
+        """
+        return list(self._library_calls)
     @property
     def low_level_calls(self):
         """
@@ -703,6 +711,7 @@ class Node(SourceMapping, ChildFunction):
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)
                 self._high_level_calls.append((ir.destination, ir.function))
+                self._library_calls.append((ir.destination, ir.function))
 
         self._vars_read = list(set(self._vars_read))
         self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
@@ -714,6 +723,7 @@ class Node(SourceMapping, ChildFunction):
         self._internal_calls = list(set(self._internal_calls))
         self._solidity_calls = list(set(self._solidity_calls))
         self._high_level_calls = list(set(self._high_level_calls))
+        self._library_calls = list(set(self._library_calls))
         self._low_level_calls = list(set(self._low_level_calls))
 
     @staticmethod

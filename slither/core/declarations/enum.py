@@ -19,3 +19,5 @@ class Enum(ChildContract, SourceMapping):
     def values(self):
         return self._values
 
+    def __str__(self):
+        return self.name
