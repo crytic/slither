@@ -53,6 +53,7 @@ class Function(ChildContract, SourceMapping):
         self._solidity_calls = []
         self._low_level_calls = []
         self._high_level_calls = []
+        self._library_calls = []
         self._external_calls_as_expressions = []
         self._expression_vars_read = []
         self._expression_vars_written = []
@@ -70,6 +71,7 @@ class Function(ChildContract, SourceMapping):
         self._all_slithir_operations = None
         self._all_internals_calls = None
         self._all_high_level_calls = None
+        self._all_library_calls = None
         self._all_low_level_calls = None
         self._all_state_variables_read = None
         self._all_solidity_variables_read = None
@@ -418,6 +420,13 @@ class Function(ChildContract, SourceMapping):
         return list(self._high_level_calls)
 
     @property
+    def library_calls(self):
+        """
+            list((Contract, Function)):
+        """
+        return list(self._library_calls)
+
+    @property
     def low_level_calls(self):
         """
             list((Variable|SolidityVariable, str)): List of low_level call
@@ -554,6 +563,8 @@ class Function(ChildContract, SourceMapping):
         explored = [self]
         to_explore = [c for c in self.internal_calls if
                       isinstance(c, Function) and c not in explored]
+        to_explore += [c for (_, c) in self.library_calls if
+                       isinstance(c, Function) and c not in explored]
         to_explore += [m for m in self.modifiers if m not in explored]
 
         while to_explore:
@@ -566,6 +577,8 @@ class Function(ChildContract, SourceMapping):
             values += f_new_values(f)
 
             to_explore += [c for c in f.internal_calls if\
+                           isinstance(c, Function) and c not in explored and c not in to_explore]
+            to_explore += [c for (_, c) in f.library_calls if
                            isinstance(c, Function) and c not in explored and c not in to_explore]
             to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
 
@@ -629,6 +642,13 @@ class Function(ChildContract, SourceMapping):
         if self._all_high_level_calls is None:
             self._all_high_level_calls = self._explore_functions(lambda x: x.high_level_calls)
         return self._all_high_level_calls
+
+    def all_library_calls(self):
+        """ recursive version of library calls
+        """
+        if self._all_library_calls is None:
+            self._all_library_calls = self._explore_functions(lambda x: x.library_calls)
+        return self._all_library_calls
 
     @staticmethod
     def _explore_func_cond_read(func, include_loop):
@@ -990,6 +1010,14 @@ class Function(ChildContract, SourceMapping):
                           groupby(sorted(high_level_calls, key=lambda x: str(x)), lambda x: str(x))]
 
         self._high_level_calls = high_level_calls
+
+        library_calls = [x.library_calls for x in self.nodes]
+        library_calls = [x for x in library_calls if x]
+        library_calls = [item for sublist in library_calls for item in sublist]
+        library_calls = [next(obj) for i, obj in
+                          groupby(sorted(library_calls, key=lambda x: str(x)), lambda x: str(x))]
+
+        self._library_calls = library_calls
 
         external_calls_as_expressions = [x.external_calls_as_expressions for x in self.nodes]
         external_calls_as_expressions = [x for x in external_calls_as_expressions if x]
