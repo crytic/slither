@@ -44,27 +44,30 @@ Num | Detector | What it Detects | Impact | Confidence
 5 | `arbitrary-send` | [Functions that send ether to arbitrary destinations](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#functions-that-send-ether-to-arbitrary-destinations) | High | Medium
 6 | `controlled-delegatecall` | [Controlled delegatecall destination](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#controlled-delegatecall) | High | Medium
 7 | `reentrancy-eth` | [Reentrancy vulnerabilities (theft of ethers)](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities) | High | Medium
-8 | `incorrect-equality` | [Dangerous strict equalities](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#dangerous-strict-equalities) | Medium | High
-9 | `locked-ether` | [Contracts that lock ether](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#contracts-that-lock-ether) | Medium | High
-10 | `shadowing-abstract` | [State variables shadowing from abstract contracts](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variable-shadowing-from-abstract-contracts) | Medium | High
-11 | `constant-function` | [Constant functions changing the state](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#constant-functions-changing-the-state) | Medium | Medium
-12 | `reentrancy-no-eth` | [Reentrancy vulnerabilities (no theft of ethers)](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities-1) | Medium | Medium
-13 | `tx-origin` | [Dangerous usage of `tx.origin`](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#dangerous-usage-of-txorigin) | Medium | Medium
-14 | `uninitialized-local` | [Uninitialized local variables](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-local-variables) | Medium | Medium
-15 | `unused-return` | [Unused return values](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-return) | Medium | Medium
-16 | `shadowing-builtin` | [Built-in symbol shadowing](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#builtin-symbol-shadowing) | Low | High
-17 | `shadowing-local` | [Local variables shadowing](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#local-variable-shadowing) | Low | High
-18 | `calls-loop` | [Multiple calls in a loop](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description/_edit#calls-inside-a-loop) | Low | Medium
-19 | `reentrancy-benign` | [Benign reentrancy vulnerabilities](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities-2) | Low | Medium
-20 | `timestamp` | [Dangerous usage of `block.timestamp`](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#block-timestamp) | Low | Medium
-21 | `assembly` | [Assembly usage](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#assembly-usage) | Informational | High
-22 | `constable-states` | [State variables that could be declared constant](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variables-that-could-be-declared-constant) | Informational | High
-23 | `external-function` | [Public function that could be declared as external](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#public-function-that-could-be-declared-as-external) | Informational | High
-24 | `low-level-calls` | [Low level calls](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#low-level-calls) | Informational | High
-25 | `naming-convention` | [Conformance to Solidity naming conventions](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#conformance-to-solidity-naming-conventions) | Informational | High
-26 | `pragma` | [If different pragma directives are used](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#different-pragma-directives-are-used) | Informational | High
-27 | `solc-version` | [Incorrect Solidity version (< 0.4.24 or complex pragma)](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#incorrect-version-of-solidity) | Informational | High
-28 | `unused-state` | [Unused state variables](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-state-variables) | Informational | High
+8 | `erc20-interface` | [Incorrect ERC20 interfaces](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#incorrect-erc20-interface) | Medium | High
+9 | `incorrect-equality` | [Dangerous strict equalities](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#dangerous-strict-equalities) | Medium | High
+10 | `locked-ether` | [Contracts that lock ether](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#contracts-that-lock-ether) | Medium | High
+11 | `shadowing-abstract` | [State variables shadowing from abstract contracts](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variable-shadowing-from-abstract-contracts) | Medium | High
+12 | `constant-function` | [Constant functions changing the state](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#constant-functions-changing-the-state) | Medium | Medium
+13 | `reentrancy-no-eth` | [Reentrancy vulnerabilities (no theft of ethers)](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities-1) | Medium | Medium
+14 | `tx-origin` | [Dangerous usage of `tx.origin`](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#dangerous-usage-of-txorigin) | Medium | Medium
+15 | `uninitialized-local` | [Uninitialized local variables](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-local-variables) | Medium | Medium
+16 | `unused-return` | [Unused return values](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-return) | Medium | Medium
+17 | `shadowing-builtin` | [Built-in symbol shadowing](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#builtin-symbol-shadowing) | Low | High
+18 | `shadowing-local` | [Local variables shadowing](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#local-variable-shadowing) | Low | High
+19 | `calls-loop` | [Multiple calls in a loop](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description/_edit#calls-inside-a-loop) | Low | Medium
+20 | `reentrancy-benign` | [Benign reentrancy vulnerabilities](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities-2) | Low | Medium
+21 | `timestamp` | [Dangerous usage of `block.timestamp`](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#block-timestamp) | Low | Medium
+22 | `assembly` | [Assembly usage](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#assembly-usage) | Informational | High
+23 | `constable-states` | [State variables that could be declared constant](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variables-that-could-be-declared-constant) | Informational | High
+24 | `deprecated-standards` | [Deprecated Solidity Standards](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#deprecated-standards) | Informational | High
+25 | `erc20-indexed` | [Un-indexed ERC20 event parameters](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unindexed-erc20-event-parameters) | Informational | High
+26 | `external-function` | [Public function that could be declared as external](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#public-function-that-could-be-declared-as-external) | Informational | High
+27 | `low-level-calls` | [Low level calls](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#low-level-calls) | Informational | High
+28 | `naming-convention` | [Conformance to Solidity naming conventions](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#conformance-to-solidity-naming-conventions) | Informational | High
+29 | `pragma` | [If different pragma directives are used](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#different-pragma-directives-are-used) | Informational | High
+30 | `solc-version` | [Incorrect Solidity version (< 0.4.24 or complex pragma)](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#incorrect-version-of-solidity) | Informational | High
+31 | `unused-state` | [Unused state variables](https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-state-variables) | Informational | High
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
@@ -83,10 +86,12 @@ Num | Printer | Description
 7 | `human-summary` | [Print a human-readable summary of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#human-summary)
 8 | `inheritance` | [Print the inheritance relations between contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#inheritance)
 9 | `inheritance-graph` | [Export the inheritance graph of each contract to a dot file](https://github.com/trailofbits/slither/wiki/Printer-documentation#inheritance-graph)
-10 | `slithir` | [Print the slithIR representation of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir)
-11 | `slithir-ssa` | [Print the slithIR representation of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir-ssa)
-12 | `variables-order` | [Print the storage order of the state variables](https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization)
-13 | `vars-and-auth` | [Print the state variables written and the authorization of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization)
+10 | `modifiers` | [Print the modifiers called by each function](https://github.com/trailofbits/slither/wiki/Printer-documentation#modifiers)
+11 | `require` | [Print the require and assert calls of each function](https://github.com/trailofbits/slither/wiki/Printer-documentation#require)
+12 | `slithir` | [Print the slithIR representation of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir)
+13 | `slithir-ssa` | [Print the slithIR representation of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir-ssa)
+14 | `variables-order` | [Print the storage order of the state variables](https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization)
+15 | `vars-and-auth` | [Print the state variables written and the authorization of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization)
 
 ## How to install
 
