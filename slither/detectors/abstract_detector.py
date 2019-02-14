@@ -108,23 +108,29 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             if self.logger:
                 info = '\n'
                 for idx, result in enumerate(results):
-                    if self.slither.interactive_mode:
+                    if self.slither.triage_mode:
                         info += '{}: '.format(idx)
                     info += result['description']
                 info += 'Reference: {}'.format(self.WIKI)
                 self._log(info)
-        if results and self.slither.interactive_mode:
-            not_well_formed = True
-            while not_well_formed:
-                indexes = input('Results to hide "0,1,..." or "All" (enter to not hide results): '.format(len(results)))
+        if results and self.slither.triage_mode:
+            while True:
+                indexes = input('Results to hide during next runs: "0,1,..." or "All" (enter to not hide results): '.format(len(results)))
                 if indexes == 'All':
                     self.slither.save_results_to_hide(results)
                     return []
                 if indexes == '':
                     return results
-                indexes = [int(i) for i in indexes.split(',')]
-                self.slither.save_results_to_hide([r for (idx, r) in enumerate(results) if idx in indexes])
-                return [r for (idx, r) in enumerate(results) if idx not in indexes]
+                if indexes.startswith('['):
+                    indexes = indexes[1:]
+                if indexes.endswith(']'):
+                    indexes = indexes[:-1]
+                try:
+                    indexes = [int(i) for i in indexes.split(',')]
+                    self.slither.save_results_to_hide([r for (idx, r) in enumerate(results) if idx in indexes])
+                    return [r for (idx, r) in enumerate(results) if idx not in indexes]
+                except ValueError:
+                    self.logger.error(yellow('Malformed input. Example of valid input: 0,1,2,3'))
         return results
 
 

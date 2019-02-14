@@ -30,7 +30,7 @@ class Slither(SlitherSolc):
                 ast_format (str): ast format (default '--ast-compact-json')
                 is_truffle (bool): is a truffle directory (default false)
                 filter_paths (list(str)): list of path to filter (default [])
-                interactive_mode (bool): if true, switch to interactive mode (default false)
+                triage_mode (bool): if true, switch to triage mode (default false)
         '''
 
         is_truffle = kwargs.get('is_truffle', False)
@@ -52,8 +52,8 @@ class Slither(SlitherSolc):
         for p in filter_paths:
             self.add_path_to_filter(p)
 
-        interactive_mode = kwargs.get('interactive_mode', False)
-        self._interactive_mode = interactive_mode
+        triage_mode = kwargs.get('triage_mode', False)
+        self._triage_mode = triage_mode
 
         self._analyze_contracts()
 
@@ -217,5 +217,5 @@ class Slither(SlitherSolc):
         return stdout
 
     @property
-    def interactive_mode(self):
-        return self._interactive_mode
+    def triage_mode(self):
+        return self._triage_mode
