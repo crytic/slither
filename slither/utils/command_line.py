@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 from prettytable import PrettyTable
 
 from slither.detectors.abstract_detector import classification_txt
@@ -48,6 +49,16 @@ def output_to_markdown(detector_classes, printer_classes, filter_wiki):
     for (argument, help_info) in printers_list:
         print('{} | `{}` | {}'.format(idx, argument, help_info))
         idx = idx + 1
+
+def output_results_to_markdown(all_results):
+    checks = defaultdict(list)
+    for results in all_results:
+        checks[results['check']].append(results['description'])
+
+    for (check, results) in checks.items():
+        print('####  {}'.format(check))
+        for result in results:
+            print(f' - [ ] {result}')
 
 def output_wiki(detector_classes, filter_wiki):
 

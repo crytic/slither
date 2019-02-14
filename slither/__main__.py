@@ -19,7 +19,7 @@ from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils.colors import red, yellow, set_colorization_enabled
-from slither.utils.command_line import (output_detectors,
+from slither.utils.command_line import (output_detectors, output_results_to_markdown,
                                         output_detectors_json, output_printers,
                                         output_to_markdown, output_wiki)
 
@@ -422,6 +422,12 @@ def parse_args(detector_classes, printer_classes):
                         action=OutputMarkdown,
                         default=False)
 
+
+    group_misc.add_argument('--checklist',
+                            help=argparse.SUPPRESS,
+                            action='store_true',
+                            default=False)
+
     parser.add_argument('--wiki-detectors',
                         help=argparse.SUPPRESS,
                         action=OutputWiki,
@@ -570,6 +576,8 @@ def main_impl(all_detector_classes, all_printer_classes):
 
         if args.json:
             output_json(results, args.json)
+        if args.checklist:
+            output_results_to_markdown(results)
         # Dont print the number of result for printers
         if number_contracts == 0:
             logger.warn(red('No contract was analyzed'))
