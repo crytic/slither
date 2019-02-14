@@ -172,7 +172,7 @@ class Slither(Context):
                 - All its source paths belong to the source path filtered
                 - Or a similar result was reported and saved during a previous run
         '''
-        if r['elements'] and all((any(path in elem['source_mapping']['filename'] for path in self._paths_to_filter) for elem in r['elements'])):
+        if r['elements'] and all((any(path in elem['source_mapping']['filename'] for path in self._paths_to_filter if 'source_mapping' in elem) for elem in r['elements'])):
             return False
         return not r['description'] in [pr['description'] for pr in self._previous_results]
 
