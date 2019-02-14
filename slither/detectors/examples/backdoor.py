@@ -33,5 +33,4 @@ class Backdoor(AbstractDetector):
                     self.add_function_to_json(f, json)
                     results.append(json)
 
-
         return results

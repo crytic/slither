@@ -49,7 +49,7 @@ def process(filename, args, detector_classes, printer_classes):
                       solc_arguments=args.solc_args,
                       ast_format=ast,
                       filter_paths=parse_filter_paths(args),
-                      interactive_mode=args.interactive_mode)
+                      triage_mode=args.triage_mode)
 
     return _process(slither, detector_classes, printer_classes)
 
@@ -107,7 +107,7 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
                       solc_arguments=args.solc_args,
                       is_truffle=True,
                       filter_paths=parse_filter_paths(args),
-                      interactive_mode=args.interactive_mode)
+                      triage_mode=args.triage_mode)
 
     return _process(slither, detector_classes, printer_classes)
 
@@ -125,7 +125,7 @@ def process_files(filenames, args, detector_classes, printer_classes):
                       disable_solc_warnings=args.disable_solc_warnings,
                       solc_arguments=args.solc_args,
                       filter_paths=parse_filter_paths(args),
-                      interactive_mode=args.interactive_mode)
+                      triage_mode=args.triage_mode)
 
     return _process(slither, detector_classes, printer_classes)
 
@@ -399,10 +399,10 @@ def parse_args(detector_classes, printer_classes):
                             dest='ignore_truffle_compile',
                             default=defaults_flag_in_config['ignore_truffle_compile'])
 
-    group_misc.add_argument('--interactive-mode',
-                            help='Run interactive mode (save results in slither.db.json)',
+    group_misc.add_argument('--triage-mode',
+                            help='Run triage mode (save results in slither.db.json)',
                             action='store_true',
-                            dest='interactive_mode',
+                            dest='triage_mode',
                             default=False)
 
     group_misc.add_argument('--config-file',
