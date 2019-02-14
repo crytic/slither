@@ -77,7 +77,9 @@ class Function(ChildContract, SourceMapping):
         self._all_solidity_variables_read = None
         self._all_state_variables_written = None
         self._all_conditional_state_variables_read = None
+        self._all_conditional_state_variables_read_with_loop = None
         self._all_conditional_solidity_variables_read = None
+        self._all_conditional_solidity_variables_read_with_loop = None
         self._all_solidity_variables_used_as_args = None
 
         # set(ReacheableNode)
@@ -662,11 +664,18 @@ class Function(ChildContract, SourceMapping):
             Over approximate and also return index access
             It won't work if the variable is assigned to a temp variable
         """
-        if self._all_conditional_state_variables_read is None:
-            self._all_conditional_state_variables_read = self._explore_functions(
-                lambda x: self._explore_func_cond_read(x,
-                                                       include_loop))
-        return self._all_conditional_state_variables_read
+        if include_loop:
+            if self._all_conditional_state_variables_read_with_loop is None:
+                self._all_conditional_state_variables_read_with_loop = self._explore_functions(
+                    lambda x: self._explore_func_cond_read(x,
+                                                           include_loop))
+            return self._all_conditional_state_variables_read_with_loop
+        else:
+            if self._all_conditional_state_variables_read is None:
+                self._all_conditional_state_variables_read = self._explore_functions(
+                    lambda x: self._explore_func_cond_read(x,
+                                                           include_loop))
+            return self._all_conditional_state_variables_read
 
     @staticmethod
     def _solidity_variable_in_binary(node):
@@ -690,12 +699,20 @@ class Function(ChildContract, SourceMapping):
             Assumption: the solidity vars are used directly in the conditional node
             It won't work if the variable is assigned to a temp variable
         """
-        if self._all_conditional_solidity_variables_read is None:
-            self._all_conditional_solidity_variables_read = self._explore_functions(
-                lambda x: self._explore_func_conditional(x,
-                                                         self._solidity_variable_in_binary,
-                                                         include_loop))
-        return self._all_conditional_solidity_variables_read
+        if include_loop:
+            if self._all_conditional_solidity_variables_read_with_loop is None:
+                self._all_conditional_solidity_variables_read_with_loop = self._explore_functions(
+                    lambda x: self._explore_func_conditional(x,
+                                                             self._solidity_variable_in_binary,
+                                                             include_loop))
+            return self._all_conditional_solidity_variables_read_with_loop
+        else:
+            if self._all_conditional_solidity_variables_read is None:
+                self._all_conditional_solidity_variables_read = self._explore_functions(
+                    lambda x: self._explore_func_conditional(x,
+                                                             self._solidity_variable_in_binary,
+                                                             include_loop))
+            return self._all_conditional_solidity_variables_read
 
     @staticmethod
     def _solidity_variable_in_internal_calls(node):
