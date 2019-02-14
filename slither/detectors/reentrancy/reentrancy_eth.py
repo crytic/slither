@@ -73,10 +73,10 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                             result[finding_key] = list(set(result[finding_key] + finding_vars))
         return result
 
-    def detect(self):
+    def _detect(self):
         """
         """
-        super().detect()
+        super()._detect()
 
         reentrancies = self.find_reentrancies()
 
@@ -102,7 +102,6 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
             info += '\tState variables written after the call(s):\n'
             for (v, node) in varsWritten:
                 info +=  '\t- {} ({})\n'.format(v, node.source_mapping_str)
-            self.log(info)
 
             sending_eth_json = []
             if calls != send_eth:

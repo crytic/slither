@@ -2,8 +2,14 @@
     Main module
 """
 import os
+import logging
+import json
 from slither.core.context.context import Context
 from slither.slithir.operations import InternalCall
+from slither.utils.colors import red
+
+logger = logging.getLogger("Slither")
+logging.basicConfig()
 
 class Slither(Context):
     """
@@ -22,9 +28,61 @@ class Slither(Context):
         self._all_functions = set()
         self._all_modifiers = set()
 
+        self._previous_results_filename = 'slither.db.json'
+        self._results_to_hide = []
+        self._previous_results = []
+        self._paths_to_filter = set()
+
+
+    ###################################################################################
+    ###################################################################################
+    # region Source code
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def source_code(self):
+        """ {filename: source_code}: source code """
+        return self._raw_source_code
+
     @property
     def source_units(self):
         return self._source_units
+
+    @property
+    def filename(self):
+        """str: Filename."""
+        return self._filename
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Pragma attributes
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def solc_version(self):
+        """str: Solidity version."""
+        return self._solc_version
+
+    @property
+    def pragma_directives(self):
+        """ list(list(str)): Pragma directives. Example [['solidity', '^', '0.4', '.24']]"""
+        return self._pragma_directives
+
+    @property
+    def import_directives(self):
+        """ list(str): Import directives"""
+        return self._import_directives
+
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Contracts
+    ###################################################################################
+    ###################################################################################
 
     @property
     def contracts(self):
@@ -41,6 +99,23 @@ class Slither(Context):
     def contracts_as_dict(self):
         """list(dict(str: Contract): List of contracts as dict: name -> Contract."""
         return self._contracts
+
+    def get_contract_from_name(self, contract_name):
+        """
+            Return a contract from a name
+        Args:
+            contract_name (str): name of the contract
+        Returns:
+            Contract
+        """
+        return next((c for c in self.contracts if c.name == contract_name), None)
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Functions and modifiers
+    ###################################################################################
+    ###################################################################################
 
     @property
     def functions(self):
@@ -60,31 +135,6 @@ class Slither(Context):
     def functions_and_modifiers(self):
         return self.functions + self.modifiers
 
-    @property
-    def filename(self):
-        """str: Filename."""
-        return self._filename
-
-    @property
-    def solc_version(self):
-        """str: Solidity version."""
-        return self._solc_version
-
-    @property
-    def pragma_directives(self):
-        """ list(list(str)): Pragma directives. Example [['solidity', '^', '0.4', '.24']]"""
-        return self._pragma_directives
-
-    @property
-    def import_directives(self):
-        """ list(str): Import directives"""
-        return self._import_directives
-
-    @property
-    def source_code(self):
-        """ {filename: source_code}: source code """
-        return self._raw_source_code
-
     def _propagate_function_calls(self):
         for f in self.functions_and_modifiers:
             for node in f.nodes:
@@ -92,15 +142,13 @@ class Slither(Context):
                     if isinstance(ir, InternalCall):
                         ir.function.add_reachable_from_node(node, ir)
 
-    def get_contract_from_name(self, contract_name):
-        """
-            Return a contract from a name
-        Args:
-            contract_name (str): name of the contract
-        Returns:
-            Contract
-        """
-        return next((c for c in self.contracts if c.name == contract_name), None)
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Export
+    ###################################################################################
+    ###################################################################################
 
     def print_functions(self, d):
         """
@@ -109,3 +157,50 @@ class Slither(Context):
         for c in self.contracts:
             for f in c.functions:
                 f.cfg_to_dot(os.path.join(d, '{}.{}.dot'.format(c.name, f.name)))
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Filtering results
+    ###################################################################################
+    ###################################################################################
+
+    def valid_result(self, r):
+        '''
+            Check if the result is valid
+            A result is invalid if:
+                - All its source paths belong to the source path filtered
+                - Or a similar result was reported and saved during a previous run
+        '''
+        if r['elements'] and all((any(path in elem['source_mapping']['filename'] for path in self._paths_to_filter) for elem in r['elements'])):
+            return False
+        return not r['description'] in [pr['description'] for pr in self._previous_results]
+
+    def load_previous_results(self):
+        filename = self._previous_results_filename
+        try:
+            if os.path.isfile(filename):
+                with open(filename) as f:
+                    self._previous_results = json.load(f)
+        except json.decoder.JSONDecodeError:
+            logger.error(red('Impossible to decode {}. Consider removing the file'.format(filename)))
+
+    def write_results_to_hide(self):
+        if not self._results_to_hide:
+            return
+        filename = self._previous_results_filename
+        with open(filename, 'w', encoding='utf8') as f:
+            results = self._results_to_hide + self._previous_results
+            json.dump(results, f)
+
+    def save_results_to_hide(self, results):
+        self._results_to_hide += results
+
+    def add_path_to_filter(self, path):
+        '''
+            Add path to filter
+            Path are used through direct comparison (no regex)
+        '''
+        self._paths_to_filter.add(path)
+
+    # endregion

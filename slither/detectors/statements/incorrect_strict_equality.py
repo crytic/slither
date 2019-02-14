@@ -102,7 +102,7 @@ contract Crowdsale{
 
         return results
 
-    def detect(self):
+    def _detect(self):
         results = []
 
         for c in self.slither.contracts_derived:
@@ -125,8 +125,5 @@ contract Crowdsale{
                 self.add_function_to_json(f, json)
                 self.add_nodes_to_json(nodes, json)
                 results.append(json)
-
-            if info:
-                self.log(info)
 
         return results

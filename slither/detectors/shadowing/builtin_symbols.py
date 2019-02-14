@@ -111,7 +111,7 @@ contract Bug {
 
         return result
 
-    def detect(self):
+    def _detect(self):
         """ Detect shadowing of built-in symbols
 
         Recursively visit the calls
@@ -140,8 +140,6 @@ contract Bug {
                                                                                  shadow_type,
                                                                                  shadow_object.source_mapping_str,
                                                                                  shadow_object.name)
-                    # Print relevant information to the log
-                    self.log(info)
 
                     # Generate relevant JSON data for this shadowing definition.
                     json = self.generate_json_result(info)

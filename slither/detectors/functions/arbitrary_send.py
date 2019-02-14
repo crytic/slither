@@ -100,7 +100,7 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
                 ret.append((f, nodes))
         return ret
 
-    def detect(self):
+    def _detect(self):
         """
         """
         results = []
@@ -116,9 +116,6 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
                 info += '\tDangerous calls:\n'
                 for node in nodes:
                     info += '\t- {} ({})\n'.format(node.expression, node.source_mapping_str)
-
-                self.log(info)
-
 
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)

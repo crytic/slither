@@ -65,7 +65,7 @@ Every ethers send to `Locked` will be lost.'''
         return True
 
 
-    def detect(self):
+    def _detect(self):
         results = []
 
         for contract in self.slither.contracts_derived:
@@ -82,7 +82,6 @@ Every ethers send to `Locked` will be lost.'''
                     info = txt.format(self.filename,
                                       contract.name,
                                       [f.name for f in funcs_payable])
-                    self.log(info)
 
                     json = self.generate_json_result(info)
                     self.add_functions_to_json(funcs_payable, json)

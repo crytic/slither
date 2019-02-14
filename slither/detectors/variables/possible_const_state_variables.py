@@ -63,7 +63,7 @@ class ConstCandidateStateVars(AbstractDetector):
 
 
 
-    def detect(self):
+    def _detect(self):
         """ Detect state variables that could be const
         """
         results = []
@@ -93,5 +93,4 @@ class ConstCandidateStateVars(AbstractDetector):
             json = self.generate_json_result(all_info)
             self.add_variables_to_json(constable_variables, json)
             results.append(json)
-            self.log(all_info)
         return results

@@ -44,11 +44,10 @@ class Assembly(AbstractDetector):
                 ret.append((f, assembly_nodes))
         return ret
 
-    def detect(self):
+    def _detect(self):
         """ Detect the functions that use inline assembly
         """
         results = []
-        all_info = ''
         for c in self.contracts:
             values = self.detect_assembly(c)
             for func, nodes in values:
@@ -58,13 +57,9 @@ class Assembly(AbstractDetector):
                 for node in nodes:
                     info += "\t- {}\n".format(node.source_mapping_str)
 
-                all_info += info
-
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)
                 self.add_nodes_to_json(nodes, json)
                 results.append(json)
 
-        if all_info != '':
-            self.log(all_info)
         return results

@@ -58,7 +58,7 @@ contract MyConc{
 
         return [nodes_origin[value].node for value in values_returned]
 
-    def detect(self):
+    def _detect(self):
         """ Detect unused high level calls that return a value but are never used
         """
         results = []
@@ -74,7 +74,6 @@ contract MyConc{
                                        f.source_mapping_str)
                     for node in unused_return:
                         info += "\t-{} ({})\n".format(node.expression, node.source_mapping_str)
-                    self.log(info)
 
                     json = self.generate_json_result(info)
                     self.add_function_to_json(f, json)

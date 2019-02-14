@@ -76,7 +76,7 @@ Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and ar
             self._detect_uninitialized(function, son, visited)
 
 
-    def detect(self):
+    def _detect(self):
         """ Detect uninitialized state variables
 
         Recursively visit the calls
@@ -107,7 +107,6 @@ Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and ar
                                function.name,
                                uninitialized_local_variable.source_mapping_str)
 
-            self.log(info)
 
             json = self.generate_json_result(info)
             self.add_variable_to_json(uninitialized_local_variable, json)

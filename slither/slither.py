@@ -19,46 +19,85 @@ logger_printer = logging.getLogger("Printers")
 
 class Slither(SlitherSolc):
 
-    def __init__(self, contract, solc='solc', disable_solc_warnings=False, solc_arguments='', ast_format='--ast-compact-json', is_truffle=False):
-        self._detectors = []
-        self._printers = []
+    def __init__(self, contract, **kwargs):
+        '''
+            Args:
+                contract (str| list(json))
+            Keyword Args:
+                solc (str): solc binary location (default 'solc')
+                disable_solc_warnings (bool): True to disable solc warnings (default false)
+                solc_argeuments (str): solc arguments (default '')
+                ast_format (str): ast format (default '--ast-compact-json')
+                is_truffle (bool): is a truffle directory (default false)
+                filter_paths (list(str)): list of path to filter (default [])
+                triage_mode (bool): if true, switch to triage mode (default false)
+        '''
+
+        is_truffle = kwargs.get('is_truffle', False)
 
         # truffle directory
         if is_truffle:
-            if not os.path.isdir(os.path.join(contract, 'build'))\
-                or not os.path.isdir(os.path.join(contract, 'build', 'contracts')):
-                logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
-                sys.exit(-1)
-            super(Slither, self).__init__('')
-            filenames = glob.glob(os.path.join(contract, 'build', 'contracts', '*.json'))
-            for filename in filenames:
-                with open(filename, encoding='utf8') as f:
-                    contract_loaded = json.load(f)
-                    contract_loaded = contract_loaded['ast']
-                    if 'absolutePath' in contract_loaded:
-                        path = contract_loaded['absolutePath']
-                    else:
-                        path = contract_loaded['attributes']['absolutePath']
-                    self._parse_contracts_from_loaded_json(contract_loaded, path)
-
+            self._init_from_truffle(contract)
         # list of files provided (see --splitted option)
         elif isinstance(contract, list):
-            super(Slither, self).__init__('')
-            for c in contract:
-                if 'absolutePath' in c:
-                    path = c['absolutePath']
-                else:
-                    path = c['attributes']['absolutePath']
-                self._parse_contracts_from_loaded_json(c, path)
+            self._init_from_list(contract)
         # .json or .sol provided
         else:
-            contracts_json = self._run_solc(contract, solc, disable_solc_warnings, solc_arguments, ast_format)
-            super(Slither, self).__init__(contract)
+            self._init_from_solc(contract, **kwargs)
 
-            for c in contracts_json:
-                self._parse_contracts_from_json(c)
+        self._detectors = []
+        self._printers = []
+
+        filter_paths = kwargs.get('filter_paths', [])
+        for p in filter_paths:
+            self.add_path_to_filter(p)
+
+        triage_mode = kwargs.get('triage_mode', False)
+        self._triage_mode = triage_mode
 
         self._analyze_contracts()
+
+    def _init_from_truffle(self, contract):
+        if not os.path.isdir(os.path.join(contract, 'build'))\
+            or not os.path.isdir(os.path.join(contract, 'build', 'contracts')):
+            logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
+            sys.exit(-1)
+        super(Slither, self).__init__('')
+        filenames = glob.glob(os.path.join(contract, 'build', 'contracts', '*.json'))
+        for filename in filenames:
+            with open(filename, encoding='utf8') as f:
+                contract_loaded = json.load(f)
+                contract_loaded = contract_loaded['ast']
+                if 'absolutePath' in contract_loaded:
+                    path = contract_loaded['absolutePath']
+                else:
+                    path = contract_loaded['attributes']['absolutePath']
+                self._parse_contracts_from_loaded_json(contract_loaded, path)
+
+    def _init_from_solc(self, contract, **kwargs):
+        solc = kwargs.get('solc', 'solc')
+        disable_solc_warnings = kwargs.get('disable_solc_warnings', False)
+        solc_arguments = kwargs.get('solc_arguments', '')
+        ast_format = kwargs.get('ast_format', '--ast-compact-json')
+
+        contracts_json = self._run_solc(contract,
+                                        solc,
+                                        disable_solc_warnings,
+                                        solc_arguments,
+                                        ast_format)
+        super(Slither, self).__init__(contract)
+
+        for c in contracts_json:
+            self._parse_contracts_from_json(c)
+
+    def _init_from_list(self, contract):
+        super(Slither, self).__init__('')
+        for c in contract:
+            if 'absolutePath' in c:
+                path = c['absolutePath']
+            else:
+                path = c['attributes']['absolutePath']
+            self._parse_contracts_from_loaded_json(c, path)
 
     @property
     def detectors(self):
@@ -103,7 +142,10 @@ class Slither(SlitherSolc):
         :return: List of registered detectors results.
         """
 
-        return [d.detect() for d in self._detectors]
+        self.load_previous_results()
+        results = [d.detect() for d in self._detectors]
+        self.write_results_to_hide()
+        return results
 
     def run_printers(self):
         """
@@ -173,3 +215,7 @@ class Slither(SlitherSolc):
         stdout = stdout.split('\n=')
 
         return stdout
+
+    @property
+    def triage_mode(self):
+        return self._triage_mode

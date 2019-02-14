@@ -37,7 +37,7 @@ Bob calls `delegate` and delegate the execution to its malicious contract. As a 
                         ret.append(node)
         return ret
 
-    def detect(self):
+    def _detect(self):
         results = []
 
         for contract in self.slither.contracts:
@@ -50,7 +50,6 @@ Bob calls `delegate` and delegate the execution to its malicious contract. As a 
                     info = info.format(contract.name, f.name, f.source_mapping_str)
                     for node in nodes:
                         info += '\t{} ({})\n'.format(node.expression, node.source_mapping_str)
-                    self.log(info)
 
                     json = self.generate_json_result(info)
                     self.add_function_to_json(f, json)
