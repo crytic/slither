@@ -16,7 +16,7 @@ class Assembly(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#assembly-usage'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#assembly-usage'
 
 
     WIKI_TITLE = 'Assembly usage'

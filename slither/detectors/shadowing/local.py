@@ -15,7 +15,7 @@ class LocalShadowing(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#local-variable-shadowing'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#local-variable-shadowing'
 
     WIKI_TITLE = 'Local Variable Shadowing'
     WIKI_DESCRIPTION = 'Detection of shadowing using local variables.'

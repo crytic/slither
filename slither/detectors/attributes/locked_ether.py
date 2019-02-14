@@ -17,7 +17,7 @@ class LockedEther(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#contracts-that-lock-ether'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#contracts-that-lock-ether'
 
 
     WIKI_TITLE = 'Contracts that lock ether'

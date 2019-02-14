@@ -17,7 +17,7 @@ class UnusedReturnValues(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-return'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#unused-return'
 
 
     WIKI_TITLE = 'Unused return'

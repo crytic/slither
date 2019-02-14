@@ -23,7 +23,7 @@ class IncorrectSolc(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#incorrect-version-of-solidity'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#incorrect-version-of-solidity'
 
     WIKI_TITLE = 'Incorrect versions of Solidity'
     WIKI_DESCRIPTION = '''

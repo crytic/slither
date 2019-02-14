@@ -19,7 +19,7 @@ class UninitializedStorageVars(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-storage-variables'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#uninitialized-storage-variables'
 
     WIKI_TITLE = 'Uninitialized storage variables'
     WIKI_DESCRIPTION = 'An uinitialized storage variable will act as a reference to the first state variable, and can override a critical variable.'

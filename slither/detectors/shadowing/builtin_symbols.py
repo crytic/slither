@@ -15,7 +15,7 @@ class BuiltinSymbolShadowing(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#builtin-symbol-shadowing'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#builtin-symbol-shadowing'
 
 
     WIKI_TITLE = 'Builtin Symbol Shadowing'
