@@ -15,7 +15,7 @@ class ConstantPragma(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#different-pragma-directives-are-used'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#different-pragma-directives-are-used'
 
 
     WIKI_TITLE = 'Different pragma directives are used'

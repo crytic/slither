@@ -16,7 +16,7 @@ class ShadowingAbstractDetection(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variable-shadowing-from-abstract-contracts'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#state-variable-shadowing-from-abstract-contracts'
 
 
     WIKI_TITLE = 'State variable shadowing from abstract contracts'

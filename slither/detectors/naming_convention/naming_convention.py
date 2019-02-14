@@ -17,7 +17,7 @@ class NamingConvention(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#conformance-to-solidity-naming-conventions'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#conformance-to-solidity-naming-conventions'
 
     WIKI_TITLE = 'Conformance to Solidity naming conventions'
     WIKI_DESCRIPTION = '''

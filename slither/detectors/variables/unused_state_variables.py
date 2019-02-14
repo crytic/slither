@@ -17,7 +17,7 @@ class UnusedStateVars(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-state-variables'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#unused-state-variables'
 
 
     WIKI_TITLE = 'Unused state variables'

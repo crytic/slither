@@ -16,7 +16,7 @@ class IncorrectERC20InterfaceDetection(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#incorrect-erc20-interface'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#incorrect-erc20-interface'
 
     WIKI_TITLE = 'Incorrect erc20 interface'
     WIKI_DESCRIPTION = 'Lack of return value for the ERC20 `approve`/`transfer`/`transferFrom` functions. A contract compiled with solidity > 0.4.22 interacting with these functions will fail to execute them, as the return value is missing.'

@@ -23,7 +23,7 @@ class ReentrancyReadBeforeWritten(Reentrancy):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#reentrancy-vulnerabilities-1'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#reentrancy-vulnerabilities-1'
 
     WIKI_TITLE = 'Reentrancy vulnerabilities'
     WIKI_DESCRIPTION = '''

@@ -16,7 +16,7 @@ class MultipleCallsInLoop(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description/_edit#calls-inside-a-loop'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation/_edit#calls-inside-a-loop'
 
 
     WIKI_TITLE = 'Calls inside a loop'
