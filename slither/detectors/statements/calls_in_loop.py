@@ -78,7 +78,7 @@ If one of the destinations has a fallback function which reverts, `bad` will alw
 
         return ret
 
-    def detect(self):
+    def _detect(self):
         """
         """
         results = []
@@ -90,8 +90,6 @@ If one of the destinations has a fallback function which reverts, `bad` will alw
                 info = info.format(func.contract.name, func.name)
 
                 info += "\t- {} ({})\n".format(node.expression, node.source_mapping_str)
-
-                self.log(info)
 
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)

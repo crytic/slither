@@ -81,7 +81,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
                                                             not variable.expression and\
                                                             variable in read_variables]
 
-    def detect(self):
+    def _detect(self):
         """ Detect uninitialized state variables
 
         Recursively visit the calls
@@ -98,7 +98,6 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
                                    variable.source_mapping_str)
                 for f in functions:
                     info += "\t- {} ({})\n".format(f.name, f.source_mapping_str)
-                self.log(info)
 
                 source = [variable.source_mapping]
                 source += [f.source_mapping for f in functions]

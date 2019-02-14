@@ -62,7 +62,7 @@ We recommend avoiding complex pragma statement.'''
             return self._check_version(version_left)
         else:
             return self.COMPLEX_PRAGMA
-    def detect(self):
+    def _detect(self):
         """
         Detects pragma statements that allow for outdated solc versions.
         :return: Returns the relevant JSON data for the findings.
@@ -88,7 +88,6 @@ We recommend avoiding complex pragma statement.'''
             info = "Detected issues with version pragma in {}:\n".format(self.filename)
             for (reason, p) in disallowed_pragmas:
                 info += "\t- {} ({}): {}\n".format(p, p.source_mapping_str, reason)
-            self.log(info)
 
             json = self.generate_json_result(info)
 

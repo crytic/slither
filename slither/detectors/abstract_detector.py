@@ -86,17 +86,53 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                                        DetectorClassification.INFORMATIONAL]:
             raise IncorrectDetectorInitialization('CONFIDENCE is not initialized {}'.format(self.__class__.__name__))
 
-    def log(self, info):
-        if self.logger:
-            info = "\n"+info
-            if self.WIKI != '':
-                info += 'Reference: {}'.format(self.WIKI)
-            self.logger.info(self.color(info))
+#    def log(self, info):
+#        if self.logger:
+#            info = "\n"+info
+#            if self.WIKI != '':
+#                info += 'Reference: {}'.format(self.WIKI)
+#            self.logger.info(self.color(info))
+
+    def _log(self, info):
+        self.logger.info(self.color(info))
 
     @abc.abstractmethod
-    def detect(self):
+    def _detect(self):
         """TODO Documentation"""
         return
+
+    def detect(self):
+        results = self._detect()
+        results = [r for r in results if self.slither.valid_result(r)]
+        if results:
+            if self.logger:
+                info = '\n'
+                for idx, result in enumerate(results):
+                    if self.slither.triage_mode:
+                        info += '{}: '.format(idx)
+                    info += result['description']
+                info += 'Reference: {}'.format(self.WIKI)
+                self._log(info)
+        if results and self.slither.triage_mode:
+            while True:
+                indexes = input('Results to hide during next runs: "0,1,..." or "All" (enter to not hide results): '.format(len(results)))
+                if indexes == 'All':
+                    self.slither.save_results_to_hide(results)
+                    return []
+                if indexes == '':
+                    return results
+                if indexes.startswith('['):
+                    indexes = indexes[1:]
+                if indexes.endswith(']'):
+                    indexes = indexes[:-1]
+                try:
+                    indexes = [int(i) for i in indexes.split(',')]
+                    self.slither.save_results_to_hide([r for (idx, r) in enumerate(results) if idx in indexes])
+                    return [r for (idx, r) in enumerate(results) if idx not in indexes]
+                except ValueError:
+                    self.logger.error(yellow('Malformed input. Example of valid input: 0,1,2,3'))
+        return results
+
 
     @property
     def color(self):

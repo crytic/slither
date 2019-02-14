@@ -67,7 +67,7 @@ class Timestamp(AbstractDetector):
                 ret.append((f, nodes))
         return ret
 
-    def detect(self):
+    def _detect(self):
         """
         """
         results = []
@@ -83,9 +83,6 @@ class Timestamp(AbstractDetector):
                 info += '\tDangerous comparisons:\n'
                 for node in nodes:
                     info += '\t- {} ({})\n'.format(node.expression, node.source_mapping_str)
-
-                self.log(info)
-
 
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)

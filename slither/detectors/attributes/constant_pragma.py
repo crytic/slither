@@ -22,7 +22,7 @@ class ConstantPragma(AbstractDetector):
     WIKI_DESCRIPTION = 'Detect if different Solidity versions are used.'
     WIKI_RECOMMENDATION = 'Use one Solidity version.'
 
-    def detect(self):
+    def _detect(self):
         results = []
         pragma = self.slither.pragma_directives
         versions = [p.version for p in pragma]
@@ -33,7 +33,6 @@ class ConstantPragma(AbstractDetector):
             info += "\t- Version used: {}\n".format([str(v) for v in versions])
             for p in pragma:
                 info += "\t- {} declares {}\n".format(p.source_mapping_str, str(p))
-            self.log(info)
 
             json = self.generate_json_result(info)
             # follow the same format than add_nodes_to_json

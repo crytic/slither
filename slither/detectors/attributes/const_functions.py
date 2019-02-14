@@ -41,7 +41,7 @@ All the calls to `get` reverts, breaking Bob's smart contract execution.'''
 
     WIKI_RECOMMENDATION = 'Ensure that the attributes of contracts compiled prior Solidity 0.5.0 are correct.'
 
-    def detect(self):
+    def _detect(self):
         """ Detect the constant function changing the state
 
         Recursively visit the calls
@@ -58,7 +58,6 @@ All the calls to `get` reverts, breaking Bob's smart contract execution.'''
                         attr = 'view' if f.view else 'pure'
                         info = '{}.{} ({}) is declared {} but contains assembly code\n'
                         info = info.format(f.contract.name, f.name, f.source_mapping_str, attr)
-                        self.log(info)
                         json = self.generate_json_result(info)
                         self.add_function_to_json(f, json)
                         json['elements'] = [{'type': 'info',
@@ -73,7 +72,6 @@ All the calls to `get` reverts, breaking Bob's smart contract execution.'''
                         for variable_written in variables_written:
                             info += '\t- {}.{}\n'.format(variable_written.contract.name,
                                                          variable_written.name)
-                        self.log(info)
 
 
                         json = self.generate_json_result(info)

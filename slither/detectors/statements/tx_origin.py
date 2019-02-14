@@ -58,7 +58,7 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contact calls `T
                 ret.append((f, bad_tx_nodes))
         return ret
 
-    def detect(self):
+    def _detect(self):
         """ Detect the functions that use tx.origin in a conditional node
         """
         results = []
@@ -70,8 +70,6 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contact calls `T
 
                 for node in nodes:
                     info += "\t- {} ({})\n".format(node.expression, node.source_mapping_str)
-
-                self.log(info)
 
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)

@@ -48,11 +48,10 @@ class UnusedStateVars(AbstractDetector):
         return [x for x in contract.variables if
                 x not in variables_used and x.visibility != 'public']
 
-    def detect(self):
+    def _detect(self):
         """ Detect unused state variables
         """
         results = []
-        all_info = ''
         for c in self.slither.contracts_derived:
             unusedVars = self.detect_unused(c)
             if unusedVars:
@@ -63,12 +62,9 @@ class UnusedStateVars(AbstractDetector):
                                                                       var.source_mapping_str,
                                                                       c.name)
 
-                all_info += info
 
                 json = self.generate_json_result(info)
                 self.add_variables_to_json(unusedVars, json)
                 results.append(json)
 
-        if all_info != '':
-            self.log(all_info)
         return results

@@ -188,7 +188,7 @@ class Reentrancy(AbstractDetector):
                 self._explore(function.entry_point, [])
                 function.context[self.KEY] = True
 
-    def detect(self):
+    def _detect(self):
         """
         """
         # if a node was already visited by another path

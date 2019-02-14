@@ -64,7 +64,7 @@ Bob calls `kill` and destruct the contract.'''
                 ret.append(f)
         return ret
 
-    def detect(self):
+    def _detect(self):
         """ Detect the suicidal functions
         """
         results = []
@@ -76,8 +76,6 @@ Bob calls `kill` and destruct the contract.'''
                 info = txt.format(func.contract.name,
                                   func.name,
                                   func.source_mapping_str)
-
-                self.log(info)
 
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)

@@ -41,11 +41,10 @@ class LowLevelCalls(AbstractDetector):
                 ret.append((f, assembly_nodes))
         return ret
 
-    def detect(self):
+    def _detect(self):
         """ Detect the functions that use low level calls
         """
         results = []
-        all_info = ''
         for c in self.contracts:
             values = self.detect_low_level_calls(c)
             for func, nodes in values:
@@ -53,15 +52,10 @@ class LowLevelCalls(AbstractDetector):
                 info = info.format(func.contract.name, func.name, func.source_mapping_str)
                 for node in nodes:
                     info += "\t-{} {}\n".format(str(node.expression), node.source_mapping_str)
-                all_info += info
 
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)
                 self.add_nodes_to_json(nodes, json)
                 results.append(json)
 
-
-
-        if all_info != '':
-            self.log(all_info)
         return results

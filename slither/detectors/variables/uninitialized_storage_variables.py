@@ -83,7 +83,7 @@ Bob calls `func`. As a result, `owner` is override to 0.
             self._detect_uninitialized(function, son, visited)
 
 
-    def detect(self):
+    def _detect(self):
         """ Detect uninitialized state variables
 
         Recursively visit the calls
@@ -107,9 +107,6 @@ Bob calls `func`. As a result, `owner` is override to 0.
 
             info = "{} in {}.{} ({}) is a storage variable never initialiazed\n"
             info = info.format(var_name, function.contract.name, function.name, uninitialized_storage_variable.source_mapping_str)
-
-            self.log(info)
-
 
 
             json = self.generate_json_result(info)
