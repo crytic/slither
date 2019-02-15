@@ -10,7 +10,7 @@ class VariablesOrder(AbstractPrinter):
     ARGUMENT = 'variables-order'
     HELP = 'Print the storage order of the state variables'
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-order'
 
     def output(self, _filename):
         """
