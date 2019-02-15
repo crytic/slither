@@ -82,8 +82,8 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
         result_sorted = sorted(list(reentrancies.items()), key=lambda x:x[0][0].name)
         for (func, calls, send_eth), varsWritten in result_sorted:
-            calls = list(set(calls))
-            send_eth = list(set(send_eth))
+            calls = sorted(list(set(calls)), key=lambda x: x.node_id)
+            send_eth = sorted(list(set(send_eth)), key=lambda x: x.node_id)
             info = 'Reentrancy in {}.{} ({}):\n'
             info = info.format(func.contract.name, func.name, func.source_mapping_str)
             info += '\tExternal calls:\n'
@@ -94,7 +94,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                 for call_info in send_eth:
                     info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
             info += '\tState variables written after the call(s):\n'
-            for (v, node) in varsWritten:
+            for (v, node) in sorted(varsWritten, key=lambda x: (x[0].name, x[1].node_id)):
                 info +=  '\t- {} ({})\n'.format(v, node.source_mapping_str)
 
             sending_eth_json = []

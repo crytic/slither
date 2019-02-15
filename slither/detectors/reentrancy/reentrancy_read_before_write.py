@@ -81,14 +81,14 @@ Do not report reentrancies that involve ethers (see `reentrancy-eth`)'''
 
         result_sorted = sorted(list(reentrancies.items()), key=lambda x:x[0][0].name)
         for (func, calls), varsWritten in result_sorted:
-            calls = list(set(calls))
+            calls = sorted(list(set(calls)), key=lambda x: x.node_id)
             info = 'Reentrancy in {}.{} ({}):\n'
             info = info.format(func.contract.name, func.name, func.source_mapping_str)
             info += '\tExternal calls:\n'
             for call_info in calls:
                 info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
             info += '\tState variables written after the call(s):\n'
-            for (v, node) in varsWritten:
+            for (v, node) in sorted(varsWritten, key=lambda x: (x[0].name, x[1].node_id)):
                 info +=  '\t- {} ({})\n'.format(v, node.source_mapping_str)
 
             sending_eth_json = []
