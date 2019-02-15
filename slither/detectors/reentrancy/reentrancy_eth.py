@@ -84,12 +84,9 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
         result_sorted = sorted(list(reentrancies.items()), key=lambda x:x[0][0].name)
         for (func, calls, send_eth), varsWritten in result_sorted:
-            calls = list(set(calls))
-            send_eth = list(set(send_eth))
-#            if calls == send_eth:
-#                calls_info = 'Call: {},'.format(calls_str)
-#            else:
-#                calls_info = 'Call: {}, Ether sent: {},'.format(calls_str, send_eth_str)
+            calls = sorted(list(set(calls)), key=lambda x: x.node_id)
+            send_eth = sorted(list(set(send_eth)), key=lambda x: x.node_id)
+
             info = 'Reentrancy in {}.{} ({}):\n'
             info = info.format(func.contract.name, func.name, func.source_mapping_str)
             info += '\tExternal calls:\n'
@@ -100,7 +97,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                 for call_info in send_eth:
                     info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
             info += '\tState variables written after the call(s):\n'
-            for (v, node) in varsWritten:
+            for (v, node) in sorted(varsWritten, key=lambda x: (x[0].name, x[1].node_id)):
                 info +=  '\t- {} ({})\n'.format(v, node.source_mapping_str)
 
             sending_eth_json = []
