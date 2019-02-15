@@ -90,7 +90,7 @@ Num | Printer | Description
 11 | `require` | [Print the require and assert calls of each function](https://github.com/trailofbits/slither/wiki/Printer-documentation#require)
 12 | `slithir` | [Print the slithIR representation of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir)
 13 | `slithir-ssa` | [Print the slithIR representation of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir-ssa)
-14 | `variables-order` | [Print the storage order of the state variables](https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization)
+14 | `variable-order` | [Print the storage order of the state variables](https://github.com/trailofbits/slither/wiki/Printer-documentation#variable-order)
 15 | `vars-and-auth` | [Print the state variables written and the authorization of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization)
 
 ## How to install
