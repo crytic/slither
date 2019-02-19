@@ -1,8 +1,8 @@
 """
-    Module detecting state uninitialized local variables
+    Module detecting uninitialized local variables
 
     Recursively explore the CFG to only report uninitialized local variables that are
-    written before being read
+    read before being written
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
@@ -77,11 +77,11 @@ Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and ar
 
 
     def _detect(self):
-        """ Detect uninitialized state variables
+        """ Detect uninitialized local variables
 
         Recursively visit the calls
         Returns:
-            dict: [contract name] = set(state variable uninitialized)
+            dict: [contract name] = set(local variable uninitialized)
         """
         results = []
 
