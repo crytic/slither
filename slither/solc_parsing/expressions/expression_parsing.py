@@ -70,6 +70,7 @@ def get_pointer_name(variable):
 
 def find_variable(var_name, caller_context, referenced_declaration=None):
 
+
     if isinstance(caller_context, Contract):
         function = None
         contract = caller_context
@@ -153,6 +154,9 @@ def find_variable(var_name, caller_context, referenced_declaration=None):
         for contract in contract.slither.contracts:
             if contract.id == referenced_declaration:
                 return contract
+        for function in contract.slither.functions:
+            if function.referenced_declaration == referenced_declaration:
+                return function
 
     raise VariableNotFound('Variable not found: {}'.format(var_name))
 
