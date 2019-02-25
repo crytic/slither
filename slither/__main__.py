@@ -6,6 +6,7 @@ import inspect
 import json
 import logging
 import os
+import platform
 import subprocess
 import sys
 import traceback
@@ -76,8 +77,13 @@ def _process(slither, detector_classes, printer_classes):
     return results, analyzed_contracts_count
 
 def process_truffle(dirname, args, detector_classes, printer_classes):
+    # Truffle on windows has naming conflicts where it will invoke truffle.js directly instead
+    # of truffle.cmd (unless in powershell or git bash). The cleanest solution is to explicitly call
+    # truffle.cmd. Reference:
+    # https://truffleframework.com/docs/truffle/reference/configuration#resolving-naming-conflicts-on-windows
     if not args.ignore_truffle_compile:
-        cmd = ['truffle', 'compile']
+        truffle_base_command = "truffle" if platform.system() != 'Windows' else "truffle.cmd"
+        cmd = [truffle_base_command, 'compile']
         if args.truffle_version:
             cmd = ['npx',args.truffle_version,'compile']
         elif os.path.isfile('package.json'):
