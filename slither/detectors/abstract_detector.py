@@ -102,8 +102,10 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return
 
     def detect(self):
-        results = self._detect()
-        results = [r for r in results if self.slither.valid_result(r)]
+        all_results = self._detect()
+        results = []
+        # only keep valid result, and remove dupplicate
+        [results.append(r) for r in all_results if self.slither.valid_result(r) and r not in results]
         if results:
             if self.logger:
                 info = '\n'
