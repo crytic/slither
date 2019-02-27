@@ -12,11 +12,10 @@ logger = logging.getLogger("CompareFunctions")
 logger.setLevel(logging.INFO)
 
 def get_signatures(s):
-    functions = [contract.functions for contract in s.contracts_derived]
-    functions = [item for sublist in functions for item in sublist]
+    functions = s.functions
     functions = [f.full_name for f in functions if f.visibility in ['public', 'external']]
 
-    variables = [contract.state_variables for contract in s.contracts_derived]
+    variables = [contract.state_variables for contract in s.contracts]
     variables = [item for sublist in variables for item in sublist]
     variables = [variable.name+ '()' for variable in variables if variable.visibility in ['public']]
     return list(set(functions+variables))
