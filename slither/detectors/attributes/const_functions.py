@@ -15,9 +15,33 @@ class ConstantFunctions(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#constant-functions-changing-the-state'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#constant-functions-changing-the-state'
 
-    def detect(self):
+    WIKI_TITLE = 'Constant functions changing the state'
+    WIKI_DESCRIPTION = '''
+Functions declared as `constant`/`pure`/`view` changing the state or using assembly code.
+
+`constant`/`pure`/`view` was not enforced prior Solidity 0.5.
+Starting from Solidity 0.5, a call to a `constant`/`pure`/`view` function uses the `STATICCALL` opcode, which reverts in case of state modification.
+
+As a result, a call to an [incorrectly labeled function may trap a contract compiled with Solidity 0.5](https://solidity.readthedocs.io/en/develop/050-breaking-changes.html#interoperability-with-older-contracts).'''
+
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract Constant{
+    uint counter;
+    function get() public view returns(uint){
+       counter = counter +1;
+       return counter
+    }
+}
+```
+`Constant` was deployed with Solidity 0.4.25. Bob writes a smart contract interacting with `Constant` in Solidity 0.5.0. 
+All the calls to `get` reverts, breaking Bob's smart contract execution.'''
+
+    WIKI_RECOMMENDATION = 'Ensure that the attributes of contracts compiled prior Solidity 0.5.0 are correct.'
+
+    def _detect(self):
         """ Detect the constant function changing the state
 
         Recursively visit the calls
@@ -34,7 +58,6 @@ class ConstantFunctions(AbstractDetector):
                         attr = 'view' if f.view else 'pure'
                         info = '{}.{} ({}) is declared {} but contains assembly code\n'
                         info = info.format(f.contract.name, f.name, f.source_mapping_str, attr)
-                        self.log(info)
                         json = self.generate_json_result(info)
                         self.add_function_to_json(f, json)
                         json['elements'] = [{'type': 'info',
@@ -49,7 +72,6 @@ class ConstantFunctions(AbstractDetector):
                         for variable_written in variables_written:
                             info += '\t- {}.{}\n'.format(variable_written.contract.name,
                                                          variable_written.name)
-                        self.log(info)
 
 
                         json = self.generate_json_result(info)

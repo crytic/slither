@@ -1,6 +1,6 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall
-from slither.analyses.taint.all_variables import is_tainted
+from slither.analyses.data_dependency.data_dependency import is_tainted
 
 class ControlledDelegateCall(AbstractDetector):
     """
@@ -11,18 +11,33 @@ class ControlledDelegateCall(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#controlled-delegatecall'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#controlled-delegatecall'
+
+
+    WIKI_TITLE = 'Controlled Delegatecall'
+    WIKI_DESCRIPTION = 'Delegatecall or callcode to an address controlled by the user.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract Delegatecall{
+    function delegate(address to, bytes data){
+        to.delegatecall(data);
+    }
+}
+```
+Bob calls `delegate` and delegate the execution to its malicious contract. As a result, Bob withdraws the funds of the contract and destruct it.'''
+
+    WIKI_RECOMMENDATION = 'Avoid using `delegatecall`. Use only trusted destinations.'
 
     def controlled_delegatecall(self, function):
         ret = []
         for node in function.nodes:
             for ir in node.irs:
                 if isinstance(ir, LowLevelCall) and ir.function_name in ['delegatecall', 'codecall']:
-                    if is_tainted(self.slither, ir.destination):
+                    if is_tainted(ir.destination, function.contract):
                         ret.append(node)
         return ret
 
-    def detect(self):
+    def _detect(self):
         results = []
 
         for contract in self.slither.contracts:
@@ -35,7 +50,6 @@ class ControlledDelegateCall(AbstractDetector):
                     info = info.format(contract.name, f.name, f.source_mapping_str)
                     for node in nodes:
                         info += '\t{} ({})\n'.format(node.expression, node.source_mapping_str)
-                    self.log(info)
 
                     json = self.generate_json_result(info)
                     self.add_function_to_json(f, json)

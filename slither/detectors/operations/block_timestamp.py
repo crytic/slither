@@ -10,10 +10,7 @@
     TODO: dont report if the value is tainted by msg.value
 """
 from slither.core.declarations import Function
-from slither.analyses.taint.all_variables import is_tainted as is_tainted_from_inputs
-from slither.analyses.taint.specific_variable import is_tainted
-from slither.analyses.taint.specific_variable import \
-    run_taint as run_taint_variable
+from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
 from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariableComposed)
 from slither.detectors.abstract_detector import (AbstractDetector,
@@ -30,7 +27,13 @@ class Timestamp(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#block-timestamp'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#block-timestamp'
+
+
+    WIKI_TITLE = 'Block timestamp'
+    WIKI_DESCRIPTION = 'Dangerous usage of `block.timestamp`. `block.timestamp` can be manipulated by miners.'
+    WIKI_EXPLOIT_SCENARIO = '''"Bob's contract relies on `block.timestamp` for its randomness. Eve is a miner and manipulates `block.timestamp` to exploit Bob's contract.'''
+    WIKI_RECOMMENDATION = 'Avoid relying on `block.timestamp`.'
 
     def timestamp(self, func):
         """
@@ -40,12 +43,12 @@ class Timestamp(AbstractDetector):
         for node in func.nodes:
             if node.contains_require_or_assert():
                 for var in node.variables_read:
-                    if is_tainted(var, SolidityVariableComposed('block.timestamp')):
+                    if is_dependent(var, SolidityVariableComposed('block.timestamp'), func.contract):
                         ret.add(node)
             for ir in node.irs:
                 if isinstance(ir, Binary) and BinaryType.return_bool(ir.type):
                     for var in ir.read:
-                        if is_tainted(var, SolidityVariableComposed('block.timestamp')):
+                        if is_dependent(var, SolidityVariableComposed('block.timestamp'), func.contract):
                             ret.add(node)
         return list(ret)
 
@@ -64,14 +67,10 @@ class Timestamp(AbstractDetector):
                 ret.append((f, nodes))
         return ret
 
-    def detect(self):
+    def _detect(self):
         """
         """
         results = []
-
-        # Taint block.timestamp
-        taint = SolidityVariableComposed('block.timestamp')
-        run_taint_variable(self.slither, taint)
 
         for c in self.contracts:
             dangerous_timestamp = self.detect_dangerous_timestamp(c)
@@ -84,9 +83,6 @@ class Timestamp(AbstractDetector):
                 info += '\tDangerous comparisons:\n'
                 for node in nodes:
                     info += '\t- {} ({})\n'.format(node.expression, node.source_mapping_str)
-
-                self.log(info)
-
 
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)

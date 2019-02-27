@@ -2,7 +2,7 @@ import logging
 
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
-from slither.slithir.variables import TupleVariable
+from slither.slithir.variables import TupleVariable, ReferenceVariable
 from slither.core.declarations.function import Function
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 
@@ -36,4 +36,9 @@ class Assignment(OperationWithLValue):
         return self._rvalue
 
     def __str__(self):
+        if isinstance(self.lvalue, ReferenceVariable):
+            points = self.lvalue.points_to
+            while isinstance(points, ReferenceVariable):
+                points = points.points_to
+            return '{} (->{}) := {}({})'.format(self.lvalue, points, self.rvalue, self.rvalue.type)
         return '{}({}) := {}({})'.format(self.lvalue, self.lvalue.type, self.rvalue, self.rvalue.type)

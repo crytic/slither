@@ -1,0 +1,3 @@
+INFO:CompareFunctions:[92mNo function id collision found[0m
+INFO:VariablesOrder:[93mVariable in the proxy: destination address[0m
+INFO:VariablesOrder:[92mNo error found (variables ordering proxy <-> implementation)[0m

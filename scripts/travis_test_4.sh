@@ -37,7 +37,7 @@ test_slither(){
     fi
 
     # run slither detector on input file and save output as json
-    slither "$1" --disable-solc-warnings --detect "$2" --compact-ast --json "$DIR/tmp-test.json" --solc solc-0.4.25
+    slither "$1" --disable-solc-warnings --detect "$2" --legacy-ast --json "$DIR/tmp-test.json" --solc solc-0.4.25
     if [ $? -eq 255 ]
     then
         echo "Slither crashed"
@@ -65,12 +65,15 @@ test_slither(){
 }
 
 
+test_slither tests/deprecated_calls.sol "deprecated-standards"
+test_slither tests/erc20_indexed.sol "erc20-indexed"
+test_slither tests/incorrect_erc20_interface.sol "erc20-interface"
 test_slither tests/uninitialized.sol "uninitialized-state"
 test_slither tests/backdoor.sol "backdoor"
 test_slither tests/backdoor.sol "suicidal"
 test_slither tests/pragma.0.4.24.sol "pragma"
 test_slither tests/old_solc.sol.json "solc-version"
-test_slither tests/reentrancy.sol "reentrancy"
+test_slither tests/reentrancy.sol "reentrancy-eth"
 test_slither tests/uninitialized_storage_pointer.sol "uninitialized-storage"
 test_slither tests/tx_origin.sol "tx-origin"
 test_slither tests/unused_state.sol "unused-state"
@@ -81,6 +84,7 @@ test_slither tests/inline_assembly_library.sol "assembly"
 test_slither tests/low_level_calls.sol "low-level-calls"
 test_slither tests/const_state_variables.sol "constable-states"
 test_slither tests/external_function.sol "external-function"
+test_slither tests/external_function_2.sol "external-function"
 test_slither tests/naming_convention.sol "naming-convention"
 #test_slither tests/complex_func.sol "complex-function"
 test_slither tests/controlled_delegatecall.sol "controlled-delegatecall"
@@ -90,5 +94,6 @@ test_slither tests/shadowing_abstract.sol "shadowing-abstract"
 test_slither tests/shadowing_state_variable.sol "shadowing-state"
 test_slither tests/timestamp.sol "timestamp"
 test_slither tests/multiple_calls_in_loop.sol "calls-loop"
-
-
+test_slither tests/shadowing_builtin_symbols.sol "shadowing-builtin"
+test_slither tests/shadowing_local_variable.sol "shadowing-local"
+test_slither tests/solc_version_incorrect.sol "solc-version"

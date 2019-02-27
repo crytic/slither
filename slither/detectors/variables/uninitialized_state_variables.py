@@ -28,7 +28,25 @@ class UninitializedStateVarsDetection(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#uninitialized-state-variables'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#uninitialized-state-variables'
+
+    WIKI_TITLE = 'Uninitialized state variables'
+    WIKI_DESCRIPTION = 'Uninitialized state variables.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract Uninitialized{
+    address destination;
+
+    function transfer() payable public{
+        destination.transfer(msg.value);
+    }
+}
+```
+Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and are lost.
+'''
+    WIKI_RECOMMENDATION = '''
+Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero.
+'''
 
     @staticmethod
     def written_variables(contract):
@@ -63,7 +81,7 @@ class UninitializedStateVarsDetection(AbstractDetector):
                                                             not variable.expression and\
                                                             variable in read_variables]
 
-    def detect(self):
+    def _detect(self):
         """ Detect uninitialized state variables
 
         Recursively visit the calls
@@ -80,7 +98,6 @@ class UninitializedStateVarsDetection(AbstractDetector):
                                    variable.source_mapping_str)
                 for f in functions:
                     info += "\t- {} ({})\n".format(f.name, f.source_mapping_str)
-                self.log(info)
 
                 source = [variable.source_mapping]
                 source += [f.source_mapping for f in functions]

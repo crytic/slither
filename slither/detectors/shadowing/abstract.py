@@ -16,9 +16,25 @@ class ShadowingAbstractDetection(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#state-variable-shadowing-from-abstract-contracts'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#state-variable-shadowing-from-abstract-contracts'
 
-    vuln_name = "ShadowingAbstractContract"
+
+    WIKI_TITLE = 'State variable shadowing from abstract contracts'
+    WIKI_DESCRIPTION = 'Detection of state variables shadowed from abstract contracts.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract BaseContract{
+    address owner;
+}
+
+contract DerivedContract is BaseContract{
+    address owner;
+}
+```
+`owner` of `BaseContract` is shadowed in `DerivedContract`.'''
+
+    WIKI_RECOMMENDATION = 'Remove the state variable shadowing.'
+
 
     def detect_shadowing(self, contract):
         ret = []
@@ -34,7 +50,7 @@ class ShadowingAbstractDetection(AbstractDetector):
         return ret
 
 
-    def detect(self):
+    def _detect(self):
         """ Detect shadowing
 
         Recursively visit the calls
@@ -56,7 +72,6 @@ class ShadowingAbstractDetection(AbstractDetector):
                         info += "\t- {}.{} ({})\n".format(var.contract.name,
                                                        var.name,
                                                        var.source_mapping_str)
-                    self.log(info)
 
                     json = self.generate_json_result(info)
                     self.add_variables_to_json(all_variables, json)

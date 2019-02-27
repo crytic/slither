@@ -1,9 +1,8 @@
 import logging
 
-from slither.core.declarations import Function, Structure
+from slither.core.declarations import Function
 from slither.core.expressions import (AssignmentOperationType,
                                       UnaryOperationType)
-from slither.core.solidity_types.array_type import ArrayType
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
                                         Index, InitArray, InternalCall, Member,
                                         NewArray, NewContract, NewStructure,
@@ -14,10 +13,12 @@ from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import \
     TmpNewElementaryType
-from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import (Constant, ReferenceVariable,
                                        TemporaryVariable, TupleVariable)
 from slither.visitors.expression.expression import ExpressionVisitor
+
+#from slither.slithir.variables.state_variable import StateIRVariable
+#from slither.slithir.variables.local_variable import LocalIRVariable
 
 logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
 
@@ -127,7 +128,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
             # If tuple
             if expression.type_call.startswith('tuple(') and expression.type_call != 'tuple()':
-                val = TupleVariable()
+                val = TupleVariable(self._node)
             else:
                 val = TemporaryVariable(self._node)
             internal_call = InternalCall(called, len(args), val, expression.type_call)
@@ -138,7 +139,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
             # If tuple
             if expression.type_call.startswith('tuple(') and expression.type_call != 'tuple()':
-                val = TupleVariable()
+                val = TupleVariable(self._node)
             else:
                 val = TemporaryVariable(self._node)
 
@@ -159,6 +160,14 @@ class ExpressionToSlithIR(ExpressionVisitor):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
         val = ReferenceVariable(self._node)
+        # access to anonymous array
+        # such as [0,1][x]
+        if isinstance(left, list):
+            init_array_val = TemporaryVariable(self._node)
+            init_array_right = left
+            left = init_array_val
+            operation = InitArray(init_array_right, init_array_val)
+            self._result.append(operation)
         operation = Index(val, left, right, expression.type)
         self._result.append(operation)
         set_val(expression, val)
@@ -215,7 +224,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
             set_val(expression, lvalue)
         elif expression.type in [UnaryOperationType.DELETE]:
-            operation = Delete(value)
+            operation = Delete(value, value)
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.PLUSPLUS_PRE]:

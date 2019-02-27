@@ -3,12 +3,17 @@ import json
 import re
 import logging
 
+logging.basicConfig()
 logger = logging.getLogger("SlitherSolcParsing")
+logger.setLevel(logging.INFO)
 
 from slither.solc_parsing.declarations.contract import ContractSolc04
 from slither.core.slither_core import Slither
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.import_directive import Import
+from slither.analyses.data_dependency.data_dependency import compute_dependency
+
+from slither.utils.colors import red
 
 class SlitherSolc(Slither):
 
@@ -20,6 +25,13 @@ class SlitherSolc(Slither):
         self._analyzed = False
 
         self._is_compact_ast = False
+
+
+    ###################################################################################
+    ###################################################################################
+    # region AST
+    ###################################################################################
+    ###################################################################################
 
     def get_key(self):
         if self._is_compact_ast:
@@ -35,11 +47,28 @@ class SlitherSolc(Slither):
     def is_compact_ast(self):
         return self._is_compact_ast
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Parsing
+    ###################################################################################
+    ###################################################################################
+
     def _parse_contracts_from_json(self, json_data):
         try:
             data_loaded = json.loads(json_data)
-            self._parse_contracts_from_loaded_json(data_loaded['ast'], data_loaded['sourcePath'])
-            return True 
+            # Truffle AST
+            if 'ast' in data_loaded:
+                self._parse_contracts_from_loaded_json(data_loaded['ast'], data_loaded['sourcePath'])
+                return True
+            # solc AST, where the non-json text was removed
+            else:
+                if 'attributes' in data_loaded:
+                    filename = data_loaded['attributes']['absolutePath']
+                else:
+                    filename = data_loaded['absolutePath']
+                self._parse_contracts_from_loaded_json(data_loaded, filename)
+                return True
         except ValueError:
 
             first = json_data.find('{')
@@ -60,7 +89,7 @@ class SlitherSolc(Slither):
         if 'sourcePaths' in data_loaded:
             for sourcePath in data_loaded['sourcePaths']:
                 if os.path.isfile(sourcePath):
-                    with open(sourcePath) as f:
+                    with open(sourcePath, encoding='utf8') as f:
                         source_code = f.read()
                     self.source_code[sourcePath] = source_code
 
@@ -123,18 +152,30 @@ class SlitherSolc(Slither):
 
         self._source_units[sourceUnit] = name
         if os.path.isfile(name) and not name in self.source_code:
-            with open(name) as f:
+            with open(name, encoding='utf8') as f:
                 source_code = f.read()
             self.source_code[name] = source_code
         else:
             lib_name = os.path.join('node_modules', name)
             if os.path.isfile(lib_name) and not name in self.source_code:
-                with open(lib_name) as f:
+                with open(lib_name, encoding='utf8') as f:
                     source_code = f.read()
                 self.source_code[name] = source_code
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Analyze
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def analyzed(self):
+        return self._analyzed
 
     def _analyze_contracts(self):
+        if not self._contractsNotParsed:
+            logger.info(f'No contract were found in {self.filename}, check the correct compilation') 
         if self._analyzed:
             raise Exception('Contract analysis can be run only once!')
 
@@ -156,13 +197,38 @@ class SlitherSolc(Slither):
         # Update of the inheritance 
         for contract in self._contractsNotParsed:
             # remove the first elem in linearizedBaseContracts as it is the contract itself
+            ancestors = []
             fathers = []
-            for i in contract.linearizedBaseContracts[1:]:
-                if i in contract.remapping:
-                    fathers.append(self.get_contract_from_name(contract.remapping[i]))
-                else:
-                    fathers.append(self._contracts_by_id[i])
-            contract.setInheritance(fathers)
+            father_constructors = []
+            try:
+                # Resolve linearized base contracts.
+                for i in contract.linearizedBaseContracts[1:]:
+                    if i in contract.remapping:
+                        ancestors.append(self.get_contract_from_name(contract.remapping[i]))
+                    else:
+                        ancestors.append(self._contracts_by_id[i])
+
+                # Resolve immediate base contracts
+                for i in contract.baseContracts:
+                    if i in contract.remapping:
+                        fathers.append(self.get_contract_from_name(contract.remapping[i]))
+                    else:
+                        fathers.append(self._contracts_by_id[i])
+
+                # Resolve immediate base constructor calls
+                for i in contract.baseConstructorContractsCalled:
+                    if i in contract.remapping:
+                        father_constructors.append(self.get_contract_from_name(contract.remapping[i]))
+                    else:
+                        father_constructors.append(self._contracts_by_id[i])
+
+            except KeyError:
+                logger.error(red('A contract was not found, it is likely that your codebase contains muliple contracts with the same name'))
+                logger.error(red('Truffle does not handle this case during compilation'))
+                logger.error(red('Please read https://github.com/trailofbits/slither/wiki#keyerror-or-nonetype-error'))
+                logger.error(red('And update your code to remove the duplicate'))
+                exit(-1)
+            contract.setInheritance(ancestors, fathers, father_constructors)
 
         contracts_to_be_analyzed = self.contracts
 
@@ -190,11 +256,8 @@ class SlitherSolc(Slither):
 
         self._convert_to_slithir()
 
-    # TODO refactor the following functions, and use a lambda function
+        compute_dependency(self)
 
-    @property
-    def analyzed(self):
-        return self._analyzed
 
     def _analyze_all_enums(self, contracts_to_be_analyzed):
         while contracts_to_be_analyzed:
@@ -312,6 +375,10 @@ class SlitherSolc(Slither):
 
     def _convert_to_slithir(self):
         for contract in self.contracts:
-            for func in contract.functions + contract.modifiers:
-                if func.contract == contract:
-                    func.convert_expression_to_slithir()
+            contract.convert_expression_to_slithir()
+        self._propagate_function_calls()
+        for contract in self.contracts:
+            contract.fix_phi()
+            contract.update_read_write_using_ssa()
+
+    # endregion

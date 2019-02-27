@@ -11,6 +11,8 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
     ARGUMENT = 'vars-and-auth'
     HELP = 'Print the state variables written and the authorization of the functions'
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization'
+
     @staticmethod
     def get_msg_sender_checks(function):
         all_functions = function.all_internal_calls() + [function] + function.modifiers

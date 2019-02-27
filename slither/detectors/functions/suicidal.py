@@ -16,7 +16,22 @@ class Suicidal(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#suicidal'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#suicidal'
+
+
+    WIKI_TITLE = 'Suicidal'
+    WIKI_DESCRIPTION = 'Unprotected call to a function executing `selfdestruct`/`suicide`.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract Suicidal{
+    function kill() public{
+        selfdestruct(msg.value);
+    }
+}
+```
+Bob calls `kill` and destruct the contract.'''
+
+    WIKI_RECOMMENDATION = 'Protect access to all sensitive functions.'
 
     @staticmethod
     def detect_suicidal_func(func):
@@ -49,7 +64,7 @@ class Suicidal(AbstractDetector):
                 ret.append(f)
         return ret
 
-    def detect(self):
+    def _detect(self):
         """ Detect the suicidal functions
         """
         results = []
@@ -61,8 +76,6 @@ class Suicidal(AbstractDetector):
                 info = txt.format(func.contract.name,
                                   func.name,
                                   func.source_mapping_str)
-
-                self.log(info)
 
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)

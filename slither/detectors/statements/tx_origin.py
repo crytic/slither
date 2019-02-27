@@ -14,7 +14,22 @@ class TxOrigin(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#dangerous-usage-of-txorigin'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#dangerous-usage-of-txorigin'
+
+    WIKI_TITLE = 'Dangerous usage of `tx.origin`'
+    WIKI_DESCRIPTION = '`tx.origin`-based protection can be abused by malicious contract if a legitimate user interacts with the malicious contract.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract TxOrigin {
+    address owner = msg.sender;
+
+    function bug() {
+        require(tx.origin == owner);
+    }
+```
+Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contact calls `TxOrigin` and bypass the `tx.origin` protection.'''
+
+    WIKI_RECOMMENDATION = 'Do not use `tx.origin` for authentification.'
 
     @staticmethod
     def _contains_incorrect_tx_origin_use(node):
@@ -43,7 +58,7 @@ class TxOrigin(AbstractDetector):
                 ret.append((f, bad_tx_nodes))
         return ret
 
-    def detect(self):
+    def _detect(self):
         """ Detect the functions that use tx.origin in a conditional node
         """
         results = []
@@ -55,8 +70,6 @@ class TxOrigin(AbstractDetector):
 
                 for node in nodes:
                     info += "\t- {} ({})\n".format(node.expression, node.source_mapping_str)
-
-                self.log(info)
 
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)

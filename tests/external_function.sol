@@ -1,6 +1,6 @@
 //pragma solidity ^0.4.24;
 
-import "./external_function_test_2.sol";
+import "./external_function_import.sol";
 
 contract ContractWithFunctionCalledSuper is ContractWithFunctionCalled {
     function callWithSuper() public {

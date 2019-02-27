@@ -42,6 +42,8 @@ class PrinterCallGraph(AbstractPrinter):
     ARGUMENT = 'call-graph'
     HELP = 'Export the call-graph of the contracts to a dot file'
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph'
+
     def __init__(self, slither, logger):
         super(PrinterCallGraph, self).__init__(slither, logger)
 
@@ -140,12 +142,15 @@ class PrinterCallGraph(AbstractPrinter):
             Args:
                 filename(string)
         """
+        if not filename:
+            filename = "contracts.dot"
+
         if not filename.endswith('.dot'):
             filename += '.dot'
 
         self.info(f'Call Graph: {filename}')
 
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf8') as f:
             f.write('\n'.join([
                 'strict digraph {',
                 self._render_internal_calls(),

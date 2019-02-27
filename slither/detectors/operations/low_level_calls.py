@@ -16,7 +16,11 @@ class LowLevelCalls(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#low-level-calls'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#low-level-calls'
+
+    WIKI_TITLE = 'Low level calls'
+    WIKI_DESCRIPTION = 'The use of low-level calls is error-prone. Low-level calls do not check for [code existence](https://solidity.readthedocs.io/en/v0.4.25/control-structures.html#error-handling-assert-require-revert-and-exceptions) or call success.'
+    WIKI_RECOMMENDATION = 'Avoid low-level calls. Check the call success. If the call is meant for a contract, check for code existence.'
 
     @staticmethod
     def _contains_low_level_calls(node):
@@ -37,11 +41,10 @@ class LowLevelCalls(AbstractDetector):
                 ret.append((f, assembly_nodes))
         return ret
 
-    def detect(self):
+    def _detect(self):
         """ Detect the functions that use low level calls
         """
         results = []
-        all_info = ''
         for c in self.contracts:
             values = self.detect_low_level_calls(c)
             for func, nodes in values:
@@ -49,15 +52,10 @@ class LowLevelCalls(AbstractDetector):
                 info = info.format(func.contract.name, func.name, func.source_mapping_str)
                 for node in nodes:
                     info += "\t-{} {}\n".format(str(node.expression), node.source_mapping_str)
-                all_info += info
 
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)
                 self.add_nodes_to_json(nodes, json)
                 results.append(json)
 
-
-
-        if all_info != '':
-            self.log(all_info)
         return results

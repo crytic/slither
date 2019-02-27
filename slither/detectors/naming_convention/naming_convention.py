@@ -17,7 +17,17 @@ class NamingConvention(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#conformance-to-solidity-naming-conventions'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#conformance-to-solidity-naming-conventions'
+
+    WIKI_TITLE = 'Conformance to Solidity naming conventions'
+    WIKI_DESCRIPTION = '''
+Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.25/style-guide.html#naming-conventions) that should be followed.
+#### Rules exceptions
+- Allow constant variables name/symbol/decimals to be lowercase (ERC20)
+- Allow `_` at the beginning of the mixed_case match for private variables and unused parameters.'''
+
+    WIKI_RECOMMENDATION = 'Follow the Solidity [naming convention](https://solidity.readthedocs.io/en/v0.4.25/style-guide.html#naming-conventions).'
+
 
     @staticmethod
     def is_cap_words(name):
@@ -41,16 +51,14 @@ class NamingConvention(AbstractDetector):
     def should_avoid_name(name):
         return re.search('^[lOI]$', name) is not None
 
-    def detect(self):
+    def _detect(self):
 
         results = []
-        all_info = ''
         for contract in self.contracts:
 
             if not self.is_cap_words(contract.name):
                 info = "Contract '{}' ({}) is not in CapWords\n".format(contract.name,
                                                                         contract.source_mapping_str)
-                all_info += info
 
                 json = self.generate_json_result(info)
                 elem = dict()
@@ -68,7 +76,6 @@ class NamingConvention(AbstractDetector):
                 if not self.is_cap_words(struct.name):
                     info = "Struct '{}.{}' ({}) is not in CapWords\n"
                     info = info.format(struct.contract.name, struct.name, struct.source_mapping_str)
-                    all_info += info
 
                     json = self.generate_json_result(info)
                     elem = dict()
@@ -85,7 +92,6 @@ class NamingConvention(AbstractDetector):
                 if not self.is_cap_words(event.name):
                     info = "Event '{}.{}' ({}) is not in CapWords\n"
                     info = info.format(event.contract.name, event.name, event.source_mapping_str)
-                    all_info += info
 
                     json = self.generate_json_result(info)
                     elem = dict()
@@ -103,7 +109,6 @@ class NamingConvention(AbstractDetector):
                 if not self.is_mixed_case(func.name):
                     info = "Function '{}.{}' ({}) is not in mixedCase\n"
                     info = info.format(func.contract.name, func.name, func.source_mapping_str)
-                    all_info += info
 
                     json = self.generate_json_result(info)
                     elem = dict()
@@ -125,7 +130,6 @@ class NamingConvention(AbstractDetector):
                                            argument.function.contract.name,
                                            argument.function,
                                            argument.source_mapping_str)
-                        all_info += info
 
                         json = self.generate_json_result(info)
                         elem = dict()
@@ -144,7 +148,6 @@ class NamingConvention(AbstractDetector):
                     if not self.is_upper_case_with_underscores(var.name):
                         info = "Variable '{}.{}' ({}) used l, O, I, which should not be used\n"
                         info = info.format(var.contract.name, var.name, var.source_mapping_str)
-                        all_info += info
 
                         json = self.generate_json_result(info)
                         elem = dict()
@@ -163,7 +166,6 @@ class NamingConvention(AbstractDetector):
                     if not self.is_upper_case_with_underscores(var.name):
                         info = "Constant '{}.{}' ({}) is not in UPPER_CASE_WITH_UNDERSCORES\n"
                         info = info.format(var.contract.name, var.name, var.source_mapping_str)
-                        all_info += info
 
                         json = self.generate_json_result(info)
                         elem = dict()
@@ -182,7 +184,6 @@ class NamingConvention(AbstractDetector):
                     if not correct_naming:
                         info = "Variable '{}.{}' ({}) is not in mixedCase\n"
                         info = info.format(var.contract.name, var.name, var.source_mapping_str)
-                        all_info += info
 
                         json = self.generate_json_result(info)
                         elem = dict()
@@ -200,7 +201,6 @@ class NamingConvention(AbstractDetector):
                 if not self.is_cap_words(enum.name):
                     info = "Enum '{}.{}' ({}) is not in CapWords\n"
                     info = info.format(enum.contract.name, enum.name, enum.source_mapping_str)
-                    all_info += info
 
                     json = self.generate_json_result(info)
                     elem = dict()
@@ -221,7 +221,6 @@ class NamingConvention(AbstractDetector):
                     info = info.format(modifier.contract.name,
                                        modifier.name,
                                        modifier.source_mapping_str)
-                    all_info += info
 
                     json = self.generate_json_result(info)
                     elem = dict()
@@ -232,7 +231,5 @@ class NamingConvention(AbstractDetector):
                     json['elements'] = [elem]
                     results.append(json)
 
-        if all_info != '':
-            self.log(all_info)
 
         return results

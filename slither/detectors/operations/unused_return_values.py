@@ -17,7 +17,23 @@ class UnusedReturnValues(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description#unused-return'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#unused-return'
+
+
+    WIKI_TITLE = 'Unused return'
+    WIKI_DESCRIPTION = 'The return value of an external call is not stored in a local or state variable.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract MyConc{
+    using SafeMath for uint;   
+    function my_func(uint a, uint b) public{
+        a.add(b);
+    }
+}
+```
+`MyConc` call `add` of safemath, but does not store the result in `a`. As a result, the computation has no effect.'''
+
+    WIKI_RECOMMENDATION = 'Ensure that all the return value of the function call are stored in a local or state variable.'
 
     def detect_unused_return_values(self, f):
         """
@@ -42,7 +58,7 @@ class UnusedReturnValues(AbstractDetector):
 
         return [nodes_origin[value].node for value in values_returned]
 
-    def detect(self):
+    def _detect(self):
         """ Detect unused high level calls that return a value but are never used
         """
         results = []
@@ -58,7 +74,6 @@ class UnusedReturnValues(AbstractDetector):
                                        f.source_mapping_str)
                     for node in unused_return:
                         info += "\t-{} ({})\n".format(node.expression, node.source_mapping_str)
-                    self.log(info)
 
                     json = self.generate_json_result(info)
                     self.add_function_to_json(f, json)

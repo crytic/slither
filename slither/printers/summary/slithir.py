@@ -10,6 +10,8 @@ class PrinterSlithIR(AbstractPrinter):
     ARGUMENT = 'slithir'
     HELP = 'Print the slithIR representation of the functions'
 
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir'
+
     def output(self, _filename):
         """
             _filename is not used
@@ -26,6 +28,10 @@ class PrinterSlithIR(AbstractPrinter):
                     for node in function.nodes:
                         if node.expression:
                             print('\t\tExpression: {}'.format(node.expression))
+                            print('\t\tIRs:')
+                            for ir in node.irs:
+                                print('\t\t\t{}'.format(ir))
+                        elif node.irs:
                             print('\t\tIRs:')
                             for ir in node.irs:
                                 print('\t\t\t{}'.format(ir))

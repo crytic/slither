@@ -16,7 +16,32 @@ class MultipleCallsInLoop(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Vulnerabilities-Description/_edit#calls-inside-a-loop'
+    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation/_edit#calls-inside-a-loop'
+
+
+    WIKI_TITLE = 'Calls inside a loop'
+    WIKI_DESCRIPTION = 'Calls inside a loop might lead to denial of service attack.'
+    WIKI_EXPLOIT_SCENARIO = '''
+```solidity
+contract CallsInLoop{
+
+    address[] destinations;
+
+    constructor(address[] newDestinations) public{
+        destinations = newDestinations;
+    }
+
+    function bad() external{
+        for (uint i=0; i < destinations.length; i++){
+            destinations[i].transfer(i);
+        }
+    }
+
+}
+```
+If one of the destinations has a fallback function which reverts, `bad` will always revert.'''
+
+    WIKI_RECOMMENDATION = 'Favor [pull over push](https://github.com/ethereum/wiki/wiki/Safety#favor-pull-over-push-for-external-calls) strategy for external calls.'
 
     @staticmethod
     def call_in_loop(node, in_loop, visited, ret):
@@ -53,7 +78,7 @@ class MultipleCallsInLoop(AbstractDetector):
 
         return ret
 
-    def detect(self):
+    def _detect(self):
         """
         """
         results = []
@@ -65,8 +90,6 @@ class MultipleCallsInLoop(AbstractDetector):
                 info = info.format(func.contract.name, func.name)
 
                 info += "\t- {} ({})\n".format(node.expression, node.source_mapping_str)
-
-                self.log(info)
 
                 json = self.generate_json_result(info)
                 self.add_function_to_json(func, json)

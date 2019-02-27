@@ -1,16 +1,27 @@
-from slither.core.variables.variable import Variable
 from slither.core.solidity_types.type import Type
 from slither.core.expressions.expression import Expression
+from slither.core.expressions import Literal
+from slither.visitors.expression.constants_folding import ConstantFolding
 
 class ArrayType(Type):
 
     def __init__(self, t, length):
         assert isinstance(t, Type)
         if length:
+            if isinstance(length, int):
+                length = Literal(length)
             assert isinstance(length, Expression)
         super(ArrayType, self).__init__()
         self._type = t
         self._length = length
+
+        if length:
+            if not isinstance(length, Literal):
+                cf = ConstantFolding(length)
+                length = cf.result()
+            self._length_value = length
+        else:
+            self._length_value = None
 
     @property
     def type(self):
@@ -22,9 +33,7 @@ class ArrayType(Type):
 
     def __str__(self):
         if self._length:
-            if isinstance(self._length.value, Variable) and self._length.value.is_constant:
-                return str(self._type)+'[{}]'.format(str(self._length.value.expression))
-            return str(self._type)+'[{}]'.format(str(self._length))
+            return str(self._type)+'[{}]'.format(str(self._length_value))
         return str(self._type)+'[]'
 
 

@@ -12,8 +12,17 @@ class Example(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    def detect(self):
+    WIKI = ''
 
-        self.logger('Nothing to detect!')
+    WIKI_TITLE = ''
+    WIKI_DESCRIPTION = ''
+    WIKI_EXPLOIT_SCENARIO = ''
+    WIKI_RECOMMENDATION = ''
 
-        return []
+    def _detect(self):
+
+        info = 'This is an example!'
+
+        json = self.generate_json_result(info)
+
+        return [json]
