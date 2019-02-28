@@ -997,51 +997,34 @@ class Function(ChildContract, SourceMapping):
         calls = [x.calls_as_expression for x in self.nodes]
         calls = [x for x in calls if x]
         calls = [item for sublist in calls for item in sublist]
-        # Remove dupplicate if they share the same string representation
-        # TODO: check if groupby is still necessary here
-        calls = [next(obj) for i, obj in\
-                 groupby(sorted(calls, key=lambda x: str(x)), lambda x: str(x))]
-        self._expression_calls = calls
+        self._expression_calls = list(set(calls))
 
         internal_calls = [x.internal_calls for x in self.nodes]
         internal_calls = [x for x in internal_calls if x]
         internal_calls = [item for sublist in internal_calls for item in sublist]
-        internal_calls = [next(obj) for i, obj in
-                          groupby(sorted(internal_calls, key=lambda x: str(x)), lambda x: str(x))]
-        self._internal_calls = internal_calls
+        self._internal_calls = list(set(internal_calls))
 
         self._solidity_calls = [c for c in internal_calls if isinstance(c, SolidityFunction)]
 
         low_level_calls = [x.low_level_calls for x in self.nodes]
         low_level_calls = [x for x in low_level_calls if x]
         low_level_calls = [item for sublist in low_level_calls for item in sublist]
-        low_level_calls = [next(obj) for i, obj in
-                          groupby(sorted(low_level_calls, key=lambda x: str(x)), lambda x: str(x))]
-
-        self._low_level_calls = low_level_calls
+        self._low_level_calls = list(set(low_level_calls))
 
         high_level_calls = [x.high_level_calls for x in self.nodes]
         high_level_calls = [x for x in high_level_calls if x]
         high_level_calls = [item for sublist in high_level_calls for item in sublist]
-        high_level_calls = [next(obj) for i, obj in
-                          groupby(sorted(high_level_calls, key=lambda x: str(x)), lambda x: str(x))]
-
-        self._high_level_calls = high_level_calls
+        self._high_level_calls = list(set(high_level_calls))
 
         library_calls = [x.library_calls for x in self.nodes]
         library_calls = [x for x in library_calls if x]
         library_calls = [item for sublist in library_calls for item in sublist]
-        library_calls = [next(obj) for i, obj in
-                          groupby(sorted(library_calls, key=lambda x: str(x)), lambda x: str(x))]
-
-        self._library_calls = library_calls
+        self._library_calls = list(set(library_calls))
 
         external_calls_as_expressions = [x.external_calls_as_expressions for x in self.nodes]
         external_calls_as_expressions = [x for x in external_calls_as_expressions if x]
         external_calls_as_expressions = [item for sublist in external_calls_as_expressions for item in sublist]
-        external_calls_as_expressions = [next(obj) for i, obj in
-                          groupby(sorted(external_calls_as_expressions, key=lambda x: str(x)), lambda x: str(x))]
-        self._external_calls_as_expressions = external_calls_as_expressions
+        self._external_calls_as_expressions = list(set(external_calls_as_expressions))
 
 
 

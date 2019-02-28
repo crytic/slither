@@ -2,14 +2,20 @@ from slither.core.declarations.function import Function
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
-
+from slither.slithir.variables import Constant
 
 class InternalCall(Call, OperationWithLValue):
 
-    def __init__(self, function, nbr_arguments, result, type_call):
-        assert isinstance(function, Function)
+    def __init__(self, function, contract, nbr_arguments, result, type_call):
         super(InternalCall, self).__init__()
-        self._function = function
+        if isinstance(function, Function):
+            self._function = function
+            self._function_name = function.name
+        else:
+            isinstance(function, Constant)
+            self._function = None
+            self._function_name = function
+        self._contract = contract
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
         self._lvalue = result
@@ -21,6 +27,18 @@ class InternalCall(Call, OperationWithLValue):
     @property
     def function(self):
         return self._function
+
+    @function.setter
+    def function(self, f):
+        self._function = f
+
+    @property
+    def contract(self):
+        return self._contract
+
+    @property
+    def function_name(self):
+        return self._function_name
 
     @property
     def nbr_arguments(self):
