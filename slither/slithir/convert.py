@@ -230,7 +230,7 @@ def propagate_type_and_convert_call(result, node):
         ins = result[idx]
 
         if isinstance(ins, TmpCall):
-            new_ins = extract_tmp_call(ins)
+            new_ins = extract_tmp_call(ins, node.function.contract)
             if new_ins:
                 new_ins.set_node(ins.node)
                 ins = new_ins
@@ -323,12 +323,12 @@ def propagate_types(ir, node):
                     t_type = t.type
                     if isinstance(t_type, Contract):
                         contract = node.slither.get_contract_from_name(t_type.name)
-                        return convert_type_of_high_level_call(ir, contract)
+                        return convert_type_of_high_and_internal_level_call(ir, contract)
 
                 # Convert HighLevelCall to LowLevelCall
                 if isinstance(t, ElementaryType) and t.name == 'address':
                     if ir.destination.name == 'this':
-                        return convert_type_of_high_level_call(ir, node.function.contract)
+                        return convert_type_of_high_and_internal_level_call(ir, node.function.contract)
                     return convert_to_low_level(ir)
 
                 # Convert push operations
@@ -350,6 +350,8 @@ def propagate_types(ir, node):
                 ir.lvalue.set_type(ArrayType(t, length))
             elif isinstance(ir, InternalCall):
                 # if its not a tuple, return a singleton
+                if ir.function is None:
+                    convert_type_of_high_and_internal_level_call(ir, ir.contract)
                 return_type = ir.function.return_type
                 if return_type:
                     if len(return_type) == 1:
@@ -435,7 +437,7 @@ def propagate_types(ir, node):
                 logger.error('Not handling {} during type propgation'.format(type(ir)))
                 exit(-1)
 
-def extract_tmp_call(ins):
+def extract_tmp_call(ins, contract):
     assert isinstance(ins, TmpCall)
 
     if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
@@ -443,6 +445,11 @@ def extract_tmp_call(ins):
         call.call_id = ins.call_id
         return call
     if isinstance(ins.ori, Member):
+        # If there is a call on an inherited contract, it is an internal call
+        if ins.ori.variable_left in contract.inheritance + [contract]:
+            internalcall = InternalCall(ins.ori.variable_right, ins.ori.variable_left, ins.nbr_arguments, ins.lvalue, ins.type_call)
+            internalcall.call_id = ins.call_id
+            return internalcall
         if isinstance(ins.ori.variable_left, Contract):
             st = ins.ori.variable_left.get_structure_from_name(ins.ori.variable_right)
             if st:
@@ -457,7 +464,7 @@ def extract_tmp_call(ins):
         return msgcall
 
     if isinstance(ins.ori, TmpCall):
-        r = extract_tmp_call(ins.ori)
+        r = extract_tmp_call(ins.ori, contract)
         return r
     if isinstance(ins.called, SolidityVariableComposed):
         if str(ins.called) == 'block.blockhash':
@@ -671,7 +678,7 @@ def convert_type_library_call(ir, lib_contract):
         ir.lvalue = None
     return ir
 
-def convert_type_of_high_level_call(ir, contract):
+def convert_type_of_high_and_internal_level_call(ir, contract):
     func = None
     sigs = get_sig(ir)
     for sig in sigs:
