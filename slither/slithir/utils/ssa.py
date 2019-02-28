@@ -565,7 +565,7 @@ def copy_ir(ir, *instances):
         nbr_arguments = ir.nbr_arguments
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
-        new_ir = InternalCall(function, nbr_arguments, lvalue, type_call)
+        new_ir = InternalCall(function, function.contract, nbr_arguments, lvalue, type_call)
         new_ir.arguments = get_arguments(ir, *instances)
         return new_ir
     elif isinstance(ir, InternalDynamicCall):
