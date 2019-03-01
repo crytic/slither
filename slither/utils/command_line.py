@@ -50,15 +50,48 @@ def output_to_markdown(detector_classes, printer_classes, filter_wiki):
         print('{} | `{}` | {}'.format(idx, argument, help_info))
         idx = idx + 1
 
+def get_level(l):
+    tab = l.count('\t') + 1
+    if l.replace('\t', '').startswith(' -'):
+        tab = tab + 1
+    if l.replace('\t', '').startswith('-'):
+        tab = tab + 1
+    return tab
+
+def convert_result_to_markdown(txt):
+    # -1 to remove the last \n
+    lines = txt[0:-1].split('\n')
+    ret = []
+    level = 0
+    for l in lines:
+        next_level = get_level(l)
+        prefix = '<li>'
+        if next_level < level:
+            prefix = '</ul>'*(level - next_level) + prefix
+        if next_level > level:
+            prefix = '<ul>'*(next_level - level) + prefix
+        level = next_level
+        ret.append(prefix + l)
+
+    return ''.join(ret)
+
 def output_results_to_markdown(all_results):
     checks = defaultdict(list)
     for results in all_results:
         checks[results['check']].append(results['description'])
 
+    print('Summary')
+    for check in checks:
+        print(f' - [{check}](#{check}) ({len(checks[check])} results)')
+
     for (check, results) in checks.items():
-        print('####  {}'.format(check))
+        print(f'## {check}')
+        print('''
+| Analyzed         | Description |
+|----------------|-----------|''')
         for result in results:
-            print(f' - [ ] {result}')
+            result_markdown = convert_result_to_markdown(result)
+            print(f'| <ul><li>[ ] TP</li><li>[ ] FP</li><li>[ ] Unknown</li></ul>  | {result_markdown}')
 
 def output_wiki(detector_classes, filter_wiki):
 
