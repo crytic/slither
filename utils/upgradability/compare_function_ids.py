@@ -11,20 +11,21 @@ from slither.utils.colors import red, green
 logger = logging.getLogger("CompareFunctions")
 logger.setLevel(logging.INFO)
 
-def get_signatures(s):
-    functions = s.functions
-    functions = [f.full_name for f in functions if f.visibility in ['public', 'external']]
+def get_signatures(c):
+    functions = c.functions
+    functions = [f.full_name for f in functions if f.visibility in ['public', 'external'] and not f.is_constructor]
 
-    variables = [contract.state_variables for contract in s.contracts]
-    variables = [item for sublist in variables for item in sublist]
+    variables = c.state_variables
     variables = [variable.name+ '()' for variable in variables if variable.visibility in ['public']]
     return list(set(functions+variables))
 
 
-def compare_function_ids(implem, proxy):
+def compare_function_ids(implem, implem_name, proxy, proxy_name):
+    implem_contract = implem.get_contract_from_name(implem_name)
+    proxy_contract = proxy.get_contract_from_name(proxy_name)
 
-    signatures_implem = get_signatures(implem)
-    signatures_proxy = get_signatures(proxy)
+    signatures_implem = get_signatures(implem_contract)
+    signatures_proxy = get_signatures(proxy_contract)
 
     signatures_ids_implem = {get_function_id(s): s for s in signatures_implem}
     signatures_ids_proxy = {get_function_id(s): s for s in signatures_proxy}
