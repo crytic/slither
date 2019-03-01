@@ -1,9 +1,7 @@
-import os
-import argparse
-from slither import Slither
+class ResolveFunctionException(Exception): pass
 
 
-def resolve_function(contract_name, function_name):
+def resolve_function(slither, contract_name, function_name):
     """
     Resolves a function instance, given a contract name and function.
     :param contract_name: The name of the contract the function is declared in.
@@ -15,20 +13,20 @@ def resolve_function(contract_name, function_name):
 
     # Verify the contract was resolved successfully
     if contract is None:
-        raise ValueError(f"Could not resolve target contract: {contract_name}")
+        raise ResolveFunctionException(f"Could not resolve target contract: {contract_name}")
 
     # Obtain the target function
     target_function = next((function for function in contract.functions if function.name == function_name), None)
 
     # Verify we have resolved the function specified.
     if target_function is None:
-        raise ValueError(f"Could not resolve target function: {contract_name}.{function_name}")
+        raise ResolveFunctionException(f"Could not resolve target function: {contract_name}.{function_name}")
 
     # Add the resolved function to the new list.
     return target_function
 
 
-def resolve_functions(functions):
+def resolve_functions(slither, functions):
     """
     Resolves the provided function descriptors.
     :param functions: A list of tuples (contract_name, function_name) or str (of form "ContractName.FunctionName")
@@ -40,7 +38,7 @@ def resolve_functions(functions):
 
     # Verify that the provided argument is a list.
     if not isinstance(functions, list):
-        raise ValueError("Provided functions to resolve must be a list type.")
+        raise ResolveFunctionException("Provided functions to resolve must be a list type.")
 
     # Loop for each item in the list.
     for item in functions:
@@ -48,15 +46,15 @@ def resolve_functions(functions):
             # If the item is a single string, we assume it is of form 'ContractName.FunctionName'.
             parts = item.split('.')
             if len(parts) < 2:
-                raise ValueError("Provided string descriptor must be of form 'ContractName.FunctionName'")
-            resolved.append(resolve_function(parts[0], parts[1]))
+                raise ResolveFunctionException("Provided string descriptor must be of form 'ContractName.FunctionName'")
+            resolved.append(resolve_function(slither, parts[0], parts[1]))
         elif isinstance(item, tuple):
             # If the item is a tuple, it should be a 2-tuple providing contract and function names.
             if len(item) != 2:
-                raise ValueError("Provided tuple descriptor must provide a contract and function name.")
-            resolved.append(resolve_function(item[0], item[1]))
+                raise ResolveFunctionException("Provided tuple descriptor must provide a contract and function name.")
+            resolved.append(resolve_function(slither, item[0], item[1]))
         else:
-            raise ValueError(f"Unexpected function descriptor type to resolve in list: {type(item)}")
+            raise ResolveFunctionException(f"Unexpected function descriptor type to resolve in list: {type(item)}")
 
     # Return the resolved list.
     return resolved
@@ -73,7 +71,7 @@ def all_function_definitions(function):
                          if f.full_name == function.full_name]
 
 
-def __find_target_paths(target_function, current_path=[]):
+def __find_target_paths(slither, target_function, current_path=[]):
 
     # Create our results list
     results = set()
@@ -99,7 +97,7 @@ def __find_target_paths(target_function, current_path=[]):
 
             # If any of our target functions are reachable from this function, it's a result.
             if all_target_functions.intersection(called_functions):
-                path_results = __find_target_paths(function, current_path.copy())
+                path_results = __find_target_paths(slither, function, current_path.copy())
                 if path_results:
                     results = results.union(path_results)
 
@@ -110,7 +108,7 @@ def __find_target_paths(target_function, current_path=[]):
     return results
 
 
-def find_target_paths(target_functions):
+def find_target_paths(slither, target_functions):
     """
     Obtains all functions which can lead to any of the target functions being called.
     :param target_functions: The functions we are interested in reaching.
@@ -121,72 +119,9 @@ def find_target_paths(target_functions):
 
     # Loop for each target function
     for target_function in target_functions:
-        results = results.union(__find_target_paths(target_function))
+        results = results.union(__find_target_paths(slither, target_function))
 
     return results
 
 
-def parse_args():
-    """
-    Parse the underlying arguments for the program.
-    :return: Returns the arguments for the program.
-    """
-    parser = argparse.ArgumentParser(description='PossiblePaths',
-                                     usage='possible_paths.py [--is-truffle] filename [contract.function targets]')
 
-    parser.add_argument('--is-truffle',
-                        help='Indicates the filename refers to a truffle directory path.',
-                        action='store_true',
-                        default=False)
-
-    parser.add_argument('filename',
-                        help='The filename of the contract or truffle directory to analyze.')
-
-    parser.add_argument('targets', nargs='+')
-
-    return parser.parse_args()
-
-
-# ------------------------------
-# PossiblePaths.py
-#       Usage: python3 possible_paths.py [--is-truffle] filename targets
-#       Example: python3 possible_paths.py contract.sol contract1.function1 contract2.function2 contract3.function3
-# ------------------------------
-# Parse all arguments
-args = parse_args()
-
-# If this is a truffle project, verify we have a valid build directory.
-if args.is_truffle:
-    cwd = os.path.abspath(args.filename)
-    build_dir = os.path.join(cwd, "build", "contracts")
-    if not os.path.exists(build_dir):
-        raise FileNotFoundError(f"Could not find truffle build directory at '{build_dir}'")
-
-# Perform slither analysis on the given filename
-slither = Slither(args.filename, is_truffle=args.is_truffle)
-
-targets = resolve_functions(args.targets)
-
-# Print out all target functions.
-print(f"Target functions:")
-for target in targets:
-    print(f"-{target.contract.name}.{target.full_name}")
-print("\n")
-
-# Obtain all paths which reach the target functions.
-reaching_paths = find_target_paths(targets)
-reaching_functions = set([y for x in reaching_paths for y in x if y not in targets])
-
-# Print out all function names which can reach the targets.
-print(f"The following functions reach the specified targets:")
-for function_desc in sorted([f"{f.contract.name}.{f.full_name}" for f in reaching_functions]):
-    print(f"-{function_desc}")
-print("\n")
-
-# Format all function paths.
-reaching_paths_str = [' -> '.join([f"{f.contract.name}.{f.full_name}" for f in reaching_path]) for reaching_path in reaching_paths]
-
-# Print a sorted list of all function paths which can reach the targets.
-print(f"The following paths reach the specified targets:")
-for reaching_path in sorted(reaching_paths_str):
-    print(f"{reaching_path}\n")
