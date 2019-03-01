@@ -56,7 +56,7 @@ def main():
     if args.new_contract_name:
         last_name = args.new_contract_name
 
-    compare_function_ids(last_version, proxy)
+    compare_function_ids(last_version, last_name, proxy, proxy_name)
     compare_variables_order_proxy(last_version, last_name, proxy, proxy_name)
 
     if args.new_version:
