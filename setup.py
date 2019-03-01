@@ -14,7 +14,8 @@ setup(
     entry_points={
         'console_scripts': [
             'slither = slither.__main__:main',
-            'slither-check-upgradability = utils.upgradability.__main__:main'
+            'slither-check-upgradability = utils.upgradability.__main__:main',
+            'slither-find-paths = utils.possible_paths.__main__:main'
         ]
     }
 )
