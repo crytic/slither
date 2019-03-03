@@ -697,7 +697,7 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
     # lowlelvel lookup needs to be done at last step
     if not func and ir.function_name in ['call',
                                          'delegatecall',
-                                         'codecall',
+                                         'callcode',
                                          'transfer',
                                          'send']:
         return convert_to_low_level(ir)

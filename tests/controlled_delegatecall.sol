@@ -5,10 +5,6 @@ contract C{
 
     bytes4 func_id;
 
-    function bad_callcode_call(bytes memory data) public{
-        addr_bad.callcode(data);
-    }
-
     function bad_delegate_call(bytes memory data) public{
         addr_good.delegatecall(data);
         addr_bad.delegatecall(data);
