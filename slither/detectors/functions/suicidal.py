@@ -25,11 +25,11 @@ class Suicidal(AbstractDetector):
 ```solidity
 contract Suicidal{
     function kill() public{
-        selfdestruct(msg.value);
+        selfdestruct(msg.sender);
     }
 }
 ```
-Bob calls `kill` and destruct the contract.'''
+Bob calls `kill` and destructs the contract.'''
 
     WIKI_RECOMMENDATION = 'Protect access to all sensitive functions.'
 
