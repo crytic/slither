@@ -1,13 +1,6 @@
 """
-    Module detecting send to arbitrary address
+    Module detecting dangerous use of block.timestamp
 
-    To avoid FP, it does not report:
-        - If msg.sender is used as index (withdraw situation)
-        - If the function is protected
-        - If the value sent is msg.value (repay situation)
-        - If there is a call to transferFrom
-
-    TODO: dont report if the value is tainted by msg.value
 """
 from slither.core.declarations import Function
 from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent

@@ -82,7 +82,7 @@ If one of the destinations has a fallback function which reverts, `bad` will alw
         """
         """
         results = []
-        for c in self.contracts:
+        for c in self.slither.contracts_derived:
             values = self.detect_call_in_loop(c)
             for node in values:
                 func = node.function
