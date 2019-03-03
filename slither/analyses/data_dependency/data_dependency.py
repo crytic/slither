@@ -63,7 +63,7 @@ GENERIC_TAINT = {SolidityVariableComposed('msg.sender'),
                  SolidityVariableComposed('msg.data'),
                  SolidityVariableComposed('tx.origin')}
 
-def is_tainted(variable, context, only_unprotected=False):
+def is_tainted(variable, context, only_unprotected=False, ignore_generic_taint=False):
     '''
         Args:
         variable
@@ -78,10 +78,11 @@ def is_tainted(variable, context, only_unprotected=False):
         return False
     slither = context.slither
     taints = slither.context[KEY_INPUT]
-    taints |= GENERIC_TAINT
+    if not ignore_generic_taint:
+        taints |= GENERIC_TAINT
     return variable in taints or any(is_dependent(variable, t, context, only_unprotected) for t in taints)
 
-def is_tainted_ssa(variable, context, only_unprotected=False):
+def is_tainted_ssa(variable, context, only_unprotected=False, ignore_generic_taint=False):
     '''
     Args:
         variable
@@ -96,7 +97,8 @@ def is_tainted_ssa(variable, context, only_unprotected=False):
         return False
     slither = context.slither
     taints = slither.context[KEY_INPUT_SSA]
-    taints |= GENERIC_TAINT
+    if not ignore_generic_taint:
+        taints |= GENERIC_TAINT
     return variable in taints or any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
 
 
