@@ -37,8 +37,13 @@ class FunctionSolc(Function):
     def __init__(self, function, contract):
         super(FunctionSolc, self).__init__()
         self._contract = contract
+
+        # Only present if compact AST
+        self._referenced_declaration = None
         if self.is_compact_ast:
             self._name = function['name']
+            if 'id' in function:
+                self._referenced_declaration = function['id']
         else:
             self._name = function['attributes'][self.get_key()]
         self._functionNotParsed = function
@@ -72,6 +77,13 @@ class FunctionSolc(Function):
     @property
     def is_compact_ast(self):
         return self.slither.is_compact_ast
+
+    @property
+    def referenced_declaration(self):
+        '''
+            Return the compact AST referenced declaration id (None for legacy AST)
+        '''
+        return self._referenced_declaration
 
     # endregion
     ###################################################################################
