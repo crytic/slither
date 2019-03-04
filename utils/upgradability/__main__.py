@@ -49,7 +49,6 @@ def main():
 
     check_initialization(v1)
 
-
     if not args.new_version:
         compare_function_ids(v1, v1_name, proxy, proxy_name)
         compare_variables_order_proxy(v1, v1_name, proxy, proxy_name)

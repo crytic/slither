@@ -11,7 +11,7 @@ class MultipleInitTarget(Exception):
     pass
 
 def _get_initialize_functions(contract):
-    return [f for father in contract.inheritance for f in father.functions_not_inherited if f.name == 'initialize']
+    return [f for father in contract.inheritance + [contract] for f in father.functions_not_inherited if f.name == 'initialize']
 
 def _get_all_internal_calls(function):
     all_ir = function.all_slithir_operations()
@@ -61,7 +61,7 @@ def check_initialization(s):
             for f in missing_calls:
                 logger.info(red(f'Missing call to {f.contract.name}.{f.name} in {contract.name}'))
                 missing_call = True
-            double_calls = [f for f in all_init_functions_called if all_init_functions_called.count(f) > 1]
+            double_calls = list(set([f for f in all_init_functions_called if all_init_functions_called.count(f) > 1]))
             for f in double_calls:
                 logger.info(red(f'{f.contract.name + "." + f.full_name} is called multiple time in {contract.name}'))
                 double_calls_found = True
