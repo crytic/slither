@@ -109,7 +109,7 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
             arbitrary_send = self.detect_arbitrary_send(c)
             for (func, nodes) in arbitrary_send:
 
-                info = "{}.{} ({}) sends eth to arbirary user\n"
+                info = "{}.{} ({}) sends eth to arbitrary user\n"
                 info = info.format(func.contract.name,
                                    func.name,
                                    func.source_mapping_str)
