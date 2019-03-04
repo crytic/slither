@@ -22,7 +22,13 @@ def get_signatures(c):
 
 def compare_function_ids(implem, implem_name, proxy, proxy_name):
     implem_contract = implem.get_contract_from_name(implem_name)
+    if implem_contract is None:
+        logger.info(red(f'{implem_name} not found in {implem.filename}'))
+        return
     proxy_contract = proxy.get_contract_from_name(proxy_name)
+    if proxy_contract is None:
+        logger.info(red(f'{proxy_name} not found in {proxy.filename}'))
+        return
 
     signatures_implem = get_signatures(implem_contract)
     signatures_proxy = get_signatures(proxy_contract)
