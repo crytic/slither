@@ -82,7 +82,7 @@ def is_gas(ins):
                 return True
     return False
 
-def get_sig(ir):
+def get_sig(ir, name):
     '''
         Return a list of potential signature
         It is a list, as Constant variables can be converted to int256
@@ -92,11 +92,14 @@ def get_sig(ir):
         list(str)
     '''
     sig = '{}({})'
-    name = ir.function_name
 
     # list of list of arguments
+    argss = convert_arguments(ir.arguments)
+    return [sig.format(name, ','.join(args)) for args in argss]
+
+def convert_arguments(arguments):
     argss = [[]]
-    for arg in ir.arguments:
+    for arg in arguments:
         if isinstance(arg, (list,)):
             type_arg = '{}[{}]'.format(get_type(arg[0].type), len(arg))
         elif isinstance(arg, Function):
@@ -119,7 +122,7 @@ def get_sig(ir):
         else:
             for args in argss:
                 args.append(type_arg)
-    return [sig.format(name, ','.join(args)) for args in argss]
+    return argss
 
 def is_temporary(ins):
     return isinstance(ins, (Argument,
@@ -445,11 +448,16 @@ def extract_tmp_call(ins, contract):
         call.call_id = ins.call_id
         return call
     if isinstance(ins.ori, Member):
-        # If there is a call on an inherited contract, it is an internal call
+        # If there is a call on an inherited contract, it is an internal call or an event
         if ins.ori.variable_left in contract.inheritance + [contract]:
-            internalcall = InternalCall(ins.ori.variable_right, ins.ori.variable_left, ins.nbr_arguments, ins.lvalue, ins.type_call)
-            internalcall.call_id = ins.call_id
-            return internalcall
+            if str(ins.ori.variable_right) in [f.name for f in contract.functions]:
+                internalcall = InternalCall(ins.ori.variable_right, ins.ori.variable_left, ins.nbr_arguments, ins.lvalue, ins.type_call)
+                internalcall.call_id = ins.call_id
+                return internalcall
+            if str(ins.ori.variable_right) in [f.name for f in contract.events]:
+               eventcall = EventCall(ins.ori.variable_right)
+               eventcall.call_id = ins.call_id
+               return eventcall
         if isinstance(ins.ori.variable_left, Contract):
             st = ins.ori.variable_left.get_structure_from_name(ins.ori.variable_right)
             if st:
@@ -645,7 +653,7 @@ def get_type(t):
     return str(t)
 
 def convert_type_library_call(ir, lib_contract):
-    sigs = get_sig(ir)
+    sigs = get_sig(ir, ir.function_name)
     func = None
     for sig in sigs:
         func = lib_contract.get_function_from_signature(sig)
@@ -680,7 +688,7 @@ def convert_type_library_call(ir, lib_contract):
 
 def convert_type_of_high_and_internal_level_call(ir, contract):
     func = None
-    sigs = get_sig(ir)
+    sigs = get_sig(ir, ir.function_name)
     for sig in sigs:
         func = contract.get_function_from_signature(sig)
         if not func:
