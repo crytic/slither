@@ -450,6 +450,11 @@ def parse_args(detector_classes, printer_classes):
                         action='store_true',
                         default=defaults_flag_in_config['legacy_ast'])
 
+    parser.add_argument('--ignore-return-value',
+                        help=argparse.SUPPRESS,
+                        action='store_true',
+                        default=False)
+
     # if the json is splitted in different files
     parser.add_argument('--splitted',
                         help=argparse.SUPPRESS,
@@ -591,6 +596,8 @@ def main_impl(all_detector_classes, all_printer_classes):
             logger.info('%s analyzed (%d contracts)', filename, number_contracts)
         else:
             logger.info('%s analyzed (%d contracts), %d result(s) found', filename, number_contracts, len(results))
+        if args.ignore_return_value:
+            return
         exit(results)
 
     except Exception:
