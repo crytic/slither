@@ -563,7 +563,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         globbed_filenames = glob.glob(filename, recursive=True)
 
         if os.path.isfile(filename):
-            if filename.endswith('.py'):
+            if filename.endswith('.vy'):
                 (results, number_contracts) = process_vyper(filename, args, detector_classes, printer_classes)
             else:
                 (results, number_contracts) = process(filename, args, detector_classes, printer_classes)

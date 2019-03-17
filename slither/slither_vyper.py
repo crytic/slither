@@ -2,11 +2,15 @@ import logging
 import os
 import subprocess
 import sys
+import vyper
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
 from .vyper_parsing.slither_vyper import SlitherVyper
 from .utils.colors import red
+
+from vyper.parser.global_context import GlobalContext
+from vyper.parser.parser import parse_to_ast
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -18,10 +22,18 @@ logger_printer = logging.getLogger("Printers")
 class Slither(SlitherVyper):
 
     def __init__(self, filename):
+        '''
+            Args:
+                contract (str)
+            Keyword Args:
+                vyper (str): Vyper binary location (default 'vyper')
+        '''
         self._detectors = []
         self._printers = []
-
         super(Slither, self).__init__(filename)
+
+        self._init_from_vyper(filename)
+        self._analyze_contracts()
 
     @property
     def detectors(self):
@@ -89,14 +101,27 @@ class Slither(SlitherVyper):
                 "You can't register {!r} twice.".format(cls)
             )
 
-    def _run_solc(self, filename, solc, disable_solc_warnings, solc_arguments, ast_format):
+    def _init_from_vyper(self, contract, **kwargs):
+        vyper = kwargs.get('vyper', 'v')
+        contract_json = self._run_vyper(contract, vyper)
+        print(contract)
+        self._parse_contracts_from_json(contract_json)
+
+        f = open(contract)
+        kode = f.read()
+        code = parse_to_ast(kode)
+        global_ctx = GlobalContext.get_global_context(code)
+        self._global_ctx = global_ctx
+
+    def _run_vyper(self, filename, vyper):
         if not os.path.isfile(filename):
             logger.error('{} does not exist (are you in the correct directory?)'.format(filename))
             exit(-1)
+
         is_ast_file = False
         if filename.endswith('json'):
             is_ast_file = True
-        elif not filename.endswith('.sol'):
+        elif not filename.endswith('.vy'):
             raise Exception('Incorrect file format')
 
         if is_ast_file:
@@ -106,33 +131,17 @@ class Slither(SlitherVyper):
                     logger.info('Empty AST file: %s', filename)
                     sys.exit(-1)
         else:
-            cmd = [solc, filename, ast_format]
-            if solc_arguments:
-                # To parse, we first split the string on each '--'
-                solc_args = solc_arguments.split('--')
-                # Split each argument on the first space found
-                # One solc option may have multiple argument sepparated with ' '
-                # For example: --allow-paths /tmp .
-                # split() removes the delimiter, so we add it again
-                solc_args = [('--' + x).split(' ', 1) for x in solc_args if x]
-                # Flat the list of list
-                solc_args = [item for sublist in solc_args for item in sublist]
-                cmd += solc_args
-            # Add . as default allowed path
-            if '--allow-paths' not in cmd:
-                cmd += ['--allow-paths', '.']
+            cmd = [vyper, '-f', 'ast', filename]
 
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             stdout, stderr = process.communicate()
             stdout, stderr = stdout.decode(), stderr.decode()  # convert bytestrings to unicode strings
 
-            if stderr and (not disable_solc_warnings):
+            if stderr:
                 stderr = stderr.split('\n')
                 stderr = [x if 'Error' not in x else red(x) for x in stderr]
                 stderr = '\n'.join(stderr)
                 logger.info('Compilation warnings/errors on %s:\n%s', filename, stderr)
-
-        stdout = stdout.split('\n=')
 
         return stdout
