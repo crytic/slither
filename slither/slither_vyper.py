@@ -30,6 +30,7 @@ class Slither(SlitherVyper):
         '''
         self._detectors = []
         self._printers = []
+        self._triage_mode = False
         super(Slither, self).__init__(filename)
 
         self._init_from_vyper(filename)
@@ -104,7 +105,6 @@ class Slither(SlitherVyper):
     def _init_from_vyper(self, contract, **kwargs):
         vyper = kwargs.get('vyper', 'v')
         contract_json = self._run_vyper(contract, vyper)
-        print(contract)
         self._parse_contracts_from_json(contract_json)
 
         f = open(contract)
@@ -145,3 +145,7 @@ class Slither(SlitherVyper):
                 logger.info('Compilation warnings/errors on %s:\n%s', filename, stderr)
 
         return stdout
+
+    @property
+    def triage_mode(self):
+        return self._triage_mode

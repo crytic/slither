@@ -5,6 +5,7 @@ from slither.vyper_parsing.declarations.function import FunctionVyper
 from slither.vyper_parsing.declarations.event import EventVyper
 from vyper.signatures.event_signature import EventSignature
 from vyper.signatures.function_signature import FunctionSignature
+from slither.slithir.variables import StateIRVariable
 
 from slither.vyper_parsing.variables.state_variable import StateVariableVyper
 
@@ -79,6 +80,7 @@ class ContractVyper(Contract):
         for key, var_rec in self.slither._global_ctx._globals.items():
             var = StateVariableVyper(var_rec)
             var.set_contract(self)
+            var.set_offset({'start':1, 'length':2, 'filename': self.name, 'lines' : [3] }, self.slither)
             self._variables[var.name] = var
 
     def analyze_events(self):
@@ -98,3 +100,48 @@ class ContractVyper(Contract):
 
     def set_is_analyzed(self, is_analyzed):
         self._is_analyzed = is_analyzed
+
+    def convert_expression_to_slithir(self):
+        for func in self.functions:
+            if func.contract == self:
+                func.generate_slithir_and_analyze()
+
+        all_ssa_state_variables_instances = dict()
+
+        for v in self.variables:
+            if v.contract == self:
+                new_var = StateIRVariable(v)
+                all_ssa_state_variables_instances[v.canonical_name] = new_var
+                self._initial_state_variables.append(new_var)
+
+        for func in self.functions + self.modifiers:
+            if func.contract == self:
+                func.generate_slithir_ssa(all_ssa_state_variables_instances)
+
+
+    def fix_phi(self):
+        last_state_variables_instances = dict()
+        initial_state_variables_instances = dict()
+        for v in self._initial_state_variables:
+            last_state_variables_instances[v.canonical_name] = []
+            initial_state_variables_instances[v.canonical_name] = v
+
+        for func in self.functions + self.modifiers:
+            result = func.get_last_ssa_state_variables_instances()
+            for variable_name, instances in result.items():
+                last_state_variables_instances[variable_name] += instances
+
+        for func in self.functions + self.modifiers:
+            func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Built in definitions
+    ###################################################################################
+    ###################################################################################
+
+    def __hash__(self):
+        return hash(self.name)
+
+    # endregion

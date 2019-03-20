@@ -33,6 +33,7 @@ class SlitherVyper(Slither):
             self._analyze_struct_events(contract)
             self._analyze_variables_modifiers_functions(contract)
             contract.set_is_analyzed(True)
+            self._contracts[contract.name] = contract
 
         self._analyzed = True
 
@@ -73,3 +74,13 @@ class SlitherVyper(Slither):
         assert data_loaded[self.get_key()] in ['ContractDef']
         contract = ContractVyper(self, data_loaded)
         self._contractsNotParsed.append(contract)
+
+    def _convert_to_slithir(self):
+        print(self.contracts)
+        for contract in self.contracts:
+            print(contract)
+            contract.convert_expression_to_slithir()
+        self._propagate_function_calls()
+        for contract in self.contracts:
+            contract.fix_phi()
+            contract.update_read_write_using_ssa()

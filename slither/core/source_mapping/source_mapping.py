@@ -59,7 +59,7 @@ class SourceMapping(Context):
 
         if filename in slither.source_code:
             lines = SourceMapping._compute_line(slither.source_code[filename], s, l)
-
+        
         return {'start':s, 'length':l, 'filename': filename, 'lines' : lines }
 
     def set_offset(self, offset, slither):
@@ -89,4 +89,3 @@ class SourceMapping(Context):
         else:
             lines = '#{}-{}'.format(lines[0], lines[-1])
         return '{}{}'.format(relative_path(self.source_mapping['filename']), lines)
-
