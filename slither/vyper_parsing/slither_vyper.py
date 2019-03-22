@@ -40,15 +40,16 @@ class SlitherVyper(Slither):
         self._convert_to_slithir()
 
     def _parse_struct_var_modifiers_functions(self, contract):
-        # TODO: contract.parse_structs()
+        contract.parse_structs()
         contract.parse_state_variables()
         contract.parse_functions()
+
 
     def _analyze_struct_events(self, contract):
         # TODO:
         # contract.analyze_constant_state_variables()
         # TODO
-        # contract.analyze_structs()
+        contract.analyze_structs()
 
         # Event can refer to struct
         contract.analyze_events()
@@ -73,12 +74,16 @@ class SlitherVyper(Slither):
     def _parse_contracts_from_loaded_json(self, data_loaded, filename):
         assert data_loaded[self.get_key()] in ['ContractDef']
         contract = ContractVyper(self, data_loaded)
+        contract.set_offset({
+            'start': 0,
+            'length':0,
+            'filename': contract.name,
+            'lines' : [0]
+        }, self)
         self._contractsNotParsed.append(contract)
 
     def _convert_to_slithir(self):
-        print(self.contracts)
         for contract in self.contracts:
-            print(contract)
             contract.convert_expression_to_slithir()
         self._propagate_function_calls()
         for contract in self.contracts:

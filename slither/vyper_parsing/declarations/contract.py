@@ -25,6 +25,7 @@ class ContractVyper(Contract):
         # self._modifiers_no_params = []
         self._eventsNotParsed = []
         self._variablesNotParsed = []
+        self._variablesNotParsedByName = {}
         # self._enumsNotParsed = []
         self._structuresNotParsed = []
         # self._usingForNotParsed = []
@@ -41,6 +42,7 @@ class ContractVyper(Contract):
         # self._inheritance = []
 
         # self._parse_contract_info()
+        self._itemsById = {}
         self._parse_contract_items()
 
     def get_key(self):
@@ -50,27 +52,43 @@ class ContractVyper(Contract):
         if not 'body' in self._data: # empty contract
             return
         for item in self._data['body']:
-            # print(item[self.get_key()])
             if item[self.get_key()] == 'FunctionDef':
                 self._functionsNotParsed.append(item)
             elif item[self.get_key()] == 'EventDef':
                 self._eventsNotParsed.append(item)
             elif item[self.get_key()] == 'VariableDeclaration':
                 self._variablesNotParsed.append(item)
+            elif item[self.get_key()] == 'ClassDef':
+                self._structuresNotParsed.append(item)
             else:
                 logger.error('Unknown contract item: '+ item[self.get_key()])
                 # exit(-1)
+            # print(item['name'])
+            if 'target' in item:
+                self._itemsById[item['target']['id']] = item
+            else:
+                self._itemsById[item['name']] = item
+
+
+
+    def parse_structs(self):
+        pass
 
     def _parse_function(self, function):
         func = FunctionVyper(function, self)
         self.slither.add_function(func)
         self._functions_no_params.append(func)
+        func.set_offset({
+            'start': function['col_offset'],
+            'length':1,
+            'filename': self.name,
+            'lines' : [function['lineno']]
+        }, self.slither)
 
     def parse_functions(self):
 
         for function in self._functionsNotParsed:
             self._parse_function(function)
-
 
         self._functionsNotParsed = None
 
@@ -80,14 +98,34 @@ class ContractVyper(Contract):
         for key, var_rec in self.slither._global_ctx._globals.items():
             var = StateVariableVyper(var_rec)
             var.set_contract(self)
-            var.set_offset({'start':1, 'length':2, 'filename': self.name, 'lines' : [3] }, self.slither)
+            ast_node = self._itemsById[var_rec.name]
+            target = ast_node['target']
+            var.set_offset({
+                'start': target['col_offset'],
+                'length':1,
+                'filename': self.name,
+                'lines' : [target['lineno']]
+            }, self.slither)
             self._variables[var.name] = var
+
+    def analyze_structs(self):
+        for code in self.slither._global_ctx._events:
+            pass
 
     def analyze_events(self):
         for code in self.slither._global_ctx._events:
             event_sig = EventSignature.from_declaration(code, self.slither._global_ctx)
             event = EventVyper(event_sig, self)
             event.analyze()
+
+            ast_node = self._itemsById[event.name]
+            target = ast_node['target']
+            event.set_offset({
+                'start': target['col_offset'],
+                'length':1,
+                'filename': self.name,
+                'lines' : [target['lineno']]
+            }, self.slither)
             self._events[event._name] = event
 
     def analyze_state_variables(self):

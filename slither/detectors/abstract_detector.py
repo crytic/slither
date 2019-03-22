@@ -184,4 +184,3 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             d['elements'].append({'type': 'expression',
                                   'expression': str(node.expression),
                                   'source_mapping': node.source_mapping})
-
