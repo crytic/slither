@@ -4,13 +4,12 @@
 from slither.core.declarations import (Contract, Enum, Function,
                                        SolidityFunction, SolidityVariable,
                                        SolidityVariableComposed, Structure)
-from slither.slithir.operations import Index, OperationWithLValue, Return, InternalCall
+from slither.slithir.operations import Index, OperationWithLValue, InternalCall
 from slither.slithir.variables import (Constant, LocalIRVariable,
                                        ReferenceVariable, ReferenceVariableSSA,
                                        StateIRVariable, TemporaryVariable,
                                        TemporaryVariableSSA, TupleVariableSSA)
 from slither.core.solidity_types.type import Type
-from slither.core.cfg.node import NodeType
 
 ###################################################################################
 ###################################################################################
@@ -162,27 +161,11 @@ def pprint_dependency(context):
 ###################################################################################
 ###################################################################################
 
-return_values = {}
-
 def compute_dependency(slither):
 
     slither.context[KEY_INPUT] = set()
     slither.context[KEY_INPUT_SSA] = set()
 
-    # Generate a mapping of functions to their return values
-    for contract in slither.contracts:
-        for function in contract.all_functions_called:
-            found_return = False
-            if (not found_return):
-                for node in function.nodes:
-                    if (node.type == NodeType.RETURN):
-                        found_return = True
-                        for ir in node.irs_ssa:
-                            if isinstance(ir, Return):
-                                return_values[function] = ir.values
-                                break
-                        break
-                
     for contract in slither.contracts:
         compute_dependency_contract(contract, slither)
 
@@ -248,7 +231,7 @@ def add_dependency(lvalue, function, ir, is_protected):
     if isinstance(ir, Index):
         read = [ir.variable_left]
     elif isinstance(ir, InternalCall):
-        read = return_values.get(ir.function,[])
+        read = ir.function.return_values_ssa
     else:
         read = ir.read
     [function.context[KEY_SSA][lvalue].add(v) for v in read if not isinstance(v, Constant)]

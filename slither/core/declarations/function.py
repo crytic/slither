@@ -43,6 +43,8 @@ class Function(ChildContract, SourceMapping):
         self._parameters_ssa = []
         self._returns = []
         self._returns_ssa = []
+        self._return_values = None
+        self._return_values_ssa = None
         self._vars_read = []
         self._vars_written = []
         self._state_vars_read = []
@@ -467,6 +469,36 @@ class Function(ChildContract, SourceMapping):
             expressions = [e for e in expressions if e]
             self._expressions = expressions
         return self._expressions
+
+    @property
+    def return_values(self):
+        """
+            list(Return Values): List of the return values
+        """
+        from slither.core.cfg.node import NodeType
+        from slither.slithir.operations import Return
+        
+        if self._return_values is None:
+            return_values = list()
+            returns = [n for n in self.nodes if n.type == NodeType.RETURN]
+            [return_values.extend(ir.values) for node in returns for ir in node.irs if isinstance(ir, Return)]
+            self._return_values = return_values
+        return self._return_values
+    
+    @property
+    def return_values_ssa(self):
+        """
+            list(Return Values in SSA form): List of the return values in ssa form
+        """
+        from slither.core.cfg.node import NodeType
+        from slither.slithir.operations import Return
+        
+        if self._return_values_ssa is None:
+            return_values_ssa = list()
+            returns = [n for n in self.nodes if n.type == NodeType.RETURN]
+            [return_values_ssa.extend(ir.values) for node in returns for ir in node.irs_ssa if isinstance(ir, Return)]
+            self._return_values_ssa = return_values_ssa
+        return self._return_values_ssa
 
     # endregion
     ###################################################################################
