@@ -102,3 +102,16 @@ contract PropagateThroughArguments {
         var_not_tainted = y;
     }
 }
+
+contract PropagateThroughReturnValue {
+  uint var_dependant;
+  uint var_state;
+
+  function foo() public {
+    var_dependant = bar();
+  }
+
+  function bar() internal returns (uint) {
+    return (var_state);
+  }
+}
