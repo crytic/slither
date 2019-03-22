@@ -10,6 +10,7 @@ from slither.slithir.variables import (Constant, LocalIRVariable,
                                        StateIRVariable, TemporaryVariable,
                                        TemporaryVariableSSA, TupleVariableSSA)
 from slither.core.solidity_types.type import Type
+from slither.core.cfg.node import NodeType
 
 ###################################################################################
 ###################################################################################
@@ -174,13 +175,12 @@ def compute_dependency(slither):
             found_return = False
             if (not found_return):
                 for node in function.nodes:
-                    if (not found_return):
+                    if (node.type == NodeType.RETURN):
+                        found_return = True
                         for ir in node.irs_ssa:
                             if isinstance(ir, Return):
                                 return_values[function] = ir.values
-                                found_return = True
                                 break
-                    else:
                         break
                 
     for contract in slither.contracts:
