@@ -33,7 +33,7 @@ class FunctionVyper(Function):
         # Can be re-analyzed due to inheritance
         if self._params_was_analyzed:
             return
-        print(self._functionNotParsed)
+
         self._params_was_analyzed = True
 
         self._analyze_attributes()
@@ -52,12 +52,23 @@ class FunctionVyper(Function):
         self._payable = self._sig.payable
 
         if self._sig.private:
-            _visibility = 'private'
+            self._visibility = 'private'
         else:
-            _visibility = 'public'
+            self._visibility = 'public'
+        if self._sig.const:
+            self._view = True
 
     def _parse_params(self, params):
-        pass
+        print(self._sig.args)
 
     def _parse_returns(self, returns):
+        pass
+
+    def generate_slithir_and_analyze(self):
+        pass
+
+    def generate_slithir_ssa(self, all_ssa_state_variables_instances):
+        pass
+
+    def get_last_ssa_state_variables_instances(self):
         pass
