@@ -103,7 +103,7 @@ class Slither(SlitherVyper):
             )
 
     def _init_from_vyper(self, contract, **kwargs):
-        vyper = kwargs.get('vyper', 'v')
+        vyper = kwargs.get('vyper', '/Users/leon/workspace/vyper/v')
         contract_json = self._run_vyper(contract, vyper)
         self._parse_contracts_from_json(contract_json)
 

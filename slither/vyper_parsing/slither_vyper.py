@@ -54,13 +54,11 @@ class SlitherVyper(Slither):
         # Event can refer to struct
         contract.analyze_events()
 
-        # TODO
-        # contract.analyze_using_for()
 
     def _analyze_variables_modifiers_functions(self, contract):
 
         # TODO
-        # contract.analyze_params_functions()
+        contract.analyze_params_functions()
         contract.analyze_state_variables()
 
 
