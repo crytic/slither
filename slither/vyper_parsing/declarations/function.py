@@ -1,6 +1,7 @@
 import logging
 
 from slither.core.declarations.function import Function
+from slither.vyper_parsing.variables.local_variable import LocalVariableVyper
 
 logger = logging.getLogger("FunctionVyper")
 
@@ -28,6 +29,8 @@ class FunctionVyper(Function):
     def get_key(self):
         return self.slither.get_key()
 
+    def _add_local_variable(self, local_var):
+        self._variables[local_var.name] = local_var
 
     def analyze_params(self):
         # Can be re-analyzed due to inheritance
@@ -40,7 +43,7 @@ class FunctionVyper(Function):
 
         params = self._functionNotParsed['args']
         returns = self._functionNotParsed['returns']
-
+        # print(self._sig)
         if params:
             self._parse_params(params)
         if returns:
@@ -59,9 +62,13 @@ class FunctionVyper(Function):
             self._view = True
 
     def _parse_params(self, params):
-        print(self._sig.args)
+        for arg in self._sig.args:
+            local_var = LocalVariableVyper(arg)
+            local_var.set_function(self)
+            self._add_local_variable(local_var)
 
     def _parse_returns(self, returns):
+        # vyper isn't declare variables in return statement
         pass
 
     def generate_slithir_and_analyze(self):
