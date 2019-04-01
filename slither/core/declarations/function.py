@@ -475,12 +475,13 @@ class Function(ChildContract, SourceMapping):
         """
         from slither.core.cfg.node import NodeType
         from slither.slithir.operations import Return
+        from slither.slithir.variables import Constant
 
         if self._return_values is None:
             return_values = list()
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
             [return_values.extend(ir.values) for node in returns for ir in node.irs if isinstance(ir, Return)]
-            self._return_values = list(set(return_values))
+            self._return_values = list(set([x for x in return_values if not isinstance(x, Constant)]))
         return self._return_values
 
     @property
@@ -490,12 +491,13 @@ class Function(ChildContract, SourceMapping):
         """
         from slither.core.cfg.node import NodeType
         from slither.slithir.operations import Return
+        from slither.slithir.variables import Constant
 
         if self._return_values_ssa is None:
             return_values_ssa = list()
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
             [return_values_ssa.extend(ir.values) for node in returns for ir in node.irs_ssa if isinstance(ir, Return)]
-            self._return_values_ssa = list(set(return_values_ssa))
+            self._return_values_ssa = list(set([x for x in return_values_ssa if not isinstance(x, Constant)]))
         return self._return_values_ssa
 
     # endregion
