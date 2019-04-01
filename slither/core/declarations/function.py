@@ -477,14 +477,14 @@ class Function(ChildContract, SourceMapping):
         """
         from slither.core.cfg.node import NodeType
         from slither.slithir.operations import Return
-        
+
         if self._return_values is None:
             return_values = list()
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
             [return_values.extend(ir.values) for node in returns for ir in node.irs if isinstance(ir, Return)]
-            self._return_values = return_values
+            self._return_values = list(set(return_values))
         return self._return_values
-    
+
     @property
     def return_values_ssa(self):
         """
@@ -492,12 +492,12 @@ class Function(ChildContract, SourceMapping):
         """
         from slither.core.cfg.node import NodeType
         from slither.slithir.operations import Return
-        
+
         if self._return_values_ssa is None:
             return_values_ssa = list()
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
             [return_values_ssa.extend(ir.values) for node in returns for ir in node.irs_ssa if isinstance(ir, Return)]
-            self._return_values_ssa = return_values_ssa
+            self._return_values_ssa = list(set(return_values_ssa))
         return self._return_values_ssa
 
     # endregion
