@@ -9,10 +9,8 @@ from slither.core.children.child_contract import ChildContract
 from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariable,
                                                           SolidityVariableComposed)
-from slither.core.expressions.identifier import Identifier
-from slither.core.expressions.index_access import IndexAccess
-from slither.core.expressions.member_access import MemberAccess
-from slither.core.expressions.unary_operation import UnaryOperation
+from slither.core.expressions import (Identifier, IndexAccess, MemberAccess,
+                                      UnaryOperation)
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.state_variable import StateVariable
 
