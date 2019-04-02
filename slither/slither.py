@@ -29,6 +29,7 @@ class Slither(SlitherSolc):
                 solc_argeuments (str): solc arguments (default '')
                 ast_format (str): ast format (default '--ast-compact-json')
                 is_truffle (bool): is a truffle directory (default false)
+                truffle_build_directory (str): build truffle directory (default 'build/contracts')
                 filter_paths (list(str)): list of path to filter (default [])
                 triage_mode (bool): if true, switch to triage mode (default false)
         '''
@@ -37,7 +38,7 @@ class Slither(SlitherSolc):
 
         # truffle directory
         if is_truffle:
-            self._init_from_truffle(contract)
+            self._init_from_truffle(contract, kwargs.get('truffle_build_directory', 'build/contracts'))
         # list of files provided (see --splitted option)
         elif isinstance(contract, list):
             self._init_from_list(contract)
@@ -57,13 +58,12 @@ class Slither(SlitherSolc):
 
         self._analyze_contracts()
 
-    def _init_from_truffle(self, contract):
-        if not os.path.isdir(os.path.join(contract, 'build'))\
-            or not os.path.isdir(os.path.join(contract, 'build', 'contracts')):
+    def _init_from_truffle(self, contract, build_directory):
+        if not os.path.isdir(os.path.join(contract, build_directory)):
             logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
             sys.exit(-1)
         super(Slither, self).__init__('')
-        filenames = glob.glob(os.path.join(contract, 'build', 'contracts', '*.json'))
+        filenames = glob.glob(os.path.join(contract, build_directory, '*.json'))
         for filename in filenames:
             with open(filename, encoding='utf8') as f:
                 contract_loaded = json.load(f)
