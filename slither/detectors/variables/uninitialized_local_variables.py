@@ -19,7 +19,7 @@ class UninitializedLocalVars(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#uninitialized-local-variables'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-local-variables'
 
 
     WIKI_TITLE = 'Uninitialized local variables'
