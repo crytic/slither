@@ -117,6 +117,20 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
 
     return _process(slither, detector_classes, printer_classes)
 
+def process_embark(dirname, args, detector_classes, printer_classes):
+
+    slither = Slither(dirname,
+                      solc=args.solc,
+                      disable_solc_warnings=args.disable_solc_warnings,
+                      solc_arguments=args.solc_args,
+                      is_truffle=False,
+                      is_embark=True,
+                      force_embark_plugin=args.force_embark_plugin,
+                      filter_paths=parse_filter_paths(args),
+                      triage_mode=args.triage_mode)
+
+    return _process(slither, detector_classes, printer_classes)
+
 
 def process_files(filenames, args, detector_classes, printer_classes):
     all_contracts = []
@@ -434,6 +448,11 @@ def parse_args(detector_classes, printer_classes):
                             action='store_true',
                             default=False)
 
+    group_misc.add_argument('--force-embark-plugin',
+                            help=argparse.SUPPRESS,
+                            action='store_true',
+                            default=False)
+
     parser.add_argument('--wiki-detectors',
                         help=argparse.SUPPRESS,
                         action=OutputWiki,
@@ -560,6 +579,9 @@ def main_impl(all_detector_classes, all_printer_classes):
 
         elif os.path.isfile(os.path.join(filename, 'truffle.js')) or os.path.isfile(os.path.join(filename, 'truffle-config.js')):
             (results, number_contracts) = process_truffle(filename, args, detector_classes, printer_classes)
+
+        elif os.path.isfile(os.path.join(filename, 'embark.json')):
+            (results, number_contracts) = process_embark(filename, args, detector_classes, printer_classes)
 
         elif os.path.isdir(filename) or len(globbed_filenames) > 0:
             extension = "*.sol" if not args.solc_ast else "*.json"
