@@ -16,7 +16,7 @@ class Suicidal(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#suicidal'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#suicidal'
 
 
     WIKI_TITLE = 'Suicidal'

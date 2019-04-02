@@ -15,7 +15,7 @@ class ConstantFunctions(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#constant-functions-changing-the-state'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#constant-functions-changing-the-state'
 
     WIKI_TITLE = 'Constant functions changing the state'
     WIKI_DESCRIPTION = '''

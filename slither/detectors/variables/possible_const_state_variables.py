@@ -21,7 +21,7 @@ class ConstCandidateStateVars(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#state-variables-that-could-be-declared-constant'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant'
 
 
     WIKI_TITLE = 'State variables that could be declared constant'
