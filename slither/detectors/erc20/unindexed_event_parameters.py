@@ -14,7 +14,7 @@ class UnindexedERC20EventParameters(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#unindexed-erc20-event-parameters'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-erc20-event-parameters'
 
     WIKI_TITLE = 'Unindexed ERC20 Event Parameters'
     WIKI_DESCRIPTION = 'Detects that events defined by the ERC20 specification which are meant to have some parameters as `indexed`, are missing the `indexed` keyword.'

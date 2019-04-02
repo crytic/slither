@@ -20,7 +20,7 @@ class DeprecatedStandards(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#deprecated-standards'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards'
 
     WIKI_TITLE = 'Deprecated Standards'
     WIKI_DESCRIPTION = 'Detect the usage of deprecated standards (as defined by SWC-111), excluding only `constant` keyword detection on functions.'

@@ -20,7 +20,7 @@ class Timestamp(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#block-timestamp'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp'
 
 
     WIKI_TITLE = 'Block timestamp'

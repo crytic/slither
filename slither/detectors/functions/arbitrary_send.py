@@ -28,7 +28,7 @@ class ArbitrarySend(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#functions-that-send-ether-to-arbitrary-destinations'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations'
 
     WIKI_TITLE = 'Functions that send ether to arbitrary destinations'
     WIKI_DESCRIPTION = 'Unprotected call to a function executing sending ethers to an arbitrary address.'

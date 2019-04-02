@@ -11,7 +11,7 @@ class ControlledDelegateCall(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#controlled-delegatecall'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#controlled-delegatecall'
 
 
     WIKI_TITLE = 'Controlled Delegatecall'
