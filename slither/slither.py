@@ -71,19 +71,19 @@ class Slither(SlitherSolc):
         if force_embark_plugin:
             write_embark_json = False
             if (not 'plugins' in embark_json):
-                embark_json['plugins'] = {'embark-ast':{'flags':""}}
+                embark_json['plugins'] = {'embark-contract-info':{'flags':""}}
                 write_embark_json = True
-            elif (not 'embark-ast' in embark_json['plugins']):
-                embark_json['plugins']['embark-ast'] = {'flags':""}
+            elif (not 'embark-contract-info' in embark_json['plugins']):
+                embark_json['plugins']['embark-contract-info'] = {'flags':""}
                 write_embark_json = True
             if write_embark_json:
                 with open('embark.json', 'w') as outfile:
                     json.dump(embark_json, outfile)
         else:
-            if (not 'plugins' in embark_json) or (not 'embark-ast' in embark_json['plugins']):
-                logger.error(red('This looks like an Embark repository but no embark-ToB plugin was found. Please install, add to embark.json and re-run.'))
+            if (not 'plugins' in embark_json) or (not 'embark-contract-info' in embark_json['plugins']):
+                logger.error(red('This looks like an Embark repository but no embark-contract-info plugin was found. Please install, add to embark.json and re-run.'))
                 sys.exit(-1)                
-        process = subprocess.Popen(['npm','install',"https://git@github.com:rajeevgopalakrishna/embark-ast.git"])
+        process = subprocess.Popen(['npm','install',"https://git@github.com:rajeevgopalakrishna/embark-contract-info.git"])
         stdout, stderr = process.communicate()
         if not stderr:
             process = subprocess.Popen(['embark','build','--contracts'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -91,7 +91,7 @@ class Slither(SlitherSolc):
             if stderr:
                 logger.error(stderr)
                 sys.exit(-1)
-            infile = os.path.join(contract, 'embark.contractData.json')
+            infile = os.path.join(contract, 'embark.contractInfo.json')
             outfile = os.path.join(contract, 'embark.astData.json')
             with open(infile, 'r') as f:
                 contract_loaded = json.load(f)
@@ -100,7 +100,7 @@ class Slither(SlitherSolc):
                     json.dump(contract_loaded, of)
             self._init_from_solc(outfile)
             subprocess.call(['rm','embark.astData.json'])
-            subprocess.call(['rm','embark.contractData.json'])
+            subprocess.call(['rm','embark.contractInfo.json'])
         else:
             logger.error(stderr)
             sys.exit(-1)
