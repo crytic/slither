@@ -90,9 +90,16 @@ class Slither(SlitherSolc):
             if stderr:
                 logger.error(stderr)
                 sys.exit(-1)
-            filename = os.path.join(contract, 'embark.ast.json')
-            self._init_from_solc(filename)
-            subprocess.call(['rm','embark.ast.json'])
+            infile = os.path.join(contract, 'embark.contractData.json')
+            outfile = os.path.join(contract, 'embark.astData.json')
+            with open(infile, 'r') as f:
+                contract_loaded = json.load(f)
+                contract_loaded = contract_loaded['embark-asts']
+                with open(outfile, 'w') as of:
+                    json.dump(contract_loaded, of)
+            self._init_from_solc(outfile)
+            subprocess.call(['rm','embark.astData.json'])
+            subprocess.call(['rm','embark.contractData.json'])
         else:
             logger.error(stderr)
             sys.exit(-1)
