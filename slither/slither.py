@@ -51,7 +51,7 @@ class Slither(SlitherSolc):
             self._init_from_list(contract)
         # .json or .sol provided
         else:
-            self._init_from_solc(contract, **kwargsg)
+            self._init_from_solc(contract, **kwargs)
 
         self._detectors = []
         self._printers = []
