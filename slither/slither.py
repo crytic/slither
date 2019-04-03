@@ -29,7 +29,7 @@ class Slither(SlitherSolc):
                 solc_argeuments (str): solc arguments (default '')
                 ast_format (str): ast format (default '--ast-compact-json')
                 is_truffle (bool): is a truffle directory (default false)
-                is_embark (bool): is a embark directory (default false)
+                is_embark (bool): is an embark directory (default false)
                 force_embark_plugin (bool): force use of embark plugin for this embark  directory (default false)
                 filter_paths (list(str)): list of path to filter (default [])
                 triage_mode (bool): if true, switch to triage mode (default false)
@@ -65,22 +65,23 @@ class Slither(SlitherSolc):
 
         self._analyze_contracts()
 
-    def is_embark_repo(self, contract):
-        return os.path.isfile(os.path.join(contract, 'embark.json'))
-
     def _init_from_embark(self, contract, force_embark_plugin):
         with open('embark.json') as f:
             embark_json = json.load(f)
         if force_embark_plugin:
-            if 'plugins' in embark_json:
-                embark_json['plugins']['embark-ast'] = {'flags':""}
-            else:
+            write_embark_json = False
+            if (not 'plugins' in embark_json):
                 embark_json['plugins'] = {'embark-ast':{'flags':""}}
-            with open('embark.json', 'w') as outfile:
-                json.dump(embark_json, outfile)
+                write_embark_json = True
+            elif (not 'embark-ast' in embark_json['plugins']):
+                embark_json['plugins']['embark-ast'] = {'flags':""}
+                write_embark_json = True
+            if write_embark_json:
+                with open('embark.json', 'w') as outfile:
+                    json.dump(embark_json, outfile)
         else:
             if (not 'plugins' in embark_json) or (not 'embark-ast' in embark_json['plugins']):
-                logger.error(red('No embark-ast plugin found. Please install, add to embark.json and re-run.'))
+                logger.error(red('This looks like an Embark repository but no embark-ToB plugin was found. Please install, add to embark.json and re-run.'))
                 sys.exit(-1)                
         process = subprocess.Popen(['npm','install',"https://git@github.com:rajeevgopalakrishna/embark-ast.git"])
         stdout, stderr = process.communicate()
