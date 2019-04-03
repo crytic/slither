@@ -16,7 +16,7 @@ class ExternalFunction(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#public-function-that-could-be-declared-as-external'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-as-external'
 
 
     WIKI_TITLE = 'Public function that could be declared as external'

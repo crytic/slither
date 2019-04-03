@@ -1,5 +1,5 @@
 """
-    Module detecting state uninitialized storage variables
+    Module detecting uninitialized storage variables
 
     Recursively explore the CFG to only report uninitialized storage variables that are
     written before being read
@@ -19,7 +19,7 @@ class UninitializedStorageVars(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#uninitialized-storage-variables'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-storage-variables'
 
     WIKI_TITLE = 'Uninitialized storage variables'
     WIKI_DESCRIPTION = 'An uinitialized storage variable will act as a reference to the first state variable, and can override a critical variable.'
@@ -58,7 +58,7 @@ Bob calls `func`. As a result, `owner` is override to 0.
             if self.key in father.context:
                 fathers_context += father.context[self.key]
 
-        # Exclude path that dont bring further information
+        # Exclude paths that dont bring further information
         if node in self.visited_all_paths:
             if all(f_c in self.visited_all_paths[node] for f_c in fathers_context):
                 return
@@ -84,11 +84,11 @@ Bob calls `func`. As a result, `owner` is override to 0.
 
 
     def _detect(self):
-        """ Detect uninitialized state variables
+        """ Detect uninitialized storage variables
 
         Recursively visit the calls
         Returns:
-            dict: [contract name] = set(state variable uninitialized)
+            dict: [contract name] = set(storage variable uninitialized)
         """
         results = []
 

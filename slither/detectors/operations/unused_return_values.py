@@ -17,7 +17,7 @@ class UnusedReturnValues(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#unused-return'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return'
 
 
     WIKI_TITLE = 'Unused return'
@@ -31,9 +31,9 @@ contract MyConc{
     }
 }
 ```
-`MyConc` call `add` of safemath, but does not store the result in `a`. As a result, the computation has no effect.'''
+`MyConc` calls `add` of SafeMath, but does not store the result in `a`. As a result, the computation has no effect.'''
 
-    WIKI_RECOMMENDATION = 'Ensure that all the return value of the function call are stored in a local or state variable.'
+    WIKI_RECOMMENDATION = 'Ensure that all the return values of the function calls are stored in a local or state variable.'
 
     def detect_unused_return_values(self, f):
         """
@@ -59,7 +59,7 @@ contract MyConc{
         return [nodes_origin[value].node for value in values_returned]
 
     def _detect(self):
-        """ Detect unused high level calls that return a value but are never used
+        """ Detect high level calls which return a value that are never used
         """
         results = []
         for c in self.slither.contracts:

@@ -15,7 +15,7 @@ class StateShadowing(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#state-variable-shadowing'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#state-variable-shadowing'
 
     WIKI_TITLE = 'State variable shadowing'
     WIKI_DESCRIPTION = 'Detection of state variables shadowed.'

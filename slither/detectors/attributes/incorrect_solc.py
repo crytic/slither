@@ -23,11 +23,11 @@ class IncorrectSolc(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#incorrect-version-of-solidity'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-version-of-solidity'
 
     WIKI_TITLE = 'Incorrect versions of Solidity'
     WIKI_DESCRIPTION = '''
-Solc frequently releases new compiler versions. Using an old version prevent access to new Solidity security checks.
+Solc frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks.
 We recommend avoiding complex pragma statement.'''
     WIKI_RECOMMENDATION = 'Use Solidity 0.4.25 or 0.5.2.'
 

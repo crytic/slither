@@ -15,7 +15,7 @@ class ConstantFunctions(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#constant-functions-changing-the-state'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#constant-functions-changing-the-state'
 
     WIKI_TITLE = 'Constant functions changing the state'
     WIKI_DESCRIPTION = '''
@@ -37,9 +37,9 @@ contract Constant{
 }
 ```
 `Constant` was deployed with Solidity 0.4.25. Bob writes a smart contract interacting with `Constant` in Solidity 0.5.0. 
-All the calls to `get` reverts, breaking Bob's smart contract execution.'''
+All the calls to `get` revert, breaking Bob's smart contract execution.'''
 
-    WIKI_RECOMMENDATION = 'Ensure that the attributes of contracts compiled prior Solidity 0.5.0 are correct.'
+    WIKI_RECOMMENDATION = 'Ensure that the attributes of contracts compiled prior to Solidity 0.5.0 are correct.'
 
     def _detect(self):
         """ Detect the constant function changing the state

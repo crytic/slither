@@ -20,7 +20,7 @@ class DeprecatedStandards(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#deprecated-standards'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards'
 
     WIKI_TITLE = 'Deprecated Standards'
     WIKI_DESCRIPTION = 'Detect the usage of deprecated standards (as defined by SWC-111), excluding only `constant` keyword detection on functions.'
@@ -144,7 +144,7 @@ contract ContractWithDeprecatedReferences {
         return results
 
     def _detect(self):
-        """ Detect shadowing local variables
+        """ Detects if an expression makes use of any deprecated standards.
 
         Recursively visit the calls
         Returns:
@@ -165,7 +165,7 @@ contract ContractWithDeprecatedReferences {
                                                                                               recommended_disc)
 
 
-                    # Generate relevant JSON data for this shadowing definition.
+                    # Generate relevant JSON data for this deprecated standard.
                     json = self.generate_json_result(info)
                     if isinstance(source_object, StateVariableSolc) or isinstance(source_object, StateVariable):
                         self.add_variable_to_json(source_object, json)

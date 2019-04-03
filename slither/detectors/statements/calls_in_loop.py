@@ -16,7 +16,7 @@ class MultipleCallsInLoop(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation/_edit#calls-inside-a-loop'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation/_edit#calls-inside-a-loop'
 
 
     WIKI_TITLE = 'Calls inside a loop'
@@ -82,7 +82,7 @@ If one of the destinations has a fallback function which reverts, `bad` will alw
         """
         """
         results = []
-        for c in self.contracts:
+        for c in self.slither.contracts_derived:
             values = self.detect_call_in_loop(c)
             for node in values:
                 func = node.function

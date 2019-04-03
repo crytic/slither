@@ -28,7 +28,7 @@ class ArbitrarySend(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#functions-that-send-ether-to-arbitrary-destinations'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations'
 
     WIKI_TITLE = 'Functions that send ether to arbitrary destinations'
     WIKI_DESCRIPTION = 'Unprotected call to a function executing sending ethers to an arbitrary address.'
@@ -109,7 +109,7 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
             arbitrary_send = self.detect_arbitrary_send(c)
             for (func, nodes) in arbitrary_send:
 
-                info = "{}.{} ({}) sends eth to arbirary user\n"
+                info = "{}.{} ({}) sends eth to arbitrary user\n"
                 info = info.format(func.contract.name,
                                    func.name,
                                    func.source_mapping_str)

@@ -4,7 +4,7 @@
 from slither.core.declarations import (Contract, Enum, Function,
                                        SolidityFunction, SolidityVariable,
                                        SolidityVariableComposed, Structure)
-from slither.slithir.operations import Index, OperationWithLValue
+from slither.slithir.operations import Index, OperationWithLValue, InternalCall
 from slither.slithir.variables import (Constant, LocalIRVariable,
                                        ReferenceVariable, ReferenceVariableSSA,
                                        StateIRVariable, TemporaryVariable,
@@ -63,7 +63,7 @@ GENERIC_TAINT = {SolidityVariableComposed('msg.sender'),
                  SolidityVariableComposed('msg.data'),
                  SolidityVariableComposed('tx.origin')}
 
-def is_tainted(variable, context, only_unprotected=False):
+def is_tainted(variable, context, only_unprotected=False, ignore_generic_taint=False):
     '''
         Args:
         variable
@@ -78,10 +78,11 @@ def is_tainted(variable, context, only_unprotected=False):
         return False
     slither = context.slither
     taints = slither.context[KEY_INPUT]
-    taints |= GENERIC_TAINT
+    if not ignore_generic_taint:
+        taints |= GENERIC_TAINT
     return variable in taints or any(is_dependent(variable, t, context, only_unprotected) for t in taints)
 
-def is_tainted_ssa(variable, context, only_unprotected=False):
+def is_tainted_ssa(variable, context, only_unprotected=False, ignore_generic_taint=False):
     '''
     Args:
         variable
@@ -96,7 +97,8 @@ def is_tainted_ssa(variable, context, only_unprotected=False):
         return False
     slither = context.slither
     taints = slither.context[KEY_INPUT_SSA]
-    taints |= GENERIC_TAINT
+    if not ignore_generic_taint:
+        taints |= GENERIC_TAINT
     return variable in taints or any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
 
 
@@ -230,6 +232,8 @@ def add_dependency(lvalue, function, ir, is_protected):
             function.context[KEY_SSA_UNPROTECTED][lvalue] = set()
     if isinstance(ir, Index):
         read = [ir.variable_left]
+    elif isinstance(ir, InternalCall):
+        read = ir.function.return_values_ssa
     else:
         read = ir.read
     [function.context[KEY_SSA][lvalue].add(v) for v in read if not isinstance(v, Constant)]

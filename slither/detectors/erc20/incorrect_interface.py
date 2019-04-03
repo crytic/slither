@@ -1,7 +1,6 @@
 """
 Detect incorrect erc20 interface.
-Some contracts do not return a bool on transfer/transferFrom/approve, which may lead to prevent
-the contract to be used with contracts compiled with recent solc (>0.4.22)
+Some contracts do not return a bool on transfer/transferFrom/approve, which may lead to preventing the contract to be used with contracts compiled with recent solc (>0.4.22)
 """
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
@@ -16,7 +15,7 @@ class IncorrectERC20InterfaceDetection(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#incorrect-erc20-interface'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-erc20-interface'
 
     WIKI_TITLE = 'Incorrect erc20 interface'
     WIKI_DESCRIPTION = 'Lack of return value for the ERC20 `approve`/`transfer`/`transferFrom` functions. A contract compiled with solidity > 0.4.22 interacting with these functions will fail to execute them, as the return value is missing.'

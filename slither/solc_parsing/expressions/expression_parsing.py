@@ -70,6 +70,7 @@ def get_pointer_name(variable):
 
 def find_variable(var_name, caller_context, referenced_declaration=None):
 
+
     if isinstance(caller_context, Contract):
         function = None
         contract = caller_context
@@ -153,6 +154,9 @@ def find_variable(var_name, caller_context, referenced_declaration=None):
         for contract in contract.slither.contracts:
             if contract.id == referenced_declaration:
                 return contract
+        for function in contract.slither.functions:
+            if function.referenced_declaration == referenced_declaration:
+                return function
 
     raise VariableNotFound('Variable not found: {}'.format(var_name))
 
@@ -314,6 +318,18 @@ def parse_super_name(expression, is_compact_ast):
         arguments = arguments[:arguments.find(' ')]
 
     return base_name+arguments
+
+def _parse_elementary_type_name_expression(expression, is_compact_ast, caller_context):
+    # nop exression
+    # uint;
+    if is_compact_ast:
+        value = expression['typeName']
+    else:
+        assert 'children' not in expression
+        value = expression['attributes']['value']
+    t = parse_type(UnknownType(value), caller_context)
+
+    return ElementaryTypeNameExpression(t)
 
 def parse_expression(expression, caller_context):
     """
@@ -516,6 +532,12 @@ def parse_expression(expression, caller_context):
             assert len(children) == 2
             left = children[0]
             right = children[1]
+        # IndexAccess is used to describe ElementaryTypeNameExpression
+        # if abi.decode is used
+        # For example, abi.decode(data, ...(uint[]) )
+        if right is None:
+            return _parse_elementary_type_name_expression(left, is_compact_ast, caller_context)
+
         left_expression = parse_expression(left, caller_context)
         right_expression = parse_expression(right, caller_context)
         index = IndexAccess(left_expression, right_expression, index_type)
@@ -555,16 +577,7 @@ def parse_expression(expression, caller_context):
         return member_access
 
     elif name == 'ElementaryTypeNameExpression':
-        # nop exression
-        # uint;
-        if is_compact_ast:
-            value = expression['typeName']
-        else:
-            assert 'children' not in expression
-            value = expression['attributes']['value']
-        t = parse_type(UnknownType(value), caller_context)
-
-        return ElementaryTypeNameExpression(t)
+        return _parse_elementary_type_name_expression(expression, is_compact_ast, caller_context)
 
 
     # NewExpression is not a root expression, it's always the child of another expression

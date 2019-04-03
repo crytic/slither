@@ -112,6 +112,7 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
                       disable_solc_warnings=args.disable_solc_warnings,
                       solc_arguments=args.solc_args,
                       is_truffle=True,
+                      truffle_build_directory=args.truffle_build_directory,
                       filter_paths=parse_filter_paths(args),
                       triage_mode=args.triage_mode)
 
@@ -299,6 +300,7 @@ defaults_flag_in_config = {
     'disable_color': False,
     'filter_paths': None,
     'ignore_truffle_compile': False,
+    'truffle_build_directory': 'build/contracts',
     'legacy_ast': False
     }
 
@@ -419,6 +421,12 @@ def parse_args(detector_classes, printer_classes):
                             dest='ignore_truffle_compile',
                             default=defaults_flag_in_config['ignore_truffle_compile'])
 
+    group_misc.add_argument('--truffle-build-directory',
+                            help='Do not run truffle compile',
+                            action='store',
+                            dest='truffle_build_directory',
+                            default=defaults_flag_in_config['truffle_build_directory'])
+
     group_misc.add_argument('--triage-mode',
                             help='Run triage mode (save results in slither.db.json)',
                             action='store_true',
@@ -468,6 +476,11 @@ def parse_args(detector_classes, printer_classes):
                         help=argparse.SUPPRESS,
                         action='store_true',
                         default=defaults_flag_in_config['legacy_ast'])
+
+    parser.add_argument('--ignore-return-value',
+                        help=argparse.SUPPRESS,
+                        action='store_true',
+                        default=False)
 
     # if the json is splitted in different files
     parser.add_argument('--splitted',
@@ -613,6 +626,8 @@ def main_impl(all_detector_classes, all_printer_classes):
             logger.info('%s analyzed (%d contracts)', filename, number_contracts)
         else:
             logger.info('%s analyzed (%d contracts), %d result(s) found', filename, number_contracts, len(results))
+        if args.ignore_return_value:
+            return
         exit(results)
 
     except Exception:

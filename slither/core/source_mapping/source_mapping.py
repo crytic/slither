@@ -19,12 +19,12 @@ class SourceMapping(Context):
             Not done in an efficient way
         """
         total_length = len(source_code)
-        source_code = source_code.split('\n')
+        source_code = source_code.splitlines(True)
         counter = 0
         i = 0
         lines = []
         while counter < total_length:
-            counter += len(source_code[i]) +1
+            counter += len(source_code[i])
             i = i+1
             if counter > start:
                 lines.append(i)
