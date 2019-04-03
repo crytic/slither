@@ -20,7 +20,7 @@ class ReentrancyEth(Reentrancy):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#reentrancy-vulnerabilities'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities'
 
     WIKI_TITLE = 'Reentrancy vulnerabilities'
     WIKI_DESCRIPTION = '''

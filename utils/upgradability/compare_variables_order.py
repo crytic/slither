@@ -69,7 +69,7 @@ def compare_variables_order_proxy(implem, implem_name, proxy, proxy_name):
     found = False
     for idx in range(0, len(order_proxy)):
         (proxy_name, proxy_type) =  order_proxy[idx]
-        if len(order_proxy) < idx:
+        if len(order_implem) <= idx:
             logger.info(red('Extra variable in the proxy: {} {}'.format(proxy_name, proxy_type)))
             continue
         (implem_name, implem_type) =  order_implem[idx]

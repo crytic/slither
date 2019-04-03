@@ -89,7 +89,7 @@ class SlitherSolc(Slither):
         if 'sourcePaths' in data_loaded:
             for sourcePath in data_loaded['sourcePaths']:
                 if os.path.isfile(sourcePath):
-                    with open(sourcePath, encoding='utf8') as f:
+                    with open(sourcePath, encoding='utf8', newline='') as f:
                         source_code = f.read()
                     self.source_code[sourcePath] = source_code
 
@@ -152,13 +152,13 @@ class SlitherSolc(Slither):
 
         self._source_units[sourceUnit] = name
         if os.path.isfile(name) and not name in self.source_code:
-            with open(name, encoding='utf8') as f:
+            with open(name, encoding='utf8', newline='') as f:
                 source_code = f.read()
             self.source_code[name] = source_code
         else:
             lib_name = os.path.join('node_modules', name)
             if os.path.isfile(lib_name) and not name in self.source_code:
-                with open(lib_name, encoding='utf8') as f:
+                with open(lib_name, encoding='utf8', newline='') as f:
                     source_code = f.read()
                 self.source_code[name] = source_code
 

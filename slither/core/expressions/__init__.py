@@ -6,6 +6,7 @@ from .elementary_type_name_expression import ElementaryTypeNameExpression
 from .identifier import Identifier
 from .index_access import IndexAccess
 from .literal import Literal
+from .member_access import MemberAccess
 from .new_array import NewArray
 from .new_contract import NewContract
 from .new_elementary_type import NewElementaryType

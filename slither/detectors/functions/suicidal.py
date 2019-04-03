@@ -16,7 +16,7 @@ class Suicidal(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#suicidal'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#suicidal'
 
 
     WIKI_TITLE = 'Suicidal'
@@ -25,11 +25,11 @@ class Suicidal(AbstractDetector):
 ```solidity
 contract Suicidal{
     function kill() public{
-        selfdestruct(msg.value);
+        selfdestruct(msg.sender);
     }
 }
 ```
-Bob calls `kill` and destruct the contract.'''
+Bob calls `kill` and destructs the contract.'''
 
     WIKI_RECOMMENDATION = 'Protect access to all sensitive functions.'
 

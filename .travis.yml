@@ -18,5 +18,6 @@ script:
   - scripts/travis_test_5.sh
   - scripts/travis_test_upgradability.sh
   - scripts/travis_test_data_dependency.sh
+  - scripts/travis_test_find_paths.sh
 
 

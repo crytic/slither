@@ -23,10 +23,10 @@ class IncorrectStrictEquality(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#dangerous-strict-equalities'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-strict-equalities'
 
     WIKI_TITLE = 'Dangerous strict equalities'
-    WIKI_DESCRIPTION = 'Use of strick equalities that can be easily manipulated by an attacker.'
+    WIKI_DESCRIPTION = 'Use of strict equalities that can be easily manipulated by an attacker.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract Crowdsale{

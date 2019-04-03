@@ -1,0 +1,13 @@
+INFO:CheckInitialization:[91mContract_lack_to_call_modifier.initialize does not call initializer[0m
+INFO:CheckInitialization:[91mMissing call to Contract_no_bug.initialize in Contract_not_called_super_init[0m
+INFO:CheckInitialization:[91mContract_no_bug.initialize() is called multiple time in Contract_double_call[0m
+INFO:CheckInitialization:[92mCheck the deployement script to ensure that these functions are called:
+Contract_no_bug needs to be initialized by initialize()
+Contract_lack_to_call_modifier needs to be initialized by initialize()
+Contract_not_called_super_init needs to be initialized by initialize()
+Contract_no_bug_inherits needs to be initialized by initialize()
+Contract_double_call needs to be initialized by initialize()
+[0m
+INFO:CompareFunctions:[92mNo function id collision found[0m
+INFO:VariablesOrder:[93mVariable in the proxy: destination address[0m
+INFO:VariablesOrder:[92mNo error found (variables ordering proxy <-> implementation)[0m

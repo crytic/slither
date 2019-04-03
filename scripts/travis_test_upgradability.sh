@@ -44,7 +44,19 @@ then
     exit -1
 fi
 
+slither-check-upgradability "$DIR_TESTS/proxy.sol" Proxy "$DIR_TESTS/contract_initialization.sol" Contract_no_bug --solc solc-0.5.0 > test_5.txt 2>&1 
+DIFF=$(diff test_5.txt "$DIR_TESTS/test_5.txt")
+if [  "$DIFF" != "" ] 
+then
+    echo "slither-check-upgradability failed"
+    cat test_5.txt
+    cat "$DIR_TESTS/test_5.txt"
+    exit -1
+fi
+
 rm test_1.txt
 rm test_2.txt
 rm test_3.txt
 rm test_4.txt
+rm test_5.txt
+

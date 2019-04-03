@@ -14,7 +14,7 @@ class TxOrigin(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#dangerous-usage-of-txorigin'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-usage-of-txorigin'
 
     WIKI_TITLE = 'Dangerous usage of `tx.origin`'
     WIKI_DESCRIPTION = '`tx.origin`-based protection can be abused by malicious contract if a legitimate user interacts with the malicious contract.'
@@ -27,14 +27,14 @@ contract TxOrigin {
         require(tx.origin == owner);
     }
 ```
-Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contact calls `TxOrigin` and bypass the `tx.origin` protection.'''
+Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `TxOrigin` and bypasses the `tx.origin` protection.'''
 
-    WIKI_RECOMMENDATION = 'Do not use `tx.origin` for authentification.'
+    WIKI_RECOMMENDATION = 'Do not use `tx.origin` for authorization.'
 
     @staticmethod
     def _contains_incorrect_tx_origin_use(node):
         """
-             Check if the node read tx.origin and dont read msg.sender
+             Check if the node reads tx.origin and doesn't read msg.sender
              Avoid the FP due to (msg.sender == tx.origin)
         Returns:
             (bool)

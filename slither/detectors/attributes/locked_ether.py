@@ -1,5 +1,5 @@
 """
-    Check if ether are locked in the contract
+    Check if ethers are locked in the contract
 """
 
 from slither.detectors.abstract_detector import (AbstractDetector,
@@ -17,7 +17,7 @@ class LockedEther(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#contracts-that-lock-ether'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether'
 
 
     WIKI_TITLE = 'Contracts that lock ether'
@@ -30,7 +30,7 @@ contract Locked{
     }
 }
 ```
-Every ethers send to `Locked` will be lost.'''
+Every ether sent to `Locked` will be lost.'''
 
     WIKI_RECOMMENDATION = 'Remove the payable attribute or add a withdraw function.'
 

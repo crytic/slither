@@ -28,7 +28,7 @@ class UninitializedStateVarsDetection(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Detectors-Documentation#uninitialized-state-variables'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-state-variables'
 
     WIKI_TITLE = 'Uninitialized state variables'
     WIKI_DESCRIPTION = 'Uninitialized state variables.'
