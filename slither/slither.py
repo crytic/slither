@@ -31,7 +31,7 @@ class Slither(SlitherSolc):
                 is_truffle (bool): is a truffle directory (default false)
                 truffle_build_directory (str): build truffle directory (default 'build/contracts')
                 is_embark (bool): is an embark directory (default false)
-                force_embark_plugin (bool): force use of embark plugin for this embark  directory (default false)
+                embark_overwrite_config (bool): overwrite original config file (default false)
                 filter_paths (list(str)): list of path to filter (default [])
                 triage_mode (bool): if true, switch to triage mode (default false)
         '''
@@ -39,13 +39,14 @@ class Slither(SlitherSolc):
         is_truffle = kwargs.get('is_truffle', False)
 
         is_embark = kwargs.get('is_embark', False)
-        force_embark_plugin = kwargs.get('force_embark_plugin', False)
-        
+        embark_overwrite_config = kwargs.get('embark_overwrite_config', False)
+
         # truffle directory
         if is_truffle:
-            self._init_from_truffle(contract)
+            self._init_from_truffle(contract, kwargs.get('truffle_build_directory', 'build/contracts'))
+        # embark directory
         elif is_embark:
-            self._init_from_embark(contract, force_embark_plugin)
+            self._init_from_embark(contract, embark_overwrite_config)
         # list of files provided (see --splitted option)
         elif isinstance(contract, list):
             self._init_from_list(contract)
@@ -65,10 +66,11 @@ class Slither(SlitherSolc):
 
         self._analyze_contracts()
 
-    def _init_from_embark(self, contract, force_embark_plugin):
+    def _init_from_embark(self, contract, embark_overwrite_config):
+        super(Slither, self).__init__('')
         with open('embark.json') as f:
             embark_json = json.load(f)
-        if force_embark_plugin:
+        if embark_overwrite_config:
             write_embark_json = False
             if (not 'plugins' in embark_json):
                 embark_json['plugins'] = {'embark-contract-info':{'flags':""}}
@@ -77,34 +79,31 @@ class Slither(SlitherSolc):
                 embark_json['plugins']['embark-contract-info'] = {'flags':""}
                 write_embark_json = True
             if write_embark_json:
+                process = subprocess.Popen(['npm','install', 'https://github.com/crytic/embark-contract-info.git'])
+                _, stderr = process.communicate()
                 with open('embark.json', 'w') as outfile:
                     json.dump(embark_json, outfile)
         else:
             if (not 'plugins' in embark_json) or (not 'embark-contract-info' in embark_json['plugins']):
-                logger.error(red('This looks like an Embark repository but no embark-contract-info plugin was found. Please install, add to embark.json and re-run.'))
-                sys.exit(-1)                
-        process = subprocess.Popen(['npm','install',"https://git@github.com:rajeevgopalakrishna/embark-contract-info.git"])
-        stdout, stderr = process.communicate()
-        if not stderr:
-            process = subprocess.Popen(['embark','build','--contracts'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
-            if stderr:
-                logger.error(stderr)
+                logger.error(red('embark-contract-info plugin was found in embark.json. Please install the plugin (see ..), or use --embark-overwrite-config.'))
                 sys.exit(-1)
-            infile = os.path.join(contract, 'embark.contractInfo.json')
-            outfile = os.path.join(contract, 'embark.astData.json')
-            with open(infile, 'r') as f:
-                contract_loaded = json.load(f)
-                contract_loaded = contract_loaded['embark-asts']
-                with open(outfile, 'w') as of:
-                    json.dump(contract_loaded, of)
-            self._init_from_solc(outfile)
-            subprocess.call(['rm','embark.astData.json'])
-            subprocess.call(['rm','embark.contractInfo.json'])
-        else:
-            logger.error(stderr)
+
+        process = subprocess.Popen(['embark','build','--contracts'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        logger.info("%s\n"%stdout.decode())
+        if stderr:
+            # Embark might return information to stderr, but compile without issue
+            logger.error("%s"%stderr.decode())
+        infile = os.path.join(contract, 'embark.contractInfo.json')
+        if not os.path.isfile(infile):
+            logger.error(red('Embark did not generate the AST file. Is Embark installed (npm install -g embark)? Is embark-contract-info installed? (npm install -g embark).'))
             sys.exit(-1)
-            
+        with open(infile, 'r') as f:
+            contracts_loaded = json.load(f)
+            contracts_loaded = contracts_loaded['asts']
+            for contract_loaded in contracts_loaded:
+                self._parse_contracts_from_loaded_json(contract_loaded, contract_loaded['absolutePath'])
+
     def _init_from_truffle(self, contract, build_directory):
         if not os.path.isdir(os.path.join(contract, build_directory)):
             logger.info(red('No truffle build directory found, did you run `truffle compile`?'))

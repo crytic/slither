@@ -126,7 +126,7 @@ def process_embark(dirname, args, detector_classes, printer_classes):
                       solc_arguments=args.solc_args,
                       is_truffle=False,
                       is_embark=True,
-                      force_embark_plugin=args.force_embark_plugin,
+                      embark_overwrite_config=args.embark_overwrite_config,
                       filter_paths=parse_filter_paths(args),
                       triage_mode=args.triage_mode)
 
@@ -301,6 +301,7 @@ defaults_flag_in_config = {
     'filter_paths': None,
     'ignore_truffle_compile': False,
     'truffle_build_directory': 'build/contracts',
+    'embark_overwrite_config': False,
     'legacy_ast': False
     }
 
@@ -456,10 +457,10 @@ def parse_args(detector_classes, printer_classes):
                             action='store_true',
                             default=False)
 
-    group_misc.add_argument('--force-embark-plugin',
+    group_misc.add_argument('--embark-overwrite-config',
                             help=argparse.SUPPRESS,
                             action='store_true',
-                            default=False)
+                            default=defaults_flag_in_config['embark_overwrite_config'])
 
     parser.add_argument('--wiki-detectors',
                         help=argparse.SUPPRESS,
