@@ -94,7 +94,8 @@ class Slither(SlitherSolc):
         if stderr:
             # Embark might return information to stderr, but compile without issue
             logger.error("%s"%stderr.decode())
-        infile = os.path.join(contract, 'embark.contractInfo.json')
+        infile = os.path.join(contract, 'crytic-export', 'contracts.json')
+        print(infile)
         if not os.path.isfile(infile):
             logger.error(red('Embark did not generate the AST file. Is Embark installed (npm install -g embark)? Is embark-contract-info installed? (npm install -g embark).'))
             sys.exit(-1)
