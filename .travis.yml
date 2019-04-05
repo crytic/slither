@@ -10,6 +10,8 @@ env:
   - TEST_SUITE=scripts/travis_test_upgradability.sh
   - TEST_SUITE=scripts/travis_test_data_dependency.sh
   - TEST_SUITE=scripts/travis_test_find_paths.sh
+  - TEST_SUITE=scripts/travis_test_truffle.sh
+  - TEST_SUITE=scripts/travis_test_embark.sh
 branches:
   only:
   - master
