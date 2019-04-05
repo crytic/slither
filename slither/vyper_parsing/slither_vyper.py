@@ -8,7 +8,7 @@ logger = logging.getLogger("VyperParsing")
 
 class SlitherVyper(Slither):
     def __init__(self, filename):
-        super(SlitherVyper, self).__init__()
+        super().__init__()
         self._filename = filename
         self._contractsNotParsed = []
         self._contracts_by_id = {}
