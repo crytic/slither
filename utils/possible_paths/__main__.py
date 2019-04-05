@@ -36,7 +36,7 @@ def main():
     args = parse_args()
 
     # Perform slither analysis on the given filename
-    slither = Slither(args.filename, is_truffle=os.path.isdir(args.filename), solc=args.solc, disable_solc_warnings=True)
+    slither = Slither(args.filename, solc=args.solc, disable_solc_warnings=True)
 
     try:
         targets = resolve_functions(slither, args.targets)

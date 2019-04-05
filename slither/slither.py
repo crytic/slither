@@ -4,6 +4,7 @@ import subprocess
 import sys
 import glob
 import json
+import platform
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
@@ -28,28 +29,36 @@ class Slither(SlitherSolc):
                 disable_solc_warnings (bool): True to disable solc warnings (default false)
                 solc_argeuments (str): solc arguments (default '')
                 ast_format (str): ast format (default '--ast-compact-json')
-                is_truffle (bool): is a truffle directory (default false)
-                truffle_build_directory (str): build truffle directory (default 'build/contracts')
-                is_embark (bool): is an embark directory (default false)
-                embark_overwrite_config (bool): overwrite original config file (default false)
                 filter_paths (list(str)): list of path to filter (default [])
                 triage_mode (bool): if true, switch to triage mode (default false)
+
+                truffle_ignore (bool): ignore truffle.js presence (default false)
+                truffle_build_directory (str): build truffle directory (default 'build/contracts')
+                truffle_ignore_compile (bool): do not run truffle compile (default False)
+                truffle_version (str): use a specific truffle version (default None)
+
+                embark_ignore (bool): ignore embark.js presence (default false)
+                embark_overwrite_config (bool): overwrite original config file (default false)
+
         '''
 
-        is_truffle = kwargs.get('is_truffle', False)
+        truffle_ignore = kwargs.get('truffle_ignore', False)
+        embark_ignore = kwargs.get('embark_ignore', False)
 
-        is_embark = kwargs.get('is_embark', False)
-        embark_overwrite_config = kwargs.get('embark_overwrite_config', False)
-
-        # truffle directory
-        if is_truffle:
-            self._init_from_truffle(contract, kwargs.get('truffle_build_directory', 'build/contracts'))
-        # embark directory
-        elif is_embark:
-            self._init_from_embark(contract, embark_overwrite_config)
         # list of files provided (see --splitted option)
-        elif isinstance(contract, list):
+        if isinstance(contract, list):
             self._init_from_list(contract)
+        # truffle directory
+        elif not truffle_ignore and (os.path.isfile(os.path.join(contract, 'truffle.js')) or
+                                     os.path.isfile(os.path.join(contract, 'truffle-config.js'))):
+            self._init_from_truffle(contract,
+                                    kwargs.get('truffle_build_directory', 'build/contracts'),
+                                    kwargs.get('truffle_ignore_compile', False),
+                                    kwargs.get('truffle_version', None))
+        # embark directory
+        elif not embark_ignore and os.path.isfile(os.path.join(contract, 'embark.json')):
+            self._init_from_embark(contract,
+                                   kwargs.get('embark_overwrite_config', False))
         # .json or .sol provided
         else:
             self._init_from_solc(contract, **kwargs)
@@ -85,7 +94,7 @@ class Slither(SlitherSolc):
                 with open('embark.json', 'w') as outfile:
                     json.dump(embark_json, outfile, indent=2)
         else:
-            if (not 'plugins' in embark_json) or (not 'embark-contract-info' in embark_json['plugins']):
+            if (not 'plugins' in embark_json) or (not plugin_name in embark_json['plugins']):
                 logger.error(red('embark-contract-info plugin was found in embark.json. Please install the plugin (see https://github.com/crytic/slither/wiki/Usage#embark), or use --embark-overwrite-config.'))
                 sys.exit(-1)
 
@@ -96,7 +105,6 @@ class Slither(SlitherSolc):
             # Embark might return information to stderr, but compile without issue
             logger.error("%s"%stderr.decode())
         infile = os.path.join(contract, 'crytic-export', 'contracts.json')
-        print(infile)
         if not os.path.isfile(infile):
             logger.error(red('Embark did not generate the AST file. Is Embark installed (npm install -g embark)? Is embark-contract-info installed? (npm install -g embark).'))
             sys.exit(-1)
@@ -104,9 +112,39 @@ class Slither(SlitherSolc):
             contracts_loaded = json.load(f)
             contracts_loaded = contracts_loaded['asts']
             for contract_loaded in contracts_loaded:
-                self._parse_contracts_from_loaded_json(contract_loaded, contract_loaded['absolutePath'])
+                self._parse_contracts_from_loaded_json(contract_loaded,
+                                                       contract_loaded['absolutePath'])
 
-    def _init_from_truffle(self, contract, build_directory):
+    def _init_from_truffle(self, contract, build_directory, truffle_ignore_compile, truffle_version):
+        # Truffle on windows has naming conflicts where it will invoke truffle.js directly instead
+        # of truffle.cmd (unless in powershell or git bash). The cleanest solution is to explicitly call
+        # truffle.cmd. Reference:
+        # https://truffleframework.com/docs/truffle/reference/configuration#resolving-naming-conflicts-on-windows
+        if not truffle_ignore_compile:
+            truffle_base_command = "truffle" if platform.system() != 'Windows' else "truffle.cmd"
+            cmd = [truffle_base_command, 'compile']
+            if truffle_version:
+                cmd = ['npx', truffle_version, 'compile']
+            elif os.path.isfile('package.json'):
+                with open('package.json') as f:
+                    package = json.load(f)
+                    if 'devDependencies' in package:
+                        if 'truffle' in package['devDependencies']:
+                            version = package['devDependencies']['truffle']
+                            if version.startswith('^'):
+                                version = version[1:]
+                            truffle_version = 'truffle@{}'.format(version)
+                            cmd = ['npx', truffle_version, 'compile']
+            logger.info("'{}' running (use --truffle-version truffle@x.x.x to use specific version)".format(' '.join(cmd)))
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            stdout, stderr = process.communicate()
+            stdout, stderr = stdout.decode(), stderr.decode()# convert bytestrings to unicode strings
+
+            logger.info(stdout)
+
+            if stderr:
+                logger.error(stderr)
         if not os.path.isdir(os.path.join(contract, build_directory)):
             logger.info(red('No truffle build directory found, did you run `truffle compile`?'))
             sys.exit(-1)
