@@ -68,21 +68,22 @@ class Slither(SlitherSolc):
 
     def _init_from_embark(self, contract, embark_overwrite_config):
         super(Slither, self).__init__('')
+        plugin_name = '@trailofbits/embark-contract-info'
         with open('embark.json') as f:
             embark_json = json.load(f)
         if embark_overwrite_config:
             write_embark_json = False
             if (not 'plugins' in embark_json):
-                embark_json['plugins'] = {'embark-contract-info':{'flags':""}}
+                embark_json['plugins'] = {plugin_name:{'flags':""}}
                 write_embark_json = True
-            elif (not 'embark-contract-info' in embark_json['plugins']):
-                embark_json['plugins']['embark-contract-info'] = {'flags':""}
+            elif (not plugin_name in embark_json['plugins']):
+                embark_json['plugins'][plugin_name] = {'flags':""}
                 write_embark_json = True
             if write_embark_json:
-                process = subprocess.Popen(['npm','install', '@trailofbits/embark-contract-info'])
+                process = subprocess.Popen(['npm','install', plugin_name])
                 _, stderr = process.communicate()
                 with open('embark.json', 'w') as outfile:
-                    json.dump(embark_json, outfile)
+                    json.dump(embark_json, outfile, indent=2)
         else:
             if (not 'plugins' in embark_json) or (not 'embark-contract-info' in embark_json['plugins']):
                 logger.error(red('embark-contract-info plugin was found in embark.json. Please install the plugin (see https://github.com/crytic/slither/wiki/Usage#embark), or use --embark-overwrite-config.'))
