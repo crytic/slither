@@ -139,7 +139,7 @@ class Slither(SlitherVyper):
             stdout, stderr = stdout.decode(), stderr.decode()  # convert bytestrings to unicode strings
 
             if stderr:
-                stderr = stderr.split('\n')
+                stderr = stderr.splitlines()
                 stderr = [x if 'Error' not in x else red(x) for x in stderr]
                 stderr = '\n'.join(stderr)
                 logger.info('Compilation warnings/errors on %s:\n%s', filename, stderr)
