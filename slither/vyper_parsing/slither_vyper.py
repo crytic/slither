@@ -63,7 +63,7 @@ class SlitherVyper(Slither):
 
 
         # TODO
-        # contract.analyze_content_functions()
+        contract.analyze_content_functions()
 
     def _parse_contracts_from_json(self, json_data):
         data_loaded = json.loads(json_data)

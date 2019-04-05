@@ -71,6 +71,9 @@ class FunctionVyper(Function):
         # vyper isn't declare variables in return statement
         pass
 
+    def analyze_content(self):
+        pass
+
     def generate_slithir_and_analyze(self):
         pass
 
