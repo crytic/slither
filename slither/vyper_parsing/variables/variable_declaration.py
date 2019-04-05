@@ -10,7 +10,7 @@ class VariableDeclarationVyper(Variable):
             It may be possible that the variable is declared through a statement,
             but the init value is declared at the VariableDeclaration children level
         '''
-        super(VariableDeclarationVyper, self).__init__()
+        super().__init__()
         self._var_record = var_record
         self._name = var_record.name
         self._type = var_record.typ
