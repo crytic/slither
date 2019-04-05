@@ -364,11 +364,11 @@ def parse_args(detector_classes, printer_classes):
                                action='store',
                                default=defaults_flag_in_config['truffle_version'])
 
-    group_truffle.add_argument('--embark-ignore-compile',
-                               help='Do not run embark build',
-                               action='store_true',
-                               dest='embark_ignore_compile',
-                               default=defaults_flag_in_config['embark_ignore_compile'])
+    group_embark.add_argument('--embark-ignore-compile',
+                              help='Do not run embark build',
+                              action='store_true',
+                              dest='embark_ignore_compile',
+                              default=defaults_flag_in_config['embark_ignore_compile'])
 
     group_embark.add_argument('--embark-overwrite-config',
                               help='Install @trailofbits/embark-contract-export and add it to embark.json',
