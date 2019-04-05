@@ -7,7 +7,7 @@ logger = logging.getLogger("FunctionVyper")
 
 class FunctionVyper(Function):
     def __init__(self, function, function_sig, contract):
-        super(FunctionVyper, self).__init__()
+        super().__init__()
         self._contract = contract
         self._sig = function_sig
         self._name = function['name']
