@@ -4,7 +4,12 @@ os:
 language: python
 python:
   - 3.6
-
+env:
+  - TEST_SUITE=scripts/travis_test_4.sh
+  - TEST_SUITE=scripts/travis_test_5.sh
+  - TEST_SUITE=scripts/travis_test_upgradability.sh
+  - TEST_SUITE=scripts/travis_test_data_dependency.sh
+  - TEST_SUITE=scripts/travis_test_find_paths.sh
 branches:
   only:
   - master
@@ -14,10 +19,7 @@ install:
   - scripts/travis_install.sh
 
 script:
-  - scripts/travis_test_4.sh
-  - scripts/travis_test_5.sh
-  - scripts/travis_test_upgradability.sh
-  - scripts/travis_test_data_dependency.sh
-  - scripts/travis_test_find_paths.sh
+  - $TEST_SUITE
+
 
 
