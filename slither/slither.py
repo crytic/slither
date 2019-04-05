@@ -38,6 +38,7 @@ class Slither(SlitherSolc):
                 truffle_version (str): use a specific truffle version (default None)
 
                 embark_ignore (bool): ignore embark.js presence (default false)
+                embark_ignore_compile (bool): do not run embark build (default False)
                 embark_overwrite_config (bool): overwrite original config file (default false)
 
         '''
@@ -58,6 +59,7 @@ class Slither(SlitherSolc):
         # embark directory
         elif not embark_ignore and os.path.isfile(os.path.join(contract, 'embark.json')):
             self._init_from_embark(contract,
+                                   kwargs.get('embark_ignore_compile', False),
                                    kwargs.get('embark_overwrite_config', False))
         # .json or .sol provided
         else:
@@ -75,7 +77,7 @@ class Slither(SlitherSolc):
 
         self._analyze_contracts()
 
-    def _init_from_embark(self, contract, embark_overwrite_config):
+    def _init_from_embark(self, contract, embark_ignore_compile, embark_overwrite_config):
         super(Slither, self).__init__('')
         plugin_name = '@trailofbits/embark-contract-info'
         with open('embark.json') as f:
@@ -98,12 +100,13 @@ class Slither(SlitherSolc):
                 logger.error(red('embark-contract-info plugin was found in embark.json. Please install the plugin (see https://github.com/crytic/slither/wiki/Usage#embark), or use --embark-overwrite-config.'))
                 sys.exit(-1)
 
-        process = subprocess.Popen(['embark','build','--contracts'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        logger.info("%s\n"%stdout.decode())
-        if stderr:
-            # Embark might return information to stderr, but compile without issue
-            logger.error("%s"%stderr.decode())
+        if not embark_ignore_compile:
+            process = subprocess.Popen(['embark','build','--contracts'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            logger.info("%s\n"%stdout.decode())
+            if stderr:
+                # Embark might return information to stderr, but compile without issue
+                logger.error("%s"%stderr.decode())
         infile = os.path.join(contract, 'crytic-export', 'contracts.json')
         if not os.path.isfile(infile):
             logger.error(red('Embark did not generate the AST file. Is Embark installed (npm install -g embark)? Is embark-contract-info installed? (npm install -g embark).'))

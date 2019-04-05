@@ -51,6 +51,7 @@ def process(filename, args, detector_classes, printer_classes):
                       truffle_build_directory=args.truffle_build_directory,
                       truffle_ignore_compile=args.truffle_ignore_compile,
                       truffle_version=args.truffle_version,
+                      embark_ignore_compile=args.embark_ignore_compile,
                       embark_overwrite_config=args.embark_overwrite_config,
                       filter_paths=parse_filter_paths(args),
                       triage_mode=args.triage_mode)
@@ -248,6 +249,7 @@ defaults_flag_in_config = {
     'filter_paths': None,
     'truffle_ignore_compile': False,
     'truffle_build_directory': 'build/contracts',
+    'embark_ignore_compile': False,
     'embark_overwrite_config': False,
     'legacy_ast': False
     }
@@ -352,7 +354,7 @@ def parse_args(detector_classes, printer_classes):
                                default=defaults_flag_in_config['truffle_ignore_compile'])
 
     group_truffle.add_argument('--truffle-build-directory',
-                               help='Do not run truffle compile',
+                               help='Use an alternative truffle build directory',
                                action='store',
                                dest='truffle_build_directory',
                                default=defaults_flag_in_config['truffle_build_directory'])
@@ -361,6 +363,12 @@ def parse_args(detector_classes, printer_classes):
                                help='Use a local Truffle version (with npx)',
                                action='store',
                                default=defaults_flag_in_config['truffle_version'])
+
+    group_truffle.add_argument('--embark-ignore-compile',
+                               help='Do not run embark build',
+                               action='store_true',
+                               dest='embark_ignore_compile',
+                               default=defaults_flag_in_config['embark_ignore_compile'])
 
     group_embark.add_argument('--embark-overwrite-config',
                               help='Install @trailofbits/embark-contract-export and add it to embark.json',
