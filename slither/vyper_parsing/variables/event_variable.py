@@ -14,4 +14,4 @@ class EventVariableVyper(VariableDeclarationVyper, EventVariable):
         # Check for the indexed attribute
         self._indexed = indexed
 
-        super(EventVariableVyper, self)._analyze_variable_attributes(arg_sig)
+        super()._analyze_variable_attributes(arg_sig)
