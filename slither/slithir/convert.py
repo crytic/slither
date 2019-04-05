@@ -29,6 +29,7 @@ from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import (Constant, ReferenceVariable,
                                        TemporaryVariable)
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
+from slither.utils.function import get_function_id
 
 logger = logging.getLogger('ConvertToIR')
 
@@ -385,7 +386,14 @@ def propagate_types(ir, node):
                     return length
                 if ir.variable_right == 'balance'and not isinstance(ir.variable_left, Contract)  and isinstance(ir.variable_left.type, ElementaryType):
                     return Balance(ir.variable_left, ir.lvalue)
+                if ir.variable_right == 'selector' and isinstance(ir.variable_left.type, Function):
+                    assignment = Assignment(ir.lvalue,
+                                            Constant(str(get_function_id(ir.variable_left.type.full_name))),
+                                            ElementaryType('bytes4'))
+                    assignment.lvalue.set_type(ElementaryType('bytes4'))
+                    return assignment
                 left = ir.variable_left
+                t = None
                 if isinstance(left, (Variable, SolidityVariable)):
                     t = ir.variable_left.type
                 elif isinstance(left, (Contract, Enum, Structure)):
@@ -404,6 +412,14 @@ def propagate_types(ir, node):
                                     ir.lvalue.set_type(elems[elem].type)
                         else:
                             assert isinstance(type_t, Contract)
+                            # Allow type propagtion as a Function
+                            # Only for reference variables
+                            # This allows to track the selector keyword
+                            # We dont need to check for function collision, as solc prevents the use of selector
+                            # if there are multiple functions with the same name
+                            f = next((f for f in type_t.functions if f.name == ir.variable_right), None)
+                            if f:
+                                ir.lvalue.set_type(f)
             elif isinstance(ir, NewArray):
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):

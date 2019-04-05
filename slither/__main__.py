@@ -118,6 +118,20 @@ def process_truffle(dirname, args, detector_classes, printer_classes):
 
     return _process(slither, detector_classes, printer_classes)
 
+def process_embark(dirname, args, detector_classes, printer_classes):
+
+    slither = Slither(dirname,
+                      solc=args.solc,
+                      disable_solc_warnings=args.disable_solc_warnings,
+                      solc_arguments=args.solc_args,
+                      is_truffle=False,
+                      is_embark=True,
+                      embark_overwrite_config=args.embark_overwrite_config,
+                      filter_paths=parse_filter_paths(args),
+                      triage_mode=args.triage_mode)
+
+    return _process(slither, detector_classes, printer_classes)
+
 
 def process_files(filenames, args, detector_classes, printer_classes):
     all_contracts = []
@@ -287,6 +301,7 @@ defaults_flag_in_config = {
     'filter_paths': None,
     'ignore_truffle_compile': False,
     'truffle_build_directory': 'build/contracts',
+    'embark_overwrite_config': False,
     'legacy_ast': False
     }
 
@@ -442,6 +457,11 @@ def parse_args(detector_classes, printer_classes):
                             action='store_true',
                             default=False)
 
+    group_misc.add_argument('--embark-overwrite-config',
+                            help=argparse.SUPPRESS,
+                            action='store_true',
+                            default=defaults_flag_in_config['embark_overwrite_config'])
+
     parser.add_argument('--wiki-detectors',
                         help=argparse.SUPPRESS,
                         action=OutputWiki,
@@ -573,6 +593,9 @@ def main_impl(all_detector_classes, all_printer_classes):
 
         elif os.path.isfile(os.path.join(filename, 'truffle.js')) or os.path.isfile(os.path.join(filename, 'truffle-config.js')):
             (results, number_contracts) = process_truffle(filename, args, detector_classes, printer_classes)
+
+        elif os.path.isfile(os.path.join(filename, 'embark.json')):
+            (results, number_contracts) = process_embark(filename, args, detector_classes, printer_classes)
 
         elif os.path.isdir(filename) or len(globbed_filenames) > 0:
             extension = "*.sol" if not args.solc_ast else "*.json"

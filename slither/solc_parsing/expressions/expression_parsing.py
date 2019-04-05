@@ -319,6 +319,18 @@ def parse_super_name(expression, is_compact_ast):
 
     return base_name+arguments
 
+def _parse_elementary_type_name_expression(expression, is_compact_ast, caller_context):
+    # nop exression
+    # uint;
+    if is_compact_ast:
+        value = expression['typeName']
+    else:
+        assert 'children' not in expression
+        value = expression['attributes']['value']
+    t = parse_type(UnknownType(value), caller_context)
+
+    return ElementaryTypeNameExpression(t)
+
 def parse_expression(expression, caller_context):
     """
 
@@ -520,6 +532,12 @@ def parse_expression(expression, caller_context):
             assert len(children) == 2
             left = children[0]
             right = children[1]
+        # IndexAccess is used to describe ElementaryTypeNameExpression
+        # if abi.decode is used
+        # For example, abi.decode(data, ...(uint[]) )
+        if right is None:
+            return _parse_elementary_type_name_expression(left, is_compact_ast, caller_context)
+
         left_expression = parse_expression(left, caller_context)
         right_expression = parse_expression(right, caller_context)
         index = IndexAccess(left_expression, right_expression, index_type)
@@ -559,16 +577,7 @@ def parse_expression(expression, caller_context):
         return member_access
 
     elif name == 'ElementaryTypeNameExpression':
-        # nop exression
-        # uint;
-        if is_compact_ast:
-            value = expression['typeName']
-        else:
-            assert 'children' not in expression
-            value = expression['attributes']['value']
-        t = parse_type(UnknownType(value), caller_context)
-
-        return ElementaryTypeNameExpression(t)
+        return _parse_elementary_type_name_expression(expression, is_compact_ast, caller_context)
 
 
     # NewExpression is not a root expression, it's always the child of another expression
