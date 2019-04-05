@@ -6,7 +6,6 @@ import inspect
 import json
 import logging
 import os
-import platform
 import subprocess
 import sys
 import traceback
@@ -49,6 +48,10 @@ def process(filename, args, detector_classes, printer_classes):
                       disable_solc_warnings=args.disable_solc_warnings,
                       solc_arguments=args.solc_args,
                       ast_format=ast,
+                      truffle_build_directory=args.truffle_build_directory,
+                      truffle_ignore_compile=args.truffle_ignore_compile,
+                      truffle_version=args.truffle_version,
+                      embark_overwrite_config=args.embark_overwrite_config,
                       filter_paths=parse_filter_paths(args),
                       triage_mode=args.triage_mode)
 
@@ -75,62 +78,6 @@ def _process(slither, detector_classes, printer_classes):
     slither.run_printers()  # Currently printers does not return results
 
     return results, analyzed_contracts_count
-
-def process_truffle(dirname, args, detector_classes, printer_classes):
-    # Truffle on windows has naming conflicts where it will invoke truffle.js directly instead
-    # of truffle.cmd (unless in powershell or git bash). The cleanest solution is to explicitly call
-    # truffle.cmd. Reference:
-    # https://truffleframework.com/docs/truffle/reference/configuration#resolving-naming-conflicts-on-windows
-    if not args.ignore_truffle_compile:
-        truffle_base_command = "truffle" if platform.system() != 'Windows' else "truffle.cmd"
-        cmd = [truffle_base_command, 'compile']
-        if args.truffle_version:
-            cmd = ['npx',args.truffle_version,'compile']
-        elif os.path.isfile('package.json'):
-            with open('package.json') as f:
-                    package = json.load(f)
-                    if 'devDependencies' in package:
-                        if 'truffle' in package['devDependencies']:
-                            version = package['devDependencies']['truffle']
-                            if version.startswith('^'):
-                                version = version[1:]
-                            truffle_version = 'truffle@{}'.format(version)
-                            cmd = ['npx', truffle_version,'compile']
-        logger.info("'{}' running (use --truffle-version truffle@x.x.x to use specific version)".format(' '.join(cmd)))
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        stdout, stderr = process.communicate()
-        stdout, stderr = stdout.decode(), stderr.decode()  # convert bytestrings to unicode strings
-
-        logger.info(stdout)
-
-        if stderr:
-            logger.error(stderr)
-
-    slither = Slither(dirname,
-                      solc=args.solc,
-                      disable_solc_warnings=args.disable_solc_warnings,
-                      solc_arguments=args.solc_args,
-                      is_truffle=True,
-                      truffle_build_directory=args.truffle_build_directory,
-                      filter_paths=parse_filter_paths(args),
-                      triage_mode=args.triage_mode)
-
-    return _process(slither, detector_classes, printer_classes)
-
-def process_embark(dirname, args, detector_classes, printer_classes):
-
-    slither = Slither(dirname,
-                      solc=args.solc,
-                      disable_solc_warnings=args.disable_solc_warnings,
-                      solc_arguments=args.solc_args,
-                      is_truffle=False,
-                      is_embark=True,
-                      embark_overwrite_config=args.embark_overwrite_config,
-                      filter_paths=parse_filter_paths(args),
-                      triage_mode=args.triage_mode)
-
-    return _process(slither, detector_classes, printer_classes)
 
 
 def process_files(filenames, args, detector_classes, printer_classes):
@@ -299,14 +246,14 @@ defaults_flag_in_config = {
     'truffle_version': None,
     'disable_color': False,
     'filter_paths': None,
-    'ignore_truffle_compile': False,
+    'truffle_ignore_compile': False,
     'truffle_build_directory': 'build/contracts',
     'embark_overwrite_config': False,
     'legacy_ast': False
     }
 
 def parse_args(detector_classes, printer_classes):
-    parser = argparse.ArgumentParser(description='Slither',
+    parser = argparse.ArgumentParser(description='Slither. For usage information, see https://github.com/crytic/slither/wiki/Usage',
                                      usage="slither.py contract.sol [flag]")
 
     parser.add_argument('filename',
@@ -320,6 +267,8 @@ def parse_args(detector_classes, printer_classes):
     group_detector = parser.add_argument_group('Detectors')
     group_printer = parser.add_argument_group('Printers')
     group_solc = parser.add_argument_group('Solc options')
+    group_truffle = parser.add_argument_group('Truffle options')
+    group_embark = parser.add_argument_group('Embark options')
     group_misc = parser.add_argument_group('Additional option')
 
     group_detector.add_argument('--detect',
@@ -396,14 +345,33 @@ def parse_args(detector_classes, printer_classes):
                             action='store_true',
                             default=False)
 
+    group_truffle.add_argument('--truffle-ignore-compile',
+                               help='Do not run truffle compile',
+                               action='store_true',
+                               dest='truffle_ignore_compile',
+                               default=defaults_flag_in_config['truffle_ignore_compile'])
+
+    group_truffle.add_argument('--truffle-build-directory',
+                               help='Do not run truffle compile',
+                               action='store',
+                               dest='truffle_build_directory',
+                               default=defaults_flag_in_config['truffle_build_directory'])
+
+    group_truffle.add_argument('--truffle-version',
+                               help='Use a local Truffle version (with npx)',
+                               action='store',
+                               default=defaults_flag_in_config['truffle_version'])
+
+    group_embark.add_argument('--embark-overwrite-config',
+                              help='Install @trailofbits/embark-contract-export and add it to embark.json',
+                              action='store_true',
+                              default=defaults_flag_in_config['embark_overwrite_config'])
+
     group_misc.add_argument('--json',
                             help='Export results as JSON',
                             action='store',
                             default=defaults_flag_in_config['json'])
-    group_misc.add_argument('--truffle-version',
-                            help='Use a local Truffle version (with npx)',
-                            action='store',
-                            default=defaults_flag_in_config['truffle_version'])
+
 
     group_misc.add_argument('--disable-color',
                             help='Disable output colorization',
@@ -415,18 +383,6 @@ def parse_args(detector_classes, printer_classes):
                             action='store',
                             dest='filter_paths',
                             default=defaults_flag_in_config['filter_paths'])
-
-    group_misc.add_argument('--ignore-truffle-compile',
-                            help='Do not run truffle compile',
-                            action='store_true',
-                            dest='ignore_truffle_compile',
-                            default=defaults_flag_in_config['ignore_truffle_compile'])
-
-    group_misc.add_argument('--truffle-build-directory',
-                            help='Do not run truffle compile',
-                            action='store',
-                            dest='truffle_build_directory',
-                            default=defaults_flag_in_config['truffle_build_directory'])
 
     group_misc.add_argument('--triage-mode',
                             help='Run triage mode (save results in slither.db.json)',
@@ -456,11 +412,6 @@ def parse_args(detector_classes, printer_classes):
                             help=argparse.SUPPRESS,
                             action='store_true',
                             default=False)
-
-    group_misc.add_argument('--embark-overwrite-config',
-                            help=argparse.SUPPRESS,
-                            action='store_true',
-                            default=defaults_flag_in_config['embark_overwrite_config'])
 
     parser.add_argument('--wiki-detectors',
                         help=argparse.SUPPRESS,
@@ -588,14 +539,11 @@ def main_impl(all_detector_classes, all_printer_classes):
 
         globbed_filenames = glob.glob(filename, recursive=True)
 
-        if os.path.isfile(filename):
+        if os.path.isfile(filename) or\
+            os.path.isfile(os.path.join(filename, 'truffle.js')) or\
+            os.path.isfile(os.path.join(filename, 'truffle-config.js')) or\
+            os.path.isfile(os.path.join(filename, 'embark.json')):
             (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
-
-        elif os.path.isfile(os.path.join(filename, 'truffle.js')) or os.path.isfile(os.path.join(filename, 'truffle-config.js')):
-            (results, number_contracts) = process_truffle(filename, args, detector_classes, printer_classes)
-
-        elif os.path.isfile(os.path.join(filename, 'embark.json')):
-            (results, number_contracts) = process_embark(filename, args, detector_classes, printer_classes)
 
         elif os.path.isdir(filename) or len(globbed_filenames) > 0:
             extension = "*.sol" if not args.solc_ast else "*.json"
@@ -611,7 +559,6 @@ def main_impl(all_detector_classes, all_printer_classes):
                     (results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
                     number_contracts += number_contracts_tmp
                     results += results_tmp
-
 
         else:
             raise Exception("Unrecognised file/dir path: '#{filename}'".format(filename=filename))
