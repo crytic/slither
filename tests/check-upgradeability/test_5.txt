@@ -1,3 +1,4 @@
+INFO:CheckInitialization:[92mRun initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialization-checks)[0m
 INFO:CheckInitialization:[91mContract_lack_to_call_modifier.initialize does not call initializer[0m
 INFO:CheckInitialization:[91mMissing call to Contract_no_bug.initialize in Contract_not_called_super_init[0m
 INFO:CheckInitialization:[91mContract_no_bug.initialize() is called multiple time in Contract_double_call[0m
@@ -8,6 +9,8 @@ Contract_not_called_super_init needs to be initialized by initialize()
 Contract_no_bug_inherits needs to be initialized by initialize()
 Contract_double_call needs to be initialized by initialize()
 [0m
-INFO:CompareFunctions:[92mNo function id collision found[0m
+INFO:CompareFunctions:[92mRun function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)[0m
+INFO:CompareFunctions:[92mNo function ids collision found[0m
+INFO:VariablesOrder:[92mRun variables order checks between the implementation and the proxy... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
 INFO:VariablesOrder:[93mVariable in the proxy: destination address[0m
-INFO:VariablesOrder:[92mNo error found (variables ordering proxy <-> implementation)[0m
+INFO:VariablesOrder:[92mNo variables ordering error found between implementation and the proxy[0m

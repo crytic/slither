@@ -11,6 +11,8 @@ logger.setLevel(logging.INFO)
 
 def compare_variables_order_implementation(v1, contract_name1, v2, contract_name2):
 
+    logger.info(green('Run variables order checks between implementations... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)'))
+
     contract_v1 = v1.get_contract_from_name(contract_name1)
     if contract_v1 is None:
         logger.info(red('Contract {} not found in {}'.format(contract_name1, v1.filename)))
@@ -47,9 +49,11 @@ def compare_variables_order_implementation(v1, contract_name1, v2, contract_name
             logger.info(green('New variable: {} {}'.format(name, t)))
 
     if not found:
-        logger.info(green('No error found (variables ordering between implementations)'))
+        logger.info(green('No variables ordering error found between implementations'))
 
 def compare_variables_order_proxy(implem, implem_name, proxy, proxy_name):
+
+    logger.info(green('Run variables order checks between the implementation and the proxy... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)'))
 
     contract_implem = implem.get_contract_from_name(implem_name)
     if contract_implem is None:
@@ -91,6 +95,6 @@ def compare_variables_order_proxy(implem, implem_name, proxy, proxy_name):
     #        logger.info(green('Variable only in implem: {} {}'.format(name, t)))
 
     if not found:
-        logger.info(green('No error found (variables ordering proxy <-> implementation)'))
+        logger.info(green('No variables ordering error found between implementation and the proxy'))
 
 

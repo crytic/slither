@@ -1,6 +1,0 @@
-INFO:CheckInitialization:[93mInitializable contract not found, the contract does not follow a standard initalization schema.[0m
-INFO:CheckInitialization:[93mInitializable contract not found, the contract does not follow a standard initalization schema.[0m
-INFO:CompareFunctions:[91mFunction id collision found myFunc() myFunc()[0m
-INFO:VariablesOrder:[91mDifferent variables between proxy and implem: destination address -> destination uint256[0m
-INFO:VariablesOrder:[91mDifferent variables between v1 and v2: destination address -> destination uint256[0m
-INFO:VariablesOrder:[92mNew variable: myFunc uint256[0m
