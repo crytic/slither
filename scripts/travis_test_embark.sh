@@ -9,7 +9,7 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | b
 nvm install --lts
 nvm use --lts
 
-npm install embark
+npm install -g embark
 embark demo
 cd embark_demo
 npm install
@@ -17,7 +17,9 @@ slither . --embark-overwrite-config
 
 if [ $? -eq 3 ]
 then  
-    echo "Embark test failed"
-    exit -1
+    exit 0
 fi
+
+echo "Embark test failed"
+exit -1
 
