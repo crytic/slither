@@ -12,7 +12,7 @@ class StructureVyper(Structure):
 
 
     def __init__(self, name, ast_struct, code):
-        super(StructureVyper, self).__init__()
+        super().__init__()
         self._name = name
         # self._canonical_name = canonicalName
         self._elems = {}
