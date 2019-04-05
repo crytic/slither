@@ -4,7 +4,7 @@
 from slither.core.declarations import (Contract, Enum, Function,
                                        SolidityFunction, SolidityVariable,
                                        SolidityVariableComposed, Structure)
-from slither.slithir.operations import Index, OperationWithLValue
+from slither.slithir.operations import Index, OperationWithLValue, InternalCall
 from slither.slithir.variables import (Constant, LocalIRVariable,
                                        ReferenceVariable, ReferenceVariableSSA,
                                        StateIRVariable, TemporaryVariable,
@@ -232,6 +232,8 @@ def add_dependency(lvalue, function, ir, is_protected):
             function.context[KEY_SSA_UNPROTECTED][lvalue] = set()
     if isinstance(ir, Index):
         read = [ir.variable_left]
+    elif isinstance(ir, InternalCall):
+        read = ir.function.return_values_ssa
     else:
         read = ir.read
     [function.context[KEY_SSA][lvalue].add(v) for v in read if not isinstance(v, Constant)]
