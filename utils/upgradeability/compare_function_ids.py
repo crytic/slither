@@ -21,6 +21,9 @@ def get_signatures(c):
 
 
 def compare_function_ids(implem, implem_name, proxy, proxy_name):
+
+    logger.info(green('Run function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)'))
+
     implem_contract = implem.get_contract_from_name(implem_name)
     if implem_contract is None:
         logger.info(red(f'{implem_name} not found in {implem.filename}'))
@@ -40,9 +43,12 @@ def compare_function_ids(implem, implem_name, proxy, proxy_name):
     for (k, _) in signatures_ids_implem.items():
         if k in signatures_ids_proxy:
             found = True
-            logger.info(red('Function id collision found {} {}'.format(signatures_ids_implem[k],
-                                                                       signatures_ids_proxy[k])))
+            if signatures_ids_implem[k] != signatures_ids_proxy[k]:
+                logger.info(red('Function id collision found {} {}'.format(signatures_ids_implem[k],
+                                                                           signatures_ids_proxy[k])))
+            else:
+                logger.info(red('Shadowing between proxy and implementation found {}'.format(signatures_ids_implem[k])))
 
     if not found:
-        logger.info(green('No function id collision found'))
+        logger.info(green('No function ids collision found'))
 
