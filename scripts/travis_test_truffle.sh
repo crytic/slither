@@ -14,7 +14,7 @@ npm install -g truffle
 truffle unbox metacoin
 slither .
 
-if [ $? -eq 8 ]
+if [ $? -eq 7 ]
 then  
     exit 0
 fi
