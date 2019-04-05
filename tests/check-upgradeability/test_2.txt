@@ -1,0 +1,11 @@
+INFO:CheckInitialization:[92mRun initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialization-checks)[0m
+INFO:CheckInitialization:[93mInitializable contract not found, the contract does not follow a standard initalization schema.[0m
+INFO:CheckInitialization:[92mRun initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialization-checks)[0m
+INFO:CheckInitialization:[93mInitializable contract not found, the contract does not follow a standard initalization schema.[0m
+INFO:CompareFunctions:[92mRun function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)[0m
+INFO:CompareFunctions:[92mNo function ids collision found[0m
+INFO:VariablesOrder:[92mRun variables order checks between the implementation and the proxy... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
+INFO:VariablesOrder:[93mVariable in the proxy: destination address[0m
+INFO:VariablesOrder:[92mNo variables ordering error found between implementation and the proxy[0m
+INFO:VariablesOrder:[92mRun variables order checks between implementations... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
+INFO:VariablesOrder:[92mNo variables ordering error found between implementations[0m

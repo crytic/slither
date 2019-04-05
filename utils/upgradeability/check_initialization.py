@@ -31,6 +31,8 @@ def check_initialization(s):
 
     initializable = s.get_contract_from_name('Initializable')
 
+    logger.info(green('Run initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialization-checks)'))
+
     if initializable is None:
         logger.info(yellow('Initializable contract not found, the contract does not follow a standard initalization schema.'))
         return
