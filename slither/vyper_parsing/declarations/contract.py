@@ -15,7 +15,7 @@ logger = logging.getLogger("ContractVyperParsing")
 
 class ContractVyper(Contract):
     def __init__(self, slitherVyper, data):
-        super(ContractVyper, self).__init__()
+        super().__init__()
 
         self.set_slither(slitherVyper)
         self._data = data
