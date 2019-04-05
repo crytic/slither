@@ -140,7 +140,7 @@ class Slither(SlitherVyper):
 
             if stderr:
                 stderr = stderr.splitlines()
-                stderr = [x if 'Error' not in x else red(x) for x in stderr]
+                stderr = (x if 'Error' not in x else red(x) for x in stderr)
                 stderr = '\n'.join(stderr)
                 logger.info('Compilation warnings/errors on %s:\n%s', filename, stderr)
 
