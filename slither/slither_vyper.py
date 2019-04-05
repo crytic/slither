@@ -31,7 +31,7 @@ class Slither(SlitherVyper):
         self._detectors = []
         self._printers = []
         self._triage_mode = False
-        super(Slither, self).__init__(filename)
+        super().__init__(filename)
 
         self._init_from_vyper(filename)
         self._analyze_contracts()
