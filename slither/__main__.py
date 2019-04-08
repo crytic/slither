@@ -11,6 +11,7 @@ import sys
 import traceback
 
 from pkg_resources import iter_entry_points, require
+from crytic_compile import cryticparser
 
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import (AbstractDetector,
@@ -43,18 +44,10 @@ def process(filename, args, detector_classes, printer_classes):
     ast = '--ast-compact-json'
     if args.legacy_ast:
         ast = '--ast-json'
+    args.filter_paths = parse_filter_paths(args)
     slither = Slither(filename,
-                      solc=args.solc,
-                      disable_solc_warnings=args.disable_solc_warnings,
-                      solc_arguments=args.solc_args,
                       ast_format=ast,
-                      truffle_build_directory=args.truffle_build_directory,
-                      truffle_ignore_compile=args.truffle_ignore_compile,
-                      truffle_version=args.truffle_version,
-                      embark_ignore_compile=args.embark_ignore_compile,
-                      embark_overwrite_config=args.embark_overwrite_config,
-                      filter_paths=parse_filter_paths(args),
-                      triage_mode=args.triage_mode)
+                      **vars(args))
 
     return _process(slither, detector_classes, printer_classes)
 
@@ -261,6 +254,8 @@ def parse_args(detector_classes, printer_classes):
     parser.add_argument('filename',
                         help='contract.sol')
 
+    cryticparser.init(parser)
+
     parser.add_argument('--version',
                         help='displays the current version',
                         version=require('slither-analyzer')[0].version,
@@ -268,9 +263,6 @@ def parse_args(detector_classes, printer_classes):
 
     group_detector = parser.add_argument_group('Detectors')
     group_printer = parser.add_argument_group('Printers')
-    group_solc = parser.add_argument_group('Solc options')
-    group_truffle = parser.add_argument_group('Truffle options')
-    group_embark = parser.add_argument_group('Embark options')
     group_misc = parser.add_argument_group('Additional option')
 
     group_detector.add_argument('--detect',
@@ -327,53 +319,6 @@ def parse_args(detector_classes, printer_classes):
                                 action='store_true',
                                 default=defaults_flag_in_config['exclude_high'])
 
-    group_solc.add_argument('--solc',
-                            help='solc path',
-                            action='store',
-                            default=defaults_flag_in_config['solc'])
-
-    group_solc.add_argument('--solc-args',
-                            help='Add custom solc arguments. Example: --solc-args "--allow-path /tmp --evm-version byzantium".',
-                            action='store',
-                            default=defaults_flag_in_config['solc_args'])
-
-    group_solc.add_argument('--disable-solc-warnings',
-                            help='Disable solc warnings',
-                            action='store_true',
-                            default=defaults_flag_in_config['disable_solc_warnings'])
-
-    group_solc.add_argument('--solc-ast',
-                            help='Provide the ast solc file',
-                            action='store_true',
-                            default=False)
-
-    group_truffle.add_argument('--truffle-ignore-compile',
-                               help='Do not run truffle compile',
-                               action='store_true',
-                               dest='truffle_ignore_compile',
-                               default=defaults_flag_in_config['truffle_ignore_compile'])
-
-    group_truffle.add_argument('--truffle-build-directory',
-                               help='Use an alternative truffle build directory',
-                               action='store',
-                               dest='truffle_build_directory',
-                               default=defaults_flag_in_config['truffle_build_directory'])
-
-    group_truffle.add_argument('--truffle-version',
-                               help='Use a local Truffle version (with npx)',
-                               action='store',
-                               default=defaults_flag_in_config['truffle_version'])
-
-    group_embark.add_argument('--embark-ignore-compile',
-                              help='Do not run embark build',
-                              action='store_true',
-                              dest='embark_ignore_compile',
-                              default=defaults_flag_in_config['embark_ignore_compile'])
-
-    group_embark.add_argument('--embark-overwrite-config',
-                              help='Install @trailofbits/embark-contract-export and add it to embark.json',
-                              action='store_true',
-                              default=defaults_flag_in_config['embark_overwrite_config'])
 
     group_misc.add_argument('--json',
                             help='Export results as JSON',
@@ -538,9 +483,21 @@ def main_impl(all_detector_classes, all_printer_classes):
                               ('ExpressionParsing', default_log),
                               ('TypeParsing', default_log),
                               ('SSA_Conversion', default_log),
-                              ('Printers', default_log)]:
+                              ('Printers', default_log),
+                              #('CryticCompile', default_log)
+                              ]:
         l = logging.getLogger(l_name)
         l.setLevel(l_level)
+
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+
+    console_handler.setFormatter(FormatterCryticCompile())
+
+    crytic_compile_error = logging.getLogger(('CryticCompile'))
+    crytic_compile_error.addHandler(console_handler)
+    crytic_compile_error.propagate = False
+    crytic_compile_error.setLevel(logging.INFO)
 
     try:
         filename = args.filename
@@ -597,4 +554,22 @@ if __name__ == '__main__':
     main()
 
 
+# endregion
+###################################################################################
+###################################################################################
+# region CustomFormatter
+###################################################################################
+###################################################################################
+
+
+class FormatterCryticCompile(logging.Formatter):
+    def format(self, record):
+        #for i, msg in enumerate(record.msg):
+        if record.msg.startswith('Compilation warnings/errors on '):
+            txt = record.args[1]
+            txt = txt.split('\n')
+            txt = [red(x) if 'Error' in x else x for x in txt]
+            txt = '\n'.join(txt)
+            record.args = (record.args[0], txt)
+        return super().format(record)
 # endregion
