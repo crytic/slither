@@ -8,6 +8,9 @@ from .slither_format import slither_format
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
 
+available_detectors = ["external-function"]
+detectors_to_run = []
+
 def parse_args():
     """
     Parse the underlying arguments for the program.
@@ -21,6 +24,14 @@ def parse_args():
 
     parser.add_argument('--solc', help='solc path', default='solc')
 
+    group_detector = parser.add_argument_group('Detectors')
+    group_detector.add_argument('--detect',
+                                help='Comma-separated list of detectors, defaults to all, '
+                                'available detectors: {}'.format(
+                                    ', '.join(d for d in available_detectors)),
+                                action='store',
+                                dest='detectors_to_run',
+                                default='all')
     return parser.parse_args()
 
 
@@ -36,7 +47,7 @@ def main():
     slither = Slither(args.filename, is_truffle=os.path.isdir(args.filename), solc=args.solc, disable_solc_warnings=True)
 
     # Format the input files based on slither analysis
-    slither_format(slither)
+    slither_format(args, slither)
 
 if __name__ == '__main__':
     main()

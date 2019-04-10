@@ -10,22 +10,31 @@ contract ContractWithFunctionCalledSuper is ContractWithFunctionCalled {
 
 contract ContractWithFunctionNotCalled {
 
-    function funcNotCalled3() public {
+  function funcNotCalled5(uint _i)
+  public {
 
-    }
+  }
+    
+  function funcNotCalled4() {
 
-    function funcNotCalled2() public {
-
-    }
-
-    function funcNotCalled() public {
-
-    }
-
-    function my_func() internal returns(bool){
-        return true;
-    }
-
+  }
+  
+  function funcNotCalled3() public {
+    
+  }
+  
+  function funcNotCalled2() public {
+    
+  }
+  
+  function funcNotCalled() public {
+    
+  }
+  
+  function my_func() internal returns(bool){
+    return true;
+  }
+  
 }
 
 contract ContractWithFunctionNotCalled2 is ContractWithFunctionCalledSuper {

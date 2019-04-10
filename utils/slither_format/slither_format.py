@@ -2,16 +2,22 @@ import sys
 import re
 from slither.detectors.functions.external_function import ExternalFunction
 
-def slither_format(slither):
-    slither.register_detector(ExternalFunction)
+all_detectors = {
+    'external-function':ExternalFunction
+}
+
+def slither_format(args, slither):
+    detectors_to_run = choose_detectors(args)
+    for detector in detectors_to_run:
+        slither.register_detector(detector)
     results = []
     detector_results = slither.run_detectors()
     detector_results = [x for x in detector_results if x]  # remove empty results
     detector_results = [item for sublist in detector_results for item in sublist]  # flatten
     results.extend(detector_results)
-    parse_results(slither, detector_results)
+    apply_detector_results(slither, detector_results)
 
-def parse_results(slither, detector_results):
+def apply_detector_results(slither, detector_results):
     patch_count = 0
     for result in detector_results:
         patch_count += 1
@@ -61,3 +67,18 @@ def create_patch(_in_file, _match_text, _replace_text, _modify_loc_start, _modif
         in_file.close()
         out_file.close()
     
+def choose_detectors(args):
+    # If detectors are specified, run only these ones
+
+    detectors_to_run = []
+    
+    if args.detectors_to_run == 'all':
+        for d in all_detectors:
+            detectors_to_run.append(all_detectors[d])
+    else:
+        for d in args.detectors_to_run.split(','):
+            if d in all_detectors:
+                detectors_to_run.append(all_detectors[d])
+            else:
+                raise Exception('Error: {} is not a detector'.format(d))
+    return detectors_to_run
