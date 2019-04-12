@@ -1,1 +1,1 @@
-[{"check": "rtlo", "impact": "High", "confidence": "High", "description": "tests/right_to_left_override.sol contains a unicode right-to-left-override character:\n\t-         test1(/*A\u202e/*B*/2 , 1/*\u202d\n", "elements": []}]
+[{"check": "rtlo", "impact": "High", "confidence": "High", "description": "tests/right_to_left_override.sol contains a unicode right-to-left-override character:\n\t-         return test1(/*A\u202e/*B*/2 , 1/*\u202d\n", "elements": []}]
