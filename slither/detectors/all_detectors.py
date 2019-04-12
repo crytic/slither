@@ -31,5 +31,6 @@ from .statements.incorrect_strict_equality import IncorrectStrictEquality
 from .erc20.incorrect_interface import IncorrectERC20InterfaceDetection
 from .erc20.unindexed_event_parameters import UnindexedERC20EventParameters
 from .statements.deprecated_calls import DeprecatedStandards
+from .source.rtlo import RightToLeftOverride
 #
 #
