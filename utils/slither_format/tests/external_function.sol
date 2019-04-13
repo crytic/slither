@@ -10,28 +10,29 @@ contract ContractWithFunctionCalledSuper is ContractWithFunctionCalled {
 
 contract ContractWithFunctionNotCalled {
 
+  // With parameter and return
   function funcNotCalled5(uint _i)
-  public {
-
+    public returns (uint) {
+    return(_i + 10);
   }
-    
-  function funcNotCalled4() {
 
+  // With no visibility specifier which is ok until solc 0.5.0
+  function funcNotCalled4() {
   }
   
-  function funcNotCalled3() public {
-    
+  function funcNotCalled3() public
+    returns (uint a)
+  {
+    a = 100;
   }
   
   function funcNotCalled2() public {
-    
   }
   
   function funcNotCalled() public {
-    
   }
   
-  function my_func() internal returns(bool){
+  function my_func() internal returns(bool) {
     return true;
   }
   
@@ -74,6 +75,5 @@ contract InternalCall {
     
     function exec() external returns(uint){
         return ptr();
-    }
-    
+    }    
 }

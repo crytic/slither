@@ -1,10 +1,14 @@
 import sys
 import re
 from slither.detectors.functions.external_function import ExternalFunction
+from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
 
 all_detectors = {
-    'external-function':ExternalFunction
+    'external-function': ExternalFunction,
+    'constable-states' : ConstCandidateStateVars
 }
+
+patch_count = 0
 
 def slither_format(args, slither):
     detectors_to_run = choose_detectors(args)
@@ -18,17 +22,20 @@ def slither_format(args, slither):
     apply_detector_results(slither, detector_results)
 
 def apply_detector_results(slither, detector_results):
-    patch_count = 0
     for result in detector_results:
-        patch_count += 1
-        if result['check'] == "external-function":
-            format_external_function(slither, result['elements'], patch_count)
+        print("Result: " + str(result))           
+        if result['check'] == 'external-function':
+            format_external_function(slither, result['elements'])
+        elif result['check'] == 'constable-states':
+            format_constable_states(slither, result['elements'])
         else:
             print("Not Supported Yet.")
             sys.exit(-1)
             
-def format_external_function(slither, elements, _patch_count):
+def format_external_function(slither, elements):
+    global patch_count
     for element in elements:
+        patch_count += 1
         print ("Source:"
                + " start: " + str(element['source_mapping']['start'])
                + " length: " + str(element['source_mapping']['length'])
@@ -40,10 +47,21 @@ def format_external_function(slither, elements, _patch_count):
                     if contract.name == element['contract']['name'] and function.name == element['name']:
                         print("Contract name: " + contract.name)
                         print("Function name: " + function.name)
-                        create_patch(element['source_mapping']['filename'], "public", "external", int(function.parameters_src.split(':')[0]), int(function.returns_src.split(':')[0]), _patch_count)
+                        create_patch("external-function", element['source_mapping']['filename'], "public", "external", int(function.parameters_src.split(':')[0]), int(function.returns_src.split(':')[0]), patch_count)
                         Found = True
-                    
-def create_patch(_in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end, _patch_count):
+
+def format_constable_states(slither, elements):
+    global patch_count
+    for element in elements:
+        patch_count += 1
+        print ("State variable:"
+               + " name: " + str(element['name'])
+               + " start: " + str(element['source_mapping']['start'])
+               + " length: " + str(element['source_mapping']['length'])
+               + " filename: " + element['source_mapping']['filename'])
+        create_patch("constable-states", element['source_mapping']['filename'], element['name'], "constant " + element['name'], element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'], patch_count)
+
+def create_patch(_detector, _in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end, _patch_count):
     print("_modify_loc_start: " + str(_modify_loc_start))
     print("_modify_loc_end: " + str(_modify_loc_end))
     out_file_name = _in_file + ".patch." + str(_patch_count)
@@ -53,8 +71,8 @@ def create_patch(_in_file, _match_text, _replace_text, _modify_loc_start, _modif
         in_file_str = in_file.read()
         str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
         print("String of interest: " + str_of_interest)
-        (str_of_interest, num_repl) = re.subn("public", "extern", str_of_interest, 1)
-        if num_repl == 0:
+        (str_of_interest, num_repl) = re.subn(_match_text, _replace_text, str_of_interest, 1)
+        if num_repl == 0 and _detector == "external-function":
             # No visibility specifier exists; public by default.
             print("public specifier not found.")
             (str_of_interest, num_repl) = re.subn("\)", ") extern", str_of_interest, 1)
@@ -62,16 +80,17 @@ def create_patch(_in_file, _match_text, _replace_text, _modify_loc_start, _modif
             out_file_str = in_file_str[:_modify_loc_start] + str_of_interest + in_file_str[_modify_loc_end:]
             out_file.write(out_file_str)
         else:
-            print("Error: No public visibility specifier exists. Regex failed to add extern specifier.")
+            if _detector == "external-function":
+                print("Error: No public visibility specifier exists. Regex failed to add extern specifier.")
+            elif _detector == "constable-states":
+                print("Error: State variable not found?!")
             sys.exit(-1)
         in_file.close()
         out_file.close()
     
 def choose_detectors(args):
     # If detectors are specified, run only these ones
-
     detectors_to_run = []
-    
     if args.detectors_to_run == 'all':
         for d in all_detectors:
             detectors_to_run.append(all_detectors[d])
