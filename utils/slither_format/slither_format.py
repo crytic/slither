@@ -2,10 +2,12 @@ import sys
 import re
 from slither.detectors.functions.external_function import ExternalFunction
 from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
+from slither.detectors.attributes.const_functions import ConstantFunctions
 
 all_detectors = {
     'external-function': ExternalFunction,
-    'constable-states' : ConstCandidateStateVars
+    'constable-states' : ConstCandidateStateVars,
+    'constant-function': ConstantFunctions
 }
 
 patch_count = 0
@@ -28,6 +30,8 @@ def apply_detector_results(slither, detector_results):
             format_external_function(slither, result['elements'])
         elif result['check'] == 'constable-states':
             format_constable_states(slither, result['elements'])
+        elif result['check'] == 'constant-function':
+            format_constant_function(slither, result['elements'])
         else:
             print("Not Supported Yet.")
             sys.exit(-1)
@@ -61,6 +65,27 @@ def format_constable_states(slither, elements):
                + " filename: " + element['source_mapping']['filename'])
         create_patch("constable-states", element['source_mapping']['filename'], element['name'], "constant " + element['name'], element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'], patch_count)
 
+def format_constant_function(slither, elements):
+    global patch_count
+    for element in elements:
+        if element['type'] != "function":
+            # Skip variable elements
+            continue
+        patch_count += 1
+        print ("Source:"
+               + " start: " + str(element['source_mapping']['start'])
+               + " length: " + str(element['source_mapping']['length'])
+               + " filename: " + element['source_mapping']['filename'])
+        Found = False
+        for contract in slither.contracts_derived:
+            if not Found:
+                for function in contract.functions:
+                    if contract.name == element['contract']['name'] and function.name == element['name']:
+                        print("Contract name: " + contract.name)
+                        print("Function name: " + function.name)
+                        create_patch("constant-function", element['source_mapping']['filename'], ["view","pure","constant"], "", int(function.parameters_src.split(':')[0]), int(function.returns_src.split(':')[0]), patch_count)
+                        Found = True
+
 def create_patch(_detector, _in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end, _patch_count):
     print("_modify_loc_start: " + str(_modify_loc_start))
     print("_modify_loc_end: " + str(_modify_loc_end))
@@ -71,7 +96,13 @@ def create_patch(_detector, _in_file, _match_text, _replace_text, _modify_loc_st
         in_file_str = in_file.read()
         str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
         print("String of interest: " + str_of_interest)
-        (str_of_interest, num_repl) = re.subn(_match_text, _replace_text, str_of_interest, 1)
+        if not isinstance(_match_text, list):
+            (str_of_interest, num_repl) = re.subn(_match_text, _replace_text, str_of_interest, 1)
+        else:
+            for _match_text_item in _match_text:
+                (str_of_interest, num_repl) = re.subn(_match_text_item, _replace_text, str_of_interest, 1)
+                if num_repl != 0:
+                    break
         if num_repl == 0 and _detector == "external-function":
             # No visibility specifier exists; public by default.
             print("public specifier not found.")
@@ -84,6 +115,8 @@ def create_patch(_detector, _in_file, _match_text, _replace_text, _modify_loc_st
                 print("Error: No public visibility specifier exists. Regex failed to add extern specifier.")
             elif _detector == "constable-states":
                 print("Error: State variable not found?!")
+            elif _detector == "constant-function":
+                print("Error: No view/pure/constant specifier exists. Regex failed to remove specifier.")
             sys.exit(-1)
         in_file.close()
         out_file.close()
