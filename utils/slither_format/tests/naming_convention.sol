@@ -24,7 +24,8 @@ contract naming {
 
     function getOne() view public returns(uint) 
     {
-        return 1;
+      uint naming;
+      return 1;
     }
 
     function GetOne() view public returns (uint) 
@@ -48,16 +49,25 @@ contract naming {
 }
 
 contract Test {
-
+  naming n;
 }
 
 contract T {
     uint private _myPrivateVar;
     uint _myPublicVar;
 
-
+    modifier modifierTestContractTypes(naming m1) {
+      naming m2;
+      _;
+    }
+	
+    function functionTestContractTypes(naming n1) public returns(naming) {
+      naming n2;
+      return(n2);
+    }
     function test(uint _unused, uint _used) public returns(uint){
-        return _used;}
+      return _used;
+    }
 
 
     uint k = 1;
