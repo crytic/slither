@@ -105,8 +105,8 @@ def format_constant_function(slither, elements):
 
 def create_patch_naming_convention(_slither, _target, _name, _in_file, _modify_loc_start, _modify_loc_end):
     if _target == "contract":
-        contract_id = create_patch_naming_convention_contract_definition(_slither, _name, _in_file, _modify_loc_start, _modify_loc_end)
-        create_patch_naming_convention_contract_uses(_slither, _name, contract_id, _in_file)
+        create_patch_naming_convention_contract_definition(_slither, _name, _in_file, _modify_loc_start, _modify_loc_end)
+        create_patch_naming_convention_contract_uses(_slither, _name, _in_file)
     elif _target == "structure":
         pass
     elif _target == "event":
@@ -137,11 +137,7 @@ def create_patch_naming_convention_contract_definition(_slither, _name, _in_file
                 m = re.match(r'(.*)'+"contract"+r'(.*)'+_name, old_str_of_interest)
                 old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_start+m.span()[1]]
                 (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"contract"+r'(.*)'+_name, r'\1'+"contract"+r'\2'+_name.capitalize(), old_str_of_interest, 1)
-                if not num_repl:
-                    print("Error: Could not find contract?!")
-                    in_file.close()
-                    sys.exit(-1)
-                else:
+                if num_repl != 0:
                     patches.append({
                         "detector" : "naming-convention (contract definition)",
                         "start":_modify_loc_start,
@@ -150,9 +146,12 @@ def create_patch_naming_convention_contract_definition(_slither, _name, _in_file
                         "new_string":new_str_of_interest
                     })
                     in_file.close()
-            return (contract.id)
+                else:
+                    print("Error: Could not find contract?!")
+                    in_file.close()
+                    sys.exit(-1)
 
-def create_patch_naming_convention_contract_uses(_slither, _name, _id, _in_file):
+def create_patch_naming_convention_contract_uses(_slither, _name, _in_file):
     global patches
     for contract in _slither.contracts_derived:
         if contract.name != _name:
