@@ -139,15 +139,17 @@ def create_patch_naming_convention_contract_definition(_slither, _name, _in_file
                 (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"contract"+r'(.*)'+_name, r'\1'+"contract"+r'\2'+_name.capitalize(), old_str_of_interest, 1)
                 if not num_repl:
                     print("Error: Could not find contract?!")
+                    in_file.close()
                     sys.exit(-1)
-                patches.append({
-                    "detector" : "naming-convention (contract definition)",
-                    "start":_modify_loc_start,
-                    "end":_modify_loc_start+m.span()[1],
-                    "old_string":old_str_of_interest,
-                    "new_string":new_str_of_interest
-                })
-                in_file.close()
+                else:
+                    patches.append({
+                        "detector" : "naming-convention (contract definition)",
+                        "start":_modify_loc_start,
+                        "end":_modify_loc_start+m.span()[1],
+                        "old_string":old_str_of_interest,
+                        "new_string":new_str_of_interest
+                    })
+                    in_file.close()
             return (contract.id)
 
 def create_patch_naming_convention_contract_uses(_slither, _name, _id, _in_file):
