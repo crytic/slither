@@ -18,7 +18,6 @@ all_detectors = {
     'constant-function': ConstantFunctions
 }
 
-patch_count = 0
 patches = []
 
 def slither_format(args, slither):
@@ -63,10 +62,8 @@ def apply_detector_results(slither, detector_results):
             sys.exit(-1)
 
 def format_unused_state(slither, elements):
-    global patch_count
     for element in elements:
-        patch_count += 1
-        create_patch_unused_state(element['source_mapping']['filename'], element['source_mapping']['start'], patch_count)
+        create_patch_unused_state(element['source_mapping']['filename'], element['source_mapping']['start'])
     
 def format_solc_version(slither, elements):
     print("Not Supported Yet.")
@@ -75,48 +72,41 @@ def format_pragma(slither, elements):
     print("Not Supported Yet.")
     
 def format_naming_convention(slither, elements):
-    global patch_count
     for element in elements:
-        patch_count += 1
-        create_patch_naming_convention(slither, element['target'], element['name'], element['source_mapping']['filename'],element['source_mapping']['start'],element['source_mapping']['length'], patch_count)
+        create_patch_naming_convention(slither, element['target'], element['name'], element['source_mapping']['filename'],element['source_mapping']['start'],element['source_mapping']['length'])
             
 def format_external_function(slither, elements):
-    global patch_count
     for element in elements:
-        patch_count += 1
         Found = False
         for contract in slither.contracts_derived:
-            if not Found:
+            if not Found and contract.name == element['contract']['name']:
                 for function in contract.functions:
-                    if contract.name == element['contract']['name'] and function.name == element['name']:
-                        create_patch_external_function(element['source_mapping']['filename'], "public", "external", int(function.parameters_src.split(':')[0]), int(function.returns_src.split(':')[0]), patch_count)
+                    if function.name == element['name']:
+                        create_patch_external_function(element['source_mapping']['filename'], "public", "external", int(function.parameters_src.split(':')[0]), int(function.returns_src.split(':')[0]))
                         Found = True
+                        break
 
 def format_constable_states(slither, elements):
-    global patch_count
     for element in elements:
-        patch_count += 1
-        create_patch_constable_states(element['source_mapping']['filename'], element['name'], "constant " + element['name'], element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'], patch_count)
+        create_patch_constable_states(element['source_mapping']['filename'], element['name'], "constant " + element['name'], element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
 
 def format_constant_function(slither, elements):
-    global patch_count
     for element in elements:
         if element['type'] != "function":
             # Skip variable elements
             continue
-        patch_count += 1
         Found = False
         for contract in slither.contracts_derived:
             if not Found:
                 for function in contract.functions:
                     if contract.name == element['contract']['name'] and function.name == element['name']:
-                        create_patch_constant_function(element['source_mapping']['filename'], ["view","pure","constant"], "", int(function.parameters_src.split(':')[0]), int(function.returns_src.split(':')[0]), patch_count)
+                        create_patch_constant_function(element['source_mapping']['filename'], ["view","pure","constant"], "", int(function.parameters_src.split(':')[0]), int(function.returns_src.split(':')[0]))
                         Found = True
 
-def create_patch_naming_convention(_slither, _target, _name, _in_file, _modify_loc_start, _modify_loc_end, _patch_count):
+def create_patch_naming_convention(_slither, _target, _name, _in_file, _modify_loc_start, _modify_loc_end):
     if _target == "contract":
-        contract_id = create_patch_naming_convention_contract_definition(_slither, _name, _in_file, _modify_loc_start, _modify_loc_end, _patch_count)
-        create_patch_naming_convention_contract_uses(_slither, _name, contract_id, _in_file, (_patch_count+1))
+        contract_id = create_patch_naming_convention_contract_definition(_slither, _name, _in_file, _modify_loc_start, _modify_loc_end)
+        create_patch_naming_convention_contract_uses(_slither, _name, contract_id, _in_file)
     elif _target == "structure":
         pass
     elif _target == "event":
@@ -137,7 +127,7 @@ def create_patch_naming_convention(_slither, _target, _name, _in_file, _modify_l
         print("Unknown naming convention!")
         sys.exit(-1)
 
-def create_patch_naming_convention_contract_definition(_slither, _name, _in_file, _modify_loc_start, _modify_loc_end, _patch_count):
+def create_patch_naming_convention_contract_definition(_slither, _name, _in_file, _modify_loc_start, _modify_loc_end):
     global patches
     for contract in _slither.contracts_derived:
         if contract.name == _name:
@@ -160,7 +150,7 @@ def create_patch_naming_convention_contract_definition(_slither, _name, _in_file
                 in_file.close()
             return (contract.id)
 
-def create_patch_naming_convention_contract_uses(_slither, _name, _id, _in_file, _patch_count):
+def create_patch_naming_convention_contract_uses(_slither, _name, _id, _in_file):
     global patches
     for contract in _slither.contracts_derived:
         if contract.name != _name:
@@ -200,7 +190,7 @@ def create_patch_naming_convention_contract_uses(_slither, _name, _id, _in_file,
             # Ignore contract definition
             continue
     
-def create_patch_unused_state(_in_file, _modify_loc_start, _patch_count):
+def create_patch_unused_state(_in_file, _modify_loc_start):
     with open(_in_file, 'r+') as in_file:
         in_file_str = in_file.read()
         old_str_of_interest = in_file_str[_modify_loc_start:]
@@ -213,7 +203,7 @@ def create_patch_unused_state(_in_file, _modify_loc_start, _patch_count):
         })
         in_file.close()
 
-def create_patch_external_function(_in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end, _patch_count):
+def create_patch_external_function(_in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end):
     with open(_in_file, 'r+') as in_file:
         in_file_str = in_file.read()
         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
@@ -235,7 +225,7 @@ def create_patch_external_function(_in_file, _match_text, _replace_text, _modify
             in_file.close()
             sys.exit(-1)
 
-def create_patch_constant_function(_detector, _in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end, _patch_count):
+def create_patch_constant_function(_detector, _in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end):
     with open(_in_file, 'r+') as in_file:
         in_file_str = in_file.read()
         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
@@ -257,7 +247,7 @@ def create_patch_constant_function(_detector, _in_file, _match_text, _replace_te
             in_file.close()
             sys.exit(-1)
 
-def create_patch_constable_states(_in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end, _patch_count):
+def create_patch_constable_states(_in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end):
     with open(_in_file, 'r+') as in_file:
         in_file_str = in_file.read()
         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
