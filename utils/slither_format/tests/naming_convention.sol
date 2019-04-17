@@ -22,10 +22,17 @@ contract naming {
     event Event_(uint);
     event event_(uint);
 
+    function getOne(bytes32 b) view public returns(uint) {
+    }
+    
+    function getOne(uint i) view public returns(uint) {
+    }
+    
     function getOne() view public returns(uint) 
     {
       uint naming;
       naming = GetOne(naming);
+      event_(naming);
       return 1;
     }
 

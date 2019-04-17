@@ -97,7 +97,8 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     elem = dict()
                     elem['target'] = 'event'
                     elem['convention'] = 'CapWords'
-                    elem['name'] = event.name
+                    elem['name'] = event.full_name
+                    elem['contract'] = event.contract.name
                     elem['source_mapping'] = event.source_mapping
                     json['elements'] = [elem]
                     results.append(json)

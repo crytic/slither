@@ -1,5 +1,4 @@
-import sys
-import re
+import sys, re
 from slither.detectors.variables.unused_state_variables import UnusedStateVars
 from slither.detectors.attributes.incorrect_solc import IncorrectSolc
 from slither.detectors.attributes.constant_pragma import ConstantPragma
@@ -76,7 +75,7 @@ def format_pragma(slither, elements):
     
 def format_naming_convention(slither, elements):
     for element in elements:
-        if (element['target'] == "modifier" or element['target'] == "function"):
+        if (element['target'] == "modifier" or element['target'] == "function" or element['target'] == "event"):
             create_patch_naming_convention(slither, element['target'], element['name'], element['contract'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
         else:
             create_patch_naming_convention(slither, element['target'], element['name'], element['name'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
@@ -116,10 +115,11 @@ def create_patch_naming_convention(_slither, _target, _name, _contract_name, _in
     elif _target == "structure":
         pass
     elif _target == "event":
-        pass
+        create_patch_naming_convention_event_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end)
+        create_patch_naming_convention_event_calls(_slither, _name, _contract_name, _in_file)
     elif _target == "function":
         create_patch_naming_convention_function_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end)
-        create_patch_naming_convention_function_uses(_slither, _name, _contract_name, _in_file)
+        create_patch_naming_convention_function_calls(_slither, _name, _contract_name, _in_file)
     elif _target == "parameter":
         pass
     elif _target == "variable_constant":
@@ -251,6 +251,7 @@ def create_patch_naming_convention_modifier_uses(_slither, _name, _contract_name
                                 sys.exit(-1)
 
 def create_patch_naming_convention_function_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
+    # To-do Match on function full_name and not simply name to distinguish functions with same names but diff parameters
     global patches
     for contract in _slither.contracts_derived:
         if contract.name == _contract_name:
@@ -276,7 +277,8 @@ def create_patch_naming_convention_function_definition(_slither, _name, _contrac
                             in_file.close()
                             sys.exit(-1)
 
-def create_patch_naming_convention_function_uses(_slither, _name, _contract_name, _in_file):
+def create_patch_naming_convention_function_calls(_slither, _name, _contract_name, _in_file):
+    # To-do Match on function full_name and not simply name to distinguish functions with same names but diff parameters
     global patches
     for contract in _slither.contracts_derived:
         for function in contract.functions:
@@ -290,9 +292,55 @@ def create_patch_naming_convention_function_uses(_slither, _name, _contract_name
                             patches.append({
                                 "detector" : "naming-convention (function calls)",
                                 "start" : call.src.split(':')[0],
-                                "end" : call.src.split(':')[0] + call.src.split(':')[1],
+                                "end" : int(call.src.split(':')[0]) + int(call.src.split(':')[1]),
                                 "old_string" : old_str_of_interest,
                                 "new_string" : old_str_of_interest[0].lower()+old_str_of_interest[1:]
+                            })
+                            in_file.close()
+
+def create_patch_naming_convention_event_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
+    global patches
+    for contract in _slither.contracts_derived:
+        if contract.name == _contract_name:
+            for event in contract.events:
+                if event.full_name == _name:
+                    event_name = _name.split('(')[0]
+                    with open(_in_file, 'r+') as in_file:
+                        in_file_str = in_file.read()
+                        old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
+                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"event"+r'(.*)'+event_name, r'\1'+"event"+r'\2'+event_name[0].capitalize()+event_name[1:], old_str_of_interest, 1)
+                        if num_repl != 0:
+                            patches.append({
+                                "detector" : "naming-convention (event definition)",
+                                "start" : _modify_loc_start,
+                                "end" : _modify_loc_end,
+                                "old_string" : old_str_of_interest,
+                                "new_string" : new_str_of_interest
+                            })
+                            in_file.close()
+                        else:
+                            print("Error: Could not find event?!")
+                            in_file.close()
+                            sys.exit(-1)
+
+def create_patch_naming_convention_event_calls(_slither, _name, _contract_name, _in_file):
+    # To-do Match on event _name and not simply event_name to distinguish events with same names but diff parameters    
+    global patches
+    event_name = _name.split('(')[0]
+    for contract in _slither.contracts_derived:
+        for function in contract.functions:
+            for node in function.nodes:
+                for call in node.internal_calls_as_expressions:
+                    if (str(call.called) == event_name):
+                        with open(_in_file, 'r+') as in_file:
+                            in_file_str = in_file.read()
+                            old_str_of_interest = in_file_str[int(call.src.split(':')[0]):int(call.src.split(':')[0])+int(call.src.split(':')[1])]
+                            patches.append({
+                                "detector" : "naming-convention (event calls)",
+                                "start" : call.src.split(':')[0],
+                                "end" : int(call.src.split(':')[0]) + int(call.src.split(':')[1]),
+                                "old_string" : old_str_of_interest,
+                                "new_string" : old_str_of_interest[0].capitalize()+old_str_of_interest[1:]
                             })
                             in_file.close()
 
