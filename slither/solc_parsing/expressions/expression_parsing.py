@@ -295,7 +295,7 @@ def parse_call(expression, caller_context):
 
     if isinstance(called, SuperCallExpression):
         return SuperCallExpression(called, arguments, type_return)
-    return CallExpression(called, arguments, type_return)
+    return CallExpression(called, arguments, type_return, expression['src'])
 
 def parse_super_name(expression, is_compact_ast):
     if is_compact_ast:

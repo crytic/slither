@@ -115,6 +115,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     elem['target'] = 'function'
                     elem['convention'] = 'mixedCase'
                     elem['name'] = func.name
+                    elem['contract'] = func.contract.name
                     elem['source_mapping'] = func.source_mapping
                     json['elements'] = [elem]
                     results.append(json)
@@ -227,6 +228,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     elem['target'] = 'modifier'
                     elem['convention'] = 'mixedCase'
                     elem['name'] = modifier.name
+                    elem['contract'] = modifier.contract.name
                     elem['source_mapping'] = modifier.source_mapping
                     json['elements'] = [elem]
                     results.append(json)
