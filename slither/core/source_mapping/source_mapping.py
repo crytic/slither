@@ -16,7 +16,7 @@ class SourceMapping(Context):
     def _compute_line(source_code, start, length):
         """
             Compute line(s) numbers and starting/ending columns
-            from a start/end offset. All results start from 0.
+            from a start/end offset. All numbers start from 1.
 
             Not done in an efficient way
         """
