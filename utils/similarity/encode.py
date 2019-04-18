@@ -6,6 +6,7 @@ from slither.slithir.operations import *
 from slither.slithir.variables import *
 from slither.core.declarations import *
 from slither.solc_parsing.declarations.function import *
+from slither.core.solidity_types import *
 
 from slither.solc_parsing.variables.state_variable import *
 from slither.solc_parsing.variables.local_variable import *
@@ -13,18 +14,43 @@ from slither.solc_parsing.variables.local_variable_init_from_tuple import *
 
 logger = logging.getLogger("Slither-simil")
 
-def load_contracts(dirname, ext=None):
+def load_contracts(dirname, ext=None, nsamples=None):
     r = []
     walk = list(os.walk(dirname))
     for x, y, files in walk:
         for f in files: 
             if ext is None or f.endswith(ext):
                 r.append(x + "/".join(y) + "/" + f)
-    return r
+
+    if nsamples is None:
+        return r
+    else:
+        # TODO: shuffle
+        return r[:nsamples]
 
 def ntype(_type):
-    if type(_type) is not str:
+    if isinstance(_type, ElementaryType):
         _type = str(_type)
+    elif isinstance(_type, ArrayType):
+        if isinstance(_type.type, ElementaryType):
+            _type = str(_type)
+        else:
+            _type = "user_defined_array"
+    elif isinstance(_type, Structure):
+        print(_type)
+        _type = str(_type)
+    elif isinstance(_type, Enum):
+        print(_type)
+        _type = str(_type)
+    elif isinstance(_type, MappingType):
+        _type = str(_type)
+    elif isinstance(_type, UserDefinedType):
+        _type = "user_defined_type"  # TODO: this could be Contract, Enum or Struct
+    else:
+        _type = str(_type)
+
+    _type = _type.replace("_memory","")
+    _type = _type.replace("_storage_ref","")
 
     if "struct" in _type:
         return "struct"
@@ -36,8 +62,6 @@ def ntype(_type):
         return "contract"
     elif "mapping" in _type:
         return "mapping"
-    elif "." in _type or _type[0].isupper():
-        return "<name>"
     else:
         return _type.replace(" ","_")
 
@@ -46,6 +70,7 @@ def encode_ir(ir):
     if isinstance(ir, Assignment):
         return '({}):=({})'.format(encode_ir(ir.lvalue), encode_ir(ir.rvalue))
     if isinstance(ir, Index):
+        #print(type(ir._type))
         return 'index({})'.format(ntype(ir._type)) 
     if isinstance(ir, Member):
         return 'member' #.format(ntype(ir._type))
