@@ -7,7 +7,7 @@ import operator
 from fastText import train_unsupervised
 from .encode import encode_contract, load_contracts
 
-logger = logging.getLogger("crytic-pred")
+logger = logging.getLogger("Slither-simil")
 
 def train(args):
 

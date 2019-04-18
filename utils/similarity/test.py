@@ -10,7 +10,7 @@ from .encode import encode_contract, load_contracts
 from .cache import load_cache, save_cache
 from .similarity import similarity
 
-logger = logging.getLogger("crytic-pred")
+logger = logging.getLogger("Slither-simil")
 
 def test(args):
 
@@ -28,6 +28,9 @@ def test(args):
             sys.exit(-1)
 
         irs = encode_contract(filename,solc=solc)
+        if len(irs) == 0:
+            sys.exit(-1)
+
         x = "-".join([filename,contract,fname])
         y = " ".join(irs[x])
         

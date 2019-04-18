@@ -6,7 +6,7 @@ from fastText import load_model
 from .encode import encode_contract
 
 logging.basicConfig()
-logger = logging.getLogger("Slither")
+logger = logging.getLogger("Slither-simil")
 
 def info(args):
 
