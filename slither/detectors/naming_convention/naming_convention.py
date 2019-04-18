@@ -137,6 +137,8 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         elem = dict()
                         elem['target'] = 'parameter'
                         elem['convention'] = 'mixedCase'
+                        elem['function'] = argument.function.name
+                        elem['contract'] = argument.function.contract.name
                         elem['name'] = argument.name
                         elem['source_mapping'] = argument.source_mapping
                         json['elements'] = [elem]
@@ -155,6 +157,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         elem = dict()
                         elem['target'] = 'variable'
                         elem['convention'] = 'l_O_I_should_not_be_used'
+                        elem['contract'] = var.contract.name
                         elem['name'] = var.name
                         elem['source_mapping'] = var.source_mapping
                         json['elements'] = [elem]
@@ -173,6 +176,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         elem = dict()
                         elem['target'] = 'variable_constant'
                         elem['convention'] = 'UPPER_CASE_WITH_UNDERSCORES'
+                        elem['contract'] = var.contract.name
                         elem['name'] = var.name
                         elem['source_mapping'] = var.source_mapping
                         json['elements'] = [elem]

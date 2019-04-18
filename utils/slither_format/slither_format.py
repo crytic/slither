@@ -9,6 +9,7 @@ from slither.detectors.attributes.const_functions import ConstantFunctions
 from slither.slithir.operations import InternalCall
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.expression import Expression
+from slither.core.expressions.identifier import Identifier
 
 all_detectors = {
     'unused-state': UnusedStateVars, 
@@ -75,10 +76,12 @@ def format_pragma(slither, elements):
     
 def format_naming_convention(slither, elements):
     for element in elements:
-        if (element['target'] == "modifier" or element['target'] == "function" or element['target'] == "event"):
-            create_patch_naming_convention(slither, element['target'], element['name'], element['contract'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
+        if (element['target'] == "parameter"):
+            create_patch_naming_convention(slither, element['target'], element['name'], element['function'], element['contract'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
+        elif (element['target'] == "modifier" or element['target'] == "function" or element['target'] == "event"):
+            create_patch_naming_convention(slither, element['target'], element['name'], element['name'], element['contract'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
         else:
-            create_patch_naming_convention(slither, element['target'], element['name'], element['name'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
+            create_patch_naming_convention(slither, element['target'], element['name'], element['name'], element['name'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
             
 def format_external_function(slither, elements):
     for element in elements:
@@ -108,7 +111,7 @@ def format_constant_function(slither, elements):
                         create_patch_constant_function(element['source_mapping']['filename'], ["view","pure","constant"], "", int(function.parameters_src.split(':')[0]), int(function.returns_src.split(':')[0]))
                         Found = True
 
-def create_patch_naming_convention(_slither, _target, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
+def create_patch_naming_convention(_slither, _target, _name, _function_name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
     if _target == "contract":
         create_patch_naming_convention_contract_definition(_slither, _name, _in_file, _modify_loc_start, _modify_loc_end)
         create_patch_naming_convention_contract_uses(_slither, _name, _in_file)
@@ -121,7 +124,8 @@ def create_patch_naming_convention(_slither, _target, _name, _contract_name, _in
         create_patch_naming_convention_function_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end)
         create_patch_naming_convention_function_calls(_slither, _name, _contract_name, _in_file)
     elif _target == "parameter":
-        pass
+        create_patch_naming_convention_parameter_declaration(_slither, _name, _function_name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end)
+        create_patch_naming_convention_parameter_uses(_slither, _name, _function_name, _contract_name, _in_file)
     elif _target == "variable_constant":
         pass
     elif _target == "variable":
@@ -344,6 +348,68 @@ def create_patch_naming_convention_event_calls(_slither, _name, _contract_name, 
                             })
                             in_file.close()
 
+def create_patch_naming_convention_parameter_declaration(_slither, _name, _function_name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
+    global patches
+    for contract in _slither.contracts_derived:
+        if contract.name == _contract_name:
+            for function in contract.functions:
+                if function.name == _function_name:
+                    with open(_in_file, 'r+') as in_file:
+                        in_file_str = in_file.read()
+                        old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
+                        if(_name[0] == '_'):
+                            (new_str_of_interest, num_repl) = re.subn(r'(.*)'+_name+r'(.*)', r'\1'+_name[0]+_name[1].upper()+_name[2:]+r'\2', old_str_of_interest, 1)
+                        else:
+                            (new_str_of_interest, num_repl) = re.subn(r'(.*)'+_name+r'(.*)', r'\1'+'_'+_name[0].upper()+_name[1:]+r'\2', old_str_of_interest, 1)
+                        if num_repl != 0:
+                            patches.append({
+                                "detector" : "naming-convention (parameter declaration)",
+                                "start" : _modify_loc_start,
+                                "end" : _modify_loc_end,
+                                "old_string" : old_str_of_interest,
+                                "new_string" : new_str_of_interest
+                            })
+                            in_file.close()
+                        else:
+                            print("Error: Could not find parameter?!")
+                            in_file.close()
+                            sys.exit(-1)
+
+def create_patch_naming_convention_parameter_uses(_slither, _name, _function_name, _contract_name, _in_file):
+    # To-do Match on event _name and not simply event_name to distinguish events with same names but diff parameters    
+    global patches
+    event_name = _name.split('(')[0]
+    for contract in _slither.contracts_derived:
+        if (contract.name == _contract_name):
+            for function in contract.functions:
+                if (function.name == _function_name):
+                    for node in function.nodes:
+                        vars = node._expression_vars_written + node._expression_vars_read
+                        for v in vars:
+                            if isinstance(v, Identifier) and str(v) == _name and [str(lv) for lv in (node._local_vars_read+node._local_vars_written) if str(lv) == _name]:
+                                modify_loc_start = int(v.src.split(':')[0])
+                                modify_loc_end = int(v.src.split(':')[0]) + int(v.src.split(':')[1])
+                                with open(_in_file, 'r+') as in_file:
+                                    in_file_str = in_file.read()
+                                    old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                                    if(_name[0] == '_'):
+                                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+_name+r'(.*)', r'\1'+_name[0]+_name[1].upper()+_name[2:]+r'\2', old_str_of_interest, 1)
+                                    else:
+                                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+_name+r'(.*)', r'\1'+'_'+_name[0].upper()+_name[1:]+r'\2', old_str_of_interest, 1)
+                                    if num_repl != 0:
+                                        patches.append({
+                                            "detector" : "naming-convention (parameter uses)",
+                                            "start" : modify_loc_start,
+                                            "end" : modify_loc_end,
+                                            "old_string" : old_str_of_interest,
+                                            "new_string" : new_str_of_interest
+                                        })
+                                        in_file.close()
+                                    else:
+                                        print("Error: Could not find parameter?!")
+                                        in_file.close()
+                                        sys.exit(-1)
+                                
 def create_patch_unused_state(_in_file, _modify_loc_start):
     with open(_in_file, 'r+') as in_file:
         in_file_str = in_file.read()

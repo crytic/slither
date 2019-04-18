@@ -518,7 +518,7 @@ def parse_expression(expression, caller_context):
             referenced_declaration = None
         var = find_variable(value, caller_context, referenced_declaration)
 
-        identifier = Identifier(var)
+        identifier = Identifier(var, expression['src'])
         return identifier
 
     elif name == 'IndexAccess':

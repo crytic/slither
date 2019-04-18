@@ -22,6 +22,8 @@ contract naming {
     event Event_(uint);
     event event_(uint);
 
+    uint Number2;
+    
     function getOne(bytes32 b) view public returns(uint) {
     }
     
@@ -38,12 +40,12 @@ contract naming {
 
     function GetOne(uint i) view public returns (uint) 
     {
-        return 1;
+      return (1 + Number2);
     }
 
     function setInt(uint number1, uint Number2) public
     {
-
+      uint i = number1 + Number2;
     }
 
 
