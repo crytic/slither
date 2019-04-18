@@ -23,6 +23,7 @@ from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
                                         output_detectors_json, output_printers,
                                         output_to_markdown, output_wiki)
+from crytic_compile import is_supported
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -504,10 +505,7 @@ def main_impl(all_detector_classes, all_printer_classes):
 
         globbed_filenames = glob.glob(filename, recursive=True)
 
-        if os.path.isfile(filename) or\
-            os.path.isfile(os.path.join(filename, 'truffle.js')) or\
-            os.path.isfile(os.path.join(filename, 'truffle-config.js')) or\
-            os.path.isfile(os.path.join(filename, 'embark.json')):
+        if os.path.isfile(filename) or is_supported(filename):
             (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
 
         elif os.path.isdir(filename) or len(globbed_filenames) > 0:
