@@ -5,12 +5,10 @@ import logging
 import sys
 import traceback
 import operator
-import numpy as np
 
 from .info     import info
 from .test     import test
 from .train    import train
-
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -19,7 +17,7 @@ slither_simil_usage = "USAGE" # TODO
 modes = ["info", "test", "train"]
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='',
+    parser = argparse.ArgumentParser(description='Code similarity detection tool',
                                      usage=slither_simil_usage)
 
     parser.add_argument('mode',

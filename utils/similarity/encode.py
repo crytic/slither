@@ -11,6 +11,8 @@ from slither.solc_parsing.variables.state_variable import *
 from slither.solc_parsing.variables.local_variable import *
 from slither.solc_parsing.variables.local_variable_init_from_tuple import *
 
+logger = logging.getLogger("Slither-simil")
+
 def load_contracts(dirname, ext=None):
     r = []
     walk = list(os.walk(dirname))
@@ -121,7 +123,6 @@ def encode_ir(ir):
     # default
     else:
         print(type(ir),"is missing encoding!")
-        #sys.exit(1)
         return ''
  
 def encode_contract(filename, solc):
@@ -131,7 +132,7 @@ def encode_contract(filename, solc):
     try: 
         slither = Slither(filename, solc=solc)
     except:
-        print("Compilation failed")
+        logger.error("Compilation failed")
         return r
 
     # Iterate over all the contracts
@@ -152,17 +153,11 @@ def encode_contract(filename, solc):
 
                 # Iterate over the nodes of the function
                 for node in function.nodes:
-
                     # Print the Solidity expression of the nodes
                     # And the SlithIR operations
                     if node.expression:
-
-                        #print('\tSolidity expression: {}'.format(node.expression))
-                        #print('\tSlithIR:')
                         for ir in node.irs:
-                            #print(ir)
                             r[x].append(encode_ir(ir))
-                            #print('\t\t\t{}'.format(ir))
     return r
 
 
