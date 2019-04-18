@@ -15,7 +15,8 @@ setup(
         'console_scripts': [
             'slither = slither.__main__:main',
             'slither-check-upgradeability = utils.upgradeability.__main__:main',
-            'slither-find-paths = utils.possible_paths.__main__:main'
+            'slither-find-paths = utils.possible_paths.__main__:main',
+            'slither-simil = utils.similarity.__main__:main'
         ]
     }
 )
