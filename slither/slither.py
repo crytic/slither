@@ -6,7 +6,7 @@ import glob
 import json
 import platform
 
-from crytic_compile import CryticCompile
+from crytic_compile import CryticCompile, InvalidCompilation
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
@@ -55,7 +55,12 @@ class Slither(SlitherSolc):
             self._init_from_raw_json(contract)
         else:
             super(Slither, self).__init__('')
-            cryticCompile = CryticCompile(contract, **kwargs)
+            try:
+                cryticCompile = CryticCompile(contract, **kwargs)
+            except InvalidCompilation as e:
+                logger.error('Invalid compilation')
+                logger.error(e)
+                exit(-1)
             for path, ast in cryticCompile.asts.items():
                 self._parse_contracts_from_loaded_json(ast, path)
 
