@@ -15,12 +15,13 @@ def train(args):
         model_filename = args.model
         solc = args.solc
         dirname = args.input
+        ext = args.filter
 
         if dirname is None:
-            logger.error('The train mode requires the directory parameter.')
+            logger.error('The train mode requires the input parameter.')
             sys.exit(-1)
 
-        contracts = load_contracts(dirname)
+        contracts = load_contracts(dirname, ext=ext, nsamples=None)
         with open("data.txt", 'w') as f:
             for contract in contracts: 
                 for function,ir in encode_contract(contract,solc).items():
