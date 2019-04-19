@@ -78,7 +78,7 @@ def format_naming_convention(slither, elements):
     for element in elements:
         if (element['target'] == "parameter"):
             create_patch_naming_convention(slither, element['target'], element['name'], element['function'], element['contract'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
-        elif (element['target'] == "modifier" or element['target'] == "function" or element['target'] == "event"):
+        elif (element['target'] == "modifier" or element['target'] == "function" or element['target'] == "event" or element['target'] == "variable" or element['target'] == "variable_constant"):
             create_patch_naming_convention(slither, element['target'], element['name'], element['name'], element['contract'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
         else:
             create_patch_naming_convention(slither, element['target'], element['name'], element['name'], element['name'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
@@ -126,17 +126,17 @@ def create_patch_naming_convention(_slither, _target, _name, _function_name, _co
     elif _target == "parameter":
         create_patch_naming_convention_parameter_declaration(_slither, _name, _function_name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end)
         create_patch_naming_convention_parameter_uses(_slither, _name, _function_name, _contract_name, _in_file)
-    elif _target == "variable_constant":
-        pass
-    elif _target == "variable":
-        pass
+    elif _target == "variable_constant" or _target == "variable":
+        create_patch_naming_convention_state_variable_declaration(_slither, _target, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end)
+        create_patch_naming_convention_state_variable_uses(_slither, _target, _name, _contract_name, _in_file)
     elif _target == "enum":
-        pass
+        create_patch_naming_convention_enum_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end)
+        create_patch_naming_convention_enum_uses(_slither, _name, _contract_name, _in_file)
     elif _target == "modifier":
         create_patch_naming_convention_modifier_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end)
         create_patch_naming_convention_modifier_uses(_slither, _name, _contract_name, _in_file)
     else:
-        print("Unknown naming convention!")
+        print("Unknown naming convention! " + _target)
         sys.exit(-1)
 
 def create_patch_naming_convention_contract_definition(_slither, _name, _in_file, _modify_loc_start, _modify_loc_end):
@@ -376,9 +376,7 @@ def create_patch_naming_convention_parameter_declaration(_slither, _name, _funct
                             sys.exit(-1)
 
 def create_patch_naming_convention_parameter_uses(_slither, _name, _function_name, _contract_name, _in_file):
-    # To-do Match on event _name and not simply event_name to distinguish events with same names but diff parameters    
     global patches
-    event_name = _name.split('(')[0]
     for contract in _slither.contracts_derived:
         if (contract.name == _contract_name):
             for function in contract.functions:
@@ -409,7 +407,61 @@ def create_patch_naming_convention_parameter_uses(_slither, _name, _function_nam
                                         print("Error: Could not find parameter?!")
                                         in_file.close()
                                         sys.exit(-1)
-                                
+
+def create_patch_naming_convention_state_variable_declaration(_slither, _target, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
+    global patches
+    for contract in _slither.contracts_derived:
+        if (contract.name == _contract_name):
+            for var in contract.state_variables:
+                if (var.name == _name):
+                    with open(_in_file, 'r+') as in_file:
+                        in_file_str = in_file.read()
+                        old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
+                        m = re.search(_name, old_str_of_interest)
+                        if (_target == "variable_constant"):
+                            new_string = old_str_of_interest[m.span()[0]:m.span()[1]].upper()
+                        else:
+                            # To-do: Determine the new name for non-constant state variables
+                            new_string = old_str_of_interest[m.span()[0]:m.span()[1]]
+                        patches.append({
+                            "detector" : "naming-convention (state variable declaration)",
+                            "start" : _modify_loc_start+m.span()[0],
+                            "end" : _modify_loc_start+m.span()[1],
+                            "old_string" : old_str_of_interest[m.span()[0]:m.span()[1]],
+                            "new_string" : new_string
+                        })
+                        in_file.close()
+                        
+def create_patch_naming_convention_state_variable_uses(_slither, _target, _name, _contract_name, _in_file):
+    # To-do: Check cross-contract state variable uses
+    global patches
+    for contract in _slither.contracts_derived:
+        if (contract.name == _contract_name):
+            fms = contract.functions + contract.modifiers
+            for fm in fms:
+                for node in fm.nodes:
+                    vars = node._expression_vars_written + node._expression_vars_read
+                    for v in vars:
+                        if isinstance(v, Identifier) and str(v) == _name and [str(sv) for sv in (node._state_vars_read+node._state_vars_written) if str(sv) == _name]:
+                            modify_loc_start = int(v.src.split(':')[0])
+                            modify_loc_end = int(v.src.split(':')[0]) + int(v.src.split(':')[1])
+                            with open(_in_file, 'r+') as in_file:
+                                in_file_str = in_file.read()
+                                old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                                if (_target == "variable_constant"):
+                                    new_str_of_interest = old_str_of_interest.upper()
+                                else:
+                                    # To-do: Determine the new name for non-constant state variables
+                                    new_str_of_interest = old_str_of_interest
+                                patches.append({
+                                    "detector" : "naming-convention (state variable uses)",
+                                    "start" : modify_loc_start,
+                                    "end" : modify_loc_end,
+                                    "old_string" : old_str_of_interest,
+                                    "new_string" : new_str_of_interest
+                                })
+                                in_file.close()
+
 def create_patch_unused_state(_in_file, _modify_loc_start):
     with open(_in_file, 'r+') as in_file:
         in_file_str = in_file.read()

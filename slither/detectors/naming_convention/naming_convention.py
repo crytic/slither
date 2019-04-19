@@ -195,6 +195,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         elem = dict()
                         elem['target'] = 'variable'
                         elem['convention'] = 'mixedCase'
+                        elem['contract'] = var.contract.name
                         elem['name'] = var.name
                         elem['source_mapping'] = var.source_mapping
                         json['elements'] = [elem]

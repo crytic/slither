@@ -8,8 +8,7 @@ contract naming {
     uint constant MY_CONSTANT = 1;
     uint constant MY_other_CONSTANT = 2;
 
-    uint Var_One = 1;
-    uint varTwo = 2;
+    uint Var_One = 1; uint varTwo = 2;
 
     struct test {
         uint a;
@@ -25,9 +24,13 @@ contract naming {
     uint Number2;
     
     function getOne(bytes32 b) view public returns(uint) {
+      return MY_other_CONSTANT;
     }
     
     function getOne(uint i) view public returns(uint) {
+      numbers nums;
+      nums = numbers.ONE;
+      return(nums);      
     }
     
     function getOne() view public returns(uint) 
