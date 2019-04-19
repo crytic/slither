@@ -11,7 +11,7 @@ from .test     import test
 from .train    import train
 
 logging.basicConfig()
-logger = logging.getLogger("Slither")
+logger = logging.getLogger("Slither-simil")
 
 slither_simil_usage = "USAGE" # TODO 
 modes = ["info", "test", "train"]

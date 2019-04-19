@@ -19,4 +19,4 @@ def load_cache(infile, model, ext=None, solc='solc'):
     return cache
 
 def save_cache(cache, outfile):
-    np.savez(outfile,[np.array(list(cache.items()))])
+    np.savez(outfile,[np.array(cache)])

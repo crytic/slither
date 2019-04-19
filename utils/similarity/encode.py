@@ -172,7 +172,7 @@ def encode_contract(filename, solc):
                 if function.nodes == []:
                     continue
 
-                x = "-".join([filename,contract.name,function.name]) 
+                x = (filename,contract.name,function.name) 
 
                 r[x] = []
 
