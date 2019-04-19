@@ -51,6 +51,12 @@ def parse_args():
                         dest='fname',
                         help='Function name')
 
+    parser.add_argument('--nsamples',
+                        action='store',
+                        type=int,
+                        dest='nsamples',
+                        help='Number of contract samples used for training')
+
     parser.add_argument('--input',
                         action='store',
                         dest='input',
