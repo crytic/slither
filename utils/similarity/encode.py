@@ -49,8 +49,8 @@ def ntype(_type):
     else:
         _type = str(_type)
 
-    _type = _type.replace("_memory","")
-    _type = _type.replace("_storage_ref","")
+    _type = _type.replace(" memory","")
+    _type = _type.replace(" storage ref","")
 
     if "struct" in _type:
         return "struct"
