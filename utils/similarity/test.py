@@ -23,6 +23,7 @@ def test(args):
         solc = args.solc
         infile = args.input
         ext = args.filter
+
         if filename is None or contract is None or fname is None or infile is None:
             logger.error('The test mode requires filename, contract, fname and input parameters.')
             sys.exit(-1)
@@ -31,8 +32,7 @@ def test(args):
         if len(irs) == 0:
             sys.exit(-1)
 
-        x = "-".join([filename,contract,fname])
-        y = " ".join(irs[x])
+        y = " ".join(irs[(filename,contract,fname)])
         
         fvector = model.get_sentence_vector(y)
         cache = load_cache(infile, model, ext=ext, solc=solc)
