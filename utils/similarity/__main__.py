@@ -9,12 +9,13 @@ import operator
 from .info     import info
 from .test     import test
 from .train    import train
+from .plot     import plot
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-simil")
 
 slither_simil_usage = "USAGE" # TODO 
-modes = ["info", "test", "train"]
+modes = ["info", "test", "train", "plot"]
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Code similarity detection tool',
@@ -57,6 +58,13 @@ def parse_args():
                         dest='nsamples',
                         help='Number of contract samples used for training')
 
+    parser.add_argument('--ntop',
+                        action='store',
+                        type=int,
+                        dest='ntop',
+                        default=10,
+                        help='Number of more similar contracts to show for testing')
+
     parser.add_argument('--input',
                         action='store',
                         dest='input',
@@ -96,6 +104,8 @@ def main():
             train(args) 
         elif mode == "test":
             test(args)
+        elif mode == "plot":
+            plot(args)
         else:
             logger.error('Invalid mode!. It should be one of these: %s' % ", ".join(modes))
             sys.exit(-1)
