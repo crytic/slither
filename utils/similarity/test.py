@@ -23,6 +23,7 @@ def test(args):
         solc = args.solc
         infile = args.input
         ext = args.filter
+        ntop = args.ntop
 
         if filename is None or contract is None or fname is None or infile is None:
             logger.error('The test mode requires filename, contract, fname and input parameters.')
@@ -43,7 +44,7 @@ def test(args):
             r[x] = similarity(fvector, y)
 
         r = sorted(r.items(), key=operator.itemgetter(1), reverse=True)
-        for x,score in r[:10]:
+        for x,score in r[:ntop]:
             print(x,score)
 
     except Exception:
