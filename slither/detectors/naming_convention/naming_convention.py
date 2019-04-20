@@ -81,10 +81,12 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     elem = dict()
                     elem['target'] = 'structure'
                     elem['convention'] = 'CapWords'
+                    elem['contract'] = struct.contract.name
                     elem['name'] = struct.name
                     elem['source_mapping'] = struct.source_mapping
                     json['elements'] = [elem]
                     results.append(json)
+
             for event in contract.events:
                 if event.contract != contract:
                     continue
@@ -213,6 +215,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     elem = dict()
                     elem['target'] = 'enum'
                     elem['convention'] = 'CapWords'
+                    elem['contract'] = enum.contract.name
                     elem['name'] = enum.name
                     elem['source_mapping'] = enum.source_mapping
                     json['elements'] = [elem]

@@ -78,7 +78,7 @@ def format_naming_convention(slither, elements):
     for element in elements:
         if (element['target'] == "parameter"):
             create_patch_naming_convention(slither, element['target'], element['name'], element['function'], element['contract'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
-        elif (element['target'] == "modifier" or element['target'] == "function" or element['target'] == "event" or element['target'] == "variable" or element['target'] == "variable_constant"):
+        elif (element['target'] == "modifier" or element['target'] == "function" or element['target'] == "event" or element['target'] == "variable" or element['target'] == "variable_constant" or element['target'] == "enum" or element['target'] == "structure"):
             create_patch_naming_convention(slither, element['target'], element['name'], element['name'], element['contract'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
         else:
             create_patch_naming_convention(slither, element['target'], element['name'], element['name'], element['name'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
@@ -116,7 +116,8 @@ def create_patch_naming_convention(_slither, _target, _name, _function_name, _co
         create_patch_naming_convention_contract_definition(_slither, _name, _in_file, _modify_loc_start, _modify_loc_end)
         create_patch_naming_convention_contract_uses(_slither, _name, _in_file)
     elif _target == "structure":
-        pass
+        create_patch_naming_convention_struct_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end)
+        create_patch_naming_convention_struct_uses(_slither, _name, _contract_name, _in_file)
     elif _target == "event":
         create_patch_naming_convention_event_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end)
         create_patch_naming_convention_event_calls(_slither, _name, _contract_name, _in_file)
@@ -461,6 +462,128 @@ def create_patch_naming_convention_state_variable_uses(_slither, _target, _name,
                                     "new_string" : new_str_of_interest
                                 })
                                 in_file.close()
+
+def create_patch_naming_convention_enum_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
+    global patches
+    for contract in _slither.contracts_derived:
+        if (contract.name == _contract_name):
+            for enum in contract.enums:
+                if (enum.name == _name):
+                    with open(_in_file, 'r+') as in_file:
+                        in_file_str = in_file.read()
+                        old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
+                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"enum"+r'(.*)'+_name, r'\1'+"enum"+r'\2'+_name[0].capitalize()+_name[1:], old_str_of_interest, 1)
+                        if num_repl != 0:
+                            patches.append({
+                                "detector" : "naming-convention (enum definition)",
+                                "start" : _modify_loc_start,
+                                "end" : _modify_loc_end,
+                                "old_string" : old_str_of_interest,
+                                "new_string" : new_str_of_interest
+                            })
+                            in_file.close()
+                        else:
+                            print("Error: Could not find enum?!")
+                            in_file.close()
+                            sys.exit(-1)
+
+def create_patch_naming_convention_enum_uses(_slither, _name, _contract_name, _in_file):
+    global patches
+    for contract in _slither.contracts_derived:
+        with open(_in_file, 'r+') as in_file:
+            in_file_str = in_file.read()
+            # Check state variables of enum type
+            # To-do: Deep-check aggregate types (struct and mapping)
+            svs = contract.variables
+            for sv in svs:
+                if (str(sv.type) == _contract_name + "." + _name):
+                    old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
+                    (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 2)
+                    patches.append({
+                        "detector" : "naming-convention (enum use)",
+                        "start" : contract.get_source_var_declaration(sv.name)['start'],
+                        "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
+                        "old_string" : old_str_of_interest,
+                        "new_string" : new_str_of_interest
+                    })
+            # Check function+modifier locals+parameters+returns
+            # To-do: Deep-check aggregate types (struct and mapping)
+            fms = contract.functions + contract.modifiers
+            for fm in fms:
+                for v in fm.variables:
+                    if (str(v.type) == _contract_name + "." + _name):
+                        old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
+                        (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 2)
+                        patches.append({
+                            "detector" : "naming-convention (enum use)",
+                            "start" : fm.get_source_var_declaration(v.name)['start'],
+                            "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
+                            "old_string" : old_str_of_interest,
+                            "new_string" : new_str_of_interest
+                        })
+            # To-do: enums used as variables in expressions
+            # To-do: Check any other place where enum type is used
+
+def create_patch_naming_convention_struct_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
+    global patches
+    for contract in _slither.contracts_derived:
+        if (contract.name == _contract_name):
+            for struct in contract.structures:
+                if (struct.name == _name):
+                    with open(_in_file, 'r+') as in_file:
+                        in_file_str = in_file.read()
+                        old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
+                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"struct"+r'(.*)'+_name, r'\1'+"struct"+r'\2'+_name[0].capitalize()+_name[1:], old_str_of_interest, 1)
+                        if num_repl != 0:
+                            patches.append({
+                                "detector" : "naming-convention (struct definition)",
+                                "start" : _modify_loc_start,
+                                "end" : _modify_loc_end,
+                                "old_string" : old_str_of_interest,
+                                "new_string" : new_str_of_interest
+                            })
+                            in_file.close()
+                        else:
+                            print("Error: Could not find struct?!")
+                            in_file.close()
+                            sys.exit(-1)
+    
+def create_patch_naming_convention_struct_uses(_slither, _name, _contract_name, _in_file):
+    global patches
+    for contract in _slither.contracts_derived:
+        with open(_in_file, 'r+') as in_file:
+            in_file_str = in_file.read()
+            # Check state variables of struct type
+            # To-do: Deep-check aggregate types (struct and mapping)
+            svs = contract.variables
+            for sv in svs:
+                if (str(sv.type) == _contract_name + "." + _name):
+                    old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
+                    (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 2)
+                    patches.append({
+                        "detector" : "naming-convention (struct use)",
+                        "start" : contract.get_source_var_declaration(sv.name)['start'],
+                        "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
+                        "old_string" : old_str_of_interest,
+                        "new_string" : new_str_of_interest
+                    })
+            # Check function+modifier locals+parameters+returns
+            # To-do: Deep-check aggregate types (struct and mapping)
+            fms = contract.functions + contract.modifiers
+            for fm in fms:
+                for v in fm.variables:
+                    if (str(v.type) == _contract_name + "." + _name):
+                        old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
+                        (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 2)
+                        patches.append({
+                            "detector" : "naming-convention (struct use)",
+                            "start" : fm.get_source_var_declaration(v.name)['start'],
+                            "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
+                            "old_string" : old_str_of_interest,
+                            "new_string" : new_str_of_interest
+                        })
+            # To-do: structs used as variables in expressions
+            # To-do: Check any other place where struct type is used
 
 def create_patch_unused_state(_in_file, _modify_loc_start):
     with open(_in_file, 'r+') as in_file:

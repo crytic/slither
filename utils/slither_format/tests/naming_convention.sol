@@ -5,6 +5,8 @@ contract naming {
     enum Numbers {ONE, TWO}
     enum numbers {ONE, TWO}
 
+    numbers nums = numbers.TWO;
+   
     uint constant MY_CONSTANT = 1;
     uint constant MY_other_CONSTANT = 2;
 
@@ -18,6 +20,8 @@ contract naming {
         uint a;
     }
 
+    test t;
+    
     event Event_(uint);
     event event_(uint);
 
@@ -27,7 +31,9 @@ contract naming {
       return MY_other_CONSTANT;
     }
     
-    function getOne(uint i) view public returns(uint) {
+    function getOne(uint i) view public returns(numbers) {
+      test t;
+      uint j = t.a;
       numbers nums;
       nums = numbers.ONE;
       return(nums);      
