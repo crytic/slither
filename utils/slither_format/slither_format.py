@@ -68,19 +68,25 @@ def apply_detector_results(slither, detector_results):
 def format_unused_state(slither, elements):
     for element in elements:
         create_patch_unused_state(element['source_mapping']['filename'], element['source_mapping']['start'])
-    
+        
 def format_solc_version(slither, elements):
-    print("Not Supported Yet.")
-    
+    # To-do: Determine which solc version to replace with
+    # If < 0.4.24 replace with 0.4.25?
+    # If > 0.5.0 replace with the latest 0.5.x?
+    solc_version_replace = "pragma solidity 0.4.25;"
+    for element in elements:
+        print("Solc version format: " + str(element))
+        create_patch_solc_version(element['source_mapping']['filename'], solc_version_replace, element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
+
 def format_pragma(slither, elements):
     versions_used = []
     for element in elements:
         versions_used.append(element['expression'])
     # To-do Determine which version to replace with
     # The more recent of the two? What if they are the older deprecated versions? Replace it with the latest?
-    # Impact of upgrading and compatibility? Cannot upgrade to breaking versions e.g. 0.4.x to 0.5.x.
-    version_replace = "^0.4.25"
-    pragma = "pragma solidity " + version_replace + ";"
+    # Impact of upgrading and compatibility? Cannot upgrade across breaking versions e.g. 0.4.x to 0.5.x.
+    solc_version_replace = "^0.4.25"
+    pragma = "pragma solidity " + solc_version_replace + ";"
     for element in elements:
         create_patch_different_pragma(element['source_mapping']['filename'], pragma, element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
     
@@ -707,6 +713,21 @@ def create_patch_different_pragma(_in_file, pragma, _modify_loc_start, _modify_l
         })
         in_file.close()
 
+def create_patch_solc_version(_in_file, _solc_version, _modify_loc_start, _modify_loc_end):
+ with open(_in_file, 'r+') as in_file:
+        in_file_str = in_file.read()
+        old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
+        print("Old str: " + old_str_of_interest)
+        patches.append({
+            "detector" : "solc-version",
+	    "start" : _modify_loc_start,
+	    "end" : _modify_loc_end,
+	    "old_string" : old_str_of_interest,
+	    "new_string" : _solc_version,
+            "patch_file" : _in_file
+        })
+        in_file.close()
+    
 def choose_detectors(args):
     # If detectors are specified, run only these ones
     detectors_to_run = []
