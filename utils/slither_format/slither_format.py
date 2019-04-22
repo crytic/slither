@@ -33,8 +33,19 @@ def slither_format(args, slither):
     detector_results = [item for sublist in detector_results for item in sublist]  # flatten
     results.extend(detector_results)
     apply_detector_results(slither, detector_results)
+    sort_patches()
     print_patches()
-
+    apply_patches()
+    
+def sort_patches():
+    n = len(patches)
+    for i in range(n):
+        for j in range (0,n-i-1):
+            if int(patches[j]['start']) >= int(patches[j+1]['end']):
+                temp = patches[j+1]
+                patches[j+1] = patches[j]
+                patches[j] = temp
+    
 def print_patches():
     global patches
     for patch in patches:
@@ -44,7 +55,36 @@ def print_patches():
         print("Location start: " + str(patch['start']))
         print("Location end: " + str(patch['end']))
         print("Patch file: " + str(patch['patch_file']))
-        
+
+def apply_patches():
+    global patches
+    # Assuming all patches are applicable to the same file for now
+    # To-do Classify patches according to patch_file
+    _in_file = patches[0]['patch_file']
+    with open(_in_file, 'r+') as in_file:
+        in_file_str = in_file.read()
+        out_file_str = ""
+        for i in range(len(patches)):
+            if patches[i]['patch_file'] != _in_file:
+                continue
+            if i != 0:
+                out_file_str += in_file_str[int(patches[i-1]['end']):int(patches[i]['start'])]
+            else:
+                out_file_str += in_file_str[:int(patches[i]['start'])]
+            out_file_str += patches[i]['new_string']
+        out_file_str += in_file_str[int(patches[i]['end']):]
+        out_file = open(_in_file+".format",'w')
+        out_file.write(out_file_str)
+        out_file.close()
+    
+    for patch in patches:
+        print("Detector: " + patch['detector'])
+        print("Old string: " + patch['old_string'])
+        print("New string: " + patch['new_string'])
+        print("Location start: " + str(patch['start']))
+        print("Location end: " + str(patch['end']))
+        print("Patch file: " + str(patch['patch_file']))
+
 def apply_detector_results(slither, detector_results):
     for result in detector_results:
         if result['check'] == 'unused-state':
