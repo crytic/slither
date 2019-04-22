@@ -198,7 +198,8 @@ def create_patch_naming_convention_contract_uses(_slither, _name, _in_file):
                             "start" : contract.get_source_var_declaration(sv.name)['start'],
                             "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
                             "old_string" : old_str_of_interest,
-                            "new_string" : new_str_of_interest
+                            "new_string" : new_str_of_interest,
+                            "patch_file" : _in_file
                         })
                 # Check function+modifier locals+parameters+returns
                 # To-do: Deep-check aggregate types (struct and mapping)
@@ -552,7 +553,8 @@ def create_patch_naming_convention_enum_uses(_slither, _name, _contract_name, _i
                             "new_string" : new_str_of_interest,
                             "patch_file" : _in_file
                         })
-                # To-do Capture Enum uses below
+                # To-do Capture Enum uses such as "num = numbers.ONE;"
+                # where numbers is not captured by slither as a variable/value on the RHS
             # To-do: Check any other place/way where enum type is used
 
 def create_patch_naming_convention_struct_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):

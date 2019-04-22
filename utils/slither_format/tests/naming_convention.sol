@@ -32,11 +32,9 @@ contract naming {
     }
     
     function getOne(uint i) view public returns(numbers) {
-      test t;
-      uint j = t.a;
-      numbers nums;
-      nums = numbers.ONE;
-      return(nums);      
+      numbers num;
+      num = numbers.ONE;
+      return(num);      
     }
     
     function getOne() view public returns(uint) 
