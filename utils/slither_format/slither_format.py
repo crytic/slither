@@ -272,18 +272,18 @@ def create_patch_naming_convention_modifier_definition(_slither, _name, _contrac
                         m = re.match(r'(.*)'+"modifier"+r'(.*)'+_name, old_str_of_interest)
                         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_start+m.span()[1]]
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"modifier"+r'(.*)'+_name, r'\1'+"modifier"+r'\2'+_name[0].lower()+_name[1:], old_str_of_interest, 1)
-                if num_repl != 0:
-                    patches.append({
-                        "detector" : "naming-convention (modifier definition)",
-                        "start" : _modify_loc_start,
-                        "end" : _modify_loc_start+m.span()[1],
-                        "old_string" : old_str_of_interest,
-                        "new_string" : new_str_of_interest,
-                        "patch_file" : _in_file
-                    })
-                else:
-                    print("Error: Could not find modifier?!")
-                    sys.exit(-1)
+                        if num_repl != 0:
+                            patches.append({
+                                "detector" : "naming-convention (modifier definition)",
+                                "start" : _modify_loc_start,
+                                "end" : _modify_loc_start+m.span()[1],
+                                "old_string" : old_str_of_interest,
+                                "new_string" : new_str_of_interest,
+                                "patch_file" : _in_file
+                            })
+                        else:
+                            print("Error: Could not find modifier?!")
+                            sys.exit(-1)
 
 def create_patch_naming_convention_modifier_uses(_slither, _name, _contract_name, _in_file):
     global patches
