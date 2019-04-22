@@ -75,7 +75,6 @@ def format_solc_version(slither, elements):
     # If > 0.5.0 replace with the latest 0.5.x?
     solc_version_replace = "pragma solidity 0.4.25;"
     for element in elements:
-        print("Solc version format: " + str(element))
         create_patch_solc_version(element['source_mapping']['filename'], solc_version_replace, element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
 
 def format_pragma(slither, elements):
@@ -717,7 +716,6 @@ def create_patch_solc_version(_in_file, _solc_version, _modify_loc_start, _modif
  with open(_in_file, 'r+') as in_file:
         in_file_str = in_file.read()
         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
-        print("Old str: " + old_str_of_interest)
         patches.append({
             "detector" : "solc-version",
 	    "start" : _modify_loc_start,
