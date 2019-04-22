@@ -214,10 +214,8 @@ def create_patch_naming_convention_contract_definition(_slither, _name, _in_file
                         "new_string":new_str_of_interest,
                         "patch_file" : _in_file
                     })
-                    in_file.close()
                 else:
                     print("Error: Could not find contract?!")
-                    in_file.close()
                     sys.exit(-1)
 
 def create_patch_naming_convention_contract_uses(_slither, _name, _in_file):
@@ -283,10 +281,8 @@ def create_patch_naming_convention_modifier_definition(_slither, _name, _contrac
                         "new_string" : new_str_of_interest,
                         "patch_file" : _in_file
                     })
-                    in_file.close()
                 else:
                     print("Error: Could not find modifier?!")
-                    in_file.close()
                     sys.exit(-1)
 
 def create_patch_naming_convention_modifier_uses(_slither, _name, _contract_name, _in_file):
@@ -309,10 +305,8 @@ def create_patch_naming_convention_modifier_uses(_slither, _name, _contract_name
                                     "new_string" : new_str_of_interest,
                                     "patch_file" : _in_file
                                 })
-                                in_file.close()
                             else:
                                 print("Error: Could not find modifier name?!")
-                                in_file.close()
                                 sys.exit(-1)
 
 def create_patch_naming_convention_function_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
@@ -337,10 +331,8 @@ def create_patch_naming_convention_function_definition(_slither, _name, _contrac
                                 "new_string" : new_str_of_interest,
                                 "patch_file" : _in_file
                             })
-                            in_file.close()
                         else:
                             print("Error: Could not find function?!")
-                            in_file.close()
                             sys.exit(-1)
 
 def create_patch_naming_convention_function_calls(_slither, _name, _contract_name, _in_file):
@@ -363,7 +355,6 @@ def create_patch_naming_convention_function_calls(_slither, _name, _contract_nam
                                 "new_string" : old_str_of_interest[0].lower()+old_str_of_interest[1:],
                                 "patch_file" : _in_file
                             })
-                            in_file.close()
 
 def create_patch_naming_convention_event_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
     global patches
@@ -385,10 +376,8 @@ def create_patch_naming_convention_event_definition(_slither, _name, _contract_n
                                 "new_string" : new_str_of_interest,
                                 "patch_file" : _in_file
                             })
-                            in_file.close()
                         else:
                             print("Error: Could not find event?!")
-                            in_file.close()
                             sys.exit(-1)
 
 def create_patch_naming_convention_event_calls(_slither, _name, _contract_name, _in_file):
@@ -411,7 +400,6 @@ def create_patch_naming_convention_event_calls(_slither, _name, _contract_name, 
                                 "new_string" : old_str_of_interest[0].capitalize()+old_str_of_interest[1:],
                                 "patch_file" : _in_file
                             })
-                            in_file.close()
 
 def create_patch_naming_convention_parameter_declaration(_slither, _name, _function_name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
     global patches
@@ -435,10 +423,8 @@ def create_patch_naming_convention_parameter_declaration(_slither, _name, _funct
                                 "new_string" : new_str_of_interest,
                                 "patch_file" : _in_file
                             })
-                            in_file.close()
                         else:
                             print("Error: Could not find parameter?!")
-                            in_file.close()
                             sys.exit(-1)
 
 def create_patch_naming_convention_parameter_uses(_slither, _name, _function_name, _contract_name, _in_file):
@@ -469,10 +455,8 @@ def create_patch_naming_convention_parameter_uses(_slither, _name, _function_nam
                                             "new_string" : new_str_of_interest,
                                             "patch_file" : _in_file
                                         })
-                                        in_file.close()
                                     else:
                                         print("Error: Could not find parameter?!")
-                                        in_file.close()
                                         sys.exit(-1)
 
 def create_patch_naming_convention_state_variable_declaration(_slither, _target, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
@@ -498,7 +482,6 @@ def create_patch_naming_convention_state_variable_declaration(_slither, _target,
                             "new_string" : new_string,
                             "patch_file" : _in_file
                         })
-                        in_file.close()
                         
 def create_patch_naming_convention_state_variable_uses(_slither, _target, _name, _contract_name, _in_file):
     # To-do: Check cross-contract state variable uses
@@ -529,7 +512,6 @@ def create_patch_naming_convention_state_variable_uses(_slither, _target, _name,
                                     "new_string" : new_str_of_interest,
                                     "patch_file" : _in_file
                                 })
-                                in_file.close()
 
 def create_patch_naming_convention_enum_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
     global patches
@@ -550,10 +532,8 @@ def create_patch_naming_convention_enum_definition(_slither, _name, _contract_na
                                 "new_string" : new_str_of_interest,
                                 "patch_file" : _in_file
                             })
-                            in_file.close()
                         else:
                             print("Error: Could not find enum?!")
-                            in_file.close()
                             sys.exit(-1)
 
 def create_patch_naming_convention_enum_uses(_slither, _name, _contract_name, _in_file):
@@ -616,10 +596,8 @@ def create_patch_naming_convention_struct_definition(_slither, _name, _contract_
                                 "new_string" : new_str_of_interest,
                                 "patch_file" : _in_file
                             })
-                            in_file.close()
                         else:
                             print("Error: Could not find struct?!")
-                            in_file.close()
                             sys.exit(-1)
     
 def create_patch_naming_convention_struct_uses(_slither, _name, _contract_name, _in_file):
@@ -672,7 +650,6 @@ def create_patch_unused_state(_in_file, _modify_loc_start):
             "new_string" : "",
             "patch_file" : _in_file
         })
-        in_file.close()
 
 def create_patch_external_function(_in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end):
     with open(_in_file, 'r+') as in_file:
@@ -691,10 +668,8 @@ def create_patch_external_function(_in_file, _match_text, _replace_text, _modify
                 "new_string" : new_str_of_interest,
                 "patch_file" : _in_file
             })
-            in_file.close()
         else:
             print("Error: No public visibility specifier exists. Regex failed to add extern specifier!")
-            in_file.close()
             sys.exit(-1)
 
 def create_patch_constant_function(_detector, _in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end):
@@ -714,10 +689,8 @@ def create_patch_constant_function(_detector, _in_file, _match_text, _replace_te
                 "new_string" : new_str_of_interest,
                 "patch_file" : _in_file
             })
-            in_file.close()
         else:
             print("Error: No view/pure/constant specifier exists. Regex failed to remove specifier!")
-            in_file.close()
             sys.exit(-1)
 
 def create_patch_constable_states(_in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end):
@@ -734,10 +707,8 @@ def create_patch_constable_states(_in_file, _match_text, _replace_text, _modify_
                 "new_string" : new_str_of_interest,
                 "patch_file" : _in_file
             })
-            in_file.close()
         else:
             print("Error: State variable not found?!")
-            in_file.close()
             sys.exit(-1)
 
 def create_patch_different_pragma(_in_file, pragma, _modify_loc_start, _modify_loc_end):
@@ -752,7 +723,6 @@ def create_patch_different_pragma(_in_file, pragma, _modify_loc_start, _modify_l
 	    "new_string" : pragma,
             "patch_file" : _in_file
         })
-        in_file.close()
 
 def create_patch_solc_version(_in_file, _solc_version, _modify_loc_start, _modify_loc_end):
  with open(_in_file, 'r+') as in_file:
@@ -766,7 +736,6 @@ def create_patch_solc_version(_in_file, _solc_version, _modify_loc_start, _modif
 	    "new_string" : _solc_version,
             "patch_file" : _in_file
         })
-        in_file.close()
     
 def choose_detectors(args):
     # If detectors are specified, run only these ones
