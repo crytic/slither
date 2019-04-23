@@ -34,7 +34,8 @@ def slither_format(args, slither):
     results.extend(detector_results)
     apply_detector_results(slither, detector_results)
     sort_patches()
-    print_patches()
+    if args.verbose:
+        print_patches()
     apply_patches()
     
 def sort_patches():
@@ -77,14 +78,6 @@ def apply_patches():
         out_file.write(out_file_str)
         out_file.close()
     
-    for patch in patches:
-        print("Detector: " + patch['detector'])
-        print("Old string: " + patch['old_string'])
-        print("New string: " + patch['new_string'])
-        print("Location start: " + str(patch['start']))
-        print("Location end: " + str(patch['end']))
-        print("Patch file: " + str(patch['patch_file']))
-
 def apply_detector_results(slither, detector_results):
     for result in detector_results:
         if result['check'] == 'unused-state':

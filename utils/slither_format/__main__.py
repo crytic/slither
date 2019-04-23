@@ -19,11 +19,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description='slither_format',
                                      usage='slither_format filename')
 
-    parser.add_argument('filename',
-                        help='The filename of the contract or truffle directory to analyze.')
-
+    parser.add_argument('filename', help='The filename of the contract or truffle directory to analyze.')
     parser.add_argument('--solc', help='solc path', default='solc')
-
+    parser.add_argument('--verbose', '-v', help='verbose mode output',action='store_true',default=False)
+    
     group_detector = parser.add_argument_group('Detectors')
     group_detector.add_argument('--detect',
                                 help='Comma-separated list of detectors, defaults to all, '
@@ -48,6 +47,5 @@ def main():
 
     # Format the input files based on slither analysis
     slither_format(args, slither)
-
 if __name__ == '__main__':
     main()
