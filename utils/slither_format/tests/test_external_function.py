@@ -34,7 +34,8 @@ class TestExternalFunctions(unittest.TestCase):
         for i in range(len(outFD1_lines)):
             outFD1_lines[i] = outFD1_lines[i].strip()
         self.assertTrue(os.path.isfile(self.testFilePath1+".format"),"Patched .format file is not created?!")
-        self.assertEqual(outFD1_lines[0],"Number of patches: 6")
+        self.assertEqual(outFD1_lines[0],"Number of Slither results: 6")
+        self.assertEqual(outFD1_lines[1],"Number of patches: 6")
         self.assertEqual(outFD1_lines.count("Detector: external-function"), 6)
         self.assertEqual(outFD1_lines.count("Old string: (uint _i)    public returns"), 1)
         self.assertEqual(outFD1_lines.count("New string: (uint _i)    external returns"), 1)
@@ -63,7 +64,8 @@ class TestExternalFunctions(unittest.TestCase):
         for i in range(len(outFD2_lines)):
             outFD2_lines[i] = outFD2_lines[i].strip()
         self.assertFalse(os.path.isfile(self.testFilePath2+".format"),"Patched .format file _is_ created?!")
-        self.assertEqual(outFD2_lines[0],"Number of patches: 0")
+        self.assertEqual(outFD2_lines[0],"Number of Slither results: 0")
+        self.assertEqual(outFD2_lines[1],"Number of patches: 0")
         outFD2.close()
         
 if __name__ == '__main__':

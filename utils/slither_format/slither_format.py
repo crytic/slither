@@ -35,6 +35,7 @@ def slither_format(args, slither):
     apply_detector_results(slither, detector_results)
     sort_patches()
     if args.verbose:
+        print("Number of Slither results: " + str(len(detector_results)))
         print_patches()
     apply_patches()
     
@@ -666,7 +667,7 @@ def create_patch_external_function(_in_file, _match_text, _replace_text, _modify
             print("Error: No public visibility specifier exists. Regex failed to add extern specifier!")
             sys.exit(-1)
 
-def create_patch_constant_function(_detector, _in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end):
+def create_patch_constant_function(_in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end):
     with open(_in_file, 'r+') as in_file:
         in_file_str = in_file.read()
         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]

@@ -24,7 +24,8 @@ class TestUnusedStateVars(unittest.TestCase):
         for i in range(len(outFD_lines)):
             outFD_lines[i] = outFD_lines[i].strip()
         self.assertTrue(os.path.isfile(self.testFilePath+".format"),"Patched .format file is not created?!")
-        self.assertEqual(outFD_lines[0].rstrip(),"Number of patches: 1")
+        self.assertEqual(outFD_lines[0].rstrip(),"Number of Slither results: 1")
+        self.assertEqual(outFD_lines[1].rstrip(),"Number of patches: 1")
         self.assertEqual(outFD_lines.count("Detector: unused-state"), 1)
         self.assertEqual(outFD_lines.count("Old string: address unused    ;"), 1)
         self.assertEqual(outFD_lines.count("New string:"), 1)
