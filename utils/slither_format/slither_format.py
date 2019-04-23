@@ -49,10 +49,11 @@ def sort_patches():
     
 def print_patches():
     global patches
+    print("Number of patches: " + str(len(patches)))
     for patch in patches:
         print("Detector: " + patch['detector'])
-        print("Old string: " + patch['old_string'])
-        print("New string: " + patch['new_string'])
+        print("Old string: " + patch['old_string'].replace("\n",""))
+        print("New string: " + patch['new_string'].replace("\n",""))
         print("Location start: " + str(patch['start']))
         print("Location end: " + str(patch['end']))
         print("Patch file: " + str(patch['patch_file']))
