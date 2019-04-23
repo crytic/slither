@@ -32,13 +32,21 @@ def slither_format(args, slither):
     detector_results = [x for x in detector_results if x]  # remove empty results
     detector_results = [item for sublist in detector_results for item in sublist]  # flatten
     results.extend(detector_results)
+    number_of_slither_results = get_number_of_slither_results(detector_results)
     apply_detector_results(slither, detector_results)
     sort_patches()
     if args.verbose:
-        print("Number of Slither results: " + str(len(detector_results)))
+        print("Number of Slither results: " + str(number_of_slither_results))
         print_patches()
     apply_patches()
-    
+
+def get_number_of_slither_results (detector_results):
+    number_of_slither_results = 0
+    for result in detector_results:
+        for elem in result['elements']:
+            number_of_slither_results += 1
+    return number_of_slither_results
+            
 def sort_patches():
     n = len(patches)
     for i in range(n):
