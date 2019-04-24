@@ -52,7 +52,7 @@ test_slither(){
     fi
 
     result=$(python "$DIR/json_diff.py" "$expected" "$DIR/tmp-test.json")
-
+	
     rm "$DIR/tmp-test.json"
     if [ "$result" != "{}" ]; then
       echo ""
@@ -97,3 +97,4 @@ test_slither tests/multiple_calls_in_loop.sol "calls-loop"
 test_slither tests/shadowing_builtin_symbols.sol "shadowing-builtin"
 test_slither tests/shadowing_local_variable.sol "shadowing-local"
 test_slither tests/solc_version_incorrect.sol "solc-version"
+test_slither tests/right_to_left_override.sol "rtlo"
