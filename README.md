@@ -21,7 +21,7 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 
 ## Usage
 
-Run Slither on a Truffle/Embark/Etherlime application:
+Run Slither on a Truffle/Embark/Dapp/Etherlime application:
 ```
 slither .
 ```
