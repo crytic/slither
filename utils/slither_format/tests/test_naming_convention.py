@@ -3,8 +3,10 @@ import subprocess, os, sys
   
 class TestNamingConvention(unittest.TestCase):
     testDataFile1 = "naming_convention_contract.sol"
+    testDataFile2 = "naming_convention_modifier.sol"
     testDataDir = "./slither_format/tests/test_data/"
     testFilePath1 = testDataDir+testDataFile1
+    testFilePath2 = testDataDir+testDataFile2
     
     def setUp(self):
         outFD1 = open(self.testFilePath1+".out","w")
@@ -13,10 +15,19 @@ class TestNamingConvention(unittest.TestCase):
         p1.wait()
         outFD1.close()
         errFD1.close()
-        
+
+        outFD2 = open(self.testFilePath2+".out","w")
+        errFD2 = open(self.testFilePath2+".err","w")
+        p2 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','naming-convention',self.testFilePath2], stdout=outFD2,stderr=errFD2)
+        p2.wait()
+        outFD2.close()
+        errFD2.close()
+
     def tearDown(self):
         p1 = subprocess.Popen(['rm','-f',self.testFilePath1+'.out',self.testFilePath1+'.err',self.testFilePath1+'.format'])
         p1.wait()
+        p2 = subprocess.Popen(['rm','-f',self.testFilePath2+'.out',self.testFilePath2+'.err',self.testFilePath2+'.format'])
+        p2.wait()
         
     def test_naming_convention_contract(self):
         outFD1 = open(self.testFilePath1+".out","r")
@@ -71,6 +82,34 @@ class TestNamingConvention(unittest.TestCase):
         self.assertEqual(outFD1_lines.count("New string: One r = new one()"), 2)
         self.assertEqual(outFD1_lines.count("Location start: 773"), 2)
         self.assertEqual(outFD1_lines.count("Location end: 790"), 2)
-    
+
+    def test_naming_convention_modifier(self):
+        outFD2 = open(self.testFilePath2+".out","r")
+        outFD2_lines = outFD2.readlines()
+        outFD2.close()
+        for i in range(len(outFD2_lines)):
+            outFD2_lines[i] = outFD2_lines[i].strip()
+        self.assertTrue(os.path.isfile(self.testFilePath1+".format"),"Patched .format file is not created?!")
+        self.assertEqual(outFD2_lines[0],"Number of Slither results: 2")
+        self.assertEqual(outFD2_lines[1],"Number of patches: 4")
+        self.assertEqual(outFD2_lines.count("Detector: naming-convention (modifier definition)"), 2)
+        self.assertEqual(outFD2_lines.count("Detector: naming-convention (modifier uses)"), 2)
+        self.assertEqual(outFD2_lines.count("Old string: modifier One"), 1)
+        self.assertEqual(outFD2_lines.count("New string: modifier one"), 1)
+        self.assertEqual(outFD2_lines.count("Location start: 117"), 1)
+        self.assertEqual(outFD2_lines.count("Location end: 129"), 1)
+        self.assertEqual(outFD2_lines.count("Old string: () One"), 1)
+        self.assertEqual(outFD2_lines.count("New string: () one"), 1)
+        self.assertEqual(outFD2_lines.count("Location start: 163"), 1)
+        self.assertEqual(outFD2_lines.count("Location end: 170"), 1)
+        self.assertEqual(outFD2_lines.count("Old string: modifier Two"), 1)
+        self.assertEqual(outFD2_lines.count("New string: modifier two"), 1)
+        self.assertEqual(outFD2_lines.count("Location start: 227"), 1)
+        self.assertEqual(outFD2_lines.count("Location end: 239"), 1)
+        self.assertEqual(outFD2_lines.count("Old string: () one Two returns"), 1)
+        self.assertEqual(outFD2_lines.count("New string: () one two returns"), 1)
+        self.assertEqual(outFD2_lines.count("Location start: 270"), 1)
+        self.assertEqual(outFD2_lines.count("Location end: 289"), 1)
+
 if __name__ == '__main__':
     unittest.main()
