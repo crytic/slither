@@ -60,8 +60,8 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
                         info = info.format(f.contract.name, f.name, f.source_mapping_str, attr)
                         json = self.generate_json_result(info)
                         self.add_function_to_json(f, json)
-                        json['elements'] = [{'type': 'info',
-                                             'contains_assembly' : True}]
+                        json['elements'].append({'type': 'info',
+                                                 'contains_assembly' : True})
                         results.append(json)
 
                     variables_written = f.all_state_variables_written()

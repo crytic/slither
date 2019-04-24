@@ -57,12 +57,16 @@ class Slither(SlitherSolc):
             super(Slither, self).__init__('')
             try:
                 cryticCompile = CryticCompile(contract, **kwargs)
+                self._crytic_compile = cryticCompile
             except InvalidCompilation as e:
                 logger.error('Invalid compilation')
                 logger.error(e)
                 exit(-1)
             for path, ast in cryticCompile.asts.items():
+
                 self._parse_contracts_from_loaded_json(ast, path)
+                with open(path) as f:
+                    self.source_code[path] = f.read()
 
         self._detectors = []
         self._printers = []
