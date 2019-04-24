@@ -43,4 +43,4 @@ class StateIRVariable(StateVariable, SlithIRVariable):
 
     @property
     def ssa_name(self):
-        return '{}_{}'.format(self._name, self.index)
+        return '{}.{}_{}'.format(self.id, self._name, self.index)
