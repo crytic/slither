@@ -9,14 +9,14 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-slither "tests/*.sol" --solc-disable-warnings --ignore-return-value
+slither "tests/*0.5*.sol" --solc-disable-warnings --ignore-return-value
 
 if [ $? -ne 0 ]; then
-    echo "--solc-ast failed"
+    echo "--solc-disable-warnings failed"
     exit 1
 fi
 
-slither "tests/*.sol" --disable-color --ignore-return-value
+slither "tests/*0.5*.sol" --disable-color --ignore-return-value
 
 if [ $? -ne 0 ]; then
     echo "--disable-color failed"
