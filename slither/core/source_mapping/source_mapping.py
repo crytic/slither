@@ -70,15 +70,50 @@ class SourceMapping(Context):
 
         if f not in sourceUnits:
             return {'start':s, 'length':l}
-        filename = sourceUnits[f]
+        filename_used = sourceUnits[f]
+        filename_absolute = None
+        filename_relative = None
+        filename_short = None
+
+        lines = []
+
+        # If possible, convert the filename to its absolute/relative version
+        if slither.crytic_compile:
+            filenames = slither.crytic_compile.filename_lookup(filename_used)
+            filename_absolute = filenames.absolute
+            filename_relative = filenames.relative
+            filename_short = filenames.short
+
+            if filename_absolute in slither.source_code:
+                filename = filename_absolute
+            elif filename_relative in slither.source_code:
+                filename = filename_relative
+            elif filename_short in slither.source_code:
+                filename = filename_short
+            else:#
+                filename = filename_used.used
+        else:
+            filename = filename_used
 
         if filename in slither.source_code:
-            (lines, starting_column, ending_column) = SourceMapping._compute_line(slither.source_code[filename], s, l)
+            source_code = slither.source_code[filename]
+            (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code,
+                                                                                  s,
+                                                                                  l)
         else:
             (lines, starting_column, ending_column) = ([], None, None)
 
-        return {'start': s, 'length': l, 'filename': filename, 'lines': lines,
-                'starting_column': starting_column, 'ending_column': ending_column}
+
+        return {'start':s,
+                'length':l,
+                'filename_used': filename_used,
+                'filename_relative': filename_relative,
+                'filename_absolute': filename_absolute,
+                'filename_short': filename_short,
+                'lines' : lines,
+                'starting_column': starting_column,
+                'ending_column': ending_column
+                }
 
     def set_offset(self, offset, slither):
         if isinstance(offset, dict):
@@ -90,14 +125,14 @@ class SourceMapping(Context):
     @property
     def source_mapping_str(self):
 
-        def relative_path(path):
-            # Remove absolute path for printing
-            # Truffle returns absolutePath
-            splited_path = path.split(os.sep)
-            if 'contracts' in splited_path:
-                idx = splited_path.index('contracts')
-                return os.sep.join(splited_path[idx-1:])
-            return path
+#        def relative_path(path):
+#            # Remove absolute path for printing
+#           # Truffle returns absolutePath
+#           splited_path = path.split(os.sep)
+#           if 'contracts' in splited_path:
+#               idx = splited_path.index('contracts')
+#               return os.sep.join(splited_path[idx-1:])
+#           return path
 
         lines = self.source_mapping['lines']
         if not lines:
@@ -106,5 +141,5 @@ class SourceMapping(Context):
             lines = '#{}'.format(lines[0])
         else:
             lines = '#{}-{}'.format(lines[0], lines[-1])
-        return '{}{}'.format(relative_path(self.source_mapping['filename']), lines)
+        return '{}{}'.format(self.source_mapping['filename_short'], lines)
 
