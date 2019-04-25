@@ -350,6 +350,11 @@ def parse_args(detector_classes, printer_classes):
                             dest='config_file',
                             default='slither.config.json')
 
+    group_misc.add_argument('--solc-ast',
+                            help='Provide the contract as a json AST',
+                            action='store_true',
+                            default=False)
+
     # debugger command
     parser.add_argument('--debug',
                         help=argparse.SUPPRESS,
