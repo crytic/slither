@@ -10,6 +10,7 @@ class TestNamingConvention(unittest.TestCase):
     testDataFile5 = "naming_convention_event.sol"
     testDataFile6 = "naming_convention_function.sol"
     testDataFile7 = "naming_convention_parameter.sol"
+    testDataFile8 = "naming_convention_state_variable.sol"
     testFilePath1 = testDataDir+testDataFile1
     testFilePath2 = testDataDir+testDataFile2
     testFilePath3 = testDataDir+testDataFile3
@@ -17,6 +18,7 @@ class TestNamingConvention(unittest.TestCase):
     testFilePath5 = testDataDir+testDataFile5
     testFilePath6 = testDataDir+testDataFile6
     testFilePath7 = testDataDir+testDataFile7
+    testFilePath8 = testDataDir+testDataFile8
     
     def setUp(self):
         outFD1 = open(self.testFilePath1+".out","w")
@@ -68,6 +70,13 @@ class TestNamingConvention(unittest.TestCase):
         outFD7.close()
         errFD7.close()
 
+        outFD8 = open(self.testFilePath8+".out","w")
+        errFD8 = open(self.testFilePath8+".err","w")
+        p8 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','naming-convention',self.testFilePath8], stdout=outFD8,stderr=errFD8)
+        p8.wait()
+        outFD8.close()
+        errFD8.close()
+
     def tearDown(self):
         p1 = subprocess.Popen(['rm','-f',self.testFilePath1+'.out',self.testFilePath1+'.err',self.testFilePath1+'.format'])
         p1.wait()
@@ -83,6 +92,8 @@ class TestNamingConvention(unittest.TestCase):
         p6.wait()
         p7 = subprocess.Popen(['rm','-f',self.testFilePath7+'.out',self.testFilePath7+'.err',self.testFilePath7+'.format'])
         p7.wait()
+        p8 = subprocess.Popen(['rm','-f',self.testFilePath8+'.out',self.testFilePath8+'.err',self.testFilePath8+'.format'])
+        p8.wait()
         
     def test_naming_convention_contract(self):
         outFD1 = open(self.testFilePath1+".out","r")
@@ -313,6 +324,36 @@ class TestNamingConvention(unittest.TestCase):
         self.assertEqual(outFD7_lines.count("New string: _Number"), 1)
         self.assertEqual(outFD7_lines.count("Location start: 314"), 1)
         self.assertEqual(outFD7_lines.count("Location end: 320"), 1)
+
+    def test_naming_convention_state_variable(self):
+        outFD8 = open(self.testFilePath8+".out","r")
+        outFD8_lines = outFD8.readlines()
+        outFD8.close()
+        for i in range(len(outFD8_lines)):
+            outFD8_lines[i] = outFD8_lines[i].strip()
+        self.assertTrue(os.path.isfile(self.testFilePath8+".format"),"Patched .format file is not created?!")
+        self.assertEqual(outFD8_lines[0],"Number of Slither results: 3")
+        self.assertEqual(outFD8_lines[1],"Number of patches: 6")
+        self.assertEqual(outFD8_lines.count("Detector: naming-convention (state variable declaration)"), 3)
+        self.assertEqual(outFD8_lines.count("Detector: naming-convention (state variable uses)"), 3)
+        self.assertEqual(outFD8_lines.count("Old string: number"), 2)
+        self.assertEqual(outFD8_lines.count("New string: NUMBER"), 2)
+        self.assertEqual(outFD8_lines.count("Location start: 469"), 1)
+        self.assertEqual(outFD8_lines.count("Location end: 475"), 1)
+        self.assertEqual(outFD8_lines.count("Location start: 716"), 1)
+        self.assertEqual(outFD8_lines.count("Location end: 722"), 1)
+        self.assertEqual(outFD8_lines.count("Old string: Count"), 2)
+        self.assertEqual(outFD8_lines.count("New string: count"), 2)
+        self.assertEqual(outFD8_lines.count("Location start: 547"), 1)
+        self.assertEqual(outFD8_lines.count("Location end: 552"), 1)
+        self.assertEqual(outFD8_lines.count("Location start: 725"), 1)
+        self.assertEqual(outFD8_lines.count("Location end: 730"), 1)
+        self.assertEqual(outFD8_lines.count("Old string: Maxnum"), 2)
+        self.assertEqual(outFD8_lines.count("New string: maxnum"), 2)
+        self.assertEqual(outFD8_lines.count("Location start: 634"), 1)
+        self.assertEqual(outFD8_lines.count("Location end: 640"), 1)
+        self.assertEqual(outFD8_lines.count("Location start: 733"), 1)
+        self.assertEqual(outFD8_lines.count("Location end: 739"), 1)
 
 if __name__ == '__main__':
     unittest.main()

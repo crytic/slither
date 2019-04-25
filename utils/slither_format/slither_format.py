@@ -476,8 +476,8 @@ def create_patch_naming_convention_state_variable_declaration(_slither, _target,
                         if (_target == "variable_constant"):
                             new_string = old_str_of_interest[m.span()[0]:m.span()[1]].upper()
                         else:
-                            # To-do: Determine the new name for non-constant state variables
                             new_string = old_str_of_interest[m.span()[0]:m.span()[1]]
+                            new_string = new_string[0].lower()+new_string[1:]
                         patches.append({
                             "detector" : "naming-convention (state variable declaration)",
                             "start" : _modify_loc_start+m.span()[0],
@@ -506,8 +506,8 @@ def create_patch_naming_convention_state_variable_uses(_slither, _target, _name,
                                 if (_target == "variable_constant"):
                                     new_str_of_interest = old_str_of_interest.upper()
                                 else:
-                                    # To-do: Determine the new name for non-constant state variables
                                     new_str_of_interest = old_str_of_interest
+                                    new_str_of_interest = new_str_of_interest[0].lower()+new_str_of_interest[1:]
                                 patches.append({
                                     "detector" : "naming-convention (state variable uses)",
                                     "start" : modify_loc_start,
