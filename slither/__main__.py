@@ -205,6 +205,9 @@ def choose_printers(args, all_printer_classes):
     if args.printers_to_run is None:
         return []
 
+    if args.printers_to_run == 'all':
+        return all_printer_classes
+
     printers = {p.ARGUMENT: p for p in all_printer_classes}
     for p in args.printers_to_run.split(','):
         if p in printers:
@@ -245,7 +248,9 @@ defaults_flag_in_config = {
     'truffle_build_directory': 'build/contracts',
     'embark_ignore_compile': False,
     'embark_overwrite_config': False,
-    'legacy_ast': False
+    # debug command
+    'legacy_ast': False,
+    'ignore_return_value': False
     }
 
 def parse_args(detector_classes, printer_classes):
@@ -350,6 +355,11 @@ def parse_args(detector_classes, printer_classes):
                             dest='config_file',
                             default='slither.config.json')
 
+    group_misc.add_argument('--solc-ast',
+                            help='Provide the contract as a json AST',
+                            action='store_true',
+                            default=False)
+
     # debugger command
     parser.add_argument('--debug',
                         help=argparse.SUPPRESS,
@@ -386,7 +396,7 @@ def parse_args(detector_classes, printer_classes):
     parser.add_argument('--ignore-return-value',
                         help=argparse.SUPPRESS,
                         action='store_true',
-                        default=False)
+                        default=defaults_flag_in_config['ignore_return_value'])
 
     # if the json is splitted in different files
     parser.add_argument('--splitted',
