@@ -388,21 +388,22 @@ def create_patch_naming_convention_event_calls(_slither, _name, _contract_name, 
     global patches
     event_name = _name.split('(')[0]
     for contract in _slither.contracts_derived:
-        for function in contract.functions:
-            for node in function.nodes:
-                for call in node.internal_calls_as_expressions:
-                    if (str(call.called) == event_name):
-                        with open(_in_file, 'r+') as in_file:
-                            in_file_str = in_file.read()
-                            old_str_of_interest = in_file_str[int(call.src.split(':')[0]):int(call.src.split(':')[0])+int(call.src.split(':')[1])]
-                            patches.append({
-                                "detector" : "naming-convention (event calls)",
-                                "start" : call.src.split(':')[0],
-                                "end" : int(call.src.split(':')[0]) + int(call.src.split(':')[1]),
-                                "old_string" : old_str_of_interest,
-                                "new_string" : old_str_of_interest[0].capitalize()+old_str_of_interest[1:],
-                                "patch_file" : _in_file
-                            })
+        if (contract.name == _contract_name):
+            for function in contract.functions:
+                for node in function.nodes:
+                    for call in node.internal_calls_as_expressions:
+                        if (str(call.called) == event_name):
+                            with open(_in_file, 'r+') as in_file:
+                                in_file_str = in_file.read()
+                                old_str_of_interest = in_file_str[int(call.src.split(':')[0]):int(call.src.split(':')[0])+int(call.src.split(':')[1])]
+                                patches.append({
+                                    "detector" : "naming-convention (event calls)",
+                                    "start" : call.src.split(':')[0],
+                                    "end" : int(call.src.split(':')[0]) + int(call.src.split(':')[1]),
+                                    "old_string" : old_str_of_interest,
+                                    "new_string" : old_str_of_interest[0].capitalize()+old_str_of_interest[1:],
+                                    "patch_file" : _in_file
+                                })
 
 def create_patch_naming_convention_parameter_declaration(_slither, _name, _function_name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
     global patches

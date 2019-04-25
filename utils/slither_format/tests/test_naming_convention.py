@@ -7,10 +7,12 @@ class TestNamingConvention(unittest.TestCase):
     testDataFile2 = "naming_convention_modifier.sol"
     testDataFile3 = "naming_convention_structure.sol"
     testDataFile4 = "naming_convention_enum.sol"
+    testDataFile5 = "naming_convention_event.sol"
     testFilePath1 = testDataDir+testDataFile1
     testFilePath2 = testDataDir+testDataFile2
     testFilePath3 = testDataDir+testDataFile3
     testFilePath4 = testDataDir+testDataFile4
+    testFilePath5 = testDataDir+testDataFile5
     
     def setUp(self):
         outFD1 = open(self.testFilePath1+".out","w")
@@ -41,6 +43,13 @@ class TestNamingConvention(unittest.TestCase):
         outFD4.close()
         errFD4.close()
 
+        outFD5 = open(self.testFilePath5+".out","w")
+        errFD5 = open(self.testFilePath5+".err","w")
+        p5 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','naming-convention',self.testFilePath5], stdout=outFD5,stderr=errFD5)
+        p5.wait()
+        outFD5.close()
+        errFD5.close()
+
     def tearDown(self):
         p1 = subprocess.Popen(['rm','-f',self.testFilePath1+'.out',self.testFilePath1+'.err',self.testFilePath1+'.format'])
         p1.wait()
@@ -50,6 +59,8 @@ class TestNamingConvention(unittest.TestCase):
         p3.wait()
         p4 = subprocess.Popen(['rm','-f',self.testFilePath4+'.out',self.testFilePath4+'.err',self.testFilePath4+'.format'])
         p4.wait()
+        p5 = subprocess.Popen(['rm','-f',self.testFilePath5+'.out',self.testFilePath5+'.err',self.testFilePath5+'.format'])
+        p5.wait()
         
     def test_naming_convention_contract(self):
         outFD1 = open(self.testFilePath1+".out","r")
@@ -198,6 +209,30 @@ class TestNamingConvention(unittest.TestCase):
         self.assertEqual(outFD4_lines.count("Location end: 531"), 1)
         self.assertEqual(outFD4_lines.count("Old string: e1 = e.ONE"), 1, "Enum naming-convention doesn't work while accessing enum members.")
         self.assertEqual(outFD4_lines.count("New string: e1 = E.ONE"), 1)
+
+    def test_naming_convention_event(self):
+        outFD5 = open(self.testFilePath5+".out","r")
+        outFD5_lines = outFD5.readlines()
+        outFD5.close()
+        for i in range(len(outFD5_lines)):
+            outFD5_lines[i] = outFD5_lines[i].strip()
+        self.assertTrue(os.path.isfile(self.testFilePath5+".format"),"Patched .format file is not created?!")
+        self.assertEqual(outFD5_lines[0],"Number of Slither results: 2")
+        self.assertEqual(outFD5_lines[1],"Number of patches: 4")
+        self.assertEqual(outFD5_lines.count("Detector: naming-convention (event definition)"), 2)
+        self.assertEqual(outFD5_lines.count("Detector: naming-convention (event calls)"), 2)
+        self.assertEqual(outFD5_lines.count("Old string: event e(uint);"), 2)
+        self.assertEqual(outFD5_lines.count("New string: event E(uint);"), 2)
+        self.assertEqual(outFD5_lines.count("Location start: 75"), 1)
+        self.assertEqual(outFD5_lines.count("Location end: 89"), 1)
+        self.assertEqual(outFD5_lines.count("Location start: 148"), 1)
+        self.assertEqual(outFD5_lines.count("Location end: 152"), 1)
+        self.assertEqual(outFD5_lines.count("Old string: e(i)"), 2)
+        self.assertEqual(outFD5_lines.count("New string: E(i)"), 2)
+        self.assertEqual(outFD5_lines.count("Location start: 148"), 1)
+        self.assertEqual(outFD5_lines.count("Location end: 152"), 1)
+        self.assertEqual(outFD5_lines.count("Location start: 438"), 1)
+        self.assertEqual(outFD5_lines.count("Location end: 442"), 1)
 
 if __name__ == '__main__':
     unittest.main()
