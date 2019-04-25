@@ -550,7 +550,7 @@ def create_patch_naming_convention_enum_uses(_slither, _name, _contract_name, _i
             for sv in svs:
                 if (str(sv.type) == _contract_name + "." + _name):
                     old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
-                    (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 2)
+                    (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 1)
                     patches.append({
                         "detector" : "naming-convention (enum use)",
                         "start" : contract.get_source_var_declaration(sv.name)['start'],
@@ -567,7 +567,7 @@ def create_patch_naming_convention_enum_uses(_slither, _name, _contract_name, _i
                 for v in fm.variables:
                     if (str(v.type) == _contract_name + "." + _name):
                         old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
-                        (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 2)
+                        (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 1)
                         patches.append({
                             "detector" : "naming-convention (enum use)",
                             "start" : fm.get_source_var_declaration(v.name)['start'],
@@ -614,7 +614,7 @@ def create_patch_naming_convention_struct_uses(_slither, _name, _contract_name, 
             for sv in svs:
                 if (str(sv.type) == _contract_name + "." + _name):
                     old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
-                    (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 2)
+                    (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 1)
                     patches.append({
                         "detector" : "naming-convention (struct use)",
                         "start" : contract.get_source_var_declaration(sv.name)['start'],
@@ -630,7 +630,7 @@ def create_patch_naming_convention_struct_uses(_slither, _name, _contract_name, 
                 for v in fm.variables:
                     if (str(v.type) == _contract_name + "." + _name):
                         old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
-                        (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 2)
+                        (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 1)
                         patches.append({
                             "detector" : "naming-convention (struct use)",
                             "start" : fm.get_source_var_declaration(v.name)['start'],
