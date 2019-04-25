@@ -3,6 +3,8 @@
 """
 import collections
 from prettytable import PrettyTable
+
+from slither.core.solidity_types import ArrayType, MappingType
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.colors import blue, green, magenta
 from slither.utils.function import get_function_id
@@ -30,7 +32,13 @@ class FunctionIds(AbstractPrinter):
                     table.add_row([function.full_name, hex(get_function_id(function.full_name))])
             for variable in contract.state_variables:
                 if variable.visibility in ['public']:
-                    table.add_row([variable.name+'()', hex(get_function_id(variable.name+'()'))])
+                    variable_getter_args = ""
+                    if type(variable.type) is ArrayType:
+                        variable_getter_args = "uint256"
+                    elif type(variable.type) is MappingType:
+                        variable_getter_args = variable.type.type_from
+
+                    table.add_row([f"{variable.name}({variable_getter_args})", hex(get_function_id(f"{variable.name}({variable_getter_args})"))])
             txt += str(table) + '\n'
 
         self.info(txt)
