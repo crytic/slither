@@ -4,6 +4,9 @@
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
+CURRENT_PATH=$(pwd)
+TRAVIS_PATH='/home/travis/build/crytic/slither'
+
 # test_slither file.sol detectors
 test_slither(){
 
@@ -23,7 +26,7 @@ test_slither(){
         echo ""
         exit 1
     fi
-
+    sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$DIR/tmp-test.json" -i
     result=$(python "$DIR/json_diff.py" "$expected" "$DIR/tmp-test.json")
 
     rm "$DIR/tmp-test.json"
@@ -51,6 +54,7 @@ test_slither(){
         exit 1
     fi
 
+    sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$DIR/tmp-test.json" -i
     result=$(python "$DIR/json_diff.py" "$expected" "$DIR/tmp-test.json")
 
     rm "$DIR/tmp-test.json"
