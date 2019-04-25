@@ -6,9 +6,11 @@ class TestNamingConvention(unittest.TestCase):
     testDataFile1 = "naming_convention_contract.sol"
     testDataFile2 = "naming_convention_modifier.sol"
     testDataFile3 = "naming_convention_structure.sol"
+    testDataFile4 = "naming_convention_enum.sol"
     testFilePath1 = testDataDir+testDataFile1
     testFilePath2 = testDataDir+testDataFile2
     testFilePath3 = testDataDir+testDataFile3
+    testFilePath4 = testDataDir+testDataFile4
     
     def setUp(self):
         outFD1 = open(self.testFilePath1+".out","w")
@@ -32,6 +34,13 @@ class TestNamingConvention(unittest.TestCase):
         outFD3.close()
         errFD3.close()
 
+        outFD4 = open(self.testFilePath4+".out","w")
+        errFD4 = open(self.testFilePath4+".err","w")
+        p4 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','naming-convention',self.testFilePath4], stdout=outFD4,stderr=errFD4)
+        p4.wait()
+        outFD4.close()
+        errFD4.close()
+
     def tearDown(self):
         p1 = subprocess.Popen(['rm','-f',self.testFilePath1+'.out',self.testFilePath1+'.err',self.testFilePath1+'.format'])
         p1.wait()
@@ -39,6 +48,8 @@ class TestNamingConvention(unittest.TestCase):
         p2.wait()
         p3 = subprocess.Popen(['rm','-f',self.testFilePath3+'.out',self.testFilePath3+'.err',self.testFilePath3+'.format'])
         p3.wait()
+        p4 = subprocess.Popen(['rm','-f',self.testFilePath4+'.out',self.testFilePath4+'.err',self.testFilePath4+'.format'])
+        p4.wait()
         
     def test_naming_convention_contract(self):
         outFD1 = open(self.testFilePath1+".out","r")
@@ -88,7 +99,7 @@ class TestNamingConvention(unittest.TestCase):
         self.assertEqual(outFD1_lines.count("New string: One q"), 1)
         self.assertEqual(outFD1_lines.count("Location start: 871"), 1)
         self.assertEqual(outFD1_lines.count("Location end: 876"), 1)
-        self.assertEqual(outFD1_lines.count("Detector: naming-convention (contract new object)"), 1)
+        self.assertEqual(outFD1_lines.count("Detector: naming-convention (contract new object)"), 1, "Contract naming-convention doesn't work for new object creation.")
         self.assertEqual(outFD1_lines.count("Old string: one r = new one()"), 2)
         self.assertEqual(outFD1_lines.count("New string: One r = new one()"), 2)
         self.assertEqual(outFD1_lines.count("Location start: 773"), 2)
@@ -153,6 +164,40 @@ class TestNamingConvention(unittest.TestCase):
         self.assertEqual(outFD3_lines.count("New string: S"), 1)
         self.assertEqual(outFD3_lines.count("Location start: 585"), 1)
         self.assertEqual(outFD3_lines.count("Location end: 586"), 1)
+
+    def test_naming_convention_enum(self):
+        outFD4 = open(self.testFilePath4+".out","r")
+        outFD4_lines = outFD4.readlines()
+        outFD4.close()
+        for i in range(len(outFD4_lines)):
+            outFD4_lines[i] = outFD4_lines[i].strip()
+        self.assertTrue(os.path.isfile(self.testFilePath4+".format"),"Patched .format file is not created?!")
+        self.assertEqual(outFD4_lines[0],"Number of Slither results: 2")
+        self.assertEqual(outFD4_lines[1],"Number of patches: 7")
+        self.assertEqual(outFD4_lines.count("Detector: naming-convention (enum definition)"), 2)
+        self.assertEqual(outFD4_lines.count("Detector: naming-convention (enum use)"), 5)
+        self.assertEqual(outFD4_lines.count("Old string: enum e {ONE, TWO}"), 2)
+        self.assertEqual(outFD4_lines.count("New string: enum E {ONE, TWO}"), 2)
+        self.assertEqual(outFD4_lines.count("Location start: 73"), 1)
+        self.assertEqual(outFD4_lines.count("Location end: 90"), 1)
+        self.assertEqual(outFD4_lines.count("Location start: 375"), 1)
+        self.assertEqual(outFD4_lines.count("Location end: 392"), 1)
+        self.assertEqual(outFD4_lines.count("Old string: e e1"), 2)
+        self.assertEqual(outFD4_lines.count("New string: E e1"), 2)
+        self.assertEqual(outFD4_lines.count("Location start: 125"), 1)
+        self.assertEqual(outFD4_lines.count("Location end: 129"), 1)
+        self.assertEqual(outFD4_lines.count("Location start: 427"), 1)
+        self.assertEqual(outFD4_lines.count("Location end: 431"), 1)
+        self.assertEqual(outFD4_lines.count("Old string: e eA"), 1)
+        self.assertEqual(outFD4_lines.count("New string: E eA"), 1)
+        self.assertEqual(outFD4_lines.count("Location start: 498"), 1)
+        self.assertEqual(outFD4_lines.count("Location end: 502"), 1)
+        self.assertEqual(outFD4_lines.count("Old string: e e2 = eA"), 1)
+        self.assertEqual(outFD4_lines.count("New string: E e2 = eA"), 1)
+        self.assertEqual(outFD4_lines.count("Location start: 522"), 1)
+        self.assertEqual(outFD4_lines.count("Location end: 531"), 1)
+        self.assertEqual(outFD4_lines.count("Old string: e1 = e.ONE"), 1, "Enum naming-convention doesn't work while accessing enum members.")
+        self.assertEqual(outFD4_lines.count("New string: e1 = E.ONE"), 1)
 
 if __name__ == '__main__':
     unittest.main()
