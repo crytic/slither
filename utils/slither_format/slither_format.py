@@ -119,7 +119,7 @@ def format_solc_version(slither, elements):
     # To-do: Determine which solc version to replace with
     # If < 0.4.24 replace with 0.4.25?
     # If > 0.5.0 replace with the latest 0.5.x?
-    solc_version_replace = "pragma solidity 0.4.25;"
+    solc_version_replace = "pragma solidity ^0.4.25;"
     for element in elements:
         create_patch_solc_version(element['source_mapping']['filename'], solc_version_replace, element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
 
