@@ -34,7 +34,12 @@ class FunctionIds(AbstractPrinter):
                 if variable.visibility in ['public']:
                     variable_getter_args = ""
                     if type(variable.type) is ArrayType:
-                        variable_getter_args = "uint256"
+                        length = 0
+                        v = variable
+                        while type(v.type) is ArrayType:
+                            length += 1
+                            v = v.type
+                        variable_getter_args = ','.join(["uint256"]*length)
                     elif type(variable.type) is MappingType:
                         variable_getter_args = variable.type.type_from
 
