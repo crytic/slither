@@ -535,7 +535,7 @@ class Contract(ChildSlither, SourceMapping):
         Returns:
             bool
         """
-        full_names = [f.full_name for f in self.functions]
+        full_names = set([f.full_name for f in self.functions])
         return 'transfer(address,uint256)' in full_names and\
                'transferFrom(address,address,uint256)' in full_names and\
                'approve(address,uint256)' in full_names
