@@ -32,6 +32,7 @@ class Contract(ChildSlither, SourceMapping):
         self._variables = {}
         self._modifiers = {}
         self._functions = {}
+
         self._using_for = {}
         self._kind = None
 
@@ -183,7 +184,7 @@ class Contract(ChildSlither, SourceMapping):
 
     @property
     def constructor_not_inherited(self):
-        return next((func for func in self.functions if func.is_constructor and func.contract == self), None)
+        return next((func for func in self.functions if func.is_constructor and func.original_contract == self), None)
 
     @property
     def constructors(self):
@@ -219,22 +220,22 @@ class Contract(ChildSlither, SourceMapping):
         '''
         return list(self._functions.values())
 
-    def functions_as_dict(self):
-        return self._functions
+    def available_functions_as_dict(self):
+        return {f.full_name: f for f in self._functions.values() if not f.is_shadowed}
 
     @property
     def functions_inherited(self):
         '''
             list(Function): List of the inherited functions
         '''
-        return [f for f in self.functions if f.contract != self]
+        return [f for f in self.functions if f.original_contract != self]
 
     @property
     def functions_not_inherited(self):
         '''
             list(Function): List of the functions defined within the contract (not inherited)
         '''
-        return [f for f in self.functions if f.contract == self]
+        return [f for f in self.functions if f.original_contract == self]
 
     @property
     def functions_entry_points(self):
@@ -250,22 +251,22 @@ class Contract(ChildSlither, SourceMapping):
         '''
         return list(self._modifiers.values())
 
-    def modifiers_as_dict(self):
-        return self._modifiers
+    def available_modifiers_as_dict(self):
+        return {m.full_name: m for m in self._modifiers.values() if not m.is_shadowed}
 
     @property
     def modifiers_inherited(self):
         '''
             list(Modifier): List of the inherited modifiers
         '''
-        return [m for m in self.modifiers if m.contract != self]
+        return [m for m in self.modifiers if m.original_contract != self]
 
     @property
     def modifiers_not_inherited(self):
         '''
             list(Modifier): List of the modifiers defined within the contract (not inherited)
         '''
-        return [m for m in self.modifiers if m.contract == self]
+        return [m for m in self.modifiers if m.original_contract == self]
 
     @property
     def functions_and_modifiers(self):
@@ -287,6 +288,31 @@ class Contract(ChildSlither, SourceMapping):
             list(Function|Modifier): List of the functions and modifiers defined within the contract (not inherited)
         '''
         return self.functions_not_inherited + self.modifiers_not_inherited
+
+    def available_elements_from_inheritances(self, elements, getter_available):
+        """
+
+        :param elements: dict(canonical_name -> elements)
+        :param getter_available: fun x
+        :return:
+        """
+        # keep track of the contracts visited
+        # to prevent an ovveride due to multiple inheritance of the same contract
+        # A is B, C, D is C, --> the second C was already seen
+        inherited_elements = {}
+        accessible_elements = {}
+        contracts_visited = []
+        for father in self.inheritance_reverse:
+            functions = {v.full_name: v for (_, v) in getter_available(father)
+                         if not v.contract in contracts_visited}
+            contracts_visited.append(father)
+            inherited_elements.update(functions)
+
+        for element in inherited_elements.values():
+            accessible_elements[element.full_name] = elements[element.canonical_name]
+
+        return accessible_elements
+
 
     # endregion
     ###################################################################################

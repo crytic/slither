@@ -165,9 +165,8 @@ class ExternalFunction(AbstractDetector):
 
                 # Loop for each function definition, and recommend it be declared external.
                 for function_definition in all_function_definitions:
-                    txt = "{}.{} ({}) should be declared external\n"
-                    info = txt.format(function_definition.contract.name,
-                                      function_definition.name,
+                    txt = "{} ({}) should be declared external\n"
+                    info = txt.format(function_definition.canonical_name,
                                       function_definition.source_mapping_str)
 
                     json = self.generate_json_result(info)

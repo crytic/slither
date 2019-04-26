@@ -169,16 +169,31 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     @staticmethod
     def add_function_to_json(function, d):
         contract = {'elements':[]}
-        AbstractDetector.add_contract_to_json(function.contract, contract)
+        AbstractDetector.add_contract_to_json(function.original_contract, contract)
         d['elements'].append({'type': 'function',
                               'name': function.name,
                               'source_mapping': function.source_mapping,
+                              'contract': contract['elements'][0]})
+
+    # We use the same json type for function and event to facilitate the third-party tools parsing
+    @staticmethod
+    def add_event_to_json(event, d):
+        contract = {'elements':[]}
+        AbstractDetector.add_contract_to_json(event.contract, contract)
+        d['elements'].append({'type': 'function',
+                              'name': event.name,
+                              'source_mapping': event.source_mapping,
                               'contract': contract['elements'][0]})
 
     @staticmethod
     def add_functions_to_json(functions, d):
         for function in sorted(functions, key=lambda x: x.name):
             AbstractDetector.add_function_to_json(function, d)
+
+    @staticmethod
+    def add_events_to_json(events, d):
+        for event in sorted(events, key=lambda x: x.name):
+            AbstractDetector.add_event_to_json(event, d)
 
     @staticmethod
     def add_nodes_to_json(nodes, d):

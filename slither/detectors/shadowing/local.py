@@ -59,7 +59,7 @@ contract Bug {
         # Loop through all functions + modifiers in this contract.
         for function in contract.functions + contract.modifiers:
             # We should only look for functions declared directly in this contract (not in a base contract).
-            if function.contract != contract:
+            if function.original_contract != contract:
                 continue
 
             # This function was declared in this contract, we check what its local variables might shadow.
@@ -68,11 +68,11 @@ contract Bug {
                 for scope_contract in [contract] + contract.inheritance:
                     # Check functions
                     for scope_function in scope_contract.functions:
-                        if variable.name == scope_function.name and scope_function.contract == scope_contract:
+                        if variable.name == scope_function.name and scope_function.original_contract == scope_contract:
                             overshadowed.append((self.OVERSHADOWED_FUNCTION, scope_contract.name, scope_function))
                     # Check modifiers
                     for scope_modifier in scope_contract.modifiers:
-                        if variable.name == scope_modifier.name and scope_modifier.contract == scope_contract:
+                        if variable.name == scope_modifier.name and scope_modifier.original_contract == scope_contract:
                             overshadowed.append((self.OVERSHADOWED_MODIFIER, scope_contract.name, scope_modifier))
                     # Check events
                     for scope_event in scope_contract.events:
@@ -121,9 +121,10 @@ contract Bug {
                     json = self.generate_json_result(info)
                     self.add_variable_to_json(local_variable, json)
                     for overshadowed_entry in overshadowed:
-                        if overshadowed_entry[0] in [self.OVERSHADOWED_FUNCTION, self.OVERSHADOWED_MODIFIER,
-                                                     self.OVERSHADOWED_EVENT]:
+                        if overshadowed_entry[0] in [self.OVERSHADOWED_FUNCTION, self.OVERSHADOWED_MODIFIER]:
                             self.add_function_to_json(overshadowed_entry[2], json)
+                        elif overshadowed_entry[0] == self.OVERSHADOWED_EVENT:
+                            self.add_event_to_json(overshadowed_entry[2], json)
                         elif overshadowed_entry[0] == self.OVERSHADOWED_STATE_VARIABLE:
                             self.add_variable_to_json(overshadowed_entry[2], json)
                     results.append(json)

@@ -51,13 +51,13 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
         results = []
         for c in self.contracts:
             for f in c.functions:
-                if f.contract != c:
+                if f.original_contract != c:
                     continue
                 if f.view or f.pure:
                     if f.contains_assembly:
                         attr = 'view' if f.view else 'pure'
-                        info = '{}.{} ({}) is declared {} but contains assembly code\n'
-                        info = info.format(f.contract.name, f.name, f.source_mapping_str, attr)
+                        info = '{} ({}) is declared {} but contains assembly code\n'
+                        info = info.format(f.canonical_name, f.source_mapping_str, attr)
                         json = self.generate_json_result(info)
                         self.add_function_to_json(f, json)
                         json['elements'].append({'type': 'info',
@@ -67,11 +67,10 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
                     variables_written = f.all_state_variables_written()
                     if variables_written:
                         attr = 'view' if f.view else 'pure'
-                        info = '{}.{} ({}) is declared {} but changes state variables:\n'
-                        info = info.format(f.contract.name, f.name, f.source_mapping_str, attr)
+                        info = '{} ({}) is declared {} but changes state variables:\n'
+                        info = info.format(f.canonical_name, f.source_mapping_str, attr)
                         for variable_written in variables_written:
-                            info += '\t- {}.{}\n'.format(variable_written.contract.name,
-                                                         variable_written.name)
+                            info += '\t- {}\n'.format(variable_written.canonical_name)
 
 
                         json = self.generate_json_result(info)

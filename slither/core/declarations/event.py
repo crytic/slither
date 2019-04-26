@@ -30,6 +30,14 @@ class Event(ChildContract, SourceMapping):
         return name+'('+','.join(parameters)+')'
 
     @property
+    def canonical_name(self):
+        ''' Return the function signature as a str
+        Returns:
+            str: contract.func_name(type1,type2)
+        '''
+        return self.contract.name + self.full_name
+
+    @property
     def elems(self):
         return self._elems
 

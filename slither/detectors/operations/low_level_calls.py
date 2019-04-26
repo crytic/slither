@@ -33,7 +33,7 @@ class LowLevelCalls(AbstractDetector):
 
     def detect_low_level_calls(self, contract):
         ret = []
-        for f in [f for f in contract.functions if contract == f.contract]:
+        for f in [f for f in contract.functions if contract == f.original_contract]:
             nodes = f.nodes
             assembly_nodes = [n for n in nodes if
                               self._contains_low_level_calls(n)]
@@ -48,8 +48,8 @@ class LowLevelCalls(AbstractDetector):
         for c in self.contracts:
             values = self.detect_low_level_calls(c)
             for func, nodes in values:
-                info = "Low level call in {}.{} ({}):\n"
-                info = info.format(func.contract.name, func.name, func.source_mapping_str)
+                info = "Low level call in {} ({}):\n"
+                info = info.format(func.canonical_name, func.source_mapping_str)
                 for node in nodes:
                     info += "\t-{} {}\n".format(str(node.expression), node.source_mapping_str)
 

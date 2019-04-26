@@ -68,8 +68,7 @@ def get_pointer_name(variable):
     return None
 
 
-def find_variable(var_name, caller_context, referenced_declaration=None):
-
+def find_variable(var_name, caller_context, referenced_declaration=None, is_super=False):
 
     if isinstance(caller_context, Contract):
         function = None
@@ -108,12 +107,21 @@ def find_variable(var_name, caller_context, referenced_declaration=None):
     if var_name and var_name in conc_variables_ptr:
         return conc_variables_ptr[var_name]
 
-
-    functions = contract.functions_as_dict()
+    if is_super:
+        getter_available = lambda f: f.available_functions_as_dict().items()
+        d = {f.canonical_name:f for f in contract.functions}
+        functions = {f.full_name:f for f in contract.available_elements_from_inheritances(d, getter_available).values()}
+    else:
+        functions = contract.available_functions_as_dict()
     if var_name in functions:
         return functions[var_name]
 
-    modifiers = contract.modifiers_as_dict()
+    if is_super:
+        getter_available = lambda m: m.available_modifiers_as_dict().items()
+        d = {m.canonical_name: m for m in contract.modifiers}
+        modifiers = {m.full_name: m for m in contract.available_elements_from_inheritances(d, getter_available).values()}
+    else:
+        modifiers = contract.available_modifiers_as_dict()
     if var_name in modifiers:
         return modifiers[var_name]
 
@@ -516,6 +524,7 @@ def parse_expression(expression, caller_context):
             referenced_declaration = expression['referencedDeclaration']
         else:
             referenced_declaration = None
+
         var = find_variable(value, caller_context, referenced_declaration)
 
         identifier = Identifier(var)
@@ -556,18 +565,7 @@ def parse_expression(expression, caller_context):
             member_expression = parse_expression(children[0], caller_context)
         if str(member_expression) == 'super':
             super_name = parse_super_name(expression, is_compact_ast)
-            if isinstance(caller_context, Contract):
-                inheritance = caller_context.inheritance
-            else:
-                assert isinstance(caller_context, Function)
-                inheritance = caller_context.contract.inheritance
-            var = None
-            for father in inheritance:
-                try:
-                    var = find_variable(super_name, father)
-                    break
-                except VariableNotFound:
-                    continue
+            var = find_variable(super_name, caller_context, is_super=True)
             if var is None:
                 raise VariableNotFound('Variable not found: {}'.format(super_name))
             return SuperIdentifier(var)
