@@ -633,7 +633,7 @@ def create_patch_unused_state(_in_file, _modify_loc_start):
         patches[_in_file].append({
             "detector" : "unused-state",
             "start" : _modify_loc_start,
-            "end" : _modify_loc_start + len(old_str_of_interest.partition(';')[0]),
+            "end" : _modify_loc_start + len(old_str_of_interest.partition(';')[0]) + 1,
             "old_string" : old_str_of_interest.partition(';')[0] + old_str_of_interest.partition(';')[1],
             "new_string" : ""
         })
