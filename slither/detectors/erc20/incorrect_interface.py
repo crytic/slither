@@ -52,6 +52,19 @@ contract Token{
         Returns:
             list(str) : list of incorrect function signatures
         """
+        # Obtain all function names for this contract
+        full_names = set([f.full_name for f in contract.functions])
+
+        # If this contract implements a function from ERC721, we can assume it is an ERC721 token. These tokens
+        # offer functions which are similar to ERC20, but are not compatible.
+        if ('ownerOf(uint256)' in full_names or
+         'safeTransferFrom(address,address,uint256,bytes)' in full_names or
+         'safeTransferFrom(address,address,uint256)' in full_names or
+         'setApprovalForAll(address,bool)' in full_names or
+         'getApproved(uint256)' in full_names or
+         'isApprovedForAll(address,address)' in full_names):
+            return []
+
         functions = [f for f in contract.functions if f.contract == contract and \
                      IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)]
         return functions
