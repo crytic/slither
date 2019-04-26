@@ -1,4 +1,5 @@
 import sys, re
+from collections import defaultdict
 from slither.detectors.variables.unused_state_variables import UnusedStateVars
 from slither.detectors.attributes.incorrect_solc import IncorrectSolc
 from slither.detectors.attributes.constant_pragma import ConstantPragma
@@ -21,7 +22,7 @@ all_detectors = {
     'constant-function': ConstantFunctions
 }
 
-patches = []
+patches = defaultdict(list)
 
 def slither_format(args, slither):
     detectors_to_run = choose_detectors(args)
@@ -48,45 +49,47 @@ def get_number_of_slither_results (detector_results):
     return number_of_slither_results
             
 def sort_patches():
-    n = len(patches)
-    for i in range(n):
-        for j in range (0,n-i-1):
-            if int(patches[j]['start']) >= int(patches[j+1]['end']):
-                temp = patches[j+1]
-                patches[j+1] = patches[j]
-                patches[j] = temp
+    for file in patches:
+        n = len(patches[file])
+        for i in range(n):
+            for j in range (0,n-i-1):
+                if int(patches[file][j]['start']) >= int(patches[file][j+1]['end']):
+                    temp = patches[file][j+1]
+                    patches[file][j+1] = patches[file][j]
+                    patches[file][j] = temp
     
 def print_patches():
     global patches
-    print("Number of patches: " + str(len(patches)))
-    for patch in patches:
-        print("Detector: " + patch['detector'])
-        print("Old string: " + patch['old_string'].replace("\n",""))
-        print("New string: " + patch['new_string'].replace("\n",""))
-        print("Location start: " + str(patch['start']))
-        print("Location end: " + str(patch['end']))
-        print("Patch file: " + str(patch['patch_file']))
+    number_of_patches = 0
+    for file in patches:
+        number_of_patches += len(patches[file])
+    print("Number of patches: " + str(number_of_patches))
+    for file in patches:
+        print("Patch file: " + file)
+        for patch in patches[file]:
+            print("Detector: " + patch['detector'])
+            print("Old string: " + patch['old_string'].replace("\n",""))
+            print("New string: " + patch['new_string'].replace("\n",""))
+            print("Location start: " + str(patch['start']))
+            print("Location end: " + str(patch['end']))
 
 def apply_patches():
     global patches
-    # Assuming all patches are applicable to the same file for now
-    # To-do Classify patches according to patch_file
-    _in_file = patches[0]['patch_file']
-    with open(_in_file, 'r+') as in_file:
-        in_file_str = in_file.read()
-        out_file_str = ""
-        for i in range(len(patches)):
-            if patches[i]['patch_file'] != _in_file:
-                continue
-            if i != 0:
-                out_file_str += in_file_str[int(patches[i-1]['end']):int(patches[i]['start'])]
-            else:
-                out_file_str += in_file_str[:int(patches[i]['start'])]
-            out_file_str += patches[i]['new_string']
-        out_file_str += in_file_str[int(patches[i]['end']):]
-        out_file = open(_in_file+".format",'w')
-        out_file.write(out_file_str)
-        out_file.close()
+    for file in patches:
+        _in_file = file
+        with open(_in_file, 'r+') as in_file:
+            in_file_str = in_file.read()
+            out_file_str = ""
+            for i in range(len(patches[file])):
+                if i != 0:
+                    out_file_str += in_file_str[int(patches[file][i-1]['end']):int(patches[file][i]['start'])]
+                else:
+                    out_file_str += in_file_str[:int(patches[file][i]['start'])]
+                out_file_str += patches[file][i]['new_string']
+            out_file_str += in_file_str[int(patches[file][i]['end']):]
+            out_file = open(_in_file+".format",'w')
+            out_file.write(out_file_str)
+            out_file.close()
     
 def apply_detector_results(slither, detector_results):
     for result in detector_results:
@@ -209,13 +212,12 @@ def create_patch_naming_convention_contract_definition(_slither, _name, _in_file
                 old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_start+m.span()[1]]
                 (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"contract"+r'(.*)'+_name, r'\1'+"contract"+r'\2'+_name.capitalize(), old_str_of_interest, 1)
                 if num_repl != 0:
-                    patches.append({
+                    patches[_in_file].append({
                         "detector" : "naming-convention (contract definition)",
                         "start":_modify_loc_start,
                         "end":_modify_loc_start+m.span()[1],
                         "old_string":old_str_of_interest,
-                        "new_string":new_str_of_interest,
-                        "patch_file" : _in_file
+                        "new_string":new_str_of_interest
                     })
                 else:
                     print("Error: Could not find contract?!")
@@ -234,13 +236,12 @@ def create_patch_naming_convention_contract_uses(_slither, _name, _in_file):
                     if (str(sv.type) == _name):
                         old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
                         (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 1)
-                        patches.append({
+                        patches[_in_file].append({
                             "detector" : "naming-convention (contract state variable)",
                             "start" : contract.get_source_var_declaration(sv.name)['start'],
                             "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
                             "old_string" : old_str_of_interest,
-                            "new_string" : new_str_of_interest,
-                            "patch_file" : _in_file
+                            "new_string" : new_str_of_interest
                         })
                 # Check function+modifier locals+parameters+returns
                 # To-do: Deep-check aggregate types (struct and mapping)
@@ -250,13 +251,12 @@ def create_patch_naming_convention_contract_uses(_slither, _name, _in_file):
                         if (str(v.type) == _name):
                             old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
                             (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 1)
-                            patches.append({
+                            patches[_in_file].append({
                                 "detector" : "naming-convention (contract function variable)",
                                 "start" : fm.get_source_var_declaration(v.name)['start'],
                                 "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
                                 "old_string" : old_str_of_interest,
-                                "new_string" : new_str_of_interest,
-                                "patch_file" : _in_file
+                                "new_string" : new_str_of_interest
                         })
                 # To-do: Check any other place where contract type is used
         else:
@@ -276,13 +276,12 @@ def create_patch_naming_convention_modifier_definition(_slither, _name, _contrac
                         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_start+m.span()[1]]
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"modifier"+r'(.*)'+_name, r'\1'+"modifier"+r'\2'+_name[0].lower()+_name[1:], old_str_of_interest, 1)
                         if num_repl != 0:
-                            patches.append({
+                            patches[_in_file].append({
                                 "detector" : "naming-convention (modifier definition)",
                                 "start" : _modify_loc_start,
                                 "end" : _modify_loc_start+m.span()[1],
                                 "old_string" : old_str_of_interest,
-                                "new_string" : new_str_of_interest,
-                                "patch_file" : _in_file
+                                "new_string" : new_str_of_interest
                             })
                         else:
                             print("Error: Could not find modifier?!")
@@ -300,13 +299,12 @@ def create_patch_naming_convention_modifier_uses(_slither, _name, _contract_name
                             old_str_of_interest = in_file_str[int(function.parameters_src.split(':')[0]):int(function.returns_src.split(':')[0])]
                             (new_str_of_interest, num_repl) = re.subn(_name, _name[0].lower()+_name[1:],old_str_of_interest,1)
                             if num_repl != 0:
-                                patches.append({
+                                patches[_in_file].append({
                                     "detector" : "naming-convention (modifier uses)",
                                     "start" : int(function.parameters_src.split(':')[0]),
                                     "end" : int(function.returns_src.split(':')[0]),
                                     "old_string" : old_str_of_interest,
-                                    "new_string" : new_str_of_interest,
-                                    "patch_file" : _in_file
+                                    "new_string" : new_str_of_interest
                                 })
                             else:
                                 print("Error: Could not find modifier name?!")
@@ -326,13 +324,12 @@ def create_patch_naming_convention_function_definition(_slither, _name, _contrac
                         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_start+m.span()[1]]
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"function"+r'(.*)'+_name, r'\1'+"function"+r'\2'+_name[0].lower()+_name[1:], old_str_of_interest, 1)
                         if num_repl != 0:
-                            patches.append({
+                            patches[_in_file].append({
                                 "detector" : "naming-convention (function definition)",
                                 "start" : _modify_loc_start,
                                 "end" : _modify_loc_start+m.span()[1],
                                 "old_string" : old_str_of_interest,
-                                "new_string" : new_str_of_interest,
-                                "patch_file" : _in_file
+                                "new_string" : new_str_of_interest
                             })
                         else:
                             print("Error: Could not find function?!")
@@ -350,13 +347,12 @@ def create_patch_naming_convention_function_calls(_slither, _name, _contract_nam
                         with open(_in_file, 'r+') as in_file:
                             in_file_str = in_file.read()
                             old_str_of_interest = in_file_str[int(call.src.split(':')[0]):int(call.src.split(':')[0])+int(call.src.split(':')[1])]
-                            patches.append({
+                            patches[_in_file].append({
                                 "detector" : "naming-convention (function calls)",
                                 "start" : call.src.split(':')[0],
                                 "end" : int(call.src.split(':')[0]) + int(call.src.split(':')[1]),
                                 "old_string" : old_str_of_interest,
-                                "new_string" : old_str_of_interest[0].lower()+old_str_of_interest[1:],
-                                "patch_file" : _in_file
+                                "new_string" : old_str_of_interest[0].lower()+old_str_of_interest[1:]
                             })
 
 def create_patch_naming_convention_event_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
@@ -371,13 +367,12 @@ def create_patch_naming_convention_event_definition(_slither, _name, _contract_n
                         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"event"+r'(.*)'+event_name, r'\1'+"event"+r'\2'+event_name[0].capitalize()+event_name[1:], old_str_of_interest, 1)
                         if num_repl != 0:
-                            patches.append({
+                            patches[_in_file].append({
                                 "detector" : "naming-convention (event definition)",
                                 "start" : _modify_loc_start,
                                 "end" : _modify_loc_end,
                                 "old_string" : old_str_of_interest,
-                                "new_string" : new_str_of_interest,
-                                "patch_file" : _in_file
+                                "new_string" : new_str_of_interest
                             })
                         else:
                             print("Error: Could not find event?!")
@@ -396,13 +391,12 @@ def create_patch_naming_convention_event_calls(_slither, _name, _contract_name, 
                             with open(_in_file, 'r+') as in_file:
                                 in_file_str = in_file.read()
                                 old_str_of_interest = in_file_str[int(call.src.split(':')[0]):int(call.src.split(':')[0])+int(call.src.split(':')[1])]
-                                patches.append({
+                                patches[_in_file].append({
                                     "detector" : "naming-convention (event calls)",
                                     "start" : call.src.split(':')[0],
                                     "end" : int(call.src.split(':')[0]) + int(call.src.split(':')[1]),
                                     "old_string" : old_str_of_interest,
-                                    "new_string" : old_str_of_interest[0].capitalize()+old_str_of_interest[1:],
-                                    "patch_file" : _in_file
+                                    "new_string" : old_str_of_interest[0].capitalize()+old_str_of_interest[1:]
                                 })
 
 def create_patch_naming_convention_parameter_declaration(_slither, _name, _function_name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
@@ -419,13 +413,12 @@ def create_patch_naming_convention_parameter_declaration(_slither, _name, _funct
                         else:
                             (new_str_of_interest, num_repl) = re.subn(r'(.*)'+_name+r'(.*)', r'\1'+'_'+_name[0].upper()+_name[1:]+r'\2', old_str_of_interest, 1)
                         if num_repl != 0:
-                            patches.append({
+                            patches[_in_file].append({
                                 "detector" : "naming-convention (parameter declaration)",
                                 "start" : _modify_loc_start,
                                 "end" : _modify_loc_end,
                                 "old_string" : old_str_of_interest,
-                                "new_string" : new_str_of_interest,
-                                "patch_file" : _in_file
+                                "new_string" : new_str_of_interest
                             })
                         else:
                             print("Error: Could not find parameter?!")
@@ -451,13 +444,12 @@ def create_patch_naming_convention_parameter_uses(_slither, _name, _function_nam
                                     else:
                                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+_name+r'(.*)', r'\1'+'_'+_name[0].upper()+_name[1:]+r'\2', old_str_of_interest, 1)
                                     if num_repl != 0:
-                                        patches.append({
+                                        patches[_in_file].append({
                                             "detector" : "naming-convention (parameter uses)",
                                             "start" : modify_loc_start,
                                             "end" : modify_loc_end,
                                             "old_string" : old_str_of_interest,
-                                            "new_string" : new_str_of_interest,
-                                            "patch_file" : _in_file
+                                            "new_string" : new_str_of_interest
                                         })
                                     else:
                                         print("Error: Could not find parameter?!")
@@ -478,13 +470,12 @@ def create_patch_naming_convention_state_variable_declaration(_slither, _target,
                         else:
                             new_string = old_str_of_interest[m.span()[0]:m.span()[1]]
                             new_string = new_string[0].lower()+new_string[1:]
-                        patches.append({
+                        patches[_in_file].append({
                             "detector" : "naming-convention (state variable declaration)",
                             "start" : _modify_loc_start+m.span()[0],
                             "end" : _modify_loc_start+m.span()[1],
                             "old_string" : old_str_of_interest[m.span()[0]:m.span()[1]],
-                            "new_string" : new_string,
-                            "patch_file" : _in_file
+                            "new_string" : new_string 
                         })
                         
 def create_patch_naming_convention_state_variable_uses(_slither, _target, _name, _contract_name, _in_file):
@@ -508,13 +499,12 @@ def create_patch_naming_convention_state_variable_uses(_slither, _target, _name,
                                 else:
                                     new_str_of_interest = old_str_of_interest
                                     new_str_of_interest = new_str_of_interest[0].lower()+new_str_of_interest[1:]
-                                patches.append({
+                                patches[_in_file].append({
                                     "detector" : "naming-convention (state variable uses)",
                                     "start" : modify_loc_start,
                                     "end" : modify_loc_end,
                                     "old_string" : old_str_of_interest,
-                                    "new_string" : new_str_of_interest,
-                                    "patch_file" : _in_file
+                                    "new_string" : new_str_of_interest
                                 })
 
 def create_patch_naming_convention_enum_definition(_slither, _name, _contract_name, _in_file, _modify_loc_start, _modify_loc_end):
@@ -528,13 +518,12 @@ def create_patch_naming_convention_enum_definition(_slither, _name, _contract_na
                         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"enum"+r'(.*)'+_name, r'\1'+"enum"+r'\2'+_name[0].capitalize()+_name[1:], old_str_of_interest, 1)
                         if num_repl != 0:
-                            patches.append({
+                            patches[_in_file].append({
                                 "detector" : "naming-convention (enum definition)",
                                 "start" : _modify_loc_start,
                                 "end" : _modify_loc_end,
                                 "old_string" : old_str_of_interest,
-                                "new_string" : new_str_of_interest,
-                                "patch_file" : _in_file
+                                "new_string" : new_str_of_interest
                             })
                         else:
                             print("Error: Could not find enum?!")
@@ -552,13 +541,12 @@ def create_patch_naming_convention_enum_uses(_slither, _name, _contract_name, _i
                 if (str(sv.type) == _contract_name + "." + _name):
                     old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
                     (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 1)
-                    patches.append({
+                    patches[_in_file].append({
                         "detector" : "naming-convention (enum use)",
                         "start" : contract.get_source_var_declaration(sv.name)['start'],
                         "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
                         "old_string" : old_str_of_interest,
-                        "new_string" : new_str_of_interest,
-                        "patch_file" : _in_file
+                        "new_string" : new_str_of_interest
                     })
             # Check function+modifier locals+parameters+returns
             # To-do: Deep-check aggregate types (struct and mapping)
@@ -569,13 +557,12 @@ def create_patch_naming_convention_enum_uses(_slither, _name, _contract_name, _i
                     if (str(v.type) == _contract_name + "." + _name):
                         old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
                         (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 1)
-                        patches.append({
+                        patches[_in_file].append({
                             "detector" : "naming-convention (enum use)",
                             "start" : fm.get_source_var_declaration(v.name)['start'],
                             "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
                             "old_string" : old_str_of_interest,
-                            "new_string" : new_str_of_interest,
-                            "patch_file" : _in_file
+                            "new_string" : new_str_of_interest
                         })
                 # To-do Capture Enum uses such as "num = numbers.ONE;"
                 # where numbers is not captured by slither as a variable/value on the RHS
@@ -592,13 +579,12 @@ def create_patch_naming_convention_struct_definition(_slither, _name, _contract_
                         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"struct"+r'(.*)'+_name, r'\1'+"struct"+r'\2'+_name[0].capitalize()+_name[1:], old_str_of_interest, 1)
                         if num_repl != 0:
-                            patches.append({
+                            patches[_in_file].append({
                                 "detector" : "naming-convention (struct definition)",
                                 "start" : _modify_loc_start,
                                 "end" : _modify_loc_end,
                                 "old_string" : old_str_of_interest,
-                                "new_string" : new_str_of_interest,
-                                "patch_file" : _in_file
+                                "new_string" : new_str_of_interest
                             })
                         else:
                             print("Error: Could not find struct?!")
@@ -616,13 +602,12 @@ def create_patch_naming_convention_struct_uses(_slither, _name, _contract_name, 
                 if (str(sv.type) == _contract_name + "." + _name):
                     old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
                     (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 1)
-                    patches.append({
+                    patches[_in_file].append({
                         "detector" : "naming-convention (struct use)",
                         "start" : contract.get_source_var_declaration(sv.name)['start'],
                         "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
                         "old_string" : old_str_of_interest,
-                        "new_string" : new_str_of_interest,
-                        "patch_file" : _in_file
+                        "new_string" : new_str_of_interest
                     })
             # Check function+modifier locals+parameters+returns
             # To-do: Deep-check aggregate types (struct and mapping)
@@ -632,13 +617,12 @@ def create_patch_naming_convention_struct_uses(_slither, _name, _contract_name, 
                     if (str(v.type) == _contract_name + "." + _name):
                         old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
                         (new_str_of_interest, num_repl) = re.subn(_name, _name.capitalize(),old_str_of_interest, 1)
-                        patches.append({
+                        patches[_in_file].append({
                             "detector" : "naming-convention (struct use)",
                             "start" : fm.get_source_var_declaration(v.name)['start'],
                             "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
                             "old_string" : old_str_of_interest,
-                            "new_string" : new_str_of_interest,
-                            "patch_file" : _in_file
+                            "new_string" : new_str_of_interest
                         })
             # To-do: Check any other place/way where struct type is used (e.g. typecast)
 
@@ -646,13 +630,12 @@ def create_patch_unused_state(_in_file, _modify_loc_start):
     with open(_in_file, 'r+') as in_file:
         in_file_str = in_file.read()
         old_str_of_interest = in_file_str[_modify_loc_start:]
-        patches.append({
+        patches[_in_file].append({
             "detector" : "unused-state",
             "start" : _modify_loc_start,
             "end" : _modify_loc_start + len(old_str_of_interest.partition(';')[0]),
             "old_string" : old_str_of_interest.partition(';')[0] + old_str_of_interest.partition(';')[1],
-            "new_string" : "",
-            "patch_file" : _in_file
+            "new_string" : ""
         })
 
 def create_patch_external_function(_in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end):
@@ -664,13 +647,12 @@ def create_patch_external_function(_in_file, _match_text, _replace_text, _modify
             # No visibility specifier exists; public by default.
             (new_str_of_interest, num_repl) = re.subn("\)", ") extern", old_str_of_interest, 1)
         if num_repl != 0:
-            patches.append({
+            patches[_in_file].append({
                 "detector" : "external-function",
                 "start" : _modify_loc_start,
                 "end" : _modify_loc_start + len(new_str_of_interest),
                 "old_string" : old_str_of_interest,
-                "new_string" : new_str_of_interest,
-                "patch_file" : _in_file
+                "new_string" : new_str_of_interest
             })
         else:
             print("Error: No public visibility specifier exists. Regex failed to add extern specifier!")
@@ -685,13 +667,12 @@ def create_patch_constant_function(_in_file, _match_text, _replace_text, _modify
             if num_repl != 0:
                 break
         if num_repl != 0:
-            patches.append({
+            patches[_in_file].append({
                 "detector" : "constant-function",
                 "start" : _modify_loc_start,
                 "end" : _modify_loc_start + len(new_str_of_interest),
                 "old_string" : old_str_of_interest,
-                "new_string" : new_str_of_interest,
-                "patch_file" : _in_file
+                "new_string" : new_str_of_interest
             })
         else:
             print("Error: No view/pure/constant specifier exists. Regex failed to remove specifier!")
@@ -703,13 +684,12 @@ def create_patch_constable_states(_in_file, _match_text, _replace_text, _modify_
         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
         (new_str_of_interest, num_repl) = re.subn(_match_text, _replace_text, old_str_of_interest, 1)
         if num_repl != 0:
-            patches.append({
+            patches[_in_file].append({
                 "detector" : "constable-states",
                 "start" : _modify_loc_start,
                 "end" : _modify_loc_start + len(new_str_of_interest),
                 "old_string" : old_str_of_interest,
-                "new_string" : new_str_of_interest,
-                "patch_file" : _in_file
+                "new_string" : new_str_of_interest
             })
         else:
             print("Error: State variable not found?!")
@@ -719,26 +699,24 @@ def create_patch_different_pragma(_in_file, pragma, _modify_loc_start, _modify_l
     with open(_in_file, 'r+') as in_file:
         in_file_str = in_file.read()
         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
-        patches.append({
+        patches[_in_file].append({
             "detector" : "pragma",
 	    "start" : _modify_loc_start,
 	    "end" : _modify_loc_end,
 	    "old_string" : old_str_of_interest,
-	    "new_string" : pragma,
-            "patch_file" : _in_file
+	    "new_string" : pragma
         })
 
 def create_patch_solc_version(_in_file, _solc_version, _modify_loc_start, _modify_loc_end):
  with open(_in_file, 'r+') as in_file:
         in_file_str = in_file.read()
         old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
-        patches.append({
+        patches[_in_file].append({
             "detector" : "solc-version",
 	    "start" : _modify_loc_start,
 	    "end" : _modify_loc_end,
 	    "old_string" : old_str_of_interest,
-	    "new_string" : _solc_version,
-            "patch_file" : _in_file
+	    "new_string" : _solc_version
         })
     
 def choose_detectors(args):
