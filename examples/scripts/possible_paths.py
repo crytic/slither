@@ -179,12 +179,12 @@ reaching_functions = set([y for x in reaching_paths for y in x if y not in targe
 
 # Print out all function names which can reach the targets.
 print(f"The following functions reach the specified targets:")
-for function_desc in sorted([f"{f.contract.name}.{f.full_name}" for f in reaching_functions]):
+for function_desc in sorted([f"{f.canonical_name}" for f in reaching_functions]):
     print(f"-{function_desc}")
 print("\n")
 
 # Format all function paths.
-reaching_paths_str = [' -> '.join([f"{f.contract.name}.{f.full_name}" for f in reaching_path]) for reaching_path in reaching_paths]
+reaching_paths_str = [' -> '.join([f"{f.canonical_name}" for f in reaching_path]) for reaching_path in reaching_paths]
 
 # Print a sorted list of all function paths which can reach the targets.
 print(f"The following paths reach the specified targets:")

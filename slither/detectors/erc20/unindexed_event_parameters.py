@@ -79,7 +79,7 @@ In this case, Transfer and Approval events should have the 'indexed' keyword on 
 
                 # Add the events to the JSON (note: we do not add the params/vars as they have no source mapping).
                 json = self.generate_json_result(info)
-                self.add_functions_to_json([event for event, _ in unindexed_params], json)
+                self.add_events_to_json([event for event, _ in unindexed_params], json)
                 results.append(json)
 
         return results

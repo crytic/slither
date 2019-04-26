@@ -76,13 +76,11 @@ contract DerivedContract is BaseContract{
                 for all_variables in shadowing:
                     shadow = all_variables[0]
                     variables = all_variables[1:]
-                    info = '{}.{} ({}) shadows:\n'.format(shadow.contract.name,
-                                                          shadow.name,
-                                                          shadow.source_mapping_str)
+                    info = '{} ({}) shadows:\n'.format(shadow.canonical_name,
+                                                       shadow.source_mapping_str)
                     for var in variables:
-                        info += "\t- {}.{} ({})\n".format(var.contract.name,
-                                                          var.name,
-                                                          var.source_mapping_str)
+                        info += "\t- {} ({})\n".format(var.canonical_name,
+                                                       var.source_mapping_str)
 
                     json = self.generate_json_result(info)
                     self.add_variables_to_json(all_variables, json)

@@ -35,7 +35,7 @@ class Assembly(AbstractDetector):
     def detect_assembly(self, contract):
         ret = []
         for f in contract.functions:
-            if f.contract != contract:
+            if f.original_contract != contract:
                 continue
             nodes = f.nodes
             assembly_nodes = [n for n in nodes if
@@ -51,8 +51,8 @@ class Assembly(AbstractDetector):
         for c in self.contracts:
             values = self.detect_assembly(c)
             for func, nodes in values:
-                info = "{}.{} uses assembly ({})\n"
-                info = info.format(func.contract.name, func.name, func.source_mapping_str)
+                info = "{} uses assembly ({})\n"
+                info = info.format(func.canonical_name, func.source_mapping_str)
 
                 for node in nodes:
                     info += "\t- {}\n".format(node.source_mapping_str)

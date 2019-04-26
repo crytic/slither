@@ -64,13 +64,12 @@ contract MyConc{
         results = []
         for c in self.slither.contracts:
             for f in c.functions + c.modifiers:
-                if f.contract != c:
+                if f.original_contract != c:
                     continue
                 unused_return = self.detect_unused_return_values(f)
                 if unused_return:
-                    info = "{}.{} ({}) does not use the value returned by external calls:\n"
-                    info = info.format(f.contract.name,
-                                       f.name,
+                    info = "{} ({}) does not use the value returned by external calls:\n"
+                    info = info.format(f.canonical_name,
                                        f.source_mapping_str)
                     for node in unused_return:
                         info += "\t-{} ({})\n".format(node.expression, node.source_mapping_str)

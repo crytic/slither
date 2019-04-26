@@ -58,7 +58,7 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
         all_enums = [item for sublist in all_enums for item in sublist]
         var_type = next((e for e in all_enums if e.name == enum_name), None)
         if not var_type:
-            var_type = next((e for e in all_enums if  e.contract.name+"."+e.name == enum_name), None)
+            var_type = next((e for e in all_enums if e.canonical_name == enum_name), None)
     if not var_type:
         # any contract can refer to another contract's structure
         name_struct = name
@@ -69,14 +69,14 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
         all_structures = [item for sublist in all_structures for item in sublist]
         var_type = next((st for st in all_structures if st.name == name_struct), None)
         if not var_type:
-            var_type = next((st for st in all_structures if  st.contract.name+"."+st.name == name_struct), None)
+            var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
         # case where struct xxx.xx[] where not well formed in the AST
         if not var_type:
             depth = 0
             while name_struct.endswith('[]'):
                 name_struct = name_struct[0:-2]
                 depth+=1
-            var_type = next((st for st in all_structures if st.contract.name+"."+st.name == name_struct), None)
+            var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
             if var_type:
                 return ArrayType(UserDefinedType(var_type), Literal(depth))
 

@@ -65,8 +65,8 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
         for c in self.contracts:
             values = self.detect_tx_origin(c)
             for func, nodes in values:
-                info = "{}.{} uses tx.origin for authorization:\n"
-                info = info.format(func.contract.name, func.name)
+                info = "{} uses tx.origin for authorization:\n"
+                info = info.format(func.canonical_name)
 
                 for node in nodes:
                     info += "\t- {} ({})\n".format(node.expression, node.source_mapping_str)

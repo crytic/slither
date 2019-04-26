@@ -51,7 +51,7 @@ def check_initialization(s):
             for f in all_init_functions:
                 if not initializer in f.modifiers:
                     initializer_modifier_missing = True
-                    logger.info(red(f'{f.contract.name}.{f.name} does not call initializer'))
+                    logger.info(red(f'{f.canonical_name} does not call initializer'))
             most_derived_init = _get_most_derived_init(contract)
             if most_derived_init is None:
                 init_info += f'{contract.name} has no initialize function\n'
@@ -61,7 +61,7 @@ def check_initialization(s):
             all_init_functions_called = _get_all_internal_calls(most_derived_init)  + [most_derived_init]
             missing_calls = [f for f in all_init_functions if not f in all_init_functions_called]
             for f in missing_calls:
-                logger.info(red(f'Missing call to {f.contract.name}.{f.name} in {contract.name}'))
+                logger.info(red(f'Missing call to {f.canonical_name} in {contract.name}'))
                 missing_call = True
             double_calls = list(set([f for f in all_init_functions_called if all_init_functions_called.count(f) > 1]))
             for f in double_calls:

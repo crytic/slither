@@ -232,8 +232,9 @@ class ContractSolc04(Contract):
 
     def _parse_modifier(self, modifier):
 
-        modif = ModifierSolc(modifier, self)
+        modif = ModifierSolc(modifier, self, self)
         modif.set_contract(self)
+        modif.set_original_contract(self)
         modif.set_offset(modifier['src'], self.slither)
         self.slither.add_modifier(modif)
         self._modifiers_no_params.append(modif)
@@ -247,7 +248,7 @@ class ContractSolc04(Contract):
         return
 
     def _parse_function(self, function):
-        func = FunctionSolc(function, self)
+        func = FunctionSolc(function, self, self)
         func.set_offset(function['src'], self.slither)
         self.slither.add_function(func)
         self._functions_no_params.append(func)
@@ -281,26 +282,52 @@ class ContractSolc04(Contract):
         return
 
     def analyze_params_modifiers(self):
-        for father in self.inheritance_reverse:
-            self._modifiers.update(father.modifiers_as_dict())
 
-        for modifier in self._modifiers_no_params:
-            modifier.analyze_params()
-            self._modifiers[modifier.full_name] = modifier
+        elements_no_params = self._modifiers_no_params
+        getter = lambda f: f.modifiers
+        getter_available = lambda f: f.available_modifiers_as_dict().items()
+        Cls = ModifierSolc
+        self._modifiers = self._analyze_params_elements(elements_no_params, getter, getter_available, Cls)
 
         self._modifiers_no_params = []
+
         return
 
     def analyze_params_functions(self):
-        # keep track of the contracts visited
-        # to prevent an ovveride due to multiple inheritance of the same contract
-        # A is B, C, D is C, --> the second C was already seen
-        contracts_visited = []
-        for father in self.inheritance_reverse:
-            functions = {k:v for (k, v) in father.functions_as_dict().items()
-                         if not v.contract in contracts_visited}
-            contracts_visited.append(father)
-            self._functions.update(functions)
+
+        elements_no_params = self._functions_no_params
+        getter = lambda f: f.functions
+        getter_available = lambda f: f.available_functions_as_dict().items()
+        Cls = FunctionSolc
+        self._functions = self._analyze_params_elements(elements_no_params, getter, getter_available, Cls)
+
+        self._functions_no_params = []
+        return
+
+
+    def _analyze_params_elements(self, elements_no_params, getter, getter_available, Cls):
+        """
+        Analyze the parameters of the given elements (Function or Modifier).
+        The function iterates over the inheritance to create an instance or inherited elements (Function or Modifier)
+        If the element is shadowed, set is_shadowed to True
+        :param elements_no_params: list of elements to analyzer
+        :param getter: fun x
+        :param getter_available: fun x
+        :param Cls: Class to create for collision
+        :return:
+        """
+        all_elements = {}
+        accessible_elements = {}
+
+        for father in self.inheritance:
+            for element in getter(father):
+                elem = Cls(element._functionNotParsed, self, element.original_contract)
+                elem.set_offset(element._functionNotParsed['src'], self.slither)
+                elem.analyze_params()
+                self.slither.add_function(elem)
+                all_elements[elem.canonical_name] = elem
+
+        accessible_elements = self.available_elements_from_inheritances(all_elements, getter_available)
 
         # If there is a constructor in the functions
         # We remove the previous constructor
@@ -308,20 +335,25 @@ class ContractSolc04(Contract):
         #
         # Note: contract.all_functions_called returns the constructors of the base contracts
         has_constructor = False
-        for function in self._functions_no_params:
-            function.analyze_params()
-            if function.is_constructor:
+        for element in elements_no_params:
+            element.analyze_params()
+            if element.is_constructor:
                 has_constructor = True
 
         if has_constructor:
-            _functions = {k:v for (k, v) in self._functions.items() if not v.is_constructor}
-            self._functions = _functions
+            _accessible_functions = {k: v for (k, v) in accessible_elements.items() if not v.is_constructor}
 
-        for function in self._functions_no_params:
-            self._functions[function.full_name] = function
+        for element in elements_no_params:
+            accessible_elements[element.full_name] = element
+            all_elements[element.canonical_name] = element
 
-        self._functions_no_params = []
-        return
+        for element in all_elements.values():
+            if accessible_elements[element.full_name] != all_elements[element.canonical_name]:
+                element.is_shadowed = True
+
+        return all_elements
+
+
 
     def analyze_constant_state_variables(self):
         from slither.solc_parsing.expressions.expression_parsing import VariableNotFound
@@ -434,8 +466,7 @@ class ContractSolc04(Contract):
 
     def convert_expression_to_slithir(self):
         for func in self.functions + self.modifiers:
-            if func.contract == self:
-                func.generate_slithir_and_analyze()
+            func.generate_slithir_and_analyze()
 
         all_ssa_state_variables_instances = dict()
 
@@ -453,8 +484,7 @@ class ContractSolc04(Contract):
                 self._initial_state_variables.append(new_var)
 
         for func in self.functions + self.modifiers:
-            if func.contract == self:
-                func.generate_slithir_ssa(all_ssa_state_variables_instances)
+            func.generate_slithir_ssa(all_ssa_state_variables_instances)
 
     def fix_phi(self):
         last_state_variables_instances = dict()

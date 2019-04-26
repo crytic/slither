@@ -6,6 +6,7 @@ from collections import namedtuple
 from itertools import groupby
 
 from slither.core.children.child_contract import ChildContract
+from slither.core.children.child_inheritance import ChildInheritance
 from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariable,
                                                           SolidityVariableComposed)
@@ -18,7 +19,7 @@ logger = logging.getLogger("Function")
 
 ReacheableNode = namedtuple('ReacheableNode', ['node', 'ir'])
 
-class Function(ChildContract, SourceMapping):
+class Function(ChildContract, ChildInheritance, SourceMapping):
     """
         Function class
     """
@@ -82,6 +83,8 @@ class Function(ChildContract, SourceMapping):
         self._all_conditional_solidity_variables_read_with_loop = None
         self._all_solidity_variables_used_as_args = None
 
+        self._is_shadowed = False
+
         # set(ReacheableNode)
         self._reachable_from_nodes = set()
         self._reachable_from_functions = set()
@@ -114,11 +117,20 @@ class Function(ChildContract, SourceMapping):
         return name+'('+','.join(parameters)+')'
 
     @property
+    def canonical_name(self):
+        """
+            str: contract.func_name(type1,type2)
+            Return the function signature without the return values
+        """
+        name, parameters, _ = self.signature
+        return self.original_contract.name + '.' + name + '(' + ','.join(parameters) + ')'
+
+    @property
     def is_constructor(self):
         """
             bool: True if the function is the constructor
         """
-        return self._is_constructor or self._name == self.contract.name
+        return self._is_constructor or self._name == self.original_contract.name
 
     @property
     def contains_assembly(self):
@@ -169,6 +181,14 @@ class Function(ChildContract, SourceMapping):
             bool: True if the function is declared as pure
         """
         return self._pure
+
+    @property
+    def is_shadowed(self):
+        return self._is_shadowed
+
+    @is_shadowed.setter
+    def is_shadowed(self, is_shadowed):
+        self._is_shadowed = is_shadowed
 
     # endregion
     ###################################################################################
@@ -930,7 +950,7 @@ class Function(ChildContract, SourceMapping):
             (str, str, str, list(str), list(str), listr(str), list(str), list(str);
             contract_name, name, visibility, modifiers, vars read, vars written, internal_calls, external_calls_as_expressions
         """
-        return (self.contract.name, self.full_name, self.visibility,
+        return (self.original_contract.name, self.full_name, self.visibility,
                 [str(x) for x in self.modifiers],
                 [str(x) for x in self.state_variables_read + self.solidity_variables_read],
                 [str(x) for x in self.state_variables_written],

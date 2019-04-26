@@ -91,12 +91,12 @@ contract Bug {
 
         # Loop through all functions, modifiers, variables (state and local) to detect any built-in symbol keywords.
         for function in contract.functions:
-            if function.contract == contract:
+            if function.original_contract == contract:
                 if self.is_builtin_symbol(function.name):
                     result.append((self.SHADOWING_FUNCTION, function, None))
                 result += self.detect_builtin_shadowing_locals(function)
         for modifier in contract.modifiers:
-            if modifier.contract == contract:
+            if modifier.original_contract == contract:
                 if self.is_builtin_symbol(modifier.name):
                     result.append((self.SHADOWING_MODIFIER, modifier, None))
                 result += self.detect_builtin_shadowing_locals(modifier)
@@ -143,8 +143,10 @@ contract Bug {
 
                     # Generate relevant JSON data for this shadowing definition.
                     json = self.generate_json_result(info)
-                    if shadow_type in [self.SHADOWING_FUNCTION, self.SHADOWING_MODIFIER, self.SHADOWING_EVENT]:
+                    if shadow_type in [self.SHADOWING_FUNCTION, self.SHADOWING_MODIFIER]:
                         self.add_function_to_json(shadow_object, json)
+                    elif shadow_type == self.SHADOWING_EVENT:
+                        self.add_event_to_json(shadow_object, json)
                     elif shadow_type in [self.SHADOWING_STATE_VARIABLE, self.SHADOWING_LOCAL_VARIABLE]:
                         self.add_variable_to_json(shadow_object, json)
                     results.append(json)

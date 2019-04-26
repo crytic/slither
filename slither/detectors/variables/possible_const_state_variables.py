@@ -85,9 +85,8 @@ class ConstCandidateStateVars(AbstractDetector):
         # Order for deterministic results
         constable_variables = sorted(constable_variables, key=lambda x: x.canonical_name)
         for v in constable_variables:
-            info = "{}.{} should be constant ({})\n".format(v.contract.name,
-                                                            v.name,
-                                                            v.source_mapping_str)
+            info = "{} should be constant ({})\n".format(v.canonical_name,
+                                                         v.source_mapping_str)
             all_info += info
         if all_info != '':
             json = self.generate_json_result(all_info)
