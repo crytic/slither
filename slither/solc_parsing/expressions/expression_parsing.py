@@ -70,6 +70,7 @@ def get_pointer_name(variable):
 
 def find_variable(var_name, caller_context, referenced_declaration=None, is_super=False):
 
+
     if isinstance(caller_context, Contract):
         function = None
         contract = caller_context

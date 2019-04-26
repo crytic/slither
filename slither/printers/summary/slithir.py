@@ -23,7 +23,7 @@ class PrinterSlithIR(AbstractPrinter):
         for contract in self.contracts:
             print('Contract {}'.format(contract.name))
             for function in contract.functions:
-                print('\tFunction {}'.format(function.canonical_name))
+                print(f'\tFunction {function.canonical_name}')
                 for node in function.nodes:
                     if node.expression:
                         print('\t\tExpression: {}'.format(node.expression))

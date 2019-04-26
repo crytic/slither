@@ -402,7 +402,7 @@ class Contract(ChildSlither, SourceMapping):
         Returns:
             Function
         """
-        return next((f for f in self.functions if f.full_name == function_signature), None)
+        return next((f for f in self.functions if f.full_name == function_signature and not f.is_shadowed), None)
 
     def get_modifier_from_signature(self, modifier_signature):
         """
@@ -412,7 +412,28 @@ class Contract(ChildSlither, SourceMapping):
         Returns:
             Modifier
         """
-        return next((m for m in self.modifiers if m.full_name == modifier_signature), None)
+        return next((m for m in self.modifiers if m.full_name == modifier_signature and not m.is_shadowed), None)
+
+    def get_function_from_canonical_name(self, canonical_name):
+        """
+            Return a function from a a canonical name (contract.signature())
+        Args:
+            canonical_name (str): canonical name of the function (without return statement)
+        Returns:
+            Function
+        """
+        return next((f for f in self.functions if f.canonical_name == canonical_name), None)
+
+    def get_modifier_from_canonical_name(self, canonical_name):
+        """
+            Return a modifier from a canonical name (contract.signature())
+        Args:
+            canonical_name (str): canonical name of the modifier
+        Returns:
+            Modifier
+        """
+        return next((m for m in self.modifiers if m.canonical_name == canonical_name), None)
+
 
     def get_state_variable_from_name(self, variable_name):
         """
