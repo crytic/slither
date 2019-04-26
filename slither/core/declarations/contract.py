@@ -520,8 +520,9 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(Function): List of functions reachable from the contract (include super)
         '''
-        all_calls = [f.all_internal_calls() for f in self.functions + self.modifiers] + [self.functions + self.modifiers]
-        all_calls = [item for sublist in all_calls for item in sublist] + self.functions
+        all_calls = [f for f in self.functions + self.modifiers if not f.is_shadowed]
+        all_calls = [f.all_internal_calls() for f in all_calls] + [all_calls]
+        all_calls = [item for sublist in all_calls for item in sublist]
         all_calls = list(set(all_calls))
 
         all_constructors = [c.constructor for c in self.inheritance]
