@@ -45,6 +45,8 @@ def get_number_of_slither_results (detector_results):
     number_of_slither_results = 0
     for result in detector_results:
         for elem in result['elements']:
+            if (result['check'] == 'constant-function' and elem['type'] != "function"):
+                continue
             number_of_slither_results += 1
     return number_of_slither_results
             

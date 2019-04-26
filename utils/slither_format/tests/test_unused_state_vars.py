@@ -30,7 +30,7 @@ class TestUnusedStateVars(unittest.TestCase):
         self.assertEqual(outFD_lines.count("Old string: address unused    ;"), 1)
         self.assertEqual(outFD_lines.count("New string:"), 1)
         self.assertEqual(outFD_lines.count("Location start: 44"), 1)
-        self.assertEqual(outFD_lines.count("Location end: 62"), 1)
+        self.assertEqual(outFD_lines.count("Location end: 63"), 1)
         outFD.close()
     
 if __name__ == '__main__':
