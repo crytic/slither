@@ -5,6 +5,18 @@ Some contracts do not return a bool on transfer/transferFrom/approve, which may 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
+def is_possible_erc20(contract):
+    """
+    Checks if the provided contract could be attempting to implement ERC20 standards.
+    :param contract: The contract to check for token compatibility.
+    :return: Returns a boolean indicating if the provided contract met the token standard.
+    """
+    full_names = set([f.full_name for f in contract.functions])
+    return 'transfer(address,uint256)' in full_names or \
+           'transferFrom(address,address,uint256)' in full_names or \
+           'approve(address,uint256)' in full_names
+
+
 class IncorrectERC20InterfaceDetection(AbstractDetector):
     """
     Incorrect ERC20 Interface
@@ -18,7 +30,7 @@ class IncorrectERC20InterfaceDetection(AbstractDetector):
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-erc20-interface'
 
     WIKI_TITLE = 'Incorrect erc20 interface'
-    WIKI_DESCRIPTION = 'Lack of return value for the ERC20 `approve`/`transfer`/`transferFrom` functions. A contract compiled with solidity > 0.4.22 interacting with these functions will fail to execute them, as the return value is missing.'
+    WIKI_DESCRIPTION = 'Incorrect return values for ERC20 functions. A contract compiled with solidity > 0.4.22 interacting with these functions will fail to execute them, as the return value is missing.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract Token{
@@ -28,7 +40,7 @@ contract Token{
 ```
 `Token.transfer` does not return a boolean. Bob deploys the token. Alice creates a contract that interacts with it but assumes a correct ERC20 interface implementation. Alice's contract is unable to interact with Bob's contract.'''
 
-    WIKI_RECOMMENDATION = 'Return a boolean for the `approve`/`transfer`/`transferFrom` functions.'
+    WIKI_RECOMMENDATION = 'Set the appropriate return values and value-types for the defined ERC20 functions.'
 
     @staticmethod
     def incorrect_erc20_interface(signature):
@@ -43,6 +55,15 @@ contract Token{
         if name == 'approve' and parameters == ['address', 'uint256'] and returnVars != ['bool']:
             return True
 
+        if name == 'allowance' and parameters == ['address', 'address'] and returnVars != ['uint256']:
+            return True
+
+        if name == 'balanceOf' and parameters == ['address'] and returnVars != ['uint256']:
+            return True
+
+        if name == 'totalSupply' and parameters == [] and returnVars != ['uint256']:
+            return True
+
         return False
 
     @staticmethod
@@ -52,28 +73,25 @@ contract Token{
         Returns:
             list(str) : list of incorrect function signatures
         """
-        # Obtain all function names for this contract
-        full_names = set([f.full_name for f in contract.functions])
+        # Verify this is an ERC20 contract.
+        if not is_possible_erc20(contract):
+            return []
 
         # If this contract implements a function from ERC721, we can assume it is an ERC721 token. These tokens
         # offer functions which are similar to ERC20, but are not compatible.
-        if ('ownerOf(uint256)' in full_names or
-         'safeTransferFrom(address,address,uint256,bytes)' in full_names or
-         'safeTransferFrom(address,address,uint256)' in full_names or
-         'setApprovalForAll(address,bool)' in full_names or
-         'getApproved(uint256)' in full_names or
-         'isApprovedForAll(address,address)' in full_names):
+        # NOTE: This detector is dependent on this one, so we import here to avoid errors.
+        from slither.detectors.erc.incorrect_erc721_interface import is_possible_erc721
+        if is_possible_erc721(contract):
             return []
 
-        functions = [f for f in contract.functions if f.contract == contract and \
-                     IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)]
+        functions = [f for f in contract.functions if IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)]
         return functions
 
     def _detect(self):
         """ Detect incorrect erc20 interface
 
         Returns:
-            dict: [contrat name] = set(str)  events
+            dict: [contract name] = set(str)  events
         """
         results = []
         for c in self.contracts:
