@@ -1,0 +1,7 @@
+INFO:Detectors:[92m
+VectorSum.sumAsm uses assembly (tests/inline_assembly_library-0.5.1.sol#16-22)
+	- tests/inline_assembly_library-0.5.1.sol#18-21
+VectorSum.sumPureAsm uses assembly (tests/inline_assembly_library-0.5.1.sol#25-47)
+	- tests/inline_assembly_library-0.5.1.sol#26-47
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage[0m
+INFO:Slither:tests/inline_assembly_library-0.5.1.sol analyzed (1 contracts), 2 result(s) found

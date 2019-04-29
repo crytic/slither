@@ -1,0 +1,5 @@
+INFO:Detectors:[91m
+Backdoor function found in C.i_am_a_backdoor (tests/backdoor.sol#4-6)
+Reference: https://github.com/trailofbits/slither/wiki/Adding-a-new-detector[0m
+INFO:Slither:[93m/home/monty/Private/tob/tools/slither-public/scripts/../tests/expected_json/backdoor.backdoor.json exists already, the overwrite is prevented[0m
+INFO:Slither:tests/backdoor.sol analyzed (1 contracts), 1 result(s) found

@@ -1,0 +1,15 @@
+INFO:Detectors:[92m
+FurtherExtendedContract.shadowingParent.x (local variable @ tests/shadowing_local_variable.sol#25) shadows:
+	- FurtherExtendedContract.x (state variable @ tests/shadowing_local_variable.sol#17)
+	- ExtendedContract.x (state variable @ tests/shadowing_local_variable.sol#9)
+	- BaseContract.x (state variable @ tests/shadowing_local_variable.sol#4)
+FurtherExtendedContract.shadowingParent.y (local variable @ tests/shadowing_local_variable.sol#25) shadows:
+	- BaseContract.y (state variable @ tests/shadowing_local_variable.sol#5)
+FurtherExtendedContract.shadowingParent.z (local variable @ tests/shadowing_local_variable.sol#25) shadows:
+	- ExtendedContract.z (function @ tests/shadowing_local_variable.sol#11)
+FurtherExtendedContract.shadowingParent.w (local variable @ tests/shadowing_local_variable.sol#25) shadows:
+	- FurtherExtendedContract.w (modifier @ tests/shadowing_local_variable.sol#20-23)
+FurtherExtendedContract.shadowingParent.v (local variable @ tests/shadowing_local_variable.sol#25) shadows:
+	- ExtendedContract.v (event @ tests/shadowing_local_variable.sol#13)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing[0m
+INFO:Slither:tests/shadowing_local_variable.sol analyzed (3 contracts), 5 result(s) found
