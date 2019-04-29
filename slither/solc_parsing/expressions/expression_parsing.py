@@ -70,13 +70,29 @@ def get_pointer_name(variable):
 
 def find_variable(var_name, caller_context, referenced_declaration=None, is_super=False):
 
+    # variable are looked from the contract declarer
+    # functions can be shadowed, but are looked from the contract instance, rather than the contract declarer
+    # the difference between function and variable come from the fact that an internal call, or an variable access
+    # in a function does not behave similariy, for example in:
+    # contract C{
+    #   function f(){
+    #     state_var = 1
+    #     f2()
+    #  }
+    # state_var will refer to C.state_var, no mater if C is inherited
+    # while f2() will refer to the function definition of the inherited contract (C.f2() in the context of C, or
+    # the contract inheriting from C)
+    # for events it's unclear what should be the behavior, as they can be shadowed, but there is not impact
+    # structure/enums cannot be shadowed
 
     if isinstance(caller_context, Contract):
         function = None
         contract = caller_context
+        contract_declarer = caller_context
     elif isinstance(caller_context, Function):
         function = caller_context
         contract = function.contract
+        contract_declarer = function.contract_declarer
     else:
         logger.error('Incorrect caller context')
         exit(-1)
@@ -99,12 +115,13 @@ def find_variable(var_name, caller_context, referenced_declaration=None, is_supe
         if var_name and var_name in func_variables_ptr:
             return func_variables_ptr[var_name]
 
-    contract_variables = contract.variables_as_dict()
+    # variable are looked from the contract declarer
+    contract_variables = contract_declarer.variables_as_dict()
     if var_name in contract_variables:
         return contract_variables[var_name]
 
     # A state variable can be a pointer
-    conc_variables_ptr = {get_pointer_name(f) : f for f in contract.variables}
+    conc_variables_ptr = {get_pointer_name(f) : f for f in contract_declarer.variables}
     if var_name and var_name in conc_variables_ptr:
         return conc_variables_ptr[var_name]
 
@@ -126,6 +143,7 @@ def find_variable(var_name, caller_context, referenced_declaration=None, is_supe
     if var_name in modifiers:
         return modifiers[var_name]
 
+    # structures are looked on the contract declarer
     structures = contract.structures_as_dict()
     if var_name in structures:
         return structures[var_name]
