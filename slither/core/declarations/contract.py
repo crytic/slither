@@ -184,7 +184,7 @@ class Contract(ChildSlither, SourceMapping):
 
     @property
     def constructor_not_inherited(self):
-        return next((func for func in self.functions if func.is_constructor and func.original_contract == self), None)
+        return next((func for func in self.functions if func.is_constructor and func.contract_declarer == self), None)
 
     @property
     def constructors(self):
@@ -228,14 +228,14 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(Function): List of the inherited functions
         '''
-        return [f for f in self.functions if f.original_contract != self]
+        return [f for f in self.functions if f.contract_declarer != self]
 
     @property
     def functions_not_inherited(self):
         '''
             list(Function): List of the functions defined within the contract (not inherited)
         '''
-        return [f for f in self.functions if f.original_contract == self]
+        return [f for f in self.functions if f.contract_declarer == self]
 
     @property
     def functions_entry_points(self):
@@ -259,14 +259,14 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(Modifier): List of the inherited modifiers
         '''
-        return [m for m in self.modifiers if m.original_contract != self]
+        return [m for m in self.modifiers if m.contract_declarer != self]
 
     @property
     def modifiers_not_inherited(self):
         '''
             list(Modifier): List of the modifiers defined within the contract (not inherited)
         '''
-        return [m for m in self.modifiers if m.original_contract == self]
+        return [m for m in self.modifiers if m.contract_declarer == self]
 
     @property
     def functions_and_modifiers(self):
@@ -518,7 +518,8 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def all_functions_called(self):
         '''
-            list(Function): List of functions reachable from the contract (include super)
+            list(Function): List of functions reachable from the contract
+            Includes super, and private/internal functions not shadowed
         '''
         all_calls = [f for f in self.functions + self.modifiers if not f.is_shadowed]
         all_calls = [f.all_internal_calls() for f in all_calls] + [all_calls]

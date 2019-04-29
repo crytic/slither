@@ -59,7 +59,7 @@ Bob calls `kill` and destructs the contract.'''
 
     def detect_suicidal(self, contract):
         ret = []
-        for f in [f for f in contract.functions if f.original_contract == contract]:
+        for f in [f for f in contract.functions if f.contract_declarer == contract]:
             if self.detect_suicidal_func(f):
                 ret.append(f)
         return ret

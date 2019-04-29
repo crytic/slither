@@ -91,12 +91,12 @@ contract Bug {
 
         # Loop through all functions, modifiers, variables (state and local) to detect any built-in symbol keywords.
         for function in contract.functions:
-            if function.original_contract == contract:
+            if function.contract_declarer == contract:
                 if self.is_builtin_symbol(function.name):
                     result.append((self.SHADOWING_FUNCTION, function, None))
                 result += self.detect_builtin_shadowing_locals(function)
         for modifier in contract.modifiers:
-            if modifier.original_contract == contract:
+            if modifier.contract_declarer == contract:
                 if self.is_builtin_symbol(modifier.name):
                     result.append((self.SHADOWING_MODIFIER, modifier, None))
                 result += self.detect_builtin_shadowing_locals(modifier)

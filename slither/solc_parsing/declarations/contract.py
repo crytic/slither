@@ -234,7 +234,7 @@ class ContractSolc04(Contract):
 
         modif = ModifierSolc(modifier, self, self)
         modif.set_contract(self)
-        modif.set_original_contract(self)
+        modif.set_contract_declarer(self)
         modif.set_offset(modifier['src'], self.slither)
         self.slither.add_modifier(modif)
         self._modifiers_no_params.append(modif)
@@ -321,7 +321,7 @@ class ContractSolc04(Contract):
 
         for father in self.inheritance:
             for element in getter(father):
-                elem = Cls(element._functionNotParsed, self, element.original_contract)
+                elem = Cls(element._functionNotParsed, self, element.contract_declarer)
                 elem.set_offset(element._functionNotParsed['src'], self.slither)
                 elem.analyze_params()
                 self.slither.add_function(elem)

@@ -3,11 +3,11 @@ class ChildInheritance:
 
     def __init__(self):
         super(ChildInheritance, self).__init__()
-        self._original_contract = None
+        self._contract_declarer = None
 
-    def set_original_contract(self, original_contract):
-        self._original_contract = original_contract
+    def set_contract_declarer(self, contract):
+        self._contract_declarer = contract
 
     @property
-    def original_contract(self):
-        return self._original_contract
+    def contract_declarer(self):
+        return self._contract_declarer

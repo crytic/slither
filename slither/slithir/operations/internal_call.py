@@ -10,7 +10,7 @@ class InternalCall(Call, OperationWithLValue):
         if isinstance(function, Function):
             self._function = function
             self._function_name = function.name
-            self._contract_name = function.original_contract.name
+            self._contract_name = function.contract_declarer.name
         else:
             self._function = None
             self._function_name, self._contract_name = function

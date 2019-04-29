@@ -47,7 +47,7 @@ def main():
     # Print out all target functions.
     print(f"Target functions:")
     for target in targets:
-        print(f"- {target.original_contract.name}.{target.full_name}")
+        print(f"- {target.contract_declarer.name}.{target.full_name}")
     print("\n")
 
     # Obtain all paths which reach the target functions.

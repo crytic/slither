@@ -90,7 +90,7 @@ Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and ar
 
         for contract in self.slither.contracts:
             for function in contract.functions:
-                if function.is_implemented and function.original_contract == contract:
+                if function.is_implemented and function.contract_declarer == contract:
                     if function.contains_assembly:
                         continue
                     # dont consider storage variable, as they are detected by another detector

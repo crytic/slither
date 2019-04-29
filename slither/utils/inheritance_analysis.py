@@ -109,7 +109,7 @@ def detect_function_shadowing(contracts, direct_shadowing=True, indirect_shadowi
                     for y in range(x + 1, len(colliding_functions)):
                         # The same function definition can appear more than once in the inheritance chain,
                         # overshadowing items between, so it is important to remember to filter it out here.
-                        if colliding_functions[y][1].original_contract != colliding_functions[x][1].original_contract:
+                        if colliding_functions[y][1].contract_declarer != colliding_functions[x][1].contract_declarer:
                             results.add((contract, colliding_functions[y][0], colliding_functions[y][1],
                                          colliding_functions[x][0], colliding_functions[x][1]))
 

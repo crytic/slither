@@ -54,7 +54,7 @@ class Timestamp(AbstractDetector):
             list((Function), (list (Node)))
         """
         ret = []
-        for f in [f for f in contract.functions if f.original_contract == contract]:
+        for f in [f for f in contract.functions if f.contract_declarer == contract]:
             nodes = self.timestamp(f)
             if nodes:
                 ret.append((f, nodes))

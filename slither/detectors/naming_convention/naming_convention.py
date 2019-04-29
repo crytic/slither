@@ -103,7 +103,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     results.append(json)
 
             for func in contract.functions:
-                if func.original_contract != contract:
+                if func.contract_declarer != contract:
                     continue
 
                 if not self.is_mixed_case(func.name):
@@ -212,7 +212,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
 
             for modifier in contract.modifiers:
-                if modifier.original_contract != contract:
+                if modifier.contract_declarer != contract:
                     continue
 
                 if not self.is_mixed_case(modifier.name):

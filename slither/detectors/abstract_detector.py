@@ -169,7 +169,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     @staticmethod
     def add_function_to_json(function, d):
         contract = {'elements':[]}
-        AbstractDetector.add_contract_to_json(function.original_contract, contract)
+        AbstractDetector.add_contract_to_json(function.contract_declarer, contract)
         d['elements'].append({'type': 'function',
                               'name': function.name,
                               'source_mapping': function.source_mapping,

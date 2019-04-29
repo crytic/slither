@@ -72,7 +72,7 @@ If one of the destinations has a fallback function which reverts, `bad` will alw
     def detect_call_in_loop(contract):
         ret = []
         for f in contract.functions + contract.modifiers:
-            if f.original_contract == contract and f.is_implemented:
+            if f.contract_declarer == contract and f.is_implemented:
                 MultipleCallsInLoop.call_in_loop(f.entry_point,
                                                  False, [], ret)
 

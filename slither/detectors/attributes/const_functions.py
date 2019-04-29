@@ -51,7 +51,7 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
         results = []
         for c in self.contracts:
             for f in c.functions:
-                if f.original_contract != c:
+                if f.contract_declarer != c:
                     continue
                 if f.view or f.pure:
                     if f.contains_assembly:
