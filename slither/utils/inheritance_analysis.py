@@ -61,7 +61,7 @@ def detect_direct_function_shadowing(contract):
     function (could have provided it through inheritance, does not need to directly define it).
     -overshadowed_function is the function definition which is overshadowed by the provided contract's definition.
     """
-    functions_declared = {function.full_name: function for function in contract.functions_and_modifiers_not_inherited}
+    functions_declared = {function.full_name: function for function in contract.functions_and_modifiers_declared}
     results = {}
     for base_contract in reversed(contract.immediate_inheritance):
         for base_function in base_contract.functions_and_modifiers:
@@ -128,8 +128,7 @@ def detect_state_variable_shadowing(contracts):
     """
     results = set()
     for contract in contracts:
-        variables_declared = {variable.name: variable for variable in contract.variables
-                              if variable.contract == contract}
+        variables_declared = {variable.name: variable for variable in contract.state_variables_declared}
         for immediate_base_contract in contract.immediate_inheritance:
             for variable in immediate_base_contract.variables:
                 if variable.name in variables_declared:

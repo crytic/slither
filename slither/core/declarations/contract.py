@@ -73,6 +73,20 @@ class Contract(ChildSlither, SourceMapping):
         '''
         return list(self._structures.values())
 
+    @property
+    def structures_inherited(self):
+        '''
+            list(Structure): List of the inherited structures
+        '''
+        return [s for s in self.structures if s.contract != self]
+
+    @property
+    def structures_declared(self):
+        '''
+            list(Structues): List of the structures declared within the contract (not inherited)
+        '''
+        return [s for s in self.structures if s.contract == self]
+
     def structures_as_dict(self):
         return self._structures
 
@@ -86,6 +100,20 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def enums(self):
         return list(self._enums.values())
+
+    @property
+    def enums_inherited(self):
+        '''
+            list(Enum): List of the inherited enums
+        '''
+        return [e for e in self.enums if e.contract != self]
+
+    @property
+    def enums_declared(self):
+        '''
+            list(Enum): List of the enums declared within the contract (not inherited)
+        '''
+        return [e for e in self.enums if e.contract == self]
 
     def enums_as_dict(self):
         return self._enums
@@ -103,6 +131,20 @@ class Contract(ChildSlither, SourceMapping):
             list(Event): List of the events
         '''
         return list(self._events.values())
+
+    @property
+    def events_inherited(self):
+        '''
+            list(Event): List of the inherited events
+        '''
+        return [e for e in self.events if e.contract != self]
+
+    @property
+    def events_declared(self):
+        '''
+            list(Event): List of the events declared within the contract (not inherited)
+        '''
+        return [e for e in self.events if e.contract == self]
 
     def events_as_dict(self):
         return self._events
@@ -150,6 +192,20 @@ class Contract(ChildSlither, SourceMapping):
         return list(self._variables.values())
 
     @property
+    def state_variables_inherited(self):
+        '''
+            list(StateVariable): List of the inherited state variables
+        '''
+        return [s for s in self.state_variables if s.contract != self]
+
+    @property
+    def state_variables_declared(self):
+        '''
+            list(StateVariable): List of the state variables declared within the contract (not inherited)
+        '''
+        return [s for s in self.state_variables if s.contract == self]
+
+    @property
     def slithir_variables(self):
         '''
             List all of the slithir variables (non SSA)
@@ -173,17 +229,17 @@ class Contract(ChildSlither, SourceMapping):
             executed, following the c3 linearization
             Return None if there is no constructor.
         '''
-        cst = self.constructor_not_inherited
+        cst = self.constructors_declared
         if cst:
             return cst
         for inherited_contract in self.inheritance:
-            cst = inherited_contract.constructor_not_inherited
+            cst = inherited_contract.constructors_declared
             if cst:
                 return cst
         return None
 
     @property
-    def constructor_not_inherited(self):
+    def constructors_declared(self):
         return next((func for func in self.functions if func.is_constructor and func.contract_declarer == self), None)
 
     @property
@@ -231,7 +287,7 @@ class Contract(ChildSlither, SourceMapping):
         return [f for f in self.functions if f.contract_declarer != self]
 
     @property
-    def functions_not_inherited(self):
+    def functions_declared(self):
         '''
             list(Function): List of the functions defined within the contract (not inherited)
         '''
@@ -242,7 +298,7 @@ class Contract(ChildSlither, SourceMapping):
         '''
             list(Functions): List of public and external functions
         '''
-        return [f for f in self.functions if f.visibility in ['public', 'external']]
+        return [f for f in self.functions if f.visibility in ['public', 'external'] and not f.is_shadowed]
 
     @property
     def modifiers(self):
@@ -262,7 +318,7 @@ class Contract(ChildSlither, SourceMapping):
         return [m for m in self.modifiers if m.contract_declarer != self]
 
     @property
-    def modifiers_not_inherited(self):
+    def modifiers_declared(self):
         '''
             list(Modifier): List of the modifiers defined within the contract (not inherited)
         '''
@@ -283,11 +339,11 @@ class Contract(ChildSlither, SourceMapping):
         return self.functions_inherited + self.modifiers_inherited
 
     @property
-    def functions_and_modifiers_not_inherited(self):
+    def functions_and_modifiers_declared(self):
         '''
             list(Function|Modifier): List of the functions and modifiers defined within the contract (not inherited)
         '''
-        return self.functions_not_inherited + self.modifiers_not_inherited
+        return self.functions_declared + self.modifiers_declared
 
     def available_elements_from_inheritances(self, elements, getter_available):
         """
@@ -504,7 +560,7 @@ class Contract(ChildSlither, SourceMapping):
             list(core.Function)
 
         '''
-        candidates = [c.functions_not_inherited for c in self.inheritance]
+        candidates = [c.functions_declared for c in self.inheritance]
         candidates = [candidate for sublist in candidates for candidate in sublist]
         return [f for f in candidates if f.full_name == function.full_name]
 

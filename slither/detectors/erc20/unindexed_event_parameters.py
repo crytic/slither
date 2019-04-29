@@ -47,11 +47,7 @@ In this case, Transfer and Approval events should have the 'indexed' keyword on 
             return results
 
         # Loop through all events to look for poor form.
-        for event in contract.events:
-
-            # Only handle events which are declared in this contract.
-            if event.contract != contract:
-                continue
+        for event in contract.events_declared:
 
             # If this is transfer/approval events, expect the first two parameters to be indexed.
             if event.full_name in ["Transfer(address,address,uint256)",

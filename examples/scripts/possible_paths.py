@@ -69,7 +69,7 @@ def all_function_definitions(function):
     :return: Returns a list composed of the provided function definition and any base definitions.
     """
     return [function] + [f for c in function.contract.inheritance
-                         for f in c.functions_and_modifiers_not_inherited
+                         for f in c.functions_and_modifiers_declared
                          if f.full_name == function.full_name]
 
 
@@ -86,7 +86,7 @@ def __find_target_paths(target_function, current_path=[]):
 
     # Look through all functions
     for contract in slither.contracts:
-        for function in contract.functions_and_modifiers_not_inherited:
+        for function in contract.functions_and_modifiers_declared:
 
             # If the function is already in our path, skip it.
             if function in current_path:

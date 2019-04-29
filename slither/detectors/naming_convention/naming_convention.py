@@ -69,13 +69,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                 json['elements'] = [elem]
                 results.append(json)
 
-            for struct in contract.structures:
-                if struct.contract != contract:
-                    continue
-
+            for struct in contract.structures_declared:
                 if not self.is_cap_words(struct.name):
-                    info = "Struct '{}.{}' ({}) is not in CapWords\n"
-                    info = info.format(struct.contract.name, struct.name, struct.source_mapping_str)
+                    info = "Struct '{}' ({}) is not in CapWords\n"
+                    info = info.format(struct.canonical_name, struct.source_mapping_str)
 
                     json = self.generate_json_result(info)
                     elem = dict()
@@ -85,10 +82,8 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     elem['source_mapping'] = struct.source_mapping
                     json['elements'] = [elem]
                     results.append(json)
-            for event in contract.events:
-                if event.contract != contract:
-                    continue
 
+            for event in contract.events_declared:
                 if not self.is_cap_words(event.name):
                     info = "Event '{}' ({}) is not in CapWords\n"
                     info = info.format(event.canonical_name, event.source_mapping_str)
@@ -102,10 +97,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     json['elements'] = [elem]
                     results.append(json)
 
-            for func in contract.functions:
-                if func.contract_declarer != contract:
-                    continue
-
+            for func in contract.functions_declared:
                 if not self.is_mixed_case(func.name):
                     info = "Function '{}' ({}) is not in mixedCase\n"
                     info = info.format(func.canonical_name, func.source_mapping_str)
@@ -139,10 +131,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         json['elements'] = [elem]
                         results.append(json)
 
-            for var in contract.state_variables:
-                if var.contract != contract:
-                    continue
-
+            for var in contract.state_variables_declared:
                 if self.should_avoid_name(var.name):
                     if not self.is_upper_case_with_underscores(var.name):
                         info = "Variable '{}' ({}) used l, O, I, which should not be used\n"
@@ -193,10 +182,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         json['elements'] = [elem]
                         results.append(json)
 
-            for enum in contract.enums:
-                if enum.contract != contract:
-                    continue
-
+            for enum in contract.enums_declared:
                 if not self.is_cap_words(enum.name):
                     info = "Enum '{}' ({}) is not in CapWords\n"
                     info = info.format(enum.canonical_name, enum.source_mapping_str)
@@ -210,11 +196,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     json['elements'] = [elem]
                     results.append(json)
 
-
-            for modifier in contract.modifiers:
-                if modifier.contract_declarer != contract:
-                    continue
-
+            for modifier in contract.modifiers_declared:
                 if not self.is_mixed_case(modifier.name):
                     info = "Modifier '{}' ({}) is not in mixedCase\n"
                     info = info.format(modifier.canonical_name,
@@ -228,6 +210,5 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     elem['source_mapping'] = modifier.source_mapping
                     json['elements'] = [elem]
                     results.append(json)
-
 
         return results
