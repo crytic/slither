@@ -116,14 +116,14 @@ class PrinterInheritanceGraph(AbstractPrinter):
         # Functions
         visibilities = ['public', 'external']
         public_functions = [self._get_pattern_func(f, contract) for f in contract.functions if
-                            not f.is_constructor and f.original_contract == contract and f.visibility in visibilities]
+                            not f.is_constructor and f.contract_declarer == contract and f.visibility in visibilities]
         public_functions = ''.join(public_functions)
         private_functions = [self._get_pattern_func(f, contract) for f in contract.functions if
-                             not f.is_constructor and f.original_contract == contract and f.visibility not in visibilities]
+                             not f.is_constructor and f.contract_declarer == contract and f.visibility not in visibilities]
         private_functions = ''.join(private_functions)
 
         # Modifiers
-        modifiers = [self._get_pattern_func(m, contract) for m in contract.modifiers if m.original_contract == contract]
+        modifiers = [self._get_pattern_func(m, contract) for m in contract.modifiers if m.contract_declarer == contract]
         modifiers = ''.join(modifiers)
 
         # Public variables

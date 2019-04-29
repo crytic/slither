@@ -33,7 +33,7 @@ class LowLevelCalls(AbstractDetector):
 
     def detect_low_level_calls(self, contract):
         ret = []
-        for f in [f for f in contract.functions if contract == f.original_contract]:
+        for f in [f for f in contract.functions if contract == f.contract_declarer]:
             nodes = f.nodes
             assembly_nodes = [n for n in nodes if
                               self._contains_low_level_calls(n)]

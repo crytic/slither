@@ -52,7 +52,7 @@ contract Token{
         Returns:
             list(str) : list of incorrect function signatures
         """
-        functions = [f for f in contract.functions if f.original_contract == contract and \
+        functions = [f for f in contract.functions if f.contract_declarer == contract and \
                      IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)]
         return functions
 

@@ -59,7 +59,7 @@ contract Bug {
         # Loop through all functions + modifiers in this contract.
         for function in contract.functions + contract.modifiers:
             # We should only look for functions declared directly in this contract (not in a base contract).
-            if function.original_contract != contract:
+            if function.contract_declarer != contract:
                 continue
 
             # This function was declared in this contract, we check what its local variables might shadow.
@@ -68,11 +68,11 @@ contract Bug {
                 for scope_contract in [contract] + contract.inheritance:
                     # Check functions
                     for scope_function in scope_contract.functions:
-                        if variable.name == scope_function.name and scope_function.original_contract == scope_contract:
+                        if variable.name == scope_function.name and scope_function.contract_declarer == scope_contract:
                             overshadowed.append((self.OVERSHADOWED_FUNCTION, scope_contract.name, scope_function))
                     # Check modifiers
                     for scope_modifier in scope_contract.modifiers:
-                        if variable.name == scope_modifier.name and scope_modifier.original_contract == scope_contract:
+                        if variable.name == scope_modifier.name and scope_modifier.contract_declarer == scope_contract:
                             overshadowed.append((self.OVERSHADOWED_MODIFIER, scope_contract.name, scope_modifier))
                     # Check events
                     for scope_event in scope_contract.events:

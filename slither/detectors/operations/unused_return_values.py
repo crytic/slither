@@ -64,7 +64,7 @@ contract MyConc{
         results = []
         for c in self.slither.contracts:
             for f in c.functions + c.modifiers:
-                if f.original_contract != c:
+                if f.contract_declarer != c:
                     continue
                 unused_return = self.detect_unused_return_values(f)
                 if unused_return:

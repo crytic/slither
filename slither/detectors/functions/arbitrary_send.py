@@ -94,7 +94,7 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
             list((Function), (list (Node)))
         """
         ret = []
-        for f in [f for f in contract.functions if f.original_contract == contract]:
+        for f in [f for f in contract.functions if f.contract_declarer == contract]:
             nodes = self.arbitrary_send(f)
             if nodes:
                 ret.append((f, nodes))
