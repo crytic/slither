@@ -19,7 +19,7 @@ def detect_c3_function_shadowing(contract):
     for i in range(0, len(contract.immediate_inheritance) - 1):
         inherited_contract1 = contract.immediate_inheritance[i]
 
-        for function1 in inherited_contract1.functions_and_modifiers:
+        for function1 in inherited_contract1.functions_and_modifiers_declared:
             # If this function has already be handled or is unimplemented, we skip it
             if function1.full_name in results or function1.is_constructor or not function1.is_implemented:
                 continue
