@@ -78,13 +78,6 @@ class Variable(SourceMapping):
         assert isinstance(t, (Type, list)) or t is None
         self._type = t
 
-    def is_declared_by(self, contract):
-        """
-        Check if the element is declared by the contract
-        :param contract:
-        :return:
-        """
-        return self.contract == contract
 
     def __str__(self):
         return self._name
