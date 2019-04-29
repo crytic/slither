@@ -140,6 +140,14 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     def slither(self):
         return self.contract.slither
 
+    def is_declared_by(self, contract):
+        """
+        Check if the element is declared by the contract
+        :param contract:
+        :return:
+        """
+        return self.contract_declarer == contract
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -324,7 +332,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                             included.
         """
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
-        return [c.constructor_not_inherited for c in self._explicit_base_constructor_calls if c.constructor_not_inherited]
+        return [c.constructors_declared for c in self._explicit_base_constructor_calls if c.constructors_declared]
 
 
     # endregion
@@ -577,7 +585,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             list(core.Function)
 
         '''
-        candidates = [c.functions_not_inherited for c in self.contract.inheritance]
+        candidates = [c.functions_declared for c in self.contract.inheritance]
         candidates = [candidate for sublist in candidates for candidate in sublist]
         return [f for f in candidates if f.full_name == self.full_name]
 

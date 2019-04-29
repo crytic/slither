@@ -658,7 +658,10 @@ def look_for_library(contract, ir, node, using_for, t):
     return None
 
 def convert_to_library(ir, node, using_for):
-    contract = node.function.contract
+    # We use contract_declarer, because Solidity resolve the library
+    # before resolving the inheritance.
+    # Though we could use .contract as libraries cannot be shadowed
+    contract = node.function.contract_declarer
     t = ir.destination.type
 
     if t in using_for:

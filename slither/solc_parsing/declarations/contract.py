@@ -471,11 +471,10 @@ class ContractSolc04(Contract):
         all_ssa_state_variables_instances = dict()
 
         for contract in self.inheritance:
-            for v in contract.variables:
-                if v.contract == contract:
-                    new_var = StateIRVariable(v)
-                    all_ssa_state_variables_instances[v.canonical_name] = new_var
-                    self._initial_state_variables.append(new_var)
+            for v in contract.state_variables_declared:
+                new_var = StateIRVariable(v)
+                all_ssa_state_variables_instances[v.canonical_name] = new_var
+                self._initial_state_variables.append(new_var)
 
         for v in self.variables:
             if v.contract == self:

@@ -53,9 +53,9 @@ contract DerivedContract is BaseContract{
         variables_fathers = []
         for father in contract.inheritance:
             if any(f.is_implemented for f in father.functions + father.modifiers):
-                variables_fathers += [v for v in father.variables if v.contract == father]
+                variables_fathers += father.state_variables_declared
 
-        for var in [v for v in contract.variables if v.contract == contract]:
+        for var in contract.state_variables_declared:
             shadow = [v for v in variables_fathers if v.name == var.name]
             if shadow:
                 ret.append([var] + shadow)
