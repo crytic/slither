@@ -65,8 +65,7 @@ class Slither(SlitherSolc):
             for path, ast in cryticCompile.asts.items():
 
                 self._parse_contracts_from_loaded_json(ast, path)
-                with open(path, encoding='utf8', newline='') as f:
-                    self.source_code[path] = f.read()
+                self._add_source_code(path)
 
         self._detectors = []
         self._printers = []
