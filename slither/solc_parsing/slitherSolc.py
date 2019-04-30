@@ -89,9 +89,7 @@ class SlitherSolc(Slither):
         if 'sourcePaths' in data_loaded:
             for sourcePath in data_loaded['sourcePaths']:
                 if os.path.isfile(sourcePath):
-                    with open(sourcePath, encoding='utf8', newline='') as f:
-                        source_code = f.read()
-                    self.source_code[sourcePath] = source_code
+                    self._add_source_code(sourcePath)
 
         if data_loaded[self.get_key()] == 'root':
             self._solc_version = '0.3'
@@ -152,15 +150,11 @@ class SlitherSolc(Slither):
 
         self._source_units[sourceUnit] = name
         if os.path.isfile(name) and not name in self.source_code:
-            with open(name, encoding='utf8', newline='') as f:
-                source_code = f.read()
-            self.source_code[name] = source_code
+            self._add_source_code(name)
         else:
             lib_name = os.path.join('node_modules', name)
             if os.path.isfile(lib_name) and not name in self.source_code:
-                with open(lib_name, encoding='utf8', newline='') as f:
-                    source_code = f.read()
-                self.source_code[name] = source_code
+                self._add_source_code(lib_name)
 
     # endregion
     ###################################################################################
