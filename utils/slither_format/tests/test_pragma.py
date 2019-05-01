@@ -3,8 +3,10 @@ import subprocess, os, sys
   
 class TestPragma(unittest.TestCase):
     testDataFile = "pragma.0.4.24.sol"
+    testImportFile = "pragma.0.4.23.sol"
     testDataDir = "./slither_format/tests/test_data/"
     testFilePath = testDataDir+testDataFile
+    testImportFilePath = testDataDir+testImportFile
     
     def setUp(self):
         outFD = open(self.testFilePath+".out","w")
@@ -15,7 +17,7 @@ class TestPragma(unittest.TestCase):
         errFD.close()
         
     def tearDown(self):
-        p = subprocess.Popen(['rm','-f',self.testFilePath+'.out',self.testFilePath+'.err',self.testFilePath+'.format'])
+        p = subprocess.Popen(['rm','-f',self.testFilePath+'.out',self.testFilePath+'.err',self.testFilePath+'.format',self.testImportFilePath+'.format'])
         p.wait()
         
     def test_pragma(self):
