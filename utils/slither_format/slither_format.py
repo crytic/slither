@@ -348,11 +348,11 @@ def create_patch_naming_convention_function_calls(_slither, _name, _contract_nam
                     if (str(call.called) == _name):
                         with open(_in_file, 'r+') as in_file:
                             in_file_str = in_file.read()
-                            old_str_of_interest = in_file_str[int(call.src.split(':')[0]):int(call.src.split(':')[0])+int(call.src.split(':')[1])]
+                            old_str_of_interest = in_file_str[int(call.source_mapping['start']):int(call.source_mapping['start'])+int(call.source_mapping['length'])]
                             patches[_in_file].append({
                                 "detector" : "naming-convention (function calls)",
-                                "start" : call.src.split(':')[0],
-                                "end" : int(call.src.split(':')[0]) + int(call.src.split(':')[1]),
+                                "start" : call.source_mapping['start'],
+                                "end" : int(call.source_mapping['start']) + int(call.source_mapping['length']),
                                 "old_string" : old_str_of_interest,
                                 "new_string" : old_str_of_interest[0].lower()+old_str_of_interest[1:]
                             })
@@ -392,11 +392,11 @@ def create_patch_naming_convention_event_calls(_slither, _name, _contract_name, 
                         if (str(call.called) == event_name):
                             with open(_in_file, 'r+') as in_file:
                                 in_file_str = in_file.read()
-                                old_str_of_interest = in_file_str[int(call.src.split(':')[0]):int(call.src.split(':')[0])+int(call.src.split(':')[1])]
+                                old_str_of_interest = in_file_str[int(call.source_mapping['start']):int(call.source_mapping['start'])+int(call.source_mapping['length'])]
                                 patches[_in_file].append({
                                     "detector" : "naming-convention (event calls)",
-                                    "start" : call.src.split(':')[0],
-                                    "end" : int(call.src.split(':')[0]) + int(call.src.split(':')[1]),
+                                    "start" : call.source_mapping['start'],
+                                    "end" : int(call.source_mapping['start']) + int(call.source_mapping['length']),
                                     "old_string" : old_str_of_interest,
                                     "new_string" : old_str_of_interest[0].capitalize()+old_str_of_interest[1:]
                                 })
@@ -436,8 +436,8 @@ def create_patch_naming_convention_parameter_uses(_slither, _name, _function_nam
                         vars = node._expression_vars_written + node._expression_vars_read
                         for v in vars:
                             if isinstance(v, Identifier) and str(v) == _name and [str(lv) for lv in (node._local_vars_read+node._local_vars_written) if str(lv) == _name]:
-                                modify_loc_start = int(v.src.split(':')[0])
-                                modify_loc_end = int(v.src.split(':')[0]) + int(v.src.split(':')[1])
+                                modify_loc_start = int(v.source_mapping['start'])
+                                modify_loc_end = int(v.source_mapping['start']) + int(v.source_mapping['length'])
                                 with open(_in_file, 'r+') as in_file:
                                     in_file_str = in_file.read()
                                     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
@@ -491,8 +491,8 @@ def create_patch_naming_convention_state_variable_uses(_slither, _target, _name,
                     vars = node._expression_vars_written + node._expression_vars_read
                     for v in vars:
                         if isinstance(v, Identifier) and str(v) == _name and [str(sv) for sv in (node._state_vars_read+node._state_vars_written) if str(sv) == _name]:
-                            modify_loc_start = int(v.src.split(':')[0])
-                            modify_loc_end = int(v.src.split(':')[0]) + int(v.src.split(':')[1])
+                            modify_loc_start = int(v.source_mapping['start'])
+                            modify_loc_end = int(v.source_mapping['start']) + int(v.source_mapping['length'])
                             with open(_in_file, 'r+') as in_file:
                                 in_file_str = in_file.read()
                                 old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
