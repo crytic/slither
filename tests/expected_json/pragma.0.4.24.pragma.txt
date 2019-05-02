@@ -1,0 +1,8 @@
+ERROR:Slither:Invalid compilation
+ERROR:Slither:Invalid solc compilation tests/pragma.0.4.23.sol:1:1: Error: Source file requires different compiler version (current compiler is 0.5.1+commit.c8a2cb62.Linux.g++ - note that nightly builds are considered to be strictly less than the released version
+pragma solidity ^0.4.23;
+^----------------------^
+tests/pragma.0.4.24.sol:1:1: Error: Source file requires different compiler version (current compiler is 0.5.1+commit.c8a2cb62.Linux.g++ - note that nightly builds are considered to be strictly less than the released version
+pragma solidity ^0.4.24;
+^----------------------^
+

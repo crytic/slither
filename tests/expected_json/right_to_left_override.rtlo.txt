@@ -1,0 +1,5 @@
+INFO:Detectors:[91m
+/home/monty/Private/tob/tools/slither-public/tests/right_to_left_override.sol contains a unicode right-to-left-override character:
+	-         test1(/*A‮/*B*/2 , 1/*‭
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#right-to-left-override-character[0m
+INFO:Slither:tests/right_to_left_override.sol analyzed (1 contracts), 1 result(s) found

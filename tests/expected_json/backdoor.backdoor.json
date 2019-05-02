@@ -1,1 +1,52 @@
-[{"check": "backdoor", "impact": "High", "confidence": "High", "description": "Backdoor function found in C.i_am_a_backdoor (tests/backdoor.sol#4-6)\n", "elements": [{"type": "function", "name": "i_am_a_backdoor", "source_mapping": {"start": 18, "length": 74, "filename_used": "/home/travis/build/crytic/slither/tests/backdoor.sol", "filename_relative": "tests/backdoor.sol", "filename_absolute": "/home/travis/build/crytic/slither/tests/backdoor.sol", "filename_short": "tests/backdoor.sol", "lines": [4, 5, 6], "starting_column": 5, "ending_column": 6}, "contract": {"type": "contract", "name": "C", "source_mapping": {"start": 1, "length": 94, "filename_used": "/home/travis/build/crytic/slither/tests/backdoor.sol", "filename_relative": "tests/backdoor.sol", "filename_absolute": "/home/travis/build/crytic/slither/tests/backdoor.sol", "filename_short": "tests/backdoor.sol", "lines": [2, 3, 4, 5, 6, 7, 8], "starting_column": 1, "ending_column": 2}}}]}]
+[
+  {
+    "check": "backdoor",
+    "impact": "High",
+    "confidence": "High",
+    "description": "Backdoor function found in C.i_am_a_backdoor (tests/backdoor.sol#4-6)\n",
+    "elements": [
+      {
+        "type": "function",
+        "name": "i_am_a_backdoor",
+        "source_mapping": {
+          "start": 18,
+          "length": 74,
+          "filename_used": "/home/travis/build/crytic/slither/tests/backdoor.sol",
+          "filename_relative": "tests/backdoor.sol",
+          "filename_absolute": "/home/travis/build/crytic/slither/tests/backdoor.sol",
+          "filename_short": "tests/backdoor.sol",
+          "lines": [
+            4,
+            5,
+            6
+          ],
+          "starting_column": 5,
+          "ending_column": 6
+        },
+        "contract": {
+          "type": "contract",
+          "name": "C",
+          "source_mapping": {
+            "start": 1,
+            "length": 94,
+            "filename_used": "/home/travis/build/crytic/slither/tests/backdoor.sol",
+            "filename_relative": "tests/backdoor.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/backdoor.sol",
+            "filename_short": "tests/backdoor.sol",
+            "lines": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "starting_column": 1,
+            "ending_column": 2
+          }
+        }
+      }
+    ]
+  }
+]

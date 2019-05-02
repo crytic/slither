@@ -109,7 +109,7 @@ def output_json(results, filename):
             logger.info(yellow(f'{filename} exists already, the overwrite is prevented'))
         else:
             with open(filename, 'w', encoding='utf8') as f:
-                json.dump(results, f)
+                json.dump(results, f, indent=2)
 
 # endregion
 ###################################################################################
