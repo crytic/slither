@@ -1,0 +1,6 @@
+INFO:Detectors:[92m
+Detected issues with version pragma in tests/old_solc.sol.json:
+	- pragma solidity0.4.21 (None): it allows old versions
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-version-of-solidity[0m
+INFO:Slither:[93m/home/monty/Private/tob/tools/slither-public/scripts/../tests/expected_json/old_solc.sol.json.solc-version.json exists already, the overwrite is prevented[0m
+INFO:Slither:tests/old_solc.sol.json analyzed (1 contracts), 1 result(s) found

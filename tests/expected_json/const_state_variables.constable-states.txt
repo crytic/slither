@@ -1,0 +1,9 @@
+INFO:Detectors:[92m
+A.myFriendsAddress should be constant (tests/const_state_variables.sol#7)
+A.test should be constant (tests/const_state_variables.sol#10)
+A.text2 should be constant (tests/const_state_variables.sol#14)
+B.mySistersAddress should be constant (tests/const_state_variables.sol#26)
+MyConc.should_be_constant should be constant (tests/const_state_variables.sol#42)
+MyConc.should_be_constant_2 should be constant (tests/const_state_variables.sol#43)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant[0m
+INFO:Slither:tests/const_state_variables.sol analyzed (3 contracts), 1 result(s) found

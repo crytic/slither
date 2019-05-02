@@ -1,0 +1,9 @@
+INFO:Detectors:[91m
+Test.direct (tests/arbitrary_send-0.5.1.sol#11-13) sends eth to arbitrary user
+	Dangerous calls:
+	- msg.sender.send(address(this).balance) (tests/arbitrary_send-0.5.1.sol#12)
+Test.indirect (tests/arbitrary_send-0.5.1.sol#19-21) sends eth to arbitrary user
+	Dangerous calls:
+	- destination.send(address(this).balance) (tests/arbitrary_send-0.5.1.sol#20)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations[0m
+INFO:Slither:tests/arbitrary_send-0.5.1.sol analyzed (1 contracts), 2 result(s) found
