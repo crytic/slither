@@ -28,7 +28,6 @@ from crytic_compile import is_supported
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
-
 ###################################################################################
 ###################################################################################
 # region Process functions
@@ -99,12 +98,18 @@ def process_files(filenames, args, detector_classes, printer_classes):
 ###################################################################################
 ###################################################################################
 
+
 def output_json(results, filename):
-    if os.path.isfile(filename):
-        logger.info(yellow(f'{filename} exists already, the overwrite is prevented'))
+    if filename is None:
+        # Write json to console
+        print(json.dumps(results))
     else:
-        with open(filename, 'w', encoding='utf8') as f:
-            json.dump(results, f)
+        # Write json to file
+        if os.path.isfile(filename):
+            logger.info(yellow(f'{filename} exists already, the overwrite is prevented'))
+        else:
+            with open(filename, 'w', encoding='utf8') as f:
+                json.dump(results, f)
 
 # endregion
 ###################################################################################
@@ -459,9 +464,28 @@ class OutputWiki(argparse.Action):
 # endregion
 ###################################################################################
 ###################################################################################
+# region CustomFormatter
+###################################################################################
+###################################################################################
+
+class FormatterCryticCompile(logging.Formatter):
+    def format(self, record):
+        #for i, msg in enumerate(record.msg):
+        if record.msg.startswith('Compilation warnings/errors on '):
+            txt = record.args[1]
+            txt = txt.split('\n')
+            txt = [red(x) if 'Error' in x else x for x in txt]
+            txt = '\n'.join(txt)
+            record.args = (record.args[0], txt)
+        return super().format(record)
+
+# endregion
+###################################################################################
+###################################################################################
 # region Main
 ###################################################################################
 ###################################################################################
+
 
 def main():
     detectors, printers = get_detectors_and_printers()
@@ -478,6 +502,12 @@ def main_impl(all_detector_classes, all_printer_classes):
 
     # Set colorization option
     set_colorization_enabled(not args.disable_color)
+
+    # If we are outputting json to stdout, we'll want to override all logger levels.
+    stdout_json = args.json == "-"
+    override_level = None
+    if stdout_json:
+        override_level = logging.ERROR
 
     printer_classes = choose_printers(args, all_printer_classes)
     detector_classes = choose_detectors(args, all_detector_classes)
@@ -498,17 +528,17 @@ def main_impl(all_detector_classes, all_printer_classes):
                               #('CryticCompile', default_log)
                               ]:
         l = logging.getLogger(l_name)
-        l.setLevel(l_level)
+        l.setLevel(l_level if override_level is None else override_level)
 
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(logging.INFO if override_level is None else override_level)
 
     console_handler.setFormatter(FormatterCryticCompile())
 
     crytic_compile_error = logging.getLogger(('CryticCompile'))
     crytic_compile_error.addHandler(console_handler)
     crytic_compile_error.propagate = False
-    crytic_compile_error.setLevel(logging.INFO)
+    crytic_compile_error.setLevel(logging.INFO if override_level is None else override_level)
 
     try:
         filename = args.filename
@@ -537,7 +567,7 @@ def main_impl(all_detector_classes, all_printer_classes):
             raise Exception("Unrecognised file/dir path: '#{filename}'".format(filename=filename))
 
         if args.json:
-            output_json(results, args.json)
+            output_json(results, None if stdout_json else args.json)
         if args.checklist:
             output_results_to_markdown(results)
         # Dont print the number of result for printers
@@ -562,22 +592,4 @@ if __name__ == '__main__':
     main()
 
 
-# endregion
-###################################################################################
-###################################################################################
-# region CustomFormatter
-###################################################################################
-###################################################################################
-
-
-class FormatterCryticCompile(logging.Formatter):
-    def format(self, record):
-        #for i, msg in enumerate(record.msg):
-        if record.msg.startswith('Compilation warnings/errors on '):
-            txt = record.args[1]
-            txt = txt.split('\n')
-            txt = [red(x) if 'Error' in x else x for x in txt]
-            txt = '\n'.join(txt)
-            record.args = (record.args[0], txt)
-        return super().format(record)
 # endregion
