@@ -14,13 +14,13 @@ class FormatPragma:
             FormatPragma.create_patch(slither, patches, element['source_mapping']['filename'], pragma, element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
 
     @staticmethod
-    def create_patch(slither, patches, _in_file, pragma, _modify_loc_start, _modify_loc_end):
-        in_file_str = slither.source_code[_in_file]
-        old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
-        patches[_in_file].append({
+    def create_patch(slither, patches, in_file, pragma, modify_loc_start, modify_loc_end):
+        in_file_str = slither.source_code[in_file]
+        old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+        patches[in_file].append({
             "detector" : "pragma",
-	    "start" : _modify_loc_start,
-	    "end" : _modify_loc_end,
+	    "start" : modify_loc_start,
+	    "end" : modify_loc_end,
 	    "old_string" : old_str_of_interest,
 	    "new_string" : pragma
         })

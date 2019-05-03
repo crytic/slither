@@ -15,18 +15,18 @@ class FormatExternalFunction:
                             break
 
     @staticmethod
-    def create_patch(slither, patches, _in_file, _match_text, _replace_text, _modify_loc_start, _modify_loc_end):
-        in_file_str = slither.source_code[_in_file]
-        old_str_of_interest = in_file_str[_modify_loc_start:_modify_loc_end]
-        (new_str_of_interest, num_repl) = re.subn(_match_text, _replace_text, old_str_of_interest, 1)
+    def create_patch(slither, patches, in_file, match_text, replace_text, modify_loc_start, modify_loc_end):
+        in_file_str = slither.source_code[in_file]
+        old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+        (new_str_of_interest, num_repl) = re.subn(match_text, replace_text, old_str_of_interest, 1)
         if num_repl == 0:
             # No visibility specifier exists; public by default.
             (new_str_of_interest, num_repl) = re.subn("\)", ") extern", old_str_of_interest, 1)
         if num_repl != 0:
-            patches[_in_file].append({
+            patches[in_file].append({
                 "detector" : "external-function",
-                "start" : _modify_loc_start,
-                "end" : _modify_loc_start + len(new_str_of_interest),
+                "start" : modify_loc_start,
+                "end" : modify_loc_start + len(new_str_of_interest),
                 "old_string" : old_str_of_interest,
                 "new_string" : new_str_of_interest
             })
