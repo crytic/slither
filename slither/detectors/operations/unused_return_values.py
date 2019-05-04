@@ -5,6 +5,8 @@ Module detecting unused return values from external calls
 from collections import defaultdict
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations.high_level_call import HighLevelCall
+from slither.slithir.operations.low_level_call import LowLevelCall
+from slither.slithir.operations.send import Send
 from slither.core.variables.state_variable import StateVariable
 
 class UnusedReturnValues(AbstractDetector):
@@ -47,7 +49,7 @@ contract MyConc{
         nodes_origin = {}
         for n in f.nodes:
             for ir in n.irs:
-                if isinstance(ir, HighLevelCall):
+                if any(isinstance(ir, op) for op in (HighLevelCall, LowLevelCall, Send)):
                     # if a return value is stored in a state variable, it's ok
                     if ir.lvalue and not isinstance(ir.lvalue, StateVariable):
                         values_returned.append(ir.lvalue)
