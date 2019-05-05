@@ -150,7 +150,6 @@ class FormatNamingConvention:
                                 
     @staticmethod
     def create_patch_function_definition(slither, patches, name, contract_name, in_file, modify_loc_start, modify_loc_end):
-        # To-do Match on function full_name and not simply name to distinguish functions with same names but diff parameters
         for contract in slither.contracts_derived:
             if contract.name == contract_name:
                 for function in contract.functions:
@@ -174,7 +173,6 @@ class FormatNamingConvention:
                             
     @staticmethod
     def create_patch_function_calls(slither, patches, name, contract_name, in_file):
-        # To-do Match on function full_name and not simply name to distinguish functions with same names but diff parameters
         for contract in slither.contracts_derived:
             for function in contract.functions:
                 for node in function.nodes:
@@ -215,7 +213,6 @@ class FormatNamingConvention:
                             
     @staticmethod
     def create_patch_event_calls(slither, patches, name, contract_name, in_file):
-        # To-do Match on event _name and not simply event_name to distinguish events with same names but diff parameters    
         event_name = name.split('(')[0]
         for contract in slither.contracts_derived:
             if (contract.name == contract_name):
