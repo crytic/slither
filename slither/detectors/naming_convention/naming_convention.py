@@ -61,12 +61,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                                                                         contract.source_mapping_str)
 
                 json = self.generate_json_result(info)
-                elem = dict()
-                elem['target'] = 'contract'
-                elem['convention'] = 'CapWords'
-                elem['name'] = contract.name
-                elem['source_mapping'] = contract.source_mapping
-                json['elements'] = [elem]
+                self.add_contract_to_json(contract, json, {
+                    "target": "contract",
+                    "convention": "CapWords"
+                })
                 results.append(json)
 
             for struct in contract.structures:
@@ -78,13 +76,12 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     info = info.format(struct.contract.name, struct.name, struct.source_mapping_str)
 
                     json = self.generate_json_result(info)
-                    elem = dict()
-                    elem['target'] = 'structure'
-                    elem['convention'] = 'CapWords'
-                    elem['name'] = struct.name
-                    elem['source_mapping'] = struct.source_mapping
-                    json['elements'] = [elem]
+                    self.add_struct_to_json(struct, json, {
+                        "target": "structure",
+                        "convention": "CapWords"
+                    })
                     results.append(json)
+
             for event in contract.events:
                 if event.contract != contract:
                     continue
@@ -94,12 +91,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     info = info.format(event.contract.name, event.name, event.source_mapping_str)
 
                     json = self.generate_json_result(info)
-                    elem = dict()
-                    elem['target'] = 'event'
-                    elem['convention'] = 'CapWords'
-                    elem['name'] = event.name
-                    elem['source_mapping'] = event.source_mapping
-                    json['elements'] = [elem]
+                    self.add_event_to_json(event, json, {
+                        "target": "event",
+                        "convention": "CapWords"
+                    })
                     results.append(json)
 
             for func in contract.functions:
@@ -111,12 +106,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     info = info.format(func.contract.name, func.name, func.source_mapping_str)
 
                     json = self.generate_json_result(info)
-                    elem = dict()
-                    elem['target'] = 'function'
-                    elem['convention'] = 'mixedCase'
-                    elem['name'] = func.name
-                    elem['source_mapping'] = func.source_mapping
-                    json['elements'] = [elem]
+                    self.add_function_to_json(func, json, {
+                        "target": "function",
+                        "convention": "mixedCase"
+                    })
                     results.append(json)
 
                 for argument in func.parameters:
@@ -132,12 +125,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                                            argument.source_mapping_str)
 
                         json = self.generate_json_result(info)
-                        elem = dict()
-                        elem['target'] = 'parameter'
-                        elem['convention'] = 'mixedCase'
-                        elem['name'] = argument.name
-                        elem['source_mapping'] = argument.source_mapping
-                        json['elements'] = [elem]
+                        self.add_variable_to_json(argument, json, {
+                            "target": "parameter",
+                            "convention": "mixedCase"
+                        })
                         results.append(json)
 
             for var in contract.state_variables:
@@ -150,12 +141,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         info = info.format(var.contract.name, var.name, var.source_mapping_str)
 
                         json = self.generate_json_result(info)
-                        elem = dict()
-                        elem['target'] = 'variable'
-                        elem['convention'] = 'l_O_I_should_not_be_used'
-                        elem['name'] = var.name
-                        elem['source_mapping'] = var.source_mapping
-                        json['elements'] = [elem]
+                        self.add_variable_to_json(var, json, {
+                            "target": "variable",
+                            "convention": "l_O_I_should_not_be_used"
+                        })
                         results.append(json)
 
                 if var.is_constant is True:
@@ -168,12 +157,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         info = info.format(var.contract.name, var.name, var.source_mapping_str)
 
                         json = self.generate_json_result(info)
-                        elem = dict()
-                        elem['target'] = 'variable_constant'
-                        elem['convention'] = 'UPPER_CASE_WITH_UNDERSCORES'
-                        elem['name'] = var.name
-                        elem['source_mapping'] = var.source_mapping
-                        json['elements'] = [elem]
+                        self.add_variable_to_json(var, json, {
+                            "target": "variable_constant",
+                            "convention": "UPPER_CASE_WITH_UNDERSCORES"
+                        })
                         results.append(json)
 
                 else:
@@ -186,12 +173,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         info = info.format(var.contract.name, var.name, var.source_mapping_str)
 
                         json = self.generate_json_result(info)
-                        elem = dict()
-                        elem['target'] = 'variable'
-                        elem['convention'] = 'mixedCase'
-                        elem['name'] = var.name
-                        elem['source_mapping'] = var.source_mapping
-                        json['elements'] = [elem]
+                        self.add_variable_to_json(var, json, {
+                            "target": "variable",
+                            "convention": "mixedCase"
+                        })
                         results.append(json)
 
             for enum in contract.enums:
@@ -203,12 +188,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     info = info.format(enum.contract.name, enum.name, enum.source_mapping_str)
 
                     json = self.generate_json_result(info)
-                    elem = dict()
-                    elem['target'] = 'enum'
-                    elem['convention'] = 'CapWords'
-                    elem['name'] = enum.name
-                    elem['source_mapping'] = enum.source_mapping
-                    json['elements'] = [elem]
+                    self.add_enum_to_json(enum, json, {
+                        "target": "enum",
+                        "convention": "CapWords"
+                    })
                     results.append(json)
 
 
@@ -223,12 +206,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                                        modifier.source_mapping_str)
 
                     json = self.generate_json_result(info)
-                    elem = dict()
-                    elem['target'] = 'modifier'
-                    elem['convention'] = 'mixedCase'
-                    elem['name'] = modifier.name
-                    elem['source_mapping'] = modifier.source_mapping
-                    json['elements'] = [elem]
+                    self.add_function_to_json(modifier, json, {
+                        "target": "modifier",
+                        "convention": "mixedCase"
+                    })
                     results.append(json)
 
 

@@ -140,20 +140,30 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     def color(self):
         return classification_colors[self.IMPACT]
 
-    def generate_json_result(self, info):
+    def generate_json_result(self, info, additional_fields={}):
         d = OrderedDict()
         d['check'] = self.ARGUMENT
         d['impact'] = classification_txt[self.IMPACT]
         d['confidence'] = classification_txt[self.CONFIDENCE]
         d['description'] = info
         d['elements'] = []
+        if additional_fields:
+            d['additional_fields'] = additional_fields
         return d
 
     @staticmethod
-    def add_variable_to_json(variable, d):
-        d['elements'].append({'type': 'variable',
-                              'name': variable.name,
-                              'source_mapping': variable.source_mapping})
+    def _create_base_element(type, name, source_mapping, additional_fields={}):
+        element = {'type': type,
+                   'name': name,
+                   'source_mapping': source_mapping}
+        if additional_fields:
+            element['additional_fields'] = additional_fields
+        return element
+
+    @staticmethod
+    def add_variable_to_json(variable, d, additional_fields={}):
+        element = AbstractDetector._create_base_element('variable', variable.name, variable.source_mapping, additional_fields)
+        d['elements'].append(element)
 
     @staticmethod
     def add_variables_to_json(variables, d):
@@ -161,19 +171,17 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             AbstractDetector.add_variable_to_json(variable, d)
 
     @staticmethod
-    def add_contract_to_json(contract, d):
-        d['elements'].append({'type': 'contract',
-                              'name': contract.name,
-                              'source_mapping': contract.source_mapping})
+    def add_contract_to_json(contract, d, additional_fields={}):
+        element = AbstractDetector._create_base_element('contract', contract.name, contract.source_mapping, additional_fields)
+        d['elements'].append(element)
 
     @staticmethod
-    def add_function_to_json(function, d):
+    def add_function_to_json(function, d, additional_fields={}):
         contract = {'elements':[]}
         AbstractDetector.add_contract_to_json(function.contract, contract)
-        d['elements'].append({'type': 'function',
-                              'name': function.name,
-                              'source_mapping': function.source_mapping,
-                              'contract': contract['elements'][0]})
+        element = AbstractDetector._create_base_element('function', function.name, function.source_mapping, additional_fields)
+        element['contract'] = contract['elements'][0]
+        d['elements'].append(element)
 
     @staticmethod
     def add_functions_to_json(functions, d):
@@ -181,9 +189,30 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             AbstractDetector.add_function_to_json(function, d)
 
     @staticmethod
+    def add_enum_to_json(enum, d, additional_fields={}):
+        element = AbstractDetector._create_base_element('enum', enum.name, enum.source_mapping, additional_fields)
+        d['elements'].append(element)
+
+    @staticmethod
+    def add_struct_to_json(struct, d, additional_fields={}):
+        element = AbstractDetector._create_base_element('struct', struct.name, struct.source_mapping, additional_fields)
+        d['elements'].append(element)
+
+    @staticmethod
+    def add_event_to_json(event, d, additional_fields={}):
+        contract = {'elements':[]}
+        AbstractDetector.add_contract_to_json(event.contract, contract)
+        element = AbstractDetector._create_base_element('event', event.name, event.source_mapping, additional_fields)
+        element['contract'] = contract['elements'][0]
+        d['elements'].append(element)
+
+    @staticmethod
+    def add_node_to_json(node, d, additional_fields={}):
+        element = AbstractDetector._create_base_element('expression', str(node.expression), node.source_mapping, additional_fields)
+        d['elements'].append(element)
+
+    @staticmethod
     def add_nodes_to_json(nodes, d):
         for node in sorted(nodes, key=lambda x: x.node_id):
-            d['elements'].append({'type': 'expression',
-                                  'expression': str(node.expression),
-                                  'source_mapping': node.source_mapping})
+            AbstractDetector.add_node_to_json(node, d)
 

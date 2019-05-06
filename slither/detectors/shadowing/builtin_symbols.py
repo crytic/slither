@@ -143,8 +143,10 @@ contract Bug {
 
                     # Generate relevant JSON data for this shadowing definition.
                     json = self.generate_json_result(info)
-                    if shadow_type in [self.SHADOWING_FUNCTION, self.SHADOWING_MODIFIER, self.SHADOWING_EVENT]:
+                    if shadow_type in [self.SHADOWING_FUNCTION, self.SHADOWING_MODIFIER]:
                         self.add_function_to_json(shadow_object, json)
+                    elif shadow_type == self.SHADOWING_EVENT:
+                        self.add_event_to_json(shadow_object, json)
                     elif shadow_type in [self.SHADOWING_STATE_VARIABLE, self.SHADOWING_LOCAL_VARIABLE]:
                         self.add_variable_to_json(shadow_object, json)
                     results.append(json)
