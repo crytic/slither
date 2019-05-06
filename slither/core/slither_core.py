@@ -56,6 +56,14 @@ class Slither(Context):
         """str: Filename."""
         return self._filename
 
+    def _add_source_code(self, path):
+        """
+        :param path:
+        :return:
+        """
+        with open(path, encoding='utf8', newline='') as f:
+            self.source_code[path] = f.read()
+
     # endregion
     ###################################################################################
     ###################################################################################

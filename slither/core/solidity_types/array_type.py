@@ -10,7 +10,7 @@ class ArrayType(Type):
         assert isinstance(t, Type)
         if length:
             if isinstance(length, int):
-                length = Literal(length)
+                length = Literal(length, 'uint256')
             assert isinstance(length, Expression)
         super(ArrayType, self).__init__()
         self._type = t
@@ -18,7 +18,7 @@ class ArrayType(Type):
 
         if length:
             if not isinstance(length, Literal):
-                cf = ConstantFolding(length)
+                cf = ConstantFolding(length, "uint256")
                 length = cf.result()
             self._length_value = length
         else:
