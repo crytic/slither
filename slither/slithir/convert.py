@@ -7,7 +7,9 @@ from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types import (ArrayType, ElementaryType,
                                          FunctionType, MappingType,
                                          UserDefinedType)
+from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
 from slither.core.variables.variable import Variable
+from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (Assignment, Balance, Binary,
                                         BinaryType, Call, Condition, Delete,
                                         EventCall, HighLevelCall, Index,
@@ -30,6 +32,7 @@ from slither.slithir.variables import (Constant, ReferenceVariable,
                                        TemporaryVariable)
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 from slither.utils.function import get_function_id
+from slither.utils.type import export_nested_types_from_variable
 
 logger = logging.getLogger('ConvertToIR')
 
@@ -39,7 +42,8 @@ def convert_expression(expression, node):
     from slither.core.cfg.node import NodeType
 
     if isinstance(expression, Literal) and node.type in [NodeType.IF, NodeType.IFLOOP]:
-        result =  [Condition(Constant(expression.value))]
+        cst = Constant(expression.value, expression.type)
+        result =  [Condition(cst)]
         return result
     if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
         result =  [Condition(expression.value)]
@@ -599,7 +603,7 @@ def convert_to_push(ir, node):
 
         ir = Push(ir.destination, val)
 
-        length = Literal(len(operation.init_values))
+        length = Literal(len(operation.init_values), 'uint256')
         t = operation.init_values[0].type
         ir.lvalue.set_type(ArrayType(t, length))
 
@@ -825,6 +829,71 @@ def remove_unused(result):
 # endregion
 ###################################################################################
 ###################################################################################
+# region Constant type conversioh
+###################################################################################
+###################################################################################
+
+def convert_constant_types(irs):
+    """
+    late conversion of uint -> type for constant (Literal)
+    :param irs:
+    :return:
+    """
+    # TODO: implement instances lookup for events, NewContract
+    was_changed = True
+    while was_changed:
+        was_changed = False
+        for ir in irs:
+            if isinstance(ir, Assignment):
+                if isinstance(ir.lvalue.type, ElementaryType):
+                    if ir.lvalue.type.type in ElementaryTypeInt:
+                        if ir.rvalue.type.type != 'int256':
+                            ir.rvalue.set_type(ElementaryType('int256'))
+                            was_changed = True
+            if isinstance(ir, Binary):
+                if isinstance(ir.lvalue.type, ElementaryType):
+                    if ir.lvalue.type.type in ElementaryTypeInt:
+                        for r in ir.read:
+                            if r.type.type != 'int256':
+                                r.set_type(ElementaryType('int256'))
+                                was_changed = True
+            if isinstance(ir, (HighLevelCall, InternalCall)):
+                func = ir.function
+                if isinstance(func, StateVariable):
+                    types = export_nested_types_from_variable(func)
+                else:
+                    types = [p.type for p in func.parameters]
+                for idx, arg in enumerate(ir.arguments):
+                    t = types[idx]
+                    if isinstance(t, ElementaryType):
+                        if t.type in ElementaryTypeInt:
+                            if arg.type.type != 'int256':
+                                arg.set_type(ElementaryType('int256'))
+                                was_changed = True
+            if isinstance(ir, NewStructure):
+                st = ir.structure
+                for idx, arg in enumerate(ir.arguments):
+                    e = st.elems_ordered[idx]
+                    if isinstance(e.type, ElementaryType):
+                        if e.type.type in ElementaryTypeInt:
+                            if arg.type.type != 'int256':
+                                arg.set_type(ElementaryType('int256'))
+                                was_changed = True
+            if isinstance(ir, InitArray):
+                if isinstance(ir.lvalue.type, ArrayType):
+                    if isinstance(ir.lvalue.type.type, ElementaryType):
+                        if ir.lvalue.type.type.type in ElementaryTypeInt:
+                            for r in ir.read:
+                                if r.type.type != 'int256':
+                                    r.set_type(ElementaryType('int256'))
+                                    was_changed = True
+
+
+
+
+# endregion
+###################################################################################
+###################################################################################
 # region Heuristics selection
 ###################################################################################
 ###################################################################################
@@ -839,6 +908,7 @@ def apply_ir_heuristics(irs, node):
     irs = propagate_type_and_convert_call(irs, node)
     irs = remove_unused(irs)
     find_references_origin(irs)
+    convert_constant_types(irs)
 
 
     return irs
