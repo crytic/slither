@@ -275,9 +275,9 @@ class TestNamingConvention(unittest.TestCase):
             outFD6_lines[i] = outFD6_lines[i].strip()
         self.assertTrue(os.path.isfile(self.testFilePath6+".format"),"Patched .format file is not created?!")
         self.assertEqual(outFD6_lines[0],"Number of Slither results: 2")
-        self.assertEqual(outFD6_lines[1],"Number of patches: 3")
+        self.assertEqual(outFD6_lines[1],"Number of patches: 4")
         self.assertEqual(outFD6_lines.count("Detector: naming-convention (function definition)"), 2)
-        self.assertEqual(outFD6_lines.count("Detector: naming-convention (function calls)"), 1)
+        self.assertEqual(outFD6_lines.count("Detector: naming-convention (function calls)"), 2)
         self.assertEqual(outFD6_lines.count("Old string: function Foo"), 1)
         self.assertEqual(outFD6_lines.count("New string: function foo"), 1)
         self.assertEqual(outFD6_lines.count("Location start: 76"), 1)
@@ -290,8 +290,10 @@ class TestNamingConvention(unittest.TestCase):
         self.assertEqual(outFD6_lines.count("New string: foobar(10)"), 1)
         self.assertEqual(outFD6_lines.count("Location start: 136"), 1)
         self.assertEqual(outFD6_lines.count("Location end: 146"), 1)
-        self.assertEqual(outFD6_lines.count("Old string: a.Foobar(10)"), 1, "Doesn't work for external contract calls yet.")
+        self.assertEqual(outFD6_lines.count("Old string: a.Foobar(10)"), 1)
         self.assertEqual(outFD6_lines.count("New string: a.foobar(10)"), 1)
+        self.assertEqual(outFD6_lines.count("Location start: 516"), 1)
+        self.assertEqual(outFD6_lines.count("Location end: 528"), 1)
 
     def test_naming_convention_parameter(self):
         outFD7 = open(self.testFilePath7+".out","r")

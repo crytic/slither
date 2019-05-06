@@ -176,15 +176,31 @@ class FormatNamingConvention:
         for contract in slither.contracts_derived:
             for function in contract.functions:
                 for node in function.nodes:
-                    # To-do: Handle function calls of other contracts e.g. c.foo()
-                    for call in node.internal_calls_as_expressions:
-                        if (str(call.called) == name):
+                    for high_level_call in node.high_level_calls:
+                        if (high_level_call[0].name == contract_name and high_level_call[1].name == name):                    
+                            for external_call in node.external_calls_as_expressions:
+                                called_function = str(external_call.called).split('.')[-1]
+                                if called_function == high_level_call[1].name:
+                                    in_file_str = slither.source_code[in_file]
+                                    old_str_of_interest = in_file_str[int(external_call.source_mapping['start']):int(external_call.source_mapping['start'])+int(external_call.source_mapping['length'])]
+                                    called_function_name = old_str_of_interest.split('.')[-1]
+                                    fixed_function_name = called_function_name[0].lower() + called_function_name[1:]
+                                    new_string = '.'.join(old_str_of_interest.split('.')[:-1]) + '.' + fixed_function_name
+                                    patches[in_file].append({
+                                        "detector" : "naming-convention (function calls)",
+                                        "start" : external_call.source_mapping['start'],
+                                        "end" : int(external_call.source_mapping['start']) + int(external_call.source_mapping['length']),
+                                        "old_string" : old_str_of_interest,
+                                        "new_string" : new_string
+                                    })
+                    for internal_call in node.internal_calls_as_expressions:
+                        if (str(internal_call.called) == name):
                             in_file_str = slither.source_code[in_file]
-                            old_str_of_interest = in_file_str[int(call.source_mapping['start']):int(call.source_mapping['start'])+int(call.source_mapping['length'])]
+                            old_str_of_interest = in_file_str[int(internal_call.source_mapping['start']):int(internal_call.source_mapping['start'])+int(internal_call.source_mapping['length'])]
                             patches[in_file].append({
                                 "detector" : "naming-convention (function calls)",
-                                "start" : call.source_mapping['start'],
-                                "end" : int(call.source_mapping['start']) + int(call.source_mapping['length']),
+                                "start" : internal_call.source_mapping['start'],
+                                "end" : int(internal_call.source_mapping['start']) + int(internal_call.source_mapping['length']),
                                 "old_string" : old_str_of_interest,
                                 "new_string" : old_str_of_interest[0].lower()+old_str_of_interest[1:]
                             })
