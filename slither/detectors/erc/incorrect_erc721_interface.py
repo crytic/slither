@@ -2,23 +2,6 @@
 Detect incorrect erc721 interface.
 """
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.detectors.erc.incorrect_erc20_interface import is_possible_erc20
-
-
-def is_possible_erc721(contract):
-    """
-    Checks if the provided contract could be attempting to implement ERC721 standards.
-    :param contract: The contract to check for token compatibility.
-    :return: Returns a boolean indicating if the provided contract met the token standard.
-    """
-    full_names = set([f.full_name for f in contract.functions])
-    return is_possible_erc20(contract) and \
-        ('ownerOf(uint256)' in full_names or
-            'safeTransferFrom(address,address,uint256,bytes)' in full_names or
-            'safeTransferFrom(address,address,uint256)' in full_names or
-            'setApprovalForAll(address,bool)' in full_names or
-            'getApproved(uint256)' in full_names or
-            'isApprovedForAll(address,address)' in full_names)
 
 
 class IncorrectERC721InterfaceDetection(AbstractDetector):
@@ -85,7 +68,7 @@ contract Token{
         """
 
         # Verify this is an ERC721 contract.
-        if not is_possible_erc721(contract) or not is_possible_erc20(contract):
+        if not contract.has_an_erc721_function() or not contract.has_an_erc20_function():
             return []
 
         functions = [f for f in contract.functions if IncorrectERC721InterfaceDetection.incorrect_erc721_interface(f.signature)]
