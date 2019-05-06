@@ -1,5 +1,7 @@
 import re
 from slither.core.expressions.identifier import Identifier
+from slither.core.cfg.node import Node
+from slither.slithir.operations import NewContract
 
 class FormatNamingConvention:
 
@@ -98,7 +100,27 @@ class FormatNamingConvention:
                                 "old_string" : old_str_of_interest,
                                 "new_string" : new_str_of_interest
                             })
-                # To-do: Check any other place where contract type is used
+                # Check "new" expressions for creation of contract objects
+                for function in contract.functions:
+                    for node in function.nodes:
+                        for ir in node.irs:
+                            if isinstance(ir, NewContract) and ir.contract_name == name:
+                                old_str_of_interest = in_file_str[node.source_mapping['start']:node.source_mapping['start'] + node.source_mapping['length']]
+                                m = re.search("new"+r'(.*)'+name, old_str_of_interest)
+                                old_str_of_interest = old_str_of_interest[m.span()[0]:]
+                                (new_str_of_interest, num_repl) = re.subn("new"+r'(.*)'+name, "new"+r'\1'+name[0].upper()+name[1:], old_str_of_interest, 1)
+                                if num_repl != 0:
+                                    patches[in_file].append({
+                                        "detector" : "naming-convention (contract new object)",
+                                        "start" : node.source_mapping['start'] + m.span()[0],
+                                        "end" : node.source_mapping['start'] + m.span()[1],
+                                        "old_string" : old_str_of_interest,
+                                        "new_string" : new_str_of_interest
+                                    })
+                                else:
+                                    print("Error: Could not find new object?!")
+                                    sys.exit(-1)
+
             else:
                 # Ignore contract definition
                 continue
