@@ -71,6 +71,7 @@ Num | Detector | What it Detects | Impact | Confidence
 30 | `pragma` | [If different pragma directives are used](https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used) | Informational | High
 31 | `solc-version` | [Incorrect Solidity version (< 0.4.24 or complex pragma)](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-version-of-solidity) | Informational | High
 32 | `unused-state` | [Unused state variables](https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variables) | Informational | High
+33 | `too-many-digits` | [Conformance to numeric notation best practices](https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits) | Informational | Medium
 
 [Contact us](https://www.trailofbits.com/contact/) to get access to additional detectors.
 
