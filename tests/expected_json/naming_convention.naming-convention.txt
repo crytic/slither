@@ -1,0 +1,15 @@
+INFO:Detectors:[92m
+Contract 'naming' (tests/naming_convention.sol#3-48) is not in CapWords
+Struct 'naming.test' (tests/naming_convention.sol#14-16) is not in CapWords
+Event 'naming.event_' (tests/naming_convention.sol#23) is not in CapWords
+Function 'naming.GetOne' (tests/naming_convention.sol#30-33) is not in mixedCase
+Parameter 'Number2' of naming.setInt (tests/naming_convention.sol#35) is not in mixedCase
+Constant 'naming.MY_other_CONSTANT' (tests/naming_convention.sol#9) is not in UPPER_CASE_WITH_UNDERSCORES
+Variable 'naming.Var_One' (tests/naming_convention.sol#11) is not in mixedCase
+Enum 'naming.numbers' (tests/naming_convention.sol#6) is not in CapWords
+Modifier 'naming.CantDo' (tests/naming_convention.sol#41-43) is not in mixedCase
+Parameter '_used' of T.test (tests/naming_convention.sol#59) is not in mixedCase
+Variable 'T._myPublicVar' (tests/naming_convention.sol#56) is not in mixedCase
+Variable 'T.l' (tests/naming_convention.sol#67) used l, O, I, which should not be used
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions[0m
+INFO:Slither:tests/naming_convention.sol analyzed (3 contracts), 12 result(s) found

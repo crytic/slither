@@ -33,5 +33,6 @@ from .erc.incorrect_erc721_interface import IncorrectERC721InterfaceDetection
 from .erc.unindexed_event_parameters import UnindexedERC20EventParameters
 from .statements.deprecated_calls import DeprecatedStandards
 from .source.rtlo import RightToLeftOverride
+from .statements.too_many_digits import TooManyDigits
 #
 #
