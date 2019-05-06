@@ -11,24 +11,28 @@ class TooManyDigits(AbstractDetector):
     """
 
     ARGUMENT = 'too-many-digits'
-    HELP = 'Detect large digits usage'
+    HELP = 'Conformance to numeric notation best practices'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits'
     WIKI_TITLE = 'Too many digits'
-    WIKI_DESCRIPTION = 'Detect large digits that do not follow best practices'
+    WIKI_DESCRIPTION = '''
+Literals with many digits are difficult to read and review.
+'''
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract MyContract{
     uint 1_ether = 10000000000000000000; 
+}
 ```
 
-While `1_ether` looks like `1 ether`, it is `10 ether`.'''
+While `1_ether` looks like `1 ether`, it is `10 ether`. As a result, its usage is likely to be incorrect.
+'''
     WIKI_RECOMMENDATION = '''
 Use:
-- [Ether suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#ether-units),
-- [Time suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#time-units) or,
+- [Ether suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#ether-units)
+- [Time suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#time-units), or
 - [The scientific notation](https://solidity.readthedocs.io/en/latest/types.html#rational-and-integer-literals)
 '''
 
