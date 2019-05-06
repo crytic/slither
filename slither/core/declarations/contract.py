@@ -527,6 +527,14 @@ class Contract(ChildSlither, SourceMapping):
         """
         return all((not f.is_implemented) for f in self.functions)
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region ERC conformance
+    ###################################################################################
+    ###################################################################################
+
+
     def is_erc20(self):
         """
             Check if the contract is an erc20 token
@@ -539,6 +547,44 @@ class Contract(ChildSlither, SourceMapping):
         return 'transfer(address,uint256)' in full_names and\
                'transferFrom(address,address,uint256)' in full_names and\
                'approve(address,uint256)' in full_names
+
+    def is_erc721(self):
+        full_names = set([f.full_name for f in self.functions])
+        return self.is_erc20() and\
+               'ownerOf(uint256)' in full_names and\
+               'safeTransferFrom(address,address,uint256,bytes)' in full_names and\
+               'safeTransferFrom(address,address,uint256)' in full_names and\
+               'setApprovalForAll(address,bool)' in full_names and\
+               'getApproved(uint256)' in full_names and\
+               'isApprovedForAll(address,address)' in full_names
+
+    def has_an_erc20_function(self):
+        """
+        Checks if the provided contract could be attempting to implement ERC20 standards.
+        :param contract: The contract to check for token compatibility.
+        :return: Returns a boolean indicating if the provided contract met the token standard.
+        """
+        full_names = set([f.full_name for f in self.functions])
+        return 'transfer(address,uint256)' in full_names or \
+               'transferFrom(address,address,uint256)' in full_names or \
+               'approve(address,uint256)' in full_names
+
+    def has_an_erc721_function(self):
+        """
+        Checks if the provided contract could be attempting to implement ERC721 standards.
+        :param contract: The contract to check for token compatibility.
+        :return: Returns a boolean indicating if the provided contract met the token standard.
+        """
+        full_names = set([f.full_name for f in self.functions])
+        return self.has_an_erc20_function() and \
+               ('ownerOf(uint256)' in full_names or
+                'safeTransferFrom(address,address,uint256,bytes)' in full_names or
+                'safeTransferFrom(address,address,uint256)' in full_names or
+                'setApprovalForAll(address,bool)' in full_names or
+                'getApproved(uint256)' in full_names or
+                'isApprovedForAll(address,address)' in full_names)
+
+
 
     # endregion
     ###################################################################################

@@ -5,18 +5,6 @@ Some contracts do not return a bool on transfer/transferFrom/approve, which may 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
-def is_possible_erc20(contract):
-    """
-    Checks if the provided contract could be attempting to implement ERC20 standards.
-    :param contract: The contract to check for token compatibility.
-    :return: Returns a boolean indicating if the provided contract met the token standard.
-    """
-    full_names = set([f.full_name for f in contract.functions])
-    return 'transfer(address,uint256)' in full_names or \
-           'transferFrom(address,address,uint256)' in full_names or \
-           'approve(address,uint256)' in full_names
-
-
 class IncorrectERC20InterfaceDetection(AbstractDetector):
     """
     Incorrect ERC20 Interface
@@ -74,14 +62,12 @@ contract Token{
             list(str) : list of incorrect function signatures
         """
         # Verify this is an ERC20 contract.
-        if not is_possible_erc20(contract):
+        if not contract.has_an_erc20_function():
             return []
 
         # If this contract implements a function from ERC721, we can assume it is an ERC721 token. These tokens
         # offer functions which are similar to ERC20, but are not compatible.
-        # NOTE: This detector is dependent on this one, so we import here to avoid errors.
-        from slither.detectors.erc.incorrect_erc721_interface import is_possible_erc721
-        if is_possible_erc721(contract):
+        if contract.has_an_erc721_function():
             return []
 
         functions = [f for f in contract.functions if IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)]
