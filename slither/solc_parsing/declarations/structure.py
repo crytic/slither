@@ -16,6 +16,7 @@ class StructureSolc(Structure):
         self._name = name
         self._canonical_name = canonicalName
         self._elems = {}
+        self._elems_ordered = []
 
         self._elemsNotParsed = elems
 
@@ -28,5 +29,6 @@ class StructureSolc(Structure):
             elem.analyze(self.contract)
 
             self._elems[elem.name] = elem
+            self._elems_ordered.append(elem.name)
         self._elemsNotParsed = []
 
