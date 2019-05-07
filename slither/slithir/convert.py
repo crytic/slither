@@ -33,6 +33,7 @@ from slither.slithir.variables import (Constant, ReferenceVariable,
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 from slither.utils.function import get_function_id
 from slither.utils.type import export_nested_types_from_variable
+from slither.slithir.exceptions import SlithIRError
 
 logger = logging.getLogger('ConvertToIR')
 
@@ -457,8 +458,7 @@ def propagate_types(ir, node):
                 # temporary operation; they will be removed
                 pass
             else:
-                logger.error('Not handling {} during type propgation'.format(type(ir)))
-                exit(-1)
+                raise SlithIRError('Not handling {} during type propgation'.format(type(ir)))
 
 def extract_tmp_call(ins, contract):
     assert isinstance(ins, TmpCall)
@@ -577,8 +577,7 @@ def convert_to_low_level(ir):
         new_ir.arguments = ir.arguments
         new_ir.lvalue.set_type(ElementaryType('bool'))
         return new_ir
-    logger.error('Incorrect conversion to low level {}'.format(ir))
-    exit(-1)
+    raise SlithIRError('Incorrect conversion to low level {}'.format(ir))
 
 def convert_to_push(ir, node):
     """
