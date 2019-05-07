@@ -6,7 +6,7 @@ from slither.core.variables.variable import Variable
 from slither.solc_parsing.solidity_types.type_parsing import parse_type, UnknownType
 
 from slither.core.solidity_types.elementary_type import ElementaryType, NonElementaryType
-
+from slither.solc_parsing.exceptions import ParsingError
 logger = logging.getLogger("VariableDeclarationSolcParsing")
 
 class MultipleVariablesDeclaration(Exception):
@@ -51,8 +51,7 @@ class VariableDeclarationSolc(Variable):
             elif  nodeType == 'VariableDeclaration':
                 self._init_from_declaration(var, var['value'])
             else:
-                logger.error('Incorrect variable declaration type {}'.format(nodeType))
-                exit(-1)
+                raise ParsingError('Incorrect variable declaration type {}'.format(nodeType))
 
         else:
             nodeType = var['name']
@@ -65,15 +64,13 @@ class VariableDeclarationSolc(Variable):
                 elif len(var['children']) > 2:
                     raise MultipleVariablesDeclaration
                 else:
-                    logger.error('Variable declaration without children?'+var)
-                    exit(-1)
+                    raise ParsingError('Variable declaration without children?'+var)
                 declaration = var['children'][0]
                 self._init_from_declaration(declaration, init)
             elif  nodeType == 'VariableDeclaration':
                 self._init_from_declaration(var, None)
             else:
-                logger.error('Incorrect variable declaration type {}'.format(nodeType))
-                exit(-1)
+                raise ParsingError('Incorrect variable declaration type {}'.format(nodeType))
 
     @property
     def initialized(self):

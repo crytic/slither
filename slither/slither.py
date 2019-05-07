@@ -11,7 +11,7 @@ from crytic_compile import CryticCompile, InvalidCompilation
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
 from .solc_parsing.slitherSolc import SlitherSolc
-from .utils.colors import red
+from .exceptions import SlitherError
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -59,9 +59,7 @@ class Slither(SlitherSolc):
                 cryticCompile = CryticCompile(contract, **kwargs)
                 self._crytic_compile = cryticCompile
             except InvalidCompilation as e:
-                logger.error('Invalid compilation')
-                logger.error(e)
-                exit(-1)
+                raise SlitherError('Invalid compilation: '+e)
             for path, ast in cryticCompile.asts.items():
 
                 self._parse_contracts_from_loaded_json(ast, path)
@@ -81,14 +79,12 @@ class Slither(SlitherSolc):
 
     def _init_from_raw_json(self, filename):
         if not os.path.isfile(filename):
-            logger.error('{} does not exist (are you in the correct directory?)'.format(filename))
-            exit(-1)
+            raise SlitherError('{} does not exist (are you in the correct directory?)'.format(filename))
         assert filename.endswith('json')
         with open(filename, encoding='utf8') as astFile:
             stdout = astFile.read()
             if not stdout:
-                logger.info('Empty AST file: %s', filename)
-                sys.exit(-1)
+                raise SlitherError('Empty AST file: %s', filename)
         contracts_json = stdout.split('\n=')
 
         super(Slither, self).__init__(filename)
@@ -176,14 +172,12 @@ class Slither(SlitherSolc):
 
     def _run_solc(self, filename, solc, disable_solc_warnings, solc_arguments, ast_format):
         if not os.path.isfile(filename):
-            logger.error('{} does not exist (are you in the correct directory?)'.format(filename))
-            exit(-1)
+            raise SlitherError('{} does not exist (are you in the correct directory?)'.format(filename))
         assert filename.endswith('json')
         with open(filename, encoding='utf8') as astFile:
             stdout = astFile.read()
             if not stdout:
-                logger.info('Empty AST file: %s', filename)
-                sys.exit(-1)
+                raise SlitherError('Empty AST file: %s', filename)
         stdout = stdout.split('\n=')
 
         return stdout

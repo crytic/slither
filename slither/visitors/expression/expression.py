@@ -15,6 +15,7 @@ from slither.core.expressions.new_elementary_type import NewElementaryType
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
 from slither.core.expressions.unary_operation import UnaryOperation
+from slither.exceptions import SlitherError
 
 logger = logging.getLogger("ExpressionVisitor")
 
@@ -86,8 +87,7 @@ class ExpressionVisitor:
             pass
 
         else:
-            logger.error('Expression not handled: {}'.format(expression))
-            exit(-1)
+            raise SlitherError('Expression not handled: {}'.format(expression))
 
         self._post_visit(expression)
 
@@ -200,8 +200,7 @@ class ExpressionVisitor:
             pass
 
         else:
-            logger.error('Expression not handled: {}'.format(expression))
-            exit(-1)
+            raise SlitherError('Expression not handled: {}'.format(expression))
 
     # pre_expression_name
 
@@ -302,8 +301,7 @@ class ExpressionVisitor:
             pass
 
         else:
-            logger.error('Expression not handled: {}'.format(expression))
-            exit(-1)
+            raise SlitherError('Expression not handled: {}'.format(expression))
 
     # post_expression_name
 
