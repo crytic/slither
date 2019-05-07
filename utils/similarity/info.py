@@ -1,5 +1,6 @@
 import logging
 import sys
+import os.path
 import traceback
 
 from fastText import load_model
@@ -11,8 +12,13 @@ logger = logging.getLogger("Slither-simil")
 def info(args):
 
     try:
+
         model = args.model
-        model = load_model(model)
+        if os.path.isfile(model): 
+            model = load_model(model)
+        else:
+            model = None
+
         filename = args.filename
         contract = args.contract
         solc = args.solc
@@ -30,14 +36,15 @@ def info(args):
         irs = encode_contract(filename, solc=solc)
         if len(irs) == 0:
             sys.exit(-1)
-
-        x = "-".join([filename,contract,fname])
-        y = " ".join(irs[x])
         
-        fvector = model.get_sentence_vector(y)
+        x = (filename,contract,fname)
+        y = " ".join(irs[x])
+
         print("Function {} in contract {} is encoded as:".format(fname, contract))
         print(y)
-        print(fvector)
+        if model is not None:
+            fvector = model.get_sentence_vector(y)
+            print(fvector)
 
     except Exception:
         logger.error('Error in %s' % args.filename)
