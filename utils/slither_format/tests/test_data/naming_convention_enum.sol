@@ -9,6 +9,7 @@ contract A {
   e e1;
   
   function foo() {
+    /* enum use - bad */
     e1 = e.ONE;
   }
 }
@@ -22,6 +23,7 @@ contract B {
   E e1;
   
   function foo() {
+    /* enum use - good */
     e1 = E.ONE;
   }
   

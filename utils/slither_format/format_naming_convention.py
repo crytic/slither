@@ -2,6 +2,7 @@ import re
 from slither.core.expressions.identifier import Identifier
 from slither.core.cfg.node import Node
 from slither.slithir.operations import NewContract
+from slither.slithir.operations import Member
 
 class FormatNamingConvention:
 
@@ -396,40 +397,61 @@ class FormatNamingConvention:
     @staticmethod
     def create_patch_enum_uses(slither, patches, name, contract_name, in_file):
         for contract in slither.contracts_derived:
-            in_file_str = slither.source_code[in_file]
-            # Check state variable declarations of enum type
-            # To-do: Deep-check aggregate types (struct and mapping)
-            svs = contract.variables
-            for sv in svs:
-                if (str(sv.type) == contract_name + "." + name):
-                    old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
-                    (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
-                    patches[in_file].append({
-                        "detector" : "naming-convention (enum use)",
-                        "start" : contract.get_source_var_declaration(sv.name)['start'],
-                        "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
-                        "old_string" : old_str_of_interest,
-                        "new_string" : new_str_of_interest
-                    })
-            # Check function+modifier locals+parameters+returns
-            # To-do: Deep-check aggregate types (struct and mapping)
-            fms = contract.functions + contract.modifiers
-            for fm in fms:
-                # Enum declarations
-                for v in fm.variables:
-                    if (str(v.type) == contract_name + "." + name):
-                        old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
+            if contract.name == contract_name:
+                in_file_str = slither.source_code[in_file]
+                # Check state variable declarations of enum type
+                # To-do: Deep-check aggregate types (struct and mapping)
+                svs = contract.variables
+                for sv in svs:
+                    if (str(sv.type) == contract_name + "." + name):
+                        old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
                         (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
                         patches[in_file].append({
                             "detector" : "naming-convention (enum use)",
-                            "start" : fm.get_source_var_declaration(v.name)['start'],
-                            "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
+                            "start" : contract.get_source_var_declaration(sv.name)['start'],
+                            "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
                             "old_string" : old_str_of_interest,
                             "new_string" : new_str_of_interest
                         })
-                # To-do Capture Enum uses such as "num = numbers.ONE;"
-                # where numbers is not captured by slither as a variable/value on the RHS
-            # To-do: Check any other place/way where enum type is used
+                # Check function+modifier locals+parameters+returns
+                # To-do: Deep-check aggregate types (struct and mapping)
+                fms = contract.functions + contract.modifiers
+                for fm in fms:
+                    # Enum declarations
+                    for v in fm.variables:
+                        if (str(v.type) == contract_name + "." + name):
+                            old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
+                            (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
+                            patches[in_file].append({
+                                "detector" : "naming-convention (enum use)",
+                                "start" : fm.get_source_var_declaration(v.name)['start'],
+                                "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
+                                "old_string" : old_str_of_interest,
+                                "new_string" : new_str_of_interest
+                            })
+                # Capture enum uses such as "num = numbers.ONE;"
+                for function in contract.functions:
+                    for node in function.nodes:
+                        for ir in node.irs:
+                            if isinstance(ir, Member):
+                                if str(ir.variable_left) == name:
+                                    old_str_of_interest = in_file_str[node.source_mapping['start']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[1]
+                                    m = re.search(r'(.*)'+name, old_str_of_interest)
+                                    old_str_of_interest = old_str_of_interest[m.span()[0]:]
+                                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name, r'\1'+name[0].upper()+name[1:], old_str_of_interest, 1)
+                                    if num_repl != 0:
+                                        patches[in_file].append({
+                                            "detector" : "naming-convention (enum use)",
+					    "start" : node.source_mapping['start'] + len(in_file_str[node.source_mapping['start']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0]) + 1 + m.span()[0],
+                                            "end" : node.source_mapping['start'] + len(in_file_str[node.source_mapping['star\
+t']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0]) + 1 + m.span()[0] + len(old_str_of_interest),
+                                            "old_string" : old_str_of_interest,
+                                            "new_string" : new_str_of_interest
+                                        })
+                                    else:
+                                        print("Error: Could not find new object?!")
+                                        sys.exit(-1)
+                # To-do: Check any other place/way where enum type is used
 
     @staticmethod            
     def create_patch_struct_definition(slither, patches, name, contract_name, in_file, modify_loc_start, modify_loc_end):
