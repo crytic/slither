@@ -1,7 +1,7 @@
 import logging
 from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.expression import Expression
-from slither.core.solidity_types.type import Type
+from slither.core.exceptions import SlitherCoreError
 
 logger = logging.getLogger("UnaryOperation")
 
@@ -38,8 +38,7 @@ class UnaryOperationType:
                 return UnaryOperationType.PLUSPLUS_POST
             if operation_type == '--':
                 return UnaryOperationType.MINUSMINUS_POST
-        logger.error('get_type: Unknown operation type {}'.format(operation_type))
-        exit(-1)
+        raise SlitherCoreError('get_type: Unknown operation type {}'.format(operation_type))
 
     @staticmethod
     def str(operation_type):
@@ -58,8 +57,7 @@ class UnaryOperationType:
         if operation_type in [UnaryOperationType.MINUSMINUS_PRE, UnaryOperationType.MINUSMINUS_POST]:
             return '--'
 
-        logger.error('str: Unknown operation type {}'.format(operation_type))
-        exit(-1)
+        raise SlitherCoreError('str: Unknown operation type {}'.format(operation_type))
 
     @staticmethod
     def is_prefix(operation_type):
@@ -74,8 +72,7 @@ class UnaryOperationType:
         elif operation_type in [UnaryOperationType.PLUSPLUS_POST, UnaryOperationType.MINUSMINUS_POST]:
             return False
 
-        logger.error('is_prefix: Unknown operation type {}'.format(operation_type))
-        exit(-1)
+        raise SlitherCoreError('is_prefix: Unknown operation type {}'.format(operation_type))
 
 class UnaryOperation(ExpressionTyped):
 

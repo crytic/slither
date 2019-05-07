@@ -22,6 +22,7 @@ from slither.slithir.variables import (Constant, LocalIRVariable,
                                        ReferenceVariable, ReferenceVariableSSA,
                                        StateIRVariable, TemporaryVariable,
                                        TemporaryVariableSSA, TupleVariable, TupleVariableSSA)
+from slither.slithir.exceptions import SlithIRError
 
 logger = logging.getLogger('SSA_Conversion')
 
@@ -662,7 +663,6 @@ def copy_ir(ir, *instances):
         return Length(value, lvalue)
 
 
-    logger.error('Impossible ir copy on {} ({})'.format(ir, type(ir)))
-    exit(-1)
+    raise SlithIRError('Impossible ir copy on {} ({})'.format(ir, type(ir)))
 
 # endregion
