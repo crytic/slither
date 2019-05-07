@@ -5,10 +5,8 @@ def erc_to_signatures(erc):
 
 # Final
 # https://eips.ethereum.org/EIPS/eip-20
-ERC20 = [('name', [], 'string'),
-         ('symbol', [], 'string'),
-         ('decimals', [], 'uint8'),
-         ('totalSupply', [], 'uint256'),
+# name, symbolc, decimals are optionals
+ERC20 = [('totalSupply', [], 'uint256'),
          ('balanceOf', ['address'], 'uint256'),
          ('transfer', ['address', 'uint256'], 'bool'),
          ('transferFrom', ['address', 'address', 'uint256'], 'bool'),
