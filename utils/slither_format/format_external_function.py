@@ -26,7 +26,7 @@ class FormatExternalFunction:
             patches[in_file].append({
                 "detector" : "external-function",
                 "start" : modify_loc_start,
-                "end" : modify_loc_start + len(new_str_of_interest),
+                "end" : modify_loc_end,
                 "old_string" : old_str_of_interest,
                 "new_string" : new_str_of_interest
             })
