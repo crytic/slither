@@ -1,1 +1,67 @@
-[{"check": "constant-function", "impact": "Medium", "confidence": "Medium", "description": "Constant.test_assembly_bug (tests/constant-0.5.1.sol#15-17) is declared view but contains assembly code\n", "elements": [{"type": "info", "contains_assembly": true}]}]
+[
+  {
+    "check": "constant-function",
+    "impact": "Medium",
+    "confidence": "Medium",
+    "description": "Constant.test_assembly_bug (tests/constant-0.5.1.sol#15-17) is declared view but contains assembly code\n",
+    "elements": [
+      {
+        "type": "function",
+        "name": "test_assembly_bug",
+        "source_mapping": {
+          "start": 185,
+          "length": 66,
+          "filename_used": "/home/travis/build/crytic/slither/tests/constant-0.5.1.sol",
+          "filename_relative": "tests/constant-0.5.1.sol",
+          "filename_absolute": "/home/travis/build/crytic/slither/tests/constant-0.5.1.sol",
+          "filename_short": "tests/constant-0.5.1.sol",
+          "lines": [
+            15,
+            16,
+            17
+          ],
+          "starting_column": 5,
+          "ending_column": 6
+        },
+        "contract": {
+          "type": "contract",
+          "name": "Constant",
+          "source_mapping": {
+            "start": 0,
+            "length": 253,
+            "filename_used": "/home/travis/build/crytic/slither/tests/constant-0.5.1.sol",
+            "filename_relative": "tests/constant-0.5.1.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/constant-0.5.1.sol",
+            "filename_short": "tests/constant-0.5.1.sol",
+            "lines": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18
+            ],
+            "starting_column": 1,
+            "ending_column": 2
+          }
+        }
+      },
+      {
+        "type": "info",
+        "contains_assembly": true
+      }
+    ]
+  }
+]

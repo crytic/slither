@@ -1,0 +1,10 @@
+INFO:Detectors:[93m
+Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface(s):
+	-transfer (tests/incorrect_erc20_interface.sol#4)
+	-approve (tests/incorrect_erc20_interface.sol#5)
+	-transferFrom (tests/incorrect_erc20_interface.sol#6)
+	-totalSupply (tests/incorrect_erc20_interface.sol#7)
+	-balanceOf (tests/incorrect_erc20_interface.sol#8)
+	-allowance (tests/incorrect_erc20_interface.sol#9)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-erc20-interface[0m
+INFO:Slither:tests/incorrect_erc20_interface.sol analyzed (1 contracts), 1 result(s) found

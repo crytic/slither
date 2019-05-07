@@ -12,6 +12,12 @@ env:
   - TEST_SUITE=scripts/travis_test_find_paths.sh
   - TEST_SUITE=scripts/travis_test_truffle.sh
   - TEST_SUITE=scripts/travis_test_embark.sh
+  - TEST_SUITE=scripts/travis_test_etherscan.sh
+  - TEST_SUITE=scripts/travis_test_dapp.sh
+  - TEST_SUITE=scripts/travis_test_etherlime.sh
+  - TEST_SUITE=scripts/travis_test_cli.sh
+  - TEST_SUITE=scripts/travis_test_printers.sh
+  - TEST_SUITE=scripts/travis_test_slither_config.sh
 branches:
   only:
   - master
