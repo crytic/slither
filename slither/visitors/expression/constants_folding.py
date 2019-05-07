@@ -20,8 +20,12 @@ def set_val(expression, val):
 
 class ConstantFolding(ExpressionVisitor):
 
+    def __init__(self, expression, type):
+        super(ConstantFolding, self).__init__(expression)
+        self._type = type
+
     def result(self):
-        return Literal(int(get_val(self._expression)))
+        return Literal(int(get_val(self._expression)), self._type)
 
     def _post_identifier(self, expression):
         if not expression.value.is_constant:
@@ -29,7 +33,7 @@ class ConstantFolding(ExpressionVisitor):
         expr = expression.value.expression
         # assumption that we won't have infinite loop
         if not isinstance(expr, Literal):
-            cf = ConstantFolding(expr)
+            cf = ConstantFolding(expr, self._type)
             expr = cf.result()
         set_val(expression, int(expr.value))
 
