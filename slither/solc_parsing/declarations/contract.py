@@ -9,6 +9,7 @@ from slither.solc_parsing.declarations.modifier import ModifierSolc
 from slither.solc_parsing.declarations.structure import StructureSolc
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
+from slither.solc_parsing.exceptions import ParsingError
 
 logger = logging.getLogger("ContractSolcParsing")
 
@@ -186,8 +187,7 @@ class ContractSolc04(Contract):
             elif item[self.get_key()] == 'UsingForDirective':
                 self._usingForNotParsed.append(item)
             else:
-                logger.error('Unknown contract item: '+item[self.get_key()])
-                exit(-1)
+                raise ParsingError('Unknown contract item: '+item[self.get_key()])
         return
 
     def _parse_struct(self, struct):

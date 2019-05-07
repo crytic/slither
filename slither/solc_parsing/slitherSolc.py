@@ -14,6 +14,7 @@ from slither.core.declarations.import_directive import Import
 from slither.analyses.data_dependency.data_dependency import compute_dependency
 
 from slither.utils.colors import red
+from .exceptions import ParsingNameReuse, ParsingContractNotFound
 
 class SlitherSolc(Slither):
 
@@ -182,8 +183,7 @@ class SlitherSolc(Slither):
                     info += '\n{} is defined in:'.format(contract.name)
                     info += '\n- {}\n- {}'.format(contract.source_mapping_str,
                                                self._contracts[contract.name].source_mapping_str)
-                    logger.error(info)
-                    exit(-1)
+                    raise ParsingNameReuse(info)
             else:
                 self._contracts_by_id[contract.id] = contract
                 self._contracts[contract.name] = contract
@@ -217,11 +217,11 @@ class SlitherSolc(Slither):
                         father_constructors.append(self._contracts_by_id[i])
 
             except KeyError:
-                logger.error(red('A contract was not found, it is likely that your codebase contains muliple contracts with the same name'))
-                logger.error(red('Truffle does not handle this case during compilation'))
-                logger.error(red('Please read https://github.com/trailofbits/slither/wiki#keyerror-or-nonetype-error'))
-                logger.error(red('And update your code to remove the duplicate'))
-                exit(-1)
+                txt = 'A contract was not found, it is likely that your codebase contains muliple contracts with the same name'
+                txt += 'Truffle does not handle this case during compilation'
+                txt += 'Please read https://github.com/trailofbits/slither/wiki#keyerror-or-nonetype-error'
+                txt += 'And update your code to remove the duplicate'
+                raise ParsingContractNotFound(txt)
             contract.setInheritance(ancestors, fathers, father_constructors)
 
         contracts_to_be_analyzed = self.contracts

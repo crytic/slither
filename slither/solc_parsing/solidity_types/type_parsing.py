@@ -13,6 +13,7 @@ from slither.core.declarations.function import Function
 
 from slither.core.expressions.literal import Literal
 
+from slither.solc_parsing.exceptions import ParsingError
 import re
 
 logger = logging.getLogger('TypeParsing')
@@ -118,8 +119,7 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
             return MappingType(from_type, to_type)
 
     if not var_type:
-        logger.error('Type not found '+str(name))
-        exit(-1)
+        raise ParsingError('Type not found '+str(name))
     return UserDefinedType(var_type)
 
 
@@ -134,8 +134,7 @@ def parse_type(t, caller_context):
     elif isinstance(caller_context, Function):
         contract = caller_context.contract
     else:
-        logger.error('Incorrect caller context')
-        exit(-1)
+        raise ParsingError('Incorrect caller context')
 
 
     is_compact_ast = caller_context.is_compact_ast
@@ -223,5 +222,4 @@ def parse_type(t, caller_context):
 
         return FunctionType(params_vars, return_values_vars)
 
-    logger.error('Type name not found '+str(t))
-    exit(-1)
+    raise ParsingError('Type name not found '+str(t))

@@ -1,8 +1,7 @@
 import logging
 from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.core.variables.variable import Variable
-
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
+from slither.slithir.exceptions import SlithIRError
 
 logger = logging.getLogger("BinaryOperationIR")
 
@@ -17,8 +16,7 @@ class UnaryType:
                 return UnaryType.BANG
             if operation_type == '~':
                 return UnaryType.TILD
-        logger.error('get_type: Unknown operation type {}'.format(operation_type))
-        exit(-1)
+        raise SlithIRError('get_type: Unknown operation type {}'.format(operation_type))
 
     @staticmethod
     def str(operation_type):
@@ -27,8 +25,7 @@ class UnaryType:
         if operation_type == UnaryType.TILD:
             return '~'
 
-        logger.error('str: Unknown operation type {}'.format(operation_type))
-        exit(-1)
+        raise SlithIRError('str: Unknown operation type {}'.format(operation_type))
 
 class Unary(OperationWithLValue):
 
