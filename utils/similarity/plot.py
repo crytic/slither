@@ -3,7 +3,6 @@ import sys
 import traceback
 import operator
 import numpy as np
-import tqdm
 import random
 
 try:
