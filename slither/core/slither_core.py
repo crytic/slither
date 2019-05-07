@@ -33,6 +33,8 @@ class Slither(Context):
         self._previous_results = []
         self._paths_to_filter = set()
 
+        self._crytic_compile = None
+
 
     ###################################################################################
     ###################################################################################
@@ -53,6 +55,14 @@ class Slither(Context):
     def filename(self):
         """str: Filename."""
         return self._filename
+
+    def _add_source_code(self, path):
+        """
+        :param path:
+        :return:
+        """
+        with open(path, encoding='utf8', newline='') as f:
+            self.source_code[path] = f.read()
 
     # endregion
     ###################################################################################
@@ -172,7 +182,8 @@ class Slither(Context):
                 - All its source paths belong to the source path filtered
                 - Or a similar result was reported and saved during a previous run
         '''
-        if r['elements'] and all((any(path in elem['source_mapping']['filename'] for path in self._paths_to_filter if 'source_mapping' in elem) for elem in r['elements'])):
+        source_mapping_elements = [elem['source_mapping']['filename_absolute'] for elem in r['elements'] if 'source_mapping' in elem]
+        if r['elements'] and all((any(path in src_mapping for path in self._paths_to_filter) for src_mapping in source_mapping_elements)):
             return False
         return not r['description'] in [pr['description'] for pr in self._previous_results]
 
@@ -203,4 +214,14 @@ class Slither(Context):
         '''
         self._paths_to_filter.add(path)
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Crytic compile
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def crytic_compile(self):
+        return self._crytic_compile
     # endregion

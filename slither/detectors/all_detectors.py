@@ -28,9 +28,11 @@ from .shadowing.builtin_symbols import BuiltinSymbolShadowing
 from .operations.block_timestamp import Timestamp
 from .statements.calls_in_loop import MultipleCallsInLoop
 from .statements.incorrect_strict_equality import IncorrectStrictEquality
-from .erc20.incorrect_interface import IncorrectERC20InterfaceDetection
-from .erc20.unindexed_event_parameters import UnindexedERC20EventParameters
+from .erc.incorrect_erc20_interface import IncorrectERC20InterfaceDetection
+from .erc.incorrect_erc721_interface import IncorrectERC721InterfaceDetection
+from .erc.unindexed_event_parameters import UnindexedERC20EventParameters
 from .statements.deprecated_calls import DeprecatedStandards
 from .source.rtlo import RightToLeftOverride
+from .statements.too_many_digits import TooManyDigits
 #
 #

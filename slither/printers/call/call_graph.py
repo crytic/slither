@@ -71,7 +71,7 @@ class PrinterCallGraph(AbstractPrinter):
         for contract in all_contracts:
             render_internal_calls += self._render_internal_calls(contract, contract_functions, contract_calls)
 
-        render_solidity_calls = '' #self._render_solidity_calls(solidity_functions, solidity_calls)
+        render_solidity_calls = self._render_solidity_calls(solidity_functions, solidity_calls)
 
         render_external_calls = self._render_external_calls(external_calls)
 
@@ -110,7 +110,6 @@ class PrinterCallGraph(AbstractPrinter):
 
         # add variable as node to respective contract
         if isinstance(external_function, (Variable)):
-            return
             contract_functions[external_contract].add(_node(
                 _function_node(external_contract, external_function),
                 external_function.name

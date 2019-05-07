@@ -4,13 +4,15 @@
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
+CURRENT_PATH=$(pwd)
+TRAVIS_PATH='/home/travis/build/crytic/slither'
 # test_slither file.sol detectors
 test_slither(){
 
     expected="$DIR/../tests/expected_json/$(basename $1 .sol).$2.json"
 
     # run slither detector on input file and save output as json
-    slither "$1" --disable-solc-warnings --detect "$2" --json "$DIR/tmp-test.json" --solc solc-0.4.25
+    slither "$1" --solc-disable-warnings --detect "$2" --json "$DIR/tmp-test.json" --solc solc-0.4.25
     if [ $? -eq 255 ]
     then
         echo "Slither crashed"
@@ -24,6 +26,7 @@ test_slither(){
         exit 1
     fi
 
+    sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$DIR/tmp-test.json" -i
     result=$(python "$DIR/json_diff.py" "$expected" "$DIR/tmp-test.json")
 
     rm "$DIR/tmp-test.json"
@@ -37,7 +40,7 @@ test_slither(){
     fi
 
     # run slither detector on input file and save output as json
-    slither "$1" --disable-solc-warnings --detect "$2" --legacy-ast --json "$DIR/tmp-test.json" --solc solc-0.4.25
+    slither "$1" --solc-disable-warnings --detect "$2" --legacy-ast --json "$DIR/tmp-test.json" --solc solc-0.4.25
     if [ $? -eq 255 ]
     then
         echo "Slither crashed"
@@ -51,6 +54,7 @@ test_slither(){
         exit 1
     fi
 
+    sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$DIR/tmp-test.json" -i
     result=$(python "$DIR/json_diff.py" "$expected" "$DIR/tmp-test.json")
 	
     rm "$DIR/tmp-test.json"
@@ -68,6 +72,7 @@ test_slither(){
 test_slither tests/deprecated_calls.sol "deprecated-standards"
 test_slither tests/erc20_indexed.sol "erc20-indexed"
 test_slither tests/incorrect_erc20_interface.sol "erc20-interface"
+test_slither tests/incorrect_erc721_interface.sol "erc721-interface"
 test_slither tests/uninitialized.sol "uninitialized-state"
 test_slither tests/backdoor.sol "backdoor"
 test_slither tests/backdoor.sol "suicidal"
