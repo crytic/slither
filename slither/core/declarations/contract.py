@@ -647,8 +647,7 @@ class Contract(ChildSlither, SourceMapping):
         """
         # We do not check for all the functions, as name(), symbol(), might give too many FPs
         full_names = self.functions_signatures
-        return ('approve(address,uint256)' in full_names or
-                'ownerOf(uint256)' in full_names or
+        return ('ownerOf(uint256)' in full_names or
                 'safeTransferFrom(address,address,uint256,bytes)' in full_names or
                 'safeTransferFrom(address,address,uint256)' in full_names or
                 'setApprovalForAll(address,bool)' in full_names or
