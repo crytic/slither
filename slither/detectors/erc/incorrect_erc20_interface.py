@@ -62,12 +62,12 @@ contract Token{
             list(str) : list of incorrect function signatures
         """
         # Verify this is an ERC20 contract.
-        if not contract.has_an_erc20_function():
+        if not contract.is_possible_erc20():
             return []
 
         # If this contract implements a function from ERC721, we can assume it is an ERC721 token. These tokens
         # offer functions which are similar to ERC20, but are not compatible.
-        if contract.has_an_erc721_function():
+        if contract.is_possible_erc721():
             return []
 
         functions = [f for f in contract.functions if IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)]
