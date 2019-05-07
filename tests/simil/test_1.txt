@@ -1,1 +1,2 @@
-abc
+Function complexExternalWrites in contract Complex is encoded as:
+new_contract (local_solc_variable(default)):=(temporary_variable) high_level_call high_level_call high_level_call high_level_call high_level_call new_contract (local_solc_variable(default)):=(temporary_variable) high_level_call new_contract (local_solc_variable(default)):=(temporary_variable) solidity_call(keccak256()) type_conversion(bytes4) low_level_call new_contract (local_solc_variable(default)):=(temporary_variable) solidity_call(keccak256()) type_conversion(bytes4) low_level_call
