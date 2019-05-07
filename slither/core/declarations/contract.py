@@ -5,6 +5,9 @@ import logging
 from slither.core.children.child_slither import ChildSlither
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.declarations.function import Function
+from slither.utils.erc import ERC20_signatures, \
+    ERC165_signatures, ERC223_signatures, ERC721_signatures, \
+    ERC1820_signatures, ERC777_signatures
 
 logger = logging.getLogger("Contract")
 
@@ -34,6 +37,8 @@ class Contract(ChildSlither, SourceMapping):
         self._functions = {}
         self._using_for = {}
         self._kind = None
+
+        self._signatures = None
 
 
         self._initial_state_variables = [] # ssa
@@ -211,6 +216,20 @@ class Contract(ChildSlither, SourceMapping):
     # region Functions and Modifiers
     ###################################################################################
     ###################################################################################
+
+    @property
+    def functions_signatures(self):
+        """
+        Return the signatures of all the public/eterxnal functions/state variables
+        :return: list(string) the signatures of all the functions that can be called
+        """
+        if self._signatures == None:
+            sigs = [v.full_name for v in self.state_variables if v.visibility in ['public',
+                                                                                  'external']]
+
+            sigs += set([f.full_name for f in self.functions if f.visibility in ['public', 'external']])
+            self._signatures = list(set(sigs))
+        return self._signatures
 
     @property
     def functions(self):
@@ -534,50 +553,102 @@ class Contract(ChildSlither, SourceMapping):
     ###################################################################################
     ###################################################################################
 
+    def ercs(self):
+        """
+        Return the ERC implemented
+        :return: list of string
+        """
+        all = [('ERC20', lambda x: x.is_erc20()),
+               ('ERC165', lambda x: x.is_erc165()),
+               ('ERC1820', lambda x: x.is_erc1820()),
+               ('ERC223', lambda x: x.is_erc223()),
+               ('ERC721', lambda x: x.is_erc721()),
+               ('ERC777', lambda x: x.is_erc777())]
+
+        return [erc[0] for erc in all if erc[1](self)]
 
     def is_erc20(self):
         """
             Check if the contract is an erc20 token
 
             Note: it does not check for correct return values
-        Returns:
-            bool
+        :return: Returns a true if the contract is an erc20
         """
-        full_names = set([f.full_name for f in self.functions])
-        return 'transfer(address,uint256)' in full_names and\
-               'transferFrom(address,address,uint256)' in full_names and\
-               'approve(address,uint256)' in full_names
+        full_names = self.functions_signatures
+        return all((s in full_names for s in ERC20_signatures))
+
+    def is_erc165(self):
+        """
+            Check if the contract is an erc165 token
+
+            Note: it does not check for correct return values
+        :return: Returns a true if the contract is an erc165
+        """
+        full_names = self.functions_signatures
+        return all((s in full_names for s in ERC165_signatures))
+
+    def is_erc1820(self):
+        """
+            Check if the contract is an erc1820
+
+            Note: it does not check for correct return values
+        :return: Returns a true if the contract is an erc165
+        """
+        full_names = self.functions_signatures
+        return all((s in full_names for s in ERC1820_signatures))
+
+    def is_erc223(self):
+        """
+            Check if the contract is an erc223 token
+
+            Note: it does not check for correct return values
+        :return: Returns a true if the contract is an erc223
+        """
+        full_names = self.functions_signatures
+        return all((s in full_names for s in ERC223_signatures))
 
     def is_erc721(self):
-        full_names = set([f.full_name for f in self.functions])
-        return self.is_erc20() and\
-               'ownerOf(uint256)' in full_names and\
-               'safeTransferFrom(address,address,uint256,bytes)' in full_names and\
-               'safeTransferFrom(address,address,uint256)' in full_names and\
-               'setApprovalForAll(address,bool)' in full_names and\
-               'getApproved(uint256)' in full_names and\
-               'isApprovedForAll(address,address)' in full_names
+        """
+            Check if the contract is an erc721 token
 
-    def has_an_erc20_function(self):
+            Note: it does not check for correct return values
+        :return: Returns a true if the contract is an erc721
+        """
+        full_names = self.functions_signatures
+        return all((s in full_names for s in ERC721_signatures))
+
+    def is_erc777(self):
+        """
+            Check if the contract is an erc777
+
+            Note: it does not check for correct return values
+        :return: Returns a true if the contract is an erc165
+        """
+        full_names = self.functions_signatures
+        return all((s in full_names for s in ERC777_signatures))
+
+    def is_possible_erc20(self):
         """
         Checks if the provided contract could be attempting to implement ERC20 standards.
         :param contract: The contract to check for token compatibility.
         :return: Returns a boolean indicating if the provided contract met the token standard.
         """
-        full_names = set([f.full_name for f in self.functions])
+        # We do not check for all the functions, as name(), symbol(), might give too many FPs
+        full_names = self.functions_signatures
         return 'transfer(address,uint256)' in full_names or \
                'transferFrom(address,address,uint256)' in full_names or \
                'approve(address,uint256)' in full_names
 
-    def has_an_erc721_function(self):
+    def is_possible_erc721(self):
         """
         Checks if the provided contract could be attempting to implement ERC721 standards.
         :param contract: The contract to check for token compatibility.
         :return: Returns a boolean indicating if the provided contract met the token standard.
         """
-        full_names = set([f.full_name for f in self.functions])
-        return self.has_an_erc20_function() and \
-               ('ownerOf(uint256)' in full_names or
+        # We do not check for all the functions, as name(), symbol(), might give too many FPs
+        full_names = self.functions_signatures
+        return ('approve(address,uint256)' in full_names or
+                'ownerOf(uint256)' in full_names or
                 'safeTransferFrom(address,address,uint256,bytes)' in full_names or
                 'safeTransferFrom(address,address,uint256)' in full_names or
                 'setApprovalForAll(address,bool)' in full_names or
@@ -585,6 +656,17 @@ class Contract(ChildSlither, SourceMapping):
                 'isApprovedForAll(address,address)' in full_names)
 
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Dependencies
+    ###################################################################################
+    ###################################################################################
+
+    def is_from_dependency(self):
+        if self.slither.crytic_compile is None:
+            return False
+        return self.slither.crytic_compile.is_dependency(self.source_mapping['filename_absolute'])
 
     # endregion
     ###################################################################################

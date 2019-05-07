@@ -45,9 +45,6 @@ class Slither(SlitherSolc):
 
         '''
 
-        truffle_ignore = kwargs.get('truffle_ignore', False)
-        embark_ignore = kwargs.get('embark_ignore', False)
-
         # list of files provided (see --splitted option)
         if isinstance(contract, list):
             self._init_from_list(contract)
@@ -56,13 +53,13 @@ class Slither(SlitherSolc):
         else:
             super(Slither, self).__init__('')
             try:
-                cryticCompile = CryticCompile(contract, **kwargs)
-                self._crytic_compile = cryticCompile
+                crytic_compile = CryticCompile(contract, **kwargs)
+                self._crytic_compile = crytic_compile
             except InvalidCompilation as e:
                 logger.error('Invalid compilation')
                 logger.error(e)
                 exit(-1)
-            for path, ast in cryticCompile.asts.items():
+            for path, ast in crytic_compile.asts.items():
 
                 self._parse_contracts_from_loaded_json(ast, path)
                 self._add_source_code(path)

@@ -68,7 +68,7 @@ contract Token{
         """
 
         # Verify this is an ERC721 contract.
-        if not contract.has_an_erc721_function() or not contract.has_an_erc20_function():
+        if not contract.is_possible_erc721() or not contract.is_possible_erc20():
             return []
 
         functions = [f for f in contract.functions if IncorrectERC721InterfaceDetection.incorrect_erc721_interface(f.signature)]
