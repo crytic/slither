@@ -44,7 +44,6 @@ class Slither(SlitherSolc):
                 embark_overwrite_config (bool): overwrite original config file (default false)
 
         '''
-
         # list of files provided (see --splitted option)
         if isinstance(contract, list):
             self._init_from_list(contract)
