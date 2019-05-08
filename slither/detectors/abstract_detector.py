@@ -177,9 +177,9 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     @staticmethod
     def add_function_to_json(function, d, additional_fields={}):
+        element = AbstractDetector._create_base_element('function', function.name, function.source_mapping, additional_fields)
         contract = {'elements':[]}
         AbstractDetector.add_contract_to_json(function.contract, contract)
-        element = AbstractDetector._create_base_element('function', function.name, function.source_mapping, additional_fields)
         element['contract'] = contract['elements'][0]
         d['elements'].append(element)
 
@@ -200,15 +200,20 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     @staticmethod
     def add_event_to_json(event, d, additional_fields={}):
+        element = AbstractDetector._create_base_element('event', event.name, event.source_mapping, additional_fields)
         contract = {'elements':[]}
         AbstractDetector.add_contract_to_json(event.contract, contract)
-        element = AbstractDetector._create_base_element('event', event.name, event.source_mapping, additional_fields)
         element['contract'] = contract['elements'][0]
         d['elements'].append(element)
 
     @staticmethod
     def add_node_to_json(node, d, additional_fields={}):
-        element = AbstractDetector._create_base_element('expression', str(node.expression), node.source_mapping, additional_fields)
+        node_name = str(node.expression) if node.expression else ""
+        element = AbstractDetector._create_base_element('node', node_name, node.source_mapping, additional_fields)
+        if node.function:
+            function = {'elements': []}
+            AbstractDetector.add_function_to_json(node.function, function)
+            element['function'] = function['elements'][0]
         d['elements'].append(element)
 
     @staticmethod
