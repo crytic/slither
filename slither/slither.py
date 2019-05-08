@@ -55,7 +55,7 @@ class Slither(SlitherSolc):
                 crytic_compile = CryticCompile(contract, **kwargs)
                 self._crytic_compile = crytic_compile
             except InvalidCompilation as e:
-                raise SlitherError('Invalid compilation: '+e)
+                raise SlitherError('Invalid compilation: \n'+str(e))
             for path, ast in crytic_compile.asts.items():
                 self._parse_contracts_from_loaded_json(ast, path)
                 self._add_source_code(path)
@@ -160,7 +160,7 @@ class Slither(SlitherSolc):
                 )
             )
 
-        if any(isinstance(obj, cls) for obj in instances_list):
+        if any(type(obj) == cls for obj in instances_list):
             raise Exception(
                 "You can't register {!r} twice.".format(cls)
             )
