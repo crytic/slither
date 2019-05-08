@@ -68,16 +68,17 @@ contract MyConc{
                     continue
                 unused_return = self.detect_unused_return_values(f)
                 if unused_return:
-                    info = "{}.{} ({}) does not use the value returned by external calls:\n"
-                    info = info.format(f.contract.name,
-                                       f.name,
-                                       f.source_mapping_str)
                     for node in unused_return:
-                        info += "\t-{} ({})\n".format(node.expression, node.source_mapping_str)
+                        info = "{}.{} ({}) ignores return value by external call \"{}\" ({})\n"
+                        info = info.format(f.contract.name,
+                                                    f.name,
+                                                    f.source_mapping_str,
+                                                    node.expression,
+                                                    node.source_mapping_str)
 
-                    json = self.generate_json_result(info)
-                    self.add_function_to_json(f, json)
-                    self.add_nodes_to_json(unused_return, json)
-                    results.append(json)
+                        json = self.generate_json_result(info)
+                        self.add_node_to_json(node, json)
+                        self.add_function_to_json(f, json)
+                        results.append(json)
 
         return results
