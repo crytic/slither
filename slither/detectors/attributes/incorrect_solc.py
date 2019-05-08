@@ -31,9 +31,9 @@ Solc frequently releases new compiler versions. Using an old version prevents ac
 We recommend avoiding complex pragma statement.'''
     WIKI_RECOMMENDATION = 'Use Solidity 0.4.25 or 0.5.2.'
 
-    COMPLEX_PRAGMA = "is has a complex pragma"
-    OLD_VERSION = "it allows old versions"
-    LESS_THAN = "it uses lesser than"
+    COMPLEX_PRAGMA = "is too complex"
+    OLD_VERSION = "allows old versions"
+    LESS_THAN = "uses lesser than"
 
     # Indicates the allowed versions.
     ALLOWED_VERSIONS = ["0.4.24", "0.4.25", "0.5.2", "0.5.3"]
@@ -85,16 +85,14 @@ We recommend avoiding complex pragma statement.'''
 
         # If we found any disallowed pragmas, we output our findings.
         if disallowed_pragmas:
-            info = "Detected issues with version pragma in {}:\n".format(self.filename)
             for (reason, p) in disallowed_pragmas:
-                info += "\t- {} ({}): {}\n".format(p, p.source_mapping_str, reason)
+                info = f"Pragma version \"{p.version}\" {reason} ({p.source_mapping_str})\n"
 
-            json = self.generate_json_result(info)
-
-            # follow the same format than add_nodes_to_json
-            json['elements'] = [{'type': 'expression',
-                                 'expression': p.version,
-                                 'source_mapping': p.source_mapping} for (reason, p) in disallowed_pragmas]
-            results.append(json)
+                json = self.generate_json_result(info)
+                self.add_other_to_json(p.version, p.source_mapping, json, {
+                    "version": p.version,
+                    "directive": p.directive
+                })
+                results.append(json)
 
         return results
