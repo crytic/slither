@@ -17,6 +17,7 @@ generate_expected_json(){
 
 
     sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$output_filename" -i
+    sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$output_filename_txt" -i
 }
 
 
@@ -54,3 +55,4 @@ generate_expected_json(){
 #generate_expected_json tests/shadowing_local_variable.sol "shadowing-local"
 #generate_expected_json tests/solc_version_incorrect.sol "solc-version"
 #generate_expected_json tests/right_to_left_override.sol "rtlo"
+#generate_expected_json tests/unchecked_lowlevel.sol "unchecked-lowlevel"

@@ -17,6 +17,7 @@ generate_expected_json(){
     slither "$1" --solc-disable-warnings --detect "$2" --json "$output_filename" --solc solc-0.5.1 > $output_filename_txt 2>&1 
 
     sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$output_filename" -i
+    sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$output_filename_txt" -i
 }
 
 #generate_expected_json tests/uninitialized-0.5.1.sol "uninitialized-state"
@@ -25,7 +26,6 @@ generate_expected_json(){
 #generate_expected_json tests/pragma.0.4.24.sol "pragma"
 #generate_expected_json tests/old_solc.sol.json "solc-version"
 #generate_expected_json tests/reentrancy-0.5.1.sol "reentrancy-eth"
-#generate_expected_json tests/reentrancy-0.5.1.sol "reentrancy"
 #generate_expected_json tests/uninitialized_storage_pointer.sol "uninitialized-storage"
 #generate_expected_json tests/tx_origin-0.5.1.sol "tx-origin"
 #generate_expected_json tests/locked_ether-0.5.1.sol "locked-ether"
@@ -35,4 +35,6 @@ generate_expected_json(){
 #generate_expected_json tests/constant-0.5.1.sol "constant-function"
 #generate_expected_json tests/incorrect_equality.sol "incorrect-equality"
 #generate_expected_json tests/too_many_digits.sol "too-many-digits"
+#generate_expected_json tests/unchecked_lowlevel-0.5.1.sol "unchecked-lowlevel"
+#generate_expected_json tests/unchecked_send-0.5.1.sol "unchecked-send"
 
