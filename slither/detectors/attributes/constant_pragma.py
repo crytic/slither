@@ -35,10 +35,13 @@ class ConstantPragma(AbstractDetector):
                 info += "\t- {} declares {}\n".format(p.source_mapping_str, str(p))
 
             json = self.generate_json_result(info)
-            # follow the same format than add_nodes_to_json
-            json['elements'] = [{'type': 'expression',
-                                 'expression': p.version,
-                                 'source_mapping': p.source_mapping} for p in pragma]
+
+            # Add each pragma to our elements
+            for p in pragma:
+                self.add_other_to_json(p.version, p.source_mapping, json, {
+                    "version": p.version,
+                    "directive": p.directive
+                })
             results.append(json)
 
         return results
