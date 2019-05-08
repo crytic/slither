@@ -22,6 +22,7 @@ logger = logging.getLogger("ExpressionVisitor")
 class ExpressionVisitor:
 
     def __init__(self, expression):
+        # Inherited class must declared their variables prior calling super().__init__
         self._expression = expression
         self._result = None
         self._visit_expression(self.expression)
