@@ -55,16 +55,15 @@ class UnusedStateVars(AbstractDetector):
         for c in self.slither.contracts_derived:
             unusedVars = self.detect_unused(c)
             if unusedVars:
-                info = ''
                 for var in unusedVars:
-                    info += "{}.{} ({}) is never used in {}\n".format(var.contract.name,
+                    info = "{}.{} ({}) is never used in {}\n".format(var.contract.name,
                                                                       var.name,
                                                                       var.source_mapping_str,
                                                                       c.name)
 
-
-                json = self.generate_json_result(info)
-                self.add_variables_to_json(unusedVars, json)
-                results.append(json)
+                    json = self.generate_json_result(info)
+                    self.add_variable_to_json(var, json)
+                    self.add_contract_to_json(c, json)
+                    results.append(json)
 
         return results
