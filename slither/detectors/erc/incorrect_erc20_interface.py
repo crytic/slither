@@ -83,13 +83,13 @@ contract Token{
         for c in self.contracts:
             functions = IncorrectERC20InterfaceDetection.detect_incorrect_erc20_interface(c)
             if functions:
-                info = "{} ({}) has incorrect ERC20 function interface(s):\n"
-                info = info.format(c.name,
-                                   c.source_mapping_str)
                 for function in functions:
-                    info += "\t-{} ({})\n".format(function.name, function.source_mapping_str)
-                json = self.generate_json_result(info)
-                self.add_functions_to_json(functions, json)
-                results.append(json)
+                    info = "{} ({}) has incorrect ERC20 function interface: {} ({})\n".format(c.name,
+                                                                                              c.source_mapping_str,
+                                                                                              function.name,
+                                                                                              function.source_mapping_str)
+                    json = self.generate_json_result(info)
+                    self.add_function_to_json(function, json)
+                    results.append(json)
 
         return results
