@@ -109,16 +109,17 @@ def wrap_json_stdout(success, error_message, results=None):
 
 
 def output_json(results, filename):
+    json_result = wrap_json_stdout(True, None, results)
     if filename is None:
         # Write json to console
-        print(json.dumps(wrap_json_stdout(True, None, results)))
+        print(json.dumps(json_result))
     else:
         # Write json to file
         if os.path.isfile(filename):
             logger.info(yellow(f'{filename} exists already, the overwrite is prevented'))
         else:
             with open(filename, 'w', encoding='utf8') as f:
-                json.dump(results, f, indent=2)
+                json.dump(json_result, f, indent=2)
 
 # endregion
 ###################################################################################
@@ -341,7 +342,7 @@ def parse_args(detector_classes, printer_classes):
 
 
     group_misc.add_argument('--json',
-                            help='Export results as JSON',
+                            help='Export the results as a JSON file ("--json -" to export to stdout)',
                             action='store',
                             default=defaults_flag_in_config['json'])
 
@@ -515,7 +516,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     # If we are outputting json to stdout, we'll want to disable any logging.
     stdout_json = args.json == "-"
     if stdout_json:
-        logging.disable()
+        logging.disable(logging.CRITICAL)
 
     printer_classes = choose_printers(args, all_printer_classes)
     detector_classes = choose_detectors(args, all_detector_classes)
