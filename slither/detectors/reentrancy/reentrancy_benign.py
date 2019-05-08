@@ -95,27 +95,37 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                     info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
             info += '\tState variables written after the call(s):\n'
             for (v, node) in sorted(varsWritten, key=lambda x: (x[0].name, x[1].node_id)):
-                info +=  '\t- {} ({})\n'.format(v, node.source_mapping_str)
+                info += '\t- {} ({})\n'.format(v, node.source_mapping_str)
 
-            sending_eth_json = []
-            if calls != send_eth:
-                sending_eth_json = [{'type' : 'external_calls_sending_eth',
-                                     'expression': str(call_info.expression),
-                                     'source_mapping': call_info.source_mapping}
-                                    for call_info in send_eth]
-
+            # Create our JSON result
             json = self.generate_json_result(info)
+
+            # Add the function with the re-entrancy first
             self.add_function_to_json(func, json)
-            json['elements'] += [{'type': 'external_calls',
-                                  'expression': str(call_info.expression),
-                                  'source_mapping': call_info.source_mapping}
-                                 for call_info in calls]
-            json['elements'] += sending_eth_json
-            json['elements'] += [{'type':'variables_written',
-                                   'name': v.name,
-                                   'expression': str(node.expression),
-                                   'source_mapping': node.source_mapping}
-                                  for (v, node) in varsWritten]
+
+            # Add all underlying calls in the function which are potentially problematic.
+            for call_info in calls:
+                self.add_node_to_json(call_info, json, {
+                    "underlying_type": "external_calls"
+                })
+
+            #
+
+            # If the calls are not the same ones that send eth, add the eth sending nodes.
+            if calls != send_eth:
+                for call_info in send_eth:
+                    self.add_node_to_json(call_info, json, {
+                        "underlying_type": "external_calls_sending_eth"
+                    })
+
+            # Add all variables written via nodes which write them.
+            for (v, node) in varsWritten:
+                self.add_node_to_json(node, json, {
+                    "underlying_type": "variables_written",
+                    "variable_name": v.name
+                })
+
+            # Append our result
             results.append(json)
 
         return results
