@@ -92,8 +92,8 @@ If one of the destinations has a fallback function which reverts, `bad` will alw
                 info += "\t- {} ({})\n".format(node.expression, node.source_mapping_str)
 
                 json = self.generate_json_result(info)
+                self.add_node_to_json(node, json)
                 self.add_function_to_json(func, json)
-                self.add_nodes_to_json([node], json)
                 results.append(json)
 
         return results
