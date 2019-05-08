@@ -651,6 +651,7 @@ def parse_expression(expression, caller_context):
             arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
         call = CallExpression(called, arguments, 'Modifier')
+        call.set_offset(expression['src'], caller_context.slither)
         return call
 
     logger.error('Expression not parsed %s'%name)

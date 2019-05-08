@@ -13,6 +13,18 @@ contract A {
     /* parameter declarations - bad */
     return (Count+Number);
   }
+
+  modifier mod (uint c) {
+    require (c > 100);
+    _;
+  }
+  
+  /* parameter declarations - bad */
+  /* function parameter passed to modifier */
+  function bar(uint Count) mod (Count) returns(uint) {
+    /* parameter declarations - bad */
+    return (Count);
+  }
   
 }
 
