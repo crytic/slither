@@ -23,6 +23,33 @@
             ],
             "starting_column": 5,
             "ending_column": 18
+          },
+          "contract": {
+            "type": "contract",
+            "name": "DerivedContract",
+            "source_mapping": {
+              "start": 126,
+              "length": 210,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_state_variable.sol",
+              "filename_relative": "tests/shadowing_state_variable.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_state_variable.sol",
+              "filename_short": "tests/shadowing_state_variable.sol",
+              "lines": [
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         },
         {
@@ -40,6 +67,31 @@
             ],
             "starting_column": 5,
             "ending_column": 18
+          },
+          "contract": {
+            "type": "contract",
+            "name": "BaseContract",
+            "source_mapping": {
+              "start": 0,
+              "length": 124,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_state_variable.sol",
+              "filename_relative": "tests/shadowing_state_variable.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_state_variable.sol",
+              "filename_short": "tests/shadowing_state_variable.sol",
+              "lines": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         }
       ]

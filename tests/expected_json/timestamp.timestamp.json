@@ -64,8 +64,8 @@
           }
         },
         {
-          "type": "expression",
-          "expression": "require(bool)(block.timestamp == 0)",
+          "type": "node",
+          "name": "require(bool)(block.timestamp == 0)",
           "source_mapping": {
             "start": 81,
             "length": 29,
@@ -78,6 +78,61 @@
             ],
             "starting_column": 9,
             "ending_column": 38
+          },
+          "function": {
+            "type": "function",
+            "name": "bad0",
+            "source_mapping": {
+              "start": 47,
+              "length": 70,
+              "filename_used": "/home/travis/build/crytic/slither/tests/timestamp.sol",
+              "filename_relative": "tests/timestamp.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
+              "filename_short": "tests/timestamp.sol",
+              "lines": [
+                4,
+                5,
+                6
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "contract": {
+              "type": "contract",
+              "name": "Timestamp",
+              "source_mapping": {
+                "start": 0,
+                "length": 402,
+                "filename_used": "/home/travis/build/crytic/slither/tests/timestamp.sol",
+                "filename_relative": "tests/timestamp.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
+                "filename_short": "tests/timestamp.sol",
+                "lines": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         }
       ]
@@ -145,8 +200,8 @@
           }
         },
         {
-          "type": "expression",
-          "expression": "require(bool)(time == 0)",
+          "type": "node",
+          "name": "require(bool)(time == 0)",
           "source_mapping": {
             "start": 197,
             "length": 18,
@@ -159,6 +214,62 @@
             ],
             "starting_column": 9,
             "ending_column": 27
+          },
+          "function": {
+            "type": "function",
+            "name": "bad1",
+            "source_mapping": {
+              "start": 126,
+              "length": 96,
+              "filename_used": "/home/travis/build/crytic/slither/tests/timestamp.sol",
+              "filename_relative": "tests/timestamp.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
+              "filename_short": "tests/timestamp.sol",
+              "lines": [
+                8,
+                9,
+                10,
+                11
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "contract": {
+              "type": "contract",
+              "name": "Timestamp",
+              "source_mapping": {
+                "start": 0,
+                "length": 402,
+                "filename_used": "/home/travis/build/crytic/slither/tests/timestamp.sol",
+                "filename_relative": "tests/timestamp.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
+                "filename_short": "tests/timestamp.sol",
+                "lines": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         }
       ]
@@ -225,8 +336,8 @@
           }
         },
         {
-          "type": "expression",
-          "expression": "block.timestamp > 0",
+          "type": "node",
+          "name": "block.timestamp > 0",
           "source_mapping": {
             "start": 279,
             "length": 24,
@@ -239,6 +350,61 @@
             ],
             "starting_column": 9,
             "ending_column": 33
+          },
+          "function": {
+            "type": "function",
+            "name": "bad2",
+            "source_mapping": {
+              "start": 231,
+              "length": 79,
+              "filename_used": "/home/travis/build/crytic/slither/tests/timestamp.sol",
+              "filename_relative": "tests/timestamp.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
+              "filename_short": "tests/timestamp.sol",
+              "lines": [
+                13,
+                14,
+                15
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "contract": {
+              "type": "contract",
+              "name": "Timestamp",
+              "source_mapping": {
+                "start": 0,
+                "length": 402,
+                "filename_used": "/home/travis/build/crytic/slither/tests/timestamp.sol",
+                "filename_relative": "tests/timestamp.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
+                "filename_short": "tests/timestamp.sol",
+                "lines": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         }
       ]

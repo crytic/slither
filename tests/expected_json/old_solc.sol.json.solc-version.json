@@ -6,11 +6,11 @@
       "check": "solc-version",
       "impact": "Informational",
       "confidence": "High",
-      "description": "Detected issues with version pragma in tests/old_solc.sol.json:\n\t- pragma solidity0.4.21 (None): it allows old versions\n",
+      "description": "Pragma version \"0.4.21\" allows old versions (None)\n",
       "elements": [
         {
-          "type": "expression",
-          "expression": "0.4.21",
+          "type": "pragma",
+          "name": "0.4.21",
           "source_mapping": {
             "start": 0,
             "length": 23,
@@ -21,6 +21,13 @@
             "lines": [],
             "starting_column": null,
             "ending_column": null
+          },
+          "additional_fields": {
+            "directive": [
+              "solidity",
+              "0.4",
+              ".21"
+            ]
           }
         }
       ]

@@ -23,6 +23,28 @@
             ],
             "starting_column": 5,
             "ending_column": 19
+          },
+          "contract": {
+            "type": "contract",
+            "name": "BaseContract",
+            "source_mapping": {
+              "start": 26,
+              "length": 94,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_relative": "tests/shadowing_builtin_symbols.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "lines": [
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         }
       ]
@@ -48,6 +70,28 @@
             ],
             "starting_column": 5,
             "ending_column": 13
+          },
+          "contract": {
+            "type": "contract",
+            "name": "BaseContract",
+            "source_mapping": {
+              "start": 26,
+              "length": 94,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_relative": "tests/shadowing_builtin_symbols.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "lines": [
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         }
       ]
@@ -59,7 +103,7 @@
       "description": "BaseContract.revert (event @ tests/shadowing_builtin_symbols.sol#7) shadows built-in symbol \"revert\"\n",
       "elements": [
         {
-          "type": "function",
+          "type": "event",
           "name": "revert",
           "source_mapping": {
             "start": 89,
@@ -170,6 +214,48 @@
             ],
             "starting_column": 9,
             "ending_column": 17
+          },
+          "function": {
+            "type": "function",
+            "name": "assert",
+            "source_mapping": {
+              "start": 195,
+              "length": 64,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_relative": "tests/shadowing_builtin_symbols.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "lines": [
+                13,
+                14,
+                15
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "contract": {
+              "type": "contract",
+              "name": "ExtendedContract",
+              "source_mapping": {
+                "start": 122,
+                "length": 139,
+                "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+                "filename_relative": "tests/shadowing_builtin_symbols.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+                "filename_short": "tests/shadowing_builtin_symbols.sol",
+                "lines": [
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         }
       ]
@@ -195,6 +281,29 @@
             ],
             "starting_column": 5,
             "ending_column": 23
+          },
+          "contract": {
+            "type": "contract",
+            "name": "ExtendedContract",
+            "source_mapping": {
+              "start": 122,
+              "length": 139,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_relative": "tests/shadowing_builtin_symbols.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "lines": [
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         }
       ]
@@ -278,6 +387,56 @@
             ],
             "starting_column": 9,
             "ending_column": 23
+          },
+          "function": {
+            "type": "function",
+            "name": "require",
+            "source_mapping": {
+              "start": 380,
+              "length": 120,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_relative": "tests/shadowing_builtin_symbols.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "lines": [
+                23,
+                24,
+                25,
+                26,
+                27,
+                28
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "contract": {
+              "type": "contract",
+              "name": "FurtherExtendedContract",
+              "source_mapping": {
+                "start": 263,
+                "length": 239,
+                "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+                "filename_relative": "tests/shadowing_builtin_symbols.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+                "filename_short": "tests/shadowing_builtin_symbols.sol",
+                "lines": [
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26,
+                  27,
+                  28,
+                  29
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         }
       ]
@@ -303,6 +462,56 @@
             ],
             "starting_column": 9,
             "ending_column": 18
+          },
+          "function": {
+            "type": "function",
+            "name": "require",
+            "source_mapping": {
+              "start": 380,
+              "length": 120,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_relative": "tests/shadowing_builtin_symbols.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "lines": [
+                23,
+                24,
+                25,
+                26,
+                27,
+                28
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "contract": {
+              "type": "contract",
+              "name": "FurtherExtendedContract",
+              "source_mapping": {
+                "start": 263,
+                "length": 239,
+                "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+                "filename_relative": "tests/shadowing_builtin_symbols.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+                "filename_short": "tests/shadowing_builtin_symbols.sol",
+                "lines": [
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26,
+                  27,
+                  28,
+                  29
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         }
       ]
@@ -328,6 +537,34 @@
             ],
             "starting_column": 5,
             "ending_column": 23
+          },
+          "contract": {
+            "type": "contract",
+            "name": "FurtherExtendedContract",
+            "source_mapping": {
+              "start": 263,
+              "length": 239,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_relative": "tests/shadowing_builtin_symbols.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "lines": [
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         }
       ]
@@ -353,6 +590,34 @@
             ],
             "starting_column": 5,
             "ending_column": 18
+          },
+          "contract": {
+            "type": "contract",
+            "name": "FurtherExtendedContract",
+            "source_mapping": {
+              "start": 263,
+              "length": 239,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_relative": "tests/shadowing_builtin_symbols.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "lines": [
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         }
       ]
@@ -378,6 +643,34 @@
             ],
             "starting_column": 5,
             "ending_column": 13
+          },
+          "contract": {
+            "type": "contract",
+            "name": "FurtherExtendedContract",
+            "source_mapping": {
+              "start": 263,
+              "length": 239,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_relative": "tests/shadowing_builtin_symbols.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "lines": [
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         }
       ]
@@ -403,6 +696,26 @@
             ],
             "starting_column": 5,
             "ending_column": 20
+          },
+          "contract": {
+            "type": "contract",
+            "name": "Reserved",
+            "source_mapping": {
+              "start": 504,
+              "length": 42,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_relative": "tests/shadowing_builtin_symbols.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
+              "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "lines": [
+                31,
+                32,
+                33,
+                34
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         }
       ]

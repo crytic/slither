@@ -23,6 +23,50 @@
             ],
             "starting_column": 30,
             "ending_column": 36
+          },
+          "function": {
+            "type": "function",
+            "name": "shadowingParent",
+            "source_mapping": {
+              "start": 351,
+              "length": 79,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_relative": "tests/shadowing_local_variable.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_short": "tests/shadowing_local_variable.sol",
+              "lines": [
+                25
+              ],
+              "starting_column": 5,
+              "ending_column": 84
+            },
+            "contract": {
+              "type": "contract",
+              "name": "FurtherExtendedContract",
+              "source_mapping": {
+                "start": 197,
+                "length": 235,
+                "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+                "filename_relative": "tests/shadowing_local_variable.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+                "filename_short": "tests/shadowing_local_variable.sol",
+                "lines": [
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         },
         {
@@ -40,6 +84,33 @@
             ],
             "starting_column": 5,
             "ending_column": 15
+          },
+          "contract": {
+            "type": "contract",
+            "name": "FurtherExtendedContract",
+            "source_mapping": {
+              "start": 197,
+              "length": 235,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_relative": "tests/shadowing_local_variable.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_short": "tests/shadowing_local_variable.sol",
+              "lines": [
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         },
         {
@@ -57,6 +128,29 @@
             ],
             "starting_column": 5,
             "ending_column": 15
+          },
+          "contract": {
+            "type": "contract",
+            "name": "ExtendedContract",
+            "source_mapping": {
+              "start": 85,
+              "length": 110,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_relative": "tests/shadowing_local_variable.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_short": "tests/shadowing_local_variable.sol",
+              "lines": [
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         },
         {
@@ -74,6 +168,26 @@
             ],
             "starting_column": 5,
             "ending_column": 15
+          },
+          "contract": {
+            "type": "contract",
+            "name": "BaseContract",
+            "source_mapping": {
+              "start": 26,
+              "length": 57,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_relative": "tests/shadowing_local_variable.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_short": "tests/shadowing_local_variable.sol",
+              "lines": [
+                3,
+                4,
+                5,
+                6
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         }
       ]
@@ -99,6 +213,50 @@
             ],
             "starting_column": 52,
             "ending_column": 57
+          },
+          "function": {
+            "type": "function",
+            "name": "shadowingParent",
+            "source_mapping": {
+              "start": 351,
+              "length": 79,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_relative": "tests/shadowing_local_variable.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_short": "tests/shadowing_local_variable.sol",
+              "lines": [
+                25
+              ],
+              "starting_column": 5,
+              "ending_column": 84
+            },
+            "contract": {
+              "type": "contract",
+              "name": "FurtherExtendedContract",
+              "source_mapping": {
+                "start": 197,
+                "length": 235,
+                "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+                "filename_relative": "tests/shadowing_local_variable.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+                "filename_short": "tests/shadowing_local_variable.sol",
+                "lines": [
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         },
         {
@@ -116,6 +274,26 @@
             ],
             "starting_column": 5,
             "ending_column": 15
+          },
+          "contract": {
+            "type": "contract",
+            "name": "BaseContract",
+            "source_mapping": {
+              "start": 26,
+              "length": 57,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_relative": "tests/shadowing_local_variable.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_short": "tests/shadowing_local_variable.sol",
+              "lines": [
+                3,
+                4,
+                5,
+                6
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         }
       ]
@@ -141,6 +319,50 @@
             ],
             "starting_column": 59,
             "ending_column": 65
+          },
+          "function": {
+            "type": "function",
+            "name": "shadowingParent",
+            "source_mapping": {
+              "start": 351,
+              "length": 79,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_relative": "tests/shadowing_local_variable.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_short": "tests/shadowing_local_variable.sol",
+              "lines": [
+                25
+              ],
+              "starting_column": 5,
+              "ending_column": 84
+            },
+            "contract": {
+              "type": "contract",
+              "name": "FurtherExtendedContract",
+              "source_mapping": {
+                "start": 197,
+                "length": 235,
+                "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+                "filename_relative": "tests/shadowing_local_variable.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+                "filename_short": "tests/shadowing_local_variable.sol",
+                "lines": [
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         },
         {
@@ -206,6 +428,50 @@
             ],
             "starting_column": 67,
             "ending_column": 73
+          },
+          "function": {
+            "type": "function",
+            "name": "shadowingParent",
+            "source_mapping": {
+              "start": 351,
+              "length": 79,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_relative": "tests/shadowing_local_variable.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_short": "tests/shadowing_local_variable.sol",
+              "lines": [
+                25
+              ],
+              "starting_column": 5,
+              "ending_column": 84
+            },
+            "contract": {
+              "type": "contract",
+              "name": "FurtherExtendedContract",
+              "source_mapping": {
+                "start": 197,
+                "length": 235,
+                "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+                "filename_relative": "tests/shadowing_local_variable.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+                "filename_short": "tests/shadowing_local_variable.sol",
+                "lines": [
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         },
         {
@@ -278,10 +544,54 @@
             ],
             "starting_column": 75,
             "ending_column": 81
+          },
+          "function": {
+            "type": "function",
+            "name": "shadowingParent",
+            "source_mapping": {
+              "start": 351,
+              "length": 79,
+              "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_relative": "tests/shadowing_local_variable.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+              "filename_short": "tests/shadowing_local_variable.sol",
+              "lines": [
+                25
+              ],
+              "starting_column": 5,
+              "ending_column": 84
+            },
+            "contract": {
+              "type": "contract",
+              "name": "FurtherExtendedContract",
+              "source_mapping": {
+                "start": 197,
+                "length": 235,
+                "filename_used": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+                "filename_relative": "tests/shadowing_local_variable.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
+                "filename_short": "tests/shadowing_local_variable.sol",
+                "lines": [
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         },
         {
-          "type": "function",
+          "type": "event",
           "name": "v",
           "source_mapping": {
             "start": 183,

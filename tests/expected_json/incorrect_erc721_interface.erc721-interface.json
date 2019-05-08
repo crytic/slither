@@ -6,7 +6,311 @@
       "check": "erc721-interface",
       "impact": "Medium",
       "confidence": "High",
-      "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface(s):\n\t-supportsInterface (tests/incorrect_erc721_interface.sol#4)\n\t-balanceOf (tests/incorrect_erc721_interface.sol#7)\n\t-ownerOf (tests/incorrect_erc721_interface.sol#8)\n\t-safeTransferFrom (tests/incorrect_erc721_interface.sol#9)\n\t-safeTransferFrom (tests/incorrect_erc721_interface.sol#10)\n\t-transferFrom (tests/incorrect_erc721_interface.sol#11)\n\t-approve (tests/incorrect_erc721_interface.sol#12)\n\t-setApprovalForAll (tests/incorrect_erc721_interface.sol#13)\n\t-getApproved (tests/incorrect_erc721_interface.sol#14)\n\t-isApprovedForAll (tests/incorrect_erc721_interface.sol#15)\n",
+      "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: supportsInterface (tests/incorrect_erc721_interface.sol#4)\n",
+      "elements": [
+        {
+          "type": "function",
+          "name": "supportsInterface",
+          "source_mapping": {
+            "start": 50,
+            "length": 56,
+            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+            "filename_relative": "tests/incorrect_erc721_interface.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+            "filename_short": "tests/incorrect_erc721_interface.sol",
+            "lines": [
+              4
+            ],
+            "starting_column": 5,
+            "ending_column": 61
+          },
+          "contract": {
+            "type": "contract",
+            "name": "IERC165",
+            "source_mapping": {
+              "start": 26,
+              "length": 82,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+              "filename_relative": "tests/incorrect_erc721_interface.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+              "filename_short": "tests/incorrect_erc721_interface.sol",
+              "lines": [
+                3,
+                4,
+                5
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "check": "erc721-interface",
+      "impact": "Medium",
+      "confidence": "High",
+      "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: balanceOf (tests/incorrect_erc721_interface.sol#7)\n",
+      "elements": [
+        {
+          "type": "function",
+          "name": "balanceOf",
+          "source_mapping": {
+            "start": 140,
+            "length": 44,
+            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+            "filename_relative": "tests/incorrect_erc721_interface.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+            "filename_short": "tests/incorrect_erc721_interface.sol",
+            "lines": [
+              7
+            ],
+            "starting_column": 5,
+            "ending_column": 49
+          },
+          "contract": {
+            "type": "contract",
+            "name": "Token",
+            "source_mapping": {
+              "start": 109,
+              "length": 739,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+              "filename_relative": "tests/incorrect_erc721_interface.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+              "filename_short": "tests/incorrect_erc721_interface.sol",
+              "lines": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "check": "erc721-interface",
+      "impact": "Medium",
+      "confidence": "High",
+      "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: ownerOf (tests/incorrect_erc721_interface.sol#8)\n",
+      "elements": [
+        {
+          "type": "function",
+          "name": "ownerOf",
+          "source_mapping": {
+            "start": 189,
+            "length": 44,
+            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+            "filename_relative": "tests/incorrect_erc721_interface.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+            "filename_short": "tests/incorrect_erc721_interface.sol",
+            "lines": [
+              8
+            ],
+            "starting_column": 5,
+            "ending_column": 49
+          },
+          "contract": {
+            "type": "contract",
+            "name": "Token",
+            "source_mapping": {
+              "start": 109,
+              "length": 739,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+              "filename_relative": "tests/incorrect_erc721_interface.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+              "filename_short": "tests/incorrect_erc721_interface.sol",
+              "lines": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "check": "erc721-interface",
+      "impact": "Medium",
+      "confidence": "High",
+      "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: safeTransferFrom (tests/incorrect_erc721_interface.sol#9)\n",
+      "elements": [
+        {
+          "type": "function",
+          "name": "safeTransferFrom",
+          "source_mapping": {
+            "start": 238,
+            "length": 108,
+            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+            "filename_relative": "tests/incorrect_erc721_interface.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+            "filename_short": "tests/incorrect_erc721_interface.sol",
+            "lines": [
+              9
+            ],
+            "starting_column": 5,
+            "ending_column": 113
+          },
+          "contract": {
+            "type": "contract",
+            "name": "Token",
+            "source_mapping": {
+              "start": 109,
+              "length": 739,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+              "filename_relative": "tests/incorrect_erc721_interface.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+              "filename_short": "tests/incorrect_erc721_interface.sol",
+              "lines": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "check": "erc721-interface",
+      "impact": "Medium",
+      "confidence": "High",
+      "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: safeTransferFrom (tests/incorrect_erc721_interface.sol#10)\n",
+      "elements": [
+        {
+          "type": "function",
+          "name": "safeTransferFrom",
+          "source_mapping": {
+            "start": 351,
+            "length": 96,
+            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+            "filename_relative": "tests/incorrect_erc721_interface.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+            "filename_short": "tests/incorrect_erc721_interface.sol",
+            "lines": [
+              10
+            ],
+            "starting_column": 5,
+            "ending_column": 101
+          },
+          "contract": {
+            "type": "contract",
+            "name": "Token",
+            "source_mapping": {
+              "start": 109,
+              "length": 739,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+              "filename_relative": "tests/incorrect_erc721_interface.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+              "filename_short": "tests/incorrect_erc721_interface.sol",
+              "lines": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "check": "erc721-interface",
+      "impact": "Medium",
+      "confidence": "High",
+      "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: transferFrom (tests/incorrect_erc721_interface.sol#11)\n",
+      "elements": [
+        {
+          "type": "function",
+          "name": "transferFrom",
+          "source_mapping": {
+            "start": 452,
+            "length": 92,
+            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+            "filename_relative": "tests/incorrect_erc721_interface.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+            "filename_short": "tests/incorrect_erc721_interface.sol",
+            "lines": [
+              11
+            ],
+            "starting_column": 5,
+            "ending_column": 97
+          },
+          "contract": {
+            "type": "contract",
+            "name": "Token",
+            "source_mapping": {
+              "start": 109,
+              "length": 739,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+              "filename_relative": "tests/incorrect_erc721_interface.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
+              "filename_short": "tests/incorrect_erc721_interface.sol",
+              "lines": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "check": "erc721-interface",
+      "impact": "Medium",
+      "confidence": "High",
+      "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: approve (tests/incorrect_erc721_interface.sol#12)\n",
       "elements": [
         {
           "type": "function",
@@ -51,271 +355,15 @@
               "ending_column": 2
             }
           }
-        },
-        {
-          "type": "function",
-          "name": "balanceOf",
-          "source_mapping": {
-            "start": 140,
-            "length": 44,
-            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-            "filename_relative": "tests/incorrect_erc721_interface.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-            "filename_short": "tests/incorrect_erc721_interface.sol",
-            "lines": [
-              7
-            ],
-            "starting_column": 5,
-            "ending_column": 49
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Token",
-            "source_mapping": {
-              "start": 109,
-              "length": 739,
-              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-              "filename_relative": "tests/incorrect_erc721_interface.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-              "filename_short": "tests/incorrect_erc721_interface.sol",
-              "lines": [
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16
-              ],
-              "starting_column": 1,
-              "ending_column": 2
-            }
-          }
-        },
-        {
-          "type": "function",
-          "name": "getApproved",
-          "source_mapping": {
-            "start": 723,
-            "length": 48,
-            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-            "filename_relative": "tests/incorrect_erc721_interface.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-            "filename_short": "tests/incorrect_erc721_interface.sol",
-            "lines": [
-              14
-            ],
-            "starting_column": 5,
-            "ending_column": 53
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Token",
-            "source_mapping": {
-              "start": 109,
-              "length": 739,
-              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-              "filename_relative": "tests/incorrect_erc721_interface.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-              "filename_short": "tests/incorrect_erc721_interface.sol",
-              "lines": [
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16
-              ],
-              "starting_column": 1,
-              "ending_column": 2
-            }
-          }
-        },
-        {
-          "type": "function",
-          "name": "isApprovedForAll",
-          "source_mapping": {
-            "start": 776,
-            "length": 70,
-            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-            "filename_relative": "tests/incorrect_erc721_interface.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-            "filename_short": "tests/incorrect_erc721_interface.sol",
-            "lines": [
-              15
-            ],
-            "starting_column": 5,
-            "ending_column": 75
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Token",
-            "source_mapping": {
-              "start": 109,
-              "length": 739,
-              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-              "filename_relative": "tests/incorrect_erc721_interface.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-              "filename_short": "tests/incorrect_erc721_interface.sol",
-              "lines": [
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16
-              ],
-              "starting_column": 1,
-              "ending_column": 2
-            }
-          }
-        },
-        {
-          "type": "function",
-          "name": "ownerOf",
-          "source_mapping": {
-            "start": 189,
-            "length": 44,
-            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-            "filename_relative": "tests/incorrect_erc721_interface.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-            "filename_short": "tests/incorrect_erc721_interface.sol",
-            "lines": [
-              8
-            ],
-            "starting_column": 5,
-            "ending_column": 49
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Token",
-            "source_mapping": {
-              "start": 109,
-              "length": 739,
-              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-              "filename_relative": "tests/incorrect_erc721_interface.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-              "filename_short": "tests/incorrect_erc721_interface.sol",
-              "lines": [
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16
-              ],
-              "starting_column": 1,
-              "ending_column": 2
-            }
-          }
-        },
-        {
-          "type": "function",
-          "name": "safeTransferFrom",
-          "source_mapping": {
-            "start": 238,
-            "length": 108,
-            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-            "filename_relative": "tests/incorrect_erc721_interface.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-            "filename_short": "tests/incorrect_erc721_interface.sol",
-            "lines": [
-              9
-            ],
-            "starting_column": 5,
-            "ending_column": 113
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Token",
-            "source_mapping": {
-              "start": 109,
-              "length": 739,
-              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-              "filename_relative": "tests/incorrect_erc721_interface.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-              "filename_short": "tests/incorrect_erc721_interface.sol",
-              "lines": [
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16
-              ],
-              "starting_column": 1,
-              "ending_column": 2
-            }
-          }
-        },
-        {
-          "type": "function",
-          "name": "safeTransferFrom",
-          "source_mapping": {
-            "start": 351,
-            "length": 96,
-            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-            "filename_relative": "tests/incorrect_erc721_interface.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-            "filename_short": "tests/incorrect_erc721_interface.sol",
-            "lines": [
-              10
-            ],
-            "starting_column": 5,
-            "ending_column": 101
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Token",
-            "source_mapping": {
-              "start": 109,
-              "length": 739,
-              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-              "filename_relative": "tests/incorrect_erc721_interface.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
-              "filename_short": "tests/incorrect_erc721_interface.sol",
-              "lines": [
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16
-              ],
-              "starting_column": 1,
-              "ending_column": 2
-            }
-          }
-        },
+        }
+      ]
+    },
+    {
+      "check": "erc721-interface",
+      "impact": "Medium",
+      "confidence": "High",
+      "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: setApprovalForAll (tests/incorrect_erc721_interface.sol#13)\n",
+      "elements": [
         {
           "type": "function",
           "name": "setApprovalForAll",
@@ -359,58 +407,82 @@
               "ending_column": 2
             }
           }
-        },
+        }
+      ]
+    },
+    {
+      "check": "erc721-interface",
+      "impact": "Medium",
+      "confidence": "High",
+      "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: getApproved (tests/incorrect_erc721_interface.sol#14)\n",
+      "elements": [
         {
           "type": "function",
-          "name": "supportsInterface",
+          "name": "getApproved",
           "source_mapping": {
-            "start": 50,
-            "length": 56,
+            "start": 723,
+            "length": 48,
             "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
             "filename_relative": "tests/incorrect_erc721_interface.sol",
             "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
             "filename_short": "tests/incorrect_erc721_interface.sol",
             "lines": [
-              4
+              14
             ],
             "starting_column": 5,
-            "ending_column": 61
+            "ending_column": 53
           },
           "contract": {
             "type": "contract",
-            "name": "IERC165",
+            "name": "Token",
             "source_mapping": {
-              "start": 26,
-              "length": 82,
+              "start": 109,
+              "length": 739,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
               "filename_relative": "tests/incorrect_erc721_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
               "filename_short": "tests/incorrect_erc721_interface.sol",
               "lines": [
-                3,
-                4,
-                5
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
               ],
               "starting_column": 1,
               "ending_column": 2
             }
           }
-        },
+        }
+      ]
+    },
+    {
+      "check": "erc721-interface",
+      "impact": "Medium",
+      "confidence": "High",
+      "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: isApprovedForAll (tests/incorrect_erc721_interface.sol#15)\n",
+      "elements": [
         {
           "type": "function",
-          "name": "transferFrom",
+          "name": "isApprovedForAll",
           "source_mapping": {
-            "start": 452,
-            "length": 92,
+            "start": 776,
+            "length": 70,
             "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
             "filename_relative": "tests/incorrect_erc721_interface.sol",
             "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc721_interface.sol",
             "filename_short": "tests/incorrect_erc721_interface.sol",
             "lines": [
-              11
+              15
             ],
             "starting_column": 5,
-            "ending_column": 97
+            "ending_column": 75
           },
           "contract": {
             "type": "contract",
