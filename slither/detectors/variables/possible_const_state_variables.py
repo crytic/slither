@@ -67,7 +67,6 @@ class ConstCandidateStateVars(AbstractDetector):
         """ Detect state variables that could be const
         """
         results = []
-        all_info = ''
 
         all_variables = [c.state_variables for c in self.slither.contracts]
         all_variables = set([item for sublist in all_variables for item in sublist])
@@ -84,13 +83,14 @@ class ConstCandidateStateVars(AbstractDetector):
                                if (not v in all_variables_written) and self._constant_initial_expression(v)]
         # Order for deterministic results
         constable_variables = sorted(constable_variables, key=lambda x: x.canonical_name)
+
+        # Create a result for each finding
         for v in constable_variables:
             info = "{}.{} should be constant ({})\n".format(v.contract.name,
                                                             v.name,
                                                             v.source_mapping_str)
-            all_info += info
-        if all_info != '':
-            json = self.generate_json_result(all_info)
-            self.add_variables_to_json(constable_variables, json)
+            json = self.generate_json_result(info)
+            self.add_variable_to_json(v, json)
             results.append(json)
+
         return results

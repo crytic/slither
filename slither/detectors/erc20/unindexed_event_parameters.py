@@ -72,14 +72,15 @@ In this case, Transfer and Approval events should have the 'indexed' keyword on 
         for c in self.contracts:
             unindexed_params = self.detect_erc20_unindexed_event_params(c)
             if unindexed_params:
-                info = "{} ({}) does not mark important ERC20 parameters as 'indexed':\n"
-                info = info.format(c.name, c.source_mapping_str)
+                # Add each problematic event definition to our result list
                 for (event, parameter) in unindexed_params:
-                    info += "\t-{} ({}) does not index parameter '{}'\n".format(event.name, event.source_mapping_str, parameter.name)
+                    info = "ERC20 event {}.{} ({}) does not index parameter '{}'\n".format(c.name, event.name, event.source_mapping_str, parameter.name)
 
-                # Add the events to the JSON (note: we do not add the params/vars as they have no source mapping).
-                json = self.generate_json_result(info)
-                self.add_functions_to_json([event for event, _ in unindexed_params], json)
-                results.append(json)
+                    # Add the events to the JSON (note: we do not add the params/vars as they have no source mapping).
+                    json = self.generate_json_result(info)
+                    self.add_function_to_json(event, json, {
+                        "parameter_name": parameter.name
+                    })
+                    results.append(json)
 
         return results
