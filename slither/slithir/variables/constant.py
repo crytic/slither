@@ -24,7 +24,7 @@ class Constant(SlithIRVariable):
                         base, expo = val.split('E')
                         self._val = int(float(base) * (10 ** int(expo)))
                     else:
-                        self._val = int(val)
+                        self._val = int(float(val))
             elif type.type == 'bool':
                 self._val = val == 'true'
             else:
