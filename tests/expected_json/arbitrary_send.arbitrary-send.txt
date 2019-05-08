@@ -6,4 +6,5 @@ Test.indirect (tests/arbitrary_send.sol#19-21) sends eth to arbitrary user
 	Dangerous calls:
 	- destination.send(address(this).balance) (tests/arbitrary_send.sol#20)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/arbitrary_send.arbitrary-send.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/arbitrary_send.sol analyzed (1 contracts), 2 result(s) found

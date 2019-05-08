@@ -1,4 +1,5 @@
 INFO:Detectors:[92m
 A.unused (tests/unused_state.sol#4) is never used in B
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variables[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/unused_state.unused-state.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/unused_state.sol analyzed (2 contracts), 1 result(s) found
