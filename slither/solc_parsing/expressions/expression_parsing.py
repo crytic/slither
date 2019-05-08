@@ -35,7 +35,7 @@ from slither.core.solidity_types import (ArrayType, ElementaryType,
                                          FunctionType, MappingType)
 from slither.solc_parsing.solidity_types.type_parsing import (UnknownType,
                                                               parse_type)
-
+from slither.solc_parsing.exceptions import ParsingError
 logger = logging.getLogger("ExpressionParsing")
 
 
@@ -78,8 +78,7 @@ def find_variable(var_name, caller_context, referenced_declaration=None):
         function = caller_context
         contract = function.contract
     else:
-        logger.error('Incorrect caller context')
-        exit(-1)
+        raise ParsingError('Incorrect caller context')
 
     if function:
         # We look for variable declared with the referencedDeclaration attr
@@ -479,6 +478,12 @@ def parse_expression(expression, caller_context):
                     value = str(convert_subdenomination(value, expression['subdenomination']))
             elif not value and value != "":
                 value = '0x'+expression['hexValue']
+            type = expression['typeDescriptions']['typeString']
+
+            # Length declaration for array was None until solc 0.5.5
+            if type is None:
+                if expression['kind'] == 'number':
+                    type = 'int_const'
         else:
             value = expression['attributes']['value']
             if value:
@@ -489,7 +494,15 @@ def parse_expression(expression, caller_context):
                 # see https://solidity.readthedocs.io/en/v0.4.25/types.html?highlight=hex#hexadecimal-literals
                 assert 'hexvalue' in expression['attributes']
                 value = '0x'+expression['attributes']['hexvalue']
-        literal = Literal(value)
+            type = expression['attributes']['type']
+
+        if type.startswith('int_const '):
+            type = ElementaryType('uint256')
+        elif type.startswith('bool'):
+            type = ElementaryType('bool')
+        else:
+            type = ElementaryType('string')
+        literal = Literal(value, type)
         return literal
 
     elif name == 'Identifier':
@@ -613,8 +626,7 @@ def parse_expression(expression, caller_context):
             elif type_name[caller_context.get_key()] == 'FunctionTypeName':
                 array_type = parse_type(type_name, caller_context)
             else:
-                logger.error('Incorrect type array {}'.format(type_name))
-                exit(-1)
+                raise ParsingError('Incorrect type array {}'.format(type_name))
             array = NewArray(depth, array_type)
             return array
 
@@ -650,5 +662,5 @@ def parse_expression(expression, caller_context):
         call = CallExpression(called, arguments, 'Modifier')
         return call
 
-    logger.error('Expression not parsed %s'%name)
-    exit(-1)
+    raise ParsingError('Expression not parsed %s'%name)
+

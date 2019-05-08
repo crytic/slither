@@ -6,7 +6,7 @@ import logging
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 from slither.utils.colors import green, red, yellow
-
+from slither.utils.standard_libraries import is_standard_library
 
 class PrinterHumanSummary(AbstractPrinter):
     ARGUMENT = 'human-summary'
@@ -88,8 +88,14 @@ class PrinterHumanSummary(AbstractPrinter):
         issues_informational, issues_low, issues_medium, issues_high = self._get_detectors_result()
         txt = "Number of informational issues: {}\n".format(green(issues_informational))
         txt += "Number of low issues: {}\n".format(green(issues_low))
-        txt += "Number of medium issues: {}\n".format(yellow(issues_medium))
-        txt += "Number of high issues: {}\n".format(red(issues_high))
+        if issues_medium > 0:
+            txt += "Number of medium issues: {}\n".format(yellow(issues_medium))
+        else:
+            txt += "Number of medium issues: {}\n".format(green(issues_medium))
+        if issues_high > 0:
+            txt += "Number of high issues: {}\n".format(red(issues_high))
+        else:
+            txt += "Number of high issues: {}\n\n".format(green(issues_high))
 
         return txt
 
@@ -119,6 +125,49 @@ class PrinterHumanSummary(AbstractPrinter):
     def _number_functions(contract):
         return len(contract.functions)
 
+    def _lines_number(self):
+        if not self.slither.source_code:
+            return None
+        total_dep_lines = 0
+        total_lines = 0
+        for filename, source_code in self.slither.source_code.items():
+            lines = len(source_code.splitlines())
+            is_dep = False
+            if self.slither.crytic_compile:
+                is_dep = self.slither.crytic_compile.is_dependency(filename)
+            if is_dep:
+                total_dep_lines += lines
+            else:
+                total_lines += lines
+        return total_lines, total_dep_lines
+
+    def _compilation_type(self):
+        if self.slither.crytic_compile is None:
+            return 'Compilation non standard\n'
+        return f'Compiled with {self.slither.crytic_compile.type}\n'
+
+    def _number_contracts(self):
+        if self.slither.crytic_compile is None:
+            len(self.slither.contracts), 0
+        deps = [c for c in self.slither.contracts if c.is_from_dependency()]
+        contracts = [c for c in self.slither.contracts if not c.is_from_dependency()]
+        return len(contracts), len(deps)
+
+    def _standard_libraries(self):
+        libraries = []
+        for contract in self.contracts:
+            lib = is_standard_library(contract)
+            if lib:
+                libraries.append(lib)
+
+        return libraries
+
+    def _ercs(self):
+        ercs = []
+        for contract in self.contracts:
+            ercs += contract.ercs()
+        return list(set(ercs))
+
     def output(self, _filename):
         """
         _filename is not used
@@ -126,15 +175,37 @@ class PrinterHumanSummary(AbstractPrinter):
                 _filename(string)
         """
 
-        txt = "Analyze of {}\n".format(self.slither.filename)
+        txt = "\n"
+        txt += self._compilation_type()
+
+        lines_number = self._lines_number()
+        if lines_number:
+            total_lines, total_dep_lines = lines_number
+            txt += f'Number of lines: {total_lines} (+ {total_dep_lines} in dependencies)\n'
+
+        number_contracts, number_contracts_deps = self._number_contracts()
+        txt += f'Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies) \n\n'
+
         txt += self.get_detectors_result()
+
+        libs = self._standard_libraries()
+        if libs:
+            txt += f'\nUse: {", ".join(libs)}\n'
+
+        ercs = self._ercs()
+        if ercs:
+            txt += f'ERCs: {", ".join(ercs)}\n'
+
         for contract in self.slither.contracts_derived:
             txt += "\nContract {}\n".format(contract.name)
             txt += self.is_complex_code(contract)
+            txt += '\tNumber of functions: {}\n'.format(self._number_functions(contract))
+            ercs = contract.ercs()
+            if ercs:
+                txt += '\tERCs: ' + ','.join(ercs) + '\n'
             is_erc20 = contract.is_erc20()
-            txt += '\tNumber of functions:{}'.format(self._number_functions(contract))
-            txt += "\tIs ERC20 token: {}\n".format(contract.is_erc20())
             if is_erc20:
+                txt += '\tERC20 info:\n'
                 txt += self.get_summary_erc20(contract)
 
         self.info(txt)

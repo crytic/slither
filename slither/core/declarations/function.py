@@ -86,6 +86,7 @@ class Function(ChildContract, SourceMapping):
         self._reachable_from_nodes = set()
         self._reachable_from_functions = set()
 
+
     ###################################################################################
     ###################################################################################
     # region General properties

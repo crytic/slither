@@ -24,6 +24,7 @@ from slither.utils.command_line import (output_detectors, output_results_to_mark
                                         output_detectors_json, output_printers,
                                         output_to_markdown, output_wiki)
 from crytic_compile import is_supported
+from slither.exceptions import SlitherException
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -580,6 +581,12 @@ def main_impl(all_detector_classes, all_printer_classes):
         if args.ignore_return_value:
             return
         exit(results)
+
+    except SlitherException as e:
+        logging.error(red('Error:'))
+        logging.error(red(e))
+        logging.error('Please report an issue to https://github.com/crytic/slither/issues')
+        sys.exit(-1)
 
     except Exception:
         logging.error('Error in %s' % args.filename)
