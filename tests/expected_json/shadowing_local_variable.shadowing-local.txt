@@ -12,4 +12,5 @@ FurtherExtendedContract.shadowingParent.w (local variable @ tests/shadowing_loca
 FurtherExtendedContract.shadowingParent.v (local variable @ tests/shadowing_local_variable.sol#25) shadows:
 	- ExtendedContract.v (event @ tests/shadowing_local_variable.sol#13)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/shadowing_local_variable.shadowing-local.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/shadowing_local_variable.sol analyzed (3 contracts), 5 result(s) found

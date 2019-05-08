@@ -1,196 +1,200 @@
-[
-  {
-    "check": "too-many-digits",
-    "impact": "Informational",
-    "confidence": "Medium",
-    "description": "C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x1 = 0x000001\n\t- x2 = 0x0000000000001\n\t- x3 = 1000000000000000000\n\t- x4 = 100000\n\tUse the proper denomination (ether-unit, time-unit,or the scientific notation\n",
-    "elements": [
-      {
-        "type": "expression",
-        "expression": "x1 = 0x000001",
-        "source_mapping": {
-          "start": 206,
-          "length": 18,
-          "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_relative": "tests/too_many_digits.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_short": "tests/too_many_digits.sol",
-          "lines": [
-            10
-          ],
-          "starting_column": 9,
-          "ending_column": 27
+{
+  "success": true,
+  "error": null,
+  "results": [
+    {
+      "check": "too-many-digits",
+      "impact": "Informational",
+      "confidence": "Medium",
+      "description": "C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x1 = 0x000001\n\t- x2 = 0x0000000000001\n\t- x3 = 1000000000000000000\n\t- x4 = 100000\n\tUse the proper denomination (ether-unit, time-unit,or the scientific notation\n",
+      "elements": [
+        {
+          "type": "expression",
+          "expression": "x1 = 0x000001",
+          "source_mapping": {
+            "start": 206,
+            "length": 18,
+            "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_relative": "tests/too_many_digits.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_short": "tests/too_many_digits.sol",
+            "lines": [
+              10
+            ],
+            "starting_column": 9,
+            "ending_column": 27
+          }
+        },
+        {
+          "type": "expression",
+          "expression": "x2 = 0x0000000000001",
+          "source_mapping": {
+            "start": 234,
+            "length": 25,
+            "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_relative": "tests/too_many_digits.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_short": "tests/too_many_digits.sol",
+            "lines": [
+              11
+            ],
+            "starting_column": 9,
+            "ending_column": 34
+          }
+        },
+        {
+          "type": "expression",
+          "expression": "x3 = 1000000000000000000",
+          "source_mapping": {
+            "start": 269,
+            "length": 29,
+            "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_relative": "tests/too_many_digits.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_short": "tests/too_many_digits.sol",
+            "lines": [
+              12
+            ],
+            "starting_column": 9,
+            "ending_column": 38
+          }
+        },
+        {
+          "type": "expression",
+          "expression": "x4 = 100000",
+          "source_mapping": {
+            "start": 308,
+            "length": 16,
+            "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_relative": "tests/too_many_digits.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_short": "tests/too_many_digits.sol",
+            "lines": [
+              13
+            ],
+            "starting_column": 9,
+            "ending_column": 25
+          }
         }
-      },
-      {
-        "type": "expression",
-        "expression": "x2 = 0x0000000000001",
-        "source_mapping": {
-          "start": 234,
-          "length": 25,
-          "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_relative": "tests/too_many_digits.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_short": "tests/too_many_digits.sol",
-          "lines": [
-            11
-          ],
-          "starting_column": 9,
-          "ending_column": 34
+      ]
+    },
+    {
+      "check": "too-many-digits",
+      "impact": "Informational",
+      "confidence": "Medium",
+      "description": "C.h (tests/too_many_digits.sol#20-24) uses literals with too many digits:\n\t- x2 = 100000\n\tUse the proper denomination (ether-unit, time-unit,or the scientific notation\n",
+      "elements": [
+        {
+          "type": "expression",
+          "expression": "x2 = 100000",
+          "source_mapping": {
+            "start": 509,
+            "length": 16,
+            "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_relative": "tests/too_many_digits.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_short": "tests/too_many_digits.sol",
+            "lines": [
+              22
+            ],
+            "starting_column": 9,
+            "ending_column": 25
+          }
         }
-      },
-      {
-        "type": "expression",
-        "expression": "x3 = 1000000000000000000",
-        "source_mapping": {
-          "start": 269,
-          "length": 29,
-          "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_relative": "tests/too_many_digits.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_short": "tests/too_many_digits.sol",
-          "lines": [
-            12
-          ],
-          "starting_column": 9,
-          "ending_column": 38
+      ]
+    },
+    {
+      "check": "too-many-digits",
+      "impact": "Informational",
+      "confidence": "Medium",
+      "description": "C.i (tests/too_many_digits.sol#29-33) uses literals with too many digits:\n\t- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000\n\t- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000\n\t- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000\n\t- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000\n\t- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000\n\tUse the proper denomination (ether-unit, time-unit,or the scientific notation\n",
+      "elements": [
+        {
+          "type": "expression",
+          "expression": "x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000",
+          "source_mapping": {
+            "start": 749,
+            "length": 67,
+            "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_relative": "tests/too_many_digits.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_short": "tests/too_many_digits.sol",
+            "lines": [
+              31
+            ],
+            "starting_column": 9,
+            "ending_column": 76
+          }
+        },
+        {
+          "type": "expression",
+          "expression": "x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000",
+          "source_mapping": {
+            "start": 749,
+            "length": 67,
+            "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_relative": "tests/too_many_digits.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_short": "tests/too_many_digits.sol",
+            "lines": [
+              31
+            ],
+            "starting_column": 9,
+            "ending_column": 76
+          }
+        },
+        {
+          "type": "expression",
+          "expression": "x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000",
+          "source_mapping": {
+            "start": 749,
+            "length": 67,
+            "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_relative": "tests/too_many_digits.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_short": "tests/too_many_digits.sol",
+            "lines": [
+              31
+            ],
+            "starting_column": 9,
+            "ending_column": 76
+          }
+        },
+        {
+          "type": "expression",
+          "expression": "x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000",
+          "source_mapping": {
+            "start": 749,
+            "length": 67,
+            "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_relative": "tests/too_many_digits.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_short": "tests/too_many_digits.sol",
+            "lines": [
+              31
+            ],
+            "starting_column": 9,
+            "ending_column": 76
+          }
+        },
+        {
+          "type": "expression",
+          "expression": "x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000",
+          "source_mapping": {
+            "start": 749,
+            "length": 67,
+            "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_relative": "tests/too_many_digits.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+            "filename_short": "tests/too_many_digits.sol",
+            "lines": [
+              31
+            ],
+            "starting_column": 9,
+            "ending_column": 76
+          }
         }
-      },
-      {
-        "type": "expression",
-        "expression": "x4 = 100000",
-        "source_mapping": {
-          "start": 308,
-          "length": 16,
-          "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_relative": "tests/too_many_digits.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_short": "tests/too_many_digits.sol",
-          "lines": [
-            13
-          ],
-          "starting_column": 9,
-          "ending_column": 25
-        }
-      }
-    ]
-  },
-  {
-    "check": "too-many-digits",
-    "impact": "Informational",
-    "confidence": "Medium",
-    "description": "C.h (tests/too_many_digits.sol#20-24) uses literals with too many digits:\n\t- x2 = 100000\n\tUse the proper denomination (ether-unit, time-unit,or the scientific notation\n",
-    "elements": [
-      {
-        "type": "expression",
-        "expression": "x2 = 100000",
-        "source_mapping": {
-          "start": 509,
-          "length": 16,
-          "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_relative": "tests/too_many_digits.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_short": "tests/too_many_digits.sol",
-          "lines": [
-            22
-          ],
-          "starting_column": 9,
-          "ending_column": 25
-        }
-      }
-    ]
-  },
-  {
-    "check": "too-many-digits",
-    "impact": "Informational",
-    "confidence": "Medium",
-    "description": "C.i (tests/too_many_digits.sol#29-33) uses literals with too many digits:\n\t- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000\n\t- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000\n\t- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000\n\t- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000\n\t- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000\n\tUse the proper denomination (ether-unit, time-unit,or the scientific notation\n",
-    "elements": [
-      {
-        "type": "expression",
-        "expression": "x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000",
-        "source_mapping": {
-          "start": 749,
-          "length": 67,
-          "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_relative": "tests/too_many_digits.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_short": "tests/too_many_digits.sol",
-          "lines": [
-            31
-          ],
-          "starting_column": 9,
-          "ending_column": 76
-        }
-      },
-      {
-        "type": "expression",
-        "expression": "x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000",
-        "source_mapping": {
-          "start": 749,
-          "length": 67,
-          "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_relative": "tests/too_many_digits.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_short": "tests/too_many_digits.sol",
-          "lines": [
-            31
-          ],
-          "starting_column": 9,
-          "ending_column": 76
-        }
-      },
-      {
-        "type": "expression",
-        "expression": "x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000",
-        "source_mapping": {
-          "start": 749,
-          "length": 67,
-          "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_relative": "tests/too_many_digits.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_short": "tests/too_many_digits.sol",
-          "lines": [
-            31
-          ],
-          "starting_column": 9,
-          "ending_column": 76
-        }
-      },
-      {
-        "type": "expression",
-        "expression": "x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000",
-        "source_mapping": {
-          "start": 749,
-          "length": 67,
-          "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_relative": "tests/too_many_digits.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_short": "tests/too_many_digits.sol",
-          "lines": [
-            31
-          ],
-          "starting_column": 9,
-          "ending_column": 76
-        }
-      },
-      {
-        "type": "expression",
-        "expression": "x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000",
-        "source_mapping": {
-          "start": 749,
-          "length": 67,
-          "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_relative": "tests/too_many_digits.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-          "filename_short": "tests/too_many_digits.sol",
-          "lines": [
-            31
-          ],
-          "starting_column": 9,
-          "ending_column": 76
-        }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

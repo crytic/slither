@@ -4,4 +4,5 @@ VectorSum.sumAsm uses assembly (tests/inline_assembly_library-0.5.1.sol#16-22)
 VectorSum.sumPureAsm uses assembly (tests/inline_assembly_library-0.5.1.sol#25-47)
 	- tests/inline_assembly_library-0.5.1.sol#26-47
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/inline_assembly_library-0.5.1.assembly.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/inline_assembly_library-0.5.1.sol analyzed (1 contracts), 2 result(s) found

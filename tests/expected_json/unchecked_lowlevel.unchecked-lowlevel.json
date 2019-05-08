@@ -1,0 +1,76 @@
+{
+  "success": true,
+  "error": null,
+  "results": [
+    {
+      "check": "unchecked-lowlevel",
+      "impact": "Medium",
+      "confidence": "Medium",
+      "description": "MyConc.bad (tests/unchecked_lowlevel.sol#2-4) does not use the value returned by low-level calls:\n\t-dst.call.value(msg.value)() (tests/unchecked_lowlevel.sol#3)\n",
+      "elements": [
+        {
+          "type": "function",
+          "name": "bad",
+          "source_mapping": {
+            "start": 21,
+            "length": 88,
+            "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
+            "filename_relative": "tests/unchecked_lowlevel.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
+            "filename_short": "tests/unchecked_lowlevel.sol",
+            "lines": [
+              2,
+              3,
+              4
+            ],
+            "starting_column": 5,
+            "ending_column": 6
+          },
+          "contract": {
+            "type": "contract",
+            "name": "MyConc",
+            "source_mapping": {
+              "start": 0,
+              "length": 214,
+              "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
+              "filename_relative": "tests/unchecked_lowlevel.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
+              "filename_short": "tests/unchecked_lowlevel.sol",
+              "lines": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          }
+        },
+        {
+          "type": "expression",
+          "expression": "dst.call.value(msg.value)()",
+          "source_mapping": {
+            "start": 73,
+            "length": 29,
+            "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
+            "filename_relative": "tests/unchecked_lowlevel.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
+            "filename_short": "tests/unchecked_lowlevel.sol",
+            "lines": [
+              3
+            ],
+            "starting_column": 9,
+            "ending_column": 38
+          }
+        }
+      ]
+    }
+  ]
+}
