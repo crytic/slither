@@ -26,7 +26,7 @@ class FormatExternalFunction:
         (new_str_of_interest, num_repl) = re.subn(match_text, replace_text, old_str_of_interest_beyond_parameters, 1)
         if num_repl == 0:
             # No visibility specifier exists; public by default.
-            (new_str_of_interest, num_repl) = re.subn(" ", " extern", old_str_of_interest_beyond_parameters, 1)
+            (new_str_of_interest, num_repl) = re.subn(" ", " external ", old_str_of_interest_beyond_parameters, 1)
         if num_repl != 0:
             patches[in_file].append({
                 "detector" : "external-function",

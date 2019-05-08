@@ -1,4 +1,4 @@
-import re
+import re, sys
 from slither.core.expressions.identifier import Identifier
 from slither.core.cfg.node import Node
 from slither.slithir.operations import NewContract
@@ -351,24 +351,26 @@ class FormatNamingConvention:
                                         sys.exit(-1)
                         # Process function parameters passed to modifiers
                         for modifier in function._expression_modifiers:
-                            old_str_of_interest = in_file_str[modifier.source_mapping['start']:modifier.source_mapping['start']+modifier.source_mapping['length']]
-                            if(name[0] == '_'):
-                                (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+name[0]+name[1].upper()+name[2:]+r'\2', old_str_of_interest, 1)
-                            else:
-                                (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+name[0].upper()+name[1:]+r'\2', old_str_of_interest, 1)
-                            if num_repl != 0:
-                                patch = {
-                                    "detector" : "naming-convention (parameter uses)",
-                                    "start" : modifier.source_mapping['start'],
-                                    "end" : modifier.source_mapping['start'] + modifier.source_mapping['length'],
-                                    "old_string" : old_str_of_interest,
-                                    "new_string" : new_str_of_interest
-                                }
-                                if not patch in	patches[in_file]:
-                                    patches[in_file].append(patch)
-                            else:
-                                print("Error: Could not find parameter?!")
-                                sys.exit(-1)
+                            for arg in modifier.arguments:
+                                if str(arg) == name:
+                                    old_str_of_interest = in_file_str[modifier.source_mapping['start']:modifier.source_mapping['start']+modifier.source_mapping['length']]
+                                    if(name[0] == '_'):
+                                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+name[0]+name[1].upper()+name[2:]+r'\2', old_str_of_interest, 1)
+                                    else:
+                                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+name[0].upper()+name[1:]+r'\2', old_str_of_interest, 1)
+                                    if num_repl != 0:
+                                        patch = {
+                                            "detector" : "naming-convention (parameter uses)",
+                                            "start" : modifier.source_mapping['start'],
+                                            "end" : modifier.source_mapping['start'] + modifier.source_mapping['length'],
+                                            "old_string" : old_str_of_interest,
+                                            "new_string" : new_str_of_interest
+                                        }
+                                        if not patch in	patches[in_file]:
+                                            patches[in_file].append(patch)
+                                    else:
+                                        print("Error: Could not find parameter?!")
+                                        sys.exit(-1)
 
     @staticmethod
     def create_patch_state_variable_declaration(slither, patches, _target, name, contract_name, in_file, modify_loc_start, modify_loc_end):
