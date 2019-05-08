@@ -18,16 +18,17 @@ class FormatExternalFunction:
     def create_patch(slither, patches, in_file, match_text, replace_text, modify_loc_start, modify_loc_end):
         in_file_str = slither.source_code[in_file]
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-        (new_str_of_interest, num_repl) = re.subn(match_text, replace_text, old_str_of_interest, 1)
+        old_str_of_interest_beyond_parameters = old_str_of_interest.split(')')[1]
+        (new_str_of_interest, num_repl) = re.subn(match_text, replace_text, old_str_of_interest_beyond_parameters, 1)
         if num_repl == 0:
             # No visibility specifier exists; public by default.
-            (new_str_of_interest, num_repl) = re.subn("\)", ") extern", old_str_of_interest, 1)
+            (new_str_of_interest, num_repl) = re.subn(" ", " extern", old_str_of_interest_beyond_parameters, 1)
         if num_repl != 0:
             patches[in_file].append({
                 "detector" : "external-function",
-                "start" : modify_loc_start,
+                "start" : modify_loc_start + len(old_str_of_interest.split(')')[0]) + 1,
                 "end" : modify_loc_end,
-                "old_string" : old_str_of_interest,
+                "old_string" : old_str_of_interest_beyond_parameters,
                 "new_string" : new_str_of_interest
             })
         else:
