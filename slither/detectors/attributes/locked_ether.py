@@ -84,8 +84,8 @@ Every ether sent to `Locked` will be lost.'''
                                       [f.name for f in funcs_payable])
 
                     json = self.generate_json_result(info)
-                    self.add_functions_to_json(funcs_payable, json)
                     self.add_contract_to_json(contract, json)
+                    self.add_functions_to_json(funcs_payable, json)
                     results.append(json)
 
         return results
