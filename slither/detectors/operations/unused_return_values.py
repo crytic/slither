@@ -33,7 +33,7 @@ contract MyConc{
 
     WIKI_RECOMMENDATION = 'Ensure that all the return values of the function calls are used.'
 
-    _txt_description = "external functions"
+    _txt_description = "external calls"
 
     def _is_instance(self, ir):
         return isinstance(ir, HighLevelCall)
@@ -76,7 +76,7 @@ contract MyConc{
                                        f.name,
                                        f.source_mapping_str,
                                        self._txt_description)
-                    for node in unused_return:
+                    for node in sorted(unused_return, key=lambda x:x.node_id):
                         info += "\t-{} ({})\n".format(node.expression, node.source_mapping_str)
 
                     json = self.generate_json_result(info)
