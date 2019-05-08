@@ -505,6 +505,8 @@ def parse_expression(expression, caller_context):
             type = ElementaryType('uint256')
         elif type.startswith('bool'):
             type = ElementaryType('bool')
+        elif type.startswith('address'):
+            type = ElementaryType('address')
         else:
             type = ElementaryType('string')
         literal = Literal(value, type)
