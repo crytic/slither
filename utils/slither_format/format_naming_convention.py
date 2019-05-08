@@ -56,13 +56,15 @@ class FormatNamingConvention:
                 old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
                 (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"contract"+r'(.*)'+name, r'\1'+"contract"+r'\2'+name.capitalize(), old_str_of_interest, 1)
                 if num_repl != 0:
-                    patches[in_file].append({
+                    patch = {
                         "detector" : "naming-convention (contract definition)",
                         "start":modify_loc_start,
                         "end":modify_loc_start+m.span()[1],
                         "old_string":old_str_of_interest,
                         "new_string":new_str_of_interest
-                    })
+                    }
+                    if not patch in patches[in_file]:
+                        patches[in_file].append(patch)
                 else:
                     print("Error: Could not find contract?!")
                     sys.exit(-1)
@@ -79,13 +81,15 @@ class FormatNamingConvention:
                     if (str(sv.type) == name):
                         old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
                         (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
-                        patches[in_file].append({
+                        patch = {
                             "detector" : "naming-convention (contract state variable)",
                             "start" : contract.get_source_var_declaration(sv.name)['start'],
                             "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
                             "old_string" : old_str_of_interest,
                             "new_string" : new_str_of_interest
-                        })
+                        }
+                        if not patch in patches[in_file]:
+                            patches[in_file].append(patch)
                 # Check function+modifier locals+parameters+returns
                 # To-do: Deep-check aggregate types (struct and mapping)
                 fms = contract.functions + contract.modifiers
@@ -94,13 +98,15 @@ class FormatNamingConvention:
                         if (str(v.type) == name):
                             old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
                             (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
-                            patches[in_file].append({
+                            patch = {
                                 "detector" : "naming-convention (contract function variable)",
                                 "start" : fm.get_source_var_declaration(v.name)['start'],
                                 "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
                                 "old_string" : old_str_of_interest,
                                 "new_string" : new_str_of_interest
-                            })
+                            }
+                            if not patch in patches[in_file]:
+                                patches[in_file].append(patch)
                 # Check "new" expressions for creation of contract objects
                 for function in contract.functions:
                     for node in function.nodes:
@@ -111,13 +117,15 @@ class FormatNamingConvention:
                                 old_str_of_interest = old_str_of_interest[m.span()[0]:]
                                 (new_str_of_interest, num_repl) = re.subn("new"+r'(.*)'+name, "new"+r'\1'+name[0].upper()+name[1:], old_str_of_interest, 1)
                                 if num_repl != 0:
-                                    patches[in_file].append({
+                                    patch = {
                                         "detector" : "naming-convention (contract new object)",
                                         "start" : node.source_mapping['start'] + m.span()[0],
                                         "end" : node.source_mapping['start'] + m.span()[1],
                                         "old_string" : old_str_of_interest,
                                         "new_string" : new_str_of_interest
-                                    })
+                                    }
+                                    if not patch in patches[in_file]:
+                                        patches[in_file].append(patch)
                                 else:
                                     print("Error: Could not find new object?!")
                                     sys.exit(-1)
@@ -138,13 +146,15 @@ class FormatNamingConvention:
                         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"modifier"+r'(.*)'+name, r'\1'+"modifier"+r'\2'+name[0].lower()+name[1:], old_str_of_interest, 1)
                         if num_repl != 0:
-                            patches[in_file].append({
+                            patch = {
                                 "detector" : "naming-convention (modifier definition)",
                                 "start" : modify_loc_start,
                                 "end" : modify_loc_start+m.span()[1],
                                 "old_string" : old_str_of_interest,
                                 "new_string" : new_str_of_interest
-                            })
+                            }
+                            if not patch in patches[in_file]:
+                                patches[in_file].append(patch)
                         else:
                             print("Error: Could not find modifier?!")
                             sys.exit(-1)
@@ -160,13 +170,15 @@ class FormatNamingConvention:
                             old_str_of_interest = in_file_str[int(function.parameters_src.split(':')[0]):int(function.returns_src.split(':')[0])]
                             (new_str_of_interest, num_repl) = re.subn(name, name[0].lower()+name[1:],old_str_of_interest,1)
                             if num_repl != 0:
-                                patches[in_file].append({
+                                patch = {
                                     "detector" : "naming-convention (modifier uses)",
                                     "start" : int(function.parameters_src.split(':')[0]),
                                     "end" : int(function.returns_src.split(':')[0]),
                                     "old_string" : old_str_of_interest,
                                     "new_string" : new_str_of_interest
-                                })
+                                }
+                                if not patch in	patches[in_file]:
+                                    patches[in_file].append(patch)
                             else:
                                 print("Error: Could not find modifier name?!")
                                 sys.exit(-1)
@@ -183,13 +195,15 @@ class FormatNamingConvention:
                         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"function"+r'(.*)'+name, r'\1'+"function"+r'\2'+name[0].lower()+name[1:], old_str_of_interest, 1)
                         if num_repl != 0:
-                            patches[in_file].append({
+                            patch = {
                                 "detector" : "naming-convention (function definition)",
                                 "start" : modify_loc_start,
                                 "end" : modify_loc_start+m.span()[1],
                                 "old_string" : old_str_of_interest,
                                 "new_string" : new_str_of_interest
-                            })
+                            }
+                            if not patch in patches[in_file]:
+                                patches[in_file].append(patch)
                         else:
                             print("Error: Could not find function?!")
                             sys.exit(-1)
@@ -209,24 +223,28 @@ class FormatNamingConvention:
                                     called_function_name = old_str_of_interest.split('.')[-1]
                                     fixed_function_name = called_function_name[0].lower() + called_function_name[1:]
                                     new_string = '.'.join(old_str_of_interest.split('.')[:-1]) + '.' + fixed_function_name
-                                    patches[in_file].append({
+                                    patch = {
                                         "detector" : "naming-convention (function calls)",
                                         "start" : external_call.source_mapping['start'],
                                         "end" : int(external_call.source_mapping['start']) + int(external_call.source_mapping['length']),
                                         "old_string" : old_str_of_interest,
                                         "new_string" : new_string
-                                    })
+                                    }
+                                    if not patch in patches[in_file]:
+                                        patches[in_file].append(patch)
                     for internal_call in node.internal_calls_as_expressions:
                         if (str(internal_call.called) == name):
                             in_file_str = slither.source_code[in_file]
                             old_str_of_interest = in_file_str[int(internal_call.source_mapping['start']):int(internal_call.source_mapping['start'])+int(internal_call.source_mapping['length'])]
-                            patches[in_file].append({
+                            patch = {
                                 "detector" : "naming-convention (function calls)",
                                 "start" : internal_call.source_mapping['start'],
                                 "end" : int(internal_call.source_mapping['start']) + int(internal_call.source_mapping['length']),
                                 "old_string" : old_str_of_interest,
                                 "new_string" : old_str_of_interest[0].lower()+old_str_of_interest[1:]
-                            })
+                            }
+                            if not patch in patches[in_file]:
+                                patches[in_file].append(patch)
                             
     @staticmethod
     def create_patch_event_definition(slither, patches, name, contract_name, in_file, modify_loc_start, modify_loc_end):
@@ -239,13 +257,15 @@ class FormatNamingConvention:
                         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"event"+r'(.*)'+event_name, r'\1'+"event"+r'\2'+event_name[0].capitalize()+event_name[1:], old_str_of_interest, 1)
                         if num_repl != 0:
-                            patches[in_file].append({
+                            patch = {
                                 "detector" : "naming-convention (event definition)",
                                 "start" : modify_loc_start,
                                 "end" : modify_loc_end,
                                 "old_string" : old_str_of_interest,
                                 "new_string" : new_str_of_interest
-                            })
+                            }
+                            if not patch in patches[in_file]:
+                                patches[in_file].append(patch)
                         else:
                             print("Error: Could not find event?!")
                             sys.exit(-1)
@@ -261,13 +281,15 @@ class FormatNamingConvention:
                             if (str(call.called) == event_name):
                                 in_file_str = slither.source_code[in_file]
                                 old_str_of_interest = in_file_str[int(call.source_mapping['start']):int(call.source_mapping['start'])+int(call.source_mapping['length'])]
-                                patches[in_file].append({
+                                patch = {
                                     "detector" : "naming-convention (event calls)",
                                     "start" : call.source_mapping['start'],
                                     "end" : int(call.source_mapping['start']) + int(call.source_mapping['length']),
                                     "old_string" : old_str_of_interest,
                                     "new_string" : old_str_of_interest[0].capitalize()+old_str_of_interest[1:]
-                                })
+                                }
+                                if not patch in	patches[in_file]:
+                                    patches[in_file].append(patch)
                                 
     @staticmethod
     def create_patch_parameter_declaration(slither, patches, name, function_name, contract_name, in_file, modify_loc_start, modify_loc_end):
@@ -282,13 +304,15 @@ class FormatNamingConvention:
                         else:
                             (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+name[0].upper()+name[1:]+r'\2', old_str_of_interest, 1)
                         if num_repl != 0:
-                            patches[in_file].append({
+                            patch = {
                                 "detector" : "naming-convention (parameter declaration)",
                                 "start" : modify_loc_start,
                                 "end" : modify_loc_end,
                                 "old_string" : old_str_of_interest,
                                 "new_string" : new_str_of_interest
-                            })
+                            }
+                            if not patch in patches[in_file]:
+                                patches[in_file].append(patch)
                         else:
                             print("Error: Could not find parameter?!")
                             sys.exit(-1)
@@ -312,13 +336,15 @@ class FormatNamingConvention:
                                     else:
                                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+name[0].upper()+name[1:]+r'\2', old_str_of_interest, 1)
                                     if num_repl != 0:
-                                        patches[in_file].append({
+                                        patch = {
                                             "detector" : "naming-convention (parameter uses)",
                                             "start" : modify_loc_start,
                                             "end" : modify_loc_end,
                                             "old_string" : old_str_of_interest,
                                             "new_string" : new_str_of_interest
-                                        })
+                                        }
+                                        if not patch in	patches[in_file]:
+                                            patches[in_file].append(patch)
                                     else:
                                         print("Error: Could not find parameter?!")
                                         sys.exit(-1)
@@ -337,13 +363,15 @@ class FormatNamingConvention:
                         else:
                             new_string = old_str_of_interest[m.span()[0]:m.span()[1]]
                             new_string = new_string[0].lower()+new_string[1:]
-                        patches[in_file].append({
+                        patch = {
                             "detector" : "naming-convention (state variable declaration)",
                             "start" : modify_loc_start+m.span()[0],
                             "end" : modify_loc_start+m.span()[1],
                             "old_string" : old_str_of_interest[m.span()[0]:m.span()[1]],
                             "new_string" : new_string 
-                        })
+                        }
+                        if not patch in	patches[in_file]:
+                            patches[in_file].append(patch)
                         
     @staticmethod
     def create_patch_state_variable_uses(slither, patches, _target, name, contract_name, in_file):
@@ -365,13 +393,15 @@ class FormatNamingConvention:
                                 else:
                                     new_str_of_interest = old_str_of_interest
                                     new_str_of_interest = new_str_of_interest[0].lower()+new_str_of_interest[1:]
-                                patches[in_file].append({
+                                patch = {
                                     "detector" : "naming-convention (state variable uses)",
                                     "start" : modify_loc_start,
                                     "end" : modify_loc_end,
                                     "old_string" : old_str_of_interest,
                                     "new_string" : new_str_of_interest
-                                })
+                                }
+                                if not patch in patches[in_file]:
+                                    patches[in_file].append(patch)
 
     @staticmethod                                
     def create_patch_enum_definition(slither, patches, name, contract_name, in_file, modify_loc_start, modify_loc_end):
@@ -383,13 +413,15 @@ class FormatNamingConvention:
                         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"enum"+r'(.*)'+name, r'\1'+"enum"+r'\2'+name[0].capitalize()+name[1:], old_str_of_interest, 1)
                         if num_repl != 0:
-                            patches[in_file].append({
+                            patch = {
                                 "detector" : "naming-convention (enum definition)",
                                 "start" : modify_loc_start,
                                 "end" : modify_loc_end,
                                 "old_string" : old_str_of_interest,
                                 "new_string" : new_str_of_interest
-                            })
+                            }
+                            if not patch in patches[in_file]:
+                                patches[in_file].append(patch)
                         else:
                             print("Error: Could not find enum?!")
                             sys.exit(-1)
@@ -406,13 +438,15 @@ class FormatNamingConvention:
                     if (str(sv.type) == contract_name + "." + name):
                         old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
                         (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
-                        patches[in_file].append({
+                        patch = {
                             "detector" : "naming-convention (enum use)",
                             "start" : contract.get_source_var_declaration(sv.name)['start'],
                             "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
                             "old_string" : old_str_of_interest,
                             "new_string" : new_str_of_interest
-                        })
+                        }
+                        if not patch in	patches[in_file]:
+                            patches[in_file].append(patch)
                 # Check function+modifier locals+parameters+returns
                 # To-do: Deep-check aggregate types (struct and mapping)
                 fms = contract.functions + contract.modifiers
@@ -422,13 +456,15 @@ class FormatNamingConvention:
                         if (str(v.type) == contract_name + "." + name):
                             old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
                             (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
-                            patches[in_file].append({
+                            patch = {
                                 "detector" : "naming-convention (enum use)",
                                 "start" : fm.get_source_var_declaration(v.name)['start'],
                                 "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
                                 "old_string" : old_str_of_interest,
                                 "new_string" : new_str_of_interest
-                            })
+                            }
+                            if not patch in patches[in_file]:
+                                patches[in_file].append(patch)
                 # Capture enum uses such as "num = numbers.ONE;"
                 for function in contract.functions:
                     for node in function.nodes:
@@ -440,14 +476,16 @@ class FormatNamingConvention:
                                     old_str_of_interest = old_str_of_interest[m.span()[0]:]
                                     (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name, r'\1'+name[0].upper()+name[1:], old_str_of_interest, 1)
                                     if num_repl != 0:
-                                        patches[in_file].append({
+                                        patch = {
                                             "detector" : "naming-convention (enum use)",
 					    "start" : node.source_mapping['start'] + len(in_file_str[node.source_mapping['start']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0]) + 1 + m.span()[0],
                                             "end" : node.source_mapping['start'] + len(in_file_str[node.source_mapping['star\
 t']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0]) + 1 + m.span()[0] + len(old_str_of_interest),
                                             "old_string" : old_str_of_interest,
                                             "new_string" : new_str_of_interest
-                                        })
+                                        }
+                                        if not patch in	patches[in_file]:
+                                            patches[in_file].append(patch)
                                     else:
                                         print("Error: Could not find new object?!")
                                         sys.exit(-1)
@@ -463,13 +501,15 @@ t']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0])
                         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"struct"+r'(.*)'+name, r'\1'+"struct"+r'\2'+name[0].capitalize()+name[1:], old_str_of_interest, 1)
                         if num_repl != 0:
-                            patches[in_file].append({
+                            patch = {
                                 "detector" : "naming-convention (struct definition)",
                                 "start" : modify_loc_start,
                                 "end" : modify_loc_end,
                                 "old_string" : old_str_of_interest,
                                 "new_string" : new_str_of_interest
-                            })
+                            }
+                            if not patch in patches[in_file]:
+                                patches[in_file].append(patch)
                         else:
                             print("Error: Could not find struct?!")
                             sys.exit(-1)
@@ -485,13 +525,15 @@ t']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0])
                 if (str(sv.type) == contract_name + "." + name):
                     old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
                     (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
-                    patches[in_file].append({
+                    patch = {
                         "detector" : "naming-convention (struct use)",
                         "start" : contract.get_source_var_declaration(sv.name)['start'],
                         "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
                         "old_string" : old_str_of_interest,
                         "new_string" : new_str_of_interest
-                    })
+                    }
+                    if not patch in patches[in_file]:
+                        patches[in_file].append(patch)
             # Check function+modifier locals+parameters+returns
             # To-do: Deep-check aggregate types (struct and mapping)
             fms = contract.functions + contract.modifiers
@@ -500,11 +542,13 @@ t']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0])
                     if (str(v.type) == contract_name + "." + name):
                         old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
                         (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
-                        patches[in_file].append({
+                        patch = {
                             "detector" : "naming-convention (struct use)",
                             "start" : fm.get_source_var_declaration(v.name)['start'],
                             "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
                             "old_string" : old_str_of_interest,
                             "new_string" : new_str_of_interest
-                        })
+                        }
+                        if not patch in	patches[in_file]:
+                            patches[in_file].append(patch)
             # To-do: Check any other place/way where struct type is used (e.g. typecast)

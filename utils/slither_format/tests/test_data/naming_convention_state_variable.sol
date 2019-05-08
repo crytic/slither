@@ -24,6 +24,7 @@ contract B {
   function foo() {
     /* State variable uses - bad */
     uint i = number + Count + Maxnum;
+    Count += i;
   }
 }
 

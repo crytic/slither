@@ -56,7 +56,7 @@ def sort_patches(patches):
                     temp = patches[file][j+1]
                     patches[file][j+1] = patches[file][j]
                     patches[file][j] = temp
-    
+
 def apply_patches(slither, patches):
     for file in patches:
         _in_file = file

@@ -28,7 +28,7 @@ class TestExternalFunctions(unittest.TestCase):
         p2 = subprocess.Popen(['rm','-f',self.testFilePath2+'.out',self.testFilePath2+'.err',self.testFilePath2+'.format'])
         p2.wait()
         
-    def test_unused_state_vars(self):
+    def test_external_function(self):
         outFD1 = open(self.testFilePath1+".out","r")
         outFD1_lines = outFD1.readlines()
         for i in range(len(outFD1_lines)):
@@ -40,23 +40,23 @@ class TestExternalFunctions(unittest.TestCase):
         self.assertEqual(outFD1_lines.count("Old string: (uint _i)    public returns"), 1)
         self.assertEqual(outFD1_lines.count("New string: (uint _i)    external returns"), 1)
         self.assertEqual(outFD1_lines.count("Location start: 311"), 1)
-        self.assertEqual(outFD1_lines.count("Location end: 342"), 1)
+        self.assertEqual(outFD1_lines.count("Location end: 340"), 1)
         self.assertEqual(outFD1_lines.count("Old string: ()"), 1)
         self.assertEqual(outFD1_lines.count("New string: () extern"), 1)
         self.assertEqual(outFD1_lines.count("Location start: 463"), 1)
-        self.assertEqual(outFD1_lines.count("Location end: 473"), 1)
+        self.assertEqual(outFD1_lines.count("Location end: 466"), 1)
         self.assertEqual(outFD1_lines.count("Old string: () public    returns"), 1)
         self.assertEqual(outFD1_lines.count("New string: () external    returns"), 1)
         self.assertEqual(outFD1_lines.count("Location start: 500"), 1)
-        self.assertEqual(outFD1_lines.count("Location end: 524"), 1)
+        self.assertEqual(outFD1_lines.count("Location end: 522"), 1)
         self.assertEqual(outFD1_lines.count("Old string: () public"), 3)
         self.assertEqual(outFD1_lines.count("New string: () external"), 3)
         self.assertEqual(outFD1_lines.count("Location start: 580"), 1)
-        self.assertEqual(outFD1_lines.count("Location end: 592"), 1)
+        self.assertEqual(outFD1_lines.count("Location end: 590"), 1)
         self.assertEqual(outFD1_lines.count("Location start: 623"), 1)
-        self.assertEqual(outFD1_lines.count("Location end: 635"), 1)
+        self.assertEqual(outFD1_lines.count("Location end: 633"), 1)
         self.assertEqual(outFD1_lines.count("Location start: 818"), 1)
-        self.assertEqual(outFD1_lines.count("Location end: 830"), 1)
+        self.assertEqual(outFD1_lines.count("Location end: 828"), 1)
         outFD1.close()
 
         outFD2 = open(self.testFilePath2+".out","r")

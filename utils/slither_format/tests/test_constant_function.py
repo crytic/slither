@@ -28,7 +28,7 @@ class TestConstantFunctions(unittest.TestCase):
         p2 = subprocess.Popen(['rm','-f',self.testFilePath2+'.out',self.testFilePath2+'.err',self.testFilePath2+'.format'])
         p2.wait()
         
-    def test_unused_state_vars(self):
+    def test_constant_function(self):
         outFD1 = open(self.testFilePath1+".out","r")
         outFD1_lines = outFD1.readlines()
         for i in range(len(outFD1_lines)):
@@ -41,9 +41,11 @@ class TestConstantFunctions(unittest.TestCase):
         self.assertEqual(outFD1_lines.count("Old string: () public constant"), 1)
         self.assertEqual(outFD1_lines.count("New string: () public"), 3)
         self.assertEqual(outFD1_lines.count("Location start: 67"), 1)
-        self.assertEqual(outFD1_lines.count("Location end: 77"), 1)
+        self.assertEqual(outFD1_lines.count("Location end: 81"), 1)
+        self.assertEqual(outFD1_lines.count("Location start: 139"), 1)
+        self.assertEqual(outFD1_lines.count("Location end: 157"), 1)
         self.assertEqual(outFD1_lines.count("Location start: 350"), 1)
-        self.assertEqual(outFD1_lines.count("Location end: 360"), 1)
+        self.assertEqual(outFD1_lines.count("Location end: 364"), 1)
         outFD1.close()
         
         outFD2 = open(self.testFilePath2+".out","r")
@@ -56,7 +58,7 @@ class TestConstantFunctions(unittest.TestCase):
         self.assertEqual(outFD2_lines.count("Old string: () public view"), 1)
         self.assertEqual(outFD2_lines.count("New string: () public"), 1)
         self.assertEqual(outFD2_lines.count("Location start: 211"), 1)
-        self.assertEqual(outFD2_lines.count("Location end: 221"), 1)
+        self.assertEqual(outFD2_lines.count("Location end: 225"), 1)
         outFD2.close()
         
 if __name__ == '__main__':
