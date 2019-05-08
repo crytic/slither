@@ -678,6 +678,9 @@ def convert_type_library_call(ir, lib_contract):
         func = lib_contract.get_function_from_signature(sig)
         if not func:
             func = lib_contract.get_state_variable_from_name(ir.function_name)
+        if func:
+            # stop to explore if func is found (prevent dupplicate issue)
+            break
     # In case of multiple binding to the same type
     if not func:
         # specific lookup when the compiler does implicit conversion
@@ -712,6 +715,9 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
         func = contract.get_function_from_signature(sig)
         if not func:
             func = contract.get_state_variable_from_name(ir.function_name)
+        if func:
+            # stop to explore if func is found (prevent dupplicate issue)
+            break
     if not func:
         # specific lookup when the compiler does implicit conversion
         # for example

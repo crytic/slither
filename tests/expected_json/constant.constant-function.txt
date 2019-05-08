@@ -5,4 +5,5 @@ Constant.test_constant_bug (tests/constant.sol#9-11) is declared view but change
 	- Constant.a
 Constant.test_assembly_bug (tests/constant.sol#22-24) is declared view but contains assembly code
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#constant-functions-changing-the-state[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/constant.constant-function.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/constant.sol analyzed (1 contracts), 3 result(s) found

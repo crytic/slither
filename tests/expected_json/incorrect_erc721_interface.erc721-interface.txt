@@ -11,4 +11,5 @@ Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function 
 	-getApproved (tests/incorrect_erc721_interface.sol#14)
 	-isApprovedForAll (tests/incorrect_erc721_interface.sol#15)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-erc721-interface[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/incorrect_erc721_interface.erc721-interface.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/incorrect_erc721_interface.sol analyzed (2 contracts), 1 result(s) found

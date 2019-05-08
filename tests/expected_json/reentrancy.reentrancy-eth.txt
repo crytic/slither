@@ -10,4 +10,5 @@ Reentrancy in Reentrancy.withdrawBalance_nested (tests/reentrancy.sol#64-70):
 	State variables written after the call(s):
 	- userBalance (tests/reentrancy.sol#68)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/reentrancy.reentrancy-eth.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/reentrancy.sol analyzed (1 contracts), 2 result(s) found

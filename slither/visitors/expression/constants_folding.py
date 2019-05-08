@@ -21,8 +21,8 @@ def set_val(expression, val):
 class ConstantFolding(ExpressionVisitor):
 
     def __init__(self, expression, type):
-        super(ConstantFolding, self).__init__(expression)
         self._type = type
+        super(ConstantFolding, self).__init__(expression)
 
     def result(self):
         return Literal(int(get_val(self._expression)), self._type)

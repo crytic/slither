@@ -74,4 +74,5 @@ TestSolidityKeyword.bad1 (tests/incorrect_equality.sol#127-129) uses a dangerous
 TestSolidityKeyword.bad2 (tests/incorrect_equality.sol#131-133) uses a dangerous strict equality:
 	- require(bool)(block.number == 0)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-strict-equalities[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/incorrect_equality.incorrect-equality.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/incorrect_equality.sol analyzed (5 contracts), 12 result(s) found

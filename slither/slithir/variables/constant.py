@@ -13,8 +13,8 @@ class Constant(SlithIRVariable):
         if type:
             assert isinstance(type, ElementaryType)
             self._type = type
-            if type.type in Int + Uint:
-                if val.startswith('0x'):
+            if type.type in Int + Uint + ['address']:
+                if val.startswith('0x') or val.startswith('0X'):
                     self._val = int(val, 16)
                 else:
                     if 'e' in val:
@@ -24,7 +24,7 @@ class Constant(SlithIRVariable):
                         base, expo = val.split('E')
                         self._val = int(float(base) * (10 ** int(expo)))
                     else:
-                        self._val = int(val)
+                        self._val = int(float(val))
             elif type.type == 'bool':
                 self._val = val == 'true'
             else:
