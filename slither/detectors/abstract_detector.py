@@ -216,3 +216,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         for node in sorted(nodes, key=lambda x: x.node_id):
             AbstractDetector.add_node_to_json(node, d)
 
+    @staticmethod
+    def add_other_to_json(name, source_mapping, d, additional_fields={}):
+        # Verify the type of object provided
+        assert isinstance(name, str), "'name' should be a string when adding an element to a JSON result"
+
+        # Add the other object to JSON
+        element = AbstractDetector._create_base_element('other', name, source_mapping, additional_fields)
+        d['elements'].append(element)

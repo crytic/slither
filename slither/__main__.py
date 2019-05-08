@@ -459,6 +459,25 @@ class OutputWiki(argparse.Action):
 # endregion
 ###################################################################################
 ###################################################################################
+# region CustomFormatter
+###################################################################################
+###################################################################################
+
+
+class FormatterCryticCompile(logging.Formatter):
+    def format(self, record):
+        #for i, msg in enumerate(record.msg):
+        if record.msg.startswith('Compilation warnings/errors on '):
+            txt = record.args[1]
+            txt = txt.split('\n')
+            txt = [red(x) if 'Error' in x else x for x in txt]
+            txt = '\n'.join(txt)
+            record.args = (record.args[0], txt)
+        return super().format(record)
+# endregion
+
+###################################################################################
+###################################################################################
 # region Main
 ###################################################################################
 ###################################################################################
@@ -562,22 +581,4 @@ if __name__ == '__main__':
     main()
 
 
-# endregion
-###################################################################################
-###################################################################################
-# region CustomFormatter
-###################################################################################
-###################################################################################
-
-
-class FormatterCryticCompile(logging.Formatter):
-    def format(self, record):
-        #for i, msg in enumerate(record.msg):
-        if record.msg.startswith('Compilation warnings/errors on '):
-            txt = record.args[1]
-            txt = txt.split('\n')
-            txt = [red(x) if 'Error' in x else x for x in txt]
-            txt = '\n'.join(txt)
-            record.args = (record.args[0], txt)
-        return super().format(record)
 # endregion
