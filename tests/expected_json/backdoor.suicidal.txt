@@ -1,5 +1,5 @@
 INFO:Detectors:[91m
 C.i_am_a_backdoor (tests/backdoor.sol#4-6) allows anyone to destruct the contract
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#suicidal[0m
-INFO:Slither:[93m/home/monty/Private/tob/tools/slither-public/scripts/../tests/expected_json/backdoor.suicidal.json exists already, the overwrite is prevented[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/backdoor.suicidal.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/backdoor.sol analyzed (1 contracts), 1 result(s) found

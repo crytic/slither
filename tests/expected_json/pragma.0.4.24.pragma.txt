@@ -1,8 +1,44 @@
-ERROR:Slither:Invalid compilation
-ERROR:Slither:Invalid solc compilation tests/pragma.0.4.23.sol:1:1: Error: Source file requires different compiler version (current compiler is 0.5.1+commit.c8a2cb62.Linux.g++ - note that nightly builds are considered to be strictly less than the released version
+ERROR:root:Error in tests/pragma.0.4.24.sol
+ERROR:root:Traceback (most recent call last):
+  File "/home/monty/Private/tob/tools/crytic-compile/crytic_compile/platform/solc.py", line 189, in _run_solc
+    ret = json.loads(stdout)
+  File "/usr/lib/python3.6/json/__init__.py", line 354, in loads
+    return _default_decoder.decode(s)
+  File "/usr/lib/python3.6/json/decoder.py", line 339, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "/usr/lib/python3.6/json/decoder.py", line 357, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/travis/build/crytic/slither/slither/slither.py", line 55, in __init__
+    crytic_compile = CryticCompile(contract, **kwargs)
+  File "/home/monty/Private/tob/tools/crytic-compile/crytic_compile/crytic_compile.py", line 68, in __init__
+    self._compile(target, **kwargs)
+  File "/home/monty/Private/tob/tools/crytic-compile/crytic_compile/crytic_compile.py", line 590, in _compile
+    self._platform.compile(self, target, **kwargs)
+  File "/home/monty/Private/tob/tools/crytic-compile/crytic_compile/platform/solc.py", line 33, in compile
+    working_dir=solc_working_dir)
+  File "/home/monty/Private/tob/tools/crytic-compile/crytic_compile/platform/solc.py", line 192, in _run_solc
+    raise InvalidCompilation(f'Invalid solc compilation {stderr}')
+crytic_compile.platform.exceptions.InvalidCompilation: Invalid solc compilation tests/pragma.0.4.23.sol:1:1: Error: Source file requires different compiler version (current compiler is 0.5.1+commit.c8a2cb62.Linux.g++ - note that nightly builds are considered to be strictly less than the released version
 pragma solidity ^0.4.23;
 ^----------------------^
 tests/pragma.0.4.24.sol:1:1: Error: Source file requires different compiler version (current compiler is 0.5.1+commit.c8a2cb62.Linux.g++ - note that nightly builds are considered to be strictly less than the released version
 pragma solidity ^0.4.24;
 ^----------------------^
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/travis/build/crytic/slither/slither/__main__.py", line 520, in main_impl
+    (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
+  File "/home/travis/build/crytic/slither/slither/__main__.py", line 52, in process
+    **vars(args))
+  File "/home/travis/build/crytic/slither/slither/slither.py", line 58, in __init__
+    raise SlitherError('Invalid compilation: '+e)
+TypeError: must be str, not InvalidCompilation
 

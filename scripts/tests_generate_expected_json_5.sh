@@ -17,6 +17,7 @@ generate_expected_json(){
     slither "$1" --solc-disable-warnings --detect "$2" --json "$output_filename" --solc solc-0.5.1 > $output_filename_txt 2>&1 
 
     sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$output_filename" -i
+    sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$output_filename_txt" -i
 }
 
 #generate_expected_json tests/uninitialized-0.5.1.sol "uninitialized-state"

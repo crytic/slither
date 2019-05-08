@@ -12,4 +12,5 @@ Parameter '_used' of T.test (tests/naming_convention.sol#59) is not in mixedCase
 Variable 'T._myPublicVar' (tests/naming_convention.sol#56) is not in mixedCase
 Variable 'T.l' (tests/naming_convention.sol#67) used l, O, I, which should not be used
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/naming_convention.naming-convention.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/naming_convention.sol analyzed (3 contracts), 12 result(s) found

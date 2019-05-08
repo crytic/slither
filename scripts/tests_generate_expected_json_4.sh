@@ -17,6 +17,7 @@ generate_expected_json(){
 
 
     sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$output_filename" -i
+    sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$output_filename_txt" -i
 }
 
 
