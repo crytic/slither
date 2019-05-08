@@ -108,22 +108,23 @@ contract Crowdsale{
         for c in self.slither.contracts_derived:
             ret = self.detect_strict_equality(c)
 
-            info = ''
             # sort ret to get deterministic results
             ret = sorted(list(ret.items()), key=lambda x:x[0].name)
             for f, nodes in ret:
-                info += "{}.{} ({}) uses a dangerous strict equality:\n".format(f.contract.name,
-                                                                                f.name,
-                                                                                f.source_mapping_str)
+                func_info = "{}.{} ({}) uses a dangerous strict equality:\n".format(f.contract.name,
+                                                                               f.name,
+                                                                               f.source_mapping_str)
 
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)
-                for node in nodes:
-                    info += "\t- {}\n".format(str(node.expression))
 
-                json = self.generate_json_result(info)
-                self.add_function_to_json(f, json)
-                self.add_nodes_to_json(nodes, json)
-                results.append(json)
+                # Output each node with the function info header as a separate result.
+                for node in nodes:
+                    node_info = func_info + f"\t- {str(node.expression)}\n"
+
+                    json = self.generate_json_result(node_info)
+                    self.add_node_to_json(node, json)
+                    self.add_function_to_json(f, json)
+                    results.append(json)
 
         return results
