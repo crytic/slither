@@ -13,7 +13,7 @@ class Constant(SlithIRVariable):
         if type:
             assert isinstance(type, ElementaryType)
             self._type = type
-            if type.type in Int + Uint:
+            if type.type in Int + Uint + ['address']:
                 if val.startswith('0x') or val.startswith('0X'):
                     self._val = int(val, 16)
                 else:
