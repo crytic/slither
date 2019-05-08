@@ -69,6 +69,7 @@ test_slither(){
 }
 
 
+test_slither tests/unchecked_lowlevel.sol "unchecked-lowlevel"
 test_slither tests/deprecated_calls.sol "deprecated-standards"
 test_slither tests/erc20_indexed.sol "erc20-indexed"
 test_slither tests/incorrect_erc20_interface.sol "erc20-interface"

@@ -69,6 +69,8 @@ test_slither(){
 }
 
 
+test_slither tests/unchecked_lowlevel-0.5.1.sol "unchecked-lowlevel"
+test_slither tests/unchecked_send-0.5.1.sol "unchecked-send"
 test_slither tests/uninitialized-0.5.1.sol "uninitialized-state"
 test_slither tests/backdoor.sol "backdoor"
 test_slither tests/backdoor.sol "suicidal"
