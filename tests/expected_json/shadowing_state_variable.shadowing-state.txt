@@ -2,5 +2,4 @@ INFO:Detectors:[91m
 DerivedContract.owner (tests/shadowing_state_variable.sol#12) shadows:
 	- BaseContract.owner (tests/shadowing_state_variable.sol#2)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#state-variable-shadowing[0m
-INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/shadowing_state_variable.shadowing-state.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/shadowing_state_variable.sol analyzed (2 contracts), 1 result(s) found

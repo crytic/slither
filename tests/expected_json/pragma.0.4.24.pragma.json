@@ -9,8 +9,8 @@
       "description": "Different versions of Solidity is used in :\n\t- Version used: ['^0.4.23', '^0.4.24']\n\t- tests/pragma.0.4.23.sol#1 declares pragma solidity^0.4.23\n\t- tests/pragma.0.4.24.sol#1 declares pragma solidity^0.4.24\n",
       "elements": [
         {
-          "type": "expression",
-          "expression": "^0.4.23",
+          "type": "pragma",
+          "name": "^0.4.23",
           "source_mapping": {
             "start": 0,
             "length": 24,
@@ -23,11 +23,19 @@
             ],
             "starting_column": 1,
             "ending_column": 25
+          },
+          "additional_fields": {
+            "directive": [
+              "solidity",
+              "^",
+              "0.4",
+              ".24"
+            ]
           }
         },
         {
-          "type": "expression",
-          "expression": "^0.4.24",
+          "type": "pragma",
+          "name": "^0.4.24",
           "source_mapping": {
             "start": 0,
             "length": 24,
@@ -40,6 +48,14 @@
             ],
             "starting_column": 1,
             "ending_column": 25
+          },
+          "additional_fields": {
+            "directive": [
+              "solidity",
+              "^",
+              "0.4",
+              ".24"
+            ]
           }
         }
       ]

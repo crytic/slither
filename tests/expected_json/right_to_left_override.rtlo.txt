@@ -2,5 +2,4 @@ INFO:Detectors:[91m
 /home/travis/build/crytic/slither/tests/right_to_left_override.sol contains a unicode right-to-left-override character:
 	-         test1(/*A‮/*B*/2 , 1/*‭
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#right-to-left-override-character[0m
-INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/right_to_left_override.rtlo.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/right_to_left_override.sol analyzed (1 contracts), 1 result(s) found

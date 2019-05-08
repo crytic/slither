@@ -89,10 +89,7 @@ We recommend avoiding complex pragma statement.'''
                 info = f"Pragma version \"{p.version}\" {reason} ({p.source_mapping_str})\n"
 
                 json = self.generate_json_result(info)
-                self.add_other_to_json(p.version, p.source_mapping, json, {
-                    "version": p.version,
-                    "directive": p.directive
-                })
+                self.add_pragma_to_json(p, json)
                 results.append(json)
 
         return results

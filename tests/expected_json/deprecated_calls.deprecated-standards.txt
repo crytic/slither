@@ -14,5 +14,4 @@ Deprecated standard detected @ tests/deprecated_calls.sol#22:
 Deprecated standard detected @ tests/deprecated_calls.sol#25:
 	- Usage of "suicide()" should be replaced with "selfdestruct()"
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards[0m
-INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/deprecated_calls.deprecated-standards.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/deprecated_calls.sol analyzed (1 contracts), 7 result(s) found

@@ -86,12 +86,6 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                                        DetectorClassification.INFORMATIONAL]:
             raise IncorrectDetectorInitialization('CONFIDENCE is not initialized {}'.format(self.__class__.__name__))
 
-#    def log(self, info):
-#        if self.logger:
-#            info = "\n"+info
-#            if self.WIKI != '':
-#                info += 'Reference: {}'.format(self.WIKI)
-#            self.logger.info(self.color(info))
 
     def _log(self, info):
         self.logger.info(self.color(info))
@@ -162,7 +156,17 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     @staticmethod
     def add_variable_to_json(variable, d, additional_fields={}):
+        from slither.core.variables.state_variable import StateVariable
+        from slither.core.variables.local_variable import LocalVariable
         element = AbstractDetector._create_base_element('variable', variable.name, variable.source_mapping, additional_fields)
+        if isinstance(variable, StateVariable):
+            contract = {'elements': []}
+            AbstractDetector.add_contract_to_json(variable.contract, contract)
+            element['contract'] = contract['elements'][0]
+        elif isinstance(variable, LocalVariable):
+            function = {'elements': []}
+            AbstractDetector.add_function_to_json(variable.function, function)
+            element['function'] = function['elements'][0]
         d['elements'].append(element)
 
     @staticmethod
@@ -191,11 +195,17 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     @staticmethod
     def add_enum_to_json(enum, d, additional_fields={}):
         element = AbstractDetector._create_base_element('enum', enum.name, enum.source_mapping, additional_fields)
+        contract = {'elements': []}
+        AbstractDetector.add_contract_to_json(enum.contract, contract)
+        element['contract'] = contract['elements'][0]
         d['elements'].append(element)
 
     @staticmethod
     def add_struct_to_json(struct, d, additional_fields={}):
         element = AbstractDetector._create_base_element('struct', struct.name, struct.source_mapping, additional_fields)
+        contract = {'elements': []}
+        AbstractDetector.add_contract_to_json(struct.contract, contract)
+        element['contract'] = contract['elements'][0]
         d['elements'].append(element)
 
     @staticmethod
@@ -222,10 +232,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             AbstractDetector.add_node_to_json(node, d)
 
     @staticmethod
-    def add_other_to_json(name, source_mapping, d, additional_fields={}):
-        # Verify the type of object provided
-        assert isinstance(name, str), "'name' should be a string when adding an element to a JSON result"
+    def add_pragma_to_json(pragma, d, additional_fields={}):
 
-        # Add the other object to JSON
-        element = AbstractDetector._create_base_element('other', name, source_mapping, additional_fields)
+        additional_fields['directive'] = pragma.directive
+        element = AbstractDetector._create_base_element('pragma',
+                                                        pragma.version,
+                                                        pragma.source_mapping,
+                                                        additional_fields)
         d['elements'].append(element)

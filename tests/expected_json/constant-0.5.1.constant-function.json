@@ -60,12 +60,11 @@
               "ending_column": 2
             }
           }
-        },
-        {
-          "type": "info",
-          "contains_assembly": true
         }
-      ]
+      ],
+      "additional_fields": {
+        "contains_assembly": true
+      }
     }
   ]
 }

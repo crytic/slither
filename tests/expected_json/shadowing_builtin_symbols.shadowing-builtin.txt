@@ -13,5 +13,4 @@ FurtherExtendedContract.this (state variable @ tests/shadowing_builtin_symbols.s
 FurtherExtendedContract.abi (state variable @ tests/shadowing_builtin_symbols.sol#21) shadows built-in symbol "abi"
 Reserved.mutable (state variable @ tests/shadowing_builtin_symbols.sol#32) shadows built-in symbol "mutable"
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#builtin-symbol-shadowing[0m
-INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/shadowing_builtin_symbols.shadowing-builtin.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/shadowing_builtin_symbols.sol analyzed (4 contracts), 13 result(s) found

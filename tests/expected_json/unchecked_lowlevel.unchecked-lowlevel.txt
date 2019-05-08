@@ -1,5 +1,4 @@
 INFO:Detectors:[93m
-MyConc.bad (tests/unchecked_lowlevel.sol#2-4) does not use the value returned by low-level calls:
-	-dst.call.value(msg.value)() (tests/unchecked_lowlevel.sol#3)
+MyConc.bad (tests/unchecked_lowlevel.sol#2-4) ignores return value by low-level calls "dst.call.value(msg.value)()" (tests/unchecked_lowlevel.sol#3)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-low-level[0m
 INFO:Slither:tests/unchecked_lowlevel.sol analyzed (1 contracts), 1 result(s) found
