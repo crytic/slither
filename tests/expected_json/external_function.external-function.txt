@@ -4,4 +4,5 @@ ContractWithFunctionNotCalled.funcNotCalled2 (tests/external_function.sol#17-19)
 ContractWithFunctionNotCalled.funcNotCalled (tests/external_function.sol#21-23) should be declared external
 ContractWithFunctionNotCalled2.funcNotCalled (tests/external_function.sol#32-39) should be declared external
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-as-external[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/external_function.external-function.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/external_function.sol analyzed (5 contracts), 4 result(s) found

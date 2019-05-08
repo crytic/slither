@@ -1,4 +1,5 @@
 INFO:Detectors:[93m
 uint_not_init in Uninitialized.func (tests/uninitialized_local_variable.sol#4) is a local variable never initialiazed
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-local-variables[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/uninitialized_local_variable.uninitialized-local.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/uninitialized_local_variable.sol analyzed (1 contracts), 1 result(s) found
