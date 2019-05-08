@@ -70,7 +70,8 @@ contract Token{
         if contract.is_possible_erc721():
             return []
 
-        functions = [f for f in contract.functions if IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)]
+        funcs = contract.functions
+        functions = [f for f in funcs if IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)]
         return functions
 
     def _detect(self):
@@ -80,7 +81,7 @@ contract Token{
             dict: [contract name] = set(str)  events
         """
         results = []
-        for c in self.contracts:
+        for c in self.slither.contracts_derived:
             functions = IncorrectERC20InterfaceDetection.detect_incorrect_erc20_interface(c)
             if functions:
                 info = "{} ({}) has incorrect ERC20 function interface(s):\n"

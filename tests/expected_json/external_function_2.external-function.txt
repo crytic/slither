@@ -1,1 +1,2 @@
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/external_function_2.external-function.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/external_function_2.sol analyzed (4 contracts), 0 result(s) found
