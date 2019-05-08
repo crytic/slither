@@ -28,8 +28,9 @@ class FormatNamingConvention:
             FormatNamingConvention.create_patch_event_definition(slither, patches, name, contract_name, in_file, modify_loc_start, modify_loc_end)
             FormatNamingConvention.create_patch_event_calls(slither, patches, name, contract_name, in_file)
         elif _target == "function":
-            FormatNamingConvention.create_patch_function_definition(slither, patches, name, contract_name, in_file, modify_loc_start, modify_loc_end)
-            FormatNamingConvention.create_patch_function_calls(slither, patches, name, contract_name, in_file)
+            if name != contract_name:
+                FormatNamingConvention.create_patch_function_definition(slither, patches, name, contract_name, in_file, modify_loc_start, modify_loc_end)
+                FormatNamingConvention.create_patch_function_calls(slither, patches, name, contract_name, in_file)
         elif _target == "parameter":
             FormatNamingConvention.create_patch_parameter_declaration(slither, patches, name, function_name, contract_name, in_file, modify_loc_start, modify_loc_end)
             FormatNamingConvention.create_patch_parameter_uses(slither, patches, name, function_name, contract_name, in_file)
