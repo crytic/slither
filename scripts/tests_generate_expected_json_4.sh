@@ -23,6 +23,7 @@ generate_expected_json(){
 #generate_expected_json tests/deprecated_calls.sol "deprecated-standards"
 #generate_expected_json tests/erc20_indexed.sol "erc20-indexed"
 #generate_expected_json tests/incorrect_erc20_interface.sol "erc20-interface"
+#generate_expected_json tests/incorrect_erc721_interface.sol "erc721-interface"
 #generate_expected_json tests/uninitialized.sol "uninitialized-state"
 #generate_expected_json tests/backdoor.sol "backdoor"
 #generate_expected_json tests/backdoor.sol "suicidal"

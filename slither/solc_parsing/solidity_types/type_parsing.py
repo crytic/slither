@@ -32,7 +32,7 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
     if name_elementary in ElementaryTypeName:
         depth = name.count('[')
         if depth:
-            return ArrayType(ElementaryType(name_elementary), Literal(depth))
+            return ArrayType(ElementaryType(name_elementary), Literal(depth, 'uint256'))
         else:
             return ElementaryType(name_elementary)
     # We first look for contract
@@ -78,7 +78,7 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
                 depth+=1
             var_type = next((st for st in all_structures if st.contract.name+"."+st.name == name_struct), None)
             if var_type:
-                return ArrayType(UserDefinedType(var_type), Literal(depth))
+                return ArrayType(UserDefinedType(var_type), Literal(depth, 'uint256'))
 
     if not var_type:
         var_type = next((f for f in contract.functions if f.name == name), None)
