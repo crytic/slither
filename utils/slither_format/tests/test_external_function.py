@@ -34,7 +34,7 @@ class TestExternalFunctions(unittest.TestCase):
         for i in range(len(outFD1_lines)):
             outFD1_lines[i] = outFD1_lines[i].strip()
         self.assertTrue(os.path.isfile(self.testFilePath1+".format"),"Patched .format file is not created?!")
-        self.assertEqual(outFD1_lines[0],"Number of Slither results: 6")
+        self.assertEqual(outFD1_lines[0],"Number of Slither results: 7")
         self.assertEqual(outFD1_lines[1],"Number of patches: 6")
         self.assertEqual(outFD1_lines.count("Detector: external-function"), 6)
         self.assertEqual(outFD1_lines.count("Old string:     public returns"), 1)
@@ -55,8 +55,8 @@ class TestExternalFunctions(unittest.TestCase):
         self.assertEqual(outFD1_lines.count("Location end: 590"), 1)
         self.assertEqual(outFD1_lines.count("Location start: 625"), 1)
         self.assertEqual(outFD1_lines.count("Location end: 633"), 1)
-        self.assertEqual(outFD1_lines.count("Location start: 820"), 1)
-        self.assertEqual(outFD1_lines.count("Location end: 828"), 1)
+        self.assertEqual(outFD1_lines.count("Location start: 1013"), 1)
+        self.assertEqual(outFD1_lines.count("Location end: 1021"), 1)
         outFD1.close()
 
         outFD2 = open(self.testFilePath2+".out","r")

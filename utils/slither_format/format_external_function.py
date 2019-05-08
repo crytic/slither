@@ -10,9 +10,13 @@ class FormatExternalFunction:
                 if not Found and contract.name == element['contract']['name']:
                     for function in contract.functions:
                         if function.name == element['name']:
-                            FormatExternalFunction.create_patch(slither, patches, element['source_mapping']['filename'], "public", "external", int(function.parameters_src.split(':')[0]), int(function.returns_src.split(':')[0]))
-                            Found = True
-                            break
+                            # If function parameters are written to in function body then we cannot convert this function
+                            # to external because external function parameters are allocated in calldata region which is
+                            # non-modifiable. See https://solidity.readthedocs.io/en/develop/types.html#data-location
+                            if not FormatExternalFunction.function_parameters_written(function):
+                                FormatExternalFunction.create_patch(slither, patches, element['source_mapping']['filename'], "public", "external", int(function.parameters_src.split(':')[0]), int(function.returns_src.split(':')[0]))
+                                Found = True
+                                break
 
     @staticmethod
     def create_patch(slither, patches, in_file, match_text, replace_text, modify_loc_start, modify_loc_end):
@@ -35,3 +39,10 @@ class FormatExternalFunction:
             print("Error: No public visibility specifier exists. Regex failed to add extern specifier!")
             sys.exit(-1)
 
+    @staticmethod
+    def function_parameters_written(function):
+        for node in function.nodes:
+            if any (var.name == parameter.name for var in node.local_variables_written for parameter in function.parameters):
+                return True
+        return False
+            

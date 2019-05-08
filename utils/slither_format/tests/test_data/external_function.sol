@@ -35,7 +35,13 @@ contract ContractWithFunctionNotCalled {
   function my_func() internal returns(bool) {
     return true;
   }
-  
+
+  /* Cannot be convereted to external because parameter i is written to in function and so cannot be in calldata */
+  function test4(uint i) public returns(uint){
+    i += 1;
+    return(i);
+  }
+
 }
 
 contract ContractWithFunctionNotCalled2 is ContractWithFunctionCalledSuper {
@@ -75,5 +81,6 @@ contract InternalCall {
     
     function exec() external returns(uint){
         return ptr();
-    }    
+    }
+
 }
