@@ -1,0 +1,6 @@
+INFO:Detectors:[93m
+MyConc.bad (tests/unchecked_send-0.5.1.sol#2-4) does not use the value returned by send calls:
+	-dst.send(msg.value) (tests/unchecked_send-0.5.1.sol#3)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-send[0m
+INFO:Slither:[93m/home/monty/Private/tob/tools/slither-public/scripts/../tests/expected_json/unchecked_send-0.5.1.unchecked-send.json exists already, the overwrite is prevented[0m
+INFO:Slither:tests/unchecked_send-0.5.1.sol analyzed (1 contracts), 1 result(s) found
