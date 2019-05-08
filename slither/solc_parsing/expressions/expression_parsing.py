@@ -497,7 +497,12 @@ def parse_expression(expression, caller_context):
                 value = '0x'+expression['attributes']['hexvalue']
             type = expression['attributes']['type']
 
-        if type.startswith('int_const '):
+        if type is None:
+            if value.isdecimal():
+                type = ElementaryType('uint256')
+            else:
+                type = ElementaryType('string')
+        elif type.startswith('int_const '):
             type = ElementaryType('uint256')
         elif type.startswith('bool'):
             type = ElementaryType('bool')
