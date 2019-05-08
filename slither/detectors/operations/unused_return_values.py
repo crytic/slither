@@ -2,9 +2,8 @@
 Module detecting unused return values from external calls
 """
 
-from collections import defaultdict
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations.high_level_call import HighLevelCall
+from slither.slithir.operations import HighLevelCall, InternalCall, InternalDynamicCall
 from slither.core.variables.state_variable import StateVariable
 
 class UnusedReturnValues(AbstractDetector):
@@ -19,7 +18,6 @@ class UnusedReturnValues(AbstractDetector):
 
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return'
 
-
     WIKI_TITLE = 'Unused return'
     WIKI_DESCRIPTION = 'The return value of an external call is not stored in a local or state variable.'
     WIKI_EXPLOIT_SCENARIO = '''
@@ -33,7 +31,12 @@ contract MyConc{
 ```
 `MyConc` calls `add` of SafeMath, but does not store the result in `a`. As a result, the computation has no effect.'''
 
-    WIKI_RECOMMENDATION = 'Ensure that all the return values of the function calls are stored in a local or state variable.'
+    WIKI_RECOMMENDATION = 'Ensure that all the return values of the function calls are used.'
+
+    _txt_description = "external functions"
+
+    def _is_instance(self, ir):
+        return isinstance(ir, HighLevelCall)
 
     def detect_unused_return_values(self, f):
         """
@@ -47,7 +50,7 @@ contract MyConc{
         nodes_origin = {}
         for n in f.nodes:
             for ir in n.irs:
-                if isinstance(ir, HighLevelCall):
+                if self._is_instance(ir):
                     # if a return value is stored in a state variable, it's ok
                     if ir.lvalue and not isinstance(ir.lvalue, StateVariable):
                         values_returned.append(ir.lvalue)
@@ -68,10 +71,11 @@ contract MyConc{
                     continue
                 unused_return = self.detect_unused_return_values(f)
                 if unused_return:
-                    info = "{}.{} ({}) does not use the value returned by external calls:\n"
+                    info = "{}.{} ({}) does not use the value returned by {}:\n"
                     info = info.format(f.contract.name,
                                        f.name,
-                                       f.source_mapping_str)
+                                       f.source_mapping_str,
+                                       self._txt_description)
                     for node in unused_return:
                         info += "\t-{} ({})\n".format(node.expression, node.source_mapping_str)
 
@@ -81,3 +85,4 @@ contract MyConc{
                     results.append(json)
 
         return results
+

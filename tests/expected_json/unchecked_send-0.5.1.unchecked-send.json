@@ -1,0 +1,80 @@
+[
+  {
+    "check": "unchecked-send",
+    "impact": "Medium",
+    "confidence": "Medium",
+    "description": "MyConc.bad (tests/unchecked_send-0.5.1.sol#2-4) does not use the value returned by send calls:\n\t-dst.send(msg.value) (tests/unchecked_send-0.5.1.sol#3)\n",
+    "elements": [
+      {
+        "type": "function",
+        "name": "bad",
+        "source_mapping": {
+          "start": 21,
+          "length": 86,
+          "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
+          "filename_relative": "tests/unchecked_send-0.5.1.sol",
+          "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
+          "filename_short": "tests/unchecked_send-0.5.1.sol",
+          "lines": [
+            2,
+            3,
+            4
+          ],
+          "starting_column": 5,
+          "ending_column": 6
+        },
+        "contract": {
+          "type": "contract",
+          "name": "MyConc",
+          "source_mapping": {
+            "start": 0,
+            "length": 419,
+            "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
+            "filename_relative": "tests/unchecked_send-0.5.1.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
+            "filename_short": "tests/unchecked_send-0.5.1.sol",
+            "lines": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18
+            ],
+            "starting_column": 1,
+            "ending_column": 2
+          }
+        }
+      },
+      {
+        "type": "expression",
+        "expression": "dst.send(msg.value)",
+        "source_mapping": {
+          "start": 81,
+          "length": 19,
+          "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
+          "filename_relative": "tests/unchecked_send-0.5.1.sol",
+          "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
+          "filename_short": "tests/unchecked_send-0.5.1.sol",
+          "lines": [
+            3
+          ],
+          "starting_column": 9,
+          "ending_column": 28
+        }
+      }
+    ]
+  }
+]

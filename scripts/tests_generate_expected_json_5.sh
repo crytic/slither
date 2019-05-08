@@ -35,4 +35,6 @@ generate_expected_json(){
 #generate_expected_json tests/constant-0.5.1.sol "constant-function"
 #generate_expected_json tests/incorrect_equality.sol "incorrect-equality"
 #generate_expected_json tests/too_many_digits.sol "too-many-digits"
+generate_expected_json tests/unchecked_lowlevel-0.5.1.sol "unchecked-lowlevel"
+generate_expected_json tests/unchecked_send-0.5.1.sol "unchecked-send"
 
