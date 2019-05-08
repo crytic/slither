@@ -100,10 +100,18 @@ def process_files(filenames, args, detector_classes, printer_classes):
 ###################################################################################
 
 
+def wrap_json_stdout(success, error_message, results=None):
+    return {
+        "success": success,
+        "error": error_message,
+        "results": results
+    }
+
+
 def output_json(results, filename):
     if filename is None:
         # Write json to console
-        print(json.dumps(results))
+        print(json.dumps(wrap_json_stdout(True, None, results)))
     else:
         # Write json to file
         if os.path.isfile(filename):
@@ -504,11 +512,10 @@ def main_impl(all_detector_classes, all_printer_classes):
     # Set colorization option
     set_colorization_enabled(not args.disable_color)
 
-    # If we are outputting json to stdout, we'll want to override all logger levels.
+    # If we are outputting json to stdout, we'll want to disable any logging.
     stdout_json = args.json == "-"
-    override_level = None
     if stdout_json:
-        override_level = logging.ERROR
+        logging.disable()
 
     printer_classes = choose_printers(args, all_printer_classes)
     detector_classes = choose_detectors(args, all_detector_classes)
@@ -529,17 +536,17 @@ def main_impl(all_detector_classes, all_printer_classes):
                               #('CryticCompile', default_log)
                               ]:
         l = logging.getLogger(l_name)
-        l.setLevel(l_level if override_level is None else override_level)
+        l.setLevel(l_level)
 
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO if override_level is None else override_level)
+    console_handler.setLevel(logging.INFO)
 
     console_handler.setFormatter(FormatterCryticCompile())
 
     crytic_compile_error = logging.getLogger(('CryticCompile'))
     crytic_compile_error.addHandler(console_handler)
     crytic_compile_error.propagate = False
-    crytic_compile_error.setLevel(logging.INFO if override_level is None else override_level)
+    crytic_compile_error.setLevel(logging.INFO)
 
     try:
         filename = args.filename
@@ -582,15 +589,23 @@ def main_impl(all_detector_classes, all_printer_classes):
             return
         exit(results)
 
-    except SlitherException as e:
-        logging.error(red('Error:'))
-        logging.error(red(e))
-        logging.error('Please report an issue to https://github.com/crytic/slither/issues')
+    except SlitherException as se:
+        # Output our error accordingly, via JSON or logging.
+        if stdout_json:
+            print(wrap_json_stdout(False, repr(se), []))
+        else:
+            logging.error(red('Error:'))
+            logging.error(red(se))
+            logging.error('Please report an issue to https://github.com/crytic/slither/issues')
         sys.exit(-1)
 
     except Exception:
-        logging.error('Error in %s' % args.filename)
-        logging.error(traceback.format_exc())
+        # Output our error accordingly, via JSON or logging.
+        if stdout_json:
+            print(wrap_json_stdout(False, traceback.format_exc(), []))
+        else:
+            logging.error('Error in %s' % args.filename)
+            logging.error(traceback.format_exc())
         sys.exit(-1)
 
 
