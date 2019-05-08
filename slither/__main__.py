@@ -594,7 +594,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     except SlitherException as se:
         # Output our error accordingly, via JSON or logging.
         if stdout_json:
-            print(json.dumps(wrap_json_stdout(False, repr(se), [])))
+            print(json.dumps(wrap_json_stdout(False, str(se), [])))
         else:
             logging.error(red('Error:'))
             logging.error(red(se))
