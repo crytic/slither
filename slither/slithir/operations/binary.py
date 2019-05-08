@@ -4,6 +4,7 @@ from slither.core.variables.variable import Variable
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.variables import ReferenceVariable
+from slither.slithir.exceptions import SlithIRError
 
 logger = logging.getLogger("BinaryOperationIR")
 
@@ -80,8 +81,7 @@ class BinaryType(object):
         if operation_type == '||':
             return BinaryType.OROR
 
-        logger.error('get_type: Unknown operation type {})'.format(operation_type))
-        exit(-1)
+        raise SlithIRError('get_type: Unknown operation type {})'.format(operation_type))
 
     @staticmethod
     def str(operation_type):
@@ -123,8 +123,7 @@ class BinaryType(object):
             return '&&'
         if operation_type == BinaryType.OROR:
             return '||'
-        logger.error('str: Unknown operation type {})'.format(operation_type))
-        exit(-1)
+        raise SlithIRError('str: Unknown operation type {})'.format(operation_type))
 
 class Binary(OperationWithLValue):
 
