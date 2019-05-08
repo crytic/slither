@@ -234,9 +234,9 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     @staticmethod
     def add_pragma_to_json(pragma, d, additional_fields={}):
 
-        additional_fields['directive'] = pragma.directive
         element = AbstractDetector._create_base_element('pragma',
                                                         pragma.version,
                                                         pragma.source_mapping,
                                                         additional_fields)
+        element['directive'] = pragma.directive
         d['elements'].append(element)
