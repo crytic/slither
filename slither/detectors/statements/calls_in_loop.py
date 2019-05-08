@@ -86,14 +86,11 @@ If one of the destinations has a fallback function which reverts, `bad` will alw
             values = self.detect_call_in_loop(c)
             for node in values:
                 func = node.function
-                info = "{}.{} has external calls inside a loop:\n"
-                info = info.format(func.contract.name, func.name)
-
-                info += "\t- {} ({})\n".format(node.expression, node.source_mapping_str)
+                info = "{}.{} has external calls inside a loop: \"{}\" ({})\n"
+                info = info.format(func.contract.name, func.name, node.expression, node.source_mapping_str)
 
                 json = self.generate_json_result(info)
                 self.add_node_to_json(node, json)
-                self.add_function_to_json(func, json)
                 results.append(json)
 
         return results
