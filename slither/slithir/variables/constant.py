@@ -14,7 +14,7 @@ class Constant(SlithIRVariable):
             assert isinstance(type, ElementaryType)
             self._type = type
             if type.type in Int + Uint:
-                if val.startswith('0x'):
+                if val.startswith('0x') or val.startswith('0X'):
                     self._val = int(val, 16)
                 else:
                     if 'e' in val:
