@@ -1,79 +1,83 @@
-[
-  {
-    "check": "uninitialized-storage",
-    "impact": "High",
-    "confidence": "High",
-    "description": "st_bug in Uninitialized.func (tests/uninitialized_storage_pointer.sol#10) is a storage variable never initialiazed\n",
-    "elements": [
-      {
-        "type": "variable",
-        "name": "st_bug",
-        "source_mapping": {
-          "start": 171,
-          "length": 9,
-          "filename_used": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
-          "filename_relative": "tests/uninitialized_storage_pointer.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
-          "filename_short": "tests/uninitialized_storage_pointer.sol",
-          "lines": [
-            10
-          ],
-          "starting_column": 9,
-          "ending_column": 18
-        }
-      },
-      {
-        "type": "function",
-        "name": "func",
-        "source_mapping": {
-          "start": 67,
-          "length": 143,
-          "filename_used": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
-          "filename_relative": "tests/uninitialized_storage_pointer.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
-          "filename_short": "tests/uninitialized_storage_pointer.sol",
-          "lines": [
-            7,
-            8,
-            9,
-            10,
-            11,
-            12
-          ],
-          "starting_column": 5,
-          "ending_column": 6
-        },
-        "contract": {
-          "type": "contract",
-          "name": "Uninitialized",
+{
+  "success": true,
+  "error": null,
+  "results": [
+    {
+      "check": "uninitialized-storage",
+      "impact": "High",
+      "confidence": "High",
+      "description": "st_bug in Uninitialized.func (tests/uninitialized_storage_pointer.sol#10) is a storage variable never initialiazed\n",
+      "elements": [
+        {
+          "type": "variable",
+          "name": "st_bug",
           "source_mapping": {
-            "start": 0,
-            "length": 217,
+            "start": 171,
+            "length": 9,
             "filename_used": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
             "filename_relative": "tests/uninitialized_storage_pointer.sol",
             "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
             "filename_short": "tests/uninitialized_storage_pointer.sol",
             "lines": [
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
+              10
+            ],
+            "starting_column": 9,
+            "ending_column": 18
+          }
+        },
+        {
+          "type": "function",
+          "name": "func",
+          "source_mapping": {
+            "start": 67,
+            "length": 143,
+            "filename_used": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
+            "filename_relative": "tests/uninitialized_storage_pointer.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
+            "filename_short": "tests/uninitialized_storage_pointer.sol",
+            "lines": [
               7,
               8,
               9,
               10,
               11,
-              12,
-              13,
-              14
+              12
             ],
-            "starting_column": 1,
-            "ending_column": 2
+            "starting_column": 5,
+            "ending_column": 6
+          },
+          "contract": {
+            "type": "contract",
+            "name": "Uninitialized",
+            "source_mapping": {
+              "start": 0,
+              "length": 217,
+              "filename_used": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
+              "filename_relative": "tests/uninitialized_storage_pointer.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
+              "filename_short": "tests/uninitialized_storage_pointer.sol",
+              "lines": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

@@ -29,7 +29,6 @@ from slither.exceptions import SlitherException
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
-
 ###################################################################################
 ###################################################################################
 # region Process functions
@@ -100,12 +99,27 @@ def process_files(filenames, args, detector_classes, printer_classes):
 ###################################################################################
 ###################################################################################
 
+
+def wrap_json_stdout(success, error_message, results=None):
+    return {
+        "success": success,
+        "error": error_message,
+        "results": results
+    }
+
+
 def output_json(results, filename):
-    if os.path.isfile(filename):
-        logger.info(yellow(f'{filename} exists already, the overwrite is prevented'))
+    json_result = wrap_json_stdout(True, None, results)
+    if filename is None:
+        # Write json to console
+        print(json.dumps(json_result))
     else:
-        with open(filename, 'w', encoding='utf8') as f:
-            json.dump(results, f, indent=2)
+        # Write json to file
+        if os.path.isfile(filename):
+            logger.info(yellow(f'{filename} exists already, the overwrite is prevented'))
+        else:
+            with open(filename, 'w', encoding='utf8') as f:
+                json.dump(json_result, f, indent=2)
 
 # endregion
 ###################################################################################
@@ -328,7 +342,7 @@ def parse_args(detector_classes, printer_classes):
 
 
     group_misc.add_argument('--json',
-                            help='Export results as JSON',
+                            help='Export the results as a JSON file ("--json -" to export to stdout)',
                             action='store',
                             default=defaults_flag_in_config['json'])
 
@@ -460,9 +474,28 @@ class OutputWiki(argparse.Action):
 # endregion
 ###################################################################################
 ###################################################################################
+# region CustomFormatter
+###################################################################################
+###################################################################################
+
+class FormatterCryticCompile(logging.Formatter):
+    def format(self, record):
+        #for i, msg in enumerate(record.msg):
+        if record.msg.startswith('Compilation warnings/errors on '):
+            txt = record.args[1]
+            txt = txt.split('\n')
+            txt = [red(x) if 'Error' in x else x for x in txt]
+            txt = '\n'.join(txt)
+            record.args = (record.args[0], txt)
+        return super().format(record)
+
+# endregion
+###################################################################################
+###################################################################################
 # region Main
 ###################################################################################
 ###################################################################################
+
 
 def main():
     detectors, printers = get_detectors_and_printers()
@@ -479,6 +512,11 @@ def main_impl(all_detector_classes, all_printer_classes):
 
     # Set colorization option
     set_colorization_enabled(not args.disable_color)
+
+    # If we are outputting json to stdout, we'll want to disable any logging.
+    stdout_json = args.json == "-"
+    if stdout_json:
+        logging.disable(logging.CRITICAL)
 
     printer_classes = choose_printers(args, all_printer_classes)
     detector_classes = choose_detectors(args, all_detector_classes)
@@ -538,7 +576,7 @@ def main_impl(all_detector_classes, all_printer_classes):
             raise Exception("Unrecognised file/dir path: '#{filename}'".format(filename=filename))
 
         if args.json:
-            output_json(results, args.json)
+            output_json(results, None if stdout_json else args.json)
         if args.checklist:
             output_results_to_markdown(results)
         # Dont print the number of result for printers
@@ -552,15 +590,23 @@ def main_impl(all_detector_classes, all_printer_classes):
             return
         exit(results)
 
-    except SlitherException as e:
-        logging.error(red('Error:'))
-        logging.error(red(e))
-        logging.error('Please report an issue to https://github.com/crytic/slither/issues')
+    except SlitherException as se:
+        # Output our error accordingly, via JSON or logging.
+        if stdout_json:
+            print(json.dumps(wrap_json_stdout(False, repr(se), [])))
+        else:
+            logging.error(red('Error:'))
+            logging.error(red(se))
+            logging.error('Please report an issue to https://github.com/crytic/slither/issues')
         sys.exit(-1)
 
     except Exception:
-        logging.error('Error in %s' % args.filename)
-        logging.error(traceback.format_exc())
+        # Output our error accordingly, via JSON or logging.
+        if stdout_json:
+            print(json.dumps(wrap_json_stdout(False, traceback.format_exc(), [])))
+        else:
+            logging.error('Error in %s' % args.filename)
+            logging.error(traceback.format_exc())
         sys.exit(-1)
 
 
@@ -569,22 +615,4 @@ if __name__ == '__main__':
     main()
 
 
-# endregion
-###################################################################################
-###################################################################################
-# region CustomFormatter
-###################################################################################
-###################################################################################
-
-
-class FormatterCryticCompile(logging.Formatter):
-    def format(self, record):
-        #for i, msg in enumerate(record.msg):
-        if record.msg.startswith('Compilation warnings/errors on '):
-            txt = record.args[1]
-            txt = txt.split('\n')
-            txt = [red(x) if 'Error' in x else x for x in txt]
-            txt = '\n'.join(txt)
-            record.args = (record.args[0], txt)
-        return super().format(record)
 # endregion
