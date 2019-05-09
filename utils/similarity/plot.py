@@ -20,8 +20,8 @@ logger = logging.getLogger("Slither-simil")
 def plot(args):
 
     if decomposition is None or plt is None:
-        print("ERROR: In order to use plot mode in slither-simil, you need to install sklearn and matplotlib:")
-        print("$ pip3 install sklearn matplotlib --user")
+        logger.error("ERROR: In order to use plot mode in slither-simil, you need to install sklearn and matplotlib:")
+        logger.error("$ pip3 install sklearn matplotlib --user")
         sys.exit(-1)
 
     try:
@@ -42,7 +42,6 @@ def plot(args):
 
         logger.info('Loading data..')
         cache = load_and_encode(infile, model, ext=ext, solc=solc, nsamples=nsamples)
-        #cache = load_cache(infile, model, ext=ext, solc=solc)
 
         data = list()
         fs = list()
