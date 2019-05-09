@@ -13,7 +13,7 @@ except ImportError:
     plt = None
     
 from fastText import load_model
-from .encode import load_and_encode
+from .encode import load_and_encode, parse_target
 
 logger = logging.getLogger("Slither-simil")
 
@@ -29,19 +29,19 @@ def plot(args):
         model = args.model
         model = load_model(model)
         filename = args.filename
-        contract = args.contract
-        fname = args.fname
-        solc = args.solc
+        #contract = args.contract
+        contract, fname = parse_target(args.fname)
+        #solc = args.solc
         infile = args.input
-        ext = args.filter
-        nsamples = args.nsamples
+        #ext = args.filter
+        #nsamples = args.nsamples
 
         if fname is None or infile is None:
             logger.error('The plot mode requieres fname and input parameters.')
             sys.exit(-1)
 
         logger.info('Loading data..')
-        cache = load_and_encode(infile, model, ext=ext, solc=solc, nsamples=nsamples)
+        cache = load_and_encode(infile, **vars(args))
 
         data = list()
         fs = list()
