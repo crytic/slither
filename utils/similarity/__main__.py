@@ -34,20 +34,15 @@ def parse_args():
                         dest='filename',
                         help='contract.sol')
 
-    parser.add_argument('--contract',
-                        action='store',
-                        dest='contract',
-                        help='Contract')
-
-    parser.add_argument('--filter',
-                        action='store',
-                        dest='filter',
-                        help='Extension to filter contracts')
-
     parser.add_argument('--fname',
                         action='store',
                         dest='fname',
-                        help='Function name')
+                        help='Target function')
+
+    parser.add_argument('--ext',
+                        action='store',
+                        dest='ext',
+                        help='Extension to filter contracts')
 
     parser.add_argument('--nsamples',
                         action='store',

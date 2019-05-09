@@ -16,22 +16,20 @@ def train(args):
     try:
         last_data_train_filename = "last_data_train.txt"
         model_filename = args.model
-        solc = args.solc
         dirname = args.input
-        ext = args.filter
         nsamples = args.nsamples
 
         if dirname is None:
             logger.error('The train mode requires the input parameter.')
             sys.exit(-1)
 
-        contracts = load_contracts(dirname, ext=ext, nsamples=nsamples)
+        contracts = load_contracts(dirname, **vars(args))
         logger.info('Saving extracted data into %s', last_data_train_filename)
         cache = []
         with open(last_data_train_filename, 'w') as f:
             for filename in contracts:
                 #cache[filename] = dict()
-                for (filename, contract, function), ir in encode_contract(filename,solc).items():
+                for (filename, contract, function), ir in encode_contract(filename, **vars(args)).items():
                     if ir != []:
                         x = " ".join(ir)
                         f.write(x+"\n")

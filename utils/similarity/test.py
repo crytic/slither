@@ -6,8 +6,8 @@ import operator
 import numpy as np
 
 from fastText import load_model
-from .encode import encode_contract, load_and_encode
-from .cache import load_cache, save_cache
+from .encode import encode_contract, load_and_encode, parse_target
+from .cache import save_cache
 from .similarity import similarity
 
 logger = logging.getLogger("Slither-simil")
@@ -18,25 +18,22 @@ def test(args):
         model = args.model
         model = load_model(model)
         filename = args.filename
-        contract = args.contract
-        fname = args.fname
-        solc = args.solc
+        contract, fname = parse_target(args.fname) 
         infile = args.input
-        ext = args.filter
         ntop = args.ntop
 
         if filename is None or contract is None or fname is None or infile is None:
             logger.error('The test mode requires filename, contract, fname and input parameters.')
             sys.exit(-1)
 
-        irs = encode_contract(filename,solc=solc)
+        irs = encode_contract(filename, **vars(args))
         if len(irs) == 0:
             sys.exit(-1)
 
         y = " ".join(irs[(filename,contract,fname)])
         
         fvector = model.get_sentence_vector(y)
-        cache = load_and_encode(infile, model, ext=ext, solc=solc)
+        cache = load_and_encode(infile, **vars(args))
         #save_cache("cache.npz", cache)
 
         r = dict()

@@ -13,10 +13,24 @@ from slither.solc_parsing.variables.local_variable import *
 from slither.solc_parsing.variables.local_variable_init_from_tuple import *
 
 from .cache import load_cache
+from crytic_compile.platform.solc import InvalidCompilation
 
-logger = logging.getLogger("Slither-simil")
+simil_logger = logging.getLogger("Slither-simil")
+compiler_logger = logging.getLogger("CryticCompile")
+compiler_logger.setLevel(logging.CRITICAL)
+slither_logger = logging.getLogger("Slither")
+slither_logger.setLevel(logging.CRITICAL)
 
-def load_and_encode(infile, model, ext=None, nsamples=None, **kwargs):
+def parse_target(target):
+    parts = target.split('.')
+    if len(parts) == 1:
+        return None, parts[0]
+    elif len(parts) == 2:
+        return parts
+    else:
+        simil_logger.error("Invalid target. It should be 'function' or 'Contract.function'")
+
+def load_and_encode(infile, model, filter=None, nsamples=None, **kwargs):
     r = dict()
     if infile.endswith(".npz"):
         r = load_cache(infile, nsamples=nsamples)
@@ -30,7 +44,7 @@ def load_and_encode(infile, model, ext=None, nsamples=None, **kwargs):
 
     return r
 
-def load_contracts(dirname, ext=None, nsamples=None):
+def load_contracts(dirname, ext=None, nsamples=None, **kwargs):
     r = []
     walk = list(os.walk(dirname))
     for x, y, files in walk:
@@ -160,17 +174,17 @@ def encode_ir(ir):
 
     # default
     else:
-        logger.error(type(ir),"is missing encoding!")
+        simil_logger.error(type(ir),"is missing encoding!")
         return ''
  
-def encode_contract(filename, **kwargs):
+def encode_contract(cfilename, **kwargs):
     r = dict()
 
     # Init slither
-    try: 
-        slither = Slither(filename, **kwargs)
+    try:
+        slither = Slither(cfilename, **kwargs)
     except:
-        logger.error("Compilation failed")
+        simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs['solc'])
         return r
 
     # Iterate over all the contracts
@@ -185,7 +199,7 @@ def encode_contract(filename, **kwargs):
                 if function.nodes == []:
                     continue
 
-                x = (filename,contract.name,function.name) 
+                x = (cfilename,contract.name,function.name) 
 
                 r[x] = []
 
