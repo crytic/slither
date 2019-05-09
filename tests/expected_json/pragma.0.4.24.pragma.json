@@ -24,14 +24,12 @@
             "starting_column": 1,
             "ending_column": 25
           },
-          "additional_fields": {
-            "directive": [
-              "solidity",
-              "^",
-              "0.4",
-              ".24"
-            ]
-          }
+          "directive": [
+            "solidity",
+            "^",
+            "0.4",
+            ".23"
+          ]
         },
         {
           "type": "pragma",
@@ -49,14 +47,12 @@
             "starting_column": 1,
             "ending_column": 25
           },
-          "additional_fields": {
-            "directive": [
-              "solidity",
-              "^",
-              "0.4",
-              ".24"
-            ]
-          }
+          "directive": [
+            "solidity",
+            "^",
+            "0.4",
+            ".24"
+          ]
         }
       ]
     }

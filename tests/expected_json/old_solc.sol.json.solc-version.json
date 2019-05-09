@@ -22,13 +22,11 @@
             "starting_column": null,
             "ending_column": null
           },
-          "additional_fields": {
-            "directive": [
-              "solidity",
-              "0.4",
-              ".21"
-            ]
-          }
+          "directive": [
+            "solidity",
+            "0.4",
+            ".21"
+          ]
         }
       ]
     }

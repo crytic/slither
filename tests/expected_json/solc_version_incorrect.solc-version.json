@@ -24,17 +24,12 @@
             "starting_column": 1,
             "ending_column": 25
           },
-          "additional_fields": {
-            "directive": [
-              "solidity",
-              ">=",
-              "0.4",
-              ".0",
-              "<",
-              "0.6",
-              ".0"
-            ]
-          }
+          "directive": [
+            "solidity",
+            "^",
+            "0.4",
+            ".23"
+          ]
         }
       ]
     },
@@ -60,17 +55,15 @@
             "starting_column": 1,
             "ending_column": 32
           },
-          "additional_fields": {
-            "directive": [
-              "solidity",
-              ">=",
-              "0.4",
-              ".0",
-              "<",
-              "0.6",
-              ".0"
-            ]
-          }
+          "directive": [
+            "solidity",
+            ">=",
+            "0.4",
+            ".0",
+            "<",
+            "0.6",
+            ".0"
+          ]
         }
       ]
     }
