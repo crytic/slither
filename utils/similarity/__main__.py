@@ -6,6 +6,8 @@ import sys
 import traceback
 import operator
 
+from crytic_compile import cryticparser
+
 from .info     import info
 from .test     import test
 from .train    import train
@@ -26,11 +28,6 @@ def parse_args():
 
     parser.add_argument('model',
                         help='model.bin')
-
-    parser.add_argument('--solc',
-                        help='solc path',
-                        action='store',
-                        default='solc')
 
     parser.add_argument('--filename',
                         action='store',
@@ -74,6 +71,8 @@ def parse_args():
                         help='displays the current version',
                         version="0.0",
                         action='version')
+
+    cryticparser.init(parser)
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
