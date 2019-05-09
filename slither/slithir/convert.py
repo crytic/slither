@@ -343,7 +343,7 @@ def propagate_types(ir, node):
                 # Convert push operations
                 # May need to insert a new operation
                 # Which leads to return a list of operation
-                if isinstance(t, ArrayType):
+                if isinstance(t, ArrayType) or (isinstance(t, ElementaryType) and t.type == 'bytes'):
                     if ir.function_name == 'push' and len(ir.arguments) == 1:
                         return convert_to_push(ir, node)
 
