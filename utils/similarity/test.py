@@ -6,7 +6,7 @@ import operator
 import numpy as np
 
 from fastText import load_model
-from .encode import encode_contract, load_contracts
+from .encode import encode_contract, load_and_encode
 from .cache import load_cache, save_cache
 from .similarity import similarity
 
@@ -36,7 +36,7 @@ def test(args):
         y = " ".join(irs[(filename,contract,fname)])
         
         fvector = model.get_sentence_vector(y)
-        cache = load_cache(infile, model, ext=ext, solc=solc)
+        cache = load_and_encode(infile, model, ext=ext, solc=solc)
         #save_cache("cache.npz", cache)
 
         r = dict()
@@ -44,6 +44,7 @@ def test(args):
             r[x] = similarity(fvector, y)
 
         r = sorted(r.items(), key=operator.itemgetter(1), reverse=True)
+        logger.info("Reviewed %d functions, listing the %d most similar ones:", len(r), ntop) 
         for x,score in r[:ntop]:
             print(x,score)
 
