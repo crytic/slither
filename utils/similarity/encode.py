@@ -53,10 +53,8 @@ def ntype(_type):
         else:
             _type = "user_defined_array"
     elif isinstance(_type, Structure):
-        print(_type)
         _type = str(_type)
     elif isinstance(_type, Enum):
-        print(_type)
         _type = str(_type)
     elif isinstance(_type, MappingType):
         _type = str(_type)
@@ -86,7 +84,6 @@ def encode_ir(ir):
     if isinstance(ir, Assignment):
         return '({}):=({})'.format(encode_ir(ir.lvalue), encode_ir(ir.rvalue))
     if isinstance(ir, Index):
-        #print(type(ir._type))
         return 'index({})'.format(ntype(ir._type)) 
     if isinstance(ir, Member):
         return 'member' #.format(ntype(ir._type))
@@ -163,7 +160,7 @@ def encode_ir(ir):
 
     # default
     else:
-        print(type(ir),"is missing encoding!")
+        logger.error(type(ir),"is missing encoding!")
         return ''
  
 def encode_contract(filename, **kwargs):

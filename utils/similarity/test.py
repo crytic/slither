@@ -44,9 +44,12 @@ def test(args):
             r[x] = similarity(fvector, y)
 
         r = sorted(r.items(), key=operator.itemgetter(1), reverse=True)
-        logger.info("Reviewed %d functions, listing the %d most similar ones:", len(r), ntop) 
+        logger.info("Reviewed %d functions, listing the %d most similar ones:", len(r), ntop)
+        format_table = "{: <65} {: <20} {: <20} {: <10}"
+        logger.info(format_table.format(*["filename", "contract", "function", "score"]))
         for x,score in r[:ntop]:
-            print(x,score)
+            score = str(round(score, 3))
+            logger.info(format_table.format(*(list(x)+[score])))
 
     except Exception:
         logger.error('Error in %s' % args.filename)
