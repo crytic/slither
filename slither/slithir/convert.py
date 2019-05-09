@@ -10,6 +10,7 @@ from slither.core.solidity_types import (ArrayType, ElementaryType,
 from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
 from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
+from slither.slithir.variables import TupleVariable
 from slither.slithir.operations import (Assignment, Balance, Binary,
                                         BinaryType, Call, Condition, Delete,
                                         EventCall, HighLevelCall, Index,
@@ -343,7 +344,7 @@ def propagate_types(ir, node):
                 # Convert push operations
                 # May need to insert a new operation
                 # Which leads to return a list of operation
-                if isinstance(t, ArrayType):
+                if isinstance(t, ArrayType) or (isinstance(t, ElementaryType) and t.type == 'bytes'):
                     if ir.function_name == 'push' and len(ir.arguments) == 1:
                         return convert_to_push(ir, node)
 
@@ -852,9 +853,15 @@ def convert_constant_types(irs):
             if isinstance(ir, Assignment):
                 if isinstance(ir.lvalue.type, ElementaryType):
                     if ir.lvalue.type.type in ElementaryTypeInt:
-                        if ir.rvalue.type.type != 'int256':
-                            ir.rvalue.set_type(ElementaryType('int256'))
-                            was_changed = True
+                        if isinstance(ir.rvalue, Function):
+                            continue
+                        elif isinstance(ir.rvalue, TupleVariable):
+                            # TODO: fix missing Unpack conversion
+                            continue
+                        else:
+                            if ir.rvalue.type.type != 'int256':
+                                ir.rvalue.set_type(ElementaryType('int256'))
+                                was_changed = True
             if isinstance(ir, Binary):
                 if isinstance(ir.lvalue.type, ElementaryType):
                     if ir.lvalue.type.type in ElementaryTypeInt:
