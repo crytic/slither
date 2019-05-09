@@ -6,63 +6,11 @@
       "check": "calls-loop",
       "impact": "Low",
       "confidence": "Medium",
-      "description": "CallInLoop.bad has external calls inside a loop:\n\t- destinations[i].transfer(i) (tests/multiple_calls_in_loop.sol#11)\n",
+      "description": "CallInLoop.bad has external calls inside a loop: \"destinations[i].transfer(i)\" (tests/multiple_calls_in_loop.sol#11)\n",
       "elements": [
         {
-          "type": "function",
-          "name": "bad",
-          "source_mapping": {
-            "start": 153,
-            "length": 135,
-            "filename_used": "/home/travis/build/crytic/slither/tests/multiple_calls_in_loop.sol",
-            "filename_relative": "tests/multiple_calls_in_loop.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/multiple_calls_in_loop.sol",
-            "filename_short": "tests/multiple_calls_in_loop.sol",
-            "lines": [
-              9,
-              10,
-              11,
-              12,
-              13
-            ],
-            "starting_column": 5,
-            "ending_column": 6
-          },
-          "contract": {
-            "type": "contract",
-            "name": "CallInLoop",
-            "source_mapping": {
-              "start": 0,
-              "length": 291,
-              "filename_used": "/home/travis/build/crytic/slither/tests/multiple_calls_in_loop.sol",
-              "filename_relative": "tests/multiple_calls_in_loop.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/multiple_calls_in_loop.sol",
-              "filename_short": "tests/multiple_calls_in_loop.sol",
-              "lines": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15
-              ],
-              "starting_column": 1,
-              "ending_column": 2
-            }
-          }
-        },
-        {
-          "type": "expression",
-          "expression": "destinations[i].transfer(i)",
+          "type": "node",
+          "name": "destinations[i].transfer(i)",
           "source_mapping": {
             "start": 244,
             "length": 27,
@@ -75,6 +23,58 @@
             ],
             "starting_column": 13,
             "ending_column": 40
+          },
+          "function": {
+            "type": "function",
+            "name": "bad",
+            "source_mapping": {
+              "start": 153,
+              "length": 135,
+              "filename_used": "/home/travis/build/crytic/slither/tests/multiple_calls_in_loop.sol",
+              "filename_relative": "tests/multiple_calls_in_loop.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/multiple_calls_in_loop.sol",
+              "filename_short": "tests/multiple_calls_in_loop.sol",
+              "lines": [
+                9,
+                10,
+                11,
+                12,
+                13
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "contract": {
+              "type": "contract",
+              "name": "CallInLoop",
+              "source_mapping": {
+                "start": 0,
+                "length": 291,
+                "filename_used": "/home/travis/build/crytic/slither/tests/multiple_calls_in_loop.sol",
+                "filename_relative": "tests/multiple_calls_in_loop.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/multiple_calls_in_loop.sol",
+                "filename_short": "tests/multiple_calls_in_loop.sol",
+                "lines": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         }
       ]

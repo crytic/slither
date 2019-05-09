@@ -1,15 +1,13 @@
 INFO:Detectors:[93m
-Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface(s):
-	-supportsInterface (tests/incorrect_erc721_interface.sol#4)
-	-balanceOf (tests/incorrect_erc721_interface.sol#7)
-	-ownerOf (tests/incorrect_erc721_interface.sol#8)
-	-safeTransferFrom (tests/incorrect_erc721_interface.sol#9)
-	-safeTransferFrom (tests/incorrect_erc721_interface.sol#10)
-	-transferFrom (tests/incorrect_erc721_interface.sol#11)
-	-approve (tests/incorrect_erc721_interface.sol#12)
-	-setApprovalForAll (tests/incorrect_erc721_interface.sol#13)
-	-getApproved (tests/incorrect_erc721_interface.sol#14)
-	-isApprovedForAll (tests/incorrect_erc721_interface.sol#15)
+Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: supportsInterface (tests/incorrect_erc721_interface.sol#4)
+Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: balanceOf (tests/incorrect_erc721_interface.sol#7)
+Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: ownerOf (tests/incorrect_erc721_interface.sol#8)
+Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: safeTransferFrom (tests/incorrect_erc721_interface.sol#9)
+Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: safeTransferFrom (tests/incorrect_erc721_interface.sol#10)
+Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: transferFrom (tests/incorrect_erc721_interface.sol#11)
+Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: approve (tests/incorrect_erc721_interface.sol#12)
+Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: setApprovalForAll (tests/incorrect_erc721_interface.sol#13)
+Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: getApproved (tests/incorrect_erc721_interface.sol#14)
+Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: isApprovedForAll (tests/incorrect_erc721_interface.sol#15)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-erc721-interface[0m
-INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/incorrect_erc721_interface.erc721-interface.json exists already, the overwrite is prevented[0m
-INFO:Slither:tests/incorrect_erc721_interface.sol analyzed (2 contracts), 1 result(s) found
+INFO:Slither:tests/incorrect_erc721_interface.sol analyzed (2 contracts), 10 result(s) found

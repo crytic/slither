@@ -58,10 +58,8 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
                         attr = 'view' if f.view else 'pure'
                         info = '{}.{} ({}) is declared {} but contains assembly code\n'
                         info = info.format(f.contract.name, f.name, f.source_mapping_str, attr)
-                        json = self.generate_json_result(info)
+                        json = self.generate_json_result(info, {'contains_assembly': True})
                         self.add_function_to_json(f, json)
-                        json['elements'].append({'type': 'info',
-                                                 'contains_assembly' : True})
                         results.append(json)
 
                     variables_written = f.all_state_variables_written()
@@ -73,12 +71,9 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
                             info += '\t- {}.{}\n'.format(variable_written.contract.name,
                                                          variable_written.name)
 
-
-                        json = self.generate_json_result(info)
+                        json = self.generate_json_result(info, {'contains_assembly': False})
                         self.add_function_to_json(f, json)
                         self.add_variables_to_json(variables_written, json)
-                        json['elements'].append({'type': 'info',
-                                                  'contains_assembly' : False})
                         results.append(json)
 
         return results

@@ -4,5 +4,4 @@ Different versions of Solidity is used in :
 	- tests/pragma.0.4.23.sol#1 declares pragma solidity^0.4.23
 	- tests/pragma.0.4.24.sol#1 declares pragma solidity^0.4.24
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used[0m
-INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/pragma.0.4.24.pragma.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/pragma.0.4.24.sol analyzed (1 contracts), 1 result(s) found

@@ -2,5 +2,4 @@ INFO:Detectors:[92m
 Low level call in Sender.send (tests/low_level_calls.sol#5-7):
 	-_receiver.call.value(msg.value).gas(7777)() tests/low_level_calls.sol#6
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls[0m
-INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/low_level_calls.low-level-calls.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/low_level_calls.sol analyzed (2 contracts), 1 result(s) found

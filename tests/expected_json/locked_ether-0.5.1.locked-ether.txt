@@ -4,5 +4,4 @@ Contract locking ether found in :
 	 - receive (tests/locked_ether-0.5.1.sol#4-6)
 	But does not have a function to withdraw the ether
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether[0m
-INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/locked_ether-0.5.1.locked-ether.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/locked_ether-0.5.1.sol analyzed (4 contracts), 1 result(s) found

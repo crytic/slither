@@ -1,20 +1,15 @@
 INFO:Detectors:[92m
 C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:
 	- x1 = 0x000001
+C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:
 	- x2 = 0x0000000000001
+C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:
 	- x3 = 1000000000000000000
+C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:
 	- x4 = 100000
-	Use the proper denomination (ether-unit, time-unit,or the scientific notation
 C.h (tests/too_many_digits.sol#20-24) uses literals with too many digits:
 	- x2 = 100000
-	Use the proper denomination (ether-unit, time-unit,or the scientific notation
 C.i (tests/too_many_digits.sol#29-33) uses literals with too many digits:
 	- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000
-	- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000
-	- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000
-	- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000
-	- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000
-	Use the proper denomination (ether-unit, time-unit,or the scientific notation
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits[0m
-INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/too_many_digits.too-many-digits.json exists already, the overwrite is prevented[0m
-INFO:Slither:tests/too_many_digits.sol analyzed (1 contracts), 3 result(s) found
+INFO:Slither:tests/too_many_digits.sol analyzed (1 contracts), 6 result(s) found

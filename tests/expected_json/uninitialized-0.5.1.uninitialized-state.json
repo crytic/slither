@@ -23,6 +23,31 @@
             ],
             "starting_column": 5,
             "ending_column": 32
+          },
+          "contract": {
+            "type": "contract",
+            "name": "Uninitialized",
+            "source_mapping": {
+              "start": 25,
+              "length": 148,
+              "filename_used": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
+              "filename_relative": "tests/uninitialized-0.5.1.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
+              "filename_short": "tests/uninitialized-0.5.1.sol",
+              "lines": [
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         },
         {
@@ -92,6 +117,36 @@
             ],
             "starting_column": 5,
             "ending_column": 39
+          },
+          "contract": {
+            "type": "contract",
+            "name": "Test",
+            "source_mapping": {
+              "start": 176,
+              "length": 349,
+              "filename_used": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
+              "filename_relative": "tests/uninitialized-0.5.1.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
+              "filename_short": "tests/uninitialized-0.5.1.sol",
+              "lines": [
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         },
         {
@@ -167,6 +222,39 @@
             ],
             "starting_column": 5,
             "ending_column": 20
+          },
+          "contract": {
+            "type": "contract",
+            "name": "Test2",
+            "source_mapping": {
+              "start": 672,
+              "length": 373,
+              "filename_used": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
+              "filename_relative": "tests/uninitialized-0.5.1.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
+              "filename_short": "tests/uninitialized-0.5.1.sol",
+              "lines": [
+                42,
+                43,
+                44,
+                45,
+                46,
+                47,
+                48,
+                49,
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                56,
+                57,
+                58
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         },
         {
@@ -245,6 +333,39 @@
             ],
             "starting_column": 5,
             "ending_column": 11
+          },
+          "contract": {
+            "type": "contract",
+            "name": "Test2",
+            "source_mapping": {
+              "start": 672,
+              "length": 373,
+              "filename_used": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
+              "filename_relative": "tests/uninitialized-0.5.1.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
+              "filename_short": "tests/uninitialized-0.5.1.sol",
+              "lines": [
+                42,
+                43,
+                44,
+                45,
+                46,
+                47,
+                48,
+                49,
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                56,
+                57,
+                58
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
         },
         {
