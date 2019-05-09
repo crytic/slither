@@ -16,22 +16,19 @@ from .cache import load_cache
 
 logger = logging.getLogger("Slither-simil")
 
-def load_and_encode(infile, model, ext=None, solc='solc', nsamples=None):
+def load_and_encode(infile, model, ext=None, nsamples=None, **kwargs):
     r = dict()
     if infile.endswith(".npz"):
         r = load_cache(infile, nsamples=nsamples)
     else: 
         contracts = load_contracts(infile, ext=ext, nsamples=nsamples)
         for contract in contracts:
-            for x,ir in encode_contract(contract, solc=solc).items():
+            for x,ir in encode_contract(contract, **kwargs).items():
                 if ir != []:
                     y = " ".join(ir)
                     r[x] = model.get_sentence_vector(y)
 
     return r
-
-
-
 
 def load_contracts(dirname, ext=None, nsamples=None):
     r = []
@@ -169,12 +166,12 @@ def encode_ir(ir):
         print(type(ir),"is missing encoding!")
         return ''
  
-def encode_contract(filename, solc):
+def encode_contract(filename, **kwargs):
     r = dict()
 
     # Init slither
     try: 
-        slither = Slither(filename, solc=solc)
+        slither = Slither(filename, **kwargs)
     except:
         logger.error("Compilation failed")
         return r
