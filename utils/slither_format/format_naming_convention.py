@@ -49,7 +49,7 @@ class FormatNamingConvention:
         
     @staticmethod
     def create_patch_contract_definition(slither, patches, name, in_file, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if contract.name == name:
                 in_file_str = slither.source_code[in_file]
                 old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
@@ -72,7 +72,7 @@ class FormatNamingConvention:
                     
     @staticmethod
     def create_patch_contract_uses(slither, patches, name, in_file):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if contract.name != name:
                 in_file_str = slither.source_code[in_file]
                 # Check state variables of contract type
@@ -137,7 +137,7 @@ class FormatNamingConvention:
             
     @staticmethod
     def create_patch_modifier_definition(slither, patches, name, contract_name, in_file, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if contract.name == contract_name:
                 for modifier in contract.modifiers:
                     if modifier.name == name:
@@ -162,7 +162,7 @@ class FormatNamingConvention:
                             
     @staticmethod
     def create_patch_modifier_uses(slither, patches, name, contract_name, in_file):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if contract.name == contract_name:
                 for function in contract.functions:
                     for m  in function.modifiers:
@@ -186,7 +186,7 @@ class FormatNamingConvention:
                                 
     @staticmethod
     def create_patch_function_definition(slither, patches, name, contract_name, in_file, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if contract.name == contract_name:
                 for function in contract.functions:
                     if function.name == name:
@@ -211,7 +211,7 @@ class FormatNamingConvention:
                             
     @staticmethod
     def create_patch_function_calls(slither, patches, name, contract_name, in_file):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             for function in contract.functions:
                 for node in function.nodes:
                     for high_level_call in node.high_level_calls:
@@ -249,7 +249,7 @@ class FormatNamingConvention:
                             
     @staticmethod
     def create_patch_event_definition(slither, patches, name, contract_name, in_file, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if contract.name == contract_name:
                 for event in contract.events:
                     if event.full_name == name:
@@ -274,7 +274,7 @@ class FormatNamingConvention:
     @staticmethod
     def create_patch_event_calls(slither, patches, name, contract_name, in_file):
         event_name = name.split('(')[0]
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if (contract.name == contract_name):
                 for function in contract.functions:
                     for node in function.nodes:
@@ -294,7 +294,7 @@ class FormatNamingConvention:
                                 
     @staticmethod
     def create_patch_parameter_declaration(slither, patches, name, function_name, contract_name, in_file, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if contract.name == contract_name:
                 for function in contract.functions:
                     if function.name == function_name:
@@ -320,7 +320,7 @@ class FormatNamingConvention:
 
     @staticmethod                        
     def create_patch_parameter_uses(slither, patches, name, function_name, contract_name, in_file):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if (contract.name == contract_name):
                 for function in contract.functions:
                     if (function.name == function_name):
@@ -354,16 +354,17 @@ class FormatNamingConvention:
                             for arg in modifier.arguments:
                                 if str(arg) == name:
                                     old_str_of_interest = in_file_str[modifier.source_mapping['start']:modifier.source_mapping['start']+modifier.source_mapping['length']]
+                                    old_str_of_interest_beyond_modifier_name = old_str_of_interest.split('(')[1]
                                     if(name[0] == '_'):
-                                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+name[0]+name[1].upper()+name[2:]+r'\2', old_str_of_interest, 1)
+                                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+name[0]+name[1].upper()+name[2:]+r'\2', old_str_of_interest_beyond_modifier_name, 1)
                                     else:
-                                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+name[0].upper()+name[1:]+r'\2', old_str_of_interest, 1)
+                                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+name[0].upper()+name[1:]+r'\2', old_str_of_interest_beyond_modifier_name, 1)
                                     if num_repl != 0:
                                         patch = {
                                             "detector" : "naming-convention (parameter uses)",
-                                            "start" : modifier.source_mapping['start'],
+                                            "start" : modifier.source_mapping['start'] + len(old_str_of_interest.split('(')[0]) + 1,
                                             "end" : modifier.source_mapping['start'] + modifier.source_mapping['length'],
-                                            "old_string" : old_str_of_interest,
+                                            "old_string" : old_str_of_interest_beyond_modifier_name,
                                             "new_string" : new_str_of_interest
                                         }
                                         if not patch in	patches[in_file]:
@@ -374,7 +375,7 @@ class FormatNamingConvention:
 
     @staticmethod
     def create_patch_state_variable_declaration(slither, patches, _target, name, contract_name, in_file, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if (contract.name == contract_name):
                 for var in contract.state_variables:
                     if (var.name == name):
@@ -399,7 +400,7 @@ class FormatNamingConvention:
     @staticmethod
     def create_patch_state_variable_uses(slither, patches, _target, name, contract_name, in_file):
         # To-do: Check cross-contract state variable uses
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if (contract.name == contract_name):
                 fms = contract.functions + contract.modifiers
                 for fm in fms:
@@ -428,7 +429,7 @@ class FormatNamingConvention:
 
     @staticmethod                                
     def create_patch_enum_definition(slither, patches, name, contract_name, in_file, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if (contract.name == contract_name):
                 for enum in contract.enums:
                     if (enum.name == name):
@@ -451,7 +452,7 @@ class FormatNamingConvention:
                             
     @staticmethod
     def create_patch_enum_uses(slither, patches, name, contract_name, in_file):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if contract.name == contract_name:
                 in_file_str = slither.source_code[in_file]
                 # Check state variable declarations of enum type
@@ -516,7 +517,7 @@ t']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0])
 
     @staticmethod            
     def create_patch_struct_definition(slither, patches, name, contract_name, in_file, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             if (contract.name == contract_name):
                 for struct in contract.structures:
                     if (struct.name == name):
@@ -539,7 +540,7 @@ t']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0])
 
     @staticmethod                            
     def create_patch_struct_uses(slither, patches, name, contract_name, in_file):
-        for contract in slither.contracts_derived:
+        for contract in slither.contracts:
             in_file_str = slither.source_code[in_file]
             # Check state variables of struct type
             # To-do: Deep-check aggregate types (struct and mapping)

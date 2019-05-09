@@ -10,6 +10,11 @@ contract ContractWithFunctionCalledSuper is ContractWithFunctionCalled {
 
 contract ContractWithFunctionNotCalled {
 
+  modifier mod (uint c) {
+    require (c > 0);
+    _;
+  }
+
   // With parameter and return
   function funcNotCalled5(uint _i)
     public returns (uint) {
@@ -36,10 +41,20 @@ contract ContractWithFunctionNotCalled {
     return true;
   }
 
-  /* Cannot be convereted to external because parameter i is written to in function and so cannot be in calldata */
+  /* Cannot be converted to external because parameter i is written to in function and so cannot be in calldata */
   function test4(uint i) public returns(uint){
     i += 1;
     return(i);
+  }
+
+  /* public with modifier */
+  function test5(uint number) public mod (number) returns(uint){
+    return(number);
+  }
+
+  /* implicit with modifier */
+  function test6(uint number) mod (number) returns(uint){
+    return(number);
   }
 
 }

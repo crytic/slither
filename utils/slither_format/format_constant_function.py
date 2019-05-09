@@ -9,7 +9,7 @@ class FormatConstantFunction:
                 # Skip variable elements
                 continue
             Found = False
-            for contract in slither.contracts_derived:
+            for contract in slither.contracts:
                 if not Found:
                     for function in contract.functions:
                         if contract.name == element['contract']['name'] and function.name == element['name']:
