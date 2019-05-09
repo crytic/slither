@@ -478,6 +478,7 @@ class OutputWiki(argparse.Action):
 ###################################################################################
 ###################################################################################
 
+
 class FormatterCryticCompile(logging.Formatter):
     def format(self, record):
         #for i, msg in enumerate(record.msg):
@@ -593,7 +594,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     except SlitherException as se:
         # Output our error accordingly, via JSON or logging.
         if stdout_json:
-            print(json.dumps(wrap_json_stdout(False, repr(se), [])))
+            print(json.dumps(wrap_json_stdout(False, str(se), [])))
         else:
             logging.error(red('Error:'))
             logging.error(red(se))
@@ -615,4 +616,6 @@ if __name__ == '__main__':
     main()
 
 
+
 # endregion
+

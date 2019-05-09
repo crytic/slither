@@ -6,8 +6,71 @@
       "check": "unchecked-lowlevel",
       "impact": "Medium",
       "confidence": "Medium",
-      "description": "MyConc.bad (tests/unchecked_lowlevel-0.5.1.sol#2-4) does not use the value returned by low-level calls:\n\t-dst.call.value(msg.value)() (tests/unchecked_lowlevel-0.5.1.sol#3)\n",
+      "description": "MyConc.bad (tests/unchecked_lowlevel-0.5.1.sol#2-4) ignores return value by low-level calls \"dst.call.value(msg.value)()\" (tests/unchecked_lowlevel-0.5.1.sol#3)\n",
       "elements": [
+        {
+          "type": "node",
+          "name": "dst.call.value(msg.value)()",
+          "source_mapping": {
+            "start": 81,
+            "length": 29,
+            "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
+            "filename_relative": "tests/unchecked_lowlevel-0.5.1.sol",
+            "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
+            "filename_short": "tests/unchecked_lowlevel-0.5.1.sol",
+            "lines": [
+              3
+            ],
+            "starting_column": 9,
+            "ending_column": 38
+          },
+          "function": {
+            "type": "function",
+            "name": "bad",
+            "source_mapping": {
+              "start": 21,
+              "length": 96,
+              "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
+              "filename_relative": "tests/unchecked_lowlevel-0.5.1.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
+              "filename_short": "tests/unchecked_lowlevel-0.5.1.sol",
+              "lines": [
+                2,
+                3,
+                4
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "contract": {
+              "type": "contract",
+              "name": "MyConc",
+              "source_mapping": {
+                "start": 0,
+                "length": 274,
+                "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
+                "filename_relative": "tests/unchecked_lowlevel-0.5.1.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
+                "filename_short": "tests/unchecked_lowlevel-0.5.1.sol",
+                "lines": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
+          }
+        },
         {
           "type": "function",
           "name": "bad",
@@ -52,23 +115,6 @@
               "starting_column": 1,
               "ending_column": 2
             }
-          }
-        },
-        {
-          "type": "expression",
-          "expression": "dst.call.value(msg.value)()",
-          "source_mapping": {
-            "start": 81,
-            "length": 29,
-            "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
-            "filename_relative": "tests/unchecked_lowlevel-0.5.1.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
-            "filename_short": "tests/unchecked_lowlevel-0.5.1.sol",
-            "lines": [
-              3
-            ],
-            "starting_column": 9,
-            "ending_column": 38
           }
         }
       ]

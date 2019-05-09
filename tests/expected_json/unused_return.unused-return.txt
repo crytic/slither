@@ -1,7 +1,5 @@
 INFO:Detectors:[93m
-User.test (tests/unused_return.sol#17-29) does not use the value returned by external calls:
-	-t.f() (tests/unused_return.sol#18)
-	-a.add(0) (tests/unused_return.sol#22)
+User.test (tests/unused_return.sol#17-29) ignores return value by external calls "t.f()" (tests/unused_return.sol#18)
+User.test (tests/unused_return.sol#17-29) ignores return value by external calls "a.add(0)" (tests/unused_return.sol#22)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return[0m
-INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/unused_return.unused-return.json exists already, the overwrite is prevented[0m
-INFO:Slither:tests/unused_return.sol analyzed (3 contracts), 1 result(s) found
+INFO:Slither:tests/unused_return.sol analyzed (3 contracts), 2 result(s) found

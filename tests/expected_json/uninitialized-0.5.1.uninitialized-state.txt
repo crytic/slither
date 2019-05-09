@@ -8,5 +8,4 @@ Test2.st (tests/uninitialized-0.5.1.sol#45) is never initialized. It is used in:
 Test2.v (tests/uninitialized-0.5.1.sol#47) is never initialized. It is used in:
 	- init (tests/uninitialized-0.5.1.sol#49-51)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-state-variables[0m
-INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/uninitialized-0.5.1.uninitialized-state.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/uninitialized-0.5.1.sol analyzed (4 contracts), 4 result(s) found

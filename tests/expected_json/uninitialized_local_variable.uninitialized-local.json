@@ -23,6 +23,52 @@
             ],
             "starting_column": 9,
             "ending_column": 27
+          },
+          "function": {
+            "type": "function",
+            "name": "func",
+            "source_mapping": {
+              "start": 29,
+              "length": 143,
+              "filename_used": "/home/travis/build/crytic/slither/tests/uninitialized_local_variable.sol",
+              "filename_relative": "tests/uninitialized_local_variable.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized_local_variable.sol",
+              "filename_short": "tests/uninitialized_local_variable.sol",
+              "lines": [
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "contract": {
+              "type": "contract",
+              "name": "Uninitialized",
+              "source_mapping": {
+                "start": 0,
+                "length": 179,
+                "filename_used": "/home/travis/build/crytic/slither/tests/uninitialized_local_variable.sol",
+                "filename_relative": "tests/uninitialized_local_variable.sol",
+                "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized_local_variable.sol",
+                "filename_short": "tests/uninitialized_local_variable.sol",
+                "lines": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9
+                ],
+                "starting_column": 1,
+                "ending_column": 2
+              }
+            }
           }
         },
         {

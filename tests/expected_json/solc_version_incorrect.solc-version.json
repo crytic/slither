@@ -6,11 +6,11 @@
       "check": "solc-version",
       "impact": "Informational",
       "confidence": "High",
-      "description": "Detected issues with version pragma in :\n\t- pragma solidity^0.4.23 (tests/solc_version_incorrect.sol#2): it allows old versions\n\t- pragma solidity>=0.4.0<0.6.0 (tests/solc_version_incorrect.sol#3): it allows old versions\n",
+      "description": "Pragma version \"^0.4.23\" allows old versions (tests/solc_version_incorrect.sol#2)\n",
       "elements": [
         {
-          "type": "expression",
-          "expression": "^0.4.23",
+          "type": "pragma",
+          "name": "^0.4.23",
           "source_mapping": {
             "start": 63,
             "length": 24,
@@ -23,11 +23,25 @@
             ],
             "starting_column": 1,
             "ending_column": 25
-          }
-        },
+          },
+          "directive": [
+            "solidity",
+            "^",
+            "0.4",
+            ".23"
+          ]
+        }
+      ]
+    },
+    {
+      "check": "solc-version",
+      "impact": "Informational",
+      "confidence": "High",
+      "description": "Pragma version \">=0.4.0<0.6.0\" allows old versions (tests/solc_version_incorrect.sol#3)\n",
+      "elements": [
         {
-          "type": "expression",
-          "expression": ">=0.4.0<0.6.0",
+          "type": "pragma",
+          "name": ">=0.4.0<0.6.0",
           "source_mapping": {
             "start": 89,
             "length": 31,
@@ -40,7 +54,16 @@
             ],
             "starting_column": 1,
             "ending_column": 32
-          }
+          },
+          "directive": [
+            "solidity",
+            ">=",
+            "0.4",
+            ".0",
+            "<",
+            "0.6",
+            ".0"
+          ]
         }
       ]
     }
