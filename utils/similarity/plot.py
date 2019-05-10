@@ -61,7 +61,7 @@ def plot(args):
         tdata = pca.fit_transform(data)
 
         logger.info('Plotting data..')
-        plt.figure()
+        plt.figure(figsize=(20,10))
         assert(len(tdata) == len(fs))
         for ([x,y],l) in zip(tdata, fs):
             x = random.gauss(0, 0.01) + x
