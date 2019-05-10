@@ -93,7 +93,8 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     json = self.generate_json_result(info)
                     self.add_event_to_json(event, json, {
                         "target": "event",
-                        "convention": "CapWords"
+                        "convention": "CapWords",
+                        "full_name": event.full_name
                     })
                     results.append(json)
 
