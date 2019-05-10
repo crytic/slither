@@ -148,6 +148,14 @@ class SlitherSolc(Slither):
             sourceUnit = re.findall('[0-9]*:[0-9]*:([0-9]*)', data['src'])
             if len(sourceUnit) == 1:
                 sourceUnit = int(sourceUnit[0])
+        if sourceUnit == -1:
+            # if source unit is not found
+            # We can still deduce it, by assigning to the last source_code added
+            # This works only for crytic compile.
+            # which used --combined-json ast, rather than --ast-json
+            # As a result -1 is not used as index
+            if not self.crytic_compile is None:
+                sourceUnit = len(self.source_code)
 
         self._source_units[sourceUnit] = name
         if os.path.isfile(name) and not name in self.source_code:

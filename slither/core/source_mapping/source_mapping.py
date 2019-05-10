@@ -125,16 +125,7 @@ class SourceMapping(Context):
     @property
     def source_mapping_str(self):
 
-#        def relative_path(path):
-#            # Remove absolute path for printing
-#           # Truffle returns absolutePath
-#           splited_path = path.split(os.sep)
-#           if 'contracts' in splited_path:
-#               idx = splited_path.index('contracts')
-#               return os.sep.join(splited_path[idx-1:])
-#           return path
-
-        lines = self.source_mapping['lines']
+        lines = self.source_mapping.get('lines', None)
         if not lines:
             lines = ''
         elif len(lines) == 1:
