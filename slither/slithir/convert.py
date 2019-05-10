@@ -874,6 +874,9 @@ def convert_constant_types(irs):
                 if isinstance(func, StateVariable):
                     types = export_nested_types_from_variable(func)
                 else:
+                    if func is None:
+                        # TODO: add  POP instruction
+                        break
                     types = [p.type for p in func.parameters]
                 for idx, arg in enumerate(ir.arguments):
                     t = types[idx]
