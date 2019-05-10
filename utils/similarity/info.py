@@ -3,7 +3,7 @@ import sys
 import os.path
 import traceback
 
-from fastText import load_model
+from .model  import load_model
 from .encode import parse_target, encode_contract
 
 logging.basicConfig()

@@ -5,7 +5,7 @@ import traceback
 import operator
 import os
 
-from fastText import train_unsupervised
+from .model   import train_unsupervised
 from .encode  import encode_contract, load_contracts
 from .cache   import save_cache
 
