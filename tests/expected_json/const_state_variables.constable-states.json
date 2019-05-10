@@ -1,348 +1,362 @@
 {
   "success": true,
   "error": null,
-  "results": [
-    {
-      "check": "constable-states",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "A.myFriendsAddress should be constant (tests/const_state_variables.sol#7)\n",
-      "elements": [
-        {
-          "type": "variable",
-          "name": "myFriendsAddress",
-          "source_mapping": {
-            "start": 132,
-            "length": 76,
-            "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
-            "filename_relative": "tests/const_state_variables.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
-            "filename_short": "tests/const_state_variables.sol",
-            "lines": [
-              7
-            ],
-            "starting_column": 5,
-            "ending_column": 81
-          },
-          "contract": {
-            "type": "contract",
-            "name": "A",
+  "results": {
+    "detectors": [
+      {
+        "check": "constable-states",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "A.myFriendsAddress should be constant (tests/const_state_variables.sol#7)\n",
+        "elements": [
+          {
+            "type": "variable",
+            "name": "myFriendsAddress",
             "source_mapping": {
-              "start": 29,
-              "length": 441,
+              "start": 132,
+              "length": 76,
               "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_relative": "tests/const_state_variables.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_short": "tests/const_state_variables.sol",
               "lines": [
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21
+                7
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 81
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "A",
+                "source_mapping": {
+                  "start": 29,
+                  "length": 441,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
+                  "filename_relative": "tests/const_state_variables.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
+                  "filename_short": "tests/const_state_variables.sol",
+                  "lines": [
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "constable-states",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "A.test should be constant (tests/const_state_variables.sol#10)\n",
-      "elements": [
-        {
-          "type": "variable",
-          "name": "test",
-          "source_mapping": {
-            "start": 237,
-            "length": 20,
-            "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
-            "filename_relative": "tests/const_state_variables.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
-            "filename_short": "tests/const_state_variables.sol",
-            "lines": [
-              10
-            ],
-            "starting_column": 5,
-            "ending_column": 25
-          },
-          "contract": {
-            "type": "contract",
-            "name": "A",
+        ]
+      },
+      {
+        "check": "constable-states",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "A.test should be constant (tests/const_state_variables.sol#10)\n",
+        "elements": [
+          {
+            "type": "variable",
+            "name": "test",
             "source_mapping": {
-              "start": 29,
-              "length": 441,
+              "start": 237,
+              "length": 20,
               "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_relative": "tests/const_state_variables.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_short": "tests/const_state_variables.sol",
               "lines": [
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21
+                10
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 25
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "A",
+                "source_mapping": {
+                  "start": 29,
+                  "length": 441,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
+                  "filename_relative": "tests/const_state_variables.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
+                  "filename_short": "tests/const_state_variables.sol",
+                  "lines": [
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "constable-states",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "A.text2 should be constant (tests/const_state_variables.sol#14)\n",
-      "elements": [
-        {
-          "type": "variable",
-          "name": "text2",
-          "source_mapping": {
-            "start": 333,
-            "length": 20,
-            "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
-            "filename_relative": "tests/const_state_variables.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
-            "filename_short": "tests/const_state_variables.sol",
-            "lines": [
-              14
-            ],
-            "starting_column": 5,
-            "ending_column": 25
-          },
-          "contract": {
-            "type": "contract",
-            "name": "A",
+        ]
+      },
+      {
+        "check": "constable-states",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "A.text2 should be constant (tests/const_state_variables.sol#14)\n",
+        "elements": [
+          {
+            "type": "variable",
+            "name": "text2",
             "source_mapping": {
-              "start": 29,
-              "length": 441,
+              "start": 333,
+              "length": 20,
               "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_relative": "tests/const_state_variables.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_short": "tests/const_state_variables.sol",
               "lines": [
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21
+                14
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 25
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "A",
+                "source_mapping": {
+                  "start": 29,
+                  "length": 441,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
+                  "filename_relative": "tests/const_state_variables.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
+                  "filename_short": "tests/const_state_variables.sol",
+                  "lines": [
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "constable-states",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "B.mySistersAddress should be constant (tests/const_state_variables.sol#26)\n",
-      "elements": [
-        {
-          "type": "variable",
-          "name": "mySistersAddress",
-          "source_mapping": {
-            "start": 496,
-            "length": 76,
-            "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
-            "filename_relative": "tests/const_state_variables.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
-            "filename_short": "tests/const_state_variables.sol",
-            "lines": [
-              26
-            ],
-            "starting_column": 5,
-            "ending_column": 81
-          },
-          "contract": {
-            "type": "contract",
-            "name": "B",
+        ]
+      },
+      {
+        "check": "constable-states",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "B.mySistersAddress should be constant (tests/const_state_variables.sol#26)\n",
+        "elements": [
+          {
+            "type": "variable",
+            "name": "mySistersAddress",
             "source_mapping": {
-              "start": 473,
-              "length": 271,
+              "start": 496,
+              "length": 76,
               "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_relative": "tests/const_state_variables.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_short": "tests/const_state_variables.sol",
               "lines": [
-                24,
-                25,
-                26,
-                27,
-                28,
-                29,
-                30,
-                31,
-                32,
-                33,
-                34,
-                35,
-                36,
-                37
+                26
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 81
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "B",
+                "source_mapping": {
+                  "start": 473,
+                  "length": 271,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
+                  "filename_relative": "tests/const_state_variables.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
+                  "filename_short": "tests/const_state_variables.sol",
+                  "lines": [
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "constable-states",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "MyConc.should_be_constant should be constant (tests/const_state_variables.sol#42)\n",
-      "elements": [
-        {
-          "type": "variable",
-          "name": "should_be_constant",
-          "source_mapping": {
-            "start": 793,
-            "length": 42,
-            "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
-            "filename_relative": "tests/const_state_variables.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
-            "filename_short": "tests/const_state_variables.sol",
-            "lines": [
-              42
-            ],
-            "starting_column": 5,
-            "ending_column": 47
-          },
-          "contract": {
-            "type": "contract",
-            "name": "MyConc",
+        ]
+      },
+      {
+        "check": "constable-states",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "MyConc.should_be_constant should be constant (tests/const_state_variables.sol#42)\n",
+        "elements": [
+          {
+            "type": "variable",
+            "name": "should_be_constant",
             "source_mapping": {
-              "start": 746,
-              "length": 342,
+              "start": 793,
+              "length": 42,
               "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_relative": "tests/const_state_variables.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_short": "tests/const_state_variables.sol",
               "lines": [
-                39,
-                40,
-                41,
-                42,
-                43,
-                44,
-                45,
-                46,
-                47,
-                48,
-                49,
-                50,
-                51,
-                52
+                42
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 47
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "MyConc",
+                "source_mapping": {
+                  "start": 746,
+                  "length": 342,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
+                  "filename_relative": "tests/const_state_variables.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
+                  "filename_short": "tests/const_state_variables.sol",
+                  "lines": [
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "constable-states",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "MyConc.should_be_constant_2 should be constant (tests/const_state_variables.sol#43)\n",
-      "elements": [
-        {
-          "type": "variable",
-          "name": "should_be_constant_2",
-          "source_mapping": {
-            "start": 841,
-            "length": 33,
-            "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
-            "filename_relative": "tests/const_state_variables.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
-            "filename_short": "tests/const_state_variables.sol",
-            "lines": [
-              43
-            ],
-            "starting_column": 5,
-            "ending_column": 38
-          },
-          "contract": {
-            "type": "contract",
-            "name": "MyConc",
+        ]
+      },
+      {
+        "check": "constable-states",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "MyConc.should_be_constant_2 should be constant (tests/const_state_variables.sol#43)\n",
+        "elements": [
+          {
+            "type": "variable",
+            "name": "should_be_constant_2",
             "source_mapping": {
-              "start": 746,
-              "length": 342,
+              "start": 841,
+              "length": 33,
               "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_relative": "tests/const_state_variables.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_short": "tests/const_state_variables.sol",
               "lines": [
-                39,
-                40,
-                41,
-                42,
-                43,
-                44,
-                45,
-                46,
-                47,
-                48,
-                49,
-                50,
-                51,
-                52
+                43
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 38
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "MyConc",
+                "source_mapping": {
+                  "start": 746,
+                  "length": 342,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
+                  "filename_relative": "tests/const_state_variables.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
+                  "filename_short": "tests/const_state_variables.sol",
+                  "lines": [
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
             }
           }
-        }
-      ]
-    }
-  ]
+        ]
+      }
+    ]
+  }
 }
