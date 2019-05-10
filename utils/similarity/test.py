@@ -5,9 +5,9 @@ import traceback
 import operator
 import numpy as np
 
-from fastText import load_model
-from .encode import encode_contract, load_and_encode, parse_target
-from .cache import save_cache
+from .model      import load_model
+from .encode     import encode_contract, load_and_encode, parse_target
+from .cache      import save_cache
 from .similarity import similarity
 
 logger = logging.getLogger("Slither-simil")

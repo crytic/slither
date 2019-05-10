@@ -5,15 +5,15 @@ import operator
 import numpy as np
 import random
 
+from .model  import load_model   
+from .encode import load_and_encode, parse_target
+
 try:
     from sklearn import decomposition
     import matplotlib.pyplot as plt
 except ImportError:
     decomposition = None
     plt = None
-    
-from fastText import load_model
-from .encode import load_and_encode, parse_target
 
 logger = logging.getLogger("Slither-simil")
 
