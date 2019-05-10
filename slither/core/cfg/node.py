@@ -155,6 +155,7 @@ class Node(SourceMapping, ChildFunction):
         self._library_calls = []
         self._low_level_calls = []
         self._external_calls_as_expressions = []
+        self._internal_calls_as_expressions = []
         self._irs = []
         self._irs_ssa = []
 
@@ -367,6 +368,13 @@ class Node(SourceMapping, ChildFunction):
             list(CallExpression): List of message calls (that creates a transaction)
         """
         return self._external_calls_as_expressions
+
+    @property
+    def internal_calls_as_expressions(self):
+        """
+            list(CallExpression): List of internal calls (that dont create a transaction)
+        """
+        return self._internal_calls_as_expressions
 
     @property
     def calls_as_expression(self):

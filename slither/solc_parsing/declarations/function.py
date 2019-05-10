@@ -835,6 +835,8 @@ class FunctionSolc(Function):
     def _parse_params(self, params):
         assert params[self.get_key()] == 'ParameterList'
 
+        self.parameters_src = params['src']
+        
         if self.is_compact_ast:
             params = params['parameters']
         else:
@@ -860,6 +862,8 @@ class FunctionSolc(Function):
 
         assert returns[self.get_key()] == 'ParameterList'
 
+        self.returns_src = returns['src']
+        
         if self.is_compact_ast:
             returns = returns['parameters']
         else:
