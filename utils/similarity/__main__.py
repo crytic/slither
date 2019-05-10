@@ -16,12 +16,10 @@ from .plot     import plot
 logging.basicConfig()
 logger = logging.getLogger("Slither-simil")
 
-slither_simil_usage = "USAGE" # TODO 
 modes = ["info", "test", "train", "plot"]
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Code similarity detection tool',
-                                     usage=slither_simil_usage)
+    parser = argparse.ArgumentParser(description='Code similarity detection tool')
 
     parser.add_argument('mode',
                         help="|".join(modes))
@@ -89,24 +87,18 @@ def main():
     default_log = logging.INFO
     logger.setLevel(default_log)
     
-    try:
-        mode = args.mode
+    mode = args.mode
 
-        if mode == "info":
-            info(args)
-        elif mode == "train":
-            train(args) 
-        elif mode == "test":
-            test(args)
-        elif mode == "plot":
-            plot(args)
-        else:
-            logger.error('Invalid mode!. It should be one of these: %s' % ", ".join(modes))
-            sys.exit(-1)
-
-    except Exception:
-        logger.error('Error in %s' % args.filename)
-        logger.error(traceback.format_exc())
+    if mode == "info":
+        info(args)
+    elif mode == "train":
+        train(args) 
+    elif mode == "test":
+        test(args)
+    elif mode == "plot":
+        plot(args)
+    else:
+        logger.error('Invalid mode!. It should be one of these: %s' % ", ".join(modes))
         sys.exit(-1)
 
 if __name__ == '__main__':
