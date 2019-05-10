@@ -81,6 +81,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     elem = dict()
                     elem['target'] = 'structure'
                     elem['convention'] = 'CapWords'
+                    elem['contract'] = struct.contract.name
                     elem['name'] = struct.name
                     elem['source_mapping'] = struct.source_mapping
                     json['elements'] = [elem]
@@ -97,7 +98,8 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     elem = dict()
                     elem['target'] = 'event'
                     elem['convention'] = 'CapWords'
-                    elem['name'] = event.name
+                    elem['name'] = event.full_name
+                    elem['contract'] = event.contract.name
                     elem['source_mapping'] = event.source_mapping
                     json['elements'] = [elem]
                     results.append(json)
@@ -115,6 +117,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     elem['target'] = 'function'
                     elem['convention'] = 'mixedCase'
                     elem['name'] = func.name
+                    elem['contract'] = func.contract.name
                     elem['source_mapping'] = func.source_mapping
                     json['elements'] = [elem]
                     results.append(json)
@@ -136,6 +139,8 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         elem['target'] = 'parameter'
                         elem['convention'] = 'mixedCase'
                         elem['name'] = argument.name
+                        elem['function'] = argument.function.name
+                        elem['contract'] = argument.function.contract.name
                         elem['source_mapping'] = argument.source_mapping
                         json['elements'] = [elem]
                         results.append(json)
@@ -154,6 +159,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         elem['target'] = 'variable'
                         elem['convention'] = 'l_O_I_should_not_be_used'
                         elem['name'] = var.name
+                        elem['contract'] = var.contract.name
                         elem['source_mapping'] = var.source_mapping
                         json['elements'] = [elem]
                         results.append(json)
@@ -172,6 +178,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         elem['target'] = 'variable_constant'
                         elem['convention'] = 'UPPER_CASE_WITH_UNDERSCORES'
                         elem['name'] = var.name
+                        elem['contract'] = var.contract.name
                         elem['source_mapping'] = var.source_mapping
                         json['elements'] = [elem]
                         results.append(json)
@@ -190,6 +197,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         elem['target'] = 'variable'
                         elem['convention'] = 'mixedCase'
                         elem['name'] = var.name
+                        elem['contract'] = var.contract.name
                         elem['source_mapping'] = var.source_mapping
                         json['elements'] = [elem]
                         results.append(json)
@@ -207,6 +215,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     elem['target'] = 'enum'
                     elem['convention'] = 'CapWords'
                     elem['name'] = enum.name
+                    elem['contract'] = enum.contract.name
                     elem['source_mapping'] = enum.source_mapping
                     json['elements'] = [elem]
                     results.append(json)
@@ -227,6 +236,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     elem['target'] = 'modifier'
                     elem['convention'] = 'mixedCase'
                     elem['name'] = modifier.name
+                    elem['contract'] = modifier.contract.name
                     elem['source_mapping'] = modifier.source_mapping
                     json['elements'] = [elem]
                     results.append(json)
