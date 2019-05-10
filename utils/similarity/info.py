@@ -40,11 +40,11 @@ def info(args):
         x = (filename,contract,fname)
         y = " ".join(irs[x])
 
-        print("Function {} in contract {} is encoded as:".format(fname, contract))
-        print(y)
+        logger.info("Function {} in contract {} is encoded as:".format(fname, contract))
+        logger.info(y)
         if model is not None:
             fvector = model.get_sentence_vector(y)
-            print(fvector)
+            logger.info(fvector)
 
     except Exception:
         logger.error('Error in %s' % args.filename)

@@ -22,6 +22,9 @@ slither_logger = logging.getLogger("Slither")
 slither_logger.setLevel(logging.CRITICAL)
 
 def parse_target(target):
+    if target is None:
+        return None, None
+
     parts = target.split('.')
     if len(parts) == 1:
         return None, parts[0]
