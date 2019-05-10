@@ -1,71 +1,77 @@
 {
   "success": true,
   "error": null,
-  "results": [
-    {
-      "check": "solc-version",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "Pragma version \"^0.4.23\" allows old versions (tests/solc_version_incorrect.sol#2)\n",
-      "elements": [
-        {
-          "type": "pragma",
-          "name": "^0.4.23",
-          "source_mapping": {
-            "start": 63,
-            "length": 24,
-            "filename_used": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
-            "filename_relative": "tests/solc_version_incorrect.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
-            "filename_short": "tests/solc_version_incorrect.sol",
-            "lines": [
-              2
-            ],
-            "starting_column": 1,
-            "ending_column": 25
-          },
-          "directive": [
-            "solidity",
-            "^",
-            "0.4",
-            ".23"
-          ]
-        }
-      ]
-    },
-    {
-      "check": "solc-version",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "Pragma version \">=0.4.0<0.6.0\" allows old versions (tests/solc_version_incorrect.sol#3)\n",
-      "elements": [
-        {
-          "type": "pragma",
-          "name": ">=0.4.0<0.6.0",
-          "source_mapping": {
-            "start": 89,
-            "length": 31,
-            "filename_used": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
-            "filename_relative": "tests/solc_version_incorrect.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
-            "filename_short": "tests/solc_version_incorrect.sol",
-            "lines": [
-              3
-            ],
-            "starting_column": 1,
-            "ending_column": 32
-          },
-          "directive": [
-            "solidity",
-            ">=",
-            "0.4",
-            ".0",
-            "<",
-            "0.6",
-            ".0"
-          ]
-        }
-      ]
-    }
-  ]
+  "results": {
+    "detectors": [
+      {
+        "check": "solc-version",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "Pragma version \"^0.4.23\" allows old versions (tests/solc_version_incorrect.sol#2)\n",
+        "elements": [
+          {
+            "type": "pragma",
+            "name": "^0.4.23",
+            "source_mapping": {
+              "start": 63,
+              "length": 24,
+              "filename_used": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
+              "filename_relative": "tests/solc_version_incorrect.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
+              "filename_short": "tests/solc_version_incorrect.sol",
+              "lines": [
+                2
+              ],
+              "starting_column": 1,
+              "ending_column": 25
+            },
+            "type_specific_fields": {
+              "directive": [
+                "solidity",
+                "^",
+                "0.4",
+                ".23"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "check": "solc-version",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "Pragma version \">=0.4.0<0.6.0\" allows old versions (tests/solc_version_incorrect.sol#3)\n",
+        "elements": [
+          {
+            "type": "pragma",
+            "name": ">=0.4.0<0.6.0",
+            "source_mapping": {
+              "start": 89,
+              "length": 31,
+              "filename_used": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
+              "filename_relative": "tests/solc_version_incorrect.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
+              "filename_short": "tests/solc_version_incorrect.sol",
+              "lines": [
+                3
+              ],
+              "starting_column": 1,
+              "ending_column": 32
+            },
+            "type_specific_fields": {
+              "directive": [
+                "solidity",
+                ">=",
+                "0.4",
+                ".0",
+                "<",
+                "0.6",
+                ".0"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
 }

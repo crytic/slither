@@ -1,13 +1,15 @@
 {
   "success": true,
   "error": null,
-  "results": [
-    {
-      "check": "rtlo",
-      "impact": "High",
-      "confidence": "High",
-      "description": "/home/travis/build/crytic/slither/tests/right_to_left_override.sol contains a unicode right-to-left-override character:\n\t-         test1(/*A\u202e/*B*/2 , 1/*\u202d\n",
-      "elements": []
-    }
-  ]
+  "results": {
+    "detectors": [
+      {
+        "check": "rtlo",
+        "impact": "High",
+        "confidence": "High",
+        "description": "/home/travis/build/crytic/slither/tests/right_to_left_override.sol contains a unicode right-to-left-override character:\n\t-         test1(/*A\u202e/*B*/2 , 1/*\u202d\n",
+        "elements": []
+      }
+    ]
+  }
 }

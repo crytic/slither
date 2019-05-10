@@ -1,107 +1,15 @@
 {
   "success": true,
   "error": null,
-  "results": [
-    {
-      "check": "assembly",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "GetCode.at uses assembly (tests/inline_assembly_contract-0.5.1.sol#6-20)\n\t- tests/inline_assembly_contract-0.5.1.sol#7-20\n",
-      "elements": [
-        {
-          "type": "function",
-          "name": "at",
-          "source_mapping": {
-            "start": 119,
-            "length": 707,
-            "filename_used": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
-            "filename_relative": "tests/inline_assembly_contract-0.5.1.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
-            "filename_short": "tests/inline_assembly_contract-0.5.1.sol",
-            "lines": [
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20
-            ],
-            "starting_column": 5,
-            "ending_column": 6
-          },
-          "contract": {
-            "type": "contract",
-            "name": "GetCode",
-            "source_mapping": {
-              "start": 97,
-              "length": 731,
-              "filename_used": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
-              "filename_relative": "tests/inline_assembly_contract-0.5.1.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
-              "filename_short": "tests/inline_assembly_contract-0.5.1.sol",
-              "lines": [
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21
-              ],
-              "starting_column": 1,
-              "ending_column": 2
-            }
-          }
-        },
-        {
-          "type": "node",
-          "name": "",
-          "source_mapping": {
-            "start": 198,
-            "length": 628,
-            "filename_used": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
-            "filename_relative": "tests/inline_assembly_contract-0.5.1.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
-            "filename_short": "tests/inline_assembly_contract-0.5.1.sol",
-            "lines": [
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20
-            ],
-            "starting_column": 9,
-            "ending_column": 6
-          },
-          "function": {
+  "results": {
+    "detectors": [
+      {
+        "check": "assembly",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "GetCode.at uses assembly (tests/inline_assembly_contract-0.5.1.sol#6-20)\n\t- tests/inline_assembly_contract-0.5.1.sol#7-20\n",
+        "elements": [
+          {
             "type": "function",
             "name": "at",
             "source_mapping": {
@@ -131,42 +39,144 @@
               "starting_column": 5,
               "ending_column": 6
             },
-            "contract": {
-              "type": "contract",
-              "name": "GetCode",
-              "source_mapping": {
-                "start": 97,
-                "length": 731,
-                "filename_used": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
-                "filename_relative": "tests/inline_assembly_contract-0.5.1.sol",
-                "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
-                "filename_short": "tests/inline_assembly_contract-0.5.1.sol",
-                "lines": [
-                  5,
-                  6,
-                  7,
-                  8,
-                  9,
-                  10,
-                  11,
-                  12,
-                  13,
-                  14,
-                  15,
-                  16,
-                  17,
-                  18,
-                  19,
-                  20,
-                  21
-                ],
-                "starting_column": 1,
-                "ending_column": 2
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "GetCode",
+                "source_mapping": {
+                  "start": 97,
+                  "length": 731,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
+                  "filename_relative": "tests/inline_assembly_contract-0.5.1.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
+                  "filename_short": "tests/inline_assembly_contract-0.5.1.sol",
+                  "lines": [
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "at(address)"
+            }
+          },
+          {
+            "type": "node",
+            "name": "",
+            "source_mapping": {
+              "start": 198,
+              "length": 628,
+              "filename_used": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
+              "filename_relative": "tests/inline_assembly_contract-0.5.1.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
+              "filename_short": "tests/inline_assembly_contract-0.5.1.sol",
+              "lines": [
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20
+              ],
+              "starting_column": 9,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "at",
+                "source_mapping": {
+                  "start": 119,
+                  "length": 707,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
+                  "filename_relative": "tests/inline_assembly_contract-0.5.1.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
+                  "filename_short": "tests/inline_assembly_contract-0.5.1.sol",
+                  "lines": [
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "GetCode",
+                    "source_mapping": {
+                      "start": 97,
+                      "length": 731,
+                      "filename_used": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
+                      "filename_relative": "tests/inline_assembly_contract-0.5.1.sol",
+                      "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_contract-0.5.1.sol",
+                      "filename_short": "tests/inline_assembly_contract-0.5.1.sol",
+                      "lines": [
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21
+                      ],
+                      "starting_column": 1,
+                      "ending_column": 2
+                    }
+                  },
+                  "signature": "at(address)"
+                }
               }
             }
           }
-        }
-      ]
-    }
-  ]
+        ]
+      }
+    ]
+  }
 }
