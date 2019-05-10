@@ -294,7 +294,9 @@ def parse_call(expression, caller_context):
 
     if isinstance(called, SuperCallExpression):
         return SuperCallExpression(called, arguments, type_return)
-    return CallExpression(called, arguments, type_return)
+    call_expression = CallExpression(called, arguments, type_return)
+    call_expression.set_offset(expression['src'], caller_context.slither)
+    return call_expression
 
 def parse_super_name(expression, is_compact_ast):
     if is_compact_ast:
@@ -539,6 +541,7 @@ def parse_expression(expression, caller_context):
         var = find_variable(value, caller_context, referenced_declaration)
 
         identifier = Identifier(var)
+        identifier.set_offset(expression['src'], caller_context.slither)
         return identifier
 
     elif name == 'IndexAccess':
@@ -667,6 +670,7 @@ def parse_expression(expression, caller_context):
             arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
         call = CallExpression(called, arguments, 'Modifier')
+        call.set_offset(expression['src'], caller_context.slither)
         return call
 
     raise ParsingError('Expression not parsed %s'%name)
