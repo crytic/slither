@@ -39,8 +39,10 @@ class Function(ChildContract, SourceMapping):
         self._slithir_variables = set() # slithir Temporary and references variables (but not SSA)
         self._parameters = []
         self._parameters_ssa = []
+        self._parameters_src = None
         self._returns = []
         self._returns_ssa = []
+        self._returns_src = None
         self._return_values = None
         self._return_values_ssa = None
         self._vars_read = []
@@ -390,6 +392,15 @@ class Function(ChildContract, SourceMapping):
         '''
 
         return list(self._slithir_variables)
+
+    def get_source_var_declaration(self, var):
+        """ Return the source mapping where the variable is declared
+        Args:
+            var (str): variable name
+        Returns:
+            (dict): sourceMapping
+        """
+        return next((x.source_mapping for x in self.variables if x.name == var))
 
     # endregion
     ###################################################################################
