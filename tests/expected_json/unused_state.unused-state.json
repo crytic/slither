@@ -1,286 +1,296 @@
 {
   "success": true,
   "error": null,
-  "results": [
-    {
-      "check": "unused-state",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "A.unused (tests/unused_state.sol#4) is never used in B\n",
-      "elements": [
-        {
-          "type": "variable",
-          "name": "unused",
-          "source_mapping": {
-            "start": 44,
-            "length": 14,
-            "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_relative": "tests/unused_state.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_short": "tests/unused_state.sol",
-            "lines": [
-              4
-            ],
-            "starting_column": 5,
-            "ending_column": 19
-          },
-          "contract": {
-            "type": "contract",
-            "name": "A",
+  "results": {
+    "detectors": [
+      {
+        "check": "unused-state",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "A.unused (tests/unused_state.sol#4) is never used in B\n",
+        "elements": [
+          {
+            "type": "variable",
+            "name": "unused",
             "source_mapping": {
-              "start": 28,
-              "length": 114,
+              "start": 44,
+              "length": 14,
               "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_relative": "tests/unused_state.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_short": "tests/unused_state.sol",
               "lines": [
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9
+                4
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 19
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "A",
+                "source_mapping": {
+                  "start": 28,
+                  "length": 114,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+                  "filename_relative": "tests/unused_state.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+                  "filename_short": "tests/unused_state.sol",
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
             }
-          }
-        },
-        {
-          "type": "contract",
-          "name": "B",
-          "source_mapping": {
-            "start": 144,
-            "length": 78,
-            "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_relative": "tests/unused_state.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_short": "tests/unused_state.sol",
-            "lines": [
-              11,
-              12,
-              13,
-              14,
-              15,
-              16
-            ],
-            "starting_column": 1,
-            "ending_column": 2
-          }
-        }
-      ]
-    },
-    {
-      "check": "unused-state",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "A.unused2 (tests/unused_state.sol#5) is never used in B\n",
-      "elements": [
-        {
-          "type": "variable",
-          "name": "unused2",
-          "source_mapping": {
-            "start": 64,
-            "length": 15,
-            "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_relative": "tests/unused_state.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_short": "tests/unused_state.sol",
-            "lines": [
-              5
-            ],
-            "starting_column": 5,
-            "ending_column": 20
           },
-          "contract": {
+          {
             "type": "contract",
-            "name": "A",
+            "name": "B",
             "source_mapping": {
-              "start": 28,
-              "length": 114,
+              "start": 144,
+              "length": 78,
               "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_relative": "tests/unused_state.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_short": "tests/unused_state.sol",
               "lines": [
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
               ],
               "starting_column": 1,
               "ending_column": 2
             }
           }
-        },
-        {
-          "type": "contract",
-          "name": "B",
-          "source_mapping": {
-            "start": 144,
-            "length": 78,
-            "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_relative": "tests/unused_state.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_short": "tests/unused_state.sol",
-            "lines": [
-              11,
-              12,
-              13,
-              14,
-              15,
-              16
-            ],
-            "starting_column": 1,
-            "ending_column": 2
-          }
-        }
-      ]
-    },
-    {
-      "check": "unused-state",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "A.unused3 (tests/unused_state.sol#6) is never used in B\n",
-      "elements": [
-        {
-          "type": "variable",
-          "name": "unused3",
-          "source_mapping": {
-            "start": 85,
-            "length": 15,
-            "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_relative": "tests/unused_state.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_short": "tests/unused_state.sol",
-            "lines": [
-              6
-            ],
-            "starting_column": 5,
-            "ending_column": 20
-          },
-          "contract": {
-            "type": "contract",
-            "name": "A",
+        ]
+      },
+      {
+        "check": "unused-state",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "A.unused2 (tests/unused_state.sol#5) is never used in B\n",
+        "elements": [
+          {
+            "type": "variable",
+            "name": "unused2",
             "source_mapping": {
-              "start": 28,
-              "length": 114,
+              "start": 64,
+              "length": 15,
               "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_relative": "tests/unused_state.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_short": "tests/unused_state.sol",
               "lines": [
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9
+                5
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 20
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "A",
+                "source_mapping": {
+                  "start": 28,
+                  "length": 114,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+                  "filename_relative": "tests/unused_state.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+                  "filename_short": "tests/unused_state.sol",
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
             }
-          }
-        },
-        {
-          "type": "contract",
-          "name": "B",
-          "source_mapping": {
-            "start": 144,
-            "length": 78,
-            "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_relative": "tests/unused_state.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_short": "tests/unused_state.sol",
-            "lines": [
-              11,
-              12,
-              13,
-              14,
-              15,
-              16
-            ],
-            "starting_column": 1,
-            "ending_column": 2
-          }
-        }
-      ]
-    },
-    {
-      "check": "unused-state",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "A.unused4 (tests/unused_state.sol#7) is never used in B\n",
-      "elements": [
-        {
-          "type": "variable",
-          "name": "unused4",
-          "source_mapping": {
-            "start": 106,
-            "length": 15,
-            "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_relative": "tests/unused_state.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_short": "tests/unused_state.sol",
-            "lines": [
-              7
-            ],
-            "starting_column": 5,
-            "ending_column": 20
           },
-          "contract": {
+          {
             "type": "contract",
-            "name": "A",
+            "name": "B",
             "source_mapping": {
-              "start": 28,
-              "length": 114,
+              "start": 144,
+              "length": 78,
               "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_relative": "tests/unused_state.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_short": "tests/unused_state.sol",
               "lines": [
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
               ],
               "starting_column": 1,
               "ending_column": 2
             }
           }
-        },
-        {
-          "type": "contract",
-          "name": "B",
-          "source_mapping": {
-            "start": 144,
-            "length": 78,
-            "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_relative": "tests/unused_state.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
-            "filename_short": "tests/unused_state.sol",
-            "lines": [
-              11,
-              12,
-              13,
-              14,
-              15,
-              16
-            ],
-            "starting_column": 1,
-            "ending_column": 2
+        ]
+      },
+      {
+        "check": "unused-state",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "A.unused3 (tests/unused_state.sol#6) is never used in B\n",
+        "elements": [
+          {
+            "type": "variable",
+            "name": "unused3",
+            "source_mapping": {
+              "start": 85,
+              "length": 15,
+              "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+              "filename_relative": "tests/unused_state.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+              "filename_short": "tests/unused_state.sol",
+              "lines": [
+                6
+              ],
+              "starting_column": 5,
+              "ending_column": 20
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "A",
+                "source_mapping": {
+                  "start": 28,
+                  "length": 114,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+                  "filename_relative": "tests/unused_state.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+                  "filename_short": "tests/unused_state.sol",
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
+            }
+          },
+          {
+            "type": "contract",
+            "name": "B",
+            "source_mapping": {
+              "start": 144,
+              "length": 78,
+              "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+              "filename_relative": "tests/unused_state.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+              "filename_short": "tests/unused_state.sol",
+              "lines": [
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
           }
-        }
-      ]
-    }
-  ]
+        ]
+      },
+      {
+        "check": "unused-state",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "A.unused4 (tests/unused_state.sol#7) is never used in B\n",
+        "elements": [
+          {
+            "type": "variable",
+            "name": "unused4",
+            "source_mapping": {
+              "start": 106,
+              "length": 15,
+              "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+              "filename_relative": "tests/unused_state.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+              "filename_short": "tests/unused_state.sol",
+              "lines": [
+                7
+              ],
+              "starting_column": 5,
+              "ending_column": 20
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "A",
+                "source_mapping": {
+                  "start": 28,
+                  "length": 114,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+                  "filename_relative": "tests/unused_state.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+                  "filename_short": "tests/unused_state.sol",
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
+            }
+          },
+          {
+            "type": "contract",
+            "name": "B",
+            "source_mapping": {
+              "start": 144,
+              "length": 78,
+              "filename_used": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+              "filename_relative": "tests/unused_state.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
+              "filename_short": "tests/unused_state.sol",
+              "lines": [
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          }
+        ]
+      }
+    ]
+  }
 }

@@ -1,300 +1,320 @@
 {
   "success": true,
   "error": null,
-  "results": [
-    {
-      "check": "erc20-interface",
-      "impact": "Medium",
-      "confidence": "High",
-      "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: transfer (tests/incorrect_erc20_interface.sol#4)\n",
-      "elements": [
-        {
-          "type": "function",
-          "name": "transfer",
-          "source_mapping": {
-            "start": 46,
-            "length": 51,
-            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
-            "filename_relative": "tests/incorrect_erc20_interface.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
-            "filename_short": "tests/incorrect_erc20_interface.sol",
-            "lines": [
-              4
-            ],
-            "starting_column": 5,
-            "ending_column": 56
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Token",
+  "results": {
+    "detectors": [
+      {
+        "check": "erc20-interface",
+        "impact": "Medium",
+        "confidence": "High",
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: transfer (tests/incorrect_erc20_interface.sol#4)\n",
+        "elements": [
+          {
+            "type": "function",
+            "name": "transfer",
             "source_mapping": {
-              "start": 26,
-              "length": 355,
+              "start": 46,
+              "length": 51,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_relative": "tests/incorrect_erc20_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_short": "tests/incorrect_erc20_interface.sol",
               "lines": [
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10
+                4
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 56
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Token",
+                "source_mapping": {
+                  "start": 26,
+                  "length": 355,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+                  "filename_relative": "tests/incorrect_erc20_interface.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+                  "filename_short": "tests/incorrect_erc20_interface.sol",
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "transfer(address,uint256)"
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "erc20-interface",
-      "impact": "Medium",
-      "confidence": "High",
-      "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: approve (tests/incorrect_erc20_interface.sol#5)\n",
-      "elements": [
-        {
-          "type": "function",
-          "name": "approve",
-          "source_mapping": {
-            "start": 102,
-            "length": 55,
-            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
-            "filename_relative": "tests/incorrect_erc20_interface.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
-            "filename_short": "tests/incorrect_erc20_interface.sol",
-            "lines": [
-              5
-            ],
-            "starting_column": 5,
-            "ending_column": 60
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Token",
+        ]
+      },
+      {
+        "check": "erc20-interface",
+        "impact": "Medium",
+        "confidence": "High",
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: approve (tests/incorrect_erc20_interface.sol#5)\n",
+        "elements": [
+          {
+            "type": "function",
+            "name": "approve",
             "source_mapping": {
-              "start": 26,
-              "length": 355,
+              "start": 102,
+              "length": 55,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_relative": "tests/incorrect_erc20_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_short": "tests/incorrect_erc20_interface.sol",
               "lines": [
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10
+                5
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 60
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Token",
+                "source_mapping": {
+                  "start": 26,
+                  "length": 355,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+                  "filename_relative": "tests/incorrect_erc20_interface.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+                  "filename_short": "tests/incorrect_erc20_interface.sol",
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "approve(address,uint256)"
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "erc20-interface",
-      "impact": "Medium",
-      "confidence": "High",
-      "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: transferFrom (tests/incorrect_erc20_interface.sol#6)\n",
-      "elements": [
-        {
-          "type": "function",
-          "name": "transferFrom",
-          "source_mapping": {
-            "start": 162,
-            "length": 69,
-            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
-            "filename_relative": "tests/incorrect_erc20_interface.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
-            "filename_short": "tests/incorrect_erc20_interface.sol",
-            "lines": [
-              6
-            ],
-            "starting_column": 5,
-            "ending_column": 74
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Token",
+        ]
+      },
+      {
+        "check": "erc20-interface",
+        "impact": "Medium",
+        "confidence": "High",
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: transferFrom (tests/incorrect_erc20_interface.sol#6)\n",
+        "elements": [
+          {
+            "type": "function",
+            "name": "transferFrom",
             "source_mapping": {
-              "start": 26,
-              "length": 355,
+              "start": 162,
+              "length": 69,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_relative": "tests/incorrect_erc20_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_short": "tests/incorrect_erc20_interface.sol",
               "lines": [
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10
+                6
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 74
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Token",
+                "source_mapping": {
+                  "start": 26,
+                  "length": 355,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+                  "filename_relative": "tests/incorrect_erc20_interface.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+                  "filename_short": "tests/incorrect_erc20_interface.sol",
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "transferFrom(address,address,uint256)"
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "erc20-interface",
-      "impact": "Medium",
-      "confidence": "High",
-      "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: totalSupply (tests/incorrect_erc20_interface.sol#7)\n",
-      "elements": [
-        {
-          "type": "function",
-          "name": "totalSupply",
-          "source_mapping": {
-            "start": 236,
-            "length": 32,
-            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
-            "filename_relative": "tests/incorrect_erc20_interface.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
-            "filename_short": "tests/incorrect_erc20_interface.sol",
-            "lines": [
-              7
-            ],
-            "starting_column": 5,
-            "ending_column": 37
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Token",
+        ]
+      },
+      {
+        "check": "erc20-interface",
+        "impact": "Medium",
+        "confidence": "High",
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: totalSupply (tests/incorrect_erc20_interface.sol#7)\n",
+        "elements": [
+          {
+            "type": "function",
+            "name": "totalSupply",
             "source_mapping": {
-              "start": 26,
-              "length": 355,
+              "start": 236,
+              "length": 32,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_relative": "tests/incorrect_erc20_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_short": "tests/incorrect_erc20_interface.sol",
               "lines": [
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10
+                7
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 37
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Token",
+                "source_mapping": {
+                  "start": 26,
+                  "length": 355,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+                  "filename_relative": "tests/incorrect_erc20_interface.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+                  "filename_short": "tests/incorrect_erc20_interface.sol",
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "totalSupply()"
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "erc20-interface",
-      "impact": "Medium",
-      "confidence": "High",
-      "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: balanceOf (tests/incorrect_erc20_interface.sol#8)\n",
-      "elements": [
-        {
-          "type": "function",
-          "name": "balanceOf",
-          "source_mapping": {
-            "start": 273,
-            "length": 41,
-            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
-            "filename_relative": "tests/incorrect_erc20_interface.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
-            "filename_short": "tests/incorrect_erc20_interface.sol",
-            "lines": [
-              8
-            ],
-            "starting_column": 5,
-            "ending_column": 46
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Token",
+        ]
+      },
+      {
+        "check": "erc20-interface",
+        "impact": "Medium",
+        "confidence": "High",
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: balanceOf (tests/incorrect_erc20_interface.sol#8)\n",
+        "elements": [
+          {
+            "type": "function",
+            "name": "balanceOf",
             "source_mapping": {
-              "start": 26,
-              "length": 355,
+              "start": 273,
+              "length": 41,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_relative": "tests/incorrect_erc20_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_short": "tests/incorrect_erc20_interface.sol",
               "lines": [
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10
+                8
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 46
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Token",
+                "source_mapping": {
+                  "start": 26,
+                  "length": 355,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+                  "filename_relative": "tests/incorrect_erc20_interface.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+                  "filename_short": "tests/incorrect_erc20_interface.sol",
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "balanceOf(address)"
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "erc20-interface",
-      "impact": "Medium",
-      "confidence": "High",
-      "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: allowance (tests/incorrect_erc20_interface.sol#9)\n",
-      "elements": [
-        {
-          "type": "function",
-          "name": "allowance",
-          "source_mapping": {
-            "start": 319,
-            "length": 60,
-            "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
-            "filename_relative": "tests/incorrect_erc20_interface.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
-            "filename_short": "tests/incorrect_erc20_interface.sol",
-            "lines": [
-              9
-            ],
-            "starting_column": 5,
-            "ending_column": 65
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Token",
+        ]
+      },
+      {
+        "check": "erc20-interface",
+        "impact": "Medium",
+        "confidence": "High",
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: allowance (tests/incorrect_erc20_interface.sol#9)\n",
+        "elements": [
+          {
+            "type": "function",
+            "name": "allowance",
             "source_mapping": {
-              "start": 26,
-              "length": 355,
+              "start": 319,
+              "length": 60,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_relative": "tests/incorrect_erc20_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_short": "tests/incorrect_erc20_interface.sol",
               "lines": [
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10
+                9
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 65
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Token",
+                "source_mapping": {
+                  "start": 26,
+                  "length": 355,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+                  "filename_relative": "tests/incorrect_erc20_interface.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+                  "filename_short": "tests/incorrect_erc20_interface.sol",
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "allowance(address,address)"
             }
           }
-        }
-      ]
-    }
-  ]
+        ]
+      }
+    ]
+  }
 }
