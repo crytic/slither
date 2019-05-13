@@ -1,19 +1,19 @@
+import logging
 import os
-import sys
 
 from slither import Slither
-from slither.slithir.operations import *
-from slither.slithir.variables import *
-from slither.core.declarations import *
-from slither.solc_parsing.declarations.function import *
-from slither.core.solidity_types import *
-
-from slither.solc_parsing.variables.state_variable import *
-from slither.solc_parsing.variables.local_variable import *
-from slither.solc_parsing.variables.local_variable_init_from_tuple import *
-
+from slither.core.declarations import Structure, Enum, SolidityVariableComposed, SolidityVariable
+from slither.core.solidity_types import ElementaryType, ArrayType, MappingType, UserDefinedType
+from slither.slithir.operations import Assignment, Index, Member, Length, Balance, Binary, \
+    Unary, Condition, NewArray, NewStructure, NewContract, NewElementaryType, \
+    SolidityCall, Push, Delete, EventCall, LibraryCall, InternalDynamicCall, \
+    HighLevelCall, LowLevelCall, TypeConversion, Return, Transfer, Send, Unpack, InitArray, InternalCall
+from slither.slithir.variables import TemporaryVariable, TupleVariable, Constant, ReferenceVariable
+from slither.solc_parsing.declarations.function import FunctionSolc
+from slither.solc_parsing.variables.local_variable import LocalVariableSolc
+from slither.solc_parsing.variables.local_variable_init_from_tuple import LocalVariableInitFromTupleSolc
+from slither.solc_parsing.variables.state_variable import StateVariableSolc
 from .cache import load_cache
-from crytic_compile.platform.solc import InvalidCompilation
 
 simil_logger = logging.getLogger("Slither-simil")
 compiler_logger = logging.getLogger("CryticCompile")
@@ -194,25 +194,22 @@ def encode_contract(cfilename, **kwargs):
     for contract in slither.contracts:
 
         # Iterate over all the functions
-        for function in contract.functions:
+        for function in contract.functions_not_inherited:
 
-            # Dont explore inherited functions
-            if function.contract == contract:
+            if function.nodes == []:
+                continue
 
-                if function.nodes == []:
-                    continue
+            x = (cfilename,contract.name,function.name)
 
-                x = (cfilename,contract.name,function.name) 
+            r[x] = []
 
-                r[x] = []
-
-                # Iterate over the nodes of the function
-                for node in function.nodes:
-                    # Print the Solidity expression of the nodes
-                    # And the SlithIR operations
-                    if node.expression:
-                        for ir in node.irs:
-                            r[x].append(encode_ir(ir))
+            # Iterate over the nodes of the function
+            for node in function.nodes:
+                # Print the Solidity expression of the nodes
+                # And the SlithIR operations
+                if node.expression:
+                    for ir in node.irs:
+                        r[x].append(encode_ir(ir))
     return r
 
 
