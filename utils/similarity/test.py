@@ -33,7 +33,7 @@ def test(args):
         y = " ".join(irs[(filename,contract,fname)])
         
         fvector = model.get_sentence_vector(y)
-        cache = load_and_encode(infile, **vars(args))
+        cache = load_and_encode(infile, model, **vars(args))
         #save_cache("cache.npz", cache)
 
         r = dict()
