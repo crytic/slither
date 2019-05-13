@@ -19,7 +19,7 @@ logger = logging.getLogger("Slither-simil")
 modes = ["info", "test", "train", "plot"]
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Code similarity detection tool')
+    parser = argparse.ArgumentParser(description='Code similarity detection tool. For usage, see https://github.com/crytic/slither/wiki/Code-Similarity-detector')
 
     parser.add_argument('mode',
                         help="|".join(modes))
