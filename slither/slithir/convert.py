@@ -426,6 +426,12 @@ def propagate_types(ir, node):
                             f = next((f for f in type_t.functions if f.name == ir.variable_right), None)
                             if f:
                                 ir.lvalue.set_type(f)
+                            else:
+                                # Allow propgation for variable access through contract's nale
+                                # like Base_contract.my_variable
+                                v = next((v for v in type_t.state_variables if v.name == ir.variable_right), None)
+                                if v:
+                                    ir.lvalue.set_type(v.type)
             elif isinstance(ir, NewArray):
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):
