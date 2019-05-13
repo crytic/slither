@@ -2,17 +2,16 @@ import logging
 import os
 
 from slither import Slither
-from slither.core.declarations import Structure, Enum, SolidityVariableComposed, SolidityVariable
+from slither.core.declarations import Structure, Enum, SolidityVariableComposed, SolidityVariable, Function
 from slither.core.solidity_types import ElementaryType, ArrayType, MappingType, UserDefinedType
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
+from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import Assignment, Index, Member, Length, Balance, Binary, \
     Unary, Condition, NewArray, NewStructure, NewContract, NewElementaryType, \
     SolidityCall, Push, Delete, EventCall, LibraryCall, InternalDynamicCall, \
     HighLevelCall, LowLevelCall, TypeConversion, Return, Transfer, Send, Unpack, InitArray, InternalCall
 from slither.slithir.variables import TemporaryVariable, TupleVariable, Constant, ReferenceVariable
-from slither.solc_parsing.declarations.function import FunctionSolc
-from slither.solc_parsing.variables.local_variable import LocalVariableSolc
-from slither.solc_parsing.variables.local_variable_init_from_tuple import LocalVariableInitFromTupleSolc
-from slither.solc_parsing.variables.state_variable import StateVariableSolc
 from .cache import load_cache
 
 simil_logger = logging.getLogger("Slither-simil")
@@ -152,7 +151,7 @@ def encode_ir(ir):
         return 'unpack'
     if isinstance(ir, InitArray): # TODO: improve
         return 'init_array'
-    if isinstance(ir, FunctionSolc): # TODO: investigate this
+    if isinstance(ir, Function): # TODO: investigate this
         return 'function_solc'
 
     # variables
@@ -166,11 +165,11 @@ def encode_ir(ir):
         return 'temporary_variable'
     if isinstance(ir, ReferenceVariable):
         return 'reference({})'.format(ntype(ir._type)) 
-    if isinstance(ir, LocalVariableSolc):
+    if isinstance(ir, LocalVariable):
         return 'local_solc_variable({})'.format(ir._location) 
-    if isinstance(ir, StateVariableSolc):
+    if isinstance(ir, StateVariable):
         return 'state_solc_variable({})'.format(ntype(ir._type))
-    if isinstance(ir, LocalVariableInitFromTupleSolc):
+    if isinstance(ir, LocalVariableInitFromTuple):
         return 'local_variable_init_tuple'
     if isinstance(ir, TupleVariable):
         return 'tuple_variable'
