@@ -15,7 +15,7 @@ class UncheckedLowLevel(UnusedReturnValues):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-low-level'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-low-level-calls'
 
     WIKI_TITLE = 'Unchecked low-level calls'
     WIKI_DESCRIPTION = 'The return value of a low-level call is not checked.'
