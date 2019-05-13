@@ -3,7 +3,8 @@ class FormatUnusedState:
     @staticmethod
     def format(slither, patches, elements):
         for element in elements:
-            FormatUnusedState.create_patch(slither, patches, element['source_mapping']['filename'], element['source_mapping']['start'])
+            if element['type'] == "variable":
+                FormatUnusedState.create_patch(slither, patches, element['source_mapping']['filename_absolute'], element['source_mapping']['start'])
 
     @staticmethod
     def create_patch(slither, patches, in_file, modify_loc_start):
