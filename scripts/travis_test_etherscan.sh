@@ -10,7 +10,7 @@ chmod +x solc-0.4.25
 
 slither 0x7F37f78cBD74481E593F9C737776F7113d76B315 --solc "./solc-0.4.25"
 
-if [ $? -ne 5 ]
+if [ $? -ne 6 ]
 then
     echo "Etherscan test failed"
     exit -1
