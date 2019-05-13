@@ -127,6 +127,8 @@ def get_number_of_slither_results (detector_results):
         for elem in result['elements']:
             if (result['check'] == 'constant-function' and elem['type'] != "function"):
                 continue
+            if (result['check'] == 'unused-state' and elem['type'] != "variable"):
+                continue
             number_of_slither_results += 1
     return number_of_slither_results
             
