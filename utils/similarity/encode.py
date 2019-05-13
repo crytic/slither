@@ -32,7 +32,7 @@ def parse_target(target):
     else:
         simil_logger.error("Invalid target. It should be 'function' or 'Contract.function'")
 
-def load_and_encode(infile, model, filter=None, nsamples=None, **kwargs):
+def load_and_encode(infile, vmodel, ext=None, nsamples=None, **kwargs):
     r = dict()
     if infile.endswith(".npz"):
         r = load_cache(infile, nsamples=nsamples)
@@ -42,7 +42,7 @@ def load_and_encode(infile, model, filter=None, nsamples=None, **kwargs):
             for x,ir in encode_contract(contract, **kwargs).items():
                 if ir != []:
                     y = " ".join(ir)
-                    r[x] = model.get_sentence_vector(y)
+                    r[x] = vmodel.get_sentence_vector(y)
 
     return r
 
