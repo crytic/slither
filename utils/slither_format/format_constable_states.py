@@ -5,7 +5,7 @@ class FormatConstableStates:
     @staticmethod
     def format(slither, patches, elements):
         for element in elements:
-            FormatConstableStates.create_patch(slither, patches, element['source_mapping']['filename'], element['name'], "constant " + element['name'], element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
+            FormatConstableStates.create_patch(slither, patches, element['source_mapping']['filename_absolute'], element['name'], "constant " + element['name'], element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
 
     @staticmethod
     def create_patch(slither, patches, in_file, match_text, replace_text, modify_loc_start, modify_loc_end):
