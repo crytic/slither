@@ -66,7 +66,6 @@ class TestSolcVersion(unittest.TestCase):
         self.assertEqual(outFD1_lines.count("New string: pragma solidity 0.4.25;"), 1)
         self.assertEqual(outFD1_lines.count("Location start: 63"), 1)
         self.assertEqual(outFD1_lines.count("Location end: 87"), 1)
-        self.assertEqual(outFD1_lines.count("Patch file: ./slither_format/tests/test_data/solc_version_incorrect1.sol"), 1)
         outFD1.close()
 
         outFD2 = open(self.testFilePath2+".out","r")
@@ -81,7 +80,6 @@ class TestSolcVersion(unittest.TestCase):
         self.assertEqual(outFD2_lines.count("New string: pragma solidity 0.5.3;"), 1)
         self.assertEqual(outFD2_lines.count("Location start: 63"), 1)
         self.assertEqual(outFD2_lines.count("Location end: 94"), 1)
-        self.assertEqual(outFD2_lines.count("Patch file: ./slither_format/tests/test_data/solc_version_incorrect2.sol"), 1)
         outFD2.close()
 
         outFD3 = open(self.testFilePath3+".out","r")
@@ -96,7 +94,6 @@ class TestSolcVersion(unittest.TestCase):
         self.assertEqual(outFD3_lines.count("New string: pragma solidity 0.4.25;"), 1)
         self.assertEqual(outFD3_lines.count("Location start: 63"), 1)
         self.assertEqual(outFD3_lines.count("Location end: 95"), 1)
-        self.assertEqual(outFD3_lines.count("Patch file: ./slither_format/tests/test_data/solc_version_incorrect3.sol"), 1)
         outFD3.close()
 
         outFD4 = open(self.testFilePath4+".out","r")
@@ -111,7 +108,6 @@ class TestSolcVersion(unittest.TestCase):
         self.assertEqual(outFD4_lines.count("New string: pragma solidity 0.5.3;"), 1)
         self.assertEqual(outFD4_lines.count("Location start: 63"), 1)
         self.assertEqual(outFD4_lines.count("Location end: 86"), 1)
-        self.assertEqual(outFD4_lines.count("Patch file: ./slither_format/tests/test_data/solc_version_incorrect4.sol"), 1)
         outFD4.close()
 
 if __name__ == '__main__':
