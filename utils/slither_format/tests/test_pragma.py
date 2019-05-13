@@ -50,8 +50,6 @@ class TestPragma(unittest.TestCase):
         self.assertEqual(outFD1_lines.count("New string: pragma solidity 0.4.25;"), 2)
         self.assertEqual(outFD1_lines.count("Location start: 0"), 2)
         self.assertEqual(outFD1_lines.count("Location end: 24"), 2)
-        self.assertEqual(outFD1_lines.count("Patch file: ./slither_format/tests/test_data/pragma.0.4.24.sol"), 1)
-        self.assertEqual(outFD1_lines.count("Patch file: ./slither_format/tests/test_data/pragma.0.4.23.sol"), 1)
         outFD1.close()
 
         outFD2 = open(self.testFilePath2+".out","r")
@@ -67,8 +65,6 @@ class TestPragma(unittest.TestCase):
         self.assertEqual(outFD2_lines.count("New string: pragma solidity 0.5.3;"), 2)
         self.assertEqual(outFD2_lines.count("Location start: 0"), 2)
         self.assertEqual(outFD2_lines.count("Location end: 23"), 2)
-        self.assertEqual(outFD2_lines.count("Patch file: ./slither_format/tests/test_data/pragma.0.5.4.sol"), 1)
-        self.assertEqual(outFD2_lines.count("Patch file: ./slither_format/tests/test_data/pragma.0.5.2.sol"), 1)
         outFD2.close()
 
 if __name__ == '__main__':
