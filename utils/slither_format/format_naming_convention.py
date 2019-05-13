@@ -9,12 +9,12 @@ class FormatNamingConvention:
     @staticmethod
     def format(slither, patches, elements):
         for element in elements:
-            if (element['target'] == "parameter"):
-                FormatNamingConvention.create_patch(slither, patches, element['target'], element['name'], element['function'], element['contract'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
-            elif (element['target'] == "modifier" or element['target'] == "function" or element['target'] == "event" or element['target'] == "variable" or element['target'] == "variable_constant" or element['target'] == "enum" or element['target'] == "structure"):
-                FormatNamingConvention.create_patch(slither, patches, element['target'], element['name'], element['name'], element['contract'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
+            if (element['additional_fields']['target'] == "parameter"):
+                FormatNamingConvention.create_patch(slither, patches, element['additional_fields']['target'], element['name'], element['function']['name'], element['function']['contract']['name'], element['source_mapping']['filename_absolute'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
+            elif (element['additional_fields']['target'] == "modifier" or element['additional_fields']['target'] == "function" or element['additional_fields']['target'] == "event" or element['additional_fields']['target'] == "variable" or element['additional_fields']['target'] == "variable_constant" or element['additional_fields']['target'] == "enum" or element['additional_fields']['target'] == "structure"):
+                FormatNamingConvention.create_patch(slither, patches, element['additional_fields']['target'], element['name'], element['name'], element['contract']['name'], element['source_mapping']['filename_absolute'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
             else:
-                FormatNamingConvention.create_patch(slither, patches, element['target'], element['name'], element['name'], element['name'], element['source_mapping']['filename'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
+                FormatNamingConvention.create_patch(slither, patches, element['additional_fields']['target'], element['name'], element['name'], element['name'], element['source_mapping']['filename_absolute'],element['source_mapping']['start'],(element['source_mapping']['start']+element['source_mapping']['length']))
 
     @staticmethod
     def create_patch(slither, patches, _target, name, function_name, contract_name, in_file, modify_loc_start, modify_loc_end):
@@ -252,7 +252,7 @@ class FormatNamingConvention:
         for contract in slither.contracts:
             if contract.name == contract_name:
                 for event in contract.events:
-                    if event.full_name == name:
+                    if event.name == name:
                         event_name = name.split('(')[0]
                         in_file_str = slither.source_code[in_file]
                         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
