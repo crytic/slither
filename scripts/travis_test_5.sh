@@ -69,6 +69,7 @@ test_slither(){
 }
 
 
+test_slither tests/solc_version_incorrect_05.ast.json "solc-version"
 test_slither tests/unchecked_lowlevel-0.5.1.sol "unchecked-lowlevel"
 test_slither tests/unchecked_send-0.5.1.sol "unchecked-send"
 test_slither tests/uninitialized-0.5.1.sol "uninitialized-state"
