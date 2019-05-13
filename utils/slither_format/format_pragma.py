@@ -17,10 +17,10 @@ class FormatPragma:
     def format(slither, patches, elements):
         versions_used = []
         for element in elements:
-            versions_used.append(element['expression'])
+            versions_used.append(''.join(element['directive'][1:]))
         solc_version_replace = FormatPragma.analyse_versions(versions_used)
         for element in elements:
-            FormatPragma.create_patch(slither, patches, element['source_mapping']['filename'], solc_version_replace, element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
+            FormatPragma.create_patch(slither, patches, element['source_mapping']['filename_absolute'], solc_version_replace, element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
 
     @staticmethod
     def analyse_versions(used_solc_versions):
