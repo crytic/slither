@@ -6,7 +6,7 @@ from slither.core.declarations import (Contract, Enum, Event, Function,
 from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types import (ArrayType, ElementaryType,
                                          FunctionType, MappingType,
-                                         UserDefinedType)
+                                         UserDefinedType, TypeInformation)
 from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
 from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
@@ -297,6 +297,44 @@ def propagate_type_and_convert_call(result, node):
         idx = idx +1
     return result
 
+def _convert_type_contract(ir, slither):
+    assert isinstance(ir.variable_left.type, TypeInformation)
+    contract = ir.variable_left.type.type
+
+    if ir.variable_right == 'creationCode':
+        if slither.crytic_compile:
+            bytecode = slither.crytic_compile.bytecode_init(contract.name)
+        else:
+            logger.info(
+                'The codebase uses type(x).creationCode, but crytic-compile was not used. As a result, the bytecode cannot be found')
+            bytecode = "MISSING_BYTECODE"
+        assignment = Assignment(ir.lvalue,
+                                Constant(str(bytecode)),
+                                ElementaryType('bytes'))
+        assignment.lvalue.set_type(ElementaryType('bytes'))
+        return assignment
+    if ir.variable_right == 'runtimeCode':
+        if slither.crytic_compile:
+            bytecode = slither.crytic_compile.bytecode_runtime(contract.name)
+        else:
+            logger.info(
+                'The codebase uses type(x).runtimeCode, but crytic-compile was not used. As a result, the bytecode cannot be found')
+            bytecode = "MISSING_BYTECODE"
+        assignment = Assignment(ir.lvalue,
+                                Constant(str(bytecode)),
+                                ElementaryType('bytes'))
+        assignment.lvalue.set_type(ElementaryType('bytes'))
+        return assignment
+    if ir.variable_right == 'name':
+        assignment = Assignment(ir.lvalue,
+                                Constant(contract.name),
+                                ElementaryType('string'))
+        assignment.lvalue.set_type(ElementaryType('string'))
+        return assignment
+
+    raise SlithIRError(f'type({contract.name}).{ir.variable_right} is unknown')
+
+
 def propagate_types(ir, node):
     # propagate the type
     using_for = node.function.contract.using_for
@@ -398,6 +436,8 @@ def propagate_types(ir, node):
                                             ElementaryType('bytes4'))
                     assignment.lvalue.set_type(ElementaryType('bytes4'))
                     return assignment
+                if isinstance(ir.variable_left, TemporaryVariable) and isinstance(ir.variable_left.type, TypeInformation):
+                    return _convert_type_contract(ir, node.function.slither)
                 left = ir.variable_left
                 t = None
                 if isinstance(left, (Variable, SolidityVariable)):
@@ -447,6 +487,8 @@ def propagate_types(ir, node):
             elif isinstance(ir, Send):
                 ir.lvalue.set_type(ElementaryType('bool'))
             elif isinstance(ir, SolidityCall):
+                if ir.function.name == 'type(address)':
+                    ir.function.return_type = [TypeInformation(ir.arguments[0])]
                 return_type = ir.function.return_type
                 if len(return_type) == 1:
                     ir.lvalue.set_type(return_type[0])
