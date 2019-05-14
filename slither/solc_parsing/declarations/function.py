@@ -27,6 +27,7 @@ from slither.utils.utils import unroll
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
 from slither.solc_parsing.exceptions import ParsingError
+from slither.core.source_mapping.source_mapping import SourceMapping
 
 logger = logging.getLogger("FunctionSolc")
 
@@ -835,7 +836,8 @@ class FunctionSolc(Function):
     def _parse_params(self, params):
         assert params[self.get_key()] == 'ParameterList'
 
-        self.parameters_src = params['src']
+        self.parameters_src = SourceMapping()
+        self.parameters_src.set_offset(params['src'], self.contract.slither)
         
         if self.is_compact_ast:
             params = params['parameters']
@@ -862,7 +864,8 @@ class FunctionSolc(Function):
 
         assert returns[self.get_key()] == 'ParameterList'
 
-        self.returns_src = returns['src']
+        self.returns_src = SourceMapping()
+        self.returns_src.set_offset(returns['src'], self.contract.slither)
         
         if self.is_compact_ast:
             returns = returns['parameters']
