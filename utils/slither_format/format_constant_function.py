@@ -13,7 +13,7 @@ class FormatConstantFunction:
                 if not Found:
                     for function in contract.functions:
                         if contract.name == element['contract']['name'] and function.name == element['name']:
-                            FormatConstantFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], ["view","pure","constant"], "", int(function.parameters_src.split(':')[0]), int(function.returns_src.split(':')[0]))
+                            FormatConstantFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], ["view","pure","constant"], "", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
                             Found = True
 
     @staticmethod
