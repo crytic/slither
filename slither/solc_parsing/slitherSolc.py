@@ -136,7 +136,7 @@ class SlitherSolc(Slither):
 
         # match any char for filename
         # filename can contain space, /, -, ..
-        name = re.findall('=* (.+) =*', filename)
+        name = re.findall('=+ (.+) =+', filename)
         if name:
             assert len(name) == 1
             name = name[0]
@@ -154,7 +154,7 @@ class SlitherSolc(Slither):
             # This works only for crytic compile.
             # which used --combined-json ast, rather than --ast-json
             # As a result -1 is not used as index
-            if not self.crytic_compile is None:
+            if self.crytic_compile is not None:
                 sourceUnit = len(self.source_code)
 
         self._source_units[sourceUnit] = name
