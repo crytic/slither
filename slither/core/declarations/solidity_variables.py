@@ -1,6 +1,6 @@
 # https://solidity.readthedocs.io/en/v0.4.24/units-and-global-variables.html
 from slither.core.context.context import Context
-from slither.core.solidity_types import ElementaryType
+from slither.core.solidity_types import ElementaryType, TypeInformation
 
 SOLIDITY_VARIABLES = {"now":'uint256',
                       "this":'address',
@@ -57,7 +57,8 @@ SOLIDITY_FUNCTIONS = {"gasleft()":['uint256'],
                       "abi.encodeWithSelector()":["bytes"],
                       "abi.encodeWithSignature()":["bytes"],
                       # abi.decode returns an a list arbitrary types
-                      "abi.decode()":[]}
+                      "abi.decode()":[],
+                      "type(address)":[]}
 
 def solidity_function_signature(name):
     """
@@ -125,10 +126,15 @@ class SolidityVariableComposed(SolidityVariable):
 
 
 class SolidityFunction:
+    # Non standard handling of type(address). This function returns an undefined object
+    # The type is dynamic
+    # https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#type-information
+    # As a result, we set return_type during the Ir conversion
 
     def __init__(self, name):
         assert name in SOLIDITY_FUNCTIONS
         self._name = name
+        self._return_type = [ElementaryType(x) for x in SOLIDITY_FUNCTIONS[self.name]]
 
     @property
     def name(self):
@@ -140,7 +146,11 @@ class SolidityFunction:
 
     @property
     def return_type(self):
-        return [ElementaryType(x) for x in SOLIDITY_FUNCTIONS[self.name]]
+        return self._return_type
+
+    @return_type.setter
+    def return_type(self, r):
+        self._return_type = r
 
     def __str__(self):
         return self._name
