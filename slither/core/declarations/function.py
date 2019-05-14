@@ -393,15 +393,6 @@ class Function(ChildContract, SourceMapping):
 
         return list(self._slithir_variables)
 
-    def get_source_var_declaration(self, var):
-        """ Return the source mapping where the variable is declared
-        Args:
-            var (str): variable name
-        Returns:
-            (dict): sourceMapping
-        """
-        return next((x.source_mapping for x in self.variables if x.name == var))
-
     # endregion
     ###################################################################################
     ###################################################################################
