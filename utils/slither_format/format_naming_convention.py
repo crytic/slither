@@ -80,12 +80,12 @@ class FormatNamingConvention:
                 svs = contract.variables
                 for sv in svs:
                     if (str(sv.type) == name):
-                        old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
+                        old_str_of_interest = in_file_str[sv.source_mapping['start']:(sv.source_mapping['start']+sv.source_mapping['length'])]
                         (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
                         patch = {
                             "detector" : "naming-convention (contract state variable)",
-                            "start" : contract.get_source_var_declaration(sv.name)['start'],
-                            "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
+                            "start" : sv.source_mapping['start'],
+                            "end" : sv.source_mapping['start'] + sv.source_mapping['length'],
                             "old_string" : old_str_of_interest,
                             "new_string" : new_str_of_interest
                         }
@@ -97,12 +97,12 @@ class FormatNamingConvention:
                 for fm in fms:
                     for v in fm.variables:
                         if (str(v.type) == name):
-                            old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
+                            old_str_of_interest = in_file_str[v.source_mapping['start']:(v.source_mapping['start']+v.source_mapping['length'])]
                             (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
                             patch = {
                                 "detector" : "naming-convention (contract function variable)",
-                                "start" : fm.get_source_var_declaration(v.name)['start'],
-                                "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
+                                "start" : v.source_mapping['start'],
+                                "end" : v.source_mapping['start'] + v.source_mapping['length'],
                                 "old_string" : old_str_of_interest,
                                 "new_string" : new_str_of_interest
                             }
@@ -460,12 +460,12 @@ class FormatNamingConvention:
                 svs = contract.variables
                 for sv in svs:
                     if (str(sv.type) == contract_name + "." + name):
-                        old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
+                        old_str_of_interest = in_file_str[sv.source_mapping['start']:(sv.source_mapping['start']+sv.source_mapping['length'])]
                         (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
                         patch = {
                             "detector" : "naming-convention (enum use)",
-                            "start" : contract.get_source_var_declaration(sv.name)['start'],
-                            "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
+                            "start" : sv.source_mapping['start'],
+                            "end" : sv.source_mapping['start'] + sv.source_mapping['length'],
                             "old_string" : old_str_of_interest,
                             "new_string" : new_str_of_interest
                         }
@@ -478,12 +478,12 @@ class FormatNamingConvention:
                     # Enum declarations
                     for v in fm.variables:
                         if (str(v.type) == contract_name + "." + name):
-                            old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
+                            old_str_of_interest = in_file_str[v.source_mapping['start']:(v.source_mapping['start']+v.source_mapping['length'])]
                             (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
                             patch = {
                                 "detector" : "naming-convention (enum use)",
-                                "start" : fm.get_source_var_declaration(v.name)['start'],
-                                "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
+                                "start" : v.source_mapping['start'],
+                                "end" : v.source_mapping['start'] + v.source_mapping['length'],
                                 "old_string" : old_str_of_interest,
                                 "new_string" : new_str_of_interest
                             }
@@ -547,12 +547,12 @@ t']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0])
             svs = contract.variables
             for sv in svs:
                 if (str(sv.type) == contract_name + "." + name):
-                    old_str_of_interest = in_file_str[contract.get_source_var_declaration(sv.name)['start']:(contract.get_source_var_declaration(sv.name)['start']+contract.get_source_var_declaration(sv.name)['length'])]
+                    old_str_of_interest = in_file_str[sv.source_mapping['start']:(sv.source_mapping['start']+sv.source_mapping['length'])]
                     (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
                     patch = {
                         "detector" : "naming-convention (struct use)",
-                        "start" : contract.get_source_var_declaration(sv.name)['start'],
-                        "end" : contract.get_source_var_declaration(sv.name)['start'] + contract.get_source_var_declaration(sv.name)['length'],
+                        "start" : sv.source_mapping['start'],
+                        "end" : sv.source_mapping['start'] + sv.source_mapping['length'],
                         "old_string" : old_str_of_interest,
                         "new_string" : new_str_of_interest
                     }
@@ -564,12 +564,12 @@ t']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0])
             for fm in fms:
                 for v in fm.variables:
                     if (str(v.type) == contract_name + "." + name):
-                        old_str_of_interest = in_file_str[fm.get_source_var_declaration(v.name)['start']:(fm.get_source_var_declaration(v.name)['start']+fm.get_source_var_declaration(v.name)['length'])]
+                        old_str_of_interest = in_file_str[v.source_mapping['start']:(v.source_mapping['start']+v.source_mapping['length'])]
                         (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
                         patch = {
                             "detector" : "naming-convention (struct use)",
-                            "start" : fm.get_source_var_declaration(v.name)['start'],
-                            "end" : fm.get_source_var_declaration(v.name)['start'] + fm.get_source_var_declaration(v.name)['length'],
+                            "start" : v.source_mapping['start'],
+                            "end" : v.source_mapping['start'] + v.source_mapping['length'],
                             "old_string" : old_str_of_interest,
                             "new_string" : new_str_of_interest
                         }
