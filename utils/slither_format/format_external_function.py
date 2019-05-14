@@ -22,32 +22,23 @@ class FormatExternalFunction:
     def create_patch(slither, patches, in_file, match_text, replace_text, modify_loc_start, modify_loc_end):
         in_file_str = slither.source_code[in_file]
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-        old_str_of_interest_beyond_parameters = ')'.join(old_str_of_interest.split(')')[1:])
-        s = old_str_of_interest_beyond_parameters.split('(')
-        if len(s) == 1:
-            account_for_return = 0
-        else:
-            account_for_return = 1
-        old_str_of_interest_beyond_parameters_before_modifier_return = old_str_of_interest_beyond_parameters.split('(')[0]
-        m = re.search("public", old_str_of_interest_beyond_parameters_before_modifier_return)
+        m = re.search("public", old_str_of_interest)
         if m is None:
             # No visibility specifier exists; public by default.
-            (new_str_of_interest, _) = re.subn(" ", " external ", old_str_of_interest_beyond_parameters_before_modifier_return, 1)
             patches[in_file].append({
                 "detector" : "external-function",
                 "start" : modify_loc_start + len(old_str_of_interest.split(')')[0]) + 1,
-                "end" : modify_loc_end - len('('.join(old_str_of_interest_beyond_parameters.split('(')[1:])) - account_for_return,
-                "old_string" : old_str_of_interest_beyond_parameters_before_modifier_return,
-                "new_string" : new_str_of_interest
+                "end" : modify_loc_start + len(old_str_of_interest.split(')')[0]) + 1,
+                "old_string" : "",
+                "new_string" : " " + replace_text
             })
         else:
-            (new_str_of_interest, _) = re.subn(match_text, replace_text, old_str_of_interest_beyond_parameters_before_modifier_return, 1)
             patches[in_file].append({
                 "detector" : "external-function",
-                "start" : modify_loc_start + len(old_str_of_interest.split(')')[0]) + 1 + m.span()[0],
-                "end" : modify_loc_end - len('('.join(old_str_of_interest_beyond_parameters.split('(')[1:])) - account_for_return,
-                "old_string" : old_str_of_interest_beyond_parameters_before_modifier_return,
-                "new_string" : new_str_of_interest
+                "start" : modify_loc_start + m.span()[0],
+                "end" : modify_loc_start + m.span()[1],
+                "old_string" : match_text,
+                "new_string" : replace_text
             })
 
     @staticmethod
