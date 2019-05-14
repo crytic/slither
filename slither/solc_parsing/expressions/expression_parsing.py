@@ -35,19 +35,11 @@ from slither.core.solidity_types import (ArrayType, ElementaryType,
                                          FunctionType, MappingType)
 from slither.solc_parsing.solidity_types.type_parsing import (UnknownType,
                                                               parse_type)
-from slither.solc_parsing.exceptions import ParsingError
+from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
+
 logger = logging.getLogger("ExpressionParsing")
 
 
-###################################################################################
-###################################################################################
-# region Exception
-###################################################################################
-###################################################################################
-
-class VariableNotFound(Exception): pass
-
-# endregion
 ###################################################################################
 ###################################################################################
 # region Helpers
@@ -157,7 +149,7 @@ def find_variable(var_name, caller_context, referenced_declaration=None):
             if function.referenced_declaration == referenced_declaration:
                 return function
 
-    raise VariableNotFound('Variable not found: {}'.format(var_name))
+    raise VariableNotFound('Variable not found: {} (context {})'.format(var_name, caller_context))
 
 # endregion
 ###################################################################################
