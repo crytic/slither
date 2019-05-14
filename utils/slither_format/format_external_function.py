@@ -14,7 +14,7 @@ class FormatExternalFunction:
                             # to external because external function parameters are allocated in calldata region which is
                             # non-modifiable. See https://solidity.readthedocs.io/en/develop/types.html#data-location
                             if not FormatExternalFunction.function_parameters_written(function):
-                                FormatExternalFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], "public", "external", int(function.parameters_src.split(':')[0]), int(function.returns_src.split(':')[0]))
+                                FormatExternalFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], "public", "external", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
                                 Found = True
                                 break
 

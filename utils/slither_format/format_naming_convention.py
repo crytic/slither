@@ -168,13 +168,13 @@ class FormatNamingConvention:
                     for m  in function.modifiers:
                         if (m.name == name):
                             in_file_str = slither.source_code[in_file]
-                            old_str_of_interest = in_file_str[int(function.parameters_src.split(':')[0]):int(function.returns_src.split(':')[0])]
+                            old_str_of_interest = in_file_str[int(function.parameters_src.source_mapping['start']):int(function.returns_src.source_mapping['start'])]
                             (new_str_of_interest, num_repl) = re.subn(name, name[0].lower()+name[1:],old_str_of_interest,1)
                             if num_repl != 0:
                                 patch = {
                                     "detector" : "naming-convention (modifier uses)",
-                                    "start" : int(function.parameters_src.split(':')[0]),
-                                    "end" : int(function.returns_src.split(':')[0]),
+                                    "start" : int(function.parameters_src.source_mapping['start']),
+                                    "end" : int(function.returns_src.source_mapping['start']),
                                     "old_string" : old_str_of_interest,
                                     "new_string" : new_str_of_interest
                                 }
