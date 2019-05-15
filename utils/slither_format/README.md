@@ -19,8 +19,8 @@ Slither detectors highlight names, context and source-mapping of code constructs
     + Enum names are converted to CapWords in enum declarations and uses
     + State variables:
         + If constant, are converted to UPPERCASE
-	+ If private, are converted to mixedCase with underscore
-	+ If not private, are converted to mixedCase
+        + If private, are converted to mixedCase with underscore
+        + If not private, are converted to mixedCase
     + Function names are converted to mixedCase in function definitions and calls
     + Function parameters are converted to CapWords beginning with underscores in parameter declaration and uses
     + Function modifiers are converted to mixedCase in modifier definitions and calls
