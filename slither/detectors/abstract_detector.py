@@ -160,8 +160,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     def _create_parent_element(element):
         from slither.core.children.child_contract import ChildContract
         from slither.core.children.child_function import ChildFunction
-        from slither.core.declarations import Function
-        if isinstance(element, Function):
+        from slither.core.children.child_inheritance import ChildInheritance
+        if isinstance(element, ChildInheritance):
             if element.contract_declarer:
                 contract = {'elements': []}
                 AbstractDetector.add_contract_to_json(element.contract_declarer, contract)
