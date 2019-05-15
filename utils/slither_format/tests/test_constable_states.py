@@ -9,7 +9,7 @@ class TestConstableState(unittest.TestCase):
     def setUp(self):
         outFD = open(self.testFilePath+".out","w")
         errFD = open(self.testFilePath+".err","w")
-        p = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','constable-states',self.testFilePath], stdout=outFD,stderr=errFD)
+        p = subprocess.Popen(['python3', '-m', 'slither_format','--verbose-test','--detect','constable-states',self.testFilePath], stdout=outFD,stderr=errFD)
         p.wait()
         outFD.close()
         errFD.close()

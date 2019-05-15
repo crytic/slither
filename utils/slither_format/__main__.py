@@ -28,7 +28,8 @@ def parse_args():
 
     parser.add_argument('filename', help='The filename of the contract or truffle directory to analyze.')
     parser.add_argument('--solc', help='solc path', default='solc')
-    parser.add_argument('--verbose', '-v', help='verbose mode output',action='store_true',default=False)
+    parser.add_argument('--verbose-test', '-v', help='verbose mode output for testing',action='store_true',default=False)
+    parser.add_argument('--verbose-json', '-j', help='verbose json output',action='store_true',default=False)
     
     group_detector = parser.add_argument_group('Detectors')
     group_detector.add_argument('--detect',

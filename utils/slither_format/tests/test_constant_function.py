@@ -11,11 +11,11 @@ class TestConstantFunctions(unittest.TestCase):
     def setUp(self):
         outFD1 = open(self.testFilePath1+".out","w")
         errFD1 = open(self.testFilePath1+".err","w")
-        p1 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','constant-function',self.testFilePath1], stdout=outFD1,stderr=errFD1)
+        p1 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose-test','--detect','constant-function',self.testFilePath1], stdout=outFD1,stderr=errFD1)
         p1.wait()
         outFD2 = open(self.testFilePath2+".out","w")
         errFD2 = open(self.testFilePath2+".err","w")
-        p2 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','constant-function',self.testFilePath2], stdout=outFD2,stderr=errFD2)
+        p2 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose-test','--detect','constant-function',self.testFilePath2], stdout=outFD2,stderr=errFD2)
         p2.wait()
         outFD1.close()
         errFD1.close()
