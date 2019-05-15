@@ -1,7 +1,7 @@
 import logging
 from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.expression import Expression
-
+from slither.core.exceptions import SlitherCoreError
 
 logger = logging.getLogger("BinaryOperation")
 
@@ -67,8 +67,7 @@ class BinaryOperationType:
         if operation_type == '||':
             return BinaryOperationType.OROR
 
-        logger.error('get_type: Unknown operation type {})'.format(operation_type))
-        exit(-1)
+        raise SlitherCoreError('get_type: Unknown operation type {})'.format(operation_type))
 
     @staticmethod
     def str(operation_type):
@@ -110,8 +109,7 @@ class BinaryOperationType:
             return '&&'
         if operation_type == BinaryOperationType.OROR:
             return '||'
-        logger.error('str: Unknown operation type {})'.format(operation_type))
-        exit(-1)
+        raise SlitherCoreError('str: Unknown operation type {})'.format(operation_type))
 
 class BinaryOperation(ExpressionTyped):
 

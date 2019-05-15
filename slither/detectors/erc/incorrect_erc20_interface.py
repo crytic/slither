@@ -18,7 +18,7 @@ class IncorrectERC20InterfaceDetection(AbstractDetector):
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-erc20-interface'
 
     WIKI_TITLE = 'Incorrect erc20 interface'
-    WIKI_DESCRIPTION = 'Lack of return value for the ERC20 `approve`/`transfer`/`transferFrom` functions. A contract compiled with solidity > 0.4.22 interacting with these functions will fail to execute them, as the return value is missing.'
+    WIKI_DESCRIPTION = 'Incorrect return values for ERC20 functions. A contract compiled with solidity > 0.4.22 interacting with these functions will fail to execute them, as the return value is missing.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract Token{
@@ -28,7 +28,7 @@ contract Token{
 ```
 `Token.transfer` does not return a boolean. Bob deploys the token. Alice creates a contract that interacts with it but assumes a correct ERC20 interface implementation. Alice's contract is unable to interact with Bob's contract.'''
 
-    WIKI_RECOMMENDATION = 'Return a boolean for the `approve`/`transfer`/`transferFrom` functions.'
+    WIKI_RECOMMENDATION = 'Set the appropriate return values and value-types for the defined ERC20 functions.'
 
     @staticmethod
     def incorrect_erc20_interface(signature):
@@ -43,6 +43,15 @@ contract Token{
         if name == 'approve' and parameters == ['address', 'uint256'] and returnVars != ['bool']:
             return True
 
+        if name == 'allowance' and parameters == ['address', 'address'] and returnVars != ['uint256']:
+            return True
+
+        if name == 'balanceOf' and parameters == ['address'] and returnVars != ['uint256']:
+            return True
+
+        if name == 'totalSupply' and parameters == [] and returnVars != ['uint256']:
+            return True
+
         return False
 
     @staticmethod
@@ -52,27 +61,38 @@ contract Token{
         Returns:
             list(str) : list of incorrect function signatures
         """
-        functions = [f for f in contract.functions if f.contract_declarer == contract and \
-                     IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)]
+
+        # Verify this is an ERC20 contract.
+        if not contract.is_possible_erc20():
+            return []
+
+        # If this contract implements a function from ERC721, we can assume it is an ERC721 token. These tokens
+        # offer functions which are similar to ERC20, but are not compatible.
+        if contract.is_possible_erc721():
+            return []
+
+        funcs = contract.functions
+        functions = [f for f in funcs if IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)]
+
         return functions
 
     def _detect(self):
         """ Detect incorrect erc20 interface
 
         Returns:
-            dict: [contrat name] = set(str)  events
+            dict: [contract name] = set(str)  events
         """
         results = []
-        for c in self.contracts:
+        for c in self.slither.contracts_derived:
             functions = IncorrectERC20InterfaceDetection.detect_incorrect_erc20_interface(c)
             if functions:
-                info = "{} ({}) has incorrect ERC20 function interface(s):\n"
-                info = info.format(c.name,
-                                   c.source_mapping_str)
                 for function in functions:
-                    info += "\t-{} ({})\n".format(function.name, function.source_mapping_str)
-                json = self.generate_json_result(info)
-                self.add_functions_to_json(functions, json)
-                results.append(json)
+                    info = "{} ({}) has incorrect ERC20 function interface: {} ({})\n".format(c.name,
+                                                                                              c.source_mapping_str,
+                                                                                              function.full_name,
+                                                                                              function.source_mapping_str)
+                    json = self.generate_json_result(info)
+                    self.add_function_to_json(function, json)
+                    results.append(json)
 
         return results

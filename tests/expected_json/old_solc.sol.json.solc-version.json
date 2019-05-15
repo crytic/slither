@@ -1,25 +1,38 @@
-[
-  {
-    "check": "solc-version",
-    "impact": "Informational",
-    "confidence": "High",
-    "description": "Detected issues with version pragma in tests/old_solc.sol.json:\n\t- pragma solidity0.4.21 (None): it allows old versions\n",
-    "elements": [
+{
+  "success": true,
+  "error": null,
+  "results": {
+    "detectors": [
       {
-        "type": "expression",
-        "expression": "0.4.21",
-        "source_mapping": {
-          "start": 0,
-          "length": 23,
-          "filename_used": "old_solc.sol",
-          "filename_relative": null,
-          "filename_absolute": null,
-          "filename_short": null,
-          "lines": [],
-          "starting_column": null,
-          "ending_column": null
-        }
+        "check": "solc-version",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "Pragma version \"0.4.21\" allows old versions (None)\n",
+        "elements": [
+          {
+            "type": "pragma",
+            "name": "0.4.21",
+            "source_mapping": {
+              "start": 0,
+              "length": 23,
+              "filename_used": "old_solc.sol",
+              "filename_relative": null,
+              "filename_absolute": null,
+              "filename_short": null,
+              "lines": [],
+              "starting_column": null,
+              "ending_column": null
+            },
+            "type_specific_fields": {
+              "directive": [
+                "solidity",
+                "0.4",
+                ".21"
+              ]
+            }
+          }
+        ]
       }
     ]
   }
-]
+}

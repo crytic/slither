@@ -42,7 +42,6 @@ contract Bug {
 
     WIKI_RECOMMENDATION = 'Rename the local variable so as not to mistakenly overshadow any state variable/function/modifier/event definitions.'
 
-
     OVERSHADOWED_FUNCTION = "function"
     OVERSHADOWED_MODIFIER = "modifier"
     OVERSHADOWED_STATE_VARIABLE = "state variable"
@@ -115,7 +114,6 @@ contract Bug {
                                                                overshadowed_entry[2],
                                                                overshadowed_entry[0],
                                                                overshadowed_entry[2].source_mapping_str)
-
 
                     # Generate relevant JSON data for this shadowing definition.
                     json = self.generate_json_result(info)
