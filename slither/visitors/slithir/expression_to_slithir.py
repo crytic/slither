@@ -17,8 +17,7 @@ from slither.slithir.variables import (Constant, ReferenceVariable,
                                        TemporaryVariable, TupleVariable)
 from slither.visitors.expression.expression import ExpressionVisitor
 
-#from slither.slithir.variables.state_variable import StateIRVariable
-#from slither.slithir.variables.local_variable import LocalIRVariable
+from slither.slithir.exceptions import SlithIRError
 
 logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
 
@@ -57,8 +56,7 @@ def convert_assignment(left, right, t, return_type):
     elif t == AssignmentOperationType.ASSIGN_MODULO:
         return Binary(left, left, right, BinaryType.MODULO)
 
-    logger.error('Missing type during assignment conversion')
-    exit(-1)
+    raise SlithIRError('Missing type during assignment conversion')
 
 class ExpressionToSlithIR(ExpressionVisitor):
 
@@ -173,7 +171,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
         set_val(expression, val)
 
     def _post_literal(self, expression):
-        set_val(expression, Constant(expression.value))
+        cst = Constant(expression.value, expression.type)
+        set_val(expression, cst)
 
     def _post_member_access(self, expression):
         expr = get(expression.expression)

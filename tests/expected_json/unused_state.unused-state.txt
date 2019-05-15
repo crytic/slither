@@ -1,4 +1,7 @@
 INFO:Detectors:[92m
 A.unused (tests/unused_state.sol#4) is never used in B
+A.unused2 (tests/unused_state.sol#5) is never used in B
+A.unused3 (tests/unused_state.sol#6) is never used in B
+A.unused4 (tests/unused_state.sol#7) is never used in B
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variables[0m
-INFO:Slither:tests/unused_state.sol analyzed (2 contracts), 1 result(s) found
+INFO:Slither:tests/unused_state.sol analyzed (2 contracts), 4 result(s) found

@@ -6,8 +6,11 @@ from slither.core.declarations import (Contract, Enum, Event, Function,
 from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types import (ArrayType, ElementaryType,
                                          FunctionType, MappingType,
-                                         UserDefinedType)
+                                         UserDefinedType, TypeInformation)
+from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
 from slither.core.variables.variable import Variable
+from slither.core.variables.state_variable import StateVariable
+from slither.slithir.variables import TupleVariable
 from slither.slithir.operations import (Assignment, Balance, Binary,
                                         BinaryType, Call, Condition, Delete,
                                         EventCall, HighLevelCall, Index,
@@ -30,6 +33,8 @@ from slither.slithir.variables import (Constant, ReferenceVariable,
                                        TemporaryVariable)
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 from slither.utils.function import get_function_id
+from slither.utils.type import export_nested_types_from_variable
+from slither.slithir.exceptions import SlithIRError
 
 logger = logging.getLogger('ConvertToIR')
 
@@ -39,7 +44,8 @@ def convert_expression(expression, node):
     from slither.core.cfg.node import NodeType
 
     if isinstance(expression, Literal) and node.type in [NodeType.IF, NodeType.IFLOOP]:
-        result =  [Condition(Constant(expression.value))]
+        cst = Constant(expression.value, expression.type)
+        result =  [Condition(cst)]
         return result
     if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
         result =  [Condition(expression.value)]
@@ -306,6 +312,44 @@ def propagate_type_and_convert_call(result, node):
         idx = idx +1
     return result
 
+def _convert_type_contract(ir, slither):
+    assert isinstance(ir.variable_left.type, TypeInformation)
+    contract = ir.variable_left.type.type
+
+    if ir.variable_right == 'creationCode':
+        if slither.crytic_compile:
+            bytecode = slither.crytic_compile.bytecode_init(contract.name)
+        else:
+            logger.info(
+                'The codebase uses type(x).creationCode, but crytic-compile was not used. As a result, the bytecode cannot be found')
+            bytecode = "MISSING_BYTECODE"
+        assignment = Assignment(ir.lvalue,
+                                Constant(str(bytecode)),
+                                ElementaryType('bytes'))
+        assignment.lvalue.set_type(ElementaryType('bytes'))
+        return assignment
+    if ir.variable_right == 'runtimeCode':
+        if slither.crytic_compile:
+            bytecode = slither.crytic_compile.bytecode_runtime(contract.name)
+        else:
+            logger.info(
+                'The codebase uses type(x).runtimeCode, but crytic-compile was not used. As a result, the bytecode cannot be found')
+            bytecode = "MISSING_BYTECODE"
+        assignment = Assignment(ir.lvalue,
+                                Constant(str(bytecode)),
+                                ElementaryType('bytes'))
+        assignment.lvalue.set_type(ElementaryType('bytes'))
+        return assignment
+    if ir.variable_right == 'name':
+        assignment = Assignment(ir.lvalue,
+                                Constant(contract.name),
+                                ElementaryType('string'))
+        assignment.lvalue.set_type(ElementaryType('string'))
+        return assignment
+
+    raise SlithIRError(f'type({contract.name}).{ir.variable_right} is unknown')
+
+
 def propagate_types(ir, node):
     # propagate the type
     using_for = node.function.contract.using_for
@@ -353,7 +397,7 @@ def propagate_types(ir, node):
                 # Convert push operations
                 # May need to insert a new operation
                 # Which leads to return a list of operation
-                if isinstance(t, ArrayType):
+                if isinstance(t, ArrayType) or (isinstance(t, ElementaryType) and t.type == 'bytes'):
                     if ir.function_name == 'push' and len(ir.arguments) == 1:
                         return convert_to_push(ir, node)
 
@@ -407,6 +451,8 @@ def propagate_types(ir, node):
                                             ElementaryType('bytes4'))
                     assignment.lvalue.set_type(ElementaryType('bytes4'))
                     return assignment
+                if isinstance(ir.variable_left, TemporaryVariable) and isinstance(ir.variable_left.type, TypeInformation):
+                    return _convert_type_contract(ir, node.function.slither)
                 left = ir.variable_left
                 t = None
                 if isinstance(left, (Variable, SolidityVariable)):
@@ -435,6 +481,12 @@ def propagate_types(ir, node):
                             f = next((f for f in type_t.functions if f.name == ir.variable_right), None)
                             if f:
                                 ir.lvalue.set_type(f)
+                            else:
+                                # Allow propgation for variable access through contract's nale
+                                # like Base_contract.my_variable
+                                v = next((v for v in type_t.state_variables if v.name == ir.variable_right), None)
+                                if v:
+                                    ir.lvalue.set_type(v.type)
             elif isinstance(ir, NewArray):
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):
@@ -450,6 +502,8 @@ def propagate_types(ir, node):
             elif isinstance(ir, Send):
                 ir.lvalue.set_type(ElementaryType('bool'))
             elif isinstance(ir, SolidityCall):
+                if ir.function.name == 'type(address)':
+                    ir.function.return_type = [TypeInformation(ir.arguments[0])]
                 return_type = ir.function.return_type
                 if len(return_type) == 1:
                     ir.lvalue.set_type(return_type[0])
@@ -468,8 +522,7 @@ def propagate_types(ir, node):
                 # temporary operation; they will be removed
                 pass
             else:
-                logger.error('Not handling {} during type propgation'.format(type(ir)))
-                exit(-1)
+                raise SlithIRError('Not handling {} during type propgation'.format(type(ir)))
 
 def extract_tmp_call(ins, contract):
     assert isinstance(ins, TmpCall)
@@ -588,8 +641,7 @@ def convert_to_low_level(ir):
         new_ir.arguments = ir.arguments
         new_ir.lvalue.set_type(ElementaryType('bool'))
         return new_ir
-    logger.error('Incorrect conversion to low level {}'.format(ir))
-    exit(-1)
+    raise SlithIRError('Incorrect conversion to low level {}'.format(ir))
 
 def convert_to_push(ir, node):
     """
@@ -614,7 +666,7 @@ def convert_to_push(ir, node):
 
         ir = Push(ir.destination, val)
 
-        length = Literal(len(operation.init_values))
+        length = Literal(len(operation.init_values), 'uint256')
         t = operation.init_values[0].type
         ir.lvalue.set_type(ArrayType(t, length))
 
@@ -693,6 +745,9 @@ def convert_type_library_call(ir, lib_contract):
         func = lib_contract.get_function_from_signature(sig)
         if not func:
             func = lib_contract.get_state_variable_from_name(ir.function_name)
+        if func:
+            # stop to explore if func is found (prevent dupplicate issue)
+            break
     # In case of multiple binding to the same type
     if not func:
         # specific lookup when the compiler does implicit conversion
@@ -728,6 +783,9 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
             func = contract.get_function_from_canonical_name(sig)
             if not func:
                 func = contract.get_state_variable_from_name(ir.function_name)
+            if func:
+                # stop to explore if func is found (prevent dupplicate issue)
+                break
     else:
         assert isinstance(ir, HighLevelCall)
         sigs = get_sig(ir, ir.function_name)
@@ -735,6 +793,9 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
             func = contract.get_function_from_canonical_name(sig)
             if not func:
                 func = contract.get_state_variable_from_name(ir.function_name)
+            if func:
+                # stop to explore if func is found (prevent dupplicate issue)
+                break
     if not func:
         # specific lookup when the compiler does implicit conversion
         # for example
@@ -851,6 +912,80 @@ def remove_unused(result):
 # endregion
 ###################################################################################
 ###################################################################################
+# region Constant type conversioh
+###################################################################################
+###################################################################################
+
+def convert_constant_types(irs):
+    """
+    late conversion of uint -> type for constant (Literal)
+    :param irs:
+    :return:
+    """
+    # TODO: implement instances lookup for events, NewContract
+    was_changed = True
+    while was_changed:
+        was_changed = False
+        for ir in irs:
+            if isinstance(ir, Assignment):
+                if isinstance(ir.lvalue.type, ElementaryType):
+                    if ir.lvalue.type.type in ElementaryTypeInt:
+                        if isinstance(ir.rvalue, Function):
+                            continue
+                        elif isinstance(ir.rvalue, TupleVariable):
+                            # TODO: fix missing Unpack conversion
+                            continue
+                        else:
+                            if ir.rvalue.type.type != 'int256':
+                                ir.rvalue.set_type(ElementaryType('int256'))
+                                was_changed = True
+            if isinstance(ir, Binary):
+                if isinstance(ir.lvalue.type, ElementaryType):
+                    if ir.lvalue.type.type in ElementaryTypeInt:
+                        for r in ir.read:
+                            if r.type.type != 'int256':
+                                r.set_type(ElementaryType('int256'))
+                                was_changed = True
+            if isinstance(ir, (HighLevelCall, InternalCall)):
+                func = ir.function
+                if isinstance(func, StateVariable):
+                    types = export_nested_types_from_variable(func)
+                else:
+                    if func is None:
+                        # TODO: add  POP instruction
+                        break
+                    types = [p.type for p in func.parameters]
+                for idx, arg in enumerate(ir.arguments):
+                    t = types[idx]
+                    if isinstance(t, ElementaryType):
+                        if t.type in ElementaryTypeInt:
+                            if arg.type.type != 'int256':
+                                arg.set_type(ElementaryType('int256'))
+                                was_changed = True
+            if isinstance(ir, NewStructure):
+                st = ir.structure
+                for idx, arg in enumerate(ir.arguments):
+                    e = st.elems_ordered[idx]
+                    if isinstance(e.type, ElementaryType):
+                        if e.type.type in ElementaryTypeInt:
+                            if arg.type.type != 'int256':
+                                arg.set_type(ElementaryType('int256'))
+                                was_changed = True
+            if isinstance(ir, InitArray):
+                if isinstance(ir.lvalue.type, ArrayType):
+                    if isinstance(ir.lvalue.type.type, ElementaryType):
+                        if ir.lvalue.type.type.type in ElementaryTypeInt:
+                            for r in ir.read:
+                                if r.type.type != 'int256':
+                                    r.set_type(ElementaryType('int256'))
+                                    was_changed = True
+
+
+
+
+# endregion
+###################################################################################
+###################################################################################
 # region Heuristics selection
 ###################################################################################
 ###################################################################################
@@ -865,6 +1000,7 @@ def apply_ir_heuristics(irs, node):
     irs = propagate_type_and_convert_call(irs, node)
     irs = remove_unused(irs)
     find_references_origin(irs)
+    convert_constant_types(irs)
 
 
     return irs

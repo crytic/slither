@@ -1,252 +1,350 @@
-[
-  {
-    "check": "constant-function",
-    "impact": "Medium",
-    "confidence": "Medium",
-    "description": "Constant.test_view_bug (tests/constant.sol#5-7) is declared view but changes state variables:\n\t- Constant.a\n",
-    "elements": [
+{
+  "success": true,
+  "error": null,
+  "results": {
+    "detectors": [
       {
-        "type": "function",
-        "name": "test_view_bug",
-        "source_mapping": {
-          "start": 45,
-          "length": 58,
-          "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
-          "filename_relative": "tests/constant.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
-          "filename_short": "tests/constant.sol",
-          "lines": [
-            5,
-            6,
-            7
-          ],
-          "starting_column": 5,
-          "ending_column": 6
-        },
-        "contract": {
-          "type": "contract",
-          "name": "Constant",
-          "source_mapping": {
-            "start": 0,
-            "length": 392,
-            "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
-            "filename_relative": "tests/constant.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
-            "filename_short": "tests/constant.sol",
-            "lines": [
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22,
-              23,
-              24,
-              25
-            ],
-            "starting_column": 1,
-            "ending_column": 2
+        "check": "constant-function",
+        "impact": "Medium",
+        "confidence": "Medium",
+        "description": "Constant.test_view_bug() (tests/constant.sol#5-7) is declared view but changes state variables:\n\t- Constant.a\n",
+        "elements": [
+          {
+            "type": "function",
+            "name": "test_view_bug",
+            "source_mapping": {
+              "start": 45,
+              "length": 58,
+              "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
+              "filename_relative": "tests/constant.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
+              "filename_short": "tests/constant.sol",
+              "lines": [
+                5,
+                6,
+                7
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Constant",
+                "source_mapping": {
+                  "start": 0,
+                  "length": 392,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
+                  "filename_relative": "tests/constant.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
+                  "filename_short": "tests/constant.sol",
+                  "lines": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "test_view_bug()"
+            }
+          },
+          {
+            "type": "variable",
+            "name": "a",
+            "source_mapping": {
+              "start": 28,
+              "length": 6,
+              "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
+              "filename_relative": "tests/constant.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
+              "filename_short": "tests/constant.sol",
+              "lines": [
+                3
+              ],
+              "starting_column": 5,
+              "ending_column": 11
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Constant",
+                "source_mapping": {
+                  "start": 0,
+                  "length": 392,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
+                  "filename_relative": "tests/constant.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
+                  "filename_short": "tests/constant.sol",
+                  "lines": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
+            }
           }
+        ],
+        "additional_fields": {
+          "contains_assembly": false
         }
       },
       {
-        "type": "variable",
-        "name": "a",
-        "source_mapping": {
-          "start": 28,
-          "length": 6,
-          "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
-          "filename_relative": "tests/constant.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
-          "filename_short": "tests/constant.sol",
-          "lines": [
-            3
-          ],
-          "starting_column": 5,
-          "ending_column": 11
-        }
-      },
-      {
-        "type": "info",
-        "contains_assembly": false
-      }
-    ]
-  },
-  {
-    "check": "constant-function",
-    "impact": "Medium",
-    "confidence": "Medium",
-    "description": "Constant.test_constant_bug (tests/constant.sol#9-11) is declared view but changes state variables:\n\t- Constant.a\n",
-    "elements": [
-      {
-        "type": "function",
-        "name": "test_constant_bug",
-        "source_mapping": {
-          "start": 113,
-          "length": 66,
-          "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
-          "filename_relative": "tests/constant.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
-          "filename_short": "tests/constant.sol",
-          "lines": [
-            9,
-            10,
-            11
-          ],
-          "starting_column": 5,
-          "ending_column": 6
-        },
-        "contract": {
-          "type": "contract",
-          "name": "Constant",
-          "source_mapping": {
-            "start": 0,
-            "length": 392,
-            "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
-            "filename_relative": "tests/constant.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
-            "filename_short": "tests/constant.sol",
-            "lines": [
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22,
-              23,
-              24,
-              25
-            ],
-            "starting_column": 1,
-            "ending_column": 2
+        "check": "constant-function",
+        "impact": "Medium",
+        "confidence": "Medium",
+        "description": "Constant.test_constant_bug() (tests/constant.sol#9-11) is declared view but changes state variables:\n\t- Constant.a\n",
+        "elements": [
+          {
+            "type": "function",
+            "name": "test_constant_bug",
+            "source_mapping": {
+              "start": 113,
+              "length": 66,
+              "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
+              "filename_relative": "tests/constant.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
+              "filename_short": "tests/constant.sol",
+              "lines": [
+                9,
+                10,
+                11
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Constant",
+                "source_mapping": {
+                  "start": 0,
+                  "length": 392,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
+                  "filename_relative": "tests/constant.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
+                  "filename_short": "tests/constant.sol",
+                  "lines": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "test_constant_bug()"
+            }
+          },
+          {
+            "type": "variable",
+            "name": "a",
+            "source_mapping": {
+              "start": 28,
+              "length": 6,
+              "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
+              "filename_relative": "tests/constant.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
+              "filename_short": "tests/constant.sol",
+              "lines": [
+                3
+              ],
+              "starting_column": 5,
+              "ending_column": 11
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Constant",
+                "source_mapping": {
+                  "start": 0,
+                  "length": 392,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
+                  "filename_relative": "tests/constant.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
+                  "filename_short": "tests/constant.sol",
+                  "lines": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
+            }
           }
+        ],
+        "additional_fields": {
+          "contains_assembly": false
         }
       },
       {
-        "type": "variable",
-        "name": "a",
-        "source_mapping": {
-          "start": 28,
-          "length": 6,
-          "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
-          "filename_relative": "tests/constant.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
-          "filename_short": "tests/constant.sol",
-          "lines": [
-            3
-          ],
-          "starting_column": 5,
-          "ending_column": 11
-        }
-      },
-      {
-        "type": "info",
-        "contains_assembly": false
-      }
-    ]
-  },
-  {
-    "check": "constant-function",
-    "impact": "Medium",
-    "confidence": "Medium",
-    "description": "Constant.test_assembly_bug (tests/constant.sol#22-24) is declared view but contains assembly code\n",
-    "elements": [
-      {
-        "type": "function",
-        "name": "test_assembly_bug",
-        "source_mapping": {
-          "start": 324,
-          "length": 66,
-          "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
-          "filename_relative": "tests/constant.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
-          "filename_short": "tests/constant.sol",
-          "lines": [
-            22,
-            23,
-            24
-          ],
-          "starting_column": 5,
-          "ending_column": 6
-        },
-        "contract": {
-          "type": "contract",
-          "name": "Constant",
-          "source_mapping": {
-            "start": 0,
-            "length": 392,
-            "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
-            "filename_relative": "tests/constant.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
-            "filename_short": "tests/constant.sol",
-            "lines": [
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22,
-              23,
-              24,
-              25
-            ],
-            "starting_column": 1,
-            "ending_column": 2
+        "check": "constant-function",
+        "impact": "Medium",
+        "confidence": "Medium",
+        "description": "Constant.test_assembly_bug() (tests/constant.sol#22-24) is declared view but contains assembly code\n",
+        "elements": [
+          {
+            "type": "function",
+            "name": "test_assembly_bug",
+            "source_mapping": {
+              "start": 324,
+              "length": 66,
+              "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
+              "filename_relative": "tests/constant.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
+              "filename_short": "tests/constant.sol",
+              "lines": [
+                22,
+                23,
+                24
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Constant",
+                "source_mapping": {
+                  "start": 0,
+                  "length": 392,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/constant.sol",
+                  "filename_relative": "tests/constant.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
+                  "filename_short": "tests/constant.sol",
+                  "lines": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "test_assembly_bug()"
+            }
           }
+        ],
+        "additional_fields": {
+          "contains_assembly": true
         }
-      },
-      {
-        "type": "info",
-        "contains_assembly": true
       }
     ]
   }
-]
+}

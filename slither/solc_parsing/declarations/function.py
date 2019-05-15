@@ -26,6 +26,7 @@ from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.utils.utils import unroll
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
+from slither.solc_parsing.exceptions import ParsingError
 
 logger = logging.getLogger("FunctionSolc")
 
@@ -726,8 +727,7 @@ class FunctionSolc(Function):
             link_nodes(node, new_node)
             node = new_node
         else:
-            logger.error('Statement not parsed %s'%name)
-            exit(-1)
+            raise ParsingError('Statement not parsed %s'%name)
 
         return node
 
@@ -815,8 +815,7 @@ class FunctionSolc(Function):
         end_node = self._find_end_loop(node, [], 0)
 
         if not end_node:
-            logger.error('Break in no-loop context {}'.format(node))
-            exit(-1)
+            raise ParsingError('Break in no-loop context {}'.format(node))
 
         for son in node.sons:
             son.remove_father(node)
@@ -827,8 +826,7 @@ class FunctionSolc(Function):
         start_node = self._find_start_loop(node, [])
 
         if not start_node:
-            logger.error('Continue in no-loop context {}'.format(node.nodeId()))
-            exit(-1)
+            raise ParsingError('Continue in no-loop context {}'.format(node.nodeId()))
 
         for son in node.sons:
             son.remove_father(node)

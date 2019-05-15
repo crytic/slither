@@ -1,180 +1,681 @@
-[
-  {
-    "check": "deprecated-standards",
-    "impact": "Informational",
-    "confidence": "High",
-    "description": "Deprecated standard detected @ tests/deprecated_calls.sol#2:\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
-    "elements": [
+{
+  "success": true,
+  "error": null,
+  "results": {
+    "detectors": [
       {
-        "type": "variable",
-        "name": "globalBlockHash",
-        "source_mapping": {
-          "start": 48,
-          "length": 44,
-          "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_relative": "tests/deprecated_calls.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_short": "tests/deprecated_calls.sol",
-          "lines": [
-            2
-          ],
-          "starting_column": 5,
-          "ending_column": 49
-        }
-      }
-    ]
-  },
-  {
-    "check": "deprecated-standards",
-    "impact": "Informational",
-    "confidence": "High",
-    "description": "Deprecated standard detected @ tests/deprecated_calls.sol#7-10:\n\t- Usage of \"msg.gas\" should be replaced with \"gasleft()\"\n",
-    "elements": [
+        "check": "deprecated-standards",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#2:\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
+        "elements": [
+          {
+            "type": "variable",
+            "name": "globalBlockHash",
+            "source_mapping": {
+              "start": 48,
+              "length": 44,
+              "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_relative": "tests/deprecated_calls.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_short": "tests/deprecated_calls.sol",
+              "lines": [
+                2
+              ],
+              "starting_column": 5,
+              "ending_column": 49
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "ContractWithDeprecatedReferences",
+                "source_mapping": {
+                  "start": 0,
+                  "length": 906,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_relative": "tests/deprecated_calls.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_short": "tests/deprecated_calls.sol",
+                  "lines": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27
+                  ],
+                  "starting_column": 1,
+                  "ending_column": null
+                }
+              }
+            }
+          }
+        ]
+      },
       {
-        "type": "expression",
-        "expression": "msg.gas == msg.value",
-        "source_mapping": {
-          "start": 258,
-          "length": 107,
-          "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_relative": "tests/deprecated_calls.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_short": "tests/deprecated_calls.sol",
-          "lines": [
-            7,
-            8,
-            9,
-            10
-          ],
-          "starting_column": 9,
-          "ending_column": 10
-        }
-      }
-    ]
-  },
-  {
-    "check": "deprecated-standards",
-    "impact": "Informational",
-    "confidence": "High",
-    "description": "Deprecated standard detected @ tests/deprecated_calls.sol#9:\n\t- Usage of \"throw\" should be replaced with \"revert()\"\n",
-    "elements": [
+        "check": "deprecated-standards",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#7-10:\n\t- Usage of \"msg.gas\" should be replaced with \"gasleft()\"\n",
+        "elements": [
+          {
+            "type": "node",
+            "name": "msg.gas == msg.value",
+            "source_mapping": {
+              "start": 258,
+              "length": 107,
+              "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_relative": "tests/deprecated_calls.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_short": "tests/deprecated_calls.sol",
+              "lines": [
+                7,
+                8,
+                9,
+                10
+              ],
+              "starting_column": 9,
+              "ending_column": 10
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "functionWithDeprecatedThrow",
+                "source_mapping": {
+                  "start": 142,
+                  "length": 229,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_relative": "tests/deprecated_calls.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_short": "tests/deprecated_calls.sol",
+                  "lines": [
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "ContractWithDeprecatedReferences",
+                    "source_mapping": {
+                      "start": 0,
+                      "length": 906,
+                      "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_relative": "tests/deprecated_calls.sol",
+                      "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_short": "tests/deprecated_calls.sol",
+                      "lines": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27
+                      ],
+                      "starting_column": 1,
+                      "ending_column": null
+                    }
+                  },
+                  "signature": "functionWithDeprecatedThrow()"
+                }
+              }
+            }
+          }
+        ]
+      },
       {
-        "type": "expression",
-        "expression": "None",
-        "source_mapping": {
-          "start": 349,
-          "length": 5,
-          "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_relative": "tests/deprecated_calls.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_short": "tests/deprecated_calls.sol",
-          "lines": [
-            9
-          ],
-          "starting_column": 13,
-          "ending_column": 18
-        }
-      }
-    ]
-  },
-  {
-    "check": "deprecated-standards",
-    "impact": "Informational",
-    "confidence": "High",
-    "description": "Deprecated standard detected @ tests/deprecated_calls.sol#16:\n\t- Usage of \"sha3()\" should be replaced with \"keccak256()\"\n",
-    "elements": [
+        "check": "deprecated-standards",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#9:\n\t- Usage of \"throw\" should be replaced with \"revert()\"\n",
+        "elements": [
+          {
+            "type": "node",
+            "name": "",
+            "source_mapping": {
+              "start": 349,
+              "length": 5,
+              "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_relative": "tests/deprecated_calls.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_short": "tests/deprecated_calls.sol",
+              "lines": [
+                9
+              ],
+              "starting_column": 13,
+              "ending_column": 18
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "functionWithDeprecatedThrow",
+                "source_mapping": {
+                  "start": 142,
+                  "length": 229,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_relative": "tests/deprecated_calls.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_short": "tests/deprecated_calls.sol",
+                  "lines": [
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "ContractWithDeprecatedReferences",
+                    "source_mapping": {
+                      "start": 0,
+                      "length": 906,
+                      "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_relative": "tests/deprecated_calls.sol",
+                      "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_short": "tests/deprecated_calls.sol",
+                      "lines": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27
+                      ],
+                      "starting_column": 1,
+                      "ending_column": null
+                    }
+                  },
+                  "signature": "functionWithDeprecatedThrow()"
+                }
+              }
+            }
+          }
+        ]
+      },
       {
-        "type": "expression",
-        "expression": "sha3Result = sha3()(test deprecated sha3 usage)",
-        "source_mapping": {
-          "start": 542,
-          "length": 55,
-          "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_relative": "tests/deprecated_calls.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_short": "tests/deprecated_calls.sol",
-          "lines": [
-            16
-          ],
-          "starting_column": 9,
-          "ending_column": 64
-        }
-      }
-    ]
-  },
-  {
-    "check": "deprecated-standards",
-    "impact": "Informational",
-    "confidence": "High",
-    "description": "Deprecated standard detected @ tests/deprecated_calls.sol#19:\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
-    "elements": [
+        "check": "deprecated-standards",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#16:\n\t- Usage of \"sha3()\" should be replaced with \"keccak256()\"\n",
+        "elements": [
+          {
+            "type": "node",
+            "name": "sha3Result = sha3()(test deprecated sha3 usage)",
+            "source_mapping": {
+              "start": 542,
+              "length": 55,
+              "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_relative": "tests/deprecated_calls.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_short": "tests/deprecated_calls.sol",
+              "lines": [
+                16
+              ],
+              "starting_column": 9,
+              "ending_column": 64
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "functionWithDeprecatedReferences",
+                "source_mapping": {
+                  "start": 420,
+                  "length": 484,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_relative": "tests/deprecated_calls.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_short": "tests/deprecated_calls.sol",
+                  "lines": [
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "ContractWithDeprecatedReferences",
+                    "source_mapping": {
+                      "start": 0,
+                      "length": 906,
+                      "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_relative": "tests/deprecated_calls.sol",
+                      "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_short": "tests/deprecated_calls.sol",
+                      "lines": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27
+                      ],
+                      "starting_column": 1,
+                      "ending_column": null
+                    }
+                  },
+                  "signature": "functionWithDeprecatedReferences()"
+                }
+              }
+            }
+          }
+        ]
+      },
       {
-        "type": "expression",
-        "expression": "blockHashResult = block.blockhash(0)",
-        "source_mapping": {
-          "start": 671,
-          "length": 44,
-          "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_relative": "tests/deprecated_calls.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_short": "tests/deprecated_calls.sol",
-          "lines": [
-            19
-          ],
-          "starting_column": 9,
-          "ending_column": 53
-        }
-      }
-    ]
-  },
-  {
-    "check": "deprecated-standards",
-    "impact": "Informational",
-    "confidence": "High",
-    "description": "Deprecated standard detected @ tests/deprecated_calls.sol#22:\n\t- Usage of \"callcode\" should be replaced with \"delegatecall\"\n",
-    "elements": [
+        "check": "deprecated-standards",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#19:\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
+        "elements": [
+          {
+            "type": "node",
+            "name": "blockHashResult = block.blockhash(0)",
+            "source_mapping": {
+              "start": 671,
+              "length": 44,
+              "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_relative": "tests/deprecated_calls.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_short": "tests/deprecated_calls.sol",
+              "lines": [
+                19
+              ],
+              "starting_column": 9,
+              "ending_column": 53
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "functionWithDeprecatedReferences",
+                "source_mapping": {
+                  "start": 420,
+                  "length": 484,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_relative": "tests/deprecated_calls.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_short": "tests/deprecated_calls.sol",
+                  "lines": [
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "ContractWithDeprecatedReferences",
+                    "source_mapping": {
+                      "start": 0,
+                      "length": 906,
+                      "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_relative": "tests/deprecated_calls.sol",
+                      "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_short": "tests/deprecated_calls.sol",
+                      "lines": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27
+                      ],
+                      "starting_column": 1,
+                      "ending_column": null
+                    }
+                  },
+                  "signature": "functionWithDeprecatedReferences()"
+                }
+              }
+            }
+          }
+        ]
+      },
       {
-        "type": "expression",
-        "expression": "address(this).callcode()",
-        "source_mapping": {
-          "start": 785,
-          "length": 24,
-          "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_relative": "tests/deprecated_calls.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_short": "tests/deprecated_calls.sol",
-          "lines": [
-            22
-          ],
-          "starting_column": 9,
-          "ending_column": 33
-        }
-      }
-    ]
-  },
-  {
-    "check": "deprecated-standards",
-    "impact": "Informational",
-    "confidence": "High",
-    "description": "Deprecated standard detected @ tests/deprecated_calls.sol#25:\n\t- Usage of \"suicide()\" should be replaced with \"selfdestruct()\"\n",
-    "elements": [
+        "check": "deprecated-standards",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#22:\n\t- Usage of \"callcode\" should be replaced with \"delegatecall\"\n",
+        "elements": [
+          {
+            "type": "node",
+            "name": "address(this).callcode()",
+            "source_mapping": {
+              "start": 785,
+              "length": 24,
+              "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_relative": "tests/deprecated_calls.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_short": "tests/deprecated_calls.sol",
+              "lines": [
+                22
+              ],
+              "starting_column": 9,
+              "ending_column": 33
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "functionWithDeprecatedReferences",
+                "source_mapping": {
+                  "start": 420,
+                  "length": 484,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_relative": "tests/deprecated_calls.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_short": "tests/deprecated_calls.sol",
+                  "lines": [
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "ContractWithDeprecatedReferences",
+                    "source_mapping": {
+                      "start": 0,
+                      "length": 906,
+                      "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_relative": "tests/deprecated_calls.sol",
+                      "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_short": "tests/deprecated_calls.sol",
+                      "lines": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27
+                      ],
+                      "starting_column": 1,
+                      "ending_column": null
+                    }
+                  },
+                  "signature": "functionWithDeprecatedReferences()"
+                }
+              }
+            }
+          }
+        ]
+      },
       {
-        "type": "expression",
-        "expression": "suicide(address)(address(0))",
-        "source_mapping": {
-          "start": 878,
-          "length": 19,
-          "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_relative": "tests/deprecated_calls.sol",
-          "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
-          "filename_short": "tests/deprecated_calls.sol",
-          "lines": [
-            25
-          ],
-          "starting_column": 9,
-          "ending_column": 28
-        }
+        "check": "deprecated-standards",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#25:\n\t- Usage of \"suicide()\" should be replaced with \"selfdestruct()\"\n",
+        "elements": [
+          {
+            "type": "node",
+            "name": "suicide(address)(address(0))",
+            "source_mapping": {
+              "start": 878,
+              "length": 19,
+              "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_relative": "tests/deprecated_calls.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_short": "tests/deprecated_calls.sol",
+              "lines": [
+                25
+              ],
+              "starting_column": 9,
+              "ending_column": 28
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "functionWithDeprecatedReferences",
+                "source_mapping": {
+                  "start": 420,
+                  "length": 484,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_relative": "tests/deprecated_calls.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_short": "tests/deprecated_calls.sol",
+                  "lines": [
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "ContractWithDeprecatedReferences",
+                    "source_mapping": {
+                      "start": 0,
+                      "length": 906,
+                      "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_relative": "tests/deprecated_calls.sol",
+                      "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_short": "tests/deprecated_calls.sol",
+                      "lines": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27
+                      ],
+                      "starting_column": 1,
+                      "ending_column": null
+                    }
+                  },
+                  "signature": "functionWithDeprecatedReferences()"
+                }
+              }
+            }
+          }
+        ]
       }
     ]
   }
-]
+}

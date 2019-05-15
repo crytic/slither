@@ -11,7 +11,7 @@ from crytic_compile import CryticCompile, InvalidCompilation
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
 from .solc_parsing.slitherSolc import SlitherSolc
-from .utils.colors import red
+from .exceptions import SlitherError
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -44,10 +44,6 @@ class Slither(SlitherSolc):
                 embark_overwrite_config (bool): overwrite original config file (default false)
 
         '''
-
-        truffle_ignore = kwargs.get('truffle_ignore', False)
-        embark_ignore = kwargs.get('embark_ignore', False)
-
         # list of files provided (see --splitted option)
         if isinstance(contract, list):
             self._init_from_list(contract)
@@ -56,17 +52,13 @@ class Slither(SlitherSolc):
         else:
             super(Slither, self).__init__('')
             try:
-                cryticCompile = CryticCompile(contract, **kwargs)
-                self._crytic_compile = cryticCompile
+                crytic_compile = CryticCompile(contract, **kwargs)
+                self._crytic_compile = crytic_compile
             except InvalidCompilation as e:
-                logger.error('Invalid compilation')
-                logger.error(e)
-                exit(-1)
-            for path, ast in cryticCompile.asts.items():
-
+                raise SlitherError('Invalid compilation: \n'+str(e))
+            for path, ast in crytic_compile.asts.items():
                 self._parse_contracts_from_loaded_json(ast, path)
-                with open(path) as f:
-                    self.source_code[path] = f.read()
+                self._add_source_code(path)
 
         self._detectors = []
         self._printers = []
@@ -82,14 +74,12 @@ class Slither(SlitherSolc):
 
     def _init_from_raw_json(self, filename):
         if not os.path.isfile(filename):
-            logger.error('{} does not exist (are you in the correct directory?)'.format(filename))
-            exit(-1)
+            raise SlitherError('{} does not exist (are you in the correct directory?)'.format(filename))
         assert filename.endswith('json')
         with open(filename, encoding='utf8') as astFile:
             stdout = astFile.read()
             if not stdout:
-                logger.info('Empty AST file: %s', filename)
-                sys.exit(-1)
+                raise SlitherError('Empty AST file: %s', filename)
         contracts_json = stdout.split('\n=')
 
         super(Slither, self).__init__(filename)
@@ -170,21 +160,19 @@ class Slither(SlitherSolc):
                 )
             )
 
-        if any(isinstance(obj, cls) for obj in instances_list):
+        if any(type(obj) == cls for obj in instances_list):
             raise Exception(
                 "You can't register {!r} twice.".format(cls)
             )
 
     def _run_solc(self, filename, solc, disable_solc_warnings, solc_arguments, ast_format):
         if not os.path.isfile(filename):
-            logger.error('{} does not exist (are you in the correct directory?)'.format(filename))
-            exit(-1)
+            raise SlitherError('{} does not exist (are you in the correct directory?)'.format(filename))
         assert filename.endswith('json')
         with open(filename, encoding='utf8') as astFile:
             stdout = astFile.read()
             if not stdout:
-                logger.info('Empty AST file: %s', filename)
-                sys.exit(-1)
+                raise SlitherError('Empty AST file: %s', filename)
         stdout = stdout.split('\n=')
 
         return stdout

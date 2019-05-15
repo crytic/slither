@@ -33,6 +33,8 @@ def _visit(node, visited, variables_written, variables_to_write):
         variables_written = variables_written + [ir.lvalue]
         lvalue = ir.lvalue
         while  isinstance(lvalue, ReferenceVariable):
+            if lvalue not in refs:
+                break
             variables_written = variables_written + [refs[lvalue]]
             lvalue = refs[lvalue]
 
