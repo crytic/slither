@@ -8,7 +8,14 @@ from .slither_format import slither_format
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
 
-available_detectors = ["external-function"]
+available_detectors = ["unused-state",
+                       "solc-version",
+                       "pragma",
+                       "naming-convention",
+                       "external-function",
+                       "constable-states",
+                       "constant-function"]
+
 detectors_to_run = []
 
 def parse_args():
