@@ -42,9 +42,10 @@ def slither_format(args, slither):
     number_of_slither_results = get_number_of_slither_results(detector_results)
     apply_detector_results(slither, patches, detector_results)
     sort_patches(patches)
-    if args.verbose:
-        print("Number of Slither results: " + str(number_of_slither_results))
-        print_patches(patches)
+    if args.verbose_json:
+        print_patches_json(number_of_slither_results, patches)
+    if args.verbose_test:
+        print_patches(number_of_slither_results, patches)    
     apply_patches(slither, patches)
 
 def sort_patches(patches):
@@ -73,7 +74,8 @@ def apply_patches(slither, patches):
         out_file.write(out_file_str)
         out_file.close()
 
-def print_patches(patches):
+def print_patches(number_of_slither_results, patches):
+    print("Number of Slither results: " + str(number_of_slither_results))
     number_of_patches = 0
     for file in patches:
         number_of_patches += len(patches[file])
@@ -86,6 +88,34 @@ def print_patches(patches):
             print("New string: " + patch['new_string'].replace("\n",""))
             print("Location start: " + str(patch['start']))
             print("Location end: " + str(patch['end']))
+
+def print_patches_json(number_of_slither_results, patches):
+    print('{',end='')
+    print("\"Number of Slither results\":" + '"' + str(number_of_slither_results) + '",')
+    print("\"Number of patchlets\":" + "\"" + str(len(patches)) + "\"", ',')
+    print("\"Patchlets\":" + '[')
+    for index, file in enumerate(patches):
+        if index > 0:
+            print(',')
+        print('{',end='')
+        print("\"Patch file\":" + '"' + file + '",')
+        print("\"Number of patches\":" + "\"" + str(len(patches[file])) + "\"", ',')
+        print("\"Patches\":" + '[')
+        for index, patch in enumerate(patches[file]):
+            if index > 0:
+                print(',')
+            print('{',end='')
+            print("\"Detector\":" + '"' + patch['detector'] + '",')
+            print("\"Old string\":" + '"' + patch['old_string'].replace("\n","") + '",')
+            print("\"New string\":" + '"' + patch['new_string'].replace("\n","") + '",')
+            print("\"Location start\":" + '"' + str(patch['start']) + '",')
+            print("\"Location end\":" + '"' + str(patch['end']) + '"')
+            print('}',end='')
+        print(']',end='')        
+        print('}',end='')
+    print(']',end='')        
+    print('}')
+    
 
 def choose_detectors(args):
     # If detectors are specified, run only these ones

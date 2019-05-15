@@ -15,7 +15,7 @@ class TestPragma(unittest.TestCase):
     def setUp(self):
         outFD1 = open(self.testFilePath1+".out","w")
         errFD1 = open(self.testFilePath1+".err","w")
-        p1 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','pragma',self.testFilePath1], stdout=outFD1,stderr=errFD1)
+        p1 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose-test','--detect','pragma',self.testFilePath1], stdout=outFD1,stderr=errFD1)
         p1.wait()
         outFD1.close()
         errFD1.close()
@@ -24,7 +24,7 @@ class TestPragma(unittest.TestCase):
         errFD2 = open(self.testFilePath2+".err","w")
         my_env = os.environ.copy()
         my_env["SOLC_VERSION"] = "0.5.4"
-        p2 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','pragma',self.testFilePath2], stdout=outFD2,stderr=errFD2, env=my_env)
+        p2 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose-test','--detect','pragma',self.testFilePath2], stdout=outFD2,stderr=errFD2, env=my_env)
         p2.wait()
         outFD2.close()
         errFD2.close()

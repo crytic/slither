@@ -15,21 +15,21 @@ class TestSolcVersion(unittest.TestCase):
     def setUp(self):
         outFD1 = open(self.testFilePath1+".out","w")
         errFD1 = open(self.testFilePath1+".err","w")
-        p1 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','solc-version',self.testFilePath1], stdout=outFD1,stderr=errFD1)
+        p1 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose-test','--detect','solc-version',self.testFilePath1], stdout=outFD1,stderr=errFD1)
         p1.wait()
         outFD1.close()
         errFD1.close()
 
         outFD2 = open(self.testFilePath2+".out","w")
         errFD2 = open(self.testFilePath2+".err","w")
-        p2 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','solc-version',self.testFilePath2], stdout=outFD2,stderr=errFD2)
+        p2 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose-test','--detect','solc-version',self.testFilePath2], stdout=outFD2,stderr=errFD2)
         p2.wait()
         outFD2.close()
         errFD2.close()
 
         outFD3 = open(self.testFilePath3+".out","w")
         errFD3 = open(self.testFilePath3+".err","w")
-        p3 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','solc-version',self.testFilePath3], stdout=outFD3,stderr=errFD3)
+        p3 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose-test','--detect','solc-version',self.testFilePath3], stdout=outFD3,stderr=errFD3)
         p3.wait()
         outFD3.close()
         errFD3.close()
@@ -38,7 +38,7 @@ class TestSolcVersion(unittest.TestCase):
         errFD4 = open(self.testFilePath4+".err","w")
         my_env = os.environ.copy()
         my_env["SOLC_VERSION"] = "0.5.2"
-        p4 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose','--detect','solc-version',self.testFilePath4], stdout=outFD4,stderr=errFD4, env=my_env)
+        p4 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose-test','--detect','solc-version',self.testFilePath4], stdout=outFD4,stderr=errFD4, env=my_env)
         p4.wait()
         outFD4.close()
         errFD4.close()
