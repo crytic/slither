@@ -176,7 +176,7 @@
         "check": "naming-convention",
         "impact": "Informational",
         "confidence": "High",
-        "description": "Event 'naming.event_' (tests/naming_convention.sol#23) is not in CapWords\n",
+        "description": "Event 'namingevent_(uint256)' (tests/naming_convention.sol#23) is not in CapWords\n",
         "elements": [
           {
             "type": "event",
@@ -270,7 +270,7 @@
         "check": "naming-convention",
         "impact": "Informational",
         "confidence": "High",
-        "description": "Function 'naming.GetOne' (tests/naming_convention.sol#30-33) is not in mixedCase\n",
+        "description": "Function 'naming.GetOne()' (tests/naming_convention.sol#30-33) is not in mixedCase\n",
         "elements": [
           {
             "type": "function",
@@ -367,7 +367,7 @@
         "check": "naming-convention",
         "impact": "Informational",
         "confidence": "High",
-        "description": "Parameter 'Number2' of naming.setInt (tests/naming_convention.sol#35) is not in mixedCase\n",
+        "description": "Parameter 'Number2' of Number2 (tests/naming_convention.sol#35) is not in mixedCase\n",
         "elements": [
           {
             "type": "variable",
@@ -762,7 +762,7 @@
         "check": "naming-convention",
         "impact": "Informational",
         "confidence": "High",
-        "description": "Modifier 'naming.CantDo' (tests/naming_convention.sol#41-43) is not in mixedCase\n",
+        "description": "Modifier 'naming.CantDo()' (tests/naming_convention.sol#41-43) is not in mixedCase\n",
         "elements": [
           {
             "type": "function",
@@ -858,7 +858,7 @@
         "check": "naming-convention",
         "impact": "Informational",
         "confidence": "High",
-        "description": "Parameter '_used' of T.test (tests/naming_convention.sol#59) is not in mixedCase\n",
+        "description": "Parameter '_used' of _used (tests/naming_convention.sol#59) is not in mixedCase\n",
         "elements": [
           {
             "type": "variable",

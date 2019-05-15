@@ -36,9 +36,10 @@ class FunctionSolc(Function):
     """
     # elems = [(type, name)]
 
-    def __init__(self, function, contract):
+    def __init__(self, function, contract, contract_declarer):
         super(FunctionSolc, self).__init__()
         self._contract = contract
+        self._contract_declarer = contract_declarer
 
         # Only present if compact AST
         self._referenced_declaration = None

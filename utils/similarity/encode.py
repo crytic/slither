@@ -193,7 +193,7 @@ def encode_contract(cfilename, **kwargs):
     for contract in slither.contracts:
 
         # Iterate over all the functions
-        for function in contract.functions_not_inherited:
+        for function in contract.functions_declared:
 
             if function.nodes == []:
                 continue

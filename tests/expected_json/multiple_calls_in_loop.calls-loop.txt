@@ -1,4 +1,4 @@
 INFO:Detectors:[92m
-CallInLoop.bad has external calls inside a loop: "destinations[i].transfer(i)" (tests/multiple_calls_in_loop.sol#11)
+CallInLoop.bad() has external calls inside a loop: "destinations[i].transfer(i)" (tests/multiple_calls_in_loop.sol#11)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation/_edit#calls-inside-a-loop[0m
 INFO:Slither:tests/multiple_calls_in_loop.sol analyzed (1 contracts), 1 result(s) found

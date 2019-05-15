@@ -7,7 +7,7 @@
         "check": "external-function",
         "impact": "Informational",
         "confidence": "High",
-        "description": "ContractWithFunctionNotCalled.funcNotCalled3 (tests/external_function.sol#13-15) should be declared external\n",
+        "description": "ContractWithFunctionNotCalled.funcNotCalled3() (tests/external_function.sol#13-15) should be declared external\n",
         "elements": [
           {
             "type": "function",
@@ -72,7 +72,7 @@
         "check": "external-function",
         "impact": "Informational",
         "confidence": "High",
-        "description": "ContractWithFunctionNotCalled.funcNotCalled2 (tests/external_function.sol#17-19) should be declared external\n",
+        "description": "ContractWithFunctionNotCalled.funcNotCalled2() (tests/external_function.sol#17-19) should be declared external\n",
         "elements": [
           {
             "type": "function",
@@ -137,7 +137,7 @@
         "check": "external-function",
         "impact": "Informational",
         "confidence": "High",
-        "description": "ContractWithFunctionNotCalled.funcNotCalled (tests/external_function.sol#21-23) should be declared external\n",
+        "description": "ContractWithFunctionNotCalled.funcNotCalled() (tests/external_function.sol#21-23) should be declared external\n",
         "elements": [
           {
             "type": "function",
@@ -202,7 +202,7 @@
         "check": "external-function",
         "impact": "Informational",
         "confidence": "High",
-        "description": "ContractWithFunctionNotCalled2.funcNotCalled (tests/external_function.sol#32-39) should be declared external\n",
+        "description": "ContractWithFunctionNotCalled2.funcNotCalled() (tests/external_function.sol#32-39) should be declared external\n",
         "elements": [
           {
             "type": "function",

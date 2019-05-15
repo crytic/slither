@@ -50,3 +50,8 @@ class LocalVariable(ChildFunction, Variable):
 
         return False
 
+    @property
+    def canonical_name(self):
+        return self.name
+
+

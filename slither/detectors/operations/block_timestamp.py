@@ -54,7 +54,7 @@ class Timestamp(AbstractDetector):
             list((Function), (list (Node)))
         """
         ret = []
-        for f in [f for f in contract.functions if f.contract == contract]:
+        for f in [f for f in contract.functions if f.contract_declarer == contract]:
             nodes = self.timestamp(f)
             if nodes:
                 ret.append((f, nodes))
@@ -69,9 +69,8 @@ class Timestamp(AbstractDetector):
             dangerous_timestamp = self.detect_dangerous_timestamp(c)
             for (func, nodes) in dangerous_timestamp:
 
-                info = "{}.{} ({}) uses timestamp for comparisons\n"
-                info = info.format(func.contract.name,
-                                   func.name,
+                info = "{} ({}) uses timestamp for comparisons\n"
+                info = info.format(func.canonical_name,
                                    func.source_mapping_str)
                 info += '\tDangerous comparisons:\n'
                 for node in nodes:

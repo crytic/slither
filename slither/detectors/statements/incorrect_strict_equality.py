@@ -111,9 +111,9 @@ contract Crowdsale{
             # sort ret to get deterministic results
             ret = sorted(list(ret.items()), key=lambda x:x[0].name)
             for f, nodes in ret:
-                func_info = "{}.{} ({}) uses a dangerous strict equality:\n".format(f.contract.name,
-                                                                               f.name,
-                                                                               f.source_mapping_str)
+
+                func_info = "{} ({}) uses a dangerous strict equality:\n".format(f.canonical_name,
+                                                                                 f.source_mapping_str)
 
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)

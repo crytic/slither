@@ -129,7 +129,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 val = TupleVariable(self._node)
             else:
                 val = TemporaryVariable(self._node)
-            internal_call = InternalCall(called, called.contract, len(args), val, expression.type_call)
+            internal_call = InternalCall(called, len(args), val, expression.type_call)
             self._result.append(internal_call)
             set_val(expression, val)
         else:

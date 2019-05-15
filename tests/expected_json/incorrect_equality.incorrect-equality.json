@@ -7,7 +7,7 @@
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High",
-        "description": "ERC20TestBalance.bad0 (tests/incorrect_equality.sol#21-23) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(address(this)) == 10)\n",
+        "description": "ERC20TestBalance.bad0(ERC20Function) (tests/incorrect_equality.sol#21-23) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(address(this)) == 10)\n",
         "elements": [
           {
             "type": "node",
@@ -148,7 +148,7 @@
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High",
-        "description": "ERC20TestBalance.bad1 (tests/incorrect_equality.sol#25-27) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(msg.sender) == 10)\n",
+        "description": "ERC20TestBalance.bad1(ERC20Variable) (tests/incorrect_equality.sol#25-27) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(msg.sender) == 10)\n",
         "elements": [
           {
             "type": "node",
@@ -289,7 +289,7 @@
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High",
-        "description": "TestContractBalance.bad0 (tests/incorrect_equality.sol#32-35) uses a dangerous strict equality:\n\t- require(bool)(address(address(this)).balance == 10000000000000000000)\n",
+        "description": "TestContractBalance.bad0() (tests/incorrect_equality.sol#32-35) uses a dangerous strict equality:\n\t- require(bool)(address(address(this)).balance == 10000000000000000000)\n",
         "elements": [
           {
             "type": "node",
@@ -530,7 +530,7 @@
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High",
-        "description": "TestContractBalance.bad1 (tests/incorrect_equality.sol#37-40) uses a dangerous strict equality:\n\t- require(bool)(10000000000000000000 == address(address(this)).balance)\n",
+        "description": "TestContractBalance.bad1() (tests/incorrect_equality.sol#37-40) uses a dangerous strict equality:\n\t- require(bool)(10000000000000000000 == address(address(this)).balance)\n",
         "elements": [
           {
             "type": "node",
@@ -771,7 +771,7 @@
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High",
-        "description": "TestContractBalance.bad2 (tests/incorrect_equality.sol#42-45) uses a dangerous strict equality:\n\t- require(bool)(address(this).balance == 10000000000000000000)\n",
+        "description": "TestContractBalance.bad2() (tests/incorrect_equality.sol#42-45) uses a dangerous strict equality:\n\t- require(bool)(address(this).balance == 10000000000000000000)\n",
         "elements": [
           {
             "type": "node",
@@ -1012,7 +1012,7 @@
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High",
-        "description": "TestContractBalance.bad3 (tests/incorrect_equality.sol#47-50) uses a dangerous strict equality:\n\t- require(bool)(10000000000000000000 == address(this).balance)\n",
+        "description": "TestContractBalance.bad3() (tests/incorrect_equality.sol#47-50) uses a dangerous strict equality:\n\t- require(bool)(10000000000000000000 == address(this).balance)\n",
         "elements": [
           {
             "type": "node",
@@ -1253,7 +1253,7 @@
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High",
-        "description": "TestContractBalance.bad4 (tests/incorrect_equality.sol#52-57) uses a dangerous strict equality:\n\t- balance == 10000000000000000000\n",
+        "description": "TestContractBalance.bad4() (tests/incorrect_equality.sol#52-57) uses a dangerous strict equality:\n\t- balance == 10000000000000000000\n",
         "elements": [
           {
             "type": "node",
@@ -1500,7 +1500,7 @@
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High",
-        "description": "TestContractBalance.bad5 (tests/incorrect_equality.sol#59-64) uses a dangerous strict equality:\n\t- 10000000000000000000 == balance\n",
+        "description": "TestContractBalance.bad5() (tests/incorrect_equality.sol#59-64) uses a dangerous strict equality:\n\t- 10000000000000000000 == balance\n",
         "elements": [
           {
             "type": "node",
@@ -1747,7 +1747,7 @@
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High",
-        "description": "TestContractBalance.bad6 (tests/incorrect_equality.sol#66-71) uses a dangerous strict equality:\n\t- balance == 10000000000000000000\n",
+        "description": "TestContractBalance.bad6() (tests/incorrect_equality.sol#66-71) uses a dangerous strict equality:\n\t- balance == 10000000000000000000\n",
         "elements": [
           {
             "type": "node",
@@ -1994,7 +1994,7 @@
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High",
-        "description": "TestSolidityKeyword.bad0 (tests/incorrect_equality.sol#123-125) uses a dangerous strict equality:\n\t- require(bool)(now == 0)\n",
+        "description": "TestSolidityKeyword.bad0() (tests/incorrect_equality.sol#123-125) uses a dangerous strict equality:\n\t- require(bool)(now == 0)\n",
         "elements": [
           {
             "type": "node",
@@ -2171,7 +2171,7 @@
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High",
-        "description": "TestSolidityKeyword.bad1 (tests/incorrect_equality.sol#127-129) uses a dangerous strict equality:\n\t- require(bool)(block.number == 0)\n",
+        "description": "TestSolidityKeyword.bad1() (tests/incorrect_equality.sol#127-129) uses a dangerous strict equality:\n\t- require(bool)(block.number == 0)\n",
         "elements": [
           {
             "type": "node",
@@ -2348,7 +2348,7 @@
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High",
-        "description": "TestSolidityKeyword.bad2 (tests/incorrect_equality.sol#131-133) uses a dangerous strict equality:\n\t- require(bool)(block.number == 0)\n",
+        "description": "TestSolidityKeyword.bad2() (tests/incorrect_equality.sol#131-133) uses a dangerous strict equality:\n\t- require(bool)(block.number == 0)\n",
         "elements": [
           {
             "type": "node",

@@ -7,7 +7,7 @@
         "check": "unchecked-lowlevel",
         "impact": "Medium",
         "confidence": "Medium",
-        "description": "MyConc.bad (tests/unchecked_lowlevel.sol#2-4) ignores return value by low-level calls \"dst.call.value(msg.value)()\" (tests/unchecked_lowlevel.sol#3)\n",
+        "description": "MyConc.bad(address) (tests/unchecked_lowlevel.sol#2-4) ignores return value by low-level calls \"dst.call.value(msg.value)()\" (tests/unchecked_lowlevel.sol#3)\n",
         "elements": [
           {
             "type": "node",

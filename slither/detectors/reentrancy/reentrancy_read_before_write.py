@@ -46,7 +46,7 @@ Do not report reentrancies that involve ethers (see `reentrancy-eth`)'''
     def find_reentrancies(self):
         result = {}
         for contract in self.contracts:
-            for f in contract.functions_and_modifiers_not_inherited:
+            for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
                     # dead code
                     if not self.KEY in node.context:
@@ -82,8 +82,8 @@ Do not report reentrancies that involve ethers (see `reentrancy-eth`)'''
         result_sorted = sorted(list(reentrancies.items()), key=lambda x:x[0][0].name)
         for (func, calls), varsWritten in result_sorted:
             calls = sorted(list(set(calls)), key=lambda x: x.node_id)
-            info = 'Reentrancy in {}.{} ({}):\n'
-            info = info.format(func.contract.name, func.name, func.source_mapping_str)
+            info = 'Reentrancy in {} ({}):\n'
+            info = info.format(func.canonical_name, func.source_mapping_str)
             info += '\tExternal calls:\n'
             for call_info in calls:
                 info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)

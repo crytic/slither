@@ -61,6 +61,7 @@ contract Token{
         Returns:
             list(str) : list of incorrect function signatures
         """
+
         # Verify this is an ERC20 contract.
         if not contract.is_possible_erc20():
             return []
@@ -72,6 +73,7 @@ contract Token{
 
         funcs = contract.functions
         functions = [f for f in funcs if IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)]
+
         return functions
 
     def _detect(self):
@@ -87,7 +89,7 @@ contract Token{
                 for function in functions:
                     info = "{} ({}) has incorrect ERC20 function interface: {} ({})\n".format(c.name,
                                                                                               c.source_mapping_str,
-                                                                                              function.name,
+                                                                                              function.full_name,
                                                                                               function.source_mapping_str)
                     json = self.generate_json_result(info)
                     self.add_function_to_json(function, json)

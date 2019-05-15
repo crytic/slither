@@ -35,7 +35,7 @@ class DataDependency(AbstractPrinter):
             txt += str(table)
 
             txt += "\n"
-            for f in c.functions_and_modifiers_not_inherited:
+            for f in c.functions_and_modifiers_declared:
                 txt += "\nFunction %s\n"%f.full_name
                 table = PrettyTable(['Variable', 'Dependencies'])
                 for v in f.variables:
