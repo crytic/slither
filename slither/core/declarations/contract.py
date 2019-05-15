@@ -367,26 +367,6 @@ class Contract(ChildSlither, SourceMapping):
         '''
         return [f for f in self.functions if f.is_writing(variable)]
 
-    def get_source_var_declaration(self, var):
-        """ Return the source mapping where the variable is declared
-
-        Args:
-            var (str): variable name
-        Returns:
-            (dict): sourceMapping
-        """
-        return next((x.source_mapping for x in self.variables if x.name == var))
-
-    def get_source_event_declaration(self, event):
-        """ Return the source mapping where the event is declared
-
-        Args:
-            event (str): event name
-        Returns:
-            (dict): sourceMapping
-        """
-        return next((x.source_mapping for x in self.events if x.name == event))
-
     def get_function_from_signature(self, function_signature):
         """
             Return a function from a signature

@@ -39,8 +39,10 @@ class Function(ChildContract, SourceMapping):
         self._slithir_variables = set() # slithir Temporary and references variables (but not SSA)
         self._parameters = []
         self._parameters_ssa = []
+        self._parameters_src = None
         self._returns = []
         self._returns_ssa = []
+        self._returns_src = None
         self._return_values = None
         self._return_values_ssa = None
         self._vars_read = []
