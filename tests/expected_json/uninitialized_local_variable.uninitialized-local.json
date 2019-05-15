@@ -7,7 +7,7 @@
         "check": "uninitialized-local",
         "impact": "Medium",
         "confidence": "Medium",
-        "description": "uint_not_init in Uninitialized.func (tests/uninitialized_local_variable.sol#4) is a local variable never initialiazed\n",
+        "description": "uint_not_init in Uninitialized.func() (tests/uninitialized_local_variable.sol#4) is a local variable never initialiazed\n",
         "elements": [
           {
             "type": "variable",

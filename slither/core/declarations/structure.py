@@ -25,12 +25,22 @@ class Structure(ChildContract, SourceMapping):
     def elems(self):
         return self._elems
 
+
+    def is_declared_by(self, contract):
+        """
+        Check if the element is declared by the contract
+        :param contract:
+        :return:
+        """
+        return self.contract == contract
+
     @property
     def elems_ordered(self):
         ret = []
         for e in self._elems_ordered:
             ret.append(self._elems[e])
         return ret
+
 
     def __str__(self):
         return self.name

@@ -72,7 +72,7 @@ If one of the destinations has a fallback function which reverts, `bad` will alw
     def detect_call_in_loop(contract):
         ret = []
         for f in contract.functions + contract.modifiers:
-            if f.contract == contract and f.is_implemented:
+            if f.contract_declarer == contract and f.is_implemented:
                 MultipleCallsInLoop.call_in_loop(f.entry_point,
                                                  False, [], ret)
 
@@ -86,8 +86,9 @@ If one of the destinations has a fallback function which reverts, `bad` will alw
             values = self.detect_call_in_loop(c)
             for node in values:
                 func = node.function
-                info = "{}.{} has external calls inside a loop: \"{}\" ({})\n"
-                info = info.format(func.contract.name, func.name, node.expression, node.source_mapping_str)
+
+                info = "{} has external calls inside a loop: \"{}\" ({})\n"
+                info = info.format(func.canonical_name, node.expression, node.source_mapping_str)
 
                 json = self.generate_json_result(info)
                 self.add_node_to_json(node, json)

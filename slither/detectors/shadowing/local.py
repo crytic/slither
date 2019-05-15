@@ -58,7 +58,7 @@ contract Bug {
         # Loop through all functions + modifiers in this contract.
         for function in contract.functions + contract.modifiers:
             # We should only look for functions declared directly in this contract (not in a base contract).
-            if function.contract != contract:
+            if function.contract_declarer != contract:
                 continue
 
             # This function was declared in this contract, we check what its local variables might shadow.
@@ -66,20 +66,20 @@ contract Bug {
                 overshadowed = []
                 for scope_contract in [contract] + contract.inheritance:
                     # Check functions
-                    for scope_function in scope_contract.functions:
-                        if variable.name == scope_function.name and scope_function.contract == scope_contract:
+                    for scope_function in scope_contract.functions_declared:
+                        if variable.name == scope_function.name:
                             overshadowed.append((self.OVERSHADOWED_FUNCTION, scope_contract.name, scope_function))
                     # Check modifiers
-                    for scope_modifier in scope_contract.modifiers:
-                        if variable.name == scope_modifier.name and scope_modifier.contract == scope_contract:
+                    for scope_modifier in scope_contract.modifiers_declared:
+                        if variable.name == scope_modifier.name:
                             overshadowed.append((self.OVERSHADOWED_MODIFIER, scope_contract.name, scope_modifier))
                     # Check events
-                    for scope_event in scope_contract.events:
-                        if variable.name == scope_event.name and scope_event.contract == scope_contract:
+                    for scope_event in scope_contract.events_declared:
+                        if variable.name == scope_event.name:
                             overshadowed.append((self.OVERSHADOWED_EVENT, scope_contract.name, scope_event))
                     # Check state variables
-                    for scope_state_variable in scope_contract.variables:
-                        if variable.name == scope_state_variable.name and scope_state_variable.contract == scope_contract:
+                    for scope_state_variable in scope_contract.state_variables_declared:
+                        if variable.name == scope_state_variable.name:
                             overshadowed.append((self.OVERSHADOWED_STATE_VARIABLE, scope_contract.name, scope_state_variable))
 
                 # If we have found any overshadowed objects, we'll want to add it to our result list.

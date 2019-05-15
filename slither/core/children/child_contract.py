@@ -11,3 +11,4 @@ class ChildContract:
     @property
     def contract(self):
         return self._contract
+

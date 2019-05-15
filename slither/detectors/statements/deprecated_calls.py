@@ -111,20 +111,14 @@ contract ContractWithDeprecatedReferences {
             list of tuple: (state_variable | node, (detecting_signature, original_text, recommended_text))"""
         results = []
 
-        for state_variable in contract.variables:
-            if state_variable.contract != contract:
-                continue
+        for state_variable in contract.state_variables_declared:
             if state_variable.expression:
                 deprecated_results = self.detect_deprecation_in_expression(state_variable.expression)
                 if deprecated_results:
                     results.append((state_variable, deprecated_results))
 
         # Loop through all functions + modifiers in this contract.
-        for function in contract.functions + contract.modifiers:
-            # We should only look for functions declared directly in this contract (not in a base contract).
-            if function.contract != contract:
-                continue
-
+        for function in contract.functions_and_modifiers_declared:
             # Loop through each node in this function.
             for node in function.nodes:
                 # Detect deprecated references in the node.

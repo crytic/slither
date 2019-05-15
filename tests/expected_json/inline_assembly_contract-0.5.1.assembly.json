@@ -7,7 +7,7 @@
         "check": "assembly",
         "impact": "Informational",
         "confidence": "High",
-        "description": "GetCode.at uses assembly (tests/inline_assembly_contract-0.5.1.sol#6-20)\n\t- tests/inline_assembly_contract-0.5.1.sol#7-20\n",
+        "description": "GetCode.at(address) uses assembly (tests/inline_assembly_contract-0.5.1.sol#6-20)\n\t- tests/inline_assembly_contract-0.5.1.sol#7-20\n",
         "elements": [
           {
             "type": "function",

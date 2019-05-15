@@ -7,7 +7,7 @@
         "check": "timestamp",
         "impact": "Low",
         "confidence": "Medium",
-        "description": "Timestamp.bad0 (tests/timestamp.sol#4-6) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- require(bool)(block.timestamp == 0) (tests/timestamp.sol#5)\n",
+        "description": "Timestamp.bad0() (tests/timestamp.sol#4-6) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- require(bool)(block.timestamp == 0) (tests/timestamp.sol#5)\n",
         "elements": [
           {
             "type": "function",
@@ -150,7 +150,7 @@
         "check": "timestamp",
         "impact": "Low",
         "confidence": "Medium",
-        "description": "Timestamp.bad1 (tests/timestamp.sol#8-11) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- require(bool)(time == 0) (tests/timestamp.sol#10)\n",
+        "description": "Timestamp.bad1() (tests/timestamp.sol#8-11) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- require(bool)(time == 0) (tests/timestamp.sol#10)\n",
         "elements": [
           {
             "type": "function",
@@ -295,7 +295,7 @@
         "check": "timestamp",
         "impact": "Low",
         "confidence": "Medium",
-        "description": "Timestamp.bad2 (tests/timestamp.sol#13-15) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- block.timestamp > 0 (tests/timestamp.sol#14)\n",
+        "description": "Timestamp.bad2() (tests/timestamp.sol#13-15) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- block.timestamp > 0 (tests/timestamp.sol#14)\n",
         "elements": [
           {
             "type": "function",

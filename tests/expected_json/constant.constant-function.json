@@ -7,7 +7,7 @@
         "check": "constant-function",
         "impact": "Medium",
         "confidence": "Medium",
-        "description": "Constant.test_view_bug (tests/constant.sol#5-7) is declared view but changes state variables:\n\t- Constant.a\n",
+        "description": "Constant.test_view_bug() (tests/constant.sol#5-7) is declared view but changes state variables:\n\t- Constant.a\n",
         "elements": [
           {
             "type": "function",
@@ -141,7 +141,7 @@
         "check": "constant-function",
         "impact": "Medium",
         "confidence": "Medium",
-        "description": "Constant.test_constant_bug (tests/constant.sol#9-11) is declared view but changes state variables:\n\t- Constant.a\n",
+        "description": "Constant.test_constant_bug() (tests/constant.sol#9-11) is declared view but changes state variables:\n\t- Constant.a\n",
         "elements": [
           {
             "type": "function",
@@ -275,7 +275,7 @@
         "check": "constant-function",
         "impact": "Medium",
         "confidence": "Medium",
-        "description": "Constant.test_assembly_bug (tests/constant.sol#22-24) is declared view but contains assembly code\n",
+        "description": "Constant.test_assembly_bug() (tests/constant.sol#22-24) is declared view but contains assembly code\n",
         "elements": [
           {
             "type": "function",

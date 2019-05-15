@@ -104,6 +104,21 @@ def get_sig(ir, name):
     argss = convert_arguments(ir.arguments)
     return [sig.format(name, ','.join(args)) for args in argss]
 
+def get_canonical_names(ir, function_name, contract_name):
+    '''
+        Return a list of potential signature
+        It is a list, as Constant variables can be converted to int256
+    Args:
+        ir (slithIR.operation)
+    Returns:
+        list(str)
+    '''
+    sig = '{}({})'
+
+    # list of list of arguments
+    argss = convert_arguments(ir.arguments)
+    return [sig.format(f'{contract_name}.{function_name}', ','.join(args)) for args in argss]
+
 def convert_arguments(arguments):
     argss = [[]]
     for arg in arguments:
@@ -399,7 +414,7 @@ def propagate_types(ir, node):
             elif isinstance(ir, InternalCall):
                 # if its not a tuple, return a singleton
                 if ir.function is None:
-                    convert_type_of_high_and_internal_level_call(ir, ir.contract)
+                    convert_type_of_high_and_internal_level_call(ir, node.function.contract)
                 return_type = ir.function.return_type
                 if return_type:
                     if len(return_type) == 1:
@@ -520,7 +535,7 @@ def extract_tmp_call(ins, contract):
         # If there is a call on an inherited contract, it is an internal call or an event
         if ins.ori.variable_left in contract.inheritance + [contract]:
             if str(ins.ori.variable_right) in [f.name for f in contract.functions]:
-                internalcall = InternalCall(ins.ori.variable_right, ins.ori.variable_left, ins.nbr_arguments, ins.lvalue, ins.type_call)
+                internalcall = InternalCall((ins.ori.variable_right, ins.ori.variable_left.name), ins.nbr_arguments, ins.lvalue, ins.type_call)
                 internalcall.call_id = ins.call_id
                 return internalcall
             if str(ins.ori.variable_right) in [f.name for f in contract.events]:
@@ -695,7 +710,10 @@ def look_for_library(contract, ir, node, using_for, t):
     return None
 
 def convert_to_library(ir, node, using_for):
-    contract = node.function.contract
+    # We use contract_declarer, because Solidity resolve the library
+    # before resolving the inheritance.
+    # Though we could use .contract as libraries cannot be shadowed
+    contract = node.function.contract_declarer
     t = ir.destination.type
 
     if t in using_for:
@@ -759,14 +777,25 @@ def convert_type_library_call(ir, lib_contract):
 
 def convert_type_of_high_and_internal_level_call(ir, contract):
     func = None
-    sigs = get_sig(ir, ir.function_name)
-    for sig in sigs:
-        func = contract.get_function_from_signature(sig)
-        if not func:
-            func = contract.get_state_variable_from_name(ir.function_name)
-        if func:
-            # stop to explore if func is found (prevent dupplicate issue)
-            break
+    if isinstance(ir, InternalCall):
+        sigs = get_canonical_names(ir, ir.function_name, ir.contract_name)
+        for sig in sigs:
+            func = contract.get_function_from_canonical_name(sig)
+            if not func:
+                func = contract.get_state_variable_from_name(ir.function_name)
+            if func:
+                # stop to explore if func is found (prevent dupplicate issue)
+                break
+    else:
+        assert isinstance(ir, HighLevelCall)
+        sigs = get_sig(ir, ir.function_name)
+        for sig in sigs:
+            func = contract.get_function_from_canonical_name(sig)
+            if not func:
+                func = contract.get_state_variable_from_name(ir.function_name)
+            if func:
+                # stop to explore if func is found (prevent dupplicate issue)
+                break
     if not func:
         # specific lookup when the compiler does implicit conversion
         # for example

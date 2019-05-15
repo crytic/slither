@@ -6,6 +6,7 @@ from collections import namedtuple
 from itertools import groupby
 
 from slither.core.children.child_contract import ChildContract
+from slither.core.children.child_inheritance import ChildInheritance
 from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariable,
                                                           SolidityVariableComposed)
@@ -18,7 +19,7 @@ logger = logging.getLogger("Function")
 
 ReacheableNode = namedtuple('ReacheableNode', ['node', 'ir'])
 
-class Function(ChildContract, SourceMapping):
+class Function(ChildContract, ChildInheritance, SourceMapping):
     """
         Function class
     """
@@ -84,6 +85,8 @@ class Function(ChildContract, SourceMapping):
         self._all_conditional_solidity_variables_read_with_loop = None
         self._all_solidity_variables_used_as_args = None
 
+        self._is_shadowed = False
+
         # set(ReacheableNode)
         self._reachable_from_nodes = set()
         self._reachable_from_functions = set()
@@ -117,11 +120,20 @@ class Function(ChildContract, SourceMapping):
         return name+'('+','.join(parameters)+')'
 
     @property
+    def canonical_name(self):
+        """
+            str: contract.func_name(type1,type2)
+            Return the function signature without the return values
+        """
+        name, parameters, _ = self.signature
+        return self.contract_declarer.name + '.' + name + '(' + ','.join(parameters) + ')'
+
+    @property
     def is_constructor(self):
         """
             bool: True if the function is the constructor
         """
-        return self._is_constructor or self._name == self.contract.name
+        return self._is_constructor or self._name == self.contract_declarer.name
 
     @property
     def contains_assembly(self):
@@ -130,6 +142,14 @@ class Function(ChildContract, SourceMapping):
     @property
     def slither(self):
         return self.contract.slither
+
+    def is_declared_by(self, contract):
+        """
+        Check if the element is declared by the contract
+        :param contract:
+        :return:
+        """
+        return self.contract_declarer == contract
 
     # endregion
     ###################################################################################
@@ -172,6 +192,14 @@ class Function(ChildContract, SourceMapping):
             bool: True if the function is declared as pure
         """
         return self._pure
+
+    @property
+    def is_shadowed(self):
+        return self._is_shadowed
+
+    @is_shadowed.setter
+    def is_shadowed(self, is_shadowed):
+        self._is_shadowed = is_shadowed
 
     # endregion
     ###################################################################################
@@ -307,7 +335,7 @@ class Function(ChildContract, SourceMapping):
                             included.
         """
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
-        return [c.constructor_not_inherited for c in self._explicit_base_constructor_calls if c.constructor_not_inherited]
+        return [c.constructors_declared for c in self._explicit_base_constructor_calls if c.constructors_declared]
 
 
     # endregion
@@ -560,7 +588,7 @@ class Function(ChildContract, SourceMapping):
             list(core.Function)
 
         '''
-        candidates = [c.functions_not_inherited for c in self.contract.inheritance]
+        candidates = [c.functions_declared for c in self.contract.inheritance]
         candidates = [candidate for sublist in candidates for candidate in sublist]
         return [f for f in candidates if f.full_name == self.full_name]
 
@@ -933,7 +961,7 @@ class Function(ChildContract, SourceMapping):
             (str, str, str, list(str), list(str), listr(str), list(str), list(str);
             contract_name, name, visibility, modifiers, vars read, vars written, internal_calls, external_calls_as_expressions
         """
-        return (self.contract.name, self.full_name, self.visibility,
+        return (self.contract_declarer.name, self.full_name, self.visibility,
                 [str(x) for x in self.modifiers],
                 [str(x) for x in self.state_variables_read + self.solidity_variables_read],
                 [str(x) for x in self.state_variables_written],

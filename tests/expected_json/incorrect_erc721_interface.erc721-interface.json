@@ -7,7 +7,7 @@
         "check": "erc721-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: supportsInterface (tests/incorrect_erc721_interface.sol#4)\n",
+        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: supportsInterface(bytes4) (tests/incorrect_erc721_interface.sol#4)\n",
         "elements": [
           {
             "type": "function",
@@ -54,7 +54,7 @@
         "check": "erc721-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: balanceOf (tests/incorrect_erc721_interface.sol#7)\n",
+        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: balanceOf(address) (tests/incorrect_erc721_interface.sol#7)\n",
         "elements": [
           {
             "type": "function",
@@ -109,7 +109,7 @@
         "check": "erc721-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: ownerOf (tests/incorrect_erc721_interface.sol#8)\n",
+        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: ownerOf(uint256) (tests/incorrect_erc721_interface.sol#8)\n",
         "elements": [
           {
             "type": "function",
@@ -164,7 +164,7 @@
         "check": "erc721-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: safeTransferFrom (tests/incorrect_erc721_interface.sol#9)\n",
+        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: safeTransferFrom(address,address,uint256,bytes) (tests/incorrect_erc721_interface.sol#9)\n",
         "elements": [
           {
             "type": "function",
@@ -219,7 +219,7 @@
         "check": "erc721-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: safeTransferFrom (tests/incorrect_erc721_interface.sol#10)\n",
+        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: safeTransferFrom(address,address,uint256) (tests/incorrect_erc721_interface.sol#10)\n",
         "elements": [
           {
             "type": "function",
@@ -274,7 +274,7 @@
         "check": "erc721-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: transferFrom (tests/incorrect_erc721_interface.sol#11)\n",
+        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: transferFrom(address,address,uint256) (tests/incorrect_erc721_interface.sol#11)\n",
         "elements": [
           {
             "type": "function",
@@ -329,7 +329,7 @@
         "check": "erc721-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: approve (tests/incorrect_erc721_interface.sol#12)\n",
+        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: approve(address,uint256) (tests/incorrect_erc721_interface.sol#12)\n",
         "elements": [
           {
             "type": "function",
@@ -384,7 +384,7 @@
         "check": "erc721-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: setApprovalForAll (tests/incorrect_erc721_interface.sol#13)\n",
+        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: setApprovalForAll(address,bool) (tests/incorrect_erc721_interface.sol#13)\n",
         "elements": [
           {
             "type": "function",
@@ -439,7 +439,7 @@
         "check": "erc721-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: getApproved (tests/incorrect_erc721_interface.sol#14)\n",
+        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: getApproved(uint256) (tests/incorrect_erc721_interface.sol#14)\n",
         "elements": [
           {
             "type": "function",
@@ -494,7 +494,7 @@
         "check": "erc721-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: isApprovedForAll (tests/incorrect_erc721_interface.sol#15)\n",
+        "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: isApprovedForAll(address,address) (tests/incorrect_erc721_interface.sol#15)\n",
         "elements": [
           {
             "type": "function",

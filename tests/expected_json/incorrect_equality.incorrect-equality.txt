@@ -1,27 +1,27 @@
 INFO:Detectors:[93m
-ERC20TestBalance.bad0 (tests/incorrect_equality.sol#21-23) uses a dangerous strict equality:
+ERC20TestBalance.bad0(ERC20Function) (tests/incorrect_equality.sol#21-23) uses a dangerous strict equality:
 	- require(bool)(erc.balanceOf(address(this)) == 10)
-ERC20TestBalance.bad1 (tests/incorrect_equality.sol#25-27) uses a dangerous strict equality:
+ERC20TestBalance.bad1(ERC20Variable) (tests/incorrect_equality.sol#25-27) uses a dangerous strict equality:
 	- require(bool)(erc.balanceOf(msg.sender) == 10)
-TestContractBalance.bad0 (tests/incorrect_equality.sol#32-35) uses a dangerous strict equality:
+TestContractBalance.bad0() (tests/incorrect_equality.sol#32-35) uses a dangerous strict equality:
 	- require(bool)(address(address(this)).balance == 10000000000000000000)
-TestContractBalance.bad1 (tests/incorrect_equality.sol#37-40) uses a dangerous strict equality:
+TestContractBalance.bad1() (tests/incorrect_equality.sol#37-40) uses a dangerous strict equality:
 	- require(bool)(10000000000000000000 == address(address(this)).balance)
-TestContractBalance.bad2 (tests/incorrect_equality.sol#42-45) uses a dangerous strict equality:
+TestContractBalance.bad2() (tests/incorrect_equality.sol#42-45) uses a dangerous strict equality:
 	- require(bool)(address(this).balance == 10000000000000000000)
-TestContractBalance.bad3 (tests/incorrect_equality.sol#47-50) uses a dangerous strict equality:
+TestContractBalance.bad3() (tests/incorrect_equality.sol#47-50) uses a dangerous strict equality:
 	- require(bool)(10000000000000000000 == address(this).balance)
-TestContractBalance.bad4 (tests/incorrect_equality.sol#52-57) uses a dangerous strict equality:
+TestContractBalance.bad4() (tests/incorrect_equality.sol#52-57) uses a dangerous strict equality:
 	- balance == 10000000000000000000
-TestContractBalance.bad5 (tests/incorrect_equality.sol#59-64) uses a dangerous strict equality:
+TestContractBalance.bad5() (tests/incorrect_equality.sol#59-64) uses a dangerous strict equality:
 	- 10000000000000000000 == balance
-TestContractBalance.bad6 (tests/incorrect_equality.sol#66-71) uses a dangerous strict equality:
+TestContractBalance.bad6() (tests/incorrect_equality.sol#66-71) uses a dangerous strict equality:
 	- balance == 10000000000000000000
-TestSolidityKeyword.bad0 (tests/incorrect_equality.sol#123-125) uses a dangerous strict equality:
+TestSolidityKeyword.bad0() (tests/incorrect_equality.sol#123-125) uses a dangerous strict equality:
 	- require(bool)(now == 0)
-TestSolidityKeyword.bad1 (tests/incorrect_equality.sol#127-129) uses a dangerous strict equality:
+TestSolidityKeyword.bad1() (tests/incorrect_equality.sol#127-129) uses a dangerous strict equality:
 	- require(bool)(block.number == 0)
-TestSolidityKeyword.bad2 (tests/incorrect_equality.sol#131-133) uses a dangerous strict equality:
+TestSolidityKeyword.bad2() (tests/incorrect_equality.sol#131-133) uses a dangerous strict equality:
 	- require(bool)(block.number == 0)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-strict-equalities[0m
 INFO:Slither:tests/incorrect_equality.sol analyzed (5 contracts), 12 result(s) found

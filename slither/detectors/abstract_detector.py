@@ -160,7 +160,13 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     def _create_parent_element(element):
         from slither.core.children.child_contract import ChildContract
         from slither.core.children.child_function import ChildFunction
-        if isinstance(element, ChildContract):
+        from slither.core.children.child_inheritance import ChildInheritance
+        if isinstance(element, ChildInheritance):
+            if element.contract_declarer:
+                contract = {'elements': []}
+                AbstractDetector.add_contract_to_json(element.contract_declarer, contract)
+                return contract['elements'][0]
+        elif isinstance(element, ChildContract):
             if element.contract:
                 contract = {'elements': []}
                 AbstractDetector.add_contract_to_json(element.contract, contract)
@@ -211,10 +217,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                                                         additional_fields)
         d['elements'].append(element)
 
+
     @staticmethod
-    def add_functions_to_json(functions, d):
+    def add_functions_to_json(functions, d, additional_fields={}):
         for function in sorted(functions, key=lambda x: x.name):
-            AbstractDetector.add_function_to_json(function, d)
+            AbstractDetector.add_function_to_json(function, d, additional_fields)
 
     @staticmethod
     def add_enum_to_json(enum, d, additional_fields={}):
@@ -266,6 +273,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                                                         type_specific_fields,
                                                         additional_fields)
         d['elements'].append(element)
+
 
     @staticmethod
     def add_nodes_to_json(nodes, d):

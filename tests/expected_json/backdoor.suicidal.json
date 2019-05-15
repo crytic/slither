@@ -7,7 +7,7 @@
         "check": "suicidal",
         "impact": "High",
         "confidence": "High",
-        "description": "C.i_am_a_backdoor (tests/backdoor.sol#4-6) allows anyone to destruct the contract\n",
+        "description": "C.i_am_a_backdoor() (tests/backdoor.sol#4-6) allows anyone to destruct the contract\n",
         "elements": [
           {
             "type": "function",

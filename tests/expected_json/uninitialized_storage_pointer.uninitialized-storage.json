@@ -7,7 +7,7 @@
         "check": "uninitialized-storage",
         "impact": "High",
         "confidence": "High",
-        "description": "st_bug in Uninitialized.func (tests/uninitialized_storage_pointer.sol#10) is a storage variable never initialiazed\n",
+        "description": "st_bug in Uninitialized.func() (tests/uninitialized_storage_pointer.sol#10) is a storage variable never initialiazed\n",
         "elements": [
           {
             "type": "variable",

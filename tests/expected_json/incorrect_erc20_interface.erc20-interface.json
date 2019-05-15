@@ -7,7 +7,7 @@
         "check": "erc20-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: transfer (tests/incorrect_erc20_interface.sol#4)\n",
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: transfer(address,uint256) (tests/incorrect_erc20_interface.sol#4)\n",
         "elements": [
           {
             "type": "function",
@@ -59,7 +59,7 @@
         "check": "erc20-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: approve (tests/incorrect_erc20_interface.sol#5)\n",
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: approve(address,uint256) (tests/incorrect_erc20_interface.sol#5)\n",
         "elements": [
           {
             "type": "function",
@@ -111,7 +111,7 @@
         "check": "erc20-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: transferFrom (tests/incorrect_erc20_interface.sol#6)\n",
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: transferFrom(address,address,uint256) (tests/incorrect_erc20_interface.sol#6)\n",
         "elements": [
           {
             "type": "function",
@@ -163,7 +163,7 @@
         "check": "erc20-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: totalSupply (tests/incorrect_erc20_interface.sol#7)\n",
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: totalSupply() (tests/incorrect_erc20_interface.sol#7)\n",
         "elements": [
           {
             "type": "function",
@@ -215,7 +215,7 @@
         "check": "erc20-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: balanceOf (tests/incorrect_erc20_interface.sol#8)\n",
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: balanceOf(address) (tests/incorrect_erc20_interface.sol#8)\n",
         "elements": [
           {
             "type": "function",
@@ -267,7 +267,7 @@
         "check": "erc20-interface",
         "impact": "Medium",
         "confidence": "High",
-        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: allowance (tests/incorrect_erc20_interface.sol#9)\n",
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: allowance(address,address) (tests/incorrect_erc20_interface.sol#9)\n",
         "elements": [
           {
             "type": "function",

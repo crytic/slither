@@ -91,8 +91,8 @@ class PrinterInheritanceGraph(AbstractPrinter):
         indirect_shadows = detect_c3_function_shadowing(contract)
         if indirect_shadows:
             for collision_set in sorted(indirect_shadows, key=lambda x: x[0][1].name):
-                winner = collision_set[-1][1].contract.name
-                collision_steps = [colliding_function.contract.name for _, colliding_function in collision_set]
+                winner = collision_set[-1][1].contract_declarer.name
+                collision_steps = [colliding_function.contract_declarer.name for _, colliding_function in collision_set]
                 collision_steps = ', '.join(collision_steps)
                 result.append(f"'{collision_set[0][1].full_name}' collides in inherited contracts {collision_steps} where {winner} is chosen.")
         return '\n'.join(result)
@@ -116,23 +116,23 @@ class PrinterInheritanceGraph(AbstractPrinter):
         # Functions
         visibilities = ['public', 'external']
         public_functions = [self._get_pattern_func(f, contract) for f in contract.functions if
-                            not f.is_constructor and f.contract == contract and f.visibility in visibilities]
+                            not f.is_constructor and f.contract_declarer == contract and f.visibility in visibilities]
         public_functions = ''.join(public_functions)
         private_functions = [self._get_pattern_func(f, contract) for f in contract.functions if
-                             not f.is_constructor and f.contract == contract and f.visibility not in visibilities]
+                             not f.is_constructor and f.contract_declarer == contract and f.visibility not in visibilities]
         private_functions = ''.join(private_functions)
 
         # Modifiers
-        modifiers = [self._get_pattern_func(m, contract) for m in contract.modifiers if m.contract == contract]
+        modifiers = [self._get_pattern_func(m, contract) for m in contract.modifiers if m.contract_declarer == contract]
         modifiers = ''.join(modifiers)
 
         # Public variables
-        public_variables = [self._get_pattern_var(v, contract) for v in contract.variables if
-                            v.contract == contract and v.visibility in visibilities]
+        public_variables = [self._get_pattern_var(v, contract) for v in contract.state_variables_declared
+                            if v.visibility in visibilities]
         public_variables = ''.join(public_variables)
 
-        private_variables = [self._get_pattern_var(v, contract) for v in contract.variables if
-                             v.contract == contract and v.visibility not in visibilities]
+        private_variables = [self._get_pattern_var(v, contract) for v in contract.state_variables_declared
+                             if v.visibility not in visibilities]
         private_variables = ''.join(private_variables)
 
         # Obtain any indirect shadowing information for this node.

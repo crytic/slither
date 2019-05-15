@@ -94,7 +94,7 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
             list((Function), (list (Node)))
         """
         ret = []
-        for f in [f for f in contract.functions if f.contract == contract]:
+        for f in [f for f in contract.functions if f.contract_declarer == contract]:
             nodes = self.arbitrary_send(f)
             if nodes:
                 ret.append((f, nodes))
@@ -109,9 +109,8 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
             arbitrary_send = self.detect_arbitrary_send(c)
             for (func, nodes) in arbitrary_send:
 
-                info = "{}.{} ({}) sends eth to arbitrary user\n"
-                info = info.format(func.contract.name,
-                                   func.name,
+                info = "{} ({}) sends eth to arbitrary user\n"
+                info = info.format(func.canonical_name,
                                    func.source_mapping_str)
                 info += '\tDangerous calls:\n'
                 for node in nodes:

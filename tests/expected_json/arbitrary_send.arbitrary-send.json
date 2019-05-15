@@ -7,7 +7,7 @@
         "check": "arbitrary-send",
         "impact": "High",
         "confidence": "Medium",
-        "description": "Test.direct (tests/arbitrary_send.sol#11-13) sends eth to arbitrary user\n\tDangerous calls:\n\t- msg.sender.send(address(this).balance) (tests/arbitrary_send.sol#12)\n",
+        "description": "Test.direct() (tests/arbitrary_send.sol#11-13) sends eth to arbitrary user\n\tDangerous calls:\n\t- msg.sender.send(address(this).balance) (tests/arbitrary_send.sol#12)\n",
         "elements": [
           {
             "type": "function",
@@ -192,7 +192,7 @@
         "check": "arbitrary-send",
         "impact": "High",
         "confidence": "Medium",
-        "description": "Test.indirect (tests/arbitrary_send.sol#19-21) sends eth to arbitrary user\n\tDangerous calls:\n\t- destination.send(address(this).balance) (tests/arbitrary_send.sol#20)\n",
+        "description": "Test.indirect() (tests/arbitrary_send.sol#19-21) sends eth to arbitrary user\n\tDangerous calls:\n\t- destination.send(address(this).balance) (tests/arbitrary_send.sol#20)\n",
         "elements": [
           {
             "type": "function",

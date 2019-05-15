@@ -7,7 +7,7 @@
         "check": "tx-origin",
         "impact": "Medium",
         "confidence": "Medium",
-        "description": "TxOrigin.bug0 uses tx.origin for authorization: \"require(bool)(tx.origin == owner)\" (tests/tx_origin-0.5.1.sol#10)\n",
+        "description": "TxOrigin.bug0() uses tx.origin for authorization: \"require(bool)(tx.origin == owner)\" (tests/tx_origin-0.5.1.sol#10)\n",
         "elements": [
           {
             "type": "node",
@@ -96,7 +96,7 @@
         "check": "tx-origin",
         "impact": "Medium",
         "confidence": "Medium",
-        "description": "TxOrigin.bug2 uses tx.origin for authorization: \"tx.origin != owner\" (tests/tx_origin-0.5.1.sol#14-16)\n",
+        "description": "TxOrigin.bug2() uses tx.origin for authorization: \"tx.origin != owner\" (tests/tx_origin-0.5.1.sol#14-16)\n",
         "elements": [
           {
             "type": "node",

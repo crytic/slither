@@ -7,7 +7,7 @@
         "check": "reentrancy-eth",
         "impact": "High",
         "confidence": "Medium",
-        "description": "Reentrancy in Reentrancy.withdrawBalance (tests/reentrancy.sol#14-21):\n\tExternal calls:\n\t- ! (msg.sender.call.value(userBalance[msg.sender])()) (tests/reentrancy.sol#17-19)\n\tState variables written after the call(s):\n\t- userBalance (tests/reentrancy.sol#20)\n",
+        "description": "Reentrancy in Reentrancy.withdrawBalance() (tests/reentrancy.sol#14-21):\n\tExternal calls:\n\t- ! (msg.sender.call.value(userBalance[msg.sender])()) (tests/reentrancy.sol#17-19)\n\tState variables written after the call(s):\n\t- userBalance (tests/reentrancy.sol#20)\n",
         "elements": [
           {
             "type": "function",
@@ -401,7 +401,7 @@
         "check": "reentrancy-eth",
         "impact": "High",
         "confidence": "Medium",
-        "description": "Reentrancy in Reentrancy.withdrawBalance_nested (tests/reentrancy.sol#64-70):\n\tExternal calls:\n\t- msg.sender.call.value(amount / 2)() (tests/reentrancy.sol#67)\n\tState variables written after the call(s):\n\t- userBalance (tests/reentrancy.sol#68)\n",
+        "description": "Reentrancy in Reentrancy.withdrawBalance_nested() (tests/reentrancy.sol#64-70):\n\tExternal calls:\n\t- msg.sender.call.value(amount / 2)() (tests/reentrancy.sol#67)\n\tState variables written after the call(s):\n\t- userBalance (tests/reentrancy.sol#68)\n",
         "elements": [
           {
             "type": "function",
