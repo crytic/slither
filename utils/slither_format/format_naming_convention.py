@@ -544,38 +544,42 @@ t']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0])
     @staticmethod                            
     def create_patch_struct_uses(slither, patches, name, contract_name, in_file):
         for contract in slither.contracts:
-            in_file_str = slither.source_code[in_file]
-            # Check state variables of struct type
-            # To-do: Deep-check aggregate types (struct and mapping)
-            svs = contract.variables
-            for sv in svs:
-                if (str(sv.type) == contract_name + "." + name):
-                    old_str_of_interest = in_file_str[sv.source_mapping['start']:(sv.source_mapping['start']+sv.source_mapping['length'])]
-                    (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
-                    patch = {
-                        "detector" : "naming-convention (struct use)",
-                        "start" : sv.source_mapping['start'],
-                        "end" : sv.source_mapping['start'] + sv.source_mapping['length'],
-                        "old_string" : old_str_of_interest,
-                        "new_string" : new_str_of_interest
-                    }
-                    if not patch in patches[in_file]:
-                        patches[in_file].append(patch)
-            # Check function+modifier locals+parameters+returns
-            # To-do: Deep-check aggregate types (struct and mapping)
-            fms = contract.functions + contract.modifiers
-            for fm in fms:
-                for v in fm.variables:
-                    if (str(v.type) == contract_name + "." + name):
-                        old_str_of_interest = in_file_str[v.source_mapping['start']:(v.source_mapping['start']+v.source_mapping['length'])]
+            if (contract.name == contract_name):
+                target_contract = contract
+        for contract in slither.contracts:
+            if (contract == target_contract or (contract in target_contract.derived_contracts)):
+                in_file_str = slither.source_code[in_file]
+                # Check state variables of struct type
+                # To-do: Deep-check aggregate types (struct and mapping)
+                svs = contract.variables
+                for sv in svs:
+                    if (str(sv.type) == contract_name + "." + name):
+                        old_str_of_interest = in_file_str[sv.source_mapping['start']:(sv.source_mapping['start']+sv.source_mapping['length'])]
                         (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
                         patch = {
                             "detector" : "naming-convention (struct use)",
-                            "start" : v.source_mapping['start'],
-                            "end" : v.source_mapping['start'] + v.source_mapping['length'],
+                            "start" : sv.source_mapping['start'],
+                            "end" : sv.source_mapping['start'] + sv.source_mapping['length'],
                             "old_string" : old_str_of_interest,
                             "new_string" : new_str_of_interest
                         }
-                        if not patch in	patches[in_file]:
+                        if not patch in patches[in_file]:
                             patches[in_file].append(patch)
-            # To-do: Check any other place/way where struct type is used (e.g. typecast)
+                # Check function+modifier locals+parameters+returns
+                # To-do: Deep-check aggregate types (struct and mapping)
+                fms = contract.functions + contract.modifiers
+                for fm in fms:
+                    for v in fm.variables:
+                        if (str(v.type) == contract_name + "." + name):
+                            old_str_of_interest = in_file_str[v.source_mapping['start']:(v.source_mapping['start']+v.source_mapping['length'])]
+                            (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
+                            patch = {
+                                "detector" : "naming-convention (struct use)",
+                                "start" : v.source_mapping['start'],
+                                "end" : v.source_mapping['start'] + v.source_mapping['length'],
+                                "old_string" : old_str_of_interest,
+                                "new_string" : new_str_of_interest
+                            }
+                            if not patch in	patches[in_file]:
+                                patches[in_file].append(patch)
+                # To-do: Check any other place/way where struct type is used (e.g. typecast)
