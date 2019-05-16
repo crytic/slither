@@ -3,6 +3,9 @@
 
 # Temporary files (Emacs backup files ending in tilde and others)
 *~
+*.err
+*.out
+
 
 
 
