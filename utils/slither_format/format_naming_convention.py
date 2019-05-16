@@ -163,7 +163,10 @@ class FormatNamingConvention:
     @staticmethod
     def create_patch_modifier_uses(slither, patches, name, contract_name, in_file):
         for contract in slither.contracts:
-            if contract.name == contract_name:
+            if (contract.name == contract_name):
+                target_contract = contract
+        for contract in slither.contracts:
+            if (contract == target_contract or (contract in target_contract.derived_contracts)):
                 for function in contract.functions:
                     for m  in function.modifiers:
                         if (m.name == name):

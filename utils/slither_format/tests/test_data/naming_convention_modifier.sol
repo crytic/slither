@@ -45,3 +45,9 @@ contract C {
   
 }
 
+contract D is C {
+  /* modifier uses - good and bad */
+  function foo() one Two returns (uint) {
+  }
+}
+
