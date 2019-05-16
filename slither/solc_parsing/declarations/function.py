@@ -256,7 +256,7 @@ class FunctionSolc(Function):
             condition = ifStatement['condition']
             # Note: check if the expression could be directly
             # parsed here
-            condition_node = self._new_node(NodeType.IF, ifStatement['src'])
+            condition_node = self._new_node(NodeType.IF, condition['src'])
             condition_node.add_unparsed_expression(condition)
             link_nodes(node, condition_node)
             trueStatement = self._parse_statement(ifStatement['trueBody'], condition_node)
@@ -267,7 +267,7 @@ class FunctionSolc(Function):
             condition = children[0]
             # Note: check if the expression could be directly
             # parsed here
-            condition_node = self._new_node(NodeType.IF, ifStatement['src'])
+            condition_node = self._new_node(NodeType.IF, condition['src'])
             condition_node.add_unparsed_expression(condition)
             link_nodes(node, condition_node)
             trueStatement = self._parse_statement(children[1], condition_node)
@@ -287,14 +287,15 @@ class FunctionSolc(Function):
         # WhileStatement = 'while' '(' Expression ')' Statement
 
         node_startWhile = self._new_node(NodeType.STARTLOOP, whileStatement['src'])
-        node_condition = self._new_node(NodeType.IFLOOP, whileStatement['src'])
 
         if self.is_compact_ast:
+            node_condition = self._new_node(NodeType.IFLOOP, whileStatement['condition']['src'])
             node_condition.add_unparsed_expression(whileStatement['condition'])
             statement = self._parse_statement(whileStatement['body'], node_condition)
         else:
             children = whileStatement[self.get_children('children')]
             expression = children[0]
+            node_condition = self._new_node(NodeType.IFLOOP, expression['src'])
             node_condition.add_unparsed_expression(expression)
             statement = self._parse_statement(children[1], node_condition)
 
@@ -323,7 +324,7 @@ class FunctionSolc(Function):
             link_nodes(node, node_startLoop)
 
         if condition:
-            node_condition = self._new_node(NodeType.IFLOOP, statement['src'])
+            node_condition = self._new_node(NodeType.IFLOOP, condition['src'])
             node_condition.add_unparsed_expression(condition)
             link_nodes(node_startLoop, node_condition)
             link_nodes(node_condition, node_endLoop)
@@ -417,9 +418,9 @@ class FunctionSolc(Function):
             if candidate[self.get_key()] not in ['VariableDefinitionStatement',
                                          'VariableDeclarationStatement',
                                          'ExpressionStatement']:
-                node_condition = self._new_node(NodeType.IFLOOP, statement['src'])
-                #expression = parse_expression(candidate, self)
                 expression = candidate
+                node_condition = self._new_node(NodeType.IFLOOP, expression['src'])
+                #expression = parse_expression(candidate, self)
                 node_condition.add_unparsed_expression(expression)
                 link_nodes(node_startLoop, node_condition)
                 link_nodes(node_condition, node_endLoop)
@@ -448,15 +449,16 @@ class FunctionSolc(Function):
     def _parse_dowhile(self, doWhilestatement, node):
 
         node_startDoWhile = self._new_node(NodeType.STARTLOOP, doWhilestatement['src'])
-        node_condition = self._new_node(NodeType.IFLOOP, doWhilestatement['src'])
 
         if self.is_compact_ast:
+            node_condition = self._new_node(NodeType.IFLOOP, doWhilestatement['condition']['src'])
             node_condition.add_unparsed_expression(doWhilestatement['condition'])
             statement = self._parse_statement(doWhilestatement['body'], node_condition)
         else:
             children = doWhilestatement[self.get_children('children')]
             # same order in the AST as while
             expression = children[0]
+            node_condition = self._new_node(NodeType.IFLOOP, expression['src'])
             node_condition.add_unparsed_expression(expression)
             statement = self._parse_statement(children[1], node_condition)
 
