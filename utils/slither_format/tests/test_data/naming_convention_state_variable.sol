@@ -28,3 +28,10 @@ contract B {
   }
 }
 
+contract C is B {
+  function foo() {
+    /* State variable uses - bad */
+    uint i = number + Maxnum;
+  }  
+}
+

@@ -11,7 +11,6 @@ class TestNamingConvention(unittest.TestCase):
     testDataFile6 = "naming_convention_function.sol"
     testDataFile7 = "naming_convention_parameter.sol"
     testDataFile8 = "naming_convention_state_variable.sol"
-    testDataFile9 = "naming_convention_state_variable_inheritance.sol"
     testFilePath1 = testDataDir+testDataFile1
     testFilePath2 = testDataDir+testDataFile2
     testFilePath3 = testDataDir+testDataFile3
@@ -20,7 +19,6 @@ class TestNamingConvention(unittest.TestCase):
     testFilePath6 = testDataDir+testDataFile6
     testFilePath7 = testDataDir+testDataFile7
     testFilePath8 = testDataDir+testDataFile8
-    testFilePath9 = testDataDir+testDataFile9
     
     def setUp(self):
         outFD1 = open(self.testFilePath1+".out","w")
@@ -79,13 +77,6 @@ class TestNamingConvention(unittest.TestCase):
         outFD8.close()
         errFD8.close()
 
-        outFD9 = open(self.testFilePath9+".out","w")
-        errFD9 = open(self.testFilePath9+".err","w")
-        p8 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose-test','--detect','naming-convention',self.testFilePath9], stdout=outFD9,stderr=errFD9)
-        p8.wait()
-        outFD9.close()
-        errFD9.close()
-
     def tearDown(self):
         p1 = subprocess.Popen(['rm','-f',self.testFilePath1+'.out',self.testFilePath1+'.err',self.testFilePath1+'.format'])
         p1.wait()
@@ -103,44 +94,6 @@ class TestNamingConvention(unittest.TestCase):
         p7.wait()
         p8 = subprocess.Popen(['rm','-f',self.testFilePath8+'.out',self.testFilePath8+'.err',self.testFilePath8+'.format'])
         p8.wait()
-        p9 = subprocess.Popen(['rm','-f',self.testFilePath9+'.out',self.testFilePath9+'.err',self.testFilePath9+'.format'])
-        p9.wait()
-
-    def test_naming_convention_state_variable_inheritance(self):
-        outFD9 = open(self.testFilePath9+".out","r")
-        outFD9_lines = outFD9.readlines()
-        outFD9.close()
-        for i in range(len(outFD9_lines)):
-            outFD9_lines[i] = outFD9_lines[i].strip()
-        self.assertTrue(os.path.isfile(self.testFilePath9+".format"),"Patched .format file is not created?!")
-        self.assertEqual(outFD9_lines[0],"Number of Slither results: 3")
-        self.assertEqual(outFD9_lines[1],"Number of patches: 9")
-        self.assertEqual(outFD9_lines.count("Detector: naming-convention (state variable declaration)"), 3)
-        self.assertEqual(outFD9_lines.count("Detector: naming-convention (state variable uses)"), 6)
-        self.assertEqual(outFD9_lines.count("Old string: number"), 3)
-        self.assertEqual(outFD9_lines.count("New string: NUMBER"), 3)
-        self.assertEqual(outFD9_lines.count("Location start: 469"), 1)
-        self.assertEqual(outFD9_lines.count("Location end: 475"), 1)
-        self.assertEqual(outFD9_lines.count("Location start: 716"), 1)
-        self.assertEqual(outFD9_lines.count("Location end: 722"), 1)
-        self.assertEqual(outFD9_lines.count("Location start: 850"), 1)
-        self.assertEqual(outFD9_lines.count("Location end: 856"), 1)
-        self.assertEqual(outFD9_lines.count("Old string: Count"), 3)
-        self.assertEqual(outFD9_lines.count("New string: count"), 3)
-        self.assertEqual(outFD9_lines.count("Location start: 547"), 1)
-        self.assertEqual(outFD9_lines.count("Location end: 552"), 1)
-        self.assertEqual(outFD9_lines.count("Location start: 725"), 1)
-        self.assertEqual(outFD9_lines.count("Location end: 730"), 1)
-        self.assertEqual(outFD9_lines.count("Location start: 745"), 1)
-        self.assertEqual(outFD9_lines.count("Location end: 750"), 1)
-        self.assertEqual(outFD9_lines.count("Old string: Maxnum"), 3)
-        self.assertEqual(outFD9_lines.count("New string: maxnum"), 3)
-        self.assertEqual(outFD9_lines.count("Location start: 634"), 1)
-        self.assertEqual(outFD9_lines.count("Location end: 640"), 1)
-        self.assertEqual(outFD9_lines.count("Location start: 733"), 1)
-        self.assertEqual(outFD9_lines.count("Location end: 739"), 1)
-        self.assertEqual(outFD9_lines.count("Location start: 859"), 1)
-        self.assertEqual(outFD9_lines.count("Location end: 865"), 1)
 
     def test_naming_convention_contract(self):
         outFD1 = open(self.testFilePath1+".out","r")
@@ -406,15 +359,17 @@ class TestNamingConvention(unittest.TestCase):
             outFD8_lines[i] = outFD8_lines[i].strip()
         self.assertTrue(os.path.isfile(self.testFilePath8+".format"),"Patched .format file is not created?!")
         self.assertEqual(outFD8_lines[0],"Number of Slither results: 3")
-        self.assertEqual(outFD8_lines[1],"Number of patches: 7")
+        self.assertEqual(outFD8_lines[1],"Number of patches: 9")
         self.assertEqual(outFD8_lines.count("Detector: naming-convention (state variable declaration)"), 3)
-        self.assertEqual(outFD8_lines.count("Detector: naming-convention (state variable uses)"), 4)
-        self.assertEqual(outFD8_lines.count("Old string: number"), 2)
-        self.assertEqual(outFD8_lines.count("New string: NUMBER"), 2)
+        self.assertEqual(outFD8_lines.count("Detector: naming-convention (state variable uses)"), 6)
+        self.assertEqual(outFD8_lines.count("Old string: number"), 3)
+        self.assertEqual(outFD8_lines.count("New string: NUMBER"), 3)
         self.assertEqual(outFD8_lines.count("Location start: 469"), 1)
         self.assertEqual(outFD8_lines.count("Location end: 475"), 1)
         self.assertEqual(outFD8_lines.count("Location start: 716"), 1)
         self.assertEqual(outFD8_lines.count("Location end: 722"), 1)
+        self.assertEqual(outFD8_lines.count("Location start: 850"), 1)
+        self.assertEqual(outFD8_lines.count("Location end: 856"), 1)
         self.assertEqual(outFD8_lines.count("Old string: Count"), 3)
         self.assertEqual(outFD8_lines.count("New string: count"), 3)
         self.assertEqual(outFD8_lines.count("Location start: 547"), 1)
@@ -423,12 +378,14 @@ class TestNamingConvention(unittest.TestCase):
         self.assertEqual(outFD8_lines.count("Location end: 730"), 1)
         self.assertEqual(outFD8_lines.count("Location start: 745"), 1)
         self.assertEqual(outFD8_lines.count("Location end: 750"), 1)
-        self.assertEqual(outFD8_lines.count("Old string: Maxnum"), 2)
-        self.assertEqual(outFD8_lines.count("New string: maxnum"), 2)
+        self.assertEqual(outFD8_lines.count("Old string: Maxnum"), 3)
+        self.assertEqual(outFD8_lines.count("New string: maxnum"), 3)
         self.assertEqual(outFD8_lines.count("Location start: 634"), 1)
         self.assertEqual(outFD8_lines.count("Location end: 640"), 1)
         self.assertEqual(outFD8_lines.count("Location start: 733"), 1)
         self.assertEqual(outFD8_lines.count("Location end: 739"), 1)
+        self.assertEqual(outFD8_lines.count("Location start: 859"), 1)
+        self.assertEqual(outFD8_lines.count("Location end: 865"), 1)
 
 if __name__ == '__main__':
     unittest.main()
