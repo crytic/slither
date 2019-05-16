@@ -32,3 +32,9 @@ contract Three {
 
 }
 
+contract Four is Three {
+  function foo(uint i) {
+    /* event call with emit - bad */
+    emit e(i);
+  }  
+}
