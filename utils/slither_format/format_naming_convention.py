@@ -276,6 +276,9 @@ class FormatNamingConvention:
         event_name = name.split('(')[0]
         for contract in slither.contracts:
             if (contract.name == contract_name):
+                target_contract = contract
+        for contract in slither.contracts:
+            if (contract == target_contract or (contract in target_contract.derived_contracts)):
                 for function in contract.functions:
                     for node in function.nodes:
                         for call in node.internal_calls_as_expressions:
