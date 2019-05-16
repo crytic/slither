@@ -456,7 +456,10 @@ class FormatNamingConvention:
     @staticmethod
     def create_patch_enum_uses(slither, patches, name, contract_name, in_file):
         for contract in slither.contracts:
-            if contract.name == contract_name:
+            if (contract.name == contract_name):
+                target_contract = contract
+        for contract in slither.contracts:
+            if (contract == target_contract or (contract in target_contract.derived_contracts)):
                 in_file_str = slither.source_code[in_file]
                 # Check state variable declarations of enum type
                 # To-do: Deep-check aggregate types (struct and mapping)
