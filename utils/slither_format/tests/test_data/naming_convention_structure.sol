@@ -49,3 +49,10 @@ contract C {
   }
 }
 
+contract D is C {
+  /* struct as parameter and return value - bad */
+  function foo(s sA) returns (s) {
+    s1.i = sA.i;
+    return (s1);
+  }
+}
