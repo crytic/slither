@@ -14,4 +14,6 @@ p6 = subprocess.Popen(['python3', './slither_format/tests/test_pragma.py'])
 p6.wait()
 p7 = subprocess.Popen(['python3', './slither_format/tests/test_solc_version.py'])
 p7.wait()
+p8 = subprocess.Popen(['python3', './slither_format/tests/test_detector_combinations.py'])
+p8.wait()
 

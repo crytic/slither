@@ -41,23 +41,47 @@ def slither_format(args, slither):
     results.extend(detector_results)
     number_of_slither_results = get_number_of_slither_results(detector_results)
     apply_detector_results(slither, patches, detector_results)
-    sort_patches(patches)
+    sort_and_flag_overlapping_patches(patches)
+    prune_overlapping_patches(args, patches)
     if args.verbose_json:
         print_patches_json(number_of_slither_results, patches)
     if args.verbose_test:
         print_patches(number_of_slither_results, patches)    
     apply_patches(slither, patches)
 
-def sort_patches(patches):
+def sort_and_flag_overlapping_patches(patches):
     for file in patches:
         n = len(patches[file])
         for i in range(n):
             for j in range (0,n-i-1):
-                if int(patches[file][j]['start']) >= int(patches[file][j+1]['end']):
+                # Sort check
+                if int(patches[file][j]['start']) > int(patches[file][j+1]['start']):
                     temp = patches[file][j+1]
                     patches[file][j+1] = patches[file][j]
                     patches[file][j] = temp
+                # Overlap check
+                if (int(patches[file][j]['start']) >= int(patches[file][j+1]['start']) and
+                    int(patches[file][j]['start']) <= int(patches[file][j+1]['end'])):
+                    patches[file][j]['overlaps'] = "Yes"
+                    patches[file][j+1]['overlaps'] = "Yes"
 
+def is_overlap_patch(args, patch):
+    if 'overlaps' in patch:
+        if args.verbose_test:
+            print("Overlapping patch won't be applied!")
+            print("xDetector: " + patch['detector'])
+            print("xOld string: " + patch['old_string'].replace("\n",""))
+            print("xNew string: " + patch['new_string'].replace("\n",""))
+            print("xLocation start: " + str(patch['start']))
+            print("xLocation end: " + str(patch['end']))
+        return True
+    return False
+
+def prune_overlapping_patches(args, patches):
+    for file in patches:
+        non_overlapping_patches = [patch for patch in patches[file] if not is_overlap_patch(args, patch)]
+        patches[file] = non_overlapping_patches
+            
 def apply_patches(slither, patches):
     for file in patches:
         _in_file = file
@@ -110,6 +134,8 @@ def print_patches_json(number_of_slither_results, patches):
             print("\"New string\":" + '"' + patch['new_string'].replace("\n","") + '",')
             print("\"Location start\":" + '"' + str(patch['start']) + '",')
             print("\"Location end\":" + '"' + str(patch['end']) + '"')
+            if 'overlaps' in patch:
+                print("\"Overlaps\":" + "Yes")
             print('}',end='')
         print(']',end='')        
         print('}',end='')
