@@ -44,3 +44,10 @@ contract C {
   }
 }
 
+contract D is C {
+  /* enum as parameter and return value - bad */
+  function foo(e eA) returns (e) {
+    e e2 = eA;
+    return (e2);
+  }
+}
