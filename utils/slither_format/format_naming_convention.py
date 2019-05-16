@@ -402,6 +402,9 @@ class FormatNamingConvention:
         # To-do: Check cross-contract state variable uses
         for contract in slither.contracts:
             if (contract.name == contract_name):
+                target_contract = contract
+        for contract in slither.contracts:
+            if (contract == target_contract or (contract in target_contract.derived_contracts)):
                 fms = contract.functions + contract.modifiers
                 for fm in fms:
                     for node in fm.nodes:
