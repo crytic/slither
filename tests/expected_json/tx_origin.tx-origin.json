@@ -96,25 +96,23 @@
         "check": "tx-origin",
         "impact": "Medium",
         "confidence": "Medium",
-        "description": "TxOrigin.bug2() uses tx.origin for authorization: \"tx.origin != owner\" (tests/tx_origin.sol#14-16)\n",
+        "description": "TxOrigin.bug2() uses tx.origin for authorization: \"tx.origin != owner\" (tests/tx_origin.sol#14)\n",
         "elements": [
           {
             "type": "node",
             "name": "tx.origin != owner",
             "source_mapping": {
-              "start": 208,
-              "length": 57,
+              "start": 212,
+              "length": 18,
               "filename_used": "/home/travis/build/crytic/slither/tests/tx_origin.sol",
               "filename_relative": "tests/tx_origin.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/tx_origin.sol",
               "filename_short": "tests/tx_origin.sol",
               "lines": [
-                14,
-                15,
-                16
+                14
               ],
-              "starting_column": 9,
-              "ending_column": 10
+              "starting_column": 13,
+              "ending_column": 31
             },
             "type_specific_fields": {
               "parent": {

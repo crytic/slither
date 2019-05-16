@@ -44,9 +44,9 @@ class NodeType:
 
     # Merging nodes
     # Can have phi IR operation
-    ENDIF = 0x50
-    STARTLOOP = 0x51
-    ENDLOOP = 0x52
+    ENDIF = 0x50     # ENDIF node source mapping points to the if/else body
+    STARTLOOP = 0x51 # STARTLOOP node source mapping points to the entire loop body
+    ENDLOOP = 0x52   # ENDLOOP node source mapping points to the entire loop body
 
     # Below the nodes have no expression
     # But are used to expression CFG structure
