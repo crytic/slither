@@ -1,9 +1,10 @@
-import os
+import os, sys
 import argparse
 from slither import Slither
 from slither.utils.colors import red
 import logging
 from .slither_format import slither_format
+from crytic_compile import cryticparser
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
@@ -27,7 +28,6 @@ def parse_args():
                                      usage='slither_format filename')
 
     parser.add_argument('filename', help='The filename of the contract or truffle directory to analyze.')
-    parser.add_argument('--solc', help='solc path', default='solc')
     parser.add_argument('--verbose-test', '-v', help='verbose mode output for testing',action='store_true',default=False)
     parser.add_argument('--verbose-json', '-j', help='verbose json output',action='store_true',default=False)
     
@@ -39,6 +39,13 @@ def parse_args():
                                 action='store',
                                 dest='detectors_to_run',
                                 default='all')
+
+    cryticparser.init(parser) 
+  
+    if len(sys.argv) == 1: 
+        parser.print_help(sys.stderr) 
+        sys.exit(1)
+     
     return parser.parse_args()
 
 
@@ -51,7 +58,7 @@ def main():
     args = parse_args()
 
     # Perform slither analysis on the given filename
-    slither = Slither(args.filename, is_truffle=os.path.isdir(args.filename), solc=args.solc, disable_solc_warnings=True)
+    slither = Slither(args.filename, **vars(args))
 
     # Format the input files based on slither analysis
     slither_format(args, slither)
