@@ -93,7 +93,8 @@ def apply_patches(slither, patches):
             else:
                 out_file_str += in_file_str[:int(patches[file][i]['start'])]
             out_file_str += patches[file][i]['new_string']
-        out_file_str += in_file_str[int(patches[file][i]['end']):]
+            if (i == (len(patches[file]) - 1)):
+                out_file_str += in_file_str[int(patches[file][i]['end']):]
         out_file = open(_in_file+".format",'w')
         out_file.write(out_file_str)
         out_file.close()
