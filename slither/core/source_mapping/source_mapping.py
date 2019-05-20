@@ -21,6 +21,7 @@ class SourceMapping(Context):
             Not done in an efficient way
         """
         total_length = len(source_code)
+        source_code = source_code.encode('utf-8')
         source_code = source_code.splitlines(True)
         counter = 0
         i = 0
