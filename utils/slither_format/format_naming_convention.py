@@ -68,6 +68,8 @@ class FormatNamingConvention:
                         patches[in_file].append(patch)
                 else:
                     print("Error: Could not find contract?!")
+                    print("old_str_of_interest: " + old_str_of_interest)
+                    print("Contract : " + name)
                     sys.exit(-1)
                     
     @staticmethod
@@ -129,6 +131,8 @@ class FormatNamingConvention:
                                         patches[in_file].append(patch)
                                 else:
                                     print("Error: Could not find new object?!")
+                                    print("old_str_of_interest: " + old_str_of_interest)
+                                    print("Contract : " + name)
                                     sys.exit(-1)
 
             else:
@@ -158,6 +162,8 @@ class FormatNamingConvention:
                                 patches[in_file].append(patch)
                         else:
                             print("Error: Could not find modifier?!")
+                            print("old_str_of_interest: " + old_str_of_interest)
+                            print("Modifier: " + name + " in Contract : " + contract_name)
                             sys.exit(-1)
                             
     @staticmethod
@@ -185,6 +191,8 @@ class FormatNamingConvention:
                                     patches[in_file].append(patch)
                             else:
                                 print("Error: Could not find modifier name?!")
+                                print("old_str_of_interest: " + old_str_of_interest)
+                                print("Modifier: " + name + " in Contract : " + contract_name)
                                 sys.exit(-1)
                                 
     @staticmethod
@@ -210,6 +218,8 @@ class FormatNamingConvention:
                                 patches[in_file].append(patch)
                         else:
                             print("Error: Could not find function?!")
+                            print("old_str_of_interest: " + old_str_of_interest)
+                            print("Function: " + name + " in Contract : " + contract_name)
                             sys.exit(-1)
                             
     @staticmethod
@@ -272,6 +282,8 @@ class FormatNamingConvention:
                                 patches[in_file].append(patch)
                         else:
                             print("Error: Could not find event?!")
+                            print("old_str_of_interest: " + old_str_of_interest)
+                            print("Event: " + name + " in Contract : " + contract_name)
                             sys.exit(-1)
                             
     @staticmethod
@@ -321,7 +333,9 @@ class FormatNamingConvention:
                             if not patch in patches[in_file]:
                                 patches[in_file].append(patch)
                         else:
-                            print("Error: Could not find parameter?!")
+                            print("Error: Could not find parameter declaration?!")
+                            print("old_str_of_interest: " + old_str_of_interest)
+                            print("Parameter: " + name + " of Function: " + function_name + " in Contract : " + contract_name)
                             sys.exit(-1)
 
     @staticmethod                        
@@ -353,8 +367,9 @@ class FormatNamingConvention:
                                         if not patch in	patches[in_file]:
                                             patches[in_file].append(patch)
                                     else:
-                                        print("Error: Could not find parameter?!")
-                                        sys.exit(-1)
+                                        print("Error: Could not find parameter use?!")
+                                        print("old_str_of_interest: " + old_str_of_interest)
+                                        print("Parameter: " + name + " of Function: " + function_name + " in Contract : " + contract_name)
                         # Process function parameters passed to modifiers
                         for modifier in function._expression_modifiers:
                             for arg in modifier.arguments:
@@ -376,7 +391,9 @@ class FormatNamingConvention:
                                         if not patch in	patches[in_file]:
                                             patches[in_file].append(patch)
                                     else:
-                                        print("Error: Could not find parameter?!")
+                                        print("Error: Could not find parameter use in modifier?!")
+                                        print("old_str_of_interest: " + old_str_of_interest)
+                                        print("Parameter: " + name + " of Function: " + function_name + " in Contract : " + contract_name)
                                         sys.exit(-1)
 
     @staticmethod
@@ -457,6 +474,8 @@ class FormatNamingConvention:
                                 patches[in_file].append(patch)
                         else:
                             print("Error: Could not find enum?!")
+                            print("old_str_of_interest: " + old_str_of_interest)
+                            print("Enum: " + name + " in Contract : " + contract_name)
                             sys.exit(-1)
                             
     @staticmethod
@@ -524,6 +543,7 @@ t']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0])
                                             patches[in_file].append(patch)
                                     else:
                                         print("Error: Could not find new object?!")
+                                        print("Enum: " + name + " in Contract : " + contract_name)
                                         sys.exit(-1)
                 # To-do: Check any other place/way where enum type is used
 
@@ -548,6 +568,7 @@ t']:(node.source_mapping['start']+node.source_mapping['length'])].split('=')[0])
                                 patches[in_file].append(patch)
                         else:
                             print("Error: Could not find struct?!")
+                            print("Struct: " + name + " in Contract : " + contract_name)
                             sys.exit(-1)
 
     @staticmethod                            
