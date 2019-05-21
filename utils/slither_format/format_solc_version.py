@@ -1,4 +1,9 @@
-import re
+import re, logging
+from slither.utils.colors import red, yellow, set_colorization_enabled
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('Slither.Format')
+set_colorization_enabled(True)
 
 class FormatSolcVersion:
 
@@ -30,7 +35,7 @@ class FormatSolcVersion:
             elif minor_version == '5':
                 return "pragma solidity " + FormatSolcVersion.REPLACEMENT_VERSIONS[1] + ';'
             else:
-                print("Unknown version!")
+                logger.error(red("Unknown version!"))
                 sys.exit(-1)
         elif len(versions) == 2:
             version_left = versions[0]

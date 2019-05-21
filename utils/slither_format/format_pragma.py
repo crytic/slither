@@ -1,4 +1,9 @@
-import re
+import re, logging
+from slither.utils.colors import red, yellow, set_colorization_enabled
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('Slither.Format')
+set_colorization_enabled(True)
 
 class FormatPragma:
 
@@ -28,7 +33,7 @@ class FormatPragma:
         for version in used_solc_versions:
             replace_solc_versions.append(FormatPragma.determine_solc_version_replacement(version))
         if not all(version == replace_solc_versions[0] for version in replace_solc_versions):
-            print("Multiple incompatible versions!")
+            logger.error(red("Multiple incompatible versions!"))
             sys.exit(-1)
         else:
             return replace_solc_versions[0]
@@ -44,7 +49,7 @@ class FormatPragma:
             elif minor_version == '5':
                 return "pragma solidity " + FormatPragma.REPLACEMENT_VERSIONS[1] + ';'
             else:
-                print("Unknown version!")
+                logger.error(red("Unknown version!"))
                 sys.exit(-1)
         elif len(versions) == 2:
             version_left = versions[0]
