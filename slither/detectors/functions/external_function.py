@@ -96,6 +96,13 @@ class ExternalFunction(AbstractDetector):
                                        for function in derived_contract.functions
                                        if function.full_name == base_most_function.full_name]
 
+    @staticmethod
+    def function_parameters_written(function):
+        for node in function.nodes:
+            if any (var.name == parameter.name for var in node.local_variables_written for parameter in function.parameters):
+                return True
+        return False
+
     def _detect(self):
         results = []
 
@@ -130,6 +137,11 @@ class ExternalFunction(AbstractDetector):
                 if function in completed_functions:
                     continue
 
+                # If the function has parameters which are written-to in function body, we skip
+                # because parameters of external functions will be allocated in calldata region which is immutable
+                if self.function_parameters_written(function):
+                    continue
+                
                 # Get the base-most function to know our origin of this function.
                 base_most_function = self.get_base_most_function(function)
 
