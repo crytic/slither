@@ -966,7 +966,8 @@ class FunctionSolc(Function):
                 if has_cond.result():
                     st = SplitTernaryExpression(node.expression)
                     condition = st.condition
-                    assert condition
+                    if not condition:
+                        raise ParsingError(f'Incorrect ternary conversion {node.expression} {node.source_mapping_str}')
                     true_expr = st.true_expression
                     false_expr = st.false_expression
                     self.split_ternary_node(node, condition, true_expr, false_expr)
