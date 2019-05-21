@@ -222,6 +222,7 @@ class ContractSolc04(Contract):
     def parse_state_variables(self):
         for father in self.inheritance_reverse:
             self._variables.update(father.variables_as_dict())
+            self._variables_ordered += father.state_variables_ordered
 
         for varNotParsed in self._variablesNotParsed:
             var = StateVariableSolc(varNotParsed)
@@ -229,6 +230,7 @@ class ContractSolc04(Contract):
             var.set_contract(self)
 
             self._variables[var.name] = var
+            self._variables_ordered.append(var)
 
     def _parse_modifier(self, modifier):
 
