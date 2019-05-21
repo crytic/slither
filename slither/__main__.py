@@ -100,16 +100,26 @@ def process_files(filenames, args, detector_classes, printer_classes):
 ###################################################################################
 
 
-def wrap_json_stdout(success, error_message, results=None):
+def wrap_json_detectors_results(success, error_message, results=None):
+    """
+    Wrap the detector results.
+    :param success:
+    :param error_message:
+    :param results:
+    :return:
+    """
+    results_json = {}
+    if results:
+        results_json['detectors'] = results
     return {
         "success": success,
         "error": error_message,
-        "results": results
+        "results": results_json
     }
 
 
 def output_json(results, filename):
-    json_result = wrap_json_stdout(True, None, results)
+    json_result = wrap_json_detectors_results(True, None, results)
     if filename is None:
         # Write json to console
         print(json.dumps(json_result))
@@ -594,7 +604,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     except SlitherException as se:
         # Output our error accordingly, via JSON or logging.
         if stdout_json:
-            print(json.dumps(wrap_json_stdout(False, str(se), [])))
+            print(json.dumps(wrap_json_detectors_results(False, str(se), [])))
         else:
             logging.error(red('Error:'))
             logging.error(red(se))
@@ -604,7 +614,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     except Exception:
         # Output our error accordingly, via JSON or logging.
         if stdout_json:
-            print(json.dumps(wrap_json_stdout(False, traceback.format_exc(), [])))
+            print(json.dumps(wrap_json_detectors_results(False, traceback.format_exc(), [])))
         else:
             logging.error('Error in %s' % args.filename)
             logging.error(traceback.format_exc())

@@ -15,7 +15,7 @@ for contract in slither.contracts:
     for function in contract.functions:
 
         # Dont explore inherited functions
-        if function.contract == contract:
+        if function.contract_declarer == contract:
 
             print('Function: {}'.format(function.name))
 

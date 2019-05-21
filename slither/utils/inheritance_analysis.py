@@ -19,7 +19,7 @@ def detect_c3_function_shadowing(contract):
     for i in range(0, len(contract.immediate_inheritance) - 1):
         inherited_contract1 = contract.immediate_inheritance[i]
 
-        for function1 in inherited_contract1.functions_and_modifiers:
+        for function1 in inherited_contract1.functions_and_modifiers_declared:
             # If this function has already be handled or is unimplemented, we skip it
             if function1.full_name in results or function1.is_constructor or not function1.is_implemented:
                 continue
@@ -61,7 +61,7 @@ def detect_direct_function_shadowing(contract):
     function (could have provided it through inheritance, does not need to directly define it).
     -overshadowed_function is the function definition which is overshadowed by the provided contract's definition.
     """
-    functions_declared = {function.full_name: function for function in contract.functions_and_modifiers_not_inherited}
+    functions_declared = {function.full_name: function for function in contract.functions_and_modifiers_declared}
     results = {}
     for base_contract in reversed(contract.immediate_inheritance):
         for base_function in base_contract.functions_and_modifiers:
@@ -109,7 +109,7 @@ def detect_function_shadowing(contracts, direct_shadowing=True, indirect_shadowi
                     for y in range(x + 1, len(colliding_functions)):
                         # The same function definition can appear more than once in the inheritance chain,
                         # overshadowing items between, so it is important to remember to filter it out here.
-                        if colliding_functions[y][1].contract != colliding_functions[x][1].contract:
+                        if colliding_functions[y][1].contract_declarer != colliding_functions[x][1].contract_declarer:
                             results.add((contract, colliding_functions[y][0], colliding_functions[y][1],
                                          colliding_functions[x][0], colliding_functions[x][1]))
 
@@ -128,8 +128,7 @@ def detect_state_variable_shadowing(contracts):
     """
     results = set()
     for contract in contracts:
-        variables_declared = {variable.name: variable for variable in contract.variables
-                              if variable.contract == contract}
+        variables_declared = {variable.name: variable for variable in contract.state_variables_declared}
         for immediate_base_contract in contract.immediate_inheritance:
             for variable in immediate_base_contract.variables:
                 if variable.name in variables_declared:

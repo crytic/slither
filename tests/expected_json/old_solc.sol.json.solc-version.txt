@@ -1,4 +1,5 @@
 INFO:Detectors:[92m
 Pragma version "0.4.21" allows old versions (None)
-Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-version-of-solidity[0m
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity[0m
+INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/old_solc.sol.json.solc-version.json exists already, the overwrite is prevented[0m
 INFO:Slither:tests/old_solc.sol.json analyzed (1 contracts), 1 result(s) found

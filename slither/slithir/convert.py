@@ -6,7 +6,7 @@ from slither.core.declarations import (Contract, Enum, Event, Function,
 from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types import (ArrayType, ElementaryType,
                                          FunctionType, MappingType,
-                                         UserDefinedType)
+                                         UserDefinedType, TypeInformation)
 from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
 from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
@@ -103,6 +103,21 @@ def get_sig(ir, name):
     # list of list of arguments
     argss = convert_arguments(ir.arguments)
     return [sig.format(name, ','.join(args)) for args in argss]
+
+def get_canonical_names(ir, function_name, contract_name):
+    '''
+        Return a list of potential signature
+        It is a list, as Constant variables can be converted to int256
+    Args:
+        ir (slithIR.operation)
+    Returns:
+        list(str)
+    '''
+    sig = '{}({})'
+
+    # list of list of arguments
+    argss = convert_arguments(ir.arguments)
+    return [sig.format(f'{contract_name}.{function_name}', ','.join(args)) for args in argss]
 
 def convert_arguments(arguments):
     argss = [[]]
@@ -297,6 +312,44 @@ def propagate_type_and_convert_call(result, node):
         idx = idx +1
     return result
 
+def _convert_type_contract(ir, slither):
+    assert isinstance(ir.variable_left.type, TypeInformation)
+    contract = ir.variable_left.type.type
+
+    if ir.variable_right == 'creationCode':
+        if slither.crytic_compile:
+            bytecode = slither.crytic_compile.bytecode_init(contract.name)
+        else:
+            logger.info(
+                'The codebase uses type(x).creationCode, but crytic-compile was not used. As a result, the bytecode cannot be found')
+            bytecode = "MISSING_BYTECODE"
+        assignment = Assignment(ir.lvalue,
+                                Constant(str(bytecode)),
+                                ElementaryType('bytes'))
+        assignment.lvalue.set_type(ElementaryType('bytes'))
+        return assignment
+    if ir.variable_right == 'runtimeCode':
+        if slither.crytic_compile:
+            bytecode = slither.crytic_compile.bytecode_runtime(contract.name)
+        else:
+            logger.info(
+                'The codebase uses type(x).runtimeCode, but crytic-compile was not used. As a result, the bytecode cannot be found')
+            bytecode = "MISSING_BYTECODE"
+        assignment = Assignment(ir.lvalue,
+                                Constant(str(bytecode)),
+                                ElementaryType('bytes'))
+        assignment.lvalue.set_type(ElementaryType('bytes'))
+        return assignment
+    if ir.variable_right == 'name':
+        assignment = Assignment(ir.lvalue,
+                                Constant(contract.name),
+                                ElementaryType('string'))
+        assignment.lvalue.set_type(ElementaryType('string'))
+        return assignment
+
+    raise SlithIRError(f'type({contract.name}).{ir.variable_right} is unknown')
+
+
 def propagate_types(ir, node):
     # propagate the type
     using_for = node.function.contract.using_for
@@ -361,7 +414,7 @@ def propagate_types(ir, node):
             elif isinstance(ir, InternalCall):
                 # if its not a tuple, return a singleton
                 if ir.function is None:
-                    convert_type_of_high_and_internal_level_call(ir, ir.contract)
+                    convert_type_of_high_and_internal_level_call(ir, node.function.contract)
                 return_type = ir.function.return_type
                 if return_type:
                     if len(return_type) == 1:
@@ -398,6 +451,8 @@ def propagate_types(ir, node):
                                             ElementaryType('bytes4'))
                     assignment.lvalue.set_type(ElementaryType('bytes4'))
                     return assignment
+                if isinstance(ir.variable_left, TemporaryVariable) and isinstance(ir.variable_left.type, TypeInformation):
+                    return _convert_type_contract(ir, node.function.slither)
                 left = ir.variable_left
                 t = None
                 if isinstance(left, (Variable, SolidityVariable)):
@@ -426,6 +481,12 @@ def propagate_types(ir, node):
                             f = next((f for f in type_t.functions if f.name == ir.variable_right), None)
                             if f:
                                 ir.lvalue.set_type(f)
+                            else:
+                                # Allow propgation for variable access through contract's nale
+                                # like Base_contract.my_variable
+                                v = next((v for v in type_t.state_variables if v.name == ir.variable_right), None)
+                                if v:
+                                    ir.lvalue.set_type(v.type)
             elif isinstance(ir, NewArray):
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):
@@ -441,6 +502,8 @@ def propagate_types(ir, node):
             elif isinstance(ir, Send):
                 ir.lvalue.set_type(ElementaryType('bool'))
             elif isinstance(ir, SolidityCall):
+                if ir.function.name == 'type(address)':
+                    ir.function.return_type = [TypeInformation(ir.arguments[0])]
                 return_type = ir.function.return_type
                 if len(return_type) == 1:
                     ir.lvalue.set_type(return_type[0])
@@ -472,7 +535,7 @@ def extract_tmp_call(ins, contract):
         # If there is a call on an inherited contract, it is an internal call or an event
         if ins.ori.variable_left in contract.inheritance + [contract]:
             if str(ins.ori.variable_right) in [f.name for f in contract.functions]:
-                internalcall = InternalCall(ins.ori.variable_right, ins.ori.variable_left, ins.nbr_arguments, ins.lvalue, ins.type_call)
+                internalcall = InternalCall((ins.ori.variable_right, ins.ori.variable_left.name), ins.nbr_arguments, ins.lvalue, ins.type_call)
                 internalcall.call_id = ins.call_id
                 return internalcall
             if str(ins.ori.variable_right) in [f.name for f in contract.events]:
@@ -647,7 +710,10 @@ def look_for_library(contract, ir, node, using_for, t):
     return None
 
 def convert_to_library(ir, node, using_for):
-    contract = node.function.contract
+    # We use contract_declarer, because Solidity resolve the library
+    # before resolving the inheritance.
+    # Though we could use .contract as libraries cannot be shadowed
+    contract = node.function.contract_declarer
     t = ir.destination.type
 
     if t in using_for:
@@ -711,14 +777,25 @@ def convert_type_library_call(ir, lib_contract):
 
 def convert_type_of_high_and_internal_level_call(ir, contract):
     func = None
-    sigs = get_sig(ir, ir.function_name)
-    for sig in sigs:
-        func = contract.get_function_from_signature(sig)
-        if not func:
-            func = contract.get_state_variable_from_name(ir.function_name)
-        if func:
-            # stop to explore if func is found (prevent dupplicate issue)
-            break
+    if isinstance(ir, InternalCall):
+        sigs = get_canonical_names(ir, ir.function_name, ir.contract_name)
+        for sig in sigs:
+            func = contract.get_function_from_canonical_name(sig)
+            if not func:
+                func = contract.get_state_variable_from_name(ir.function_name)
+            if func:
+                # stop to explore if func is found (prevent dupplicate issue)
+                break
+    else:
+        assert isinstance(ir, HighLevelCall)
+        sigs = get_sig(ir, ir.function_name)
+        for sig in sigs:
+            func = contract.get_function_from_canonical_name(sig)
+            if not func:
+                func = contract.get_state_variable_from_name(ir.function_name)
+            if func:
+                # stop to explore if func is found (prevent dupplicate issue)
+                break
     if not func:
         # specific lookup when the compiler does implicit conversion
         # for example
@@ -874,6 +951,9 @@ def convert_constant_types(irs):
                 if isinstance(func, StateVariable):
                     types = export_nested_types_from_variable(func)
                 else:
+                    if func is None:
+                        # TODO: add  POP instruction
+                        break
                     types = [p.type for p in func.parameters]
                 for idx, arg in enumerate(ir.arguments):
                     t = types[idx]

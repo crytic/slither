@@ -59,7 +59,7 @@ Bob calls `kill` and destructs the contract.'''
 
     def detect_suicidal(self, contract):
         ret = []
-        for f in [f for f in contract.functions if f.contract == contract]:
+        for f in [f for f in contract.functions if f.contract_declarer == contract]:
             if self.detect_suicidal_func(f):
                 ret.append(f)
         return ret
@@ -72,9 +72,8 @@ Bob calls `kill` and destructs the contract.'''
             functions = self.detect_suicidal(c)
             for func in functions:
 
-                txt = "{}.{} ({}) allows anyone to destruct the contract\n"
-                info = txt.format(func.contract.name,
-                                  func.name,
+                txt = "{} ({}) allows anyone to destruct the contract\n"
+                info = txt.format(func.canonical_name,
                                   func.source_mapping_str)
 
                 json = self.generate_json_result(info)

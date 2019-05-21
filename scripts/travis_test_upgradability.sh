@@ -8,8 +8,9 @@ slither-check-upgradeability "$DIR_TESTS/proxy.sol" Proxy "$DIR_TESTS/contractV1
 DIFF=$(diff test_1.txt "$DIR_TESTS/test_1.txt")
 if [  "$DIFF" != "" ] 
 then
-    echo "slither-check-upgradeability failed"
+    echo "slither-check-upgradeability 1 failed"
     cat test_1.txt
+    echo ""
     cat "$DIR_TESTS/test_1.txt"
     exit -1
 fi
@@ -18,8 +19,9 @@ slither-check-upgradeability "$DIR_TESTS/proxy.sol" Proxy "$DIR_TESTS/contractV1
 DIFF=$(diff test_2.txt "$DIR_TESTS/test_2.txt")
 if [  "$DIFF" != "" ] 
 then
-    echo "slither-check-upgradeability failed"
+    echo "slither-check-upgradeability 2 failed"
     cat test_2.txt
+    echo ""
     cat "$DIR_TESTS/test_2.txt"
     exit -1
 fi
@@ -28,8 +30,9 @@ slither-check-upgradeability "$DIR_TESTS/proxy.sol" Proxy "$DIR_TESTS/contractV1
 DIFF=$(diff test_3.txt "$DIR_TESTS/test_3.txt")
 if [  "$DIFF" != "" ] 
 then
-    echo "slither-check-upgradeability failed"
+    echo "slither-check-upgradeability 3 failed"
     cat test_3.txt
+    echo ""
     cat "$DIR_TESTS/test_3.txt"
     exit -1
 fi
@@ -38,8 +41,9 @@ slither-check-upgradeability "$DIR_TESTS/proxy.sol" Proxy "$DIR_TESTS/contractV1
 DIFF=$(diff test_4.txt "$DIR_TESTS/test_4.txt")
 if [  "$DIFF" != "" ] 
 then
-    echo "slither-check-upgradeability failed"
+    echo "slither-check-upgradeability 4 failed"
     cat test_4.txt
+    echo ""
     cat "$DIR_TESTS/test_4.txt"
     exit -1
 fi
@@ -48,9 +52,12 @@ slither-check-upgradeability "$DIR_TESTS/proxy.sol" Proxy "$DIR_TESTS/contract_i
 DIFF=$(diff test_5.txt "$DIR_TESTS/test_5.txt")
 if [  "$DIFF" != "" ] 
 then
-    echo "slither-check-upgradeability failed"
+    echo "slither-check-upgradeability 5 failed"
     cat test_5.txt
+    echo ""
     cat "$DIR_TESTS/test_5.txt"
+    echo ""
+    echo "$DIFF"
     exit -1
 fi
 

@@ -67,13 +67,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                 })
                 results.append(json)
 
-            for struct in contract.structures:
-                if struct.contract != contract:
-                    continue
-
+            for struct in contract.structures_declared:
                 if not self.is_cap_words(struct.name):
-                    info = "Struct '{}.{}' ({}) is not in CapWords\n"
-                    info = info.format(struct.contract.name, struct.name, struct.source_mapping_str)
+                    info = "Struct '{}' ({}) is not in CapWords\n"
+                    info = info.format(struct.canonical_name, struct.source_mapping_str)
 
                     json = self.generate_json_result(info)
                     self.add_struct_to_json(struct, json, {
@@ -82,13 +79,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     })
                     results.append(json)
 
-            for event in contract.events:
-                if event.contract != contract:
-                    continue
-
+            for event in contract.events_declared:
                 if not self.is_cap_words(event.name):
-                    info = "Event '{}.{}' ({}) is not in CapWords\n"
-                    info = info.format(event.contract.name, event.name, event.source_mapping_str)
+                    info = "Event '{}' ({}) is not in CapWords\n"
+                    info = info.format(event.canonical_name, event.source_mapping_str)
 
                     json = self.generate_json_result(info)
                     self.add_event_to_json(event, json, {
@@ -97,13 +91,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     })
                     results.append(json)
 
-            for func in contract.functions:
-                if func.contract != contract:
-                    continue
-
+            for func in contract.functions_declared:
                 if not self.is_mixed_case(func.name):
-                    info = "Function '{}.{}' ({}) is not in mixedCase\n"
-                    info = info.format(func.contract.name, func.name, func.source_mapping_str)
+                    info = "Function '{}' ({}) is not in mixedCase\n"
+                    info = info.format(func.canonical_name, func.source_mapping_str)
 
                     json = self.generate_json_result(info)
                     self.add_function_to_json(func, json, {
@@ -118,10 +109,9 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     else:
                         correct_naming = self.is_mixed_case_with_underscore(argument.name)
                     if not correct_naming:
-                        info = "Parameter '{}' of {}.{} ({}) is not in mixedCase\n"
+                        info = "Parameter '{}' of {} ({}) is not in mixedCase\n"
                         info = info.format(argument.name,
-                                           argument.function.contract.name,
-                                           argument.function,
+                                           argument.canonical_name,
                                            argument.source_mapping_str)
 
                         json = self.generate_json_result(info)
@@ -131,14 +121,11 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         })
                         results.append(json)
 
-            for var in contract.state_variables:
-                if var.contract != contract:
-                    continue
-
+            for var in contract.state_variables_declared:
                 if self.should_avoid_name(var.name):
                     if not self.is_upper_case_with_underscores(var.name):
-                        info = "Variable '{}.{}' ({}) used l, O, I, which should not be used\n"
-                        info = info.format(var.contract.name, var.name, var.source_mapping_str)
+                        info = "Variable '{}' ({}) used l, O, I, which should not be used\n"
+                        info = info.format(var.canonical_name, var.source_mapping_str)
 
                         json = self.generate_json_result(info)
                         self.add_variable_to_json(var, json, {
@@ -153,8 +140,8 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         continue
 
                     if not self.is_upper_case_with_underscores(var.name):
-                        info = "Constant '{}.{}' ({}) is not in UPPER_CASE_WITH_UNDERSCORES\n"
-                        info = info.format(var.contract.name, var.name, var.source_mapping_str)
+                        info = "Constant '{}' ({}) is not in UPPER_CASE_WITH_UNDERSCORES\n"
+                        info = info.format(var.canonical_name, var.source_mapping_str)
 
                         json = self.generate_json_result(info)
                         self.add_variable_to_json(var, json, {
@@ -169,8 +156,8 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     else:
                         correct_naming = self.is_mixed_case(var.name)
                     if not correct_naming:
-                        info = "Variable '{}.{}' ({}) is not in mixedCase\n"
-                        info = info.format(var.contract.name, var.name, var.source_mapping_str)
+                        info = "Variable '{}' ({}) is not in mixedCase\n"
+                        info = info.format(var.canonical_name, var.source_mapping_str)
 
                         json = self.generate_json_result(info)
                         self.add_variable_to_json(var, json, {
@@ -179,13 +166,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         })
                         results.append(json)
 
-            for enum in contract.enums:
-                if enum.contract != contract:
-                    continue
-
+            for enum in contract.enums_declared:
                 if not self.is_cap_words(enum.name):
-                    info = "Enum '{}.{}' ({}) is not in CapWords\n"
-                    info = info.format(enum.contract.name, enum.name, enum.source_mapping_str)
+                    info = "Enum '{}' ({}) is not in CapWords\n"
+                    info = info.format(enum.canonical_name, enum.source_mapping_str)
 
                     json = self.generate_json_result(info)
                     self.add_enum_to_json(enum, json, {
@@ -194,15 +178,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     })
                     results.append(json)
 
-
-            for modifier in contract.modifiers:
-                if modifier.contract != contract:
-                    continue
-
+            for modifier in contract.modifiers_declared:
                 if not self.is_mixed_case(modifier.name):
-                    info = "Modifier '{}.{}' ({}) is not in mixedCase\n"
-                    info = info.format(modifier.contract.name,
-                                       modifier.name,
+                    info = "Modifier '{}' ({}) is not in mixedCase\n"
+                    info = info.format(modifier.canonical_name,
                                        modifier.source_mapping_str)
 
                     json = self.generate_json_result(info)
@@ -211,6 +190,5 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         "convention": "mixedCase"
                     })
                     results.append(json)
-
 
         return results

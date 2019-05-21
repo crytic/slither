@@ -7,7 +7,7 @@ class FormatExternalFunction:
         for element in elements:
             Found = False
             for contract in slither.contracts:
-                if not Found and contract.name == element['contract']['name']:
+                if not Found and contract.name == element['type_specific_fields']['parent']['name']:
                     for function in contract.functions:
                         if function.name == element['name']:
                             # If function parameters are written to in function body then we cannot convert this function

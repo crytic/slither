@@ -90,24 +90,20 @@ contract Bug {
         result = []
 
         # Loop through all functions, modifiers, variables (state and local) to detect any built-in symbol keywords.
-        for function in contract.functions:
-            if function.contract == contract:
-                if self.is_builtin_symbol(function.name):
-                    result.append((self.SHADOWING_FUNCTION, function, None))
-                result += self.detect_builtin_shadowing_locals(function)
-        for modifier in contract.modifiers:
-            if modifier.contract == contract:
-                if self.is_builtin_symbol(modifier.name):
-                    result.append((self.SHADOWING_MODIFIER, modifier, None))
-                result += self.detect_builtin_shadowing_locals(modifier)
-        for variable in contract.variables:
-            if variable.contract == contract:
-                if self.is_builtin_symbol(variable.name):
-                    result.append((self.SHADOWING_STATE_VARIABLE, variable, None))
-        for event in contract.events:
-            if event.contract == contract:
-                if self.is_builtin_symbol(event.name):
-                    result.append((self.SHADOWING_EVENT, event, None))
+        for function in contract.functions_declared:
+            if self.is_builtin_symbol(function.name):
+                result.append((self.SHADOWING_FUNCTION, function, None))
+            result += self.detect_builtin_shadowing_locals(function)
+        for modifier in contract.modifiers_declared:
+            if self.is_builtin_symbol(modifier.name):
+                result.append((self.SHADOWING_MODIFIER, modifier, None))
+            result += self.detect_builtin_shadowing_locals(modifier)
+        for variable in contract.state_variables_declared:
+            if self.is_builtin_symbol(variable.name):
+                result.append((self.SHADOWING_STATE_VARIABLE, variable, None))
+        for event in contract.events_declared:
+            if self.is_builtin_symbol(event.name):
+                result.append((self.SHADOWING_EVENT, event, None))
 
         return result
 

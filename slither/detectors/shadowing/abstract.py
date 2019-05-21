@@ -41,9 +41,9 @@ contract DerivedContract is BaseContract{
         variables_fathers = []
         for father in contract.inheritance:
             if all(not f.is_implemented for f in father.functions + father.modifiers):
-                variables_fathers += [v for v in father.variables if v.contract == father]
+                variables_fathers += father.state_variables_declared
 
-        for var in [v for v in contract.variables if v.contract == contract]:
+        for var in contract.state_variables_declared:
             shadow = [v for v in variables_fathers if v.name == var.name]
             if shadow:
                 ret.append([var] + shadow)
@@ -65,12 +65,10 @@ contract DerivedContract is BaseContract{
                 for all_variables in shadowing:
                     shadow = all_variables[0]
                     variables = all_variables[1:]
-                    info = '{}.{} ({}) shadows:\n'.format(shadow.contract.name,
-                                                        shadow.name,
-                                                        shadow.source_mapping_str)
+                    info = '{} ({}) shadows:\n'.format(shadow.canonical_name,
+                                                       shadow.source_mapping_str)
                     for var in variables:
-                        info += "\t- {}.{} ({})\n".format(var.contract.name,
-                                                       var.name,
+                        info += "\t- {} ({})\n".format(var.canonical_name,
                                                        var.source_mapping_str)
 
                     json = self.generate_json_result(info)

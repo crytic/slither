@@ -4,6 +4,16 @@ from slither.utils.type import export_nested_types_from_variable
 
 class StateVariable(ChildContract, Variable):
 
+
+    def is_declared_by(self, contract):
+        """
+        Check if the element is declared by the contract
+        :param contract:
+        :return:
+        """
+        return self.contract == contract
+
+
     ###################################################################################
     ###################################################################################
     # region Signature
@@ -36,7 +46,7 @@ class StateVariable(ChildContract, Variable):
 
     @property
     def canonical_name(self):
-        return '{}:{}'.format(self.contract.name, self.name)
+        return '{}.{}'.format(self.contract.name, self.name)
 
     @property
     def full_name(self):
@@ -51,3 +61,4 @@ class StateVariable(ChildContract, Variable):
     # endregion
     ###################################################################################
     ###################################################################################
+

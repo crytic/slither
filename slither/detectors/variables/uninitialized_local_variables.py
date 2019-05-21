@@ -90,7 +90,7 @@ Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and ar
 
         for contract in self.slither.contracts:
             for function in contract.functions:
-                if function.is_implemented and function.contract == contract:
+                if function.is_implemented and function.contract_declarer == contract:
                     if function.contains_assembly:
                         continue
                     # dont consider storage variable, as they are detected by another detector
@@ -101,10 +101,9 @@ Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and ar
         for(function, uninitialized_local_variable) in all_results:
             var_name = uninitialized_local_variable.name
 
-            info = "{} in {}.{} ({}) is a local variable never initialiazed\n"
+            info = "{} in {} ({}) is a local variable never initialiazed\n"
             info = info.format(var_name,
-                               function.contract.name,
-                               function.name,
+                               function.canonical_name,
                                uninitialized_local_variable.source_mapping_str)
 
 

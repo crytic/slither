@@ -19,5 +19,13 @@ class Enum(ChildContract, SourceMapping):
     def values(self):
         return self._values
 
+    def is_declared_by(self, contract):
+        """
+        Check if the element is declared by the contract
+        :param contract:
+        :return:
+        """
+        return self.contract == contract
+
     def __str__(self):
         return self.name

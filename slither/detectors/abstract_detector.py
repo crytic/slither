@@ -146,27 +146,48 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return d
 
     @staticmethod
-    def _create_base_element(type, name, source_mapping, additional_fields={}):
+    def _create_base_element(type, name, source_mapping, type_specific_fields={}, additional_fields={}):
         element = {'type': type,
                    'name': name,
                    'source_mapping': source_mapping}
+        if type_specific_fields:
+            element['type_specific_fields'] = type_specific_fields
         if additional_fields:
             element['additional_fields'] = additional_fields
         return element
 
     @staticmethod
+    def _create_parent_element(element):
+        from slither.core.children.child_contract import ChildContract
+        from slither.core.children.child_function import ChildFunction
+        from slither.core.children.child_inheritance import ChildInheritance
+        if isinstance(element, ChildInheritance):
+            if element.contract_declarer:
+                contract = {'elements': []}
+                AbstractDetector.add_contract_to_json(element.contract_declarer, contract)
+                return contract['elements'][0]
+        elif isinstance(element, ChildContract):
+            if element.contract:
+                contract = {'elements': []}
+                AbstractDetector.add_contract_to_json(element.contract, contract)
+                return contract['elements'][0]
+        elif isinstance(element, ChildFunction):
+            if element.function:
+                function = {'elements': []}
+                AbstractDetector.add_function_to_json(element.function, function)
+                return function['elements'][0]
+        return None
+
+    @staticmethod
     def add_variable_to_json(variable, d, additional_fields={}):
-        from slither.core.variables.state_variable import StateVariable
-        from slither.core.variables.local_variable import LocalVariable
-        element = AbstractDetector._create_base_element('variable', variable.name, variable.source_mapping, additional_fields)
-        if isinstance(variable, StateVariable):
-            contract = {'elements': []}
-            AbstractDetector.add_contract_to_json(variable.contract, contract)
-            element['contract'] = contract['elements'][0]
-        elif isinstance(variable, LocalVariable):
-            function = {'elements': []}
-            AbstractDetector.add_function_to_json(variable.function, function)
-            element['function'] = function['elements'][0]
+        type_specific_fields = {
+            'parent': AbstractDetector._create_parent_element(variable)
+        }
+        element = AbstractDetector._create_base_element('variable',
+                                                        variable.name,
+                                                        variable.source_mapping,
+                                                        type_specific_fields,
+                                                        additional_fields)
         d['elements'].append(element)
 
     @staticmethod
@@ -176,55 +197,83 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     @staticmethod
     def add_contract_to_json(contract, d, additional_fields={}):
-        element = AbstractDetector._create_base_element('contract', contract.name, contract.source_mapping, additional_fields)
+        element = AbstractDetector._create_base_element('contract',
+                                                        contract.name,
+                                                        contract.source_mapping,
+                                                        {},
+                                                        additional_fields)
         d['elements'].append(element)
 
     @staticmethod
     def add_function_to_json(function, d, additional_fields={}):
-        element = AbstractDetector._create_base_element('function', function.name, function.source_mapping, additional_fields)
-        contract = {'elements':[]}
-        AbstractDetector.add_contract_to_json(function.contract, contract)
-        element['contract'] = contract['elements'][0]
+        type_specific_fields = {
+            'parent': AbstractDetector._create_parent_element(function),
+            'signature': function.full_name
+        }
+        element = AbstractDetector._create_base_element('function',
+                                                        function.name,
+                                                        function.source_mapping,
+                                                        type_specific_fields,
+                                                        additional_fields)
         d['elements'].append(element)
 
+
     @staticmethod
-    def add_functions_to_json(functions, d):
+    def add_functions_to_json(functions, d, additional_fields={}):
         for function in sorted(functions, key=lambda x: x.name):
-            AbstractDetector.add_function_to_json(function, d)
+            AbstractDetector.add_function_to_json(function, d, additional_fields)
 
     @staticmethod
     def add_enum_to_json(enum, d, additional_fields={}):
-        element = AbstractDetector._create_base_element('enum', enum.name, enum.source_mapping, additional_fields)
-        contract = {'elements': []}
-        AbstractDetector.add_contract_to_json(enum.contract, contract)
-        element['contract'] = contract['elements'][0]
+        type_specific_fields = {
+            'parent': AbstractDetector._create_parent_element(enum)
+        }
+        element = AbstractDetector._create_base_element('enum',
+                                                        enum.name,
+                                                        enum.source_mapping,
+                                                        type_specific_fields,
+                                                        additional_fields)
         d['elements'].append(element)
 
     @staticmethod
     def add_struct_to_json(struct, d, additional_fields={}):
-        element = AbstractDetector._create_base_element('struct', struct.name, struct.source_mapping, additional_fields)
-        contract = {'elements': []}
-        AbstractDetector.add_contract_to_json(struct.contract, contract)
-        element['contract'] = contract['elements'][0]
+        type_specific_fields = {
+            'parent': AbstractDetector._create_parent_element(struct)
+        }
+        element = AbstractDetector._create_base_element('struct',
+                                                        struct.name,
+                                                        struct.source_mapping,
+                                                        type_specific_fields,
+                                                        additional_fields)
         d['elements'].append(element)
 
     @staticmethod
     def add_event_to_json(event, d, additional_fields={}):
-        element = AbstractDetector._create_base_element('event', event.name, event.source_mapping, additional_fields)
-        contract = {'elements':[]}
-        AbstractDetector.add_contract_to_json(event.contract, contract)
-        element['contract'] = contract['elements'][0]
+        type_specific_fields = {
+            'parent': AbstractDetector._create_parent_element(event),
+            'signature': event.full_name
+        }
+        element = AbstractDetector._create_base_element('event',
+                                                        event.name,
+                                                        event.source_mapping,
+                                                        type_specific_fields,
+                                                        additional_fields)
+
         d['elements'].append(element)
 
     @staticmethod
     def add_node_to_json(node, d, additional_fields={}):
+        type_specific_fields = {
+            'parent': AbstractDetector._create_parent_element(node),
+        }
         node_name = str(node.expression) if node.expression else ""
-        element = AbstractDetector._create_base_element('node', node_name, node.source_mapping, additional_fields)
-        if node.function:
-            function = {'elements': []}
-            AbstractDetector.add_function_to_json(node.function, function)
-            element['function'] = function['elements'][0]
+        element = AbstractDetector._create_base_element('node',
+                                                        node_name,
+                                                        node.source_mapping,
+                                                        type_specific_fields,
+                                                        additional_fields)
         d['elements'].append(element)
+
 
     @staticmethod
     def add_nodes_to_json(nodes, d):
@@ -233,10 +282,13 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     @staticmethod
     def add_pragma_to_json(pragma, d, additional_fields={}):
-
+        type_specific_fields = {
+            'directive': pragma.directive
+        }
         element = AbstractDetector._create_base_element('pragma',
                                                         pragma.version,
                                                         pragma.source_mapping,
+                                                        type_specific_fields,
                                                         additional_fields)
-        element['directive'] = pragma.directive
+
         d['elements'].append(element)

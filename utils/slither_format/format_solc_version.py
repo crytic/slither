@@ -16,7 +16,7 @@ class FormatSolcVersion:
     @staticmethod
     def format(slither, patches, elements):
         for element in elements:
-            solc_version_replace = FormatSolcVersion.determine_solc_version_replacement(''.join(element['directive'][1:]))
+            solc_version_replace = FormatSolcVersion.determine_solc_version_replacement(''.join(element['type_specific_fields']['directive'][1:]))
             FormatSolcVersion.create_patch(slither, patches, element['source_mapping']['filename_absolute'], solc_version_replace, element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
 
     @staticmethod

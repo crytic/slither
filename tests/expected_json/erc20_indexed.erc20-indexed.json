@@ -1,222 +1,236 @@
 {
   "success": true,
   "error": null,
-  "results": [
-    {
-      "check": "erc20-indexed",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "ERC20 event IERC20Bad.Transfer (tests/erc20_indexed.sol#19) does not index parameter 'from'\n",
-      "elements": [
-        {
-          "type": "event",
-          "name": "Transfer",
-          "source_mapping": {
-            "start": 1090,
-            "length": 53,
-            "filename_used": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
-            "filename_relative": "tests/erc20_indexed.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
-            "filename_short": "tests/erc20_indexed.sol",
-            "lines": [
-              19
-            ],
-            "starting_column": 5,
-            "ending_column": 58
-          },
-          "additional_fields": {
-            "parameter_name": "from"
-          },
-          "contract": {
-            "type": "contract",
-            "name": "IERC20Bad",
+  "results": {
+    "detectors": [
+      {
+        "check": "erc20-indexed",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "ERC20 event IERC20Bad.Transfer (tests/erc20_indexed.sol#19) does not index parameter 'from'\n",
+        "elements": [
+          {
+            "type": "event",
+            "name": "Transfer",
             "source_mapping": {
-              "start": 622,
-              "length": 587,
+              "start": 1090,
+              "length": 53,
               "filename_used": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
               "filename_relative": "tests/erc20_indexed.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
               "filename_short": "tests/erc20_indexed.sol",
               "lines": [
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21
+                19
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 58
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "IERC20Bad",
+                "source_mapping": {
+                  "start": 622,
+                  "length": 587,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
+                  "filename_relative": "tests/erc20_indexed.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
+                  "filename_short": "tests/erc20_indexed.sol",
+                  "lines": [
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "Transfer(address,address,uint256)"
+            },
+            "additional_fields": {
+              "parameter_name": "from"
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "erc20-indexed",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "ERC20 event IERC20Bad.Transfer (tests/erc20_indexed.sol#19) does not index parameter 'to'\n",
-      "elements": [
-        {
-          "type": "event",
-          "name": "Transfer",
-          "source_mapping": {
-            "start": 1090,
-            "length": 53,
-            "filename_used": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
-            "filename_relative": "tests/erc20_indexed.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
-            "filename_short": "tests/erc20_indexed.sol",
-            "lines": [
-              19
-            ],
-            "starting_column": 5,
-            "ending_column": 58
-          },
-          "additional_fields": {
-            "parameter_name": "to"
-          },
-          "contract": {
-            "type": "contract",
-            "name": "IERC20Bad",
+        ]
+      },
+      {
+        "check": "erc20-indexed",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "ERC20 event IERC20Bad.Transfer (tests/erc20_indexed.sol#19) does not index parameter 'to'\n",
+        "elements": [
+          {
+            "type": "event",
+            "name": "Transfer",
             "source_mapping": {
-              "start": 622,
-              "length": 587,
+              "start": 1090,
+              "length": 53,
               "filename_used": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
               "filename_relative": "tests/erc20_indexed.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
               "filename_short": "tests/erc20_indexed.sol",
               "lines": [
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21
+                19
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 58
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "IERC20Bad",
+                "source_mapping": {
+                  "start": 622,
+                  "length": 587,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
+                  "filename_relative": "tests/erc20_indexed.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
+                  "filename_short": "tests/erc20_indexed.sol",
+                  "lines": [
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "Transfer(address,address,uint256)"
+            },
+            "additional_fields": {
+              "parameter_name": "to"
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "erc20-indexed",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "ERC20 event IERC20Bad.Approval (tests/erc20_indexed.sol#20) does not index parameter 'owner'\n",
-      "elements": [
-        {
-          "type": "event",
-          "name": "Approval",
-          "source_mapping": {
-            "start": 1148,
-            "length": 59,
-            "filename_used": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
-            "filename_relative": "tests/erc20_indexed.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
-            "filename_short": "tests/erc20_indexed.sol",
-            "lines": [
-              20
-            ],
-            "starting_column": 5,
-            "ending_column": 64
-          },
-          "additional_fields": {
-            "parameter_name": "owner"
-          },
-          "contract": {
-            "type": "contract",
-            "name": "IERC20Bad",
+        ]
+      },
+      {
+        "check": "erc20-indexed",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "ERC20 event IERC20Bad.Approval (tests/erc20_indexed.sol#20) does not index parameter 'owner'\n",
+        "elements": [
+          {
+            "type": "event",
+            "name": "Approval",
             "source_mapping": {
-              "start": 622,
-              "length": 587,
+              "start": 1148,
+              "length": 59,
               "filename_used": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
               "filename_relative": "tests/erc20_indexed.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
               "filename_short": "tests/erc20_indexed.sol",
               "lines": [
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21
+                20
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 64
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "IERC20Bad",
+                "source_mapping": {
+                  "start": 622,
+                  "length": 587,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
+                  "filename_relative": "tests/erc20_indexed.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
+                  "filename_short": "tests/erc20_indexed.sol",
+                  "lines": [
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "Approval(address,address,uint256)"
+            },
+            "additional_fields": {
+              "parameter_name": "owner"
             }
           }
-        }
-      ]
-    },
-    {
-      "check": "erc20-indexed",
-      "impact": "Informational",
-      "confidence": "High",
-      "description": "ERC20 event IERC20Bad.Approval (tests/erc20_indexed.sol#20) does not index parameter 'spender'\n",
-      "elements": [
-        {
-          "type": "event",
-          "name": "Approval",
-          "source_mapping": {
-            "start": 1148,
-            "length": 59,
-            "filename_used": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
-            "filename_relative": "tests/erc20_indexed.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
-            "filename_short": "tests/erc20_indexed.sol",
-            "lines": [
-              20
-            ],
-            "starting_column": 5,
-            "ending_column": 64
-          },
-          "additional_fields": {
-            "parameter_name": "spender"
-          },
-          "contract": {
-            "type": "contract",
-            "name": "IERC20Bad",
+        ]
+      },
+      {
+        "check": "erc20-indexed",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "ERC20 event IERC20Bad.Approval (tests/erc20_indexed.sol#20) does not index parameter 'spender'\n",
+        "elements": [
+          {
+            "type": "event",
+            "name": "Approval",
             "source_mapping": {
-              "start": 622,
-              "length": 587,
+              "start": 1148,
+              "length": 59,
               "filename_used": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
               "filename_relative": "tests/erc20_indexed.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
               "filename_short": "tests/erc20_indexed.sol",
               "lines": [
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21
+                20
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 5,
+              "ending_column": 64
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "IERC20Bad",
+                "source_mapping": {
+                  "start": 622,
+                  "length": 587,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
+                  "filename_relative": "tests/erc20_indexed.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
+                  "filename_short": "tests/erc20_indexed.sol",
+                  "lines": [
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "Approval(address,address,uint256)"
+            },
+            "additional_fields": {
+              "parameter_name": "spender"
             }
           }
-        }
-      ]
-    }
-  ]
+        ]
+      }
+    ]
+  }
 }

@@ -87,9 +87,9 @@ contract Token{
             if functions:
                 for function in functions:
                     info = "{} ({}) has incorrect ERC721 function interface: {} ({})\n".format(c.name,
-                                                                                              c.source_mapping_str,
-                                                                                              function.name,
-                                                                                              function.source_mapping_str)
+                                                                                               c.source_mapping_str,
+                                                                                               function.full_name,
+                                                                                               function.source_mapping_str)
                     json = self.generate_json_result(info)
                     self.add_function_to_json(function, json)
                     results.append(json)

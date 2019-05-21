@@ -12,7 +12,7 @@ class FormatConstantFunction:
             for contract in slither.contracts:
                 if not Found:
                     for function in contract.functions:
-                        if contract.name == element['contract']['name'] and function.name == element['name']:
+                        if contract.name == element['type_specific_fields']['parent']['name'] and function.name == element['name']:
                             FormatConstantFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], ["view","pure","constant"], "", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
                             Found = True
 
