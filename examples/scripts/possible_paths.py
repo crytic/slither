@@ -69,7 +69,7 @@ def all_function_definitions(function):
     :return: Returns a list composed of the provided function definition and any base definitions.
     """
     return [function] + [f for c in function.contract.inheritance
-                         for f in c.functions_and_modifiers_not_inherited
+                         for f in c.functions_and_modifiers_declared
                          if f.full_name == function.full_name]
 
 
@@ -86,7 +86,7 @@ def __find_target_paths(target_function, current_path=[]):
 
     # Look through all functions
     for contract in slither.contracts:
-        for function in contract.functions_and_modifiers_not_inherited:
+        for function in contract.functions_and_modifiers_declared:
 
             # If the function is already in our path, skip it.
             if function in current_path:
@@ -179,12 +179,12 @@ reaching_functions = set([y for x in reaching_paths for y in x if y not in targe
 
 # Print out all function names which can reach the targets.
 print(f"The following functions reach the specified targets:")
-for function_desc in sorted([f"{f.contract.name}.{f.full_name}" for f in reaching_functions]):
+for function_desc in sorted([f"{f.canonical_name}" for f in reaching_functions]):
     print(f"-{function_desc}")
 print("\n")
 
 # Format all function paths.
-reaching_paths_str = [' -> '.join([f"{f.contract.name}.{f.full_name}" for f in reaching_path]) for reaching_path in reaching_paths]
+reaching_paths_str = [' -> '.join([f"{f.canonical_name}" for f in reaching_path]) for reaching_path in reaching_paths]
 
 # Print a sorted list of all function paths which can reach the targets.
 print(f"The following paths reach the specified targets:")

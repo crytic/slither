@@ -42,7 +42,7 @@ Bob calls `delegate` and delegates the execution to its malicious contract. As a
 
         for contract in self.slither.contracts:
             for f in contract.functions:
-                if f.contract != contract:
+                if f.contract_declarer != contract:
                     continue
                 nodes = self.controlled_delegatecall(f)
                 if nodes:

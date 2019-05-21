@@ -72,13 +72,23 @@ class PrinterHumanSummary(AbstractPrinter):
         checks_high = self.slither.detectors_high
 
         issues_informational = [c.detect() for c in checks_informational]
+        issues_informational = [c for c in issues_informational if c]
         issues_informational = [item for sublist in issues_informational for item in sublist]
+
         issues_low = [c.detect() for c in checks_low]
         issues_low = [c for c in issues_low if c]
+        issues_low = [item for sublist in issues_low for item in sublist]
+
         issues_medium = (c.detect() for c in checks_medium)
         issues_medium = [c for c in issues_medium if c]
+        issues_medium = [item for sublist in issues_medium for item in sublist]
+
         issues_high = [c.detect() for c in checks_high]
         issues_high = [c for c in issues_high if c]
+        issues_high = [item for sublist in issues_high for item in sublist]
+
+
+
         return (len(issues_informational),
                 len(issues_low),
                 len(issues_medium),

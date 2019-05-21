@@ -23,31 +23,43 @@ class IncorrectSolc(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-version-of-solidity'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity'
 
     WIKI_TITLE = 'Incorrect versions of Solidity'
     WIKI_DESCRIPTION = '''
 Solc frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks.
 We recommend avoiding complex pragma statement.'''
-    WIKI_RECOMMENDATION = 'Use Solidity 0.4.25 or 0.5.2.'
+    WIKI_RECOMMENDATION = '''
+Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for testing the compilation, and a trusted version for deploying.'''
 
-    COMPLEX_PRAGMA = "is too complex"
-    OLD_VERSION = "allows old versions"
-    LESS_THAN = "uses lesser than"
+    COMPLEX_PRAGMA_TXT = "is too complex"
+    OLD_VERSION_TXT = "allows old versions"
+    LESS_THAN_TXT = "uses lesser than"
+
+    TOO_RECENT_VERSION_TXT = "necessitates versions too recent to be trusted. Consider deploying with 0.5.3"
+    BUGGY_VERSION_TXT = "is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)"
 
     # Indicates the allowed versions.
-    ALLOWED_VERSIONS = ["0.4.24", "0.4.25", "0.5.2", "0.5.3"]
+    ALLOWED_VERSIONS = ["0.4.25", "0.4.26", "0.5.3"]
+    # Indicates the versions too recent.
+    TOO_RECENT_VERSIONS = ["0.5.4", "0.5.7", "0.5.8", "0.5.9", "0.5.10"]
+    # Indicates the versions that should not be used.
+    BUGGY_VERSIONS = ["0.4.22", "0.5.5", "0.5.6", "^0.4.22", "^0.5.5", "^0.5.6"]
 
     def _check_version(self, version):
         op = version[0]
         if op and not op in ['>', '>=', '^']:
-            return self.LESS_THAN
+            return self.LESS_THAN_TXT
         version_number = '.'.join(version[2:])
         if version_number not in self.ALLOWED_VERSIONS:
-            return self.OLD_VERSION
+            if version_number in self.TOO_RECENT_VERSIONS:
+                return self.TOO_RECENT_VERSION_TXT
+            return self.OLD_VERSION_TXT
         return None
 
     def _check_pragma(self, version):
+        if version in self.BUGGY_VERSIONS:
+            return self.BUGGY_VERSION_TXT
         versions = PATTERN.findall(version)
         if len(versions) == 1:
             version = versions[0]
@@ -58,10 +70,10 @@ We recommend avoiding complex pragma statement.'''
             # Only allow two elements if the second one is
             # <0.5.0 or <0.6.0
             if version_right not in [('<', '', '0', '5', '0'), ('<', '', '0', '6', '0')]:
-                return self.COMPLEX_PRAGMA
+                return self.COMPLEX_PRAGMA_TXT
             return self._check_version(version_left)
         else:
-            return self.COMPLEX_PRAGMA
+            return self.COMPLEX_PRAGMA_TXT
     def _detect(self):
         """
         Detects pragma statements that allow for outdated solc versions.

@@ -90,7 +90,7 @@ class ComplexFunction(AbstractDetector):
             for issue in issues:
                 func, cause = issue.values()
 
-                txt = "{}.{} ({}) is a complex function:\n"
+                txt = "{} ({}) is a complex function:\n"
 
                 if cause == self.CAUSE_EXTERNAL_CALL:
                     txt += "\t- Reason: High number of external calls"
@@ -99,8 +99,7 @@ class ComplexFunction(AbstractDetector):
                 if cause == self.CAUSE_STATE_VARS:
                     txt += "\t- Reason: High number of modified state variables"
 
-                info = txt.format(func.contract.name,
-                                  func.name,
+                info = txt.format(func.canonical_name,
                                   func.source_mapping_str)
                 info = info + "\n"
                 self.log(info)

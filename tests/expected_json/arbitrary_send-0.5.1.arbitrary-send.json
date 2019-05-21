@@ -1,106 +1,15 @@
 {
   "success": true,
   "error": null,
-  "results": [
-    {
-      "check": "arbitrary-send",
-      "impact": "High",
-      "confidence": "Medium",
-      "description": "Test.direct (tests/arbitrary_send-0.5.1.sol#11-13) sends eth to arbitrary user\n\tDangerous calls:\n\t- msg.sender.send(address(this).balance) (tests/arbitrary_send-0.5.1.sol#12)\n",
-      "elements": [
-        {
-          "type": "function",
-          "name": "direct",
-          "source_mapping": {
-            "start": 162,
-            "length": 79,
-            "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-            "filename_relative": "tests/arbitrary_send-0.5.1.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-            "filename_short": "tests/arbitrary_send-0.5.1.sol",
-            "lines": [
-              11,
-              12,
-              13
-            ],
-            "starting_column": 5,
-            "ending_column": 6
-          },
-          "contract": {
-            "type": "contract",
-            "name": "Test",
-            "source_mapping": {
-              "start": 0,
-              "length": 884,
-              "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-              "filename_relative": "tests/arbitrary_send-0.5.1.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-              "filename_short": "tests/arbitrary_send-0.5.1.sol",
-              "lines": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21,
-                22,
-                23,
-                24,
-                25,
-                26,
-                27,
-                28,
-                29,
-                30,
-                31,
-                32,
-                33,
-                34,
-                35,
-                36,
-                37,
-                38,
-                39,
-                40,
-                41
-              ],
-              "starting_column": 1,
-              "ending_column": 2
-            }
-          }
-        },
-        {
-          "type": "node",
-          "name": "msg.sender.send(address(this).balance)",
-          "source_mapping": {
-            "start": 196,
-            "length": 38,
-            "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-            "filename_relative": "tests/arbitrary_send-0.5.1.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-            "filename_short": "tests/arbitrary_send-0.5.1.sol",
-            "lines": [
-              12
-            ],
-            "starting_column": 9,
-            "ending_column": 47
-          },
-          "function": {
+  "results": {
+    "detectors": [
+      {
+        "check": "arbitrary-send",
+        "impact": "High",
+        "confidence": "Medium",
+        "description": "Test.direct() (tests/arbitrary_send-0.5.1.sol#11-13) sends eth to arbitrary user\n\tDangerous calls:\n\t- msg.sender.send(address(this).balance) (tests/arbitrary_send-0.5.1.sol#12)\n",
+        "elements": [
+          {
             "type": "function",
             "name": "direct",
             "source_mapping": {
@@ -118,166 +27,174 @@
               "starting_column": 5,
               "ending_column": 6
             },
-            "contract": {
-              "type": "contract",
-              "name": "Test",
-              "source_mapping": {
-                "start": 0,
-                "length": 884,
-                "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-                "filename_relative": "tests/arbitrary_send-0.5.1.sol",
-                "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-                "filename_short": "tests/arbitrary_send-0.5.1.sol",
-                "lines": [
-                  1,
-                  2,
-                  3,
-                  4,
-                  5,
-                  6,
-                  7,
-                  8,
-                  9,
-                  10,
-                  11,
-                  12,
-                  13,
-                  14,
-                  15,
-                  16,
-                  17,
-                  18,
-                  19,
-                  20,
-                  21,
-                  22,
-                  23,
-                  24,
-                  25,
-                  26,
-                  27,
-                  28,
-                  29,
-                  30,
-                  31,
-                  32,
-                  33,
-                  34,
-                  35,
-                  36,
-                  37,
-                  38,
-                  39,
-                  40,
-                  41
-                ],
-                "starting_column": 1,
-                "ending_column": 2
-              }
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Test",
+                "source_mapping": {
+                  "start": 0,
+                  "length": 884,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+                  "filename_relative": "tests/arbitrary_send-0.5.1.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+                  "filename_short": "tests/arbitrary_send-0.5.1.sol",
+                  "lines": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40,
+                    41
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "direct()"
             }
-          }
-        }
-      ]
-    },
-    {
-      "check": "arbitrary-send",
-      "impact": "High",
-      "confidence": "Medium",
-      "description": "Test.indirect (tests/arbitrary_send-0.5.1.sol#19-21) sends eth to arbitrary user\n\tDangerous calls:\n\t- destination.send(address(this).balance) (tests/arbitrary_send-0.5.1.sol#20)\n",
-      "elements": [
-        {
-          "type": "function",
-          "name": "indirect",
-          "source_mapping": {
-            "start": 316,
-            "length": 82,
-            "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-            "filename_relative": "tests/arbitrary_send-0.5.1.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-            "filename_short": "tests/arbitrary_send-0.5.1.sol",
-            "lines": [
-              19,
-              20,
-              21
-            ],
-            "starting_column": 5,
-            "ending_column": 6
           },
-          "contract": {
-            "type": "contract",
-            "name": "Test",
+          {
+            "type": "node",
+            "name": "msg.sender.send(address(this).balance)",
             "source_mapping": {
-              "start": 0,
-              "length": 884,
+              "start": 196,
+              "length": 38,
               "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
               "filename_relative": "tests/arbitrary_send-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
               "filename_short": "tests/arbitrary_send-0.5.1.sol",
               "lines": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21,
-                22,
-                23,
-                24,
-                25,
-                26,
-                27,
-                28,
-                29,
-                30,
-                31,
-                32,
-                33,
-                34,
-                35,
-                36,
-                37,
-                38,
-                39,
-                40,
-                41
+                12
               ],
-              "starting_column": 1,
-              "ending_column": 2
+              "starting_column": 9,
+              "ending_column": 47
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "direct",
+                "source_mapping": {
+                  "start": 162,
+                  "length": 79,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+                  "filename_relative": "tests/arbitrary_send-0.5.1.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+                  "filename_short": "tests/arbitrary_send-0.5.1.sol",
+                  "lines": [
+                    11,
+                    12,
+                    13
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "Test",
+                    "source_mapping": {
+                      "start": 0,
+                      "length": 884,
+                      "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+                      "filename_relative": "tests/arbitrary_send-0.5.1.sol",
+                      "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+                      "filename_short": "tests/arbitrary_send-0.5.1.sol",
+                      "lines": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27,
+                        28,
+                        29,
+                        30,
+                        31,
+                        32,
+                        33,
+                        34,
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40,
+                        41
+                      ],
+                      "starting_column": 1,
+                      "ending_column": 2
+                    }
+                  },
+                  "signature": "direct()"
+                }
+              }
             }
           }
-        },
-        {
-          "type": "node",
-          "name": "destination.send(address(this).balance)",
-          "source_mapping": {
-            "start": 352,
-            "length": 39,
-            "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-            "filename_relative": "tests/arbitrary_send-0.5.1.sol",
-            "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-            "filename_short": "tests/arbitrary_send-0.5.1.sol",
-            "lines": [
-              20
-            ],
-            "starting_column": 9,
-            "ending_column": 48
-          },
-          "function": {
+        ]
+      },
+      {
+        "check": "arbitrary-send",
+        "impact": "High",
+        "confidence": "Medium",
+        "description": "Test.indirect() (tests/arbitrary_send-0.5.1.sol#19-21) sends eth to arbitrary user\n\tDangerous calls:\n\t- destination.send(address(this).balance) (tests/arbitrary_send-0.5.1.sol#20)\n",
+        "elements": [
+          {
             "type": "function",
             "name": "indirect",
             "source_mapping": {
@@ -295,66 +212,167 @@
               "starting_column": 5,
               "ending_column": 6
             },
-            "contract": {
-              "type": "contract",
-              "name": "Test",
-              "source_mapping": {
-                "start": 0,
-                "length": 884,
-                "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-                "filename_relative": "tests/arbitrary_send-0.5.1.sol",
-                "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
-                "filename_short": "tests/arbitrary_send-0.5.1.sol",
-                "lines": [
-                  1,
-                  2,
-                  3,
-                  4,
-                  5,
-                  6,
-                  7,
-                  8,
-                  9,
-                  10,
-                  11,
-                  12,
-                  13,
-                  14,
-                  15,
-                  16,
-                  17,
-                  18,
-                  19,
-                  20,
-                  21,
-                  22,
-                  23,
-                  24,
-                  25,
-                  26,
-                  27,
-                  28,
-                  29,
-                  30,
-                  31,
-                  32,
-                  33,
-                  34,
-                  35,
-                  36,
-                  37,
-                  38,
-                  39,
-                  40,
-                  41
-                ],
-                "starting_column": 1,
-                "ending_column": 2
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Test",
+                "source_mapping": {
+                  "start": 0,
+                  "length": 884,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+                  "filename_relative": "tests/arbitrary_send-0.5.1.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+                  "filename_short": "tests/arbitrary_send-0.5.1.sol",
+                  "lines": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40,
+                    41
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "indirect()"
+            }
+          },
+          {
+            "type": "node",
+            "name": "destination.send(address(this).balance)",
+            "source_mapping": {
+              "start": 352,
+              "length": 39,
+              "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+              "filename_relative": "tests/arbitrary_send-0.5.1.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+              "filename_short": "tests/arbitrary_send-0.5.1.sol",
+              "lines": [
+                20
+              ],
+              "starting_column": 9,
+              "ending_column": 48
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "indirect",
+                "source_mapping": {
+                  "start": 316,
+                  "length": 82,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+                  "filename_relative": "tests/arbitrary_send-0.5.1.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+                  "filename_short": "tests/arbitrary_send-0.5.1.sol",
+                  "lines": [
+                    19,
+                    20,
+                    21
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "Test",
+                    "source_mapping": {
+                      "start": 0,
+                      "length": 884,
+                      "filename_used": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+                      "filename_relative": "tests/arbitrary_send-0.5.1.sol",
+                      "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send-0.5.1.sol",
+                      "filename_short": "tests/arbitrary_send-0.5.1.sol",
+                      "lines": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27,
+                        28,
+                        29,
+                        30,
+                        31,
+                        32,
+                        33,
+                        34,
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40,
+                        41
+                      ],
+                      "starting_column": 1,
+                      "ending_column": 2
+                    }
+                  },
+                  "signature": "indirect()"
+                }
               }
             }
           }
-        }
-      ]
-    }
-  ]
+        ]
+      }
+    ]
+  }
 }

@@ -71,7 +71,7 @@ class ExternalFunction(AbstractDetector):
         for contract in function.contract.inheritance + [function.contract]:
 
             # Loop through the functions not inherited (explicitly defined in this contract).
-            for f in contract.functions_not_inherited:
+            for f in contract.functions_declared:
 
                 # If it matches names, this is the base most function.
                 if f.full_name == function.full_name:
@@ -120,7 +120,7 @@ class ExternalFunction(AbstractDetector):
                 continue
 
             # Next we'll want to loop through all functions defined directly in this contract.
-            for function in contract.functions_not_inherited:
+            for function in contract.functions_declared:
 
                 # If the function is a constructor, or is public, we skip it.
                 if function.is_constructor or function.visibility != "public":
@@ -165,9 +165,8 @@ class ExternalFunction(AbstractDetector):
 
                 # Loop for each function definition, and recommend it be declared external.
                 for function_definition in all_function_definitions:
-                    txt = "{}.{} ({}) should be declared external\n"
-                    info = txt.format(function_definition.contract.name,
-                                      function_definition.name,
+                    txt = "{} ({}) should be declared external\n"
+                    info = txt.format(function_definition.canonical_name,
                                       function_definition.source_mapping_str)
 
                     json = self.generate_json_result(info)

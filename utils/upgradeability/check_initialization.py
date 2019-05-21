@@ -11,7 +11,7 @@ class MultipleInitTarget(Exception):
     pass
 
 def _get_initialize_functions(contract):
-    return [f for father in contract.inheritance + [contract] for f in father.functions_not_inherited if f.name == 'initialize']
+    return [f for f in contract.functions if f.name == 'initialize']
 
 def _get_all_internal_calls(function):
     all_ir = function.all_slithir_operations()
@@ -19,12 +19,11 @@ def _get_all_internal_calls(function):
 
 
 def _get_most_derived_init(contract):
-    for c in [contract] + contract.inheritance:
-        init_functions = [f for f in c.functions_not_inherited if f.name == 'initialize']
-        if len(init_functions) > 1:
-            raise MultipleInitTarget
-        if init_functions:
-            return init_functions[0]
+    init_functions = [f for f in contract.functions if not f.is_shadowed and f.name == 'initialize']
+    if len(init_functions) > 1:
+        raise MultipleInitTarget
+    if init_functions:
+        return init_functions[0]
     return None
 
 def check_initialization(s):
@@ -37,8 +36,6 @@ def check_initialization(s):
         logger.info(yellow('Initializable contract not found, the contract does not follow a standard initalization schema.'))
         return
 
-    initializer = initializable.get_modifier_from_signature('initializer()')
-
     init_info = ''
 
     double_calls_found = False
@@ -47,25 +44,26 @@ def check_initialization(s):
 
     for contract in s.contracts:
         if initializable in contract.inheritance:
+            initializer = contract.get_modifier_from_canonical_name('Initializable.initializer()')
             all_init_functions = _get_initialize_functions(contract)
             for f in all_init_functions:
                 if not initializer in f.modifiers:
                     initializer_modifier_missing = True
-                    logger.info(red(f'{f.contract.name}.{f.name} does not call initializer'))
+                    logger.info(red(f'{f.canonical_name} does not call initializer'))
             most_derived_init = _get_most_derived_init(contract)
             if most_derived_init is None:
                 init_info += f'{contract.name} has no initialize function\n'
                 continue
             else:
                 init_info += f'{contract.name} needs to be initialized by {most_derived_init.full_name}\n'
-            all_init_functions_called = _get_all_internal_calls(most_derived_init)  + [most_derived_init]
+            all_init_functions_called = _get_all_internal_calls(most_derived_init) + [most_derived_init]
             missing_calls = [f for f in all_init_functions if not f in all_init_functions_called]
             for f in missing_calls:
-                logger.info(red(f'Missing call to {f.contract.name}.{f.name} in {contract.name}'))
+                logger.info(red(f'Missing call to {f.canonical_name} in {contract.name}'))
                 missing_call = True
             double_calls = list(set([f for f in all_init_functions_called if all_init_functions_called.count(f) > 1]))
             for f in double_calls:
-                logger.info(red(f'{f.contract.name + "." + f.full_name} is called multiple time in {contract.name}'))
+                logger.info(red(f'{f.canonical_name} is called multiple time in {contract.name}'))
                 double_calls_found = True
 
     if not initializer_modifier_missing:

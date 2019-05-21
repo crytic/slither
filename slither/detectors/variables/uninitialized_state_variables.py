@@ -92,9 +92,8 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         for c in self.slither.contracts_derived:
             ret = self.detect_uninitialized(c)
             for variable, functions in ret:
-                info = "{}.{} ({}) is never initialized. It is used in:\n"
-                info = info.format(variable.contract.name,
-                                   variable.name,
+                info = "{} ({}) is never initialized. It is used in:\n"
+                info = info.format(variable.canonical_name,
                                    variable.source_mapping_str)
                 for f in functions:
                     info += "\t- {} ({})\n".format(f.name, f.source_mapping_str)

@@ -1,10 +1,10 @@
 INFO:Detectors:[91m
-Reentrancy in Reentrancy.withdrawBalance (tests/reentrancy.sol#14-21):
+Reentrancy in Reentrancy.withdrawBalance() (tests/reentrancy.sol#14-21):
 	External calls:
 	- ! (msg.sender.call.value(userBalance[msg.sender])()) (tests/reentrancy.sol#17-19)
 	State variables written after the call(s):
 	- userBalance (tests/reentrancy.sol#20)
-Reentrancy in Reentrancy.withdrawBalance_nested (tests/reentrancy.sol#64-70):
+Reentrancy in Reentrancy.withdrawBalance_nested() (tests/reentrancy.sol#64-70):
 	External calls:
 	- msg.sender.call.value(amount / 2)() (tests/reentrancy.sol#67)
 	State variables written after the call(s):

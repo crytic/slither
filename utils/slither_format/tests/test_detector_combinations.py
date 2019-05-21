@@ -25,8 +25,8 @@ class TestDetectorCombinations(unittest.TestCase):
         for i in range(len(outFD1_lines)):
             outFD1_lines[i] = outFD1_lines[i].strip()
         self.assertTrue(os.path.isfile(self.testFilePath1+".format"),"Patched .format file is not created?!")
-        self.assertEqual(outFD1_lines.count("Number of Slither results: 11"), 1)
-        self.assertEqual(outFD1_lines.count("Number of patches: 18"), 1)
+        self.assertEqual(outFD1_lines.count("Number of Slither results: 12"), 1)
+        self.assertEqual(outFD1_lines.count("Number of patches: 19"), 1)
         self.assertEqual(outFD1_lines.count("Overlapping patch won't be applied!"), 2)
         self.assertEqual(outFD1_lines.count("xDetector: unused-state"), 1)
         self.assertEqual(outFD1_lines.count("xDetector: constable-states"), 1)
@@ -36,5 +36,6 @@ class TestDetectorCombinations(unittest.TestCase):
         self.assertEqual(outFD1_lines.count("Detector: naming-convention (parameter uses)"), 6)
         self.assertEqual(outFD1_lines.count("Detector: external-function"), 2)
         self.assertEqual(outFD1_lines.count("Detector: constant-function"), 1)
+        self.assertEqual(outFD1_lines.count("Detector: solc-version"), 1)
 if __name__ == '__main__':
     unittest.main()
