@@ -19,19 +19,19 @@ class TestUnusedStateVars(unittest.TestCase):
         p.wait()
         
     def test_unused_state_vars(self):
-        outFD = open(self.testFilePath+".out","r")
-        outFD_lines = outFD.readlines()
-        for i in range(len(outFD_lines)):
-            outFD_lines[i] = outFD_lines[i].strip()
+        errFD = open(self.testFilePath+".err","r")
+        errFD_lines = errFD.readlines()
+        for i in range(len(errFD_lines)):
+            errFD_lines[i] = errFD_lines[i].strip()
         self.assertTrue(os.path.isfile(self.testFilePath+".format"),"Patched .format file is not created?!")
-        self.assertEqual(outFD_lines[0].rstrip(),"Number of Slither results: 1")
-        self.assertEqual(outFD_lines[1].rstrip(),"Number of patches: 1")
-        self.assertEqual(outFD_lines.count("Detector: unused-state"), 1)
-        self.assertEqual(outFD_lines.count("Old string: address unused    ;"), 1)
-        self.assertEqual(outFD_lines.count("New string:"), 1)
-        self.assertEqual(outFD_lines.count("Location start: 44"), 1)
-        self.assertEqual(outFD_lines.count("Location end: 63"), 1)
-        outFD.close()
+        self.assertEqual(errFD_lines[0].rstrip(),"INFO:Slither.Format:Number of Slither results: 1")
+        self.assertEqual(errFD_lines[1].rstrip(),"INFO:Slither.Format:Number of patches: 1")
+        self.assertEqual(errFD_lines.count("INFO:Slither.Format:Detector: unused-state"), 1)
+        self.assertEqual(errFD_lines.count("INFO:Slither.Format:Old string: address unused    ;"), 1)
+        self.assertEqual(errFD_lines.count("INFO:Slither.Format:New string:"), 1)
+        self.assertEqual(errFD_lines.count("INFO:Slither.Format:Location start: 44"), 1)
+        self.assertEqual(errFD_lines.count("INFO:Slither.Format:Location end: 63"), 1)
+        errFD.close()
     
 if __name__ == '__main__':
     unittest.main()

@@ -1,4 +1,9 @@
-import re
+import re, logging
+from slither.utils.colors import red, yellow, set_colorization_enabled
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('Slither.Format')
+set_colorization_enabled(True)
 
 class FormatExternalFunction:
 

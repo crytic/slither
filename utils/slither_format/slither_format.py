@@ -1,5 +1,6 @@
-import sys, re
+import sys, re, logging
 from collections import defaultdict
+from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.detectors.variables.unused_state_variables import UnusedStateVars
 from slither.detectors.attributes.incorrect_solc import IncorrectSolc
 from slither.detectors.attributes.constant_pragma import ConstantPragma
@@ -18,6 +19,10 @@ from slither_format.format_naming_convention import FormatNamingConvention
 from slither_format.format_external_function import FormatExternalFunction
 from slither_format.format_constable_states import FormatConstableStates
 from slither_format.format_constant_function import FormatConstantFunction
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('Slither.Format')
+set_colorization_enabled(True)
 
 all_detectors = {
     'unused-state': UnusedStateVars, 
@@ -68,12 +73,12 @@ def sort_and_flag_overlapping_patches(patches):
 def is_overlap_patch(args, patch):
     if 'overlaps' in patch:
         if args.verbose_test:
-            print("Overlapping patch won't be applied!")
-            print("xDetector: " + patch['detector'])
-            print("xOld string: " + patch['old_string'].replace("\n",""))
-            print("xNew string: " + patch['new_string'].replace("\n",""))
-            print("xLocation start: " + str(patch['start']))
-            print("xLocation end: " + str(patch['end']))
+            logger.info("Overlapping patch won't be applied!")
+            logger.info("xDetector: " + patch['detector'])
+            logger.info("xOld string: " + patch['old_string'].replace("\n",""))
+            logger.info("xNew string: " + patch['new_string'].replace("\n",""))
+            logger.info("xLocation start: " + str(patch['start']))
+            logger.info("xLocation end: " + str(patch['end']))
         return True
     return False
 
@@ -100,19 +105,19 @@ def apply_patches(slither, patches):
         out_file.close()
 
 def print_patches(number_of_slither_results, patches):
-    print("Number of Slither results: " + str(number_of_slither_results))
+    logger.info("Number of Slither results: " + str(number_of_slither_results))
     number_of_patches = 0
     for file in patches:
         number_of_patches += len(patches[file])
-    print("Number of patches: " + str(number_of_patches))
+    logger.info("Number of patches: " + str(number_of_patches))
     for file in patches:
-        print("Patch file: " + file)
+        logger.info("Patch file: " + file)
         for patch in patches[file]:
-            print("Detector: " + patch['detector'])
-            print("Old string: " + patch['old_string'].replace("\n",""))
-            print("New string: " + patch['new_string'].replace("\n",""))
-            print("Location start: " + str(patch['start']))
-            print("Location end: " + str(patch['end']))
+            logger.info("Detector: " + patch['detector'])
+            logger.info("Old string: " + patch['old_string'].replace("\n",""))
+            logger.info("New string: " + patch['new_string'].replace("\n",""))
+            logger.info("Location start: " + str(patch['start']))
+            logger.info("Location end: " + str(patch['end']))
 
 def print_patches_json(number_of_slither_results, patches):
     print('{',end='')
@@ -175,7 +180,7 @@ def apply_detector_results(slither, patches, detector_results):
         elif result['check'] == 'constant-function':
             FormatConstantFunction.format(slither, patches, result['elements'])
         else:
-            print("Not Supported Yet.")
+            logger.error(red("Not Supported Yet."))
             sys.exit(-1)
 
 def get_number_of_slither_results (detector_results):
