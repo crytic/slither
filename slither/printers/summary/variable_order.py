@@ -23,9 +23,9 @@ class VariableOrder(AbstractPrinter):
         for contract in self.slither.contracts_derived:
             txt += '\n{}:\n'.format(contract.name)
             table = PrettyTable(['Name', 'Type'])
-            for variable in contract.state_variables:
+            for variable in contract.state_variables_ordered:
                 if not variable.is_constant:
-                    table.add_row([variable.name, str(variable.type)])
+                    table.add_row([variable.canonical_name, str(variable.type)])
             txt += str(table) + '\n'
 
         self.info(txt)
