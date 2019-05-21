@@ -33,6 +33,7 @@ class Contract(ChildSlither, SourceMapping):
         self._structures = {}
         self._events = {}
         self._variables = {}
+        self._variables_ordered = [] # contain also shadowed variables
         self._modifiers = {}
         self._functions = {}
 
@@ -195,6 +196,13 @@ class Contract(ChildSlither, SourceMapping):
             list(StateVariable): List of the state variables.
         '''
         return list(self._variables.values())
+
+    @property
+    def state_variables_ordered(self):
+        '''
+            list(StateVariable): List of the state variables by order of declaration. Contains also shadowed variables
+        '''
+        return list(self._variables_ordered)
 
     @property
     def state_variables_inherited(self):
