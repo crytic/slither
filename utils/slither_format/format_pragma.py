@@ -63,12 +63,12 @@ class FormatPragma:
     
     @staticmethod
     def create_patch(slither, patches, in_file, pragma, modify_loc_start, modify_loc_end):
-        in_file_str = slither.source_code[in_file]
+        in_file_str = slither.source_code[in_file].encode('utf-8')
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
         patches[in_file].append({
             "detector" : "pragma",
 	    "start" : modify_loc_start,
 	    "end" : modify_loc_end,
-	    "old_string" : old_str_of_interest,
+	    "old_string" : old_str_of_interest.decode('utf-8'),
 	    "new_string" : pragma
         })
