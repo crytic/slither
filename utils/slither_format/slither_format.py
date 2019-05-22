@@ -90,16 +90,16 @@ def prune_overlapping_patches(args, patches):
 def apply_patches(slither, patches):
     for file in patches:
         _in_file = file
-        in_file_str = slither.source_code[_in_file]
+        in_file_str = slither.source_code[_in_file].encode('utf-8')
         out_file_str = ""
         for i in range(len(patches[file])):
             if i != 0:
-                out_file_str += in_file_str[int(patches[file][i-1]['end']):int(patches[file][i]['start'])]
+                out_file_str += in_file_str[int(patches[file][i-1]['end']):int(patches[file][i]['start'])].decode('utf-8')
             else:
-                out_file_str += in_file_str[:int(patches[file][i]['start'])]
+                out_file_str += in_file_str[:int(patches[file][i]['start'])].decode('utf-8')
             out_file_str += patches[file][i]['new_string']
             if (i == (len(patches[file]) - 1)):
-                out_file_str += in_file_str[int(patches[file][i]['end']):]
+                out_file_str += in_file_str[int(patches[file][i]['end']):].decode('utf-8')
         out_file = open(_in_file+".format",'w')
         out_file.write(out_file_str)
         out_file.close()
