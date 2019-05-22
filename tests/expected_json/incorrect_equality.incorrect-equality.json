@@ -1259,19 +1259,17 @@
             "type": "node",
             "name": "balance == 10000000000000000000",
             "source_mapping": {
-              "start": 1270,
-              "length": 80,
+              "start": 1274,
+              "length": 19,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
               "lines": [
-                54,
-                55,
-                56
+                54
               ],
-              "starting_column": 9,
-              "ending_column": 10
+              "starting_column": 13,
+              "ending_column": 32
             },
             "type_specific_fields": {
               "parent": {
@@ -1506,19 +1504,17 @@
             "type": "node",
             "name": "10000000000000000000 == balance",
             "source_mapping": {
-              "start": 1446,
-              "length": 80,
+              "start": 1450,
+              "length": 19,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
               "lines": [
-                61,
-                62,
-                63
+                61
               ],
-              "starting_column": 9,
-              "ending_column": 10
+              "starting_column": 13,
+              "ending_column": 32
             },
             "type_specific_fields": {
               "parent": {
@@ -1753,19 +1749,17 @@
             "type": "node",
             "name": "balance == 10000000000000000000",
             "source_mapping": {
-              "start": 1631,
-              "length": 80,
+              "start": 1635,
+              "length": 19,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
               "lines": [
-                68,
-                69,
-                70
+                68
               ],
-              "starting_column": 9,
-              "ending_column": 10
+              "starting_column": 13,
+              "ending_column": 32
             },
             "type_specific_fields": {
               "parent": {
