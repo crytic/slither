@@ -1,4 +1,4 @@
-import re, logging
+import re, logging, sys
 from slither.utils.colors import red, yellow, set_colorization_enabled
 
 logging.basicConfig(level=logging.INFO)
