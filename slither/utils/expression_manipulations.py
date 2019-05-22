@@ -7,17 +7,15 @@ from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.conditional_expression import ConditionalExpression
-from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
 from slither.core.expressions.literal import Literal
 from slither.core.expressions.member_access import MemberAccess
 from slither.core.expressions.new_array import NewArray
 from slither.core.expressions.new_contract import NewContract
-from slither.core.expressions.new_elementary_type import NewElementaryType
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
-from slither.core.expressions.unary_operation import UnaryOperation
+from slither.all_exceptions import SlitherException
 
 def f_expressions(e, x):
     e._expressions.append(x)
@@ -34,8 +32,6 @@ def f_called(e, x):
 class SplitTernaryExpression(object):
 
     def __init__(self, expression):
-
-    #    print(expression)
 
         if isinstance(expression, ConditionalExpression):
             self.true_expression = copy.copy(expression.then_expression)
@@ -64,7 +60,7 @@ class SplitTernaryExpression(object):
             return
 
         if isinstance(expression, ConditionalExpression):
-             raise Exception('Nested ternary operator not handled')
+             raise SlitherException('Nested ternary operator not handled')
 
         if isinstance(expression, (Literal, Identifier, IndexAccess, NewArray, NewContract)):
             return None
@@ -117,5 +113,5 @@ class SplitTernaryExpression(object):
                                      false_expression.expression)
 
         else:
-            raise Exception('Ternary operation not handled {}({})'.format(expression, type(expression)))
+            raise SlitherException('Ternary operation not handled {}({})'.format(expression, type(expression)))
 

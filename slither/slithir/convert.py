@@ -781,21 +781,21 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
         sigs = get_canonical_names(ir, ir.function_name, ir.contract_name)
         for sig in sigs:
             func = contract.get_function_from_canonical_name(sig)
-            if not func:
-                func = contract.get_state_variable_from_name(ir.function_name)
             if func:
                 # stop to explore if func is found (prevent dupplicate issue)
                 break
+        if not func:
+            func = contract.get_state_variable_from_name(ir.function_name)
     else:
         assert isinstance(ir, HighLevelCall)
         sigs = get_sig(ir, ir.function_name)
         for sig in sigs:
-            func = contract.get_function_from_canonical_name(sig)
-            if not func:
-                func = contract.get_state_variable_from_name(ir.function_name)
+            func = contract.get_function_from_signature(sig)
             if func:
                 # stop to explore if func is found (prevent dupplicate issue)
                 break
+        if not func:
+            func = contract.get_state_variable_from_name(ir.function_name)
     if not func:
         # specific lookup when the compiler does implicit conversion
         # for example
