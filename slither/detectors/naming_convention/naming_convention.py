@@ -104,6 +104,9 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     results.append(json)
 
                 for argument in func.parameters:
+                    # Ignore parameter names that are not specified i.e. empty strings
+                    if argument.name == "":
+                        continue
                     if argument in func.variables_read_or_written:
                         correct_naming = self.is_mixed_case(argument.name)
                     else:
