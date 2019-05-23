@@ -19,18 +19,19 @@ class FormatExternalFunction:
                             # to external because external function parameters are allocated in calldata region which is
                             # non-modifiable. See https://solidity.readthedocs.io/en/develop/types.html#data-location
                             if not FormatExternalFunction.function_parameters_written(function):
-                                FormatExternalFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], "public", "external", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
+                                FormatExternalFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], element['source_mapping']['filename_relative'], "public", "external", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
                                 Found = True
                                 break
 
     @staticmethod
-    def create_patch(slither, patches, in_file, match_text, replace_text, modify_loc_start, modify_loc_end):
+    def create_patch(slither, patches, in_file, in_file_relative, match_text, replace_text, modify_loc_start, modify_loc_end):
         in_file_str = slither.source_code[in_file].encode('utf-8')
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
         m = re.search(" public", old_str_of_interest.decode('utf-8'))
         if m is None:
             # No visibility specifier exists; public by default.
-            patches[in_file].append({
+            patches[in_file_relative].append({
+                "file" : in_file,
                 "detector" : "external-function",
                 "start" : modify_loc_start + len(old_str_of_interest.decode('utf-8').split(')')[0]) + 1,
                 "end" : modify_loc_start + len(old_str_of_interest.decode('utf-8').split(')')[0]) + 1,
@@ -38,7 +39,8 @@ class FormatExternalFunction:
                 "new_string" : " " + replace_text
             })
         else:
-            patches[in_file].append({
+            patches[in_file_relative].append({
+                "file" : in_file,
                 "detector" : "external-function",
                 "start" : modify_loc_start + m.span()[0] + 1,
                 "end" : modify_loc_start + m.span()[1],

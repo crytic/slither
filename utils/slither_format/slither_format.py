@@ -1,4 +1,4 @@
-import sys, re, logging
+import sys, re, logging, subprocess
 from collections import defaultdict
 from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.detectors.variables.unused_state_variables import UnusedStateVars
@@ -52,7 +52,7 @@ def slither_format(args, slither):
         print_patches_json(number_of_slither_results, patches)
     if args.verbose_test:
         print_patches(number_of_slither_results, patches)    
-    apply_patches(slither, patches)
+    generate_patch_files(slither, patches)
 
 def sort_and_flag_overlapping_patches(patches):
     for file in patches:
@@ -65,8 +65,10 @@ def sort_and_flag_overlapping_patches(patches):
                     patches[file][j+1] = patches[file][j]
                     patches[file][j] = temp
                 # Overlap check
-                if (int(patches[file][j]['start']) >= int(patches[file][j+1]['start']) and
-                    int(patches[file][j]['start']) <= int(patches[file][j+1]['end'])):
+                if ((int(patches[file][j]['start']) >= int(patches[file][j+1]['start']) and
+                    int(patches[file][j]['start']) <= int(patches[file][j+1]['end'])) or
+                    (int(patches[file][j+1]['start']) >= int(patches[file][j]['start']) and
+                    int(patches[file][j+1]['start']) <= int(patches[file][j]['end']))):
                     patches[file][j]['overlaps'] = "Yes"
                     patches[file][j+1]['overlaps'] = "Yes"
 
@@ -87,10 +89,11 @@ def prune_overlapping_patches(args, patches):
         non_overlapping_patches = [patch for patch in patches[file] if not is_overlap_patch(args, patch)]
         patches[file] = non_overlapping_patches
             
-def apply_patches(slither, patches):
+def generate_patch_files(slither, patches):
     for file in patches:
         _in_file = file
-        in_file_str = slither.source_code[_in_file].encode('utf-8')
+        if patches[file]:
+            in_file_str = slither.source_code[patches[file][0]['file']].encode('utf-8')
         out_file_str = ""
         for i in range(len(patches[file])):
             if i != 0:
@@ -103,6 +106,11 @@ def apply_patches(slither, patches):
         out_file = open(_in_file+".format",'w')
         out_file.write(out_file_str)
         out_file.close()
+        patch_file_name = _in_file + ".format.patch"
+        outFD = open(patch_file_name,"w")
+        p1 = subprocess.Popen(['diff', '-u', _in_file, _in_file+".format"], stdout=outFD)
+        p1.wait()
+        outFD.close()
 
 def print_patches(number_of_slither_results, patches):
     logger.info("Number of Slither results: " + str(number_of_slither_results))

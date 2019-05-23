@@ -1,5 +1,7 @@
 # .format files are the output files produced by slither-format
+# .patch files are the output files produced by slither-format
 *.format
+*.patch
 
 # Temporary files (Emacs backup files ending in tilde and others)
 *~

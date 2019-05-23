@@ -18,16 +18,17 @@ class FormatConstantFunction:
                 if not Found:
                     for function in contract.functions:
                         if contract.name == element['type_specific_fields']['parent']['name'] and function.name == element['name']:
-                            FormatConstantFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], ["view","pure","constant"], "", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
+                            FormatConstantFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], element['source_mapping']['filename_relative'], ["view","pure","constant"], "", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
                             Found = True
 
     @staticmethod
-    def create_patch(slither, patches, in_file, match_text, replace_text, modify_loc_start, modify_loc_end):
+    def create_patch(slither, patches, in_file, in_file_relative, match_text, replace_text, modify_loc_start, modify_loc_end):
         in_file_str = slither.source_code[in_file].encode('utf-8')
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
         m = re.search("(view|pure|constant)", old_str_of_interest.decode('utf-8'))
         if m:
-            patches[in_file].append({
+            patches[in_file_relative].append({
+                "file" : in_file,
                 "detector" : "constant-function",
                 "start" : modify_loc_start + m.span()[0],
                 "end" : modify_loc_start + m.span()[1],
