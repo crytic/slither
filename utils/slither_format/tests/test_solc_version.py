@@ -29,7 +29,9 @@ class TestSolcVersion(unittest.TestCase):
 
         outFD3 = open(self.testFilePath3+".out","w")
         errFD3 = open(self.testFilePath3+".err","w")
-        p3 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose-test','--detect','solc-version',self.testFilePath3], stdout=outFD3,stderr=errFD3)
+        my_env = os.environ.copy()
+        my_env["SOLC_VERSION"] = "0.4.24"
+        p3 = subprocess.Popen(['python3', '-m', 'slither_format','--verbose-test','--detect','solc-version',self.testFilePath3], stdout=outFD3,stderr=errFD3, env=my_env)
         p3.wait()
         outFD3.close()
         errFD3.close()

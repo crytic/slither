@@ -1,4 +1,4 @@
-import re, logging
+import re, logging, sys
 from slither.utils.colors import red, yellow, set_colorization_enabled
 
 logging.basicConfig(level=logging.INFO)
@@ -25,7 +25,7 @@ class FormatPragma:
             versions_used.append(''.join(element['type_specific_fields']['directive'][1:]))
         solc_version_replace = FormatPragma.analyse_versions(versions_used)
         for element in elements:
-            FormatPragma.create_patch(slither, patches, element['source_mapping']['filename_absolute'], solc_version_replace, element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
+            FormatPragma.create_patch(slither, patches, element['source_mapping']['filename_absolute'], element['source_mapping']['filename_relative'], solc_version_replace, element['source_mapping']['start'], element['source_mapping']['start'] + element['source_mapping']['length'])
 
     @staticmethod
     def analyse_versions(used_solc_versions):
@@ -62,10 +62,11 @@ class FormatPragma:
                 return "pragma solidity " + FormatPragma.REPLACEMENT_VERSIONS[1] + ';'
     
     @staticmethod
-    def create_patch(slither, patches, in_file, pragma, modify_loc_start, modify_loc_end):
+    def create_patch(slither, patches, in_file, in_file_relative, pragma, modify_loc_start, modify_loc_end):
         in_file_str = slither.source_code[in_file].encode('utf-8')
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-        patches[in_file].append({
+        patches[in_file_relative].append({
+            "file" : in_file,
             "detector" : "pragma",
 	    "start" : modify_loc_start,
 	    "end" : modify_loc_end,
