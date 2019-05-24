@@ -54,31 +54,30 @@ class FormatNamingConvention:
         
     @staticmethod
     def create_patch_contract_definition(slither, patches, name, in_file, in_file_relative, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts:
-            if contract.name == name:
-                in_file_str = slither.source_code[in_file].encode('utf-8')
-                old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-                m = re.match(r'(.*)'+"contract"+r'(.*)'+name, old_str_of_interest.decode('utf-8'))
-                old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
-                (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"contract"+r'(.*)'+name, r'\1'+"contract"+r'\2'+name.capitalize(), old_str_of_interest.decode('utf-8'), 1)
-                if num_repl != 0:
-                    patch = {
-                        "file" : in_file,
-                        "detector" : "naming-convention (contract definition)",
-                        "start":modify_loc_start,
-                        "end":modify_loc_start+m.span()[1],
-                        "old_string":old_str_of_interest.decode('utf-8'),
-                        "new_string":new_str_of_interest
-                    }
-                    if not patch in patches[in_file_relative]:
-                        patches[in_file_relative].append(patch)
-                else:
-                    logger.error(red("Could not find contract?!"))
-                    sys.exit(-1)
+        in_file_str = slither.source_code[in_file].encode('utf-8')
+        old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+        m = re.match(r'(.*)'+"contract"+r'(.*)'+name, old_str_of_interest.decode('utf-8'))
+        old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
+        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"contract"+r'(.*)'+name, r'\1'+"contract"+r'\2'+name.capitalize(), old_str_of_interest.decode('utf-8'), 1)
+        if num_repl != 0:
+            patch = {
+                "file" : in_file,
+                "detector" : "naming-convention (contract definition)",
+                "start":modify_loc_start,
+                "end":modify_loc_start+m.span()[1],
+                "old_string":old_str_of_interest.decode('utf-8'),
+                "new_string":new_str_of_interest
+            }
+            if not patch in patches[in_file_relative]:
+                patches[in_file_relative].append(patch)
+        else:
+            logger.error(red("Could not find contract?!"))
+            sys.exit(-1)
                     
     @staticmethod
     def create_patch_contract_uses(slither, patches, name, in_file, in_file_relative):
         for contract in slither.contracts:
+            # Ignore contract definition
             if contract.name != name:
                 in_file_str = slither.source_code[in_file].encode('utf-8')
                 # Check state variables of contract type
@@ -139,90 +138,90 @@ class FormatNamingConvention:
                                 else:
                                     logger.error(red("Could not find new object?!"))
                                     sys.exit(-1)
-
-            else:
-                # Ignore contract definition
-                continue
             
     @staticmethod
     def create_patch_modifier_definition(slither, patches, name, contract_name, in_file, in_file_relative, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts:
-            if contract.name == contract_name:
-                for modifier in contract.modifiers:
-                    if modifier.name == name:
-                        in_file_str = slither.source_code[in_file].encode('utf-8')
-                        old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-                        m = re.match(r'(.*)'+"modifier"+r'(.*)'+name, old_str_of_interest.decode('utf-8'))
-                        old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
-                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"modifier"+r'(.*)'+name, r'\1'+"modifier"+r'\2'+name[0].lower()+name[1:], old_str_of_interest.decode('utf-8'), 1)
-                        if num_repl != 0:
-                            patch = {
-                                "file" : in_file,
-                                "detector" : "naming-convention (modifier definition)",
-                                "start" : modify_loc_start,
-                                "end" : modify_loc_start+m.span()[1],
-                                "old_string" : old_str_of_interest.decode('utf-8'),
-                                "new_string" : new_str_of_interest
-                            }
-                            if not patch in patches[in_file_relative]:
-                                patches[in_file_relative].append(patch)
-                        else:
-                            logger.error(red("Could not find modifier?!"))
-                            sys.exit(-1)
+        target_contract = slither.get_contract_from_name(contract_name)
+        if not target_contract:
+            logger.error(red("Contract not found?!"))
+            sys.exit(-1)
+        for modifier in target_contract.modifiers:
+            if modifier.name == name:
+                in_file_str = slither.source_code[in_file].encode('utf-8')
+                old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                m = re.match(r'(.*)'+"modifier"+r'(.*)'+name, old_str_of_interest.decode('utf-8'))
+                old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
+                (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"modifier"+r'(.*)'+name, r'\1'+"modifier"+r'\2'+name[0].lower()+name[1:], old_str_of_interest.decode('utf-8'), 1)
+                if num_repl != 0:
+                    patch = {
+                        "file" : in_file,
+                        "detector" : "naming-convention (modifier definition)",
+                        "start" : modify_loc_start,
+                        "end" : modify_loc_start+m.span()[1],
+                        "old_string" : old_str_of_interest.decode('utf-8'),
+                        "new_string" : new_str_of_interest
+                    }
+                    if not patch in patches[in_file_relative]:
+                        patches[in_file_relative].append(patch)
+                else:
+                    logger.error(red("Could not find modifier?!"))
+                    sys.exit(-1)
                             
     @staticmethod
     def create_patch_modifier_uses(slither, patches, name, contract_name, in_file, in_file_relative):
-        for contract in slither.contracts:
-            if (contract.name == contract_name):
-                target_contract = contract
-        for contract in slither.contracts:
-            if (contract == target_contract or (contract in target_contract.derived_contracts)):
-                for function in contract.functions:
-                    for m  in function.modifiers:
-                        if (m.name == name):
-                            in_file_str = slither.source_code[in_file].encode('utf-8')
-                            old_str_of_interest = in_file_str[int(function.parameters_src.source_mapping['start']):int(function.returns_src.source_mapping['start'])]
-                            (new_str_of_interest, num_repl) = re.subn(name, name[0].lower()+name[1:],old_str_of_interest.decode('utf-8'),1)
-                            if num_repl != 0:
-                                patch = {
-                                    "file" : in_file,
-                                    "detector" : "naming-convention (modifier uses)",
-                                    "start" : int(function.parameters_src.source_mapping['start']),
-                                    "end" : int(function.returns_src.source_mapping['start']),
-                                    "old_string" : old_str_of_interest.decode('utf-8'),
-                                    "new_string" : new_str_of_interest
-                                }
-                                if not patch in	patches[in_file_relative]:
-                                    patches[in_file_relative].append(patch)
-                            else:
-                                logger.error(red("Could not find modifier name?!"))
-                                sys.exit(-1)
-                                
-    @staticmethod
-    def create_patch_function_definition(slither, patches, name, contract_name, in_file, in_file_relative, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts:
-            if contract.name == contract_name:
-                for function in contract.functions:
-                    if function.name == name:
+        target_contract = slither.get_contract_from_name(contract_name)
+        if not target_contract:
+            logger.error(red("Contract not found?!"))
+            sys.exit(-1)
+        for contract in [target_contract] + target_contract.derived_contracts:
+            for function in contract.functions:
+                for m  in function.modifiers:
+                    if (m.name == name):
                         in_file_str = slither.source_code[in_file].encode('utf-8')
-                        old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-                        m = re.match(r'(.*)'+"function"+r'\s*'+name, old_str_of_interest.decode('utf-8'))
-                        old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
-                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"function"+r'(.*)'+name, r'\1'+"function"+r'\2'+name[0].lower()+name[1:], old_str_of_interest.decode('utf-8'), 1)
+                        old_str_of_interest = in_file_str[int(function.parameters_src.source_mapping['start']):int(function.returns_src.source_mapping['start'])]
+                        (new_str_of_interest, num_repl) = re.subn(name, name[0].lower()+name[1:],old_str_of_interest.decode('utf-8'),1)
                         if num_repl != 0:
                             patch = {
                                 "file" : in_file,
-                                "detector" : "naming-convention (function definition)",
-                                "start" : modify_loc_start,
-                                "end" : modify_loc_start+m.span()[1],
+                                "detector" : "naming-convention (modifier uses)",
+                                "start" : int(function.parameters_src.source_mapping['start']),
+                                "end" : int(function.returns_src.source_mapping['start']),
                                 "old_string" : old_str_of_interest.decode('utf-8'),
                                 "new_string" : new_str_of_interest
                             }
-                            if not patch in patches[in_file_relative]:
+                            if not patch in	patches[in_file_relative]:
                                 patches[in_file_relative].append(patch)
                         else:
-                            logger.error(red("Could not find function?!"))
+                            logger.error(red("Could not find modifier name?!"))
                             sys.exit(-1)
+                                
+    @staticmethod
+    def create_patch_function_definition(slither, patches, name, contract_name, in_file, in_file_relative, modify_loc_start, modify_loc_end):
+        target_contract = slither.get_contract_from_name(contract_name)
+        if not target_contract:
+            logger.error(red("Contract not found?!"))
+            sys.exit(-1)
+        for function in target_contract.functions:
+            if function.name == name:
+                in_file_str = slither.source_code[in_file].encode('utf-8')
+                old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                m = re.match(r'(.*)'+"function"+r'\s*'+name, old_str_of_interest.decode('utf-8'))
+                old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
+                (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"function"+r'(.*)'+name, r'\1'+"function"+r'\2'+name[0].lower()+name[1:], old_str_of_interest.decode('utf-8'), 1)
+                if num_repl != 0:
+                    patch = {
+                        "file" : in_file,
+                        "detector" : "naming-convention (function definition)",
+                        "start" : modify_loc_start,
+                        "end" : modify_loc_start+m.span()[1],
+                        "old_string" : old_str_of_interest.decode('utf-8'),
+                        "new_string" : new_str_of_interest
+                    }
+                    if not patch in patches[in_file_relative]:
+                        patches[in_file_relative].append(patch)
+                else:
+                    logger.error(red("Could not find function?!"))
+                    sys.exit(-1)
                             
     @staticmethod
     def create_patch_function_calls(slither, patches, name, contract_name, in_file, in_file_relative):
@@ -266,80 +265,84 @@ class FormatNamingConvention:
                             
     @staticmethod
     def create_patch_event_definition(slither, patches, name, contract_name, in_file, in_file_relative, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts:
-            if contract.name == contract_name:
-                for event in contract.events:
-                    if event.name == name:
-                        event_name = name.split('(')[0]
-                        in_file_str = slither.source_code[in_file].encode('utf-8')
-                        old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-                        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"event"+r'(.*)'+event_name, r'\1'+"event"+r'\2'+event_name[0].capitalize()+event_name[1:], old_str_of_interest.decode('utf-8'), 1)
-                        if num_repl != 0:
-                            patch = {
-                                "file" : in_file,
-                                "detector" : "naming-convention (event definition)",
-                                "start" : modify_loc_start,
-                                "end" : modify_loc_end,
-                                "old_string" : old_str_of_interest.decode('utf-8'),
-                                "new_string" : new_str_of_interest
-                            }
-                            if not patch in patches[in_file_relative]:
-                                patches[in_file_relative].append(patch)
-                        else:
-                            logger.error(red("Could not find event?!"))
-                            sys.exit(-1)
+        target_contract = slither.get_contract_from_name(contract_name)
+        if not target_contract:
+            logger.error(red("Contract not found?!"))
+            sys.exit(-1)
+        for event in target_contract.events:
+            if event.name == name:
+                event_name = name.split('(')[0]
+                in_file_str = slither.source_code[in_file].encode('utf-8')
+                old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"event"+r'(.*)'+event_name, r'\1'+"event"+r'\2'+event_name[0].capitalize()+event_name[1:], old_str_of_interest.decode('utf-8'), 1)
+                if num_repl != 0:
+                    patch = {
+                        "file" : in_file,
+                        "detector" : "naming-convention (event definition)",
+                        "start" : modify_loc_start,
+                        "end" : modify_loc_end,
+                        "old_string" : old_str_of_interest.decode('utf-8'),
+                        "new_string" : new_str_of_interest
+                    }
+                    if not patch in patches[in_file_relative]:
+                        patches[in_file_relative].append(patch)
+                else:
+                    logger.error(red("Could not find event?!"))
+                    sys.exit(-1)
                             
     @staticmethod
     def create_patch_event_calls(slither, patches, name, contract_name, in_file, in_file_relative):
         event_name = name.split('(')[0]
-        for contract in slither.contracts:
-            if (contract.name == contract_name):
-                target_contract = contract
-        for contract in slither.contracts:
-            if (contract == target_contract or (contract in target_contract.derived_contracts)):
-                for function in contract.functions:
-                    for node in function.nodes:
-                        for call in node.internal_calls_as_expressions:
-                            if (str(call.called) == event_name):
-                                in_file_str = slither.source_code[in_file].encode('utf-8')
-                                old_str_of_interest = in_file_str[int(call.source_mapping['start']):int(call.source_mapping['start'])+int(call.source_mapping['length'])]
-                                patch = {
-                                    "file" : in_file,
-                                    "detector" : "naming-convention (event calls)",
-                                    "start" : call.source_mapping['start'],
-                                    "end" : int(call.source_mapping['start']) + int(call.source_mapping['length']),
-                                    "old_string" : old_str_of_interest.decode('utf-8'),
-                                    "new_string" : old_str_of_interest.decode('utf-8')[0].capitalize()+old_str_of_interest.decode('utf-8')[1:]
-                                }
-                                if not patch in	patches[in_file_relative]:
-                                    patches[in_file_relative].append(patch)
+        target_contract = slither.get_contract_from_name(contract_name)
+        if not target_contract:
+            logger.error(red("Contract not found?!"))
+            sys.exit(-1)
+        for contract in [target_contract] + target_contract.derived_contracts:
+            for function in contract.functions:
+                for node in function.nodes:
+                    for call in node.internal_calls_as_expressions:
+                        if (str(call.called) == event_name):
+                            in_file_str = slither.source_code[in_file].encode('utf-8')
+                            old_str_of_interest = in_file_str[int(call.source_mapping['start']):int(call.source_mapping['start'])+int(call.source_mapping['length'])]
+                            patch = {
+                                "file" : in_file,
+                                "detector" : "naming-convention (event calls)",
+                                "start" : call.source_mapping['start'],
+                                "end" : int(call.source_mapping['start']) + int(call.source_mapping['length']),
+                                "old_string" : old_str_of_interest.decode('utf-8'),
+                                "new_string" : old_str_of_interest.decode('utf-8')[0].capitalize()+old_str_of_interest.decode('utf-8')[1:]
+                            }
+                            if not patch in	patches[in_file_relative]:
+                                patches[in_file_relative].append(patch)
                                 
     @staticmethod
     def create_patch_parameter_declaration(slither, patches, name, function_name, contract_name, in_file, in_file_relative, modify_loc_start, modify_loc_end):
-        for contract in slither.contracts:
-            if contract.name == contract_name:
-                for function in contract.functions:
-                    if function.name == function_name:
-                        in_file_str = slither.source_code[in_file].encode('utf-8')
-                        old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-                        if(name[0] == '_'):
-                            (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+name[0]+name[1].upper()+name[2:]+r'\2', old_str_of_interest.decode('utf-8'), 1)
-                        else:
-                            (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+name[0].upper()+name[1:]+r'\2', old_str_of_interest.decode('utf-8'), 1)
-                        if num_repl != 0:
-                            patch = {
-                                "file" : in_file,
-                                "detector" : "naming-convention (parameter declaration)",
-                                "start" : modify_loc_start,
-                                "end" : modify_loc_end,
-                                "old_string" : old_str_of_interest.decode('utf-8'),
-                                "new_string" : new_str_of_interest
-                            }
-                            if not patch in patches[in_file_relative]:
-                                patches[in_file_relative].append(patch)
-                        else:
-                            logger.error(red("Could not find parameter declaration?!"))
-                            sys.exit(-1)
+        target_contract = slither.get_contract_from_name(contract_name)
+        if not target_contract:
+            logger.error(red("Contract not found?!"))
+            sys.exit(-1)
+        for function in target_contract.functions:
+            if function.name == function_name:
+                in_file_str = slither.source_code[in_file].encode('utf-8')
+                old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                if(name[0] == '_'):
+                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+name[0]+name[1].upper()+name[2:]+r'\2', old_str_of_interest.decode('utf-8'), 1)
+                else:
+                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+name[0].upper()+name[1:]+r'\2', old_str_of_interest.decode('utf-8'), 1)
+                if num_repl != 0:
+                    patch = {
+                        "file" : in_file,
+                        "detector" : "naming-convention (parameter declaration)",
+                        "start" : modify_loc_start,
+                        "end" : modify_loc_end,
+                        "old_string" : old_str_of_interest.decode('utf-8'),
+                        "new_string" : new_str_of_interest
+                    }
+                    if not patch in patches[in_file_relative]:
+                        patches[in_file_relative].append(patch)
+                else:
+                    logger.error(red("Could not find parameter declaration?!"))
+                    sys.exit(-1)
 
     @staticmethod                        
     def create_patch_parameter_uses(slither, patches, name, function_name, contract_name, in_file, in_file_relative):

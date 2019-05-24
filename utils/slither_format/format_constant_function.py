@@ -13,13 +13,12 @@ class FormatConstantFunction:
             if element['type'] != "function":
                 # Skip variable elements
                 continue
-            Found = False
-            for contract in slither.contracts:
-                if not Found:
-                    for function in contract.functions:
-                        if contract.name == element['type_specific_fields']['parent']['name'] and function.name == element['name']:
-                            FormatConstantFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], element['source_mapping']['filename_relative'], ["view","pure","constant"], "", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
-                            Found = True
+            target_contract = slither.get_contract_from_name(element['type_specific_fields']['parent']['name'])
+            if target_contract:
+                for function in target_contract.functions:
+                    if function.name == element['name']:
+                        FormatConstantFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], element['source_mapping']['filename_relative'], ["view","pure","constant"], "", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
+                        break
 
     @staticmethod
     def create_patch(slither, patches, in_file, in_file_relative, match_text, replace_text, modify_loc_start, modify_loc_end):
