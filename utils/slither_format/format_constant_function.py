@@ -17,7 +17,12 @@ class FormatConstantFunction:
             if target_contract:
                 for function in target_contract.functions:
                     if function.name == element['name']:
-                        FormatConstantFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], element['source_mapping']['filename_relative'], ["view","pure","constant"], "", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
+                        FormatConstantFunction.create_patch(slither, patches, \
+                                                            element['source_mapping']['filename_absolute'], \
+                                                            element['source_mapping']['filename_relative'], \
+                                                            ["view","pure","constant"], "", \
+                                                            int(function.parameters_src.source_mapping['start']), \
+                                                            int(function.returns_src.source_mapping['start']))
                         break
 
     @staticmethod
