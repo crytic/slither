@@ -10,18 +10,16 @@ class FormatExternalFunction:
     @staticmethod
     def format (slither, patches, elements):
         for element in elements:
-            Found = False
-            for contract in slither.contracts:
-                if not Found and contract.name == element['type_specific_fields']['parent']['name']:
-                    for function in contract.functions:
-                        if function.name == element['name']:
-                            # If function parameters are written to in function body then we cannot convert this function
-                            # to external because external function parameters are allocated in calldata region which is
-                            # non-modifiable. See https://solidity.readthedocs.io/en/develop/types.html#data-location
-                            if not FormatExternalFunction.function_parameters_written(function):
-                                FormatExternalFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], element['source_mapping']['filename_relative'], "public", "external", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
-                                Found = True
-                                break
+            target_contract = slither.get_contract_from_name(element['type_specific_fields']['parent']['name'])
+            if target_contract:
+                for function in target_contract.functions:
+                    if function.name == element['name']:
+                        # If function parameters are written to in function body then we cannot convert this function
+                        # to external because external function parameters are allocated in calldata region which is
+                        # non-modifiable. See https://solidity.readthedocs.io/en/develop/types.html#data-location
+                        if not FormatExternalFunction.function_parameters_written(function):
+                            FormatExternalFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], element['source_mapping']['filename_relative'], "public", "external", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
+                            break
 
     @staticmethod
     def create_patch(slither, patches, in_file, in_file_relative, match_text, replace_text, modify_loc_start, modify_loc_end):
