@@ -4,7 +4,9 @@ class FormatUnusedState:
     def format(slither, patches, elements):
         for element in elements:
             if element['type'] == "variable":
-                FormatUnusedState.create_patch(slither, patches, element['source_mapping']['filename_absolute'], element['source_mapping']['filename_relative'], element['source_mapping']['start'])
+                FormatUnusedState.create_patch(slither, patches, element['source_mapping']['filename_absolute'], \
+                                               element['source_mapping']['filename_relative'], \
+                                               element['source_mapping']['start'])
 
     @staticmethod
     def create_patch(slither, patches, in_file, in_file_relative, modify_loc_start):
@@ -15,7 +17,8 @@ class FormatUnusedState:
             "detector" : "unused-state",
             "start" : modify_loc_start,
             "end" : modify_loc_start + len(old_str_of_interest.decode('utf-8').partition(';')[0]) + 1,
-            "old_string" : old_str_of_interest.decode('utf-8').partition(';')[0] + old_str_of_interest.decode('utf-8').partition(';')[1],
+            "old_string" : old_str_of_interest.decode('utf-8').partition(';')[0] +
+            old_str_of_interest.decode('utf-8').partition(';')[1],
             "new_string" : ""
         })
 

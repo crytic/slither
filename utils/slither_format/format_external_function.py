@@ -18,7 +18,12 @@ class FormatExternalFunction:
                         # to external because external function parameters are allocated in calldata region which is
                         # non-modifiable. See https://solidity.readthedocs.io/en/develop/types.html#data-location
                         if not FormatExternalFunction.function_parameters_written(function):
-                            FormatExternalFunction.create_patch(slither, patches, element['source_mapping']['filename_absolute'], element['source_mapping']['filename_relative'], "public", "external", int(function.parameters_src.source_mapping['start']), int(function.returns_src.source_mapping['start']))
+                            FormatExternalFunction.create_patch(slither, patches, \
+                                                                element['source_mapping']['filename_absolute'], \
+                                                                element['source_mapping']['filename_relative'], \
+                                                                "public", "external", \
+                                                                int(function.parameters_src.source_mapping['start']), \
+                                                                int(function.returns_src.source_mapping['start']))
                             break
 
     @staticmethod
@@ -27,7 +32,6 @@ class FormatExternalFunction:
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
         m = re.search(r'((\spublic)\s+)|(\spublic)$|(\)public)$', old_str_of_interest.decode('utf-8'))
         if m is None:
-            print("None: " + old_str_of_interest.decode('utf-8'))
             # No visibility specifier exists; public by default.
             patches[in_file_relative].append({
                 "file" : in_file,
