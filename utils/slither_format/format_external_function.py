@@ -25,8 +25,9 @@ class FormatExternalFunction:
     def create_patch(slither, patches, in_file, in_file_relative, match_text, replace_text, modify_loc_start, modify_loc_end):
         in_file_str = slither.source_code[in_file].encode('utf-8')
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-        m = re.search(" public", old_str_of_interest.decode('utf-8'))
+        m = re.search(r'((\spublic)\s+)|(\spublic)$|(\)public)$', old_str_of_interest.decode('utf-8'))
         if m is None:
+            print("None: " + old_str_of_interest.decode('utf-8'))
             # No visibility specifier exists; public by default.
             patches[in_file_relative].append({
                 "file" : in_file,
@@ -41,7 +42,7 @@ class FormatExternalFunction:
                 "file" : in_file,
                 "detector" : "external-function",
                 "start" : modify_loc_start + m.span()[0] + 1,
-                "end" : modify_loc_start + m.span()[1],
+                "end" : modify_loc_start + m.span()[0] + 1 + 6,
                 "old_string" : match_text,
                 "new_string" : replace_text
             })

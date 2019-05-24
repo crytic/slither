@@ -99,3 +99,23 @@ contract InternalCall {
     }
 
 }
+
+contract publicKeywordTest {
+
+  modifier publicMod() {
+    _;
+  }
+  
+  function test1(uint k) public{
+  }
+
+  function test2() publicMod {
+  }
+
+  function test3() publicMod public {
+  }
+  
+  function test4(uint k)public{
+  }
+
+}
