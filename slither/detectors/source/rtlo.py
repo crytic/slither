@@ -58,6 +58,7 @@ contract Token
 
             if found:
                 json = self.generate_json_result(info)
+                self.add_other_to_json("rtlo-character", (filename, 0, 0), json)
                 results.append(json)
 
         return results
