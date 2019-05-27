@@ -12,13 +12,13 @@ from slither.slithir.operations import InternalCall
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.identifier import Identifier
-from slither_format.format_unused_state import FormatUnusedState
-from slither_format.format_solc_version import FormatSolcVersion
-from slither_format.format_pragma import FormatPragma
-from slither_format.format_naming_convention import FormatNamingConvention
-from slither_format.format_external_function import FormatExternalFunction
-from slither_format.format_constable_states import FormatConstableStates
-from slither_format.format_constant_function import FormatConstantFunction
+from .format_unused_state import FormatUnusedState
+from .format_solc_version import FormatSolcVersion
+from .format_pragma import FormatPragma
+from .format_naming_convention import FormatNamingConvention
+from .format_external_function import FormatExternalFunction
+from .format_constable_states import FormatConstableStates
+from .format_constant_function import FormatConstantFunction
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('Slither.Format')
