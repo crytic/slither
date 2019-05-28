@@ -35,8 +35,10 @@ class FormatSolcVersion:
             version = versions[0]
             minor_version = '.'.join(version[2:])[2]
             if minor_version == '4':
+                # Replace with 0.4.25
                 return "pragma solidity " + FormatSolcVersion.REPLACEMENT_VERSIONS[0] + ';'
             elif minor_version == '5':
+                # Replace with 0.5.3
                 return "pragma solidity " + FormatSolcVersion.REPLACEMENT_VERSIONS[1] + ';'
             else:
                 logger.error(red("Unknown version!"))
@@ -47,8 +49,10 @@ class FormatSolcVersion:
             minor_version_left = '.'.join(version_left[2:])[2]
             minor_version_right = '.'.join(version_right[2:])[2]
             if minor_version_right == '4':
+                # Replace with 0.4.25
                 return "pragma solidity " + FormatSolcVersion.REPLACEMENT_VERSIONS[0] + ';'
             elif minor_version_right in ['5','6']:
+                # Replace with 0.5.3
                 return "pragma solidity " + FormatSolcVersion.REPLACEMENT_VERSIONS[1] + ';'
             
     @staticmethod

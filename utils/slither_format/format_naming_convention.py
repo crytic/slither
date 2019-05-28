@@ -94,9 +94,12 @@ class FormatNamingConvention:
     def create_patch_contract_definition(slither, patches, name, in_file, in_file_relative, modify_loc_start, modify_loc_end):
         in_file_str = slither.source_code[in_file].encode('utf-8')
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+        # Locate the name following keywords `contract` | `interface` | `library`
         m = re.match(r'(.*)'+"(contract|interface|library)"+r'(.*)'+name, old_str_of_interest.decode('utf-8'))
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
-        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+r'(contract|interface|library)'+r'(.*)'+name, r'\1'+r'\2'+r'\3'+name.capitalize(),
+        # Capitalize the name
+        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+r'(contract|interface|library)'+r'(.*)'+name,
+                                                  r'\1'+r'\2'+r'\3'+name.capitalize(), 
                                                   old_str_of_interest.decode('utf-8'), 1)
         if num_repl != 0:
             patch = {
@@ -146,6 +149,7 @@ class FormatNamingConvention:
                         if (str(v.type) == name):
                             old_str_of_interest = in_file_str[v.source_mapping['start']:(v.source_mapping['start'] +
                                                                                          v.source_mapping['length'])]
+                            # Get only the contract variable name even if it is initialised
                             old_str_of_interest = old_str_of_interest.decode('utf-8').split('=')[0]
                             (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
                             patch = {
@@ -165,17 +169,19 @@ class FormatNamingConvention:
                             if isinstance(ir, NewContract) and ir.contract_name == name:
                                 old_str_of_interest = in_file_str[node.source_mapping['start']:node.source_mapping['start'] +
                                                                   node.source_mapping['length']]
+                                # Search for the name after the `new` keyword
                                 m = re.search("new"+r'(.*)'+name, old_str_of_interest.decode('utf-8'))
                                 # Skip rare cases where re search fails. To-do: Investigate
                                 if not m:
                                     continue
                                 old_str_of_interest = old_str_of_interest.decode('utf-8')[m.span()[0]:]
-                                (new_str_of_interest, num_repl) = re.subn("new"+r'(.*)'+name, "new"+r'\1'+name[0].upper() +
-                                                                          name[1:], old_str_of_interest, 1)
+                                (new_str_of_interest, num_repl) = re.subn("new"+r'(.*)'+name, "new"+r'\1'+name.capitalize(),
+                                                                          old_str_of_interest, 1)
                                 if num_repl != 0:
                                     patch = {
                                         "file" : in_file,
                                         "detector" : "naming-convention (contract new object)",
+                                        # start after the `new` keyword where the name begins
                                         "start" : node.source_mapping['start'] + m.span()[0],
                                         "end" : node.source_mapping['start'] + m.span()[1],
                                         "old_string" : old_str_of_interest,
@@ -198,8 +204,10 @@ class FormatNamingConvention:
             if modifier.name == name:
                 in_file_str = slither.source_code[in_file].encode('utf-8')
                 old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                # Search for the modifier name after the `modifier` keyword  
                 m = re.match(r'(.*)'+"modifier"+r'(.*)'+name, old_str_of_interest.decode('utf-8'))
                 old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
+                # Change the first letter of the modifier name to lowercase
                 (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"modifier"+r'(.*)'+name, r'\1'+"modifier"+r'\2' +
                                                           name[0].lower()+name[1:], old_str_of_interest.decode('utf-8'), 1)
                 if num_repl != 0:
@@ -228,8 +236,12 @@ class FormatNamingConvention:
                 for m  in function.modifiers:
                     if (m.name == name):
                         in_file_str = slither.source_code[in_file].encode('utf-8')
+                        # Get the text from function parameters until the return statement or function body beginning
+                        # This text will include parameter declarations, any Solidity keywords and modifier call
+                        # Parameter names cannot collide with modifier name per Solidity rules
                         old_str_of_interest = in_file_str[int(function.parameters_src.source_mapping['start']):
                                                           int(function.returns_src.source_mapping['start'])]
+                        # Change the first letter of the modifier name (if present) to lowercase
                         (new_str_of_interest, num_repl) = re.subn(name, name[0].lower()+name[1:],
                                                                   old_str_of_interest.decode('utf-8'),1)
                         if num_repl != 0:
@@ -258,8 +270,10 @@ class FormatNamingConvention:
             if function.name == name:
                 in_file_str = slither.source_code[in_file].encode('utf-8')
                 old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                # Search for the function name after the `function` keyword  
                 m = re.match(r'(.*)'+"function"+r'\s*'+name, old_str_of_interest.decode('utf-8'))
                 old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
+                # Change the first letter of the function name to lowercase
                 (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"function"+r'(.*)'+name, r'\1'+"function"+r'\2'+
                                                           name[0].lower()+name[1:], old_str_of_interest.decode('utf-8'), 1)
                 if num_repl != 0:
@@ -282,17 +296,22 @@ class FormatNamingConvention:
         for contract in slither.contracts:
             for function in contract.functions:
                 for node in function.nodes:
+                    # Function call from another contract
                     for high_level_call in node.high_level_calls:
                         if (high_level_call[0].name == contract_name and high_level_call[1].name == name):                    
                             for external_call in node.external_calls_as_expressions:
+                                # Check the called function name
                                 called_function = str(external_call.called).split('.')[-1]
                                 if called_function == high_level_call[1].name:
                                     in_file_str = slither.source_code[in_file].encode('utf-8')
                                     old_str_of_interest = in_file_str[int(external_call.source_mapping['start']):
                                                                       int(external_call.source_mapping['start']) +
                                                                       int(external_call.source_mapping['length'])]
+                                    # Get the called function name. To-do: Check if we need to avoid parameters
                                     called_function_name = old_str_of_interest.decode('utf-8').split('.')[-1]
+                                    # Convert first letter of name to lowercase
                                     fixed_function_name = called_function_name[0].lower() + called_function_name[1:]
+                                    # Reconstruct the entire call
                                     new_string = '.'.join(old_str_of_interest.decode('utf-8').split('.')[:-1]) + '.' + \
                                     fixed_function_name
                                     patch = {
@@ -306,17 +325,20 @@ class FormatNamingConvention:
                                     }
                                     if not patch in patches[in_file_relative]:
                                         patches[in_file_relative].append(patch)
+                    # Function call from within same contract
                     for internal_call in node.internal_calls_as_expressions:
                         if (str(internal_call.called) == name):
                             in_file_str = slither.source_code[in_file].encode('utf-8')
                             old_str_of_interest = in_file_str[int(internal_call.source_mapping['start']):
                                                               int(internal_call.source_mapping['start']) +
                                                               int(internal_call.source_mapping['length'])]
+                            # Get the called function name and avoid parameters
                             old_str_of_interest = old_str_of_interest.decode('utf-8').split('(')[0]
                             patch = {
                                 "file" : in_file,
                                 "detector" : "naming-convention (function calls)",
                                 "start" : internal_call.source_mapping['start'],
+                                # Avoid parameters
                                 "end" : int(internal_call.source_mapping['start']) +
                                 int(internal_call.source_mapping['length']) -
                                 len('('.join(in_file_str[int(internal_call.source_mapping['start']):
@@ -338,11 +360,13 @@ class FormatNamingConvention:
             sys.exit(-1)
         for event in target_contract.events:
             if event.name == name:
+                # Get only event name without parameters
                 event_name = name.split('(')[0]
                 in_file_str = slither.source_code[in_file].encode('utf-8')
                 old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                # Capitalize event name
                 (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"event"+r'(.*)'+event_name, r'\1'+"event"+r'\2' +
-                                                          event_name[0].capitalize()+event_name[1:],
+                                                          event_name.capitalize(),
                                                           old_str_of_interest.decode('utf-8'), 1)
                 if num_repl != 0:
                     patch = {
@@ -361,6 +385,7 @@ class FormatNamingConvention:
                             
     @staticmethod
     def create_patch_event_calls(slither, patches, name, contract_name, in_file, in_file_relative):
+        # Get only event name without parameters
         event_name = name.split('(')[0]
         target_contract = slither.get_contract_from_name(contract_name)
         if not target_contract:
@@ -381,8 +406,8 @@ class FormatNamingConvention:
                                 "start" : call.source_mapping['start'],
                                 "end" : int(call.source_mapping['start']) + int(call.source_mapping['length']),
                                 "old_string" : old_str_of_interest.decode('utf-8'),
-                                "new_string" : old_str_of_interest.decode('utf-8')[0].capitalize() +
-                                old_str_of_interest.decode('utf-8')[1:]
+                                # Capitalize event name
+                                "new_string" : old_str_of_interest.decode('utf-8').capitalize()
                             }
                             if not patch in	patches[in_file_relative]:
                                 patches[in_file_relative].append(patch)
@@ -398,12 +423,15 @@ class FormatNamingConvention:
             if function.name == function_name:
                 in_file_str = slither.source_code[in_file].encode('utf-8')
                 old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                # To-do: Change format logic below - how do we convert a name to mixedCase?
                 if(name[0] == '_'):
+                    # If parameter name begins with underscore, capitalize the letter after underscore
                     (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+name[0]+name[1].upper() +
                                                               name[2:]+r'\2', old_str_of_interest.decode('utf-8'), 1)
                 else:
-                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+name[0].upper() +
-                                                              name[1:]+r'\2', old_str_of_interest.decode('utf-8'), 1)
+                    # Add underscore and capitalize the first letter
+                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+name.capitalize() +
+                                                              r'\2', old_str_of_interest.decode('utf-8'), 1)
                 if num_repl != 0:
                     patch = {
                         "file" : in_file,
@@ -439,14 +467,17 @@ class FormatNamingConvention:
                                     modify_loc_start = int(v.source_mapping['start'])
                                     modify_loc_end = int(v.source_mapping['start']) + int(v.source_mapping['length'])
                                     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                                    # To-do: Change format logic below - how do we convert a name to mixedCase?
                                     if(name[0] == '_'):
+                                        # If parameter name begins with underscore, capitalize the letter after underscore
                                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)',
                                                                                   r'\1'+name[0]+name[1].upper()+name[2:] +
                                                                                   r'\2', old_str_of_interest.decode('utf-8'),
                                                                                   1)
                                     else:
+                                        # Add underscore and capitalize the first letter
                                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_' +
-                                                                                  name[0].upper()+name[1:]+r'\2',
+                                                                                  name.capitalize()+r'\2',
                                                                                   old_str_of_interest.decode('utf-8'), 1)
                                     if num_repl != 0:
                                         patch = {
@@ -470,20 +501,25 @@ class FormatNamingConvention:
                                     old_str_of_interest = in_file_str[modifier.source_mapping['start']:
                                                                       modifier.source_mapping['start'] +
                                                                       modifier.source_mapping['length']]
+                                    # Get text beyond modifier name which contains parameters
                                     old_str_of_interest_beyond_modifier_name = old_str_of_interest.decode('utf-8')\
                                                                                                   .split('(')[1]
+                                    # To-do: Change format logic below - how do we convert a name to mixedCase?
                                     if(name[0] == '_'):
+                                        # If parameter name begins with underscore, capitalize the letter after underscore
                                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+name[0]+
                                                                                   name[1].upper()+name[2:]+r'\2',
                                                                                   old_str_of_interest_beyond_modifier_name, 1)
                                     else:
+                                        # Add underscore and capitalize the first letter
                                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+
-                                                                                  name[0].upper()+name[1:]+r'\2',
+                                                                                  name.capitalize()+r'\2',
                                                                                   old_str_of_interest_beyond_modifier_name, 1)
                                     if num_repl != 0:
                                         patch = {
                                             "file" : in_file,
                                             "detector" : "naming-convention (parameter uses)",
+                                            # Start beyond modifier name which contains parameters
                                             "start" : modifier.source_mapping['start'] +
                                             len(old_str_of_interest.decode('utf-8').split('(')[0]) + 1,
                                             "end" : modifier.source_mapping['start'] + modifier.source_mapping['length'],
@@ -505,11 +541,13 @@ class FormatNamingConvention:
                     if (var.name == name):
                         in_file_str = slither.source_code[in_file].encode('utf-8')
                         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                        # Search for the state variable name and avoid the type
                         m = re.search(name, old_str_of_interest.decode('utf-8'))
                         # Skip rare cases where re search fails. To-do: Investigate
                         if not m:
                             continue
                         if (_target == "variable_constant"):
+                            # Convert constant state variables to upper case
                             new_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]].upper()
                         else:
                             new_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]]
@@ -517,6 +555,7 @@ class FormatNamingConvention:
                         patch = {
                             "file" : in_file,
                             "detector" : "naming-convention (state variable declaration)",
+                            # Target only the state variable name and avoid the type
                             "start" : modify_loc_start+m.span()[0],
                             "end" : modify_loc_start+m.span()[1],
                             "old_string" : old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]],
@@ -547,6 +586,7 @@ class FormatNamingConvention:
                                 in_file_str = slither.source_code[in_file].encode('utf-8')
                                 old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
                                 if (_target == "variable_constant"):
+                                    # Convert constant state variables to upper case
                                     new_str_of_interest = old_str_of_interest.decode('utf-8').upper()
                                 else:
                                     new_str_of_interest = old_str_of_interest.decode('utf-8')
@@ -571,8 +611,10 @@ class FormatNamingConvention:
                     if (enum.name == name):
                         in_file_str = slither.source_code[in_file].encode('utf-8')
                         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                        # Search for the enum name after the `enum` keyword
+                        # Capitalize enum name
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"enum"+r'(.*)'+name, r'\1'+"enum"+r'\2'+
-                                                                  name[0].capitalize()+name[1:],
+                                                                  name.capitalize(),
                                                                   old_str_of_interest.decode('utf-8'), 1)
                         if num_repl != 0:
                             patch = {
@@ -643,6 +685,7 @@ class FormatNamingConvention:
                         for ir in node.irs:
                             if isinstance(ir, Member):
                                 if str(ir.variable_left) == name:
+                                    # Skip past the assignment
                                     old_str_of_interest = in_file_str[node.source_mapping['start']:
                                                                       (node.source_mapping['start']+
                                                                        node.source_mapping['length'])].decode('utf-8')\
@@ -652,17 +695,19 @@ class FormatNamingConvention:
                                     if not m:
                                         continue
                                     old_str_of_interest = old_str_of_interest[m.span()[0]:]
-                                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name, r'\1'+name[0].upper()+name[1:],
+                                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name, r'\1'+name.capitalize(),
                                                                               old_str_of_interest, 1)
                                     if num_repl != 0:
                                         patch = {
                                             "file" : in_file,
                                             "detector" : "naming-convention (enum use)",
+                                            # Start past the assignment
 					    "start" : node.source_mapping['start'] +
                                             len(in_file_str[node.source_mapping['start']:
                                                             (node.source_mapping['start']+
                                                              node.source_mapping['length'])].decode('utf-8').split('=')[0]) +
                                             1 + m.span()[0],
+                                            # End accounts for the assignment from the start
                                             "end" : node.source_mapping['start'] +
                                             len(in_file_str[node.source_mapping['start']:(node.source_mapping['start']+
                                                                                           node.source_mapping['length'])].\
@@ -686,8 +731,9 @@ class FormatNamingConvention:
                     if (struct.name == name):
                         in_file_str = slither.source_code[in_file].encode('utf-8')
                         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                        # Capitalize the struct name beyond the keyword `struct`
                         (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"struct"+r'(.*)'+name, r'\1'+"struct"+r'\2'+
-                                                                  name[0].capitalize()+name[1:],
+                                                                  name.capitalize(),
                                                                   old_str_of_interest.decode('utf-8'), 1)
                         if num_repl != 0:
                             patch = {
