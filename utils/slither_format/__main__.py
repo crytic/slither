@@ -9,6 +9,7 @@ from crytic_compile import cryticparser
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
 
+# Slither detectors for which slither-format currently works
 available_detectors = ["unused-state",
                        "solc-version",
                        "pragma",

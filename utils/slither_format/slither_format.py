@@ -45,13 +45,21 @@ def slither_format(args, slither):
     detector_results = [item for sublist in detector_results for item in sublist]  # flatten
     results.extend(detector_results)
     number_of_slither_results = get_number_of_slither_results(detector_results)
+    # Apply slither detector results on contract files to generate patches
     apply_detector_results(slither, patches, detector_results)
+    # Sort the patches in ascending order of the source mapping i.e. from beginning of contract file to end.
+    # Multiple detectors can produce alerts on same code fragments e.g. unused-state and constable-states.
+    # The current approach makes a single pass on the contract file to apply patches.
+    # Therefore, overlapping patches are ignored for now. Neither is applied.
+    # To-do: Prioritise one detector over another (via user input or hardcoded) for overlapping patches.
     sort_and_flag_overlapping_patches(patches)
+    # Remove overlapping patches
     prune_overlapping_patches(args, patches)
     if args.verbose_json:
         print_patches_json(number_of_slither_results, patches)
     if args.verbose_test:
-        print_patches(number_of_slither_results, patches)    
+        print_patches(number_of_slither_results, patches)
+    # Generate git-compatible patch files
     generate_patch_files(slither, patches)
 
 def sort_and_flag_overlapping_patches(patches):
@@ -175,6 +183,9 @@ def choose_detectors(args):
     return detectors_to_run
 
 def apply_detector_results(slither, patches, detector_results):
+    '''
+    Apply slither detector results on contract files to generate patches
+    '''
     for result in detector_results:
         if result['check'] == 'unused-state':
             FormatUnusedState.format(slither, patches, result['elements'])
@@ -191,7 +202,7 @@ def apply_detector_results(slither, patches, detector_results):
         elif result['check'] == 'constant-function':
             FormatConstantFunction.format(slither, patches, result['elements'])
         else:
-            logger.error(red("Not Supported Yet."))
+            logger.error(red(result['check'] + "detector not supported yet."))
             sys.exit(-1)
 
 def get_number_of_slither_results (detector_results):
