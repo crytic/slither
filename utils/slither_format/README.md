@@ -30,9 +30,15 @@ Slither detectors highlight names, context and source-mapping of code constructs
 Run Slither-format on a single file:
 ``` 
 $ python3 -m slither-format ./utils/slither_format/tests/test_data/constant.sol
+```
+
+or
+
+``` 
+$ slither-format ./utils/slither_format/tests/test_data/constant.sol
 ``` 
 
-This produces `constant.sol.format` file which has all the feature replacements.
+This produces a `constant.sol.format` file which has all the feature replacements. It also produces a `constant.sol.format.patch` file which is a `git` compatible patch file that can be used to apply format diffs to the original file.
 
 ## Dependencies
 
@@ -53,5 +59,7 @@ $ python3 ./slither_format/tests/test_constant_function.py
 $ python3 ./slither_format/tests/test_solc_version.py
 $ python3 ./slither_format/tests/test_pragma.py
 $ python3 ./slither_format/tests/test_naming_convention.py
+$ python3 ./slither_format/tests/test_detector_combinations.py
 $ python3 ./slither_format/tests/run_all_tests.py
+$ python3 ./slither_format/tests/runSlitherFormat.py
 ``` 
