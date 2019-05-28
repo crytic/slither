@@ -94,9 +94,9 @@ class FormatNamingConvention:
     def create_patch_contract_definition(slither, patches, name, in_file, in_file_relative, modify_loc_start, modify_loc_end):
         in_file_str = slither.source_code[in_file].encode('utf-8')
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-        m = re.match(r'(.*)'+"contract"+r'(.*)'+name, old_str_of_interest.decode('utf-8'))
+        m = re.match(r'(.*)'+"(contract|interface|library)"+r'(.*)'+name, old_str_of_interest.decode('utf-8'))
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_start+m.span()[1]]
-        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"contract"+r'(.*)'+name, r'\1'+"contract"+r'\2'+name.capitalize(),
+        (new_str_of_interest, num_repl) = re.subn(r'(.*)'+r'(contract|interface|library)'+r'(.*)'+name, r'\1'+r'\2'+r'\3'+name.capitalize(),
                                                   old_str_of_interest.decode('utf-8'), 1)
         if num_repl != 0:
             patch = {
@@ -166,6 +166,9 @@ class FormatNamingConvention:
                                 old_str_of_interest = in_file_str[node.source_mapping['start']:node.source_mapping['start'] +
                                                                   node.source_mapping['length']]
                                 m = re.search("new"+r'(.*)'+name, old_str_of_interest.decode('utf-8'))
+                                # Skip rare cases where re search fails. To-do: Investigate
+                                if not m:
+                                    continue
                                 old_str_of_interest = old_str_of_interest.decode('utf-8')[m.span()[0]:]
                                 (new_str_of_interest, num_repl) = re.subn("new"+r'(.*)'+name, "new"+r'\1'+name[0].upper() +
                                                                           name[1:], old_str_of_interest, 1)
@@ -430,6 +433,9 @@ class FormatNamingConvention:
                                                                                      (node._local_vars_read +
                                                                                       node._local_vars_written)
                                                                                      if str(lv) == name]:
+                                    # Skip rare cases where source_mapping is absent. To-do: Investigate
+                                    if not v.source_mapping:
+                                        continue
                                     modify_loc_start = int(v.source_mapping['start'])
                                     modify_loc_end = int(v.source_mapping['start']) + int(v.source_mapping['length'])
                                     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
@@ -500,6 +506,9 @@ class FormatNamingConvention:
                         in_file_str = slither.source_code[in_file].encode('utf-8')
                         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
                         m = re.search(name, old_str_of_interest.decode('utf-8'))
+                        # Skip rare cases where re search fails. To-do: Investigate
+                        if not m:
+                            continue
                         if (_target == "variable_constant"):
                             new_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]].upper()
                         else:
@@ -639,6 +648,9 @@ class FormatNamingConvention:
                                                                        node.source_mapping['length'])].decode('utf-8')\
                                                                        .split('=')[1]
                                     m = re.search(r'(.*)'+name, old_str_of_interest)
+                                    # Skip rare cases where re search fails. To-do: Investigate
+                                    if not m:
+                                        continue
                                     old_str_of_interest = old_str_of_interest[m.span()[0]:]
                                     (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name, r'\1'+name[0].upper()+name[1:],
                                                                               old_str_of_interest, 1)
