@@ -19,6 +19,7 @@ class FormatConstableStates:
     def create_patch(slither, patches, in_file, in_file_relative, match_text, replace_text, modify_loc_start, modify_loc_end):
         in_file_str = slither.source_code[in_file].encode('utf-8')
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+        # Add keyword `constant` before the variable name
         (new_str_of_interest, num_repl) = re.subn(match_text, replace_text, old_str_of_interest.decode('utf-8'), 1)
         if num_repl != 0:
             patches[in_file_relative].append({

@@ -29,6 +29,7 @@ class FormatConstantFunction:
     def create_patch(slither, patches, in_file, in_file_relative, match_text, replace_text, modify_loc_start, modify_loc_end):
         in_file_str = slither.source_code[in_file].encode('utf-8')
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+        # Find the keywords view|pure|constant and remove them
         m = re.search("(view|pure|constant)", old_str_of_interest.decode('utf-8'))
         if m:
             patches[in_file_relative].append({
@@ -36,8 +37,8 @@ class FormatConstantFunction:
                 "detector" : "constant-function",
                 "start" : modify_loc_start + m.span()[0],
                 "end" : modify_loc_start + m.span()[1],
-                "old_string" : m.groups(0)[0],
-                "new_string" : replace_text
+                "old_string" : m.groups(0)[0], # this is view|pure|constant
+                "new_string" : replace_text # this is an empty string ""
             })
         else:
             logger.error(red("No view/pure/constant specifier exists. Regex failed to remove specifier!"))

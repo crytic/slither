@@ -16,6 +16,7 @@ class FormatUnusedState:
             "file" : in_file,
             "detector" : "unused-state",
             "start" : modify_loc_start,
+            # Remove the entire declaration until the semicolon
             "end" : modify_loc_start + len(old_str_of_interest.decode('utf-8').partition(';')[0]) + 1,
             "old_string" : old_str_of_interest.decode('utf-8').partition(';')[0] +
             old_str_of_interest.decode('utf-8').partition(';')[1],
