@@ -44,10 +44,12 @@ This produces a `constant.sol.format` file which has all the feature replacement
 
 Slither-format requires Slither and all its dependencies
 
-## Known Limitations
+## To-do List of Known Limitations
 
-* Naming convention formatting on parameter uses does not work for NatSpec @param attributes
-* Naming convention formatting on parameter uses does not work for variables used as indices on LHS (e.g. `_to` in `balances[_to] = 100`)
+* Naming convention formatting on parameter uses does not work for NatSpec @param attributes.
+* Naming convention formatting on parameter uses does not work for variables used as indices on LHS (e.g. `_to` in `balances[_to] = 100`).
+* Overlapping patches are ignored now - Apply the more important patch based on heuristics or user input.
+* Other to-do's as commented in the code.
 
 ## Developer Testing
 
