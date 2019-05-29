@@ -46,10 +46,10 @@ Slither-format requires Slither and all its dependencies
 
 ## To-do List of Known Limitations
 
-* Naming convention formatting on parameter uses does not work for NatSpec @param attributes.
-* Naming convention formatting on parameter uses does not work for variables used as indices on LHS (e.g. `_to` in `balances[_to] = 100`).
-* Overlapping patches are ignored now - Apply the more important patch based on heuristics or user input.
-* Other to-do's as commented in the code.
+1. Naming convention formatting on parameter uses does not work for NatSpec @param attributes.
+2. Naming convention formatting on parameter uses does not work for variables used as indices on LHS (e.g. `_to` in `balances[_to] = 100`).
+3. Overlapping patches are ignored now - Apply the more important patch based on heuristics or user input.
+4. Other to-do's as commented in the code.
 
 ## Developer Testing
 
@@ -60,7 +60,7 @@ $ python3 ./slither_format/tests/test_constable_states.py
 $ python3 ./slither_format/tests/test_constant_function.py
 $ python3 ./slither_format/tests/test_solc_version.py
 $ python3 ./slither_format/tests/test_pragma.py
-$ python3 ./slither_format/tests/test_naming_convention.py
+$ python3 ./slither_format/tests/test_naming_convention.py (Has one expected failure because of limitation #2.)
 $ python3 ./slither_format/tests/test_detector_combinations.py
 $ python3 ./slither_format/tests/run_all_tests.py
 $ python3 ./slither_format/tests/runSlitherFormat.py
