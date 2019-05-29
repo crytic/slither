@@ -19,7 +19,7 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
-from slither.utils.output_redirect import StandardOutputRedirect
+from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
                                         output_detectors_json, output_printers,
@@ -109,8 +109,8 @@ def output_json(filename, error, results):
         "results": results
     }
 
-    # Determine if our filename is referring to stdout
-    if filename == "-":
+    # Determine if we should output to stdout
+    if filename is None:
         # Write json to console
         print(json.dumps(json_result))
     else:
@@ -511,12 +511,16 @@ def main_impl(all_detector_classes, all_printer_classes):
     # Set colorization option
     set_colorization_enabled(not args.disable_color)
 
-    # If we are outputting json to stdout, we'll want to define some variables and redirect stdout
-    output_error = None
+    # Define some variables for potential JSON output
     json_results = {}
+    output_error = None
     outputting_json = args.json is not None
+    outputting_json_stdout = args.json == '-'
+
+    # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
+    # output.
     if outputting_json:
-        StandardOutputRedirect.enable()
+        StandardOutputCapture.enable(outputting_json_stdout)
 
     printer_classes = choose_printers(args, all_printer_classes)
     detector_classes = choose_detectors(args, all_detector_classes)
@@ -602,10 +606,10 @@ def main_impl(all_detector_classes, all_printer_classes):
 
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
     if outputting_json:
-        json_results['stdout'] = StandardOutputRedirect.get_stdout_output()
-        json_results['stderr'] = StandardOutputRedirect.get_stderr_output()
-        StandardOutputRedirect.disable()
-        output_json(args.json, output_error, json_results)
+        json_results['stdout'] = StandardOutputCapture.get_stdout_output()
+        json_results['stderr'] = StandardOutputCapture.get_stderr_output()
+        StandardOutputCapture.disable()
+        output_json(None if outputting_json_stdout else args.json, output_error, json_results)
 
     # Exit with the appropriate status code
     if output_error:
