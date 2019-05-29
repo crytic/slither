@@ -19,6 +19,7 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
+from slither.utils.output_redirect import StandardOutputRedirect
 from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
                                         output_detectors_json, output_printers,
@@ -100,27 +101,16 @@ def process_files(filenames, args, detector_classes, printer_classes):
 ###################################################################################
 
 
-def wrap_json_detectors_results(success, error_message, results=None):
-    """
-    Wrap the detector results.
-    :param success:
-    :param error_message:
-    :param results:
-    :return:
-    """
-    results_json = {}
-    if results:
-        results_json['detectors'] = results
-    return {
-        "success": success,
-        "error": error_message,
-        "results": results_json
+def output_json(filename, error, results):
+    # Create our encapsulated JSON result.
+    json_result = {
+        "success": error is None,
+        "error": error,
+        "results": results
     }
 
-
-def output_json(results, filename):
-    json_result = wrap_json_detectors_results(True, None, results)
-    if filename is None:
+    # Determine if our filename is referring to stdout
+    if filename == "-":
         # Write json to console
         print(json.dumps(json_result))
     else:
@@ -350,12 +340,10 @@ def parse_args(detector_classes, printer_classes):
                                 action='store_true',
                                 default=defaults_flag_in_config['exclude_high'])
 
-
     group_misc.add_argument('--json',
                             help='Export the results as a JSON file ("--json -" to export to stdout)',
                             action='store',
                             default=defaults_flag_in_config['json'])
-
 
     group_misc.add_argument('--disable-color',
                             help='Disable output colorization',
@@ -395,7 +383,6 @@ def parse_args(detector_classes, printer_classes):
                         help=argparse.SUPPRESS,
                         action=OutputMarkdown,
                         default=False)
-
 
     group_misc.add_argument('--checklist',
                             help=argparse.SUPPRESS,
@@ -524,10 +511,12 @@ def main_impl(all_detector_classes, all_printer_classes):
     # Set colorization option
     set_colorization_enabled(not args.disable_color)
 
-    # If we are outputting json to stdout, we'll want to disable any logging.
-    stdout_json = args.json == "-"
-    if stdout_json:
-        logging.disable(logging.CRITICAL)
+    # If we are outputting json to stdout, we'll want to define some variables and redirect stdout
+    output_error = None
+    json_results = {}
+    outputting_json = args.json is not None
+    if outputting_json:
+        StandardOutputRedirect.enable()
 
     printer_classes = choose_printers(args, all_printer_classes)
     detector_classes = choose_detectors(args, all_detector_classes)
@@ -586,8 +575,8 @@ def main_impl(all_detector_classes, all_printer_classes):
         else:
             raise Exception("Unrecognised file/dir path: '#{filename}'".format(filename=filename))
 
-        if args.json:
-            output_json(results, None if stdout_json else args.json)
+        if args.json and results:
+            json_results['detectors'] = results
         if args.checklist:
             output_results_to_markdown(results)
         # Dont print the number of result for printers
@@ -599,27 +588,30 @@ def main_impl(all_detector_classes, all_printer_classes):
             logger.info('%s analyzed (%d contracts), %d result(s) found', filename, number_contracts, len(results))
         if args.ignore_return_value:
             return
-        exit(results)
 
     except SlitherException as se:
-        # Output our error accordingly, via JSON or logging.
-        if stdout_json:
-            print(json.dumps(wrap_json_detectors_results(False, str(se), [])))
-        else:
-            logging.error(red('Error:'))
-            logging.error(red(se))
-            logging.error('Please report an issue to https://github.com/crytic/slither/issues')
-        sys.exit(-1)
+        output_error = str(se)
+        logging.error(red('Error:'))
+        logging.error(red(output_error))
+        logging.error('Please report an issue to https://github.com/crytic/slither/issues')
 
     except Exception:
-        # Output our error accordingly, via JSON or logging.
-        if stdout_json:
-            print(json.dumps(wrap_json_detectors_results(False, traceback.format_exc(), [])))
-        else:
-            logging.error('Error in %s' % args.filename)
-            logging.error(traceback.format_exc())
-        sys.exit(-1)
+        output_error = traceback.format_exc()
+        logging.error('Error in %s' % args.filename)
+        logging.error(output_error)
 
+    # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
+    if outputting_json:
+        json_results['stdout'] = StandardOutputRedirect.get_stdout_output()
+        json_results['stderr'] = StandardOutputRedirect.get_stderr_output()
+        StandardOutputRedirect.disable()
+        output_json(args.json, output_error, json_results)
+
+    # Exit with the appropriate status code
+    if output_error:
+        sys.exit(-1)
+    else:
+        exit(results)
 
 
 if __name__ == '__main__':
