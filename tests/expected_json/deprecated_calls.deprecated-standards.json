@@ -77,26 +77,23 @@
         "check": "deprecated-standards",
         "impact": "Informational",
         "confidence": "High",
-        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#7-10:\n\t- Usage of \"msg.gas\" should be replaced with \"gasleft()\"\n",
+        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#7:\n\t- Usage of \"msg.gas\" should be replaced with \"gasleft()\"\n",
         "elements": [
           {
             "type": "node",
             "name": "msg.gas == msg.value",
             "source_mapping": {
-              "start": 258,
-              "length": 107,
+              "start": 261,
+              "length": 20,
               "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
               "filename_relative": "tests/deprecated_calls.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
               "filename_short": "tests/deprecated_calls.sol",
               "lines": [
-                7,
-                8,
-                9,
-                10
+                7
               ],
-              "starting_column": 9,
-              "ending_column": 10
+              "starting_column": 12,
+              "ending_column": 32
             },
             "type_specific_fields": {
               "parent": {

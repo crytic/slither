@@ -20,6 +20,7 @@ from slither.slithir.operations import (Balance, HighLevelCall, Index,
 from slither.slithir.variables import (Constant, LocalIRVariable,
                                        ReferenceVariable, StateIRVariable,
                                        TemporaryVariable, TupleVariable)
+from slither.all_exceptions import SlitherException
 
 logger = logging.getLogger("Node")
 
@@ -44,9 +45,9 @@ class NodeType:
 
     # Merging nodes
     # Can have phi IR operation
-    ENDIF = 0x50
-    STARTLOOP = 0x51
-    ENDLOOP = 0x52
+    ENDIF = 0x50     # ENDIF node source mapping points to the if/else body
+    STARTLOOP = 0x51 # STARTLOOP node source mapping points to the entire loop body
+    ENDLOOP = 0x52   # ENDLOOP node source mapping points to the entire loop body
 
     # Below the nodes have no expression
     # But are used to expression CFG structure
@@ -715,7 +716,10 @@ class Node(SourceMapping, ChildFunction):
                 elif ir.destination == SolidityVariable('this'):
                     self._high_level_calls.append((self.function.contract, ir.function))
                 else:
-                    self._high_level_calls.append((ir.destination.type.type, ir.function))
+                    try:
+                        self._high_level_calls.append((ir.destination.type.type, ir.function))
+                    except AttributeError:
+                        raise SlitherException(f'Function not found on {ir}. Please try compiling with a recent Solidity version.')
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)
                 self._high_level_calls.append((ir.destination, ir.function))

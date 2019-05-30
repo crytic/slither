@@ -1,7 +1,7 @@
 INFO:Detectors:[92m
 Deprecated standard detected @ tests/deprecated_calls.sol#2:
 	- Usage of "block.blockhash()" should be replaced with "blockhash()"
-Deprecated standard detected @ tests/deprecated_calls.sol#7-10:
+Deprecated standard detected @ tests/deprecated_calls.sol#7:
 	- Usage of "msg.gas" should be replaced with "gasleft()"
 Deprecated standard detected @ tests/deprecated_calls.sol#9:
 	- Usage of "throw" should be replaced with "revert()"

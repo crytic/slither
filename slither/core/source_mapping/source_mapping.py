@@ -20,6 +20,7 @@ class SourceMapping(Context):
 
             Not done in an efficient way
         """
+        source_code = source_code.encode('utf-8')
         total_length = len(source_code)
         source_code = source_code.splitlines(True)
         counter = 0
@@ -29,17 +30,18 @@ class SourceMapping(Context):
         ending_column = None
         while counter < total_length:
             # Determine the length of the line, and advance the line number
-            lineLength = len(source_code[i])
+            line_content = source_code[i]
+            line_length = len(line_content)
             i = i + 1
 
             # Determine our column numbers.
-            if starting_column is None and counter + lineLength > start:
+            if starting_column is None and counter + line_length > start:
                 starting_column = (start - counter) + 1
-            if starting_column is not None and ending_column is None and counter + lineLength > start + length:
+            if starting_column is not None and ending_column is None and counter + line_length > start + length:
                 ending_column = ((start + length) - counter) + 1
 
             # Advance the current position counter, and determine line numbers.
-            counter += lineLength
+            counter += line_length
             if counter > start:
                 lines.append(i)
 
