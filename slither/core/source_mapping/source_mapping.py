@@ -88,7 +88,7 @@ class SourceMapping(Context):
             filename_relative = filenames.relative
             filename_short = filenames.short
 
-            is_dependency = any(slither.crytic_compile.is_dependency(f) for f in filenames)
+            is_dependency = slither.crytic_compile.is_dependency(filename_absolute)
 
             if filename_absolute in slither.source_code:
                 filename = filename_absolute
