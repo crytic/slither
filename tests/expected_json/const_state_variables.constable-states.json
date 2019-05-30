@@ -5,7 +5,7 @@
     "detectors": [
       {
         "check": "constable-states",
-        "impact": "Informational",
+        "impact": "Optimization",
         "confidence": "High",
         "description": "A.myFriendsAddress should be constant (tests/const_state_variables.sol#7)\n",
         "elements": [
@@ -66,7 +66,7 @@
       },
       {
         "check": "constable-states",
-        "impact": "Informational",
+        "impact": "Optimization",
         "confidence": "High",
         "description": "A.test should be constant (tests/const_state_variables.sol#10)\n",
         "elements": [
@@ -127,7 +127,7 @@
       },
       {
         "check": "constable-states",
-        "impact": "Informational",
+        "impact": "Optimization",
         "confidence": "High",
         "description": "A.text2 should be constant (tests/const_state_variables.sol#14)\n",
         "elements": [
@@ -188,7 +188,7 @@
       },
       {
         "check": "constable-states",
-        "impact": "Informational",
+        "impact": "Optimization",
         "confidence": "High",
         "description": "B.mySistersAddress should be constant (tests/const_state_variables.sol#26)\n",
         "elements": [
@@ -245,7 +245,7 @@
       },
       {
         "check": "constable-states",
-        "impact": "Informational",
+        "impact": "Optimization",
         "confidence": "High",
         "description": "MyConc.should_be_constant should be constant (tests/const_state_variables.sol#42)\n",
         "elements": [
@@ -302,7 +302,7 @@
       },
       {
         "check": "constable-states",
-        "impact": "Informational",
+        "impact": "Optimization",
         "confidence": "High",
         "description": "MyConc.should_be_constant_2 should be constant (tests/const_state_variables.sol#43)\n",
         "elements": [
