@@ -7,7 +7,7 @@
         "check": "reentrancy-eth",
         "impact": "High",
         "confidence": "Medium",
-        "description": "Reentrancy in Reentrancy.withdrawBalance() (tests/reentrancy.sol#14-21):\n\tExternal calls:\n\t- ! (msg.sender.call.value(userBalance[msg.sender])()) (tests/reentrancy.sol#17-19)\n\tState variables written after the call(s):\n\t- userBalance (tests/reentrancy.sol#20)\n",
+        "description": "Reentrancy in Reentrancy.withdrawBalance() (tests/reentrancy.sol#14-21):\n\tExternal calls:\n\t- ! (msg.sender.call.value(userBalance[msg.sender])()) (tests/reentrancy.sol#17)\n\tState variables written after the call(s):\n\t- userBalance (tests/reentrancy.sol#20)\n",
         "elements": [
           {
             "type": "function",
@@ -126,19 +126,17 @@
             "type": "node",
             "name": "! (msg.sender.call.value(userBalance[msg.sender])())",
             "source_mapping": {
-              "start": 478,
-              "length": 92,
+              "start": 482,
+              "length": 53,
               "filename_used": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
               "filename_relative": "tests/reentrancy.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
               "filename_short": "tests/reentrancy.sol",
               "lines": [
-                17,
-                18,
-                19
+                17
               ],
-              "starting_column": 9,
-              "ending_column": 10
+              "starting_column": 13,
+              "ending_column": 66
             },
             "type_specific_fields": {
               "parent": {
