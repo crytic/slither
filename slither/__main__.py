@@ -30,7 +30,7 @@ from slither.exceptions import SlitherException
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
-JSON_OUTPUT_TYPES = ["console", "detectors", "detector-types"]
+JSON_OUTPUT_TYPES = ["compilation", "console", "detectors", "detector-types"]
 
 ###################################################################################
 ###################################################################################
@@ -75,7 +75,7 @@ def _process(slither, detector_classes, printer_classes):
 
     slither.run_printers()  # Currently printers does not return results
 
-    return results, analyzed_contracts_count
+    return slither, results, analyzed_contracts_count
 
 
 def process_files(filenames, args, detector_classes, printer_classes):
@@ -576,7 +576,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         globbed_filenames = glob.glob(filename, recursive=True)
 
         if os.path.isfile(filename) or is_supported(filename):
-            (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
+            (slither, results, number_contracts) = process(filename, args, detector_classes, printer_classes)
 
         elif os.path.isdir(filename) or len(globbed_filenames) > 0:
             extension = "*.sol" if not args.solc_ast else "*.json"
@@ -586,10 +586,10 @@ def main_impl(all_detector_classes, all_printer_classes):
             number_contracts = 0
             results = []
             if args.splitted and args.solc_ast:
-                (results, number_contracts) = process_files(filenames, args, detector_classes, printer_classes)
+                (slither, results, number_contracts) = process_files(filenames, args, detector_classes, printer_classes)
             else:
                 for filename in filenames:
-                    (results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
+                    (slither, results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
                     number_contracts += number_contracts_tmp
                     results += results_tmp
 
@@ -598,6 +598,21 @@ def main_impl(all_detector_classes, all_printer_classes):
 
         # Determine if we are outputting JSON
         if outputting_json:
+            # Add our compilation information to JSON
+            if 'compilation' in args.json_types:
+                json_results['compilation'] = {
+                    "abis": slither.crytic_compile.abis,
+                    "asts": slither.crytic_compile.asts,
+                    "bytecodes_init": slither.crytic_compile.bytecodes_init,
+                    "bytecodes_runtime": slither.crytic_compile.bytecodes_runtime,
+                    "compiler_version": slither.crytic_compile.compiler_version,
+                    "contracts_filenames": { key: value._asdict() for key, value in slither.crytic_compile.contracts_filenames.items()},
+                    "filenames": [x._asdict() for x in slither.crytic_compile.filenames],
+                    "srcmaps_init": slither.crytic_compile.srcmaps_init,
+                    "srcmaps_runtime": slither.crytic_compile.srcmaps_runtime,
+                    "type": str(slither.crytic_compile.type)
+                }
+
             # Add our detector results to JSON if desired.
             if results and 'detectors' in args.json_types:
                 json_results['detectors'] = results
@@ -607,8 +622,10 @@ def main_impl(all_detector_classes, all_printer_classes):
                 detectors, _ = get_detectors_and_printers()
                 json_results['detector-types'] = get_detector_types_json(detectors)
 
+        # Output our results to markdown if we wish to compile a checklist.
         if args.checklist:
             output_results_to_markdown(results)
+
         # Dont print the number of result for printers
         if number_contracts == 0:
             logger.warn(red('No contract was analyzed'))
@@ -633,8 +650,10 @@ def main_impl(all_detector_classes, all_printer_classes):
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
     if outputting_json:
         if 'console' in args.json_types:
-            json_results['stdout'] = StandardOutputCapture.get_stdout_output()
-            json_results['stderr'] = StandardOutputCapture.get_stderr_output()
+            json_results['console'] = {
+                'stdout': StandardOutputCapture.get_stdout_output(),
+                'stderr': StandardOutputCapture.get_stderr_output()
+            }
         StandardOutputCapture.disable()
         output_json(None if outputting_json_stdout else args.json, output_error, json_results)
 
