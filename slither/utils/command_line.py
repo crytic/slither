@@ -155,7 +155,8 @@ def output_detectors(detector_classes):
         idx = idx + 1
     print(table)
 
-def output_detectors_json(detector_classes):
+
+def get_detector_types_json(detector_classes):
     detectors_list = []
     for detector in detector_classes:
         argument = detector.ARGUMENT
@@ -193,7 +194,7 @@ def output_detectors_json(detector_classes):
                       'exploit_scenario':exploit,
                       'recommendation':recommendation})
         idx = idx + 1
-    print(json.dumps(table))
+    return table
 
 def output_printers(printer_classes):
     printers_list = []
