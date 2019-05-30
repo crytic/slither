@@ -98,10 +98,7 @@ class ExternalFunction(AbstractDetector):
 
     @staticmethod
     def function_parameters_written(function):
-        for node in function.nodes:
-            if any (var.name == parameter.name for var in node.local_variables_written for parameter in function.parameters):
-                return True
-        return False
+        return any(p in function.variables_written for p in function.parameters)
 
     def _detect(self):
         results = []
