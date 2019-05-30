@@ -69,7 +69,7 @@ contract T {
 
 contract ParameterNameEmptyString {
 
-  function foo (string) {
+  function foo (uint) public {
   }
   
 }
