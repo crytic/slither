@@ -22,13 +22,15 @@ from slither.slither import Slither
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
-                                        output_detectors_json, output_printers,
+                                        get_detector_types_json, output_printers,
                                         output_to_markdown, output_wiki)
 from crytic_compile import is_supported
 from slither.exceptions import SlitherException
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
+
+JSON_OUTPUT_TYPES = ["console", "detectors", "detector-types"]
 
 ###################################################################################
 ###################################################################################
@@ -256,6 +258,7 @@ defaults_flag_in_config = {
     'solc_args': None,
     'disable_solc_warnings': False,
     'json': None,
+    'json-types': ','.join(JSON_OUTPUT_TYPES),
     'truffle_version': None,
     'disable_color': False,
     'filter_paths': None,
@@ -344,6 +347,13 @@ def parse_args(detector_classes, printer_classes):
                             help='Export the results as a JSON file ("--json -" to export to stdout)',
                             action='store',
                             default=defaults_flag_in_config['json'])
+
+    group_misc.add_argument('--json-types',
+                            help='Comma-separated list of result types to output to JSON, defaults to all, '
+                                 'available types: {}'.format(
+                                     ', '.join(output_type for output_type in JSON_OUTPUT_TYPES)),
+                            action='store',
+                            default=defaults_flag_in_config['json-types'])
 
     group_misc.add_argument('--disable-color',
                             help='Disable output colorization',
@@ -435,6 +445,12 @@ def parse_args(detector_classes, printer_classes):
         except json.decoder.JSONDecodeError as e:
             logger.error(red('Impossible to read {}, please check the file {}'.format(args.config_file, e)))
 
+    # Verify our json-type output is valid
+    args.json_types = set(args.json_types.split(','))
+    for json_type in args.json_types:
+        if json_type not in JSON_OUTPUT_TYPES:
+            raise Exception(f"Error: \"{json_type}\" is not a valid JSON result output type.")
+
     return args
 
 class ListDetectors(argparse.Action):
@@ -446,7 +462,8 @@ class ListDetectors(argparse.Action):
 class ListDetectorsJson(argparse.Action):
     def __call__(self, parser, *args, **kwargs):
         detectors, _ = get_detectors_and_printers()
-        output_detectors_json(detectors)
+        detector_types_json = get_detector_types_json(detectors)
+        print(json.dumps(detector_types_json))
         parser.exit()
 
 class ListPrinters(argparse.Action):
@@ -579,8 +596,17 @@ def main_impl(all_detector_classes, all_printer_classes):
         else:
             raise Exception("Unrecognised file/dir path: '#{filename}'".format(filename=filename))
 
-        if args.json and results:
-            json_results['detectors'] = results
+        # Determine if we are outputting JSON
+        if outputting_json:
+            # Add our detector results to JSON if desired.
+            if results and 'detectors' in args.json_types:
+                json_results['detectors'] = results
+
+            # Add our detector types to JSON
+            if 'detector-types' in args.json_types:
+                detectors, _ = get_detectors_and_printers()
+                json_results['detector-types'] = get_detector_types_json(detectors)
+
         if args.checklist:
             output_results_to_markdown(results)
         # Dont print the number of result for printers
@@ -606,8 +632,9 @@ def main_impl(all_detector_classes, all_printer_classes):
 
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
     if outputting_json:
-        json_results['stdout'] = StandardOutputCapture.get_stdout_output()
-        json_results['stderr'] = StandardOutputCapture.get_stderr_output()
+        if 'console' in args.json_types:
+            json_results['stdout'] = StandardOutputCapture.get_stdout_output()
+            json_results['stderr'] = StandardOutputCapture.get_stderr_output()
         StandardOutputCapture.disable()
         output_json(None if outputting_json_stdout else args.json, output_error, json_results)
 
