@@ -66,3 +66,10 @@ contract T {
 
     uint l = 1;
 }
+
+contract ParameterNameEmptyString {
+
+  function foo (uint) public {
+  }
+  
+}
