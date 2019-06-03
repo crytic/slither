@@ -19,6 +19,7 @@
               "filename_relative": "tests/deprecated_calls.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
               "filename_short": "tests/deprecated_calls.sol",
+              "is_dependency": false,
               "lines": [
                 2
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/deprecated_calls.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                   "filename_short": "tests/deprecated_calls.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,
@@ -89,6 +91,7 @@
               "filename_relative": "tests/deprecated_calls.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
               "filename_short": "tests/deprecated_calls.sol",
+              "is_dependency": false,
               "lines": [
                 7
               ],
@@ -106,6 +109,7 @@
                   "filename_relative": "tests/deprecated_calls.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                   "filename_short": "tests/deprecated_calls.sol",
+                  "is_dependency": false,
                   "lines": [
                     5,
                     6,
@@ -129,6 +133,7 @@
                       "filename_relative": "tests/deprecated_calls.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                       "filename_short": "tests/deprecated_calls.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,
@@ -185,6 +190,7 @@
               "filename_relative": "tests/deprecated_calls.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
               "filename_short": "tests/deprecated_calls.sol",
+              "is_dependency": false,
               "lines": [
                 9
               ],
@@ -202,6 +208,7 @@
                   "filename_relative": "tests/deprecated_calls.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                   "filename_short": "tests/deprecated_calls.sol",
+                  "is_dependency": false,
                   "lines": [
                     5,
                     6,
@@ -225,6 +232,7 @@
                       "filename_relative": "tests/deprecated_calls.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                       "filename_short": "tests/deprecated_calls.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,
@@ -281,6 +289,7 @@
               "filename_relative": "tests/deprecated_calls.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
               "filename_short": "tests/deprecated_calls.sol",
+              "is_dependency": false,
               "lines": [
                 16
               ],
@@ -298,6 +307,7 @@
                   "filename_relative": "tests/deprecated_calls.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                   "filename_short": "tests/deprecated_calls.sol",
+                  "is_dependency": false,
                   "lines": [
                     14,
                     15,
@@ -327,6 +337,7 @@
                       "filename_relative": "tests/deprecated_calls.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                       "filename_short": "tests/deprecated_calls.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,
@@ -383,6 +394,7 @@
               "filename_relative": "tests/deprecated_calls.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
               "filename_short": "tests/deprecated_calls.sol",
+              "is_dependency": false,
               "lines": [
                 19
               ],
@@ -400,6 +412,7 @@
                   "filename_relative": "tests/deprecated_calls.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                   "filename_short": "tests/deprecated_calls.sol",
+                  "is_dependency": false,
                   "lines": [
                     14,
                     15,
@@ -429,6 +442,7 @@
                       "filename_relative": "tests/deprecated_calls.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                       "filename_short": "tests/deprecated_calls.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,
@@ -485,6 +499,7 @@
               "filename_relative": "tests/deprecated_calls.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
               "filename_short": "tests/deprecated_calls.sol",
+              "is_dependency": false,
               "lines": [
                 22
               ],
@@ -502,6 +517,7 @@
                   "filename_relative": "tests/deprecated_calls.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                   "filename_short": "tests/deprecated_calls.sol",
+                  "is_dependency": false,
                   "lines": [
                     14,
                     15,
@@ -531,6 +547,7 @@
                       "filename_relative": "tests/deprecated_calls.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                       "filename_short": "tests/deprecated_calls.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,
@@ -587,6 +604,7 @@
               "filename_relative": "tests/deprecated_calls.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
               "filename_short": "tests/deprecated_calls.sol",
+              "is_dependency": false,
               "lines": [
                 25
               ],
@@ -604,6 +622,7 @@
                   "filename_relative": "tests/deprecated_calls.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                   "filename_short": "tests/deprecated_calls.sol",
+                  "is_dependency": false,
                   "lines": [
                     14,
                     15,
@@ -633,6 +652,7 @@
                       "filename_relative": "tests/deprecated_calls.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
                       "filename_short": "tests/deprecated_calls.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,
