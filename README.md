@@ -70,7 +70,7 @@ Num | Detector | What it Detects | Impact | Confidence
 29 | `low-level-calls` | [Low level calls](https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls) | Informational | High
 30 | `naming-convention` | [Conformance to Solidity naming conventions](https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions) | Informational | High
 31 | `pragma` | [If different pragma directives are used](https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used) | Informational | High
-32 | `solc-version` | [Incorrect Solidity version (< 0.4.24 or complex pragma)](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-version-of-solidity) | Informational | High
+32 | `solc-version` | [Incorrect Solidity version (< 0.4.24 or complex pragma)](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity) | Informational | High
 33 | `unused-state` | [Unused state variables](https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variables) | Informational | High
 34 | `too-many-digits` | [Conformance to numeric notation best practices](https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits) | Informational | Medium
 35 | `constable-states` | [State variables that could be declared constant](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant) | Optimization | High
