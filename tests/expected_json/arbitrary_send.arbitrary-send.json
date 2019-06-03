@@ -19,6 +19,7 @@
               "filename_relative": "tests/arbitrary_send.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send.sol",
               "filename_short": "tests/arbitrary_send.sol",
+              "is_dependency": false,
               "lines": [
                 11,
                 12,
@@ -38,6 +39,7 @@
                   "filename_relative": "tests/arbitrary_send.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send.sol",
                   "filename_short": "tests/arbitrary_send.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,
@@ -98,6 +100,7 @@
               "filename_relative": "tests/arbitrary_send.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send.sol",
               "filename_short": "tests/arbitrary_send.sol",
+              "is_dependency": false,
               "lines": [
                 12
               ],
@@ -115,6 +118,7 @@
                   "filename_relative": "tests/arbitrary_send.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send.sol",
                   "filename_short": "tests/arbitrary_send.sol",
+                  "is_dependency": false,
                   "lines": [
                     11,
                     12,
@@ -134,6 +138,7 @@
                       "filename_relative": "tests/arbitrary_send.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send.sol",
                       "filename_short": "tests/arbitrary_send.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,
@@ -204,6 +209,7 @@
               "filename_relative": "tests/arbitrary_send.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send.sol",
               "filename_short": "tests/arbitrary_send.sol",
+              "is_dependency": false,
               "lines": [
                 19,
                 20,
@@ -223,6 +229,7 @@
                   "filename_relative": "tests/arbitrary_send.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send.sol",
                   "filename_short": "tests/arbitrary_send.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,
@@ -283,6 +290,7 @@
               "filename_relative": "tests/arbitrary_send.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send.sol",
               "filename_short": "tests/arbitrary_send.sol",
+              "is_dependency": false,
               "lines": [
                 20
               ],
@@ -300,6 +308,7 @@
                   "filename_relative": "tests/arbitrary_send.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send.sol",
                   "filename_short": "tests/arbitrary_send.sol",
+                  "is_dependency": false,
                   "lines": [
                     19,
                     20,
@@ -319,6 +328,7 @@
                       "filename_relative": "tests/arbitrary_send.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/arbitrary_send.sol",
                       "filename_short": "tests/arbitrary_send.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,

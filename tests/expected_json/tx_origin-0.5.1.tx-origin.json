@@ -19,6 +19,7 @@
               "filename_relative": "tests/tx_origin-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/tx_origin-0.5.1.sol",
               "filename_short": "tests/tx_origin-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 10
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/tx_origin-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/tx_origin-0.5.1.sol",
                   "filename_short": "tests/tx_origin-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     9,
                     10,
@@ -55,6 +57,7 @@
                       "filename_relative": "tests/tx_origin-0.5.1.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/tx_origin-0.5.1.sol",
                       "filename_short": "tests/tx_origin-0.5.1.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,
@@ -108,6 +111,7 @@
               "filename_relative": "tests/tx_origin-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/tx_origin-0.5.1.sol",
               "filename_short": "tests/tx_origin-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 14
               ],
@@ -125,6 +129,7 @@
                   "filename_relative": "tests/tx_origin-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/tx_origin-0.5.1.sol",
                   "filename_short": "tests/tx_origin-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     13,
                     14,
@@ -146,6 +151,7 @@
                       "filename_relative": "tests/tx_origin-0.5.1.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/tx_origin-0.5.1.sol",
                       "filename_short": "tests/tx_origin-0.5.1.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,

@@ -19,6 +19,7 @@
               "filename_relative": "tests/inline_assembly_library-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_library-0.5.1.sol",
               "filename_short": "tests/inline_assembly_library-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 16,
                 17,
@@ -42,6 +43,7 @@
                   "filename_relative": "tests/inline_assembly_library-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_library-0.5.1.sol",
                   "filename_short": "tests/inline_assembly_library-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     5,
                     6,
@@ -105,6 +107,7 @@
               "filename_relative": "tests/inline_assembly_library-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_library-0.5.1.sol",
               "filename_short": "tests/inline_assembly_library-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 18,
                 19,
@@ -125,6 +128,7 @@
                   "filename_relative": "tests/inline_assembly_library-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_library-0.5.1.sol",
                   "filename_short": "tests/inline_assembly_library-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     16,
                     17,
@@ -148,6 +152,7 @@
                       "filename_relative": "tests/inline_assembly_library-0.5.1.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_library-0.5.1.sol",
                       "filename_short": "tests/inline_assembly_library-0.5.1.sol",
+                      "is_dependency": false,
                       "lines": [
                         5,
                         6,
@@ -221,6 +226,7 @@
               "filename_relative": "tests/inline_assembly_library-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_library-0.5.1.sol",
               "filename_short": "tests/inline_assembly_library-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 25,
                 26,
@@ -260,6 +266,7 @@
                   "filename_relative": "tests/inline_assembly_library-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_library-0.5.1.sol",
                   "filename_short": "tests/inline_assembly_library-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     5,
                     6,
@@ -323,6 +330,7 @@
               "filename_relative": "tests/inline_assembly_library-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_library-0.5.1.sol",
               "filename_short": "tests/inline_assembly_library-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 26,
                 27,
@@ -361,6 +369,7 @@
                   "filename_relative": "tests/inline_assembly_library-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_library-0.5.1.sol",
                   "filename_short": "tests/inline_assembly_library-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     25,
                     26,
@@ -400,6 +409,7 @@
                       "filename_relative": "tests/inline_assembly_library-0.5.1.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/inline_assembly_library-0.5.1.sol",
                       "filename_short": "tests/inline_assembly_library-0.5.1.sol",
+                      "is_dependency": false,
                       "lines": [
                         5,
                         6,

@@ -19,6 +19,7 @@
               "filename_relative": "tests/uninitialized-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
               "filename_short": "tests/uninitialized-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 5
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/uninitialized-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
                   "filename_short": "tests/uninitialized-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -63,6 +65,7 @@
               "filename_relative": "tests/uninitialized-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
               "filename_short": "tests/uninitialized-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 7,
                 8,
@@ -82,6 +85,7 @@
                   "filename_relative": "tests/uninitialized-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
                   "filename_short": "tests/uninitialized-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -118,6 +122,7 @@
               "filename_relative": "tests/uninitialized-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
               "filename_short": "tests/uninitialized-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 15
               ],
@@ -135,6 +140,7 @@
                   "filename_relative": "tests/uninitialized-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
                   "filename_short": "tests/uninitialized-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     14,
                     15,
@@ -167,6 +173,7 @@
               "filename_relative": "tests/uninitialized-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
               "filename_short": "tests/uninitialized-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 23,
                 24,
@@ -187,6 +194,7 @@
                   "filename_relative": "tests/uninitialized-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
                   "filename_short": "tests/uninitialized-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     14,
                     15,
@@ -228,6 +236,7 @@
               "filename_relative": "tests/uninitialized-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
               "filename_short": "tests/uninitialized-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 45
               ],
@@ -245,6 +254,7 @@
                   "filename_relative": "tests/uninitialized-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
                   "filename_short": "tests/uninitialized-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     42,
                     43,
@@ -280,6 +290,7 @@
               "filename_relative": "tests/uninitialized-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
               "filename_short": "tests/uninitialized-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 53,
                 54,
@@ -300,6 +311,7 @@
                   "filename_relative": "tests/uninitialized-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
                   "filename_short": "tests/uninitialized-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     42,
                     43,
@@ -344,6 +356,7 @@
               "filename_relative": "tests/uninitialized-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
               "filename_short": "tests/uninitialized-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 47
               ],
@@ -361,6 +374,7 @@
                   "filename_relative": "tests/uninitialized-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
                   "filename_short": "tests/uninitialized-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     42,
                     43,
@@ -396,6 +410,7 @@
               "filename_relative": "tests/uninitialized-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
               "filename_short": "tests/uninitialized-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 49,
                 50,
@@ -415,6 +430,7 @@
                   "filename_relative": "tests/uninitialized-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized-0.5.1.sol",
                   "filename_short": "tests/uninitialized-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     42,
                     43,
