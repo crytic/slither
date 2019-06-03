@@ -258,6 +258,63 @@
             }
           }
         ]
+      },
+      {
+        "check": "external-function",
+        "impact": "Optimization",
+        "confidence": "High",
+        "description": "FunctionParameterWrite.parameter_read_ok_for_external(uint256) (tests/external_function.sol#74-76) should be declared external\n",
+        "elements": [
+          {
+            "type": "function",
+            "name": "parameter_read_ok_for_external",
+            "source_mapping": {
+              "start": 1420,
+              "length": 81,
+              "filename_used": "/home/travis/build/crytic/slither/tests/external_function.sol",
+              "filename_relative": "tests/external_function.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/external_function.sol",
+              "filename_short": "tests/external_function.sol",
+              "lines": [
+                74,
+                75,
+                76
+              ],
+              "starting_column": 3,
+              "ending_column": 4
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "FunctionParameterWrite",
+                "source_mapping": {
+                  "start": 1381,
+                  "length": 234,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/external_function.sol",
+                  "filename_relative": "tests/external_function.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/external_function.sol",
+                  "filename_short": "tests/external_function.sol",
+                  "lines": [
+                    72,
+                    73,
+                    74,
+                    75,
+                    76,
+                    77,
+                    78,
+                    79,
+                    80,
+                    81,
+                    82
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "parameter_read_ok_for_external(uint256)"
+            }
+          }
+        ]
       }
     ]
   }
