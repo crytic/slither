@@ -2,8 +2,9 @@ import abc
 import re
 
 from slither.utils.colors import green, yellow, red
-
+from slither.core.source_mapping.source_mapping import SourceMapping
 from collections import OrderedDict
+
 
 class IncorrectDetectorInitialization(Exception):
     pass
@@ -33,6 +34,7 @@ classification_txt = {
     DetectorClassification.HIGH: 'High',
 }
 
+
 class AbstractDetector(metaclass=abc.ABCMeta):
     ARGUMENT = ''  # run the detector with slither.py --ARGUMENT
     HELP = ''  # help information
@@ -45,7 +47,6 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     WIKI_DESCRIPTION = ''
     WIKI_EXPLOIT_SCENARIO = ''
     WIKI_RECOMMENDATION = ''
-
 
     def __init__(self, slither, logger):
         self.slither = slither
@@ -92,7 +93,6 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                                        DetectorClassification.OPTIMIZATION]:
             raise IncorrectDetectorInitialization('CONFIDENCE is not initialized {}'.format(self.__class__.__name__))
 
-
     def _log(self, info):
         self.logger.info(self.color(info))
 
@@ -135,7 +135,6 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                     self.logger.error(yellow('Malformed input. Example of valid input: 0,1,2,3'))
         return results
 
-
     @property
     def color(self):
         return classification_colors[self.IMPACT]
@@ -162,139 +161,152 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             element['additional_fields'] = additional_fields
         return element
 
-    @staticmethod
-    def _create_parent_element(element):
+    def _create_parent_element(self, element):
         from slither.core.children.child_contract import ChildContract
         from slither.core.children.child_function import ChildFunction
         from slither.core.children.child_inheritance import ChildInheritance
         if isinstance(element, ChildInheritance):
             if element.contract_declarer:
                 contract = {'elements': []}
-                AbstractDetector.add_contract_to_json(element.contract_declarer, contract)
+                self.add_contract_to_json(element.contract_declarer, contract)
                 return contract['elements'][0]
         elif isinstance(element, ChildContract):
             if element.contract:
                 contract = {'elements': []}
-                AbstractDetector.add_contract_to_json(element.contract, contract)
+                self.add_contract_to_json(element.contract, contract)
                 return contract['elements'][0]
         elif isinstance(element, ChildFunction):
             if element.function:
                 function = {'elements': []}
-                AbstractDetector.add_function_to_json(element.function, function)
+                self.add_function_to_json(element.function, function)
                 return function['elements'][0]
         return None
 
-    @staticmethod
-    def add_variable_to_json(variable, d, additional_fields={}):
+    def add_variable_to_json(self, variable, d, additional_fields={}):
         type_specific_fields = {
-            'parent': AbstractDetector._create_parent_element(variable)
+            'parent': self._create_parent_element(variable)
         }
-        element = AbstractDetector._create_base_element('variable',
-                                                        variable.name,
-                                                        variable.source_mapping,
-                                                        type_specific_fields,
-                                                        additional_fields)
+        element = self._create_base_element('variable',
+                                            variable.name,
+                                            variable.source_mapping,
+                                            type_specific_fields,
+                                            additional_fields)
         d['elements'].append(element)
 
-    @staticmethod
-    def add_variables_to_json(variables, d):
+    def add_variables_to_json(self, variables, d):
         for variable in sorted(variables, key=lambda x:x.name):
-            AbstractDetector.add_variable_to_json(variable, d)
+            self.add_variable_to_json(variable, d)
 
-    @staticmethod
-    def add_contract_to_json(contract, d, additional_fields={}):
-        element = AbstractDetector._create_base_element('contract',
-                                                        contract.name,
-                                                        contract.source_mapping,
-                                                        {},
-                                                        additional_fields)
+    def add_contract_to_json(self, contract, d, additional_fields={}):
+        element = self._create_base_element('contract',
+                                            contract.name,
+                                            contract.source_mapping,
+                                            {},
+                                            additional_fields)
         d['elements'].append(element)
 
-    @staticmethod
-    def add_function_to_json(function, d, additional_fields={}):
+    def add_function_to_json(self, function, d, additional_fields={}):
         type_specific_fields = {
-            'parent': AbstractDetector._create_parent_element(function),
+            'parent': self._create_parent_element(function),
             'signature': function.full_name
         }
-        element = AbstractDetector._create_base_element('function',
-                                                        function.name,
-                                                        function.source_mapping,
-                                                        type_specific_fields,
-                                                        additional_fields)
+        element = self._create_base_element('function',
+                                            function.name,
+                                            function.source_mapping,
+                                            type_specific_fields,
+                                            additional_fields)
         d['elements'].append(element)
 
-
-    @staticmethod
-    def add_functions_to_json(functions, d, additional_fields={}):
+    def add_functions_to_json(self, functions, d, additional_fields={}):
         for function in sorted(functions, key=lambda x: x.name):
-            AbstractDetector.add_function_to_json(function, d, additional_fields)
+            self.add_function_to_json(function, d, additional_fields)
 
-    @staticmethod
-    def add_enum_to_json(enum, d, additional_fields={}):
+    def add_enum_to_json(self, enum, d, additional_fields={}):
         type_specific_fields = {
-            'parent': AbstractDetector._create_parent_element(enum)
+            'parent': self._create_parent_element(enum)
         }
-        element = AbstractDetector._create_base_element('enum',
-                                                        enum.name,
-                                                        enum.source_mapping,
-                                                        type_specific_fields,
-                                                        additional_fields)
+        element = self._create_base_element('enum',
+                                            enum.name,
+                                            enum.source_mapping,
+                                            type_specific_fields,
+                                            additional_fields)
         d['elements'].append(element)
 
-    @staticmethod
-    def add_struct_to_json(struct, d, additional_fields={}):
+    def add_struct_to_json(self, struct, d, additional_fields={}):
         type_specific_fields = {
-            'parent': AbstractDetector._create_parent_element(struct)
+            'parent': self._create_parent_element(struct)
         }
-        element = AbstractDetector._create_base_element('struct',
-                                                        struct.name,
-                                                        struct.source_mapping,
-                                                        type_specific_fields,
-                                                        additional_fields)
+        element = self._create_base_element('struct',
+                                            struct.name,
+                                            struct.source_mapping,
+                                            type_specific_fields,
+                                            additional_fields)
         d['elements'].append(element)
 
-    @staticmethod
-    def add_event_to_json(event, d, additional_fields={}):
+    def add_event_to_json(self, event, d, additional_fields={}):
         type_specific_fields = {
-            'parent': AbstractDetector._create_parent_element(event),
+            'parent': self._create_parent_element(event),
             'signature': event.full_name
         }
-        element = AbstractDetector._create_base_element('event',
-                                                        event.name,
-                                                        event.source_mapping,
-                                                        type_specific_fields,
-                                                        additional_fields)
+        element = self._create_base_element('event',
+                                            event.name,
+                                            event.source_mapping,
+                                            type_specific_fields,
+                                            additional_fields)
 
         d['elements'].append(element)
 
-    @staticmethod
-    def add_node_to_json(node, d, additional_fields={}):
+    def add_node_to_json(self, node, d, additional_fields={}):
         type_specific_fields = {
-            'parent': AbstractDetector._create_parent_element(node),
+            'parent': self._create_parent_element(node),
         }
         node_name = str(node.expression) if node.expression else ""
-        element = AbstractDetector._create_base_element('node',
-                                                        node_name,
-                                                        node.source_mapping,
-                                                        type_specific_fields,
-                                                        additional_fields)
+        element = self._create_base_element('node',
+                                            node_name,
+                                            node.source_mapping,
+                                            type_specific_fields,
+                                            additional_fields)
         d['elements'].append(element)
 
-
-    @staticmethod
-    def add_nodes_to_json(nodes, d):
+    def add_nodes_to_json(self, nodes, d):
         for node in sorted(nodes, key=lambda x: x.node_id):
-            AbstractDetector.add_node_to_json(node, d)
+            self.add_node_to_json(node, d)
 
-    @staticmethod
-    def add_pragma_to_json(pragma, d, additional_fields={}):
+    def add_pragma_to_json(self, pragma, d, additional_fields={}):
         type_specific_fields = {
             'directive': pragma.directive
         }
-        element = AbstractDetector._create_base_element('pragma',
-                                                        pragma.version,
-                                                        pragma.source_mapping,
-                                                        type_specific_fields,
-                                                        additional_fields)
+        element = self._create_base_element('pragma',
+                                            pragma.version,
+                                            pragma.source_mapping,
+                                            type_specific_fields,
+                                            additional_fields)
+        d['elements'].append(element)
 
+    def add_other_to_json(self, name, source_mapping, d, additional_fields={}):
+        # If this a tuple with (filename, start, end), convert it to a source mapping.
+        if isinstance(source_mapping, tuple):
+            # Parse the source id
+            (filename, start, end) = source_mapping
+            source_id = next((source_unit_id for (source_unit_id, source_unit_filename) in self.slither.source_units.items() if source_unit_filename == filename), -1)
+
+            # Convert to a source mapping string
+            source_mapping = f"{start}:{end}:{source_id}"
+
+        # If this is a source mapping string, parse it.
+        if isinstance(source_mapping, str):
+            source_mapping_str = source_mapping
+            source_mapping = SourceMapping()
+            source_mapping.set_offset(source_mapping_str, self.slither)
+
+        # If this is a source mapping object, get the underlying source mapping dictionary
+        if isinstance(source_mapping, SourceMapping):
+            source_mapping = source_mapping.source_mapping
+
+        # Create the underlying element and add it to our resulting json
+        element = self._create_base_element('other',
+                                            name,
+                                            source_mapping,
+                                            {},
+                                            additional_fields)
         d['elements'].append(element)
