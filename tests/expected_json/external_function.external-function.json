@@ -261,7 +261,7 @@
       },
       {
         "check": "external-function",
-        "impact": "Informational",
+        "impact": "Optimization",
         "confidence": "High",
         "description": "FunctionParameterWrite.parameter_read_ok_for_external(uint256) (tests/external_function.sol#74-76) should be declared external\n",
         "elements": [
