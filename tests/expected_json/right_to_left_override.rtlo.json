@@ -7,8 +7,26 @@
         "check": "rtlo",
         "impact": "High",
         "confidence": "High",
-        "description": "/home/travis/build/crytic/slither/tests/right_to_left_override.sol contains a unicode right-to-left-override character:\n\t-         test1(/*A\u202e/*B*/2 , 1/*\u202d\n",
-        "elements": []
+        "description": "/home/travis/build/crytic/slither/tests/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:\n\t- b'        test1(/*A\\xe2\\x80\\xae/*B*/2 , 1/*\\xe2\\x80\\xad'\n",
+        "elements": [
+          {
+            "type": "other",
+            "name": "rtlo-character",
+            "source_mapping": {
+              "start": 96,
+              "length": 3,
+              "filename_used": "/home/travis/build/crytic/slither/tests/right_to_left_override.sol",
+              "filename_relative": "tests/right_to_left_override.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/right_to_left_override.sol",
+              "filename_short": "tests/right_to_left_override.sol",
+              "lines": [
+                7
+              ],
+              "starting_column": 18,
+              "ending_column": 21
+            }
+          }
+        ]
       }
     ]
   }

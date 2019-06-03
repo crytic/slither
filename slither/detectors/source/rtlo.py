@@ -48,26 +48,32 @@ contract Token
 
     def _detect(self):
         results = []
+        pattern = re.compile(".*\u202e.*".encode('utf-8'))
 
         for filename, source in self.slither.source_code.items():
             # Attempt to find all RTLO characters in this source file.
-            source_encoded = source.encode('utf-8')
+            original_source_encoded = source.encode('utf-8')
             start_index = 0
 
             # Keep searching all file contents for the character.
             while True:
-                result_index = source_encoded.find(self.RTLO_CHARACTER_ENCODED, start_index)
+                source_encoded = original_source_encoded[start_index:]
+                result_index = source_encoded.find(self.RTLO_CHARACTER_ENCODED)
 
                 # If we couldn't find the character in the remainder of source, stop.
                 if result_index == -1:
                     break
                 else:
                     # We found another instance of the character, define our output
-                    info = f"{filename} contains a unicode right-to-left-override character at byte offset {result_index}"
+                    idx = start_index + result_index
+                    info = f"{filename} contains a unicode right-to-left-override character at byte offset {idx}:\n"
 
+                    # We have a patch, so pattern.find will return at least one result
+
+                    info += f"\t- {pattern.findall(source_encoded)[0]}\n"
                     json = self.generate_json_result(info)
                     self.add_other_to_json("rtlo-character",
-                                           (filename, result_index, len(self.RTLO_CHARACTER_ENCODED)), json)
+                                           (filename, idx, len(self.RTLO_CHARACTER_ENCODED)), json)
                     results.append(json)
 
                     # Advance the start index for the next iteration
