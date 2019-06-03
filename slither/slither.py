@@ -33,6 +33,7 @@ class Slither(SlitherSolc):
                 ast_format (str): ast format (default '--ast-compact-json')
                 filter_paths (list(str)): list of path to filter (default [])
                 triage_mode (bool): if true, switch to triage mode (default false)
+                exclude_dependencies (bool): if true, exclude results that are only related to dependencies
 
                 truffle_ignore (bool): ignore truffle.js presence (default false)
                 truffle_build_directory (str): build truffle directory (default 'build/contracts')
@@ -66,6 +67,8 @@ class Slither(SlitherSolc):
         filter_paths = kwargs.get('filter_paths', [])
         for p in filter_paths:
             self.add_path_to_filter(p)
+
+        self._exclude_dependencies = kwargs.get('exclude_dependencies', False)
 
         triage_mode = kwargs.get('triage_mode', False)
         self._triage_mode = triage_mode
