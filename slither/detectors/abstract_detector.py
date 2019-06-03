@@ -14,17 +14,20 @@ class DetectorClassification:
     MEDIUM = 1
     LOW = 2
     INFORMATIONAL = 3
+    OPTIMIZATION = 4
 
 
 classification_colors = {
     DetectorClassification.INFORMATIONAL: green,
+    DetectorClassification.OPTIMIZATION: green,
     DetectorClassification.LOW: green,
     DetectorClassification.MEDIUM: yellow,
-    DetectorClassification.HIGH: red,
+    DetectorClassification.HIGH: red
 }
 
 classification_txt = {
     DetectorClassification.INFORMATIONAL: 'Informational',
+    DetectorClassification.OPTIMIZATION: 'Optimization',
     DetectorClassification.LOW: 'Low',
     DetectorClassification.MEDIUM: 'Medium',
     DetectorClassification.HIGH: 'High',
@@ -65,7 +68,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if not self.WIKI_DESCRIPTION:
             raise IncorrectDetectorInitialization('WIKI_DESCRIPTION is not initialized {}'.format(self.__class__.__name__))
 
-        if not self.WIKI_EXPLOIT_SCENARIO and self.IMPACT != DetectorClassification.INFORMATIONAL:
+        if not self.WIKI_EXPLOIT_SCENARIO and self.IMPACT not in [DetectorClassification.INFORMATIONAL,
+                                                                      DetectorClassification.OPTIMIZATION]:
             raise IncorrectDetectorInitialization('WIKI_EXPLOIT_SCENARIO is not initialized {}'.format(self.__class__.__name__))
 
         if not self.WIKI_RECOMMENDATION:
@@ -77,13 +81,15 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if self.IMPACT not in [DetectorClassification.LOW,
                                        DetectorClassification.MEDIUM,
                                        DetectorClassification.HIGH,
-                                       DetectorClassification.INFORMATIONAL]:
+                                       DetectorClassification.INFORMATIONAL,
+                                       DetectorClassification.OPTIMIZATION]:
             raise IncorrectDetectorInitialization('IMPACT is not initialized {}'.format(self.__class__.__name__))
 
         if self.CONFIDENCE not in [DetectorClassification.LOW,
                                        DetectorClassification.MEDIUM,
                                        DetectorClassification.HIGH,
-                                       DetectorClassification.INFORMATIONAL]:
+                                       DetectorClassification.INFORMATIONAL,
+                                       DetectorClassification.OPTIMIZATION]:
             raise IncorrectDetectorInitialization('CONFIDENCE is not initialized {}'.format(self.__class__.__name__))
 
 

@@ -18,7 +18,7 @@ class ConstCandidateStateVars(AbstractDetector):
 
     ARGUMENT = 'constable-states'
     HELP = 'State variables that could be declared constant'
-    IMPACT = DetectorClassification.INFORMATIONAL
+    IMPACT = DetectorClassification.OPTIMIZATION
     CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant'
