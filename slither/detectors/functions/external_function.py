@@ -13,7 +13,7 @@ class ExternalFunction(AbstractDetector):
 
     ARGUMENT = 'external-function'
     HELP = 'Public function that could be declared as external'
-    IMPACT = DetectorClassification.INFORMATIONAL
+    IMPACT = DetectorClassification.OPTIMIZATION
     CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-as-external'
