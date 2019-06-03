@@ -19,6 +19,7 @@
               "filename_relative": "tests/right_to_left_override.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/right_to_left_override.sol",
               "filename_short": "tests/right_to_left_override.sol",
+              "is_dependency": false,
               "lines": [
                 7
               ],

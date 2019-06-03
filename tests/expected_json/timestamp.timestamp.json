@@ -19,6 +19,7 @@
               "filename_relative": "tests/timestamp.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
               "filename_short": "tests/timestamp.sol",
+              "is_dependency": false,
               "lines": [
                 4,
                 5,
@@ -38,6 +39,7 @@
                   "filename_relative": "tests/timestamp.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
                   "filename_short": "tests/timestamp.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,
@@ -77,6 +79,7 @@
               "filename_relative": "tests/timestamp.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
               "filename_short": "tests/timestamp.sol",
+              "is_dependency": false,
               "lines": [
                 5
               ],
@@ -94,6 +97,7 @@
                   "filename_relative": "tests/timestamp.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
                   "filename_short": "tests/timestamp.sol",
+                  "is_dependency": false,
                   "lines": [
                     4,
                     5,
@@ -113,6 +117,7 @@
                       "filename_relative": "tests/timestamp.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
                       "filename_short": "tests/timestamp.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,
@@ -162,6 +167,7 @@
               "filename_relative": "tests/timestamp.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
               "filename_short": "tests/timestamp.sol",
+              "is_dependency": false,
               "lines": [
                 8,
                 9,
@@ -182,6 +188,7 @@
                   "filename_relative": "tests/timestamp.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
                   "filename_short": "tests/timestamp.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,
@@ -221,6 +228,7 @@
               "filename_relative": "tests/timestamp.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
               "filename_short": "tests/timestamp.sol",
+              "is_dependency": false,
               "lines": [
                 10
               ],
@@ -238,6 +246,7 @@
                   "filename_relative": "tests/timestamp.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
                   "filename_short": "tests/timestamp.sol",
+                  "is_dependency": false,
                   "lines": [
                     8,
                     9,
@@ -258,6 +267,7 @@
                       "filename_relative": "tests/timestamp.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
                       "filename_short": "tests/timestamp.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,
@@ -307,6 +317,7 @@
               "filename_relative": "tests/timestamp.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
               "filename_short": "tests/timestamp.sol",
+              "is_dependency": false,
               "lines": [
                 13,
                 14,
@@ -326,6 +337,7 @@
                   "filename_relative": "tests/timestamp.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
                   "filename_short": "tests/timestamp.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,
@@ -365,6 +377,7 @@
               "filename_relative": "tests/timestamp.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
               "filename_short": "tests/timestamp.sol",
+              "is_dependency": false,
               "lines": [
                 14
               ],
@@ -382,6 +395,7 @@
                   "filename_relative": "tests/timestamp.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
                   "filename_short": "tests/timestamp.sol",
+                  "is_dependency": false,
                   "lines": [
                     13,
                     14,
@@ -401,6 +415,7 @@
                       "filename_relative": "tests/timestamp.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/timestamp.sol",
                       "filename_short": "tests/timestamp.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,

@@ -19,6 +19,7 @@
               "filename_relative": null,
               "filename_absolute": null,
               "filename_short": null,
+              "is_dependency": false,
               "lines": [],
               "starting_column": null,
               "ending_column": null

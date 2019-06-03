@@ -19,6 +19,7 @@
               "filename_relative": "tests/shadowing_local_variable.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
               "filename_short": "tests/shadowing_local_variable.sol",
+              "is_dependency": false,
               "lines": [
                 25
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/shadowing_local_variable.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                   "filename_short": "tests/shadowing_local_variable.sol",
+                  "is_dependency": false,
                   "lines": [
                     25
                   ],
@@ -53,6 +55,7 @@
                       "filename_relative": "tests/shadowing_local_variable.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                       "filename_short": "tests/shadowing_local_variable.sol",
+                      "is_dependency": false,
                       "lines": [
                         16,
                         17,
@@ -85,6 +88,7 @@
               "filename_relative": "tests/shadowing_local_variable.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
               "filename_short": "tests/shadowing_local_variable.sol",
+              "is_dependency": false,
               "lines": [
                 17
               ],
@@ -102,6 +106,7 @@
                   "filename_relative": "tests/shadowing_local_variable.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                   "filename_short": "tests/shadowing_local_variable.sol",
+                  "is_dependency": false,
                   "lines": [
                     16,
                     17,
@@ -131,6 +136,7 @@
               "filename_relative": "tests/shadowing_local_variable.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
               "filename_short": "tests/shadowing_local_variable.sol",
+              "is_dependency": false,
               "lines": [
                 9
               ],
@@ -148,6 +154,7 @@
                   "filename_relative": "tests/shadowing_local_variable.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                   "filename_short": "tests/shadowing_local_variable.sol",
+                  "is_dependency": false,
                   "lines": [
                     8,
                     9,
@@ -173,6 +180,7 @@
               "filename_relative": "tests/shadowing_local_variable.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
               "filename_short": "tests/shadowing_local_variable.sol",
+              "is_dependency": false,
               "lines": [
                 4
               ],
@@ -190,6 +198,7 @@
                   "filename_relative": "tests/shadowing_local_variable.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                   "filename_short": "tests/shadowing_local_variable.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -220,6 +229,7 @@
               "filename_relative": "tests/shadowing_local_variable.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
               "filename_short": "tests/shadowing_local_variable.sol",
+              "is_dependency": false,
               "lines": [
                 25
               ],
@@ -237,6 +247,7 @@
                   "filename_relative": "tests/shadowing_local_variable.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                   "filename_short": "tests/shadowing_local_variable.sol",
+                  "is_dependency": false,
                   "lines": [
                     25
                   ],
@@ -254,6 +265,7 @@
                       "filename_relative": "tests/shadowing_local_variable.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                       "filename_short": "tests/shadowing_local_variable.sol",
+                      "is_dependency": false,
                       "lines": [
                         16,
                         17,
@@ -286,6 +298,7 @@
               "filename_relative": "tests/shadowing_local_variable.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
               "filename_short": "tests/shadowing_local_variable.sol",
+              "is_dependency": false,
               "lines": [
                 5
               ],
@@ -303,6 +316,7 @@
                   "filename_relative": "tests/shadowing_local_variable.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                   "filename_short": "tests/shadowing_local_variable.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -333,6 +347,7 @@
               "filename_relative": "tests/shadowing_local_variable.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
               "filename_short": "tests/shadowing_local_variable.sol",
+              "is_dependency": false,
               "lines": [
                 25
               ],
@@ -350,6 +365,7 @@
                   "filename_relative": "tests/shadowing_local_variable.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                   "filename_short": "tests/shadowing_local_variable.sol",
+                  "is_dependency": false,
                   "lines": [
                     25
                   ],
@@ -367,6 +383,7 @@
                       "filename_relative": "tests/shadowing_local_variable.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                       "filename_short": "tests/shadowing_local_variable.sol",
+                      "is_dependency": false,
                       "lines": [
                         16,
                         17,
@@ -399,6 +416,7 @@
               "filename_relative": "tests/shadowing_local_variable.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
               "filename_short": "tests/shadowing_local_variable.sol",
+              "is_dependency": false,
               "lines": [
                 11
               ],
@@ -416,6 +434,7 @@
                   "filename_relative": "tests/shadowing_local_variable.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                   "filename_short": "tests/shadowing_local_variable.sol",
+                  "is_dependency": false,
                   "lines": [
                     8,
                     9,
@@ -450,6 +469,7 @@
               "filename_relative": "tests/shadowing_local_variable.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
               "filename_short": "tests/shadowing_local_variable.sol",
+              "is_dependency": false,
               "lines": [
                 25
               ],
@@ -467,6 +487,7 @@
                   "filename_relative": "tests/shadowing_local_variable.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                   "filename_short": "tests/shadowing_local_variable.sol",
+                  "is_dependency": false,
                   "lines": [
                     25
                   ],
@@ -484,6 +505,7 @@
                       "filename_relative": "tests/shadowing_local_variable.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                       "filename_short": "tests/shadowing_local_variable.sol",
+                      "is_dependency": false,
                       "lines": [
                         16,
                         17,
@@ -516,6 +538,7 @@
               "filename_relative": "tests/shadowing_local_variable.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
               "filename_short": "tests/shadowing_local_variable.sol",
+              "is_dependency": false,
               "lines": [
                 20,
                 21,
@@ -536,6 +559,7 @@
                   "filename_relative": "tests/shadowing_local_variable.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                   "filename_short": "tests/shadowing_local_variable.sol",
+                  "is_dependency": false,
                   "lines": [
                     16,
                     17,
@@ -574,6 +598,7 @@
               "filename_relative": "tests/shadowing_local_variable.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
               "filename_short": "tests/shadowing_local_variable.sol",
+              "is_dependency": false,
               "lines": [
                 25
               ],
@@ -591,6 +616,7 @@
                   "filename_relative": "tests/shadowing_local_variable.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                   "filename_short": "tests/shadowing_local_variable.sol",
+                  "is_dependency": false,
                   "lines": [
                     25
                   ],
@@ -608,6 +634,7 @@
                       "filename_relative": "tests/shadowing_local_variable.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                       "filename_short": "tests/shadowing_local_variable.sol",
+                      "is_dependency": false,
                       "lines": [
                         16,
                         17,
@@ -640,6 +667,7 @@
               "filename_relative": "tests/shadowing_local_variable.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
               "filename_short": "tests/shadowing_local_variable.sol",
+              "is_dependency": false,
               "lines": [
                 13
               ],
@@ -657,6 +685,7 @@
                   "filename_relative": "tests/shadowing_local_variable.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_local_variable.sol",
                   "filename_short": "tests/shadowing_local_variable.sol",
+                  "is_dependency": false,
                   "lines": [
                     8,
                     9,
