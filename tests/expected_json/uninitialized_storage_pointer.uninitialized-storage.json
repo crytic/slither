@@ -19,6 +19,7 @@
               "filename_relative": "tests/uninitialized_storage_pointer.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
               "filename_short": "tests/uninitialized_storage_pointer.sol",
+              "is_dependency": false,
               "lines": [
                 10
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/uninitialized_storage_pointer.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
                   "filename_short": "tests/uninitialized_storage_pointer.sol",
+                  "is_dependency": false,
                   "lines": [
                     7,
                     8,
@@ -58,6 +60,7 @@
                       "filename_relative": "tests/uninitialized_storage_pointer.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
                       "filename_short": "tests/uninitialized_storage_pointer.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,
@@ -93,6 +96,7 @@
               "filename_relative": "tests/uninitialized_storage_pointer.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
               "filename_short": "tests/uninitialized_storage_pointer.sol",
+              "is_dependency": false,
               "lines": [
                 7,
                 8,
@@ -115,6 +119,7 @@
                   "filename_relative": "tests/uninitialized_storage_pointer.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/uninitialized_storage_pointer.sol",
                   "filename_short": "tests/uninitialized_storage_pointer.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,

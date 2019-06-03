@@ -19,6 +19,7 @@
               "filename_relative": "tests/const_state_variables.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_short": "tests/const_state_variables.sol",
+              "is_dependency": false,
               "lines": [
                 7
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/const_state_variables.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
                   "filename_short": "tests/const_state_variables.sol",
+                  "is_dependency": false,
                   "lines": [
                     4,
                     5,
@@ -80,6 +82,7 @@
               "filename_relative": "tests/const_state_variables.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_short": "tests/const_state_variables.sol",
+              "is_dependency": false,
               "lines": [
                 10
               ],
@@ -97,6 +100,7 @@
                   "filename_relative": "tests/const_state_variables.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
                   "filename_short": "tests/const_state_variables.sol",
+                  "is_dependency": false,
                   "lines": [
                     4,
                     5,
@@ -141,6 +145,7 @@
               "filename_relative": "tests/const_state_variables.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_short": "tests/const_state_variables.sol",
+              "is_dependency": false,
               "lines": [
                 14
               ],
@@ -158,6 +163,7 @@
                   "filename_relative": "tests/const_state_variables.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
                   "filename_short": "tests/const_state_variables.sol",
+                  "is_dependency": false,
                   "lines": [
                     4,
                     5,
@@ -202,6 +208,7 @@
               "filename_relative": "tests/const_state_variables.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_short": "tests/const_state_variables.sol",
+              "is_dependency": false,
               "lines": [
                 26
               ],
@@ -219,6 +226,7 @@
                   "filename_relative": "tests/const_state_variables.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
                   "filename_short": "tests/const_state_variables.sol",
+                  "is_dependency": false,
                   "lines": [
                     24,
                     25,
@@ -259,6 +267,7 @@
               "filename_relative": "tests/const_state_variables.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_short": "tests/const_state_variables.sol",
+              "is_dependency": false,
               "lines": [
                 42
               ],
@@ -276,6 +285,7 @@
                   "filename_relative": "tests/const_state_variables.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
                   "filename_short": "tests/const_state_variables.sol",
+                  "is_dependency": false,
                   "lines": [
                     39,
                     40,
@@ -316,6 +326,7 @@
               "filename_relative": "tests/const_state_variables.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
               "filename_short": "tests/const_state_variables.sol",
+              "is_dependency": false,
               "lines": [
                 43
               ],
@@ -333,6 +344,7 @@
                   "filename_relative": "tests/const_state_variables.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/const_state_variables.sol",
                   "filename_short": "tests/const_state_variables.sol",
+                  "is_dependency": false,
                   "lines": [
                     39,
                     40,

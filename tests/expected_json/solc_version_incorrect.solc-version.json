@@ -19,6 +19,7 @@
               "filename_relative": "tests/solc_version_incorrect.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
               "filename_short": "tests/solc_version_incorrect.sol",
+              "is_dependency": false,
               "lines": [
                 2
               ],
@@ -52,6 +53,7 @@
               "filename_relative": "tests/solc_version_incorrect.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
               "filename_short": "tests/solc_version_incorrect.sol",
+              "is_dependency": false,
               "lines": [
                 3
               ],
