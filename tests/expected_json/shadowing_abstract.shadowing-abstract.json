@@ -19,6 +19,7 @@
               "filename_relative": "tests/shadowing_abstract.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_abstract.sol",
               "filename_short": "tests/shadowing_abstract.sol",
+              "is_dependency": false,
               "lines": [
                 7
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/shadowing_abstract.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_abstract.sol",
                   "filename_short": "tests/shadowing_abstract.sol",
+                  "is_dependency": false,
                   "lines": [
                     6,
                     7,
@@ -58,6 +60,7 @@
               "filename_relative": "tests/shadowing_abstract.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_abstract.sol",
               "filename_short": "tests/shadowing_abstract.sol",
+              "is_dependency": false,
               "lines": [
                 2
               ],
@@ -75,6 +78,7 @@
                   "filename_relative": "tests/shadowing_abstract.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_abstract.sol",
                   "filename_short": "tests/shadowing_abstract.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,

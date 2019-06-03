@@ -19,6 +19,7 @@
               "filename_relative": "tests/low_level_calls.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/low_level_calls.sol",
               "filename_short": "tests/low_level_calls.sol",
+              "is_dependency": false,
               "lines": [
                 5,
                 6,
@@ -38,6 +39,7 @@
                   "filename_relative": "tests/low_level_calls.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/low_level_calls.sol",
                   "filename_short": "tests/low_level_calls.sol",
+                  "is_dependency": false,
                   "lines": [
                     4,
                     5,
@@ -62,6 +64,7 @@
               "filename_relative": "tests/low_level_calls.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/low_level_calls.sol",
               "filename_short": "tests/low_level_calls.sol",
+              "is_dependency": false,
               "lines": [
                 6
               ],
@@ -79,6 +82,7 @@
                   "filename_relative": "tests/low_level_calls.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/low_level_calls.sol",
                   "filename_short": "tests/low_level_calls.sol",
+                  "is_dependency": false,
                   "lines": [
                     5,
                     6,
@@ -98,6 +102,7 @@
                       "filename_relative": "tests/low_level_calls.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/low_level_calls.sol",
                       "filename_short": "tests/low_level_calls.sol",
+                      "is_dependency": false,
                       "lines": [
                         4,
                         5,

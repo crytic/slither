@@ -19,6 +19,7 @@
               "filename_relative": "tests/external_function.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/external_function.sol",
               "filename_short": "tests/external_function.sol",
+              "is_dependency": false,
               "lines": [
                 13,
                 14,
@@ -38,6 +39,7 @@
                   "filename_relative": "tests/external_function.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/external_function.sol",
                   "filename_short": "tests/external_function.sol",
+                  "is_dependency": false,
                   "lines": [
                     11,
                     12,
@@ -84,6 +86,7 @@
               "filename_relative": "tests/external_function.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/external_function.sol",
               "filename_short": "tests/external_function.sol",
+              "is_dependency": false,
               "lines": [
                 17,
                 18,
@@ -103,6 +106,7 @@
                   "filename_relative": "tests/external_function.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/external_function.sol",
                   "filename_short": "tests/external_function.sol",
+                  "is_dependency": false,
                   "lines": [
                     11,
                     12,
@@ -149,6 +153,7 @@
               "filename_relative": "tests/external_function.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/external_function.sol",
               "filename_short": "tests/external_function.sol",
+              "is_dependency": false,
               "lines": [
                 21,
                 22,
@@ -168,6 +173,7 @@
                   "filename_relative": "tests/external_function.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/external_function.sol",
                   "filename_short": "tests/external_function.sol",
+                  "is_dependency": false,
                   "lines": [
                     11,
                     12,
@@ -214,6 +220,7 @@
               "filename_relative": "tests/external_function.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/external_function.sol",
               "filename_short": "tests/external_function.sol",
+              "is_dependency": false,
               "lines": [
                 32,
                 33,
@@ -238,6 +245,7 @@
                   "filename_relative": "tests/external_function.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/external_function.sol",
                   "filename_short": "tests/external_function.sol",
+                  "is_dependency": false,
                   "lines": [
                     31,
                     32,
@@ -275,6 +283,7 @@
               "filename_relative": "tests/external_function.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/external_function.sol",
               "filename_short": "tests/external_function.sol",
+              "is_dependency": false,
               "lines": [
                 74,
                 75,
@@ -294,6 +303,7 @@
                   "filename_relative": "tests/external_function.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/external_function.sol",
                   "filename_short": "tests/external_function.sol",
+                  "is_dependency": false,
                   "lines": [
                     72,
                     73,
