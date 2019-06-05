@@ -31,26 +31,28 @@ class PrinterEVM(AbstractPrinter):
         for contract in self.slither.contracts_derived:
             print('Contract {}'.format(contract.name))
             contract_file = self.slither.source_code[contract.source_mapping['filename_absolute']].encode('utf-8')
+            contract_file_lines = open(contract.source_mapping['filename_absolute'],'r').readlines()
             contract_pcs = source_to_pc_mapping['mapping', contract.name]
-            print("contract_pcs: " + str(contract_pcs))
             contract_cfg = source_to_pc_mapping['cfg', contract.name]
             for function in contract.functions:
                 print(f'\tFunction {function.canonical_name}')
                 for node in function.nodes:
                     print("\t\tNode: " + str(node))
                     node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8")) + 1
-                    print('\t\t\tEVM Instructions:')
+                    print('\t\tSource line {}: {}'.format(node_source_line, contract_file_lines[node_source_line-1].rstrip()))
+                    print('\t\tEVM Instructions:')
                     node_pcs = contract_pcs.get(node_source_line, "[]")
                     for pc in node_pcs:
-                        print('\t\t\t\tINS: {}'.format(pc))
+                        print('\t\t\t{}'.format(contract_cfg.get_instruction_at(pc)))
             for modifier in contract.modifiers:
                 print('\tModifier {}'.format(modifier.canonical_name))
                 for node in modifier.nodes:
                     node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8")) + 1
+                    print('\t\tSource line {}: {}'.format(node_source_line, contract_file_lines[node_source_line-1].rstrip()))
                     print('\t\tEVM Instructions:')
                     node_pcs = contract_pcs[node_source_line]
                     for pc in node_pcs:
-                        print('\t\t\tINS: {}'.format(pc))
+                        print('\t\t\t{}'.format(contract_cfg.get_instruction_at(pc)))
 
     def _process_evm_cfg(self, slither):
         source_to_pc_mapping = {}
