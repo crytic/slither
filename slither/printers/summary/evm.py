@@ -41,18 +41,18 @@ class PrinterEVM(AbstractPrinter):
                     node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8")) + 1
                     print('\t\tSource line {}: {}'.format(node_source_line, contract_file_lines[node_source_line-1].rstrip()))
                     print('\t\tEVM Instructions:')
-                    node_pcs = contract_pcs.get(node_source_line, "[]")
+                    node_pcs = contract_pcs.get(node_source_line, [])
                     for pc in node_pcs:
-                        print('\t\t\t{}'.format(contract_cfg.get_instruction_at(pc)))
+                        print('\t\t\t0x{:x}: {}'.format(int(pc), contract_cfg.get_instruction_at(pc)))
             for modifier in contract.modifiers:
                 print('\tModifier {}'.format(modifier.canonical_name))
                 for node in modifier.nodes:
                     node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8")) + 1
-                    print('\t\tSource line {}: {}'.format(node_source_line, contract_file_lines[node_source_line-1].rstrip()))
+                    print('\t\tSource line {:x}: {}'.format(node_source_line, contract_file_lines[node_source_line-1].rstrip()))
                     print('\t\tEVM Instructions:')
-                    node_pcs = contract_pcs[node_source_line]
+                    node_pcs = contract_pcs.get(node_source_line, [])
                     for pc in node_pcs:
-                        print('\t\t\t{}'.format(contract_cfg.get_instruction_at(pc)))
+                        print('\t\t\t0x{:x}: {}'.format(int(pc), contract_cfg.get_instruction_at(pc)))
 
     def _process_evm_cfg(self, slither):
         source_to_pc_mapping = {}
