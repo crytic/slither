@@ -3,14 +3,13 @@
 """
 
 import logging
+from slither.printers.abstract_printer import AbstractPrinter
 try:
     from evm_cfg_builder.cfg import CFG
 except ImportError:
     logger.error("ERROR: in order to use evm printer, you need to install evm-cfg-builder")
     logger.error("pip install evm-cfg-builder")
     sys.exit(-1)
-from slither.printers.abstract_printer import AbstractPrinter
-from slither.utils.colors import blue, green, magenta
 
 class PrinterEVM(AbstractPrinter):
 
