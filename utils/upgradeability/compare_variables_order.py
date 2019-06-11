@@ -23,7 +23,7 @@ def compare_variables_order_implementation(v1, contract_name1, v2, contract_name
 
     new_vars = [var for var in vars_v2 if not var in vars_v1]
     for (var_type, var_name) in new_vars:
-        logger.info(green('New storage variable in {}: {} {}'.format(
+        logger.info(green('New state variable in {}: {} {}'.format(
             contract_name2,
             var_type,
             var_name
@@ -32,7 +32,7 @@ def compare_variables_order_implementation(v1, contract_name1, v2, contract_name
     missing_vars = [var for var in vars_v1 if not var in vars_v2]
     for (var_type, var_name) in missing_vars:
         issues_found = True
-        logger.info(red('Missing storage variable in {}: {} {}'.format(
+        logger.info(red('Missing state variable in {}: {} {}'.format(
             contract_name2,
             var_type,
             var_name
@@ -57,7 +57,7 @@ def compare_variables_order_proxy(implem, implem_name, proxy, proxy_name):
     issues_found = False
 
     for (var_type, var_name) in vars_proxy:
-        logger.info(yellow('Storage variable defined in proxy {}: {} {}'.format(
+        logger.info(yellow('state variable defined in proxy {}: {} {}'.format(
             proxy_name,
             var_type,
             var_name
@@ -66,7 +66,7 @@ def compare_variables_order_proxy(implem, implem_name, proxy, proxy_name):
     extra_vars = [var for var in vars_proxy if not var in vars_implem]
     for (var_type, var_name) in extra_vars:
         issues_found = True
-        logger.info(red('Extra storage variable in proxy {}: {} {}'.format(
+        logger.info(red('Extra state variable in proxy {}: {} {}'.format(
             proxy_name,
             var_type,
             var_name
@@ -95,7 +95,7 @@ def __check_vars_order(old_name, new_name, vars_v1, vars_v2):
             issues_found = True
             (v1_var_type, v1_var_name) = vars_v1[idx]
 
-            msg = 'Order of storage variables in {} does not match {}. '
+            msg = 'Order of state variables in {} does not match {}. '
             msg += 'Expected declaration #{} in {} to be {} {}'
             msg = msg.format(
                 new_name,
