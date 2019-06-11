@@ -10,7 +10,7 @@ logger = logging.getLogger("VariablesOrder")
 logger.setLevel(logging.INFO)
 
 def compare_variables_order_implementation(v1, contract_name1, v2, contract_name2):
-    logger.info(green('Run variable order checks between the ' +
+    logger.info(green('Run variable ordering checks between the ' +
         'implementations... (see https://github.com/crytic/slither/wiki/' +
         'Upgradeability-Checks#variables-order-checks)'
     ))
@@ -45,7 +45,7 @@ def compare_variables_order_implementation(v1, contract_name1, v2, contract_name
         logger.info(green('No variable ordering issues found between implementations'))
 
 def compare_variables_order_proxy(implem, implem_name, proxy, proxy_name):
-    logger.info(green('Run variable order checks between the proxy and ' +
+    logger.info(green('Run variable ordering checks between the proxy and ' +
         'implementation... (see https://github.com/crytic/slither/wiki/' +
         'Upgradeability-Checks#variables-order-checks)'
     ))
