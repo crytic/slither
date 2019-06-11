@@ -10,91 +10,113 @@ logger = logging.getLogger("VariablesOrder")
 logger.setLevel(logging.INFO)
 
 def compare_variables_order_implementation(v1, contract_name1, v2, contract_name2):
+    logger.info(green('Run variable order checks between the ' +
+        'implementations... (see https://github.com/crytic/slither/wiki/' +
+        'Upgradeability-Checks#variables-order-checks)'
+    ))
 
-    logger.info(green('Run variables order checks between implementations... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)'))
+    contract_v1 = __get_and_check_contracts_existence(v1, contract_name1)
+    contract_v2 = __get_and_check_contracts_existence(v2, contract_name2)
+    vars_v1 = __contract_state_variables(contract_v1)
+    vars_v2 = __contract_state_variables(contract_v2)
+    issues_found = False
 
-    contract_v1 = v1.get_contract_from_name(contract_name1)
-    if contract_v1 is None:
-        logger.info(red('Contract {} not found in {}'.format(contract_name1, v1.filename)))
-        exit(-1)
+    new_vars = [var for var in vars_v2 if not var in vars_v1]
+    for (var_type, var_name) in new_vars:
+        logger.info(green('New storage variable in {}: {} {}'.format(
+            contract_name2,
+            var_type,
+            var_name
+        )))
 
-    contract_v2 = v2.get_contract_from_name(contract_name2)
-    if contract_v2 is None:
-        logger.info(red('Contract {} not found in {}'.format(contract_name2, v2.filename)))
-        exit(-1)
+    missing_vars = [var for var in vars_v1 if not var in vars_v2]
+    for (var_type, var_name) in missing_vars:
+        issues_found = True
+        logger.info(red('Missing storage variable in {}: {} {}'.format(
+            contract_name2,
+            var_type,
+            var_name
+        )))
 
+    if __check_vars_order(contract_name1, contract_name2, vars_v1, vars_v2):
+        issues_found = True
 
-    order_v1 = [(variable.name, variable.type) for variable in contract_v1.state_variables if not variable.is_constant]
-    order_v2 = [(variable.name, variable.type) for variable in contract_v2.state_variables if not variable.is_constant]
-
-
-    found = False
-    for idx in range(0, len(order_v1)):
-        (v1_name, v1_type) =  order_v1[idx]
-        if len(order_v2) < idx:
-            logger.info(red('Missing variable in the new version: {} {}'.format(v1_name, v1_type)))
-            continue
-        (v2_name, v2_type) =  order_v2[idx]
-
-        if (v1_name != v2_name) or (v1_type != v2_type):
-            found = True
-            logger.info(red('Different variables between v1 and v2: {} {} -> {} {}'.format(v1_name,
-                                                                        v1_type,
-                                                                        v2_name,
-                                                                        v2_type)))
-
-    if len(order_v2) > len(order_v1):
-        new_variables = order_v2[len(order_v1):]
-        for (name, t) in new_variables:
-            logger.info(green('New variable: {} {}'.format(name, t)))
-
-    if not found:
-        logger.info(green('No variables ordering error found between implementations'))
+    if not issues_found:
+        logger.info(green('No variable ordering issues found between implementations'))
 
 def compare_variables_order_proxy(implem, implem_name, proxy, proxy_name):
+    logger.info(green('Run variable order checks between the proxy and ' +
+        'implementation... (see https://github.com/crytic/slither/wiki/' +
+        'Upgradeability-Checks#variables-order-checks)'
+    ))
 
-    logger.info(green('Run variables order checks between the implementation and the proxy... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)'))
+    contract_implem = __get_and_check_contracts_existence(implem, implem_name)
+    contract_proxy = __get_and_check_contracts_existence(proxy, proxy_name)
+    vars_implem = __contract_state_variables(contract_implem)
+    vars_proxy = __contract_state_variables(contract_proxy)
+    issues_found = False
 
-    contract_implem = implem.get_contract_from_name(implem_name)
-    if contract_implem is None:
-        logger.info(red('Contract {} not found in {}'.format(implem_name, implem.filename)))
+    for (var_type, var_name) in vars_proxy:
+        logger.info(yellow('Storage variable defined in proxy {}: {} {}'.format(
+            proxy_name,
+            var_type,
+            var_name
+        )))
+
+    extra_vars = [var for var in vars_proxy if not var in vars_implem]
+    for (var_type, var_name) in extra_vars:
+        issues_found = True
+        logger.info(red('Extra storage variable in proxy {}: {} {}'.format(
+            proxy_name,
+            var_type,
+            var_name
+        )))
+
+    if __check_vars_order(implem_name, proxy_name, vars_proxy, vars_implem):
+        issues_found = True
+
+    if not issues_found:
+        logger.info(green('No variable ordering issues found between proxy and implementation'))
+
+def __get_and_check_contracts_existence(source, name):
+    contract = source.get_contract_from_name(name)
+    if contract is None:
+        logger.info(red('Contract {} not found in {}'.format(
+            name,
+            source.filename
+        )))
         exit(-1)
+    return contract
 
-    contract_proxy = proxy.get_contract_from_name(proxy_name)
-    if contract_proxy is None:
-        logger.info(red('Contract {} not found in {}'.format(proxy_name, proxy.filename)))
-        exit(-1)
+def __check_vars_order(old_name, new_name, vars_v1, vars_v2):
+    issues_found = False
+    for idx in range(len(vars_v1)):
+        if idx >= len(vars_v2) or vars_v2[idx] != vars_v1[idx]:
+            issues_found = True
+            (v1_var_type, v1_var_name) = vars_v1[idx]
 
+            msg = 'Order of storage variables in {} does not match {}. '
+            msg += 'Expected declaration #{} in {} to be {} {}'
+            msg = msg.format(
+                new_name,
+                old_name,
+                idx+1,
+                new_name,
+                v1_var_type,
+                v1_var_name
+            )
 
-    order_implem = [(variable.name, variable.type) for variable in contract_implem.state_variables if not variable.is_constant]
-    order_proxy = [(variable.name, variable.type) for variable in contract_proxy.state_variables if not variable.is_constant]
+            if idx < len(vars_v2):
+                v2_var_type, v2_var_name = vars_v2[idx]
+                msg += ', found {} {} instead.'.format(
+                    v2_var_type,
+                    v2_var_name
+                )
+            else:
+                msg += '.'
 
+            logger.info(red(msg))
+    return issues_found
 
-    found = False
-    for idx in range(0, len(order_proxy)):
-        (proxy_name, proxy_type) =  order_proxy[idx]
-        if len(order_implem) <= idx:
-            logger.info(red('Extra variable in the proxy: {} {}'.format(proxy_name, proxy_type)))
-            continue
-        (implem_name, implem_type) =  order_implem[idx]
-
-        if (proxy_name != implem_name) or (proxy_type != implem_type):
-            found = True
-            logger.info(red('Different variables between proxy and implem: {} {} -> {} {}'.format(proxy_name,
-                                                                        proxy_type,
-                                                                        implem_name,
-                                                                        implem_type)))
-        else:
-            logger.info(yellow('Variable in the proxy: {} {}'.format(proxy_name,
-                                                                     proxy_type)))
-
-
-    #if len(order_implem) > len(order_proxy):
-    #    new_variables = order_implem[len(order_proxy):]
-    #    for (name, t) in new_variables:
-    #        logger.info(green('Variable only in implem: {} {}'.format(name, t)))
-
-    if not found:
-        logger.info(green('No variables ordering error found between implementation and the proxy'))
-
-
+def __contract_state_variables(contract):
+    return [(v.type, v.name) for v in contract.state_variables if not v.is_constant]
