@@ -4,12 +4,12 @@ INFO:CheckInitialization:[92mRun initialization checks... (see https://github.c
 INFO:CheckInitialization:[93mInitializable contract not found, the contract does not follow a standard initalization schema.[0m
 INFO:CompareFunctions:[92mRun function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)[0m
 INFO:CompareFunctions:[91mShadowing between proxy and implementation found myFunc()[0m
-INFO:VariablesOrder:[92mRun variable order checks between the proxy and implementation... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
-INFO:VariablesOrder:[93mStorage variable defined in proxy Proxy: address destination[0m
-INFO:VariablesOrder:[91mExtra storage variable in proxy Proxy: address destination[0m
-INFO:VariablesOrder:[91mOrder of storage variables in Proxy does not match ContractV2. Expected declaration #1 in Proxy to be address destination, found uint256 destination instead.[0m
-INFO:VariablesOrder:[92mRun variable order checks between the implementations... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
-INFO:VariablesOrder:[92mNew storage variable in ContractV2: uint256 destination[0m
-INFO:VariablesOrder:[92mNew storage variable in ContractV2: uint256 myFunc[0m
-INFO:VariablesOrder:[91mMissing storage variable in ContractV2: address destination[0m
-INFO:VariablesOrder:[91mOrder of storage variables in ContractV2 does not match ContractV1. Expected declaration #1 in ContractV2 to be address destination, found uint256 destination instead.[0m
+INFO:VariablesOrder:[92mRun variable ordering checks between the proxy and implementation... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
+INFO:VariablesOrder:[93mstate variable defined in proxy Proxy: address destination[0m
+INFO:VariablesOrder:[91mExtra state variable in proxy Proxy: address destination[0m
+INFO:VariablesOrder:[91mOrder of state variables in Proxy does not match ContractV2. Expected declaration #1 in Proxy to be address destination, found uint256 destination instead.[0m
+INFO:VariablesOrder:[92mRun variable ordering checks between the implementations... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
+INFO:VariablesOrder:[92mNew state variable in ContractV2: uint256 destination[0m
+INFO:VariablesOrder:[92mNew state variable in ContractV2: uint256 myFunc[0m
+INFO:VariablesOrder:[91mMissing state variable in ContractV2: address destination[0m
+INFO:VariablesOrder:[91mOrder of state variables in ContractV2 does not match ContractV1. Expected declaration #1 in ContractV2 to be address destination, found uint256 destination instead.[0m

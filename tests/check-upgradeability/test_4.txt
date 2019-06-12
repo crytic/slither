@@ -4,9 +4,9 @@ INFO:CheckInitialization:[92mRun initialization checks... (see https://github.c
 INFO:CheckInitialization:[93mInitializable contract not found, the contract does not follow a standard initalization schema.[0m
 INFO:CompareFunctions:[92mRun function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)[0m
 INFO:CompareFunctions:[92mNo function ids collision found[0m
-INFO:VariablesOrder:[92mRun variable order checks between the proxy and implementation... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
-INFO:VariablesOrder:[93mStorage variable defined in proxy Proxy: address destination[0m
-INFO:VariablesOrder:[91mOrder of storage variables in Proxy does not match ContractV2. Expected declaration #1 in Proxy to be address destination, found uint256 val instead.[0m
-INFO:VariablesOrder:[92mRun variable order checks between the implementations... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
-INFO:VariablesOrder:[92mNew storage variable in ContractV2: uint256 val[0m
-INFO:VariablesOrder:[91mOrder of storage variables in ContractV2 does not match ContractV1. Expected declaration #1 in ContractV2 to be address destination, found uint256 val instead.[0m
+INFO:VariablesOrder:[92mRun variable ordering checks between the proxy and implementation... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
+INFO:VariablesOrder:[93mstate variable defined in proxy Proxy: address destination[0m
+INFO:VariablesOrder:[91mOrder of state variables in Proxy does not match ContractV2. Expected declaration #1 in Proxy to be address destination, found uint256 val instead.[0m
+INFO:VariablesOrder:[92mRun variable ordering checks between the implementations... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
+INFO:VariablesOrder:[92mNew state variable in ContractV2: uint256 val[0m
+INFO:VariablesOrder:[91mOrder of state variables in ContractV2 does not match ContractV1. Expected declaration #1 in ContractV2 to be address destination, found uint256 val instead.[0m
