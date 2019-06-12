@@ -13,6 +13,7 @@ libraries = {
     'Dapphub-DSToken': lambda x: is_dapphub_ds_token(x),
     'Dapphub-DSProxy': lambda x: is_dapphub_ds_proxy(x),
     'Dapphub-DSGroup': lambda x: is_dapphub_ds_group(x),
+    'AragonOS-App': lambda x: is_aragonos_app(x)
 }
 
 def is_standard_library(contract):
@@ -39,6 +40,12 @@ def is_zos(contract):
     if not contract.is_from_dependency():
         return False
     return 'zos-lib' in Path(contract.source_mapping['filename_absolute']).parts
+
+
+def is_aragonos(contract):
+    if not contract.is_from_dependency():
+        return False
+    return '@aragon/os' in Path(contract.source_mapping['filename_absolute']).parts
 
 
 # endregion
@@ -191,3 +198,13 @@ def is_ds_group(contract):
 
 def is_dapphub_ds_group(contract):
     return _is_dappdhub_ds(contract, 'DSGroup')
+
+# endregion
+###################################################################################
+###################################################################################
+# region Aragon
+###################################################################################
+###################################################################################
+
+def is_aragonos_app(contract):
+    return contract.name == "AragonApp" and is_aragonos(contract)
