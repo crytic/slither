@@ -5,114 +5,117 @@ from slither.core.exceptions import SlitherCoreError
 
 logger = logging.getLogger("BinaryOperation")
 
+
 class BinaryOperationType:
-    POWER =             0 # **
-    MULTIPLICATION =    1 # *
-    DIVISION =          2 # /
-    MODULO =            3 # %
-    ADDITION =          4 # +
-    SUBTRACTION =      5 # -
-    LEFT_SHIFT =        6 # <<
-    RIGHT_SHIFT =        7 # >>>
-    AND =               8 # &
-    CARET =             9 # ^
-    OR =                10 # | 
-    LESS =              11 # <
-    GREATER =           12 # >
-    LESS_EQUAL =        13 # <=
-    GREATER_EQUAL =     14 # >=
-    EQUAL =             15 # ==
-    NOT_EQUAL =         16 # !=
-    ANDAND =            17 # &&
-    OROR =              18 # ||
+    POWER = 0  # **
+    MULTIPLICATION = 1  # *
+    DIVISION = 2  # /
+    MODULO = 3  # %
+    ADDITION = 4  # +
+    SUBTRACTION = 5  # -
+    LEFT_SHIFT = 6  # <<
+    RIGHT_SHIFT = 7  # >>>
+    AND = 8  # &
+    CARET = 9  # ^
+    OR = 10  # |
+    LESS = 11  # <
+    GREATER = 12  # >
+    LESS_EQUAL = 13  # <=
+    GREATER_EQUAL = 14  # >=
+    EQUAL = 15  # ==
+    NOT_EQUAL = 16  # !=
+    ANDAND = 17  # &&
+    OROR = 18  # ||
 
     @staticmethod
     def get_type(operation_type):
-        if operation_type == '**':
+        if operation_type == "**":
             return BinaryOperationType.POWER
-        if operation_type == '*':
+        if operation_type == "*":
             return BinaryOperationType.MULTIPLICATION
-        if operation_type == '/':
+        if operation_type == "/":
             return BinaryOperationType.DIVISION
-        if operation_type == '%':
+        if operation_type == "%":
             return BinaryOperationType.MODULO
-        if operation_type == '+':
+        if operation_type == "+":
             return BinaryOperationType.ADDITION
-        if operation_type == '-':
+        if operation_type == "-":
             return BinaryOperationType.SUBTRACTION
-        if operation_type == '<<':
+        if operation_type == "<<":
             return BinaryOperationType.LEFT_SHIFT
-        if operation_type == '>>':
+        if operation_type == ">>":
             return BinaryOperationType.RIGHT_SHIFT
-        if operation_type == '&':
+        if operation_type == "&":
             return BinaryOperationType.AND
-        if operation_type == '^':
+        if operation_type == "^":
             return BinaryOperationType.CARET
-        if operation_type == '|':
+        if operation_type == "|":
             return BinaryOperationType.OR
-        if operation_type == '<':
+        if operation_type == "<":
             return BinaryOperationType.LESS
-        if operation_type == '>':
+        if operation_type == ">":
             return BinaryOperationType.GREATER
-        if operation_type == '<=':
+        if operation_type == "<=":
             return BinaryOperationType.LESS_EQUAL
-        if operation_type == '>=':
+        if operation_type == ">=":
             return BinaryOperationType.GREATER_EQUAL
-        if operation_type == '==':
+        if operation_type == "==":
             return BinaryOperationType.EQUAL
-        if operation_type == '!=':
+        if operation_type == "!=":
             return BinaryOperationType.NOT_EQUAL
-        if operation_type == '&&':
+        if operation_type == "&&":
             return BinaryOperationType.ANDAND
-        if operation_type == '||':
+        if operation_type == "||":
             return BinaryOperationType.OROR
 
-        raise SlitherCoreError('get_type: Unknown operation type {})'.format(operation_type))
+        raise SlitherCoreError(
+            "get_type: Unknown operation type {})".format(operation_type)
+        )
 
     @staticmethod
     def str(operation_type):
         if operation_type == BinaryOperationType.POWER:
-            return '**'
+            return "**"
         if operation_type == BinaryOperationType.MULTIPLICATION:
-            return '*'
+            return "*"
         if operation_type == BinaryOperationType.DIVISION:
-            return '/'
+            return "/"
         if operation_type == BinaryOperationType.MODULO:
-            return '%'
+            return "%"
         if operation_type == BinaryOperationType.ADDITION:
-            return '+'
+            return "+"
         if operation_type == BinaryOperationType.SUBTRACTION:
-            return '-'
+            return "-"
         if operation_type == BinaryOperationType.LEFT_SHIFT:
-            return '<<'
+            return "<<"
         if operation_type == BinaryOperationType.RIGHT_SHIFT:
-            return '>>'
+            return ">>"
         if operation_type == BinaryOperationType.AND:
-            return '&'
+            return "&"
         if operation_type == BinaryOperationType.CARET:
-            return '^'
+            return "^"
         if operation_type == BinaryOperationType.OR:
-            return '|'
+            return "|"
         if operation_type == BinaryOperationType.LESS:
-            return '<'
+            return "<"
         if operation_type == BinaryOperationType.GREATER:
-            return '>'
+            return ">"
         if operation_type == BinaryOperationType.LESS_EQUAL:
-            return '<='
+            return "<="
         if operation_type == BinaryOperationType.GREATER_EQUAL:
-            return '>='
+            return ">="
         if operation_type == BinaryOperationType.EQUAL:
-            return '=='
+            return "=="
         if operation_type == BinaryOperationType.NOT_EQUAL:
-            return '!='
+            return "!="
         if operation_type == BinaryOperationType.ANDAND:
-            return '&&'
+            return "&&"
         if operation_type == BinaryOperationType.OROR:
-            return '||'
-        raise SlitherCoreError('str: Unknown operation type {})'.format(operation_type))
+            return "||"
+        raise SlitherCoreError("str: Unknown operation type {})".format(operation_type))
+
 
 class BinaryOperation(ExpressionTyped):
-
     def __init__(self, left_expression, right_expression, expression_type):
         assert isinstance(left_expression, Expression)
         assert isinstance(right_expression, Expression)
@@ -141,5 +144,10 @@ class BinaryOperation(ExpressionTyped):
         return BinaryOperationType.str(self._type)
 
     def __str__(self):
-        return str(self.expression_left) + ' ' + self.type_str + ' ' + str(self.expression_right)
-
+        return (
+            str(self.expression_left)
+            + " "
+            + self.type_str
+            + " "
+            + str(self.expression_right)
+        )

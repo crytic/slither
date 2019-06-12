@@ -3,8 +3,8 @@ from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.variables import Constant
 
-class InternalCall(Call, OperationWithLValue):
 
+class InternalCall(Call, OperationWithLValue):
     def __init__(self, function, nbr_arguments, result, type_call):
         super(InternalCall, self).__init__()
         if isinstance(function, Function):
@@ -14,7 +14,7 @@ class InternalCall(Call, OperationWithLValue):
         else:
             self._function = None
             self._function_name, self._contract_name = function
-        #self._contract = contract
+        # self._contract = contract
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
         self._lvalue = result
@@ -50,13 +50,12 @@ class InternalCall(Call, OperationWithLValue):
     def __str__(self):
         args = [str(a) for a in self.arguments]
         if not self.lvalue:
-            lvalue = ''
+            lvalue = ""
         elif isinstance(self.lvalue.type, (list,)):
-            lvalue = '{}({}) = '.format(self.lvalue, ','.join(str(x) for x in self.lvalue.type))
+            lvalue = "{}({}) = ".format(
+                self.lvalue, ",".join(str(x) for x in self.lvalue.type)
+            )
         else:
-            lvalue = '{}({}) = '.format(self.lvalue, self.lvalue.type)
-        txt = '{}INTERNAL_CALL, {}({})'
-        return txt.format(lvalue,
-                          self.function.canonical_name,
-                          ','.join(args))
-
+            lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
+        txt = "{}INTERNAL_CALL, {}({})"
+        return txt.format(lvalue, self.function.canonical_name, ",".join(args))

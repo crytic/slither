@@ -1,6 +1,6 @@
-
 from slither.slithir.operations.call import Call
 from slither.core.variables.variable import Variable
+
 
 class EventCall(Call):
     def __init__(self, name):
@@ -18,4 +18,4 @@ class EventCall(Call):
 
     def __str__(self):
         args = [str(a) for a in self.arguments]
-        return 'Emit {}({})'.format(self.name, '.'.join(args))
+        return "Emit {}({})".format(self.name, ".".join(args))

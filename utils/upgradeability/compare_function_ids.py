@@ -1,7 +1,7 @@
-'''
+"""
     Check for functions collisions between a proxy and the implementation
     More for information: https://medium.com/nomic-labs-blog/malicious-backdoors-in-ethereum-proxies-62629adf3357
-'''
+"""
 
 import logging
 from slither import Slither
@@ -11,26 +11,39 @@ from slither.utils.colors import red, green
 logger = logging.getLogger("CompareFunctions")
 logger.setLevel(logging.INFO)
 
+
 def get_signatures(c):
     functions = c.functions
-    functions = [f.full_name for f in functions if f.visibility in ['public', 'external'] and not f.is_constructor]
+    functions = [
+        f.full_name
+        for f in functions
+        if f.visibility in ["public", "external"] and not f.is_constructor
+    ]
 
     variables = c.state_variables
-    variables = [variable.name+ '()' for variable in variables if variable.visibility in ['public']]
-    return list(set(functions+variables))
+    variables = [
+        variable.name + "()"
+        for variable in variables
+        if variable.visibility in ["public"]
+    ]
+    return list(set(functions + variables))
 
 
 def compare_function_ids(implem, implem_name, proxy, proxy_name):
 
-    logger.info(green('Run function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)'))
+    logger.info(
+        green(
+            "Run function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)"
+        )
+    )
 
     implem_contract = implem.get_contract_from_name(implem_name)
     if implem_contract is None:
-        logger.info(red(f'{implem_name} not found in {implem.filename}'))
+        logger.info(red(f"{implem_name} not found in {implem.filename}"))
         return
     proxy_contract = proxy.get_contract_from_name(proxy_name)
     if proxy_contract is None:
-        logger.info(red(f'{proxy_name} not found in {proxy.filename}'))
+        logger.info(red(f"{proxy_name} not found in {proxy.filename}"))
         return
 
     signatures_implem = get_signatures(implem_contract)
@@ -44,11 +57,21 @@ def compare_function_ids(implem, implem_name, proxy, proxy_name):
         if k in signatures_ids_proxy:
             found = True
             if signatures_ids_implem[k] != signatures_ids_proxy[k]:
-                logger.info(red('Function id collision found {} {}'.format(signatures_ids_implem[k],
-                                                                           signatures_ids_proxy[k])))
+                logger.info(
+                    red(
+                        "Function id collision found {} {}".format(
+                            signatures_ids_implem[k], signatures_ids_proxy[k]
+                        )
+                    )
+                )
             else:
-                logger.info(red('Shadowing between proxy and implementation found {}'.format(signatures_ids_implem[k])))
+                logger.info(
+                    red(
+                        "Shadowing between proxy and implementation found {}".format(
+                            signatures_ids_implem[k]
+                        )
+                    )
+                )
 
     if not found:
-        logger.info(green('No function ids collision found'))
-
+        logger.info(green("No function ids collision found"))

@@ -4,6 +4,7 @@
 from slither.solc_parsing.variables.event_variable import EventVariableSolc
 from slither.core.declarations.event import Event
 
+
 class EventSolc(Event):
     """
     Event class
@@ -15,17 +16,17 @@ class EventSolc(Event):
 
         self._elems = []
         if self.is_compact_ast:
-            self._name = event['name']
-            elems = event['parameters']
-            assert elems['nodeType'] == 'ParameterList'
-            self._elemsNotParsed = elems['parameters']
+            self._name = event["name"]
+            elems = event["parameters"]
+            assert elems["nodeType"] == "ParameterList"
+            self._elemsNotParsed = elems["parameters"]
         else:
-            self._name = event['attributes']['name']
-            elems = event['children'][0]
+            self._name = event["attributes"]["name"]
+            elems = event["children"][0]
 
-            assert elems['name'] == 'ParameterList'
-            if 'children' in elems:
-                self._elemsNotParsed = elems['children']
+            assert elems["name"] == "ParameterList"
+            if "children" in elems:
+                self._elemsNotParsed = elems["children"]
             else:
                 self._elemsNotParsed = []
 
@@ -40,4 +41,3 @@ class EventSolc(Event):
             self._elems.append(elem)
 
         self._elemsNotParsed = []
-

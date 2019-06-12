@@ -5,14 +5,14 @@ from slither.core.variables.variable import Variable
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.core.solidity_types.elementary_type import ElementaryType
 
-class Balance(OperationWithLValue):
 
+class Balance(OperationWithLValue):
     def __init__(self, value, lvalue):
         assert is_valid_rvalue(value)
         assert is_valid_lvalue(lvalue)
         self._value = value
         self._lvalue = lvalue
-        lvalue.set_type(ElementaryType('uint256'))
+        lvalue.set_type(ElementaryType("uint256"))
 
     @property
     def read(self):

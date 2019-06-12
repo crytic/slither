@@ -4,8 +4,8 @@ from slither.slithir.variables.tuple import TupleVariable
 
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 
-class Unpack(OperationWithLValue):
 
+class Unpack(OperationWithLValue):
     def __init__(self, result, tuple_var, idx):
         assert is_valid_lvalue(result)
         assert isinstance(tuple_var, TupleVariable)
@@ -28,7 +28,6 @@ class Unpack(OperationWithLValue):
         return self._idx
 
     def __str__(self):
-        return "{}({})= UNPACK {} index: {} ".format(self.lvalue,
-                                                     self.lvalue.type,
-                                                     self.tuple,
-                                                     self.index)
+        return "{}({})= UNPACK {} index: {} ".format(
+            self.lvalue, self.lvalue.type, self.tuple, self.index
+        )

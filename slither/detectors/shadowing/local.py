@@ -10,16 +10,16 @@ class LocalShadowing(AbstractDetector):
     Local variable shadowing
     """
 
-    ARGUMENT = 'shadowing-local'
-    HELP = 'Local variables shadowing'
+    ARGUMENT = "shadowing-local"
+    HELP = "Local variables shadowing"
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing"
 
-    WIKI_TITLE = 'Local Variable Shadowing'
-    WIKI_DESCRIPTION = 'Detection of shadowing using local variables.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Local Variable Shadowing"
+    WIKI_DESCRIPTION = "Detection of shadowing using local variables."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 pragma solidity ^0.4.24;
 
@@ -38,9 +38,9 @@ contract Bug {
     }
 }
 ```
-`sensitive_function.owner` shadows `Bug.owner`. As a result, the use of `owner` inside `sensitive_function` might be incorrect.'''
+`sensitive_function.owner` shadows `Bug.owner`. As a result, the use of `owner` inside `sensitive_function` might be incorrect."""
 
-    WIKI_RECOMMENDATION = 'Rename the local variable so as not to mistakenly overshadow any state variable/function/modifier/event definitions.'
+    WIKI_RECOMMENDATION = "Rename the local variable so as not to mistakenly overshadow any state variable/function/modifier/event definitions."
 
     OVERSHADOWED_FUNCTION = "function"
     OVERSHADOWED_MODIFIER = "modifier"
@@ -68,23 +68,49 @@ contract Bug {
                     # Check functions
                     for scope_function in scope_contract.functions_declared:
                         if variable.name == scope_function.name:
-                            overshadowed.append((self.OVERSHADOWED_FUNCTION, scope_contract.name, scope_function))
+                            overshadowed.append(
+                                (
+                                    self.OVERSHADOWED_FUNCTION,
+                                    scope_contract.name,
+                                    scope_function,
+                                )
+                            )
                     # Check modifiers
                     for scope_modifier in scope_contract.modifiers_declared:
                         if variable.name == scope_modifier.name:
-                            overshadowed.append((self.OVERSHADOWED_MODIFIER, scope_contract.name, scope_modifier))
+                            overshadowed.append(
+                                (
+                                    self.OVERSHADOWED_MODIFIER,
+                                    scope_contract.name,
+                                    scope_modifier,
+                                )
+                            )
                     # Check events
                     for scope_event in scope_contract.events_declared:
                         if variable.name == scope_event.name:
-                            overshadowed.append((self.OVERSHADOWED_EVENT, scope_contract.name, scope_event))
+                            overshadowed.append(
+                                (
+                                    self.OVERSHADOWED_EVENT,
+                                    scope_contract.name,
+                                    scope_event,
+                                )
+                            )
                     # Check state variables
                     for scope_state_variable in scope_contract.state_variables_declared:
                         if variable.name == scope_state_variable.name:
-                            overshadowed.append((self.OVERSHADOWED_STATE_VARIABLE, scope_contract.name, scope_state_variable))
+                            overshadowed.append(
+                                (
+                                    self.OVERSHADOWED_STATE_VARIABLE,
+                                    scope_contract.name,
+                                    scope_state_variable,
+                                )
+                            )
 
                 # If we have found any overshadowed objects, we'll want to add it to our result list.
                 if overshadowed:
-                    result.append((contract.name, function.name, variable, overshadowed))
+                    result.append(
+                        (contract.name, function.name, variable, overshadowed)
+                    )
 
         return result
 
@@ -105,21 +131,28 @@ contract Bug {
                     local_parent_name = shadow[1]
                     local_variable = shadow[2]
                     overshadowed = shadow[3]
-                    info = '{}.{}.{} (local variable @ {}) shadows:\n'.format(contract.name,
-                                                                              local_parent_name,
-                                                                              local_variable.name,
-                                                                              local_variable.source_mapping_str)
+                    info = "{}.{}.{} (local variable @ {}) shadows:\n".format(
+                        contract.name,
+                        local_parent_name,
+                        local_variable.name,
+                        local_variable.source_mapping_str,
+                    )
                     for overshadowed_entry in overshadowed:
-                        info += "\t- {}.{} ({} @ {})\n".format(overshadowed_entry[1],
-                                                               overshadowed_entry[2],
-                                                               overshadowed_entry[0],
-                                                               overshadowed_entry[2].source_mapping_str)
+                        info += "\t- {}.{} ({} @ {})\n".format(
+                            overshadowed_entry[1],
+                            overshadowed_entry[2],
+                            overshadowed_entry[0],
+                            overshadowed_entry[2].source_mapping_str,
+                        )
 
                     # Generate relevant JSON data for this shadowing definition.
                     json = self.generate_json_result(info)
                     self.add_variable_to_json(local_variable, json)
                     for overshadowed_entry in overshadowed:
-                        if overshadowed_entry[0] in [self.OVERSHADOWED_FUNCTION, self.OVERSHADOWED_MODIFIER]:
+                        if overshadowed_entry[0] in [
+                            self.OVERSHADOWED_FUNCTION,
+                            self.OVERSHADOWED_MODIFIER,
+                        ]:
                             self.add_function_to_json(overshadowed_entry[2], json)
                         elif overshadowed_entry[0] == self.OVERSHADOWED_EVENT:
                             self.add_event_to_json(overshadowed_entry[2], json)

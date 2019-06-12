@@ -1,4 +1,3 @@
-
 from .variable import SlithIRVariable
 from slither.core.children.child_node import ChildNode
 from slither.core.variables.variable import Variable
@@ -47,14 +46,16 @@ class ReferenceVariable(ChildNode, Variable):
         # Can only be a rvalue of
         # Member or Index operator
         from slither.slithir.utils.utils import is_valid_lvalue
-        assert is_valid_lvalue(points_to) \
-            or isinstance(points_to, (SolidityVariable, Contract, Enum))
+
+        assert is_valid_lvalue(points_to) or isinstance(
+            points_to, (SolidityVariable, Contract, Enum)
+        )
 
         self._points_to = points_to
 
     @property
     def name(self):
-        return 'REF_{}'.format(self.index)
+        return "REF_{}".format(self.index)
 
     # overide of core.variables.variables
     # reference can have Function has a type

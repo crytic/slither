@@ -5,7 +5,6 @@ from slither.slithir.variables.constant import Constant
 
 
 class NewContract(Call, OperationWithLValue):
-
     def __init__(self, contract_name, lvalue):
         assert isinstance(contract_name, Constant)
         assert is_valid_lvalue(lvalue)
@@ -13,8 +12,9 @@ class NewContract(Call, OperationWithLValue):
         self._contract_name = contract_name
         # todo create analyze to add the contract instance
         self._lvalue = lvalue
-        self._callid = None # only used if gas/value != 0
+        self._callid = None  # only used if gas/value != 0
         self._call_value = None
+
     @property
     def call_value(self):
         return self._call_value
@@ -31,19 +31,19 @@ class NewContract(Call, OperationWithLValue):
     def call_id(self, c):
         self._callid = c
 
-
     @property
     def contract_name(self):
         return self._contract_name
-
 
     @property
     def read(self):
         return self._unroll(self.arguments)
 
     def __str__(self):
-        value = ''
+        value = ""
         if self.call_value:
-            value = 'value:{}'.format(self.call_value)
+            value = "value:{}".format(self.call_value)
         args = [str(a) for a in self.arguments]
-        return '{} = new {}({}) {}'.format(self.lvalue, self.contract_name, ','.join(args), value)
+        return "{} = new {}({}) {}".format(
+            self.lvalue, self.contract_name, ",".join(args), value
+        )

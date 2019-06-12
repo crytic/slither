@@ -1,8 +1,7 @@
-
 from slither.slithir.operations.operation import Operation
 
-class Call(Operation):
 
+class Call(Operation):
     def __init__(self):
         super(Call, self).__init__()
         self._arguments = []
@@ -14,4 +13,3 @@ class Call(Operation):
     @arguments.setter
     def arguments(self, v):
         self._arguments = v
-

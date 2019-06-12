@@ -3,24 +3,32 @@ import argparse
 from slither import Slither
 from slither.utils.colors import red
 import logging
-from .possible_paths import find_target_paths, resolve_functions, ResolveFunctionException
+from .possible_paths import (
+    find_target_paths,
+    resolve_functions,
+    ResolveFunctionException,
+)
 from crytic_compile import cryticparser
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
+
 
 def parse_args():
     """
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
     """
-    parser = argparse.ArgumentParser(description='PossiblePaths',
-                                     usage='possible_paths.py filename [contract.function targets]')
+    parser = argparse.ArgumentParser(
+        description="PossiblePaths",
+        usage="possible_paths.py filename [contract.function targets]",
+    )
 
-    parser.add_argument('filename',
-                        help='The filename of the contract or truffle directory to analyze.')
+    parser.add_argument(
+        "filename", help="The filename of the contract or truffle directory to analyze."
+    )
 
-    parser.add_argument('targets', nargs='+')
+    parser.add_argument("targets", nargs="+")
 
     cryticparser.init(parser)
 
@@ -62,12 +70,16 @@ def main():
     print("\n")
 
     # Format all function paths.
-    reaching_paths_str = [' -> '.join([f"{f.canonical_name}" for f in reaching_path]) for reaching_path in reaching_paths]
+    reaching_paths_str = [
+        " -> ".join([f"{f.canonical_name}" for f in reaching_path])
+        for reaching_path in reaching_paths
+    ]
 
     # Print a sorted list of all function paths which can reach the targets.
     print(f"The following paths reach the specified targets:")
     for reaching_path in sorted(reaching_paths_str):
         print(f"{reaching_path}\n")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

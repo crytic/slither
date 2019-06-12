@@ -1,5 +1,6 @@
 from slither.core.variables.local_variable import LocalVariable
 
+
 class LocalVariableInitFromTuple(LocalVariable):
     """
         Use on this pattern:

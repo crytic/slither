@@ -6,6 +6,7 @@ from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
 
+
 class HighLevelCall(Call, OperationWithLValue):
     """
         High level message call
@@ -21,7 +22,7 @@ class HighLevelCall(Call, OperationWithLValue):
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
         self._lvalue = result
-        self._callid = None # only used if gas/value != 0
+        self._callid = None  # only used if gas/value != 0
         self._function_instance = None
 
         self._call_value = None
@@ -58,7 +59,9 @@ class HighLevelCall(Call, OperationWithLValue):
 
     @property
     def read(self):
-        all_read = [self.destination, self.call_gas, self.call_value] + self._unroll(self.arguments)
+        all_read = [self.destination, self.call_gas, self.call_value] + self._unroll(
+            self.arguments
+        )
         # remove None
         return [x for x in all_read if x] + [self.destination]
 
@@ -87,27 +90,31 @@ class HighLevelCall(Call, OperationWithLValue):
         return self._type_call
 
     def __str__(self):
-        value = ''
-        gas = ''
+        value = ""
+        gas = ""
         if self.call_value:
-            value = 'value:{}'.format(self.call_value)
+            value = "value:{}".format(self.call_value)
         if self.call_gas:
-            gas = 'gas:{}'.format(self.call_gas)
+            gas = "gas:{}".format(self.call_gas)
         arguments = []
         if self.arguments:
             arguments = self.arguments
 
-        txt = '{}HIGH_LEVEL_CALL, dest:{}({}), function:{}, arguments:{} {} {}'
+        txt = "{}HIGH_LEVEL_CALL, dest:{}({}), function:{}, arguments:{} {} {}"
         if not self.lvalue:
-            lvalue = ''
+            lvalue = ""
         elif isinstance(self.lvalue.type, (list,)):
-            lvalue = '{}({}) = '.format(self.lvalue, ','.join(str(x) for x in self.lvalue.type))
+            lvalue = "{}({}) = ".format(
+                self.lvalue, ",".join(str(x) for x in self.lvalue.type)
+            )
         else:
-            lvalue = '{}({}) = '.format(self.lvalue, self.lvalue.type)
-        return txt.format(lvalue,
-                          self.destination,
-                          self.destination.type,
-                          self.function_name,
-                          [str(x) for x in arguments],
-                          value,
-                          gas)
+            lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
+        return txt.format(
+            lvalue,
+            self.destination,
+            self.destination.type,
+            self.function_name,
+            [str(x) for x in arguments],
+            value,
+            gas,
+        )

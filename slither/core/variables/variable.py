@@ -6,8 +6,8 @@ from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.elementary_type import ElementaryType
 
-class Variable(SourceMapping):
 
+class Variable(SourceMapping):
     def __init__(self):
         super(Variable, self).__init__()
         self._name = None
@@ -48,9 +48,9 @@ class Variable(SourceMapping):
 
     @property
     def name(self):
-        '''
+        """
             str: variable name
-        '''
+        """
         return self._name
 
     @name.setter
@@ -67,9 +67,9 @@ class Variable(SourceMapping):
 
     @property
     def visibility(self):
-        '''
+        """
             str: variable visibility
-        '''
+        """
         return self._visibility
 
     def set_type(self, t):
@@ -78,8 +78,5 @@ class Variable(SourceMapping):
         assert isinstance(t, (Type, list)) or t is None
         self._type = t
 
-
     def __str__(self):
         return self._name
-
-

@@ -4,10 +4,16 @@ Module detecting deprecated standards.
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.visitors.expression.export_values import ExportValues
-from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction
+from slither.core.declarations.solidity_variables import (
+    SolidityVariableComposed,
+    SolidityFunction,
+)
 from slither.core.cfg.node import NodeType
 from slither.slithir.operations import LowLevelCall
-from slither.solc_parsing.variables.state_variable import StateVariableSolc, StateVariable
+from slither.solc_parsing.variables.state_variable import (
+    StateVariableSolc,
+    StateVariable,
+)
 
 # Reference: https://smartcontractsecurity.github.io/SWC-registry/docs/SWC-111
 class DeprecatedStandards(AbstractDetector):
@@ -15,16 +21,16 @@ class DeprecatedStandards(AbstractDetector):
     Use of Deprecated Standards
     """
 
-    ARGUMENT = 'deprecated-standards'
-    HELP = 'Deprecated Solidity Standards'
+    ARGUMENT = "deprecated-standards"
+    HELP = "Deprecated Solidity Standards"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards"
 
-    WIKI_TITLE = 'Deprecated Standards'
-    WIKI_DESCRIPTION = 'Detect the usage of deprecated standards (as defined by SWC-111), excluding only `constant` keyword detection on functions.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Deprecated Standards"
+    WIKI_DESCRIPTION = "Detect the usage of deprecated standards (as defined by SWC-111), excluding only `constant` keyword detection on functions."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract ContractWithDeprecatedReferences {
     // Deprecated: Change block.blockhash() -> blockhash()
@@ -51,15 +57,19 @@ contract ContractWithDeprecatedReferences {
         suicide(address(0));
     }
 }
-```'''
+```"""
 
-    WIKI_RECOMMENDATION = 'Replace all uses of deprecated symbols.'
+    WIKI_RECOMMENDATION = "Replace all uses of deprecated symbols."
 
     # The format for the following deprecated lists is [(detecting_signature, original_text, recommended_text)]
-    DEPRECATED_SOLIDITY_VARIABLE = [("block.blockhash", "block.blockhash()", "blockhash()"),
-                                    ("msg.gas", "msg.gas", "gasleft()")]
-    DEPRECATED_SOLIDITY_FUNCTIONS = [("suicide(address)", "suicide()", "selfdestruct()"),
-                                     ("sha3()", "sha3()", "keccak256()")]
+    DEPRECATED_SOLIDITY_VARIABLE = [
+        ("block.blockhash", "block.blockhash()", "blockhash()"),
+        ("msg.gas", "msg.gas", "gasleft()"),
+    ]
+    DEPRECATED_SOLIDITY_FUNCTIONS = [
+        ("suicide(address)", "suicide()", "selfdestruct()"),
+        ("sha3()", "sha3()", "keccak256()"),
+    ]
     DEPRECATED_NODE_TYPES = [(NodeType.THROW, "throw", "revert()")]
     DEPRECATED_LOW_LEVEL_CALLS = [("callcode", "callcode", "delegatecall")]
 
@@ -113,7 +123,9 @@ contract ContractWithDeprecatedReferences {
 
         for state_variable in contract.state_variables_declared:
             if state_variable.expression:
-                deprecated_results = self.detect_deprecation_in_expression(state_variable.expression)
+                deprecated_results = self.detect_deprecation_in_expression(
+                    state_variable.expression
+                )
                 if deprecated_results:
                     results.append((state_variable, deprecated_results))
 
@@ -147,21 +159,27 @@ contract ContractWithDeprecatedReferences {
         """
         results = []
         for contract in self.contracts:
-            deprecated_references = self.detect_deprecated_references_in_contract(contract)
+            deprecated_references = self.detect_deprecated_references_in_contract(
+                contract
+            )
             if deprecated_references:
                 for deprecated_reference in deprecated_references:
                     source_object = deprecated_reference[0]
                     deprecated_entries = deprecated_reference[1]
-                    info = 'Deprecated standard detected @ {}:\n'.format(source_object.source_mapping_str)
+                    info = "Deprecated standard detected @ {}:\n".format(
+                        source_object.source_mapping_str
+                    )
 
                     for (dep_id, original_desc, recommended_disc) in deprecated_entries:
-                        info += "\t- Usage of \"{}\" should be replaced with \"{}\"\n".format(original_desc,
-                                                                                              recommended_disc)
-
+                        info += '\t- Usage of "{}" should be replaced with "{}"\n'.format(
+                            original_desc, recommended_disc
+                        )
 
                     # Generate relevant JSON data for this deprecated standard.
                     json = self.generate_json_result(info)
-                    if isinstance(source_object, StateVariableSolc) or isinstance(source_object, StateVariable):
+                    if isinstance(source_object, StateVariableSolc) or isinstance(
+                        source_object, StateVariable
+                    ):
                         self.add_variable_to_json(source_object, json)
                     else:
                         self.add_nodes_to_json([source_object], json)

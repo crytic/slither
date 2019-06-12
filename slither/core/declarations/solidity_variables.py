@@ -2,63 +2,70 @@
 from slither.core.context.context import Context
 from slither.core.solidity_types import ElementaryType, TypeInformation
 
-SOLIDITY_VARIABLES = {"now":'uint256',
-                      "this":'address',
-                      'abi':'address', # to simplify the conversion, assume that abi return an address
-                      'msg':'',
-                      'tx':'',
-                      'block':'',
-                      'super':''}
+SOLIDITY_VARIABLES = {
+    "now": "uint256",
+    "this": "address",
+    "abi": "address",  # to simplify the conversion, assume that abi return an address
+    "msg": "",
+    "tx": "",
+    "block": "",
+    "super": "",
+}
 
-SOLIDITY_VARIABLES_COMPOSED = {"block.coinbase":"address",
-                               "block.difficulty":"uint256",
-                               "block.gaslimit":"uint256",
-                               "block.number":"uint256",
-                               "block.timestamp":"uint256",
-                               "block.blockhash":"uint256", # alias for blockhash. It's a call
-                               "msg.data":"bytes",
-                               "msg.gas":"uint256",
-                               "msg.sender":"address",
-                               "msg.sig":"bytes4",
-                               "msg.value":"uint256",
-                               "tx.gasprice":"uint256",
-                               "tx.origin":"address"}
+SOLIDITY_VARIABLES_COMPOSED = {
+    "block.coinbase": "address",
+    "block.difficulty": "uint256",
+    "block.gaslimit": "uint256",
+    "block.number": "uint256",
+    "block.timestamp": "uint256",
+    "block.blockhash": "uint256",  # alias for blockhash. It's a call
+    "msg.data": "bytes",
+    "msg.gas": "uint256",
+    "msg.sender": "address",
+    "msg.sig": "bytes4",
+    "msg.value": "uint256",
+    "tx.gasprice": "uint256",
+    "tx.origin": "address",
+}
 
 
-SOLIDITY_FUNCTIONS = {"gasleft()":['uint256'],
-                      "assert(bool)":[],
-                      "require(bool)":[],
-                      "require(bool,string)":[],
-                      "revert()":[],
-                      "revert(string)":[],
-                      "addmod(uint256,uint256,uint256)":['uint256'],
-                      "mulmod(uint256,uint256,uint256)":['uint256'],
-                      "keccak256()":['bytes32'],
-                      "keccak256(bytes)":['bytes32'], # Solidity 0.5
-                      "sha256()":['bytes32'],
-                      "sha256(bytes)":['bytes32'], # Solidity 0.5
-                      "sha3()":['bytes32'],
-                      "ripemd160()":['bytes32'],
-                      "ripemd160(bytes)":['bytes32'], # Solidity 0.5
-                      "ecrecover(bytes32,uint8,bytes32,bytes32)":['address'],
-                      "selfdestruct(address)":[],
-                      "suicide(address)":[],
-                      "log0(bytes32)":[],
-                      "log1(bytes32,bytes32)":[],
-                      "log2(bytes32,bytes32,bytes32)":[],
-                      "log3(bytes32,bytes32,bytes32,bytes32)":[],
-                      "blockhash(uint256)":['bytes32'],
-                      # the following need a special handling
-                      # as they are recognized as a SolidityVariableComposed
-                      # and converted to a SolidityFunction by SlithIR
-                      "this.balance()":['uint256'],
-                      "abi.encode()":['bytes'],
-                      "abi.encodePacked()":['bytes'],
-                      "abi.encodeWithSelector()":["bytes"],
-                      "abi.encodeWithSignature()":["bytes"],
-                      # abi.decode returns an a list arbitrary types
-                      "abi.decode()":[],
-                      "type(address)":[]}
+SOLIDITY_FUNCTIONS = {
+    "gasleft()": ["uint256"],
+    "assert(bool)": [],
+    "require(bool)": [],
+    "require(bool,string)": [],
+    "revert()": [],
+    "revert(string)": [],
+    "addmod(uint256,uint256,uint256)": ["uint256"],
+    "mulmod(uint256,uint256,uint256)": ["uint256"],
+    "keccak256()": ["bytes32"],
+    "keccak256(bytes)": ["bytes32"],  # Solidity 0.5
+    "sha256()": ["bytes32"],
+    "sha256(bytes)": ["bytes32"],  # Solidity 0.5
+    "sha3()": ["bytes32"],
+    "ripemd160()": ["bytes32"],
+    "ripemd160(bytes)": ["bytes32"],  # Solidity 0.5
+    "ecrecover(bytes32,uint8,bytes32,bytes32)": ["address"],
+    "selfdestruct(address)": [],
+    "suicide(address)": [],
+    "log0(bytes32)": [],
+    "log1(bytes32,bytes32)": [],
+    "log2(bytes32,bytes32,bytes32)": [],
+    "log3(bytes32,bytes32,bytes32,bytes32)": [],
+    "blockhash(uint256)": ["bytes32"],
+    # the following need a special handling
+    # as they are recognized as a SolidityVariableComposed
+    # and converted to a SolidityFunction by SlithIR
+    "this.balance()": ["uint256"],
+    "abi.encode()": ["bytes"],
+    "abi.encodePacked()": ["bytes"],
+    "abi.encodeWithSelector()": ["bytes"],
+    "abi.encodeWithSignature()": ["bytes"],
+    # abi.decode returns an a list arbitrary types
+    "abi.decode()": [],
+    "type(address)": [],
+}
+
 
 def solidity_function_signature(name):
     """
@@ -70,10 +77,10 @@ def solidity_function_signature(name):
     Returns:
         str
     """
-    return name+' returns({})'.format(','.join(SOLIDITY_FUNCTIONS[name]))
+    return name + " returns({})".format(",".join(SOLIDITY_FUNCTIONS[name]))
+
 
 class SolidityVariable(Context):
-
     def __init__(self, name):
         super(SolidityVariable, self).__init__()
         self._check_name(name)
@@ -99,6 +106,7 @@ class SolidityVariable(Context):
 
     def __hash__(self):
         return hash(self.name)
+
 
 class SolidityVariableComposed(SolidityVariable):
     def __init__(self, name):

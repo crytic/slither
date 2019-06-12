@@ -1,5 +1,6 @@
 # Function computing the code complexity
 
+
 def compute_number_edges(function):
     """
     Compute the number of edges of the CFG
@@ -24,8 +25,8 @@ def compute_strongly_connected_components(function):
     Returns:
         list(list(nodes))
     """
-    visited = {n:False for n in function.nodes}
-    assigned = {n:False for n in function.nodes}
+    visited = {n: False for n in function.nodes}
+    assigned = {n: False for n in function.nodes}
     components = []
     l = []
 
@@ -53,6 +54,7 @@ def compute_strongly_connected_components(function):
             components.append(component)
 
     return components
+
 
 def compute_cyclomatic_complexity(function):
     """

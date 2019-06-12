@@ -1,6 +1,4 @@
-
 class ChildContract:
-
     def __init__(self):
         super(ChildContract, self).__init__()
         self._contract = None
@@ -11,4 +9,3 @@ class ChildContract:
     @property
     def contract(self):
         return self._contract
-

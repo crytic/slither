@@ -8,31 +8,40 @@
 from slither.core.cfg.node import NodeType
 from slither.core.declarations import Function, SolidityFunction, SolidityVariable
 from slither.core.expressions import UnaryOperation, UnaryOperationType
-from slither.detectors.abstract_detector import (AbstractDetector,
-                                                 DetectorClassification)
-from slither.slithir.operations import (HighLevelCall, LowLevelCall,
-                                        LibraryCall,
-                                        Send, Transfer)
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.slithir.operations import (
+    HighLevelCall,
+    LowLevelCall,
+    LibraryCall,
+    Send,
+    Transfer,
+)
 from slither.core.variables.variable import Variable
 
+
 def union_dict(d1, d2):
-    d3 = {k: d1.get(k, set()) | d2.get(k, set()) for k in set(list(d1.keys()) + list(d2.keys()))}
+    d3 = {
+        k: d1.get(k, set()) | d2.get(k, set())
+        for k in set(list(d1.keys()) + list(d2.keys()))
+    }
     return d3
+
 
 def dict_are_equal(d1, d2):
     if set(list(d1.keys())) != set(list(d2.keys())):
         return False
     return all(set(d1[k]) == set(d2[k]) for k in d1.keys())
 
-class Reentrancy(AbstractDetector):
-# This detector is not meant to be registered
-# It is inherited by reentrancy variantsœ
-#    ARGUMENT = 'reentrancy'
-#    HELP = 'Reentrancy vulnerabilities'
-#    IMPACT = DetectorClassification.HIGH
-#    CONFIDENCE = DetectorClassification.HIGH
 
-    KEY = 'REENTRANCY'
+class Reentrancy(AbstractDetector):
+    # This detector is not meant to be registered
+    # It is inherited by reentrancy variantsœ
+    #    ARGUMENT = 'reentrancy'
+    #    HELP = 'Reentrancy vulnerabilities'
+    #    IMPACT = DetectorClassification.HIGH
+    #    CONFIDENCE = DetectorClassification.HIGH
+
+    KEY = "REENTRANCY"
 
     def _can_callback(self, irs):
         """
@@ -50,15 +59,19 @@ class Reentrancy(AbstractDetector):
                 return True
             if isinstance(ir, HighLevelCall) and not isinstance(ir, LibraryCall):
                 # If solidity >0.5, STATICCALL is used
-                if self.slither.solc_version and self.slither.solc_version.startswith('0.5.'):
-                    if isinstance(ir.function, Function) and (ir.function.view or ir.function.pure):
+                if self.slither.solc_version and self.slither.solc_version.startswith(
+                    "0.5."
+                ):
+                    if isinstance(ir.function, Function) and (
+                        ir.function.view or ir.function.pure
+                    ):
                         continue
                     if isinstance(ir.function, Variable):
                         continue
                 # If there is a call to itself
                 # We can check that the function called is
                 # reentrancy-safe
-                if ir.destination == SolidityVariable('this'):
+                if ir.destination == SolidityVariable("this"):
                     if isinstance(ir.function, Variable):
                         continue
                     if not ir.function.all_high_level_calls():
@@ -89,8 +102,10 @@ class Reentrancy(AbstractDetector):
 
             This will work only on naive implementation
         """
-        return isinstance(node.expression, UnaryOperation)\
+        return (
+            isinstance(node.expression, UnaryOperation)
             and node.expression.type == UnaryOperationType.BANG
+        )
 
     def _explore(self, node, visited, skip_father=None):
         """
@@ -113,29 +128,71 @@ class Reentrancy(AbstractDetector):
         # calls returns the list of calls that can callback
         # read returns the variable read
         # read_prior_calls returns the variable read prior a call
-        fathers_context = {'send_eth':set(), 'calls':set(), 'read':set(), 'read_prior_calls':{}}
+        fathers_context = {
+            "send_eth": set(),
+            "calls": set(),
+            "read": set(),
+            "read_prior_calls": {},
+        }
 
         for father in node.fathers:
             if self.KEY in father.context:
-                fathers_context['send_eth'] |= set([s for s in father.context[self.KEY]['send_eth'] if s!=skip_father])
-                fathers_context['calls'] |= set([c for c in father.context[self.KEY]['calls'] if c!=skip_father])
-                fathers_context['read'] |= set(father.context[self.KEY]['read'])
-                fathers_context['read_prior_calls'] = union_dict(fathers_context['read_prior_calls'], father.context[self.KEY]['read_prior_calls'])
+                fathers_context["send_eth"] |= set(
+                    [
+                        s
+                        for s in father.context[self.KEY]["send_eth"]
+                        if s != skip_father
+                    ]
+                )
+                fathers_context["calls"] |= set(
+                    [c for c in father.context[self.KEY]["calls"] if c != skip_father]
+                )
+                fathers_context["read"] |= set(father.context[self.KEY]["read"])
+                fathers_context["read_prior_calls"] = union_dict(
+                    fathers_context["read_prior_calls"],
+                    father.context[self.KEY]["read_prior_calls"],
+                )
 
         # Exclude path that dont bring further information
         if node in self.visited_all_paths:
-            if all(call in self.visited_all_paths[node]['calls'] for call in fathers_context['calls']):
-                if all(send in self.visited_all_paths[node]['send_eth'] for send in fathers_context['send_eth']):
-                    if all(read in self.visited_all_paths[node]['read'] for read in fathers_context['read']):
-                        if dict_are_equal(self.visited_all_paths[node]['read_prior_calls'], fathers_context['read_prior_calls']):
+            if all(
+                call in self.visited_all_paths[node]["calls"]
+                for call in fathers_context["calls"]
+            ):
+                if all(
+                    send in self.visited_all_paths[node]["send_eth"]
+                    for send in fathers_context["send_eth"]
+                ):
+                    if all(
+                        read in self.visited_all_paths[node]["read"]
+                        for read in fathers_context["read"]
+                    ):
+                        if dict_are_equal(
+                            self.visited_all_paths[node]["read_prior_calls"],
+                            fathers_context["read_prior_calls"],
+                        ):
                             return
         else:
-            self.visited_all_paths[node] = {'send_eth':set(), 'calls':set(), 'read':set(), 'read_prior_calls':{}}
+            self.visited_all_paths[node] = {
+                "send_eth": set(),
+                "calls": set(),
+                "read": set(),
+                "read_prior_calls": {},
+            }
 
-        self.visited_all_paths[node]['send_eth'] = set(self.visited_all_paths[node]['send_eth'] | fathers_context['send_eth'])
-        self.visited_all_paths[node]['calls'] = set(self.visited_all_paths[node]['calls'] | fathers_context['calls'])
-        self.visited_all_paths[node]['read'] = set(self.visited_all_paths[node]['read'] | fathers_context['read'])
-        self.visited_all_paths[node]['read_prior_calls'] = union_dict(self.visited_all_paths[node]['read_prior_calls'], fathers_context['read_prior_calls'])
+        self.visited_all_paths[node]["send_eth"] = set(
+            self.visited_all_paths[node]["send_eth"] | fathers_context["send_eth"]
+        )
+        self.visited_all_paths[node]["calls"] = set(
+            self.visited_all_paths[node]["calls"] | fathers_context["calls"]
+        )
+        self.visited_all_paths[node]["read"] = set(
+            self.visited_all_paths[node]["read"] | fathers_context["read"]
+        )
+        self.visited_all_paths[node]["read_prior_calls"] = union_dict(
+            self.visited_all_paths[node]["read_prior_calls"],
+            fathers_context["read_prior_calls"],
+        )
 
         node.context[self.KEY] = fathers_context
 
@@ -153,15 +210,25 @@ class Reentrancy(AbstractDetector):
                 slithir_operations += internal_call.all_slithir_operations()
 
         contains_call = False
-        node.context[self.KEY]['written'] = set(state_vars_written)
+        node.context[self.KEY]["written"] = set(state_vars_written)
         if self._can_callback(node.irs + slithir_operations):
-            node.context[self.KEY]['calls'] = set(node.context[self.KEY]['calls'] | {node})
-            node.context[self.KEY]['read_prior_calls'][node] = set(node.context[self.KEY]['read_prior_calls'].get(node, set()) | node.context[self.KEY]['read'] |state_vars_read)
+            node.context[self.KEY]["calls"] = set(
+                node.context[self.KEY]["calls"] | {node}
+            )
+            node.context[self.KEY]["read_prior_calls"][node] = set(
+                node.context[self.KEY]["read_prior_calls"].get(node, set())
+                | node.context[self.KEY]["read"]
+                | state_vars_read
+            )
             contains_call = True
         if self._can_send_eth(node.irs + slithir_operations):
-            node.context[self.KEY]['send_eth'] = set(node.context[self.KEY]['send_eth'] | {node})
+            node.context[self.KEY]["send_eth"] = set(
+                node.context[self.KEY]["send_eth"] | {node}
+            )
 
-        node.context[self.KEY]['read'] = set(node.context[self.KEY]['read'] | state_vars_read)
+        node.context[self.KEY]["read"] = set(
+            node.context[self.KEY]["read"] | state_vars_read
+        )
 
         sons = node.sons
         if contains_call and node.type in [NodeType.IF, NodeType.IFLOOP]:
@@ -173,7 +240,6 @@ class Reentrancy(AbstractDetector):
                 son = sons[1]
                 self._explore(son, visited, node)
                 sons = [sons[0]]
-
 
         for son in sons:
             self._explore(son, visited)

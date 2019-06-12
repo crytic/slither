@@ -11,6 +11,7 @@ from slither.utils.colors import red
 logger = logging.getLogger("Slither")
 logging.basicConfig()
 
+
 class Slither(Context):
     """
     Slither static analyzer
@@ -21,20 +22,19 @@ class Slither(Context):
         self._contracts = {}
         self._filename = None
         self._source_units = {}
-        self._solc_version = None # '0.3' or '0.4':!
+        self._solc_version = None  # '0.3' or '0.4':!
         self._pragma_directives = []
         self._import_directives = []
         self._raw_source_code = {}
         self._all_functions = set()
         self._all_modifiers = set()
 
-        self._previous_results_filename = 'slither.db.json'
+        self._previous_results_filename = "slither.db.json"
         self._results_to_hide = []
         self._previous_results = []
         self._paths_to_filter = set()
 
         self._crytic_compile = None
-
 
     ###################################################################################
     ###################################################################################
@@ -61,7 +61,7 @@ class Slither(Context):
         :param path:
         :return:
         """
-        with open(path, encoding='utf8', newline='') as f:
+        with open(path, encoding="utf8", newline="") as f:
             self.source_code[path] = f.read()
 
     # endregion
@@ -85,7 +85,6 @@ class Slither(Context):
     def import_directives(self):
         """ list(core.declarations.Import): Import directives"""
         return self._import_directives
-
 
     # endregion
     ###################################################################################
@@ -152,7 +151,6 @@ class Slither(Context):
                     if isinstance(ir, InternalCall):
                         ir.function.add_reachable_from_node(node, ir)
 
-
     # endregion
     ###################################################################################
     ###################################################################################
@@ -166,7 +164,7 @@ class Slither(Context):
         """
         for c in self.contracts:
             for f in c.functions:
-                f.cfg_to_dot(os.path.join(d, '{}.{}.dot'.format(c.name, f.name)))
+                f.cfg_to_dot(os.path.join(d, "{}.{}.dot".format(c.name, f.name)))
 
     # endregion
     ###################################################################################
@@ -176,20 +174,33 @@ class Slither(Context):
     ###################################################################################
 
     def valid_result(self, r):
-        '''
+        """
             Check if the result is valid
             A result is invalid if:
                 - All its source paths belong to the source path filtered
                 - Or a similar result was reported and saved during a previous run
                 - The --exclude-dependencies flag is set and results are only related to dependencies
-        '''
-        source_mapping_elements = [elem['source_mapping']['filename_absolute'] for elem in r['elements'] if 'source_mapping' in elem]
-        if r['elements'] and all((any(path in src_mapping for path in self._paths_to_filter) for src_mapping in source_mapping_elements)):
+        """
+        source_mapping_elements = [
+            elem["source_mapping"]["filename_absolute"]
+            for elem in r["elements"]
+            if "source_mapping" in elem
+        ]
+        if r["elements"] and all(
+            (
+                any(path in src_mapping for path in self._paths_to_filter)
+                for src_mapping in source_mapping_elements
+            )
+        ):
             return False
-        if r['elements'] and self._exclude_dependencies:
-            return not all(element['source_mapping']['is_dependency'] for element in r['elements'])
+        if r["elements"] and self._exclude_dependencies:
+            return not all(
+                element["source_mapping"]["is_dependency"] for element in r["elements"]
+            )
 
-        return not r['description'] in [pr['description'] for pr in self._previous_results]
+        return not r["description"] in [
+            pr["description"] for pr in self._previous_results
+        ]
 
     def load_previous_results(self):
         filename = self._previous_results_filename
@@ -198,13 +209,19 @@ class Slither(Context):
                 with open(filename) as f:
                     self._previous_results = json.load(f)
         except json.decoder.JSONDecodeError:
-            logger.error(red('Impossible to decode {}. Consider removing the file'.format(filename)))
+            logger.error(
+                red(
+                    "Impossible to decode {}. Consider removing the file".format(
+                        filename
+                    )
+                )
+            )
 
     def write_results_to_hide(self):
         if not self._results_to_hide:
             return
         filename = self._previous_results_filename
-        with open(filename, 'w', encoding='utf8') as f:
+        with open(filename, "w", encoding="utf8") as f:
             results = self._results_to_hide + self._previous_results
             json.dump(results, f)
 
@@ -212,10 +229,10 @@ class Slither(Context):
         self._results_to_hide += results
 
     def add_path_to_filter(self, path):
-        '''
+        """
             Add path to filter
             Path are used through direct comparison (no regex)
-        '''
+        """
         self._paths_to_filter.add(path)
 
     # endregion
@@ -228,4 +245,5 @@ class Slither(Context):
     @property
     def crytic_compile(self):
         return self._crytic_compile
+
     # endregion

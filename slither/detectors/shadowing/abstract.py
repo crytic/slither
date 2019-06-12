@@ -11,17 +11,16 @@ class ShadowingAbstractDetection(AbstractDetector):
     Shadowing detection
     """
 
-    ARGUMENT = 'shadowing-abstract'
-    HELP = 'State variables shadowing from abstract contracts'
+    ARGUMENT = "shadowing-abstract"
+    HELP = "State variables shadowing from abstract contracts"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#state-variable-shadowing-from-abstract-contracts'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#state-variable-shadowing-from-abstract-contracts"
 
-
-    WIKI_TITLE = 'State variable shadowing from abstract contracts'
-    WIKI_DESCRIPTION = 'Detection of state variables shadowed from abstract contracts.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "State variable shadowing from abstract contracts"
+    WIKI_DESCRIPTION = "Detection of state variables shadowed from abstract contracts."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract BaseContract{
     address owner;
@@ -31,10 +30,9 @@ contract DerivedContract is BaseContract{
     address owner;
 }
 ```
-`owner` of `BaseContract` is shadowed in `DerivedContract`.'''
+`owner` of `BaseContract` is shadowed in `DerivedContract`."""
 
-    WIKI_RECOMMENDATION = 'Remove the state variable shadowing.'
-
+    WIKI_RECOMMENDATION = "Remove the state variable shadowing."
 
     def detect_shadowing(self, contract):
         ret = []
@@ -48,7 +46,6 @@ contract DerivedContract is BaseContract{
             if shadow:
                 ret.append([var] + shadow)
         return ret
-
 
     def _detect(self):
         """ Detect shadowing
@@ -65,11 +62,13 @@ contract DerivedContract is BaseContract{
                 for all_variables in shadowing:
                     shadow = all_variables[0]
                     variables = all_variables[1:]
-                    info = '{} ({}) shadows:\n'.format(shadow.canonical_name,
-                                                       shadow.source_mapping_str)
+                    info = "{} ({}) shadows:\n".format(
+                        shadow.canonical_name, shadow.source_mapping_str
+                    )
                     for var in variables:
-                        info += "\t- {} ({})\n".format(var.canonical_name,
-                                                       var.source_mapping_str)
+                        info += "\t- {} ({})\n".format(
+                            var.canonical_name, var.source_mapping_str
+                        )
 
                     json = self.generate_json_result(info)
                     self.add_variables_to_json(all_variables, json)

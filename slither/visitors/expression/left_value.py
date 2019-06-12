@@ -6,7 +6,8 @@ from slither.core.expressions.assignment_operation import AssignmentOperationTyp
 
 from slither.core.variables.variable import Variable
 
-key = 'LeftValue'
+key = "LeftValue"
+
 
 def get(expression):
     val = expression.context[key]
@@ -14,11 +15,12 @@ def get(expression):
     del expression.context[key]
     return val
 
+
 def set_val(expression, val):
     expression.context[key] = val
 
-class LeftValue(ExpressionVisitor):
 
+class LeftValue(ExpressionVisitor):
     def result(self):
         if self._result is None:
             self._result = list(set(get(self.expression)))
@@ -64,8 +66,8 @@ class LeftValue(ExpressionVisitor):
     def _post_identifier(self, expression):
         if isinstance(expression.value, Variable):
             set_val(expression, [expression.value])
-#        elif isinstance(expression.value, SolidityInbuilt):
-#            set_val(expression, [expression])
+        #        elif isinstance(expression.value, SolidityInbuilt):
+        #            set_val(expression, [expression])
         else:
             set_val(expression, [])
 

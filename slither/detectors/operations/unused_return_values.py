@@ -6,21 +6,22 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.slithir.operations import HighLevelCall, InternalCall, InternalDynamicCall
 from slither.core.variables.state_variable import StateVariable
 
+
 class UnusedReturnValues(AbstractDetector):
     """
     If the return value of a function is never used, it's likely to be bug
     """
 
-    ARGUMENT = 'unused-return'
-    HELP = 'Unused return values'
+    ARGUMENT = "unused-return"
+    HELP = "Unused return values"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return"
 
-    WIKI_TITLE = 'Unused return'
-    WIKI_DESCRIPTION = 'The return value of an external call is not stored in a local or state variable.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Unused return"
+    WIKI_DESCRIPTION = "The return value of an external call is not stored in a local or state variable."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract MyConc{
     using SafeMath for uint;   
@@ -29,9 +30,11 @@ contract MyConc{
     }
 }
 ```
-`MyConc` calls `add` of SafeMath, but does not store the result in `a`. As a result, the computation has no effect.'''
+`MyConc` calls `add` of SafeMath, but does not store the result in `a`. As a result, the computation has no effect."""
 
-    WIKI_RECOMMENDATION = 'Ensure that all the return values of the function calls are used.'
+    WIKI_RECOMMENDATION = (
+        "Ensure that all the return values of the function calls are used."
+    )
 
     _txt_description = "external calls"
 
@@ -73,12 +76,14 @@ contract MyConc{
                 if unused_return:
 
                     for node in unused_return:
-                        info = "{} ({}) ignores return value by {} \"{}\" ({})\n"
-                        info = info.format(f.canonical_name,
-                                           f.source_mapping_str,
-                                           self._txt_description,
-                                           node.expression,
-                                           node.source_mapping_str)
+                        info = '{} ({}) ignores return value by {} "{}" ({})\n'
+                        info = info.format(
+                            f.canonical_name,
+                            f.source_mapping_str,
+                            self._txt_description,
+                            node.expression,
+                            node.source_mapping_str,
+                        )
 
                         json = self.generate_json_result(info)
                         self.add_node_to_json(node, json)
@@ -86,4 +91,3 @@ contract MyConc{
                         results.append(json)
 
         return results
-

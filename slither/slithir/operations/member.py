@@ -9,10 +9,12 @@ from slither.slithir.variables.constant import Constant
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.enum import Enum
 
-class Member(OperationWithLValue):
 
+class Member(OperationWithLValue):
     def __init__(self, variable_left, variable_right, result):
-        assert is_valid_rvalue(variable_left) or isinstance(variable_left, (Contract, Enum))
+        assert is_valid_rvalue(variable_left) or isinstance(
+            variable_left, (Contract, Enum)
+        )
         assert isinstance(variable_right, Constant)
         assert isinstance(result, ReferenceVariable)
         super(Member, self).__init__()
@@ -33,5 +35,6 @@ class Member(OperationWithLValue):
         return self._variable_right
 
     def __str__(self):
-        return '{}({}) -> {}.{}'.format(self.lvalue, self.lvalue.type, self.variable_left, self.variable_right)
-
+        return "{}({}) -> {}.{}".format(
+            self.lvalue, self.lvalue.type, self.variable_left, self.variable_right
+        )

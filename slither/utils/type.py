@@ -1,4 +1,4 @@
-from slither.core.solidity_types import (ArrayType, MappingType, ElementaryType)
+from slither.core.solidity_types import ArrayType, MappingType, ElementaryType
 
 
 def _add_mapping_parameter(t, l):
@@ -10,7 +10,7 @@ def _add_mapping_parameter(t, l):
 
 def _add_array_parameter(t, l):
     while isinstance(t, ArrayType):
-        l.append(ElementaryType('uint256'))
+        l.append(ElementaryType("uint256"))
         t = t.type
 
 
@@ -30,5 +30,3 @@ def export_nested_types_from_variable(variable):
         _add_array_parameter(v.type, l)
 
     return l
-
-

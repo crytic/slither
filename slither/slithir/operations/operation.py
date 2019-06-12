@@ -3,8 +3,8 @@ from slither.core.context.context import Context
 from slither.core.children.child_node import ChildNode
 from slither.utils.utils import unroll
 
-class AbstractOperation(abc.ABC):
 
+class AbstractOperation(abc.ABC):
     @property
     @abc.abstractmethod
     def read(self):
@@ -21,8 +21,8 @@ class AbstractOperation(abc.ABC):
         """
         pass
 
-class Operation(Context, ChildNode, AbstractOperation):
 
+class Operation(Context, ChildNode, AbstractOperation):
     @property
     def used(self):
         """
