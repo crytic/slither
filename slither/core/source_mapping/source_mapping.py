@@ -2,8 +2,8 @@ import re
 import os
 from slither.core.context.context import Context
 
-class SourceMapping(Context):
 
+class SourceMapping(Context):
     def __init__(self):
         super(SourceMapping, self).__init__()
         self._source_mapping = None
@@ -20,7 +20,7 @@ class SourceMapping(Context):
 
             Not done in an efficient way
         """
-        source_code = source_code.encode('utf-8')
+        source_code = source_code.encode("utf-8")
         total_length = len(source_code)
         source_code = source_code.splitlines(True)
         counter = 0
@@ -37,7 +37,11 @@ class SourceMapping(Context):
             # Determine our column numbers.
             if starting_column is None and counter + line_length > start:
                 starting_column = (start - counter) + 1
-            if starting_column is not None and ending_column is None and counter + line_length > start + length:
+            if (
+                starting_column is not None
+                and ending_column is None
+                and counter + line_length > start + length
+            ):
                 ending_column = ((start + length) - counter) + 1
 
             # Advance the current position counter, and determine line numbers.
@@ -53,15 +57,15 @@ class SourceMapping(Context):
 
     @staticmethod
     def _convert_source_mapping(offset, slither):
-        '''
+        """
         Convert a text offset to a real offset
         see https://solidity.readthedocs.io/en/develop/miscellaneous.html#source-mappings
         Returns:
             (dict): {'start':0, 'length':0, 'filename': 'file.sol'}
-        '''
+        """
         sourceUnits = slither.source_units
 
-        position = re.findall('([0-9]*):([0-9]*):([-]?[0-9]*)', offset)
+        position = re.findall("([0-9]*):([0-9]*):([-]?[0-9]*)", offset)
         if len(position) != 1:
             return {}
 
@@ -71,7 +75,7 @@ class SourceMapping(Context):
         f = int(f)
 
         if f not in sourceUnits:
-            return {'start':s, 'length':l}
+            return {"start": s, "length": l}
         filename_used = sourceUnits[f]
         filename_absolute = None
         filename_relative = None
@@ -96,30 +100,31 @@ class SourceMapping(Context):
                 filename = filename_relative
             elif filename_short in slither.source_code:
                 filename = filename_short
-            else:#
+            else:  #
                 filename = filename_used.used
         else:
             filename = filename_used
 
         if filename in slither.source_code:
             source_code = slither.source_code[filename]
-            (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code,
-                                                                                  s,
-                                                                                  l)
+            (lines, starting_column, ending_column) = SourceMapping._compute_line(
+                source_code, s, l
+            )
         else:
             (lines, starting_column, ending_column) = ([], None, None)
 
-        return {'start':s,
-                'length':l,
-                'filename_used': filename_used,
-                'filename_relative': filename_relative,
-                'filename_absolute': filename_absolute,
-                'filename_short': filename_short,
-                'is_dependency': is_dependency,
-                'lines' : lines,
-                'starting_column': starting_column,
-                'ending_column': ending_column
-                }
+        return {
+            "start": s,
+            "length": l,
+            "filename_used": filename_used,
+            "filename_relative": filename_relative,
+            "filename_absolute": filename_absolute,
+            "filename_short": filename_short,
+            "is_dependency": is_dependency,
+            "lines": lines,
+            "starting_column": starting_column,
+            "ending_column": ending_column,
+        }
 
     def set_offset(self, offset, slither):
         if isinstance(offset, dict):
@@ -127,16 +132,14 @@ class SourceMapping(Context):
         else:
             self._source_mapping = self._convert_source_mapping(offset, slither)
 
-
     @property
     def source_mapping_str(self):
 
-        lines = self.source_mapping.get('lines', None)
+        lines = self.source_mapping.get("lines", None)
         if not lines:
-            lines = ''
+            lines = ""
         elif len(lines) == 1:
-            lines = '#{}'.format(lines[0])
+            lines = "#{}".format(lines[0])
         else:
-            lines = '#{}-{}'.format(lines[0], lines[-1])
-        return '{}{}'.format(self.source_mapping['filename_short'], lines)
-
+            lines = "#{}-{}".format(lines[0], lines[-1])
+        return "{}{}".format(self.source_mapping["filename_short"], lines)

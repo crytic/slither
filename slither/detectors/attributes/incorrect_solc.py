@@ -11,32 +11,35 @@ import re
 # 2: version number
 # 3: version number
 # 4: version number
-PATTERN = re.compile('(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)')
+PATTERN = re.compile("(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
+
 
 class IncorrectSolc(AbstractDetector):
     """
     Check if an old version of solc is used
     """
 
-    ARGUMENT = 'solc-version'
-    HELP = 'Incorrect Solidity version (< 0.4.24 or complex pragma)'
+    ARGUMENT = "solc-version"
+    HELP = "Incorrect Solidity version (< 0.4.24 or complex pragma)"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity"
 
-    WIKI_TITLE = 'Incorrect versions of Solidity'
-    WIKI_DESCRIPTION = '''
+    WIKI_TITLE = "Incorrect versions of Solidity"
+    WIKI_DESCRIPTION = """
 Solc frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks.
-We recommend avoiding complex pragma statement.'''
-    WIKI_RECOMMENDATION = '''
-Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for testing the compilation, and a trusted version for deploying.'''
+We recommend avoiding complex pragma statement."""
+    WIKI_RECOMMENDATION = """
+Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for testing the compilation, and a trusted version for deploying."""
 
     COMPLEX_PRAGMA_TXT = "is too complex"
     OLD_VERSION_TXT = "allows old versions"
     LESS_THAN_TXT = "uses lesser than"
 
-    TOO_RECENT_VERSION_TXT = "necessitates versions too recent to be trusted. Consider deploying with 0.5.3"
+    TOO_RECENT_VERSION_TXT = (
+        "necessitates versions too recent to be trusted. Consider deploying with 0.5.3"
+    )
     BUGGY_VERSION_TXT = "is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)"
 
     # Indicates the allowed versions.
@@ -48,9 +51,9 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
 
     def _check_version(self, version):
         op = version[0]
-        if op and not op in ['>', '>=', '^']:
+        if op and not op in [">", ">=", "^"]:
             return self.LESS_THAN_TXT
-        version_number = '.'.join(version[2:])
+        version_number = ".".join(version[2:])
         if version_number not in self.ALLOWED_VERSIONS:
             if version_number in self.TOO_RECENT_VERSIONS:
                 return self.TOO_RECENT_VERSION_TXT
@@ -69,11 +72,15 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
             version_right = versions[1]
             # Only allow two elements if the second one is
             # <0.5.0 or <0.6.0
-            if version_right not in [('<', '', '0', '5', '0'), ('<', '', '0', '6', '0')]:
+            if version_right not in [
+                ("<", "", "0", "5", "0"),
+                ("<", "", "0", "6", "0"),
+            ]:
                 return self.COMPLEX_PRAGMA_TXT
             return self._check_version(version_left)
         else:
             return self.COMPLEX_PRAGMA_TXT
+
     def _detect(self):
         """
         Detects pragma statements that allow for outdated solc versions.
@@ -98,7 +105,9 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
         # If we found any disallowed pragmas, we output our findings.
         if disallowed_pragmas:
             for (reason, p) in disallowed_pragmas:
-                info = f"Pragma version \"{p.version}\" {reason} ({p.source_mapping_str})\n"
+                info = (
+                    f'Pragma version "{p.version}" {reason} ({p.source_mapping_str})\n'
+                )
 
                 json = self.generate_json_result(info)
                 self.add_pragma_to_json(p, json)

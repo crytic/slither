@@ -3,5 +3,6 @@
 """
 from .function import Function
 
-class Modifier(Function): pass
 
+class Modifier(Function):
+    pass

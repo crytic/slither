@@ -1,10 +1,9 @@
-
 from .variable import SlithIRVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.children.child_node import ChildNode
 
-class StateIRVariable(StateVariable, SlithIRVariable):
 
+class StateIRVariable(StateVariable, SlithIRVariable):
     def __init__(self, state_variable):
         assert isinstance(state_variable, StateVariable)
 
@@ -43,4 +42,4 @@ class StateIRVariable(StateVariable, SlithIRVariable):
 
     @property
     def ssa_name(self):
-        return '{}_{}'.format(self._name, self.index)
+        return "{}_{}".format(self._name, self.index)

@@ -18,11 +18,16 @@ def resolve_function(contract_name, function_name):
         raise ValueError(f"Could not resolve target contract: {contract_name}")
 
     # Obtain the target function
-    target_function = next((function for function in contract.functions if function.name == function_name), None)
+    target_function = next(
+        (function for function in contract.functions if function.name == function_name),
+        None,
+    )
 
     # Verify we have resolved the function specified.
     if target_function is None:
-        raise ValueError(f"Could not resolve target function: {contract_name}.{function_name}")
+        raise ValueError(
+            f"Could not resolve target function: {contract_name}.{function_name}"
+        )
 
     # Add the resolved function to the new list.
     return target_function
@@ -46,17 +51,23 @@ def resolve_functions(functions):
     for item in functions:
         if isinstance(item, str):
             # If the item is a single string, we assume it is of form 'ContractName.FunctionName'.
-            parts = item.split('.')
+            parts = item.split(".")
             if len(parts) < 2:
-                raise ValueError("Provided string descriptor must be of form 'ContractName.FunctionName'")
+                raise ValueError(
+                    "Provided string descriptor must be of form 'ContractName.FunctionName'"
+                )
             resolved.append(resolve_function(parts[0], parts[1]))
         elif isinstance(item, tuple):
             # If the item is a tuple, it should be a 2-tuple providing contract and function names.
             if len(item) != 2:
-                raise ValueError("Provided tuple descriptor must provide a contract and function name.")
+                raise ValueError(
+                    "Provided tuple descriptor must provide a contract and function name."
+                )
             resolved.append(resolve_function(item[0], item[1]))
         else:
-            raise ValueError(f"Unexpected function descriptor type to resolve in list: {type(item)}")
+            raise ValueError(
+                f"Unexpected function descriptor type to resolve in list: {type(item)}"
+            )
 
     # Return the resolved list.
     return resolved
@@ -68,9 +79,12 @@ def all_function_definitions(function):
     :param function: The function to obtain all definitions at and beneath.
     :return: Returns a list composed of the provided function definition and any base definitions.
     """
-    return [function] + [f for c in function.contract.inheritance
-                         for f in c.functions_and_modifiers_declared
-                         if f.full_name == function.full_name]
+    return [function] + [
+        f
+        for c in function.contract.inheritance
+        for f in c.functions_and_modifiers_declared
+        if f.full_name == function.full_name
+    ]
 
 
 def __find_target_paths(target_function, current_path=[]):
@@ -93,7 +107,9 @@ def __find_target_paths(target_function, current_path=[]):
                 continue
 
             # Find all function calls in this function (except for low level)
-            called_functions = [f for (_, f) in function.high_level_calls + function.library_calls]
+            called_functions = [
+                f for (_, f) in function.high_level_calls + function.library_calls
+            ]
             called_functions += function.internal_calls
             called_functions = set(called_functions)
 
@@ -104,7 +120,7 @@ def __find_target_paths(target_function, current_path=[]):
                     results = results.union(path_results)
 
     # If this path is external accessible from this point, we add the current path to the list.
-    if target_function.visibility in ['public', 'external'] and len(current_path) > 1:
+    if target_function.visibility in ["public", "external"] and len(current_path) > 1:
         results.add(tuple(current_path))
 
     return results
@@ -131,18 +147,23 @@ def parse_args():
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
     """
-    parser = argparse.ArgumentParser(description='PossiblePaths',
-                                     usage='possible_paths.py [--is-truffle] filename [contract.function targets]')
+    parser = argparse.ArgumentParser(
+        description="PossiblePaths",
+        usage="possible_paths.py [--is-truffle] filename [contract.function targets]",
+    )
 
-    parser.add_argument('--is-truffle',
-                        help='Indicates the filename refers to a truffle directory path.',
-                        action='store_true',
-                        default=False)
+    parser.add_argument(
+        "--is-truffle",
+        help="Indicates the filename refers to a truffle directory path.",
+        action="store_true",
+        default=False,
+    )
 
-    parser.add_argument('filename',
-                        help='The filename of the contract or truffle directory to analyze.')
+    parser.add_argument(
+        "filename", help="The filename of the contract or truffle directory to analyze."
+    )
 
-    parser.add_argument('targets', nargs='+')
+    parser.add_argument("targets", nargs="+")
 
     return parser.parse_args()
 
@@ -160,7 +181,9 @@ if args.is_truffle:
     cwd = os.path.abspath(args.filename)
     build_dir = os.path.join(cwd, "build", "contracts")
     if not os.path.exists(build_dir):
-        raise FileNotFoundError(f"Could not find truffle build directory at '{build_dir}'")
+        raise FileNotFoundError(
+            f"Could not find truffle build directory at '{build_dir}'"
+        )
 
 # Perform slither analysis on the given filename
 slither = Slither(args.filename, is_truffle=args.is_truffle)
@@ -184,7 +207,10 @@ for function_desc in sorted([f"{f.canonical_name}" for f in reaching_functions])
 print("\n")
 
 # Format all function paths.
-reaching_paths_str = [' -> '.join([f"{f.canonical_name}" for f in reaching_path]) for reaching_path in reaching_paths]
+reaching_paths_str = [
+    " -> ".join([f"{f.canonical_name}" for f in reaching_path])
+    for reaching_path in reaching_paths
+]
 
 # Print a sorted list of all function paths which can reach the targets.
 print(f"The following paths reach the specified targets:")

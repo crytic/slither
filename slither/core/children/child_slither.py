@@ -1,6 +1,4 @@
-
 class ChildSlither:
-
     def __init__(self):
         super(ChildSlither, self).__init__()
         self._slither = None

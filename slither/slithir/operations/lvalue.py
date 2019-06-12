@@ -1,9 +1,10 @@
 from slither.slithir.operations.operation import Operation
 
+
 class OperationWithLValue(Operation):
-    '''
+    """
         Operation with a lvalue
-    '''
+    """
 
     def __init__(self):
         super(OperationWithLValue, self).__init__()

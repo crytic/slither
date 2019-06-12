@@ -1,7 +1,7 @@
 from slither.core.expressions.expression import Expression
 
-class CallExpression(Expression):
 
+class CallExpression(Expression):
     def __init__(self, called, arguments, type_call):
         assert isinstance(called, Expression)
         super(CallExpression, self).__init__()
@@ -22,5 +22,6 @@ class CallExpression(Expression):
         return self._type_call
 
     def __str__(self):
-        return str(self._called) + '(' + ','.join([str(a) for a in self._arguments]) + ')'
-
+        return (
+            str(self._called) + "(" + ",".join([str(a) for a in self._arguments]) + ")"
+        )

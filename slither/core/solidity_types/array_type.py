@@ -4,13 +4,13 @@ from slither.core.expressions.expression import Expression
 from slither.core.expressions import Literal
 from slither.visitors.expression.constants_folding import ConstantFolding
 
-class ArrayType(Type):
 
+class ArrayType(Type):
     def __init__(self, t, length):
         assert isinstance(t, Type)
         if length:
             if isinstance(length, int):
-                length = Literal(length, 'uint256')
+                length = Literal(length, "uint256")
             assert isinstance(length, Expression)
         super(ArrayType, self).__init__()
         self._type = t
@@ -34,9 +34,8 @@ class ArrayType(Type):
 
     def __str__(self):
         if self._length:
-            return str(self._type)+'[{}]'.format(str(self._length_value))
-        return str(self._type)+'[]'
-
+            return str(self._type) + "[{}]".format(str(self._length_value))
+        return str(self._type) + "[]"
 
     def __eq__(self, other):
         if not isinstance(other, ArrayType):

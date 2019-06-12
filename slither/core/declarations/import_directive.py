@@ -1,7 +1,7 @@
 from slither.core.source_mapping.source_mapping import SourceMapping
 
-class Import(SourceMapping):
 
+class Import(SourceMapping):
     def __init__(self, filename):
         super(Import, self).__init__()
         self._filename = filename

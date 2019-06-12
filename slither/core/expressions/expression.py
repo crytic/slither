@@ -1,7 +1,7 @@
 from slither.core.source_mapping.source_mapping import SourceMapping
 
-class Expression( SourceMapping):
 
+class Expression(SourceMapping):
     def __init__(self):
         super(Expression, self).__init__()
         self._is_lvalue = False
@@ -12,4 +12,3 @@ class Expression( SourceMapping):
 
     def set_lvalue(self):
         self._is_lvalue = True
-

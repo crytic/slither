@@ -7,7 +7,8 @@ from .attributes.incorrect_solc import IncorrectSolc
 from .attributes.locked_ether import LockedEther
 from .functions.arbitrary_send import ArbitrarySend
 from .functions.suicidal import Suicidal
-#from .functions.complex_function import ComplexFunction
+
+# from .functions.complex_function import ComplexFunction
 from .reentrancy.reentrancy_benign import ReentrancyBenign
 from .reentrancy.reentrancy_read_before_write import ReentrancyReadBeforeWritten
 from .reentrancy.reentrancy_eth import ReentrancyEth
@@ -36,5 +37,6 @@ from .source.rtlo import RightToLeftOverride
 from .statements.too_many_digits import TooManyDigits
 from .operations.unchecked_low_level_return_values import UncheckedLowLevel
 from .operations.unchecked_send_return_value import UncheckedSend
+
 #
 #

@@ -14,17 +14,16 @@ class UninitializedLocalVars(AbstractDetector):
     """
     """
 
-    ARGUMENT = 'uninitialized-local'
-    HELP = 'Uninitialized local variables'
+    ARGUMENT = "uninitialized-local"
+    HELP = "Uninitialized local variables"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-local-variables'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-local-variables"
 
-
-    WIKI_TITLE = 'Uninitialized local variables'
-    WIKI_DESCRIPTION = 'Uninitialized local variables.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Uninitialized local variables"
+    WIKI_DESCRIPTION = "Uninitialized local variables."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Uninitialized is Owner{
     function withdraw() payable public onlyOwner{
@@ -33,9 +32,9 @@ contract Uninitialized is Owner{
     }
 }
 ```
-Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and are lost.'''
+Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and are lost."""
 
-    WIKI_RECOMMENDATION = 'Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero.'
+    WIKI_RECOMMENDATION = "Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero."
 
     key = "UNINITIALIZEDLOCAL"
 
@@ -58,7 +57,9 @@ Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and ar
         else:
             self.visited_all_paths[node] = []
 
-        self.visited_all_paths[node] = list(set(self.visited_all_paths[node] + fathers_context))
+        self.visited_all_paths[node] = list(
+            set(self.visited_all_paths[node] + fathers_context)
+        )
 
         if self.key in node.context:
             fathers_context += node.context[self.key]
@@ -69,12 +70,13 @@ Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and ar
                 self.results.append((function, uninitialized_local_variable))
 
         # Only save the local variables that are not yet written
-        uninitialized_local_variables = list(set(fathers_context) - set(node.variables_written))
+        uninitialized_local_variables = list(
+            set(fathers_context) - set(node.variables_written)
+        )
         node.context[self.key] = uninitialized_local_variables
 
         for son in node.sons:
             self._detect_uninitialized(function, son, visited)
-
 
     def _detect(self):
         """ Detect uninitialized local variables
@@ -94,18 +96,25 @@ Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and ar
                     if function.contains_assembly:
                         continue
                     # dont consider storage variable, as they are detected by another detector
-                    uninitialized_local_variables = [v for v in function.local_variables if not v.is_storage and v.uninitialized]
-                    function.entry_point.context[self.key] = uninitialized_local_variables
+                    uninitialized_local_variables = [
+                        v
+                        for v in function.local_variables
+                        if not v.is_storage and v.uninitialized
+                    ]
+                    function.entry_point.context[
+                        self.key
+                    ] = uninitialized_local_variables
                     self._detect_uninitialized(function, function.entry_point, [])
         all_results = list(set(self.results))
-        for(function, uninitialized_local_variable) in all_results:
+        for (function, uninitialized_local_variable) in all_results:
             var_name = uninitialized_local_variable.name
 
             info = "{} in {} ({}) is a local variable never initialiazed\n"
-            info = info.format(var_name,
-                               function.canonical_name,
-                               uninitialized_local_variable.source_mapping_str)
-
+            info = info.format(
+                var_name,
+                function.canonical_name,
+                uninitialized_local_variable.source_mapping_str,
+            )
 
             json = self.generate_json_result(info)
             self.add_variable_to_json(uninitialized_local_variable, json)

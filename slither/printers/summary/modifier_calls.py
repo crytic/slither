@@ -6,12 +6,13 @@ from prettytable import PrettyTable
 from slither.core.declarations import Function
 from slither.printers.abstract_printer import AbstractPrinter
 
+
 class Modifiers(AbstractPrinter):
 
-    ARGUMENT = 'modifiers'
-    HELP = 'Print the modifiers called by each function'
+    ARGUMENT = "modifiers"
+    HELP = "Print the modifiers called by each function"
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#modifiers'
+    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#modifiers"
 
     def output(self, _filename):
         """
@@ -21,9 +22,8 @@ class Modifiers(AbstractPrinter):
         """
 
         for contract in self.slither.contracts_derived:
-            txt = "\nContract %s"%contract.name
-            table = PrettyTable(["Function",
-                                 "Modifiers"])
+            txt = "\nContract %s" % contract.name
+            table = PrettyTable(["Function", "Modifiers"])
             for function in contract.functions:
                 modifiers = function.modifiers
                 for call in function.all_internal_calls():
@@ -33,5 +33,5 @@ class Modifiers(AbstractPrinter):
                     if isinstance(call, Function):
                         modifiers += call.modifiers
                 table.add_row([function.name, [m.name for m in set(modifiers)]])
-            txt += "\n"+str(table)
+            txt += "\n" + str(table)
             self.info(txt)

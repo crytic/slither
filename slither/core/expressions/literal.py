@@ -1,7 +1,7 @@
 from slither.core.expressions.expression import Expression
 
-class Literal(Expression):
 
+class Literal(Expression):
     def __init__(self, value, type):
         super(Literal, self).__init__()
         self._value = value

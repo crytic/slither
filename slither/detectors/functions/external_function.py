@@ -1,7 +1,7 @@
-from slither.detectors.abstract_detector import (AbstractDetector,
-                                                 DetectorClassification)
-from slither.slithir.operations import (HighLevelCall, SolidityCall )
-from slither.slithir.operations import (InternalCall, InternalDynamicCall)
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.slithir.operations import HighLevelCall, SolidityCall
+from slither.slithir.operations import InternalCall, InternalDynamicCall
+
 
 class ExternalFunction(AbstractDetector):
     """
@@ -11,17 +11,18 @@ class ExternalFunction(AbstractDetector):
     https://github.com/trailofbits/slither/pull/53#issuecomment-432809950
     """
 
-    ARGUMENT = 'external-function'
-    HELP = 'Public function that could be declared as external'
+    ARGUMENT = "external-function"
+    HELP = "Public function that could be declared as external"
     IMPACT = DetectorClassification.OPTIMIZATION
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-as-external'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-as-external"
 
-
-    WIKI_TITLE = 'Public function that could be declared as external'
-    WIKI_DESCRIPTION = '`public` functions that are never called by the contract should be declared `external` to save gas.'
-    WIKI_RECOMMENDATION = 'Use the `external` attribute for functions never called from the contract.'
+    WIKI_TITLE = "Public function that could be declared as external"
+    WIKI_DESCRIPTION = "`public` functions that are never called by the contract should be declared `external` to save gas."
+    WIKI_RECOMMENDATION = (
+        "Use the `external` attribute for functions never called from the contract."
+    )
 
     @staticmethod
     def detect_functions_called(contract):
@@ -79,7 +80,9 @@ class ExternalFunction(AbstractDetector):
 
         # Somehow we couldn't resolve it, which shouldn't happen, as the provided function should be found if we could
         # not find some any more basic.
-        raise Exception("Could not resolve the base-most function for the provided function.")
+        raise Exception(
+            "Could not resolve the base-most function for the provided function."
+        )
 
     @staticmethod
     def get_all_function_definitions(base_most_function):
@@ -92,9 +95,12 @@ class ExternalFunction(AbstractDetector):
         """
         # We assume the provided function is the base-most function, so we check all derived contracts
         # for a redefinition
-        return [base_most_function] + [function for derived_contract in base_most_function.contract.derived_contracts
-                                       for function in derived_contract.functions
-                                       if function.full_name == base_most_function.full_name]
+        return [base_most_function] + [
+            function
+            for derived_contract in base_most_function.contract.derived_contracts
+            for function in derived_contract.functions
+            if function.full_name == base_most_function.full_name
+        ]
 
     @staticmethod
     def function_parameters_written(function):
@@ -138,25 +144,41 @@ class ExternalFunction(AbstractDetector):
                 # because parameters of external functions will be allocated in calldata region which is immutable
                 if self.function_parameters_written(function):
                     continue
-                
+
                 # Get the base-most function to know our origin of this function.
                 base_most_function = self.get_base_most_function(function)
 
                 # Get all possible contracts which can call this function (or an override).
-                all_possible_sources = [base_most_function.contract] + base_most_function.contract.derived_contracts
+                all_possible_sources = [
+                    base_most_function.contract
+                ] + base_most_function.contract.derived_contracts
 
                 # Get all function signatures (overloaded and not), mark as completed and we process them now.
                 # Note: We mark all function definitions as the same, as they must all share visibility to override.
-                all_function_definitions = set(self.get_all_function_definitions(base_most_function))
-                completed_functions = completed_functions.union(all_function_definitions)
+                all_function_definitions = set(
+                    self.get_all_function_definitions(base_most_function)
+                )
+                completed_functions = completed_functions.union(
+                    all_function_definitions
+                )
 
                 # Filter false-positives: Determine if any of these sources have dynamic calls, if so, flag all of these
                 # function definitions, and then flag all functions in all contracts that make dynamic calls.
-                sources_with_dynamic_calls = set(all_possible_sources) & dynamic_call_contracts
+                sources_with_dynamic_calls = (
+                    set(all_possible_sources) & dynamic_call_contracts
+                )
                 if sources_with_dynamic_calls:
-                    functions_in_dynamic_call_sources = set([f for dyn_contract in sources_with_dynamic_calls
-                                                             for f in dyn_contract.functions if not f.is_constructor])
-                    completed_functions = completed_functions.union(functions_in_dynamic_call_sources)
+                    functions_in_dynamic_call_sources = set(
+                        [
+                            f
+                            for dyn_contract in sources_with_dynamic_calls
+                            for f in dyn_contract.functions
+                            if not f.is_constructor
+                        ]
+                    )
+                    completed_functions = completed_functions.union(
+                        functions_in_dynamic_call_sources
+                    )
                     continue
 
                 # Detect all functions called in each source, if any match our current signature, we skip
@@ -175,8 +197,10 @@ class ExternalFunction(AbstractDetector):
                 # Loop for each function definition, and recommend it be declared external.
                 for function_definition in all_function_definitions:
                     txt = "{} ({}) should be declared external\n"
-                    info = txt.format(function_definition.canonical_name,
-                                      function_definition.source_mapping_str)
+                    info = txt.format(
+                        function_definition.canonical_name,
+                        function_definition.source_mapping_str,
+                    )
 
                     json = self.generate_json_result(info)
                     self.add_function_to_json(function_definition, json)

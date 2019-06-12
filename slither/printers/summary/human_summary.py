@@ -8,11 +8,12 @@ from slither.utils.code_complexity import compute_cyclomatic_complexity
 from slither.utils.colors import green, red, yellow
 from slither.utils.standard_libraries import is_standard_library
 
-class PrinterHumanSummary(AbstractPrinter):
-    ARGUMENT = 'human-summary'
-    HELP = 'Print a human-readable summary of the contracts'
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#human-summary'
+class PrinterHumanSummary(AbstractPrinter):
+    ARGUMENT = "human-summary"
+    HELP = "Print a human-readable summary of the contracts"
+
+    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#human-summary"
 
     @staticmethod
     def _get_summary_erc20(contract):
@@ -20,50 +21,53 @@ class PrinterHumanSummary(AbstractPrinter):
         functions_name = [f.name for f in contract.functions]
         state_variables = [v.name for v in contract.state_variables]
 
-        pause = 'pause' in functions_name
+        pause = "pause" in functions_name
 
-        if 'mint' in functions_name:
-            if not 'mintingFinished' in state_variables:
+        if "mint" in functions_name:
+            if not "mintingFinished" in state_variables:
                 mint_limited = False
             else:
                 mint_limited = True
         else:
-            mint_limited = None # no minting
+            mint_limited = None  # no minting
 
-        race_condition_mitigated = 'increaseApproval' in functions_name or\
-                                   'safeIncreaseAllowance' in functions_name
+        race_condition_mitigated = (
+            "increaseApproval" in functions_name
+            or "safeIncreaseAllowance" in functions_name
+        )
 
         return pause, mint_limited, race_condition_mitigated
 
-
     def get_summary_erc20(self, contract):
-        txt = ''
+        txt = ""
 
-        pause, mint_limited, race_condition_mitigated = self._get_summary_erc20(contract)
+        pause, mint_limited, race_condition_mitigated = self._get_summary_erc20(
+            contract
+        )
 
         if pause:
-            txt += "\t\t Can be paused? : {}\n".format(yellow('Yes'))
+            txt += "\t\t Can be paused? : {}\n".format(yellow("Yes"))
         else:
-            txt += "\t\t Can be paused? : {}\n".format(green('No'))
+            txt += "\t\t Can be paused? : {}\n".format(green("No"))
 
         if mint_limited is None:
-            txt += "\t\t Minting restriction? : {}\n".format(green('No Minting'))
+            txt += "\t\t Minting restriction? : {}\n".format(green("No Minting"))
         else:
             if mint_limited:
-                txt += "\t\t Minting restriction? : {}\n".format(red('Yes'))
+                txt += "\t\t Minting restriction? : {}\n".format(red("Yes"))
             else:
-                txt += "\t\t Minting restriction? : {}\n".format(yellow('No'))
+                txt += "\t\t Minting restriction? : {}\n".format(yellow("No"))
 
         if race_condition_mitigated:
-            txt += "\t\t ERC20 race condition mitigation: {}\n".format(green('Yes'))
+            txt += "\t\t ERC20 race condition mitigation: {}\n".format(green("Yes"))
         else:
-            txt += "\t\t ERC20 race condition mitigation: {}\n".format(red('No'))
+            txt += "\t\t ERC20 race condition mitigation: {}\n".format(red("No"))
 
         return txt
 
     def _get_detectors_result(self):
         # disable detectors logger
-        logger = logging.getLogger('Detectors')
+        logger = logging.getLogger("Detectors")
         logger.setLevel(logging.ERROR)
 
         checks_informational = self.slither.detectors_informational
@@ -73,7 +77,9 @@ class PrinterHumanSummary(AbstractPrinter):
 
         issues_informational = [c.detect() for c in checks_informational]
         issues_informational = [c for c in issues_informational if c]
-        issues_informational = [item for sublist in issues_informational for item in sublist]
+        issues_informational = [
+            item for sublist in issues_informational for item in sublist
+        ]
 
         issues_low = [c.detect() for c in checks_low]
         issues_low = [c for c in issues_low if c]
@@ -87,15 +93,17 @@ class PrinterHumanSummary(AbstractPrinter):
         issues_high = [c for c in issues_high if c]
         issues_high = [item for sublist in issues_high for item in sublist]
 
-
-
-        return (len(issues_informational),
-                len(issues_low),
-                len(issues_medium),
-                len(issues_high))
+        return (
+            len(issues_informational),
+            len(issues_low),
+            len(issues_medium),
+            len(issues_high),
+        )
 
     def get_detectors_result(self):
-        issues_informational, issues_low, issues_medium, issues_high = self._get_detectors_result()
+        issues_informational, issues_low, issues_medium, issues_high = (
+            self._get_detectors_result()
+        )
         txt = "Number of informational issues: {}\n".format(green(issues_informational))
         txt += "Number of low issues: {}\n".format(green(issues_low))
         if issues_medium > 0:
@@ -127,7 +135,7 @@ class PrinterHumanSummary(AbstractPrinter):
 
         is_complex = self._is_complex_code(contract)
 
-        result = red('Yes') if is_complex else green('No')
+        result = red("Yes") if is_complex else green("No")
 
         return "\tComplex code? {}\n".format(result)
 
@@ -153,8 +161,8 @@ class PrinterHumanSummary(AbstractPrinter):
 
     def _compilation_type(self):
         if self.slither.crytic_compile is None:
-            return 'Compilation non standard\n'
-        return f'Compiled with {self.slither.crytic_compile.type}\n'
+            return "Compilation non standard\n"
+        return f"Compiled with {self.slither.crytic_compile.type}\n"
 
     def _number_contracts(self):
         if self.slither.crytic_compile is None:
@@ -191,10 +199,10 @@ class PrinterHumanSummary(AbstractPrinter):
         lines_number = self._lines_number()
         if lines_number:
             total_lines, total_dep_lines = lines_number
-            txt += f'Number of lines: {total_lines} (+ {total_dep_lines} in dependencies)\n'
+            txt += f"Number of lines: {total_lines} (+ {total_dep_lines} in dependencies)\n"
 
         number_contracts, number_contracts_deps = self._number_contracts()
-        txt += f'Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies) \n\n'
+        txt += f"Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies) \n\n"
 
         txt += self.get_detectors_result()
 
@@ -209,13 +217,15 @@ class PrinterHumanSummary(AbstractPrinter):
         for contract in self.slither.contracts_derived:
             txt += "\nContract {}\n".format(contract.name)
             txt += self.is_complex_code(contract)
-            txt += '\tNumber of functions: {}\n'.format(self._number_functions(contract))
+            txt += "\tNumber of functions: {}\n".format(
+                self._number_functions(contract)
+            )
             ercs = contract.ercs()
             if ercs:
-                txt += '\tERCs: ' + ','.join(ercs) + '\n'
+                txt += "\tERCs: " + ",".join(ercs) + "\n"
             is_erc20 = contract.is_erc20()
             if is_erc20:
-                txt += '\tERC20 info:\n'
+                txt += "\tERC20 info:\n"
                 txt += self.get_summary_erc20(contract)
 
         self.info(txt)

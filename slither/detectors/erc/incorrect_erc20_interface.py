@@ -10,46 +10,66 @@ class IncorrectERC20InterfaceDetection(AbstractDetector):
     Incorrect ERC20 Interface
     """
 
-    ARGUMENT = 'erc20-interface'
-    HELP = 'Incorrect ERC20 interfaces'
+    ARGUMENT = "erc20-interface"
+    HELP = "Incorrect ERC20 interfaces"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-erc20-interface'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-erc20-interface"
 
-    WIKI_TITLE = 'Incorrect erc20 interface'
-    WIKI_DESCRIPTION = 'Incorrect return values for ERC20 functions. A contract compiled with solidity > 0.4.22 interacting with these functions will fail to execute them, as the return value is missing.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Incorrect erc20 interface"
+    WIKI_DESCRIPTION = "Incorrect return values for ERC20 functions. A contract compiled with solidity > 0.4.22 interacting with these functions will fail to execute them, as the return value is missing."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Token{
     function transfer(address to, uint value) external;
     //...
 }
 ```
-`Token.transfer` does not return a boolean. Bob deploys the token. Alice creates a contract that interacts with it but assumes a correct ERC20 interface implementation. Alice's contract is unable to interact with Bob's contract.'''
+`Token.transfer` does not return a boolean. Bob deploys the token. Alice creates a contract that interacts with it but assumes a correct ERC20 interface implementation. Alice's contract is unable to interact with Bob's contract."""
 
-    WIKI_RECOMMENDATION = 'Set the appropriate return values and value-types for the defined ERC20 functions.'
+    WIKI_RECOMMENDATION = "Set the appropriate return values and value-types for the defined ERC20 functions."
 
     @staticmethod
     def incorrect_erc20_interface(signature):
         (name, parameters, returnVars) = signature
 
-        if name == 'transfer' and parameters == ['address', 'uint256'] and returnVars != ['bool']:
+        if (
+            name == "transfer"
+            and parameters == ["address", "uint256"]
+            and returnVars != ["bool"]
+        ):
             return True
 
-        if name == 'transferFrom' and parameters == ['address', 'address', 'uint256'] and returnVars != ['bool']:
+        if (
+            name == "transferFrom"
+            and parameters == ["address", "address", "uint256"]
+            and returnVars != ["bool"]
+        ):
             return True
 
-        if name == 'approve' and parameters == ['address', 'uint256'] and returnVars != ['bool']:
+        if (
+            name == "approve"
+            and parameters == ["address", "uint256"]
+            and returnVars != ["bool"]
+        ):
             return True
 
-        if name == 'allowance' and parameters == ['address', 'address'] and returnVars != ['uint256']:
+        if (
+            name == "allowance"
+            and parameters == ["address", "address"]
+            and returnVars != ["uint256"]
+        ):
             return True
 
-        if name == 'balanceOf' and parameters == ['address'] and returnVars != ['uint256']:
+        if (
+            name == "balanceOf"
+            and parameters == ["address"]
+            and returnVars != ["uint256"]
+        ):
             return True
 
-        if name == 'totalSupply' and parameters == [] and returnVars != ['uint256']:
+        if name == "totalSupply" and parameters == [] and returnVars != ["uint256"]:
             return True
 
         return False
@@ -72,7 +92,11 @@ contract Token{
             return []
 
         funcs = contract.functions
-        functions = [f for f in funcs if IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)]
+        functions = [
+            f
+            for f in funcs
+            if IncorrectERC20InterfaceDetection.incorrect_erc20_interface(f.signature)
+        ]
 
         return functions
 
@@ -84,13 +108,17 @@ contract Token{
         """
         results = []
         for c in self.slither.contracts_derived:
-            functions = IncorrectERC20InterfaceDetection.detect_incorrect_erc20_interface(c)
+            functions = IncorrectERC20InterfaceDetection.detect_incorrect_erc20_interface(
+                c
+            )
             if functions:
                 for function in functions:
-                    info = "{} ({}) has incorrect ERC20 function interface: {} ({})\n".format(c.name,
-                                                                                              c.source_mapping_str,
-                                                                                              function.full_name,
-                                                                                              function.source_mapping_str)
+                    info = "{} ({}) has incorrect ERC20 function interface: {} ({})\n".format(
+                        c.name,
+                        c.source_mapping_str,
+                        function.full_name,
+                        function.source_mapping_str,
+                    )
                     json = self.generate_json_result(info)
                     self.add_function_to_json(function, json)
                     results.append(json)

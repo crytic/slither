@@ -5,12 +5,15 @@
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.colors import blue, green, magenta
 
+
 class PrinterSlithIRSSA(AbstractPrinter):
 
-    ARGUMENT = 'slithir-ssa'
-    HELP = 'Print the slithIR representation of the functions'
+    ARGUMENT = "slithir-ssa"
+    HELP = "Print the slithIR representation of the functions"
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir-ssa'
+    WIKI = (
+        "https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir-ssa"
+    )
 
     def output(self, _filename):
         """
@@ -21,24 +24,24 @@ class PrinterSlithIRSSA(AbstractPrinter):
 
         txt = ""
         for contract in self.contracts:
-            print('Contract {}'.format(contract.name))
+            print("Contract {}".format(contract.name))
             for function in contract.functions:
-                print('\tFunction {}'.format(function.canonical_name))
+                print("\tFunction {}".format(function.canonical_name))
                 for node in function.nodes:
                     if node.expression:
-                        print('\t\tExpression: {}'.format(node.expression))
+                        print("\t\tExpression: {}".format(node.expression))
                     if node.irs_ssa:
-                        print('\t\tIRs:')
+                        print("\t\tIRs:")
                         for ir in node.irs_ssa:
-                            print('\t\t\t{}'.format(ir))
+                            print("\t\t\t{}".format(ir))
             for modifier in contract.modifiers:
-                print('\tModifier {}'.format(modifier.canonical_name))
+                print("\tModifier {}".format(modifier.canonical_name))
                 for node in modifier.nodes:
                     print(node)
                     if node.expression:
-                        print('\t\tExpression: {}'.format(node.expression))
+                        print("\t\tExpression: {}".format(node.expression))
                     if node.irs_ssa:
-                        print('\t\tIRs:')
+                        print("\t\tIRs:")
                         for ir in node.irs_ssa:
-                            print('\t\t\t{}'.format(ir))
+                            print("\t\t\t{}".format(ir))
         self.info(txt)

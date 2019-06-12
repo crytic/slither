@@ -1,4 +1,3 @@
-
 class ChildNode(object):
     def __init__(self):
         super(ChildNode, self).__init__()

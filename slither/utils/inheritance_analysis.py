@@ -21,7 +21,11 @@ def detect_c3_function_shadowing(contract):
 
         for function1 in inherited_contract1.functions_and_modifiers_declared:
             # If this function has already be handled or is unimplemented, we skip it
-            if function1.full_name in results or function1.is_constructor or not function1.is_implemented:
+            if (
+                function1.full_name in results
+                or function1.is_constructor
+                or not function1.is_implemented
+            ):
                 continue
 
             # Define our list of function instances which overshadow each other.
@@ -35,7 +39,11 @@ def detect_c3_function_shadowing(contract):
                 # Loop for each function in this contract
                 for function2 in inherited_contract2.functions_and_modifiers:
                     # Skip this function if it is the last function that was shadowed.
-                    if function2 in already_processed or function2.is_constructor or not function2.is_implemented:
+                    if (
+                        function2 in already_processed
+                        or function2.is_constructor
+                        or not function2.is_implemented
+                    ):
                         continue
 
                     # If this function does have the same full name, it is shadowing through C3 linearization.
@@ -61,7 +69,10 @@ def detect_direct_function_shadowing(contract):
     function (could have provided it through inheritance, does not need to directly define it).
     -overshadowed_function is the function definition which is overshadowed by the provided contract's definition.
     """
-    functions_declared = {function.full_name: function for function in contract.functions_and_modifiers_declared}
+    functions_declared = {
+        function.full_name: function
+        for function in contract.functions_and_modifiers_declared
+    }
     results = {}
     for base_contract in reversed(contract.immediate_inheritance):
         for base_function in base_contract.functions_and_modifiers:
@@ -72,13 +83,22 @@ def detect_direct_function_shadowing(contract):
 
             # If this function is implemented and it collides with a definition in our immediate contract, we add
             # it to our results.
-            if base_function.is_implemented and base_function.full_name in functions_declared:
-                results[base_function.full_name] = (functions_declared[base_function.full_name], base_contract, base_function)
+            if (
+                base_function.is_implemented
+                and base_function.full_name in functions_declared
+            ):
+                results[base_function.full_name] = (
+                    functions_declared[base_function.full_name],
+                    base_contract,
+                    base_function,
+                )
 
     return list(results.values())
 
 
-def detect_function_shadowing(contracts, direct_shadowing=True, indirect_shadowing=True):
+def detect_function_shadowing(
+    contracts, direct_shadowing=True, indirect_shadowing=True
+):
     """
     Detects all overshadowing and overshadowed functions in the provided contracts.
     :param contracts: The contracts to detect shadowing within.
@@ -97,9 +117,20 @@ def detect_function_shadowing(contracts, direct_shadowing=True, indirect_shadowi
         # Detect immediate inheritance shadowing.
         if direct_shadowing:
             shadows = detect_direct_function_shadowing(contract)
-            for (overshadowing_function, overshadowed_base_contract, overshadowed_function) in shadows:
-                results.add((contract, contract, overshadowing_function, overshadowed_base_contract,
-                             overshadowed_function))
+            for (
+                overshadowing_function,
+                overshadowed_base_contract,
+                overshadowed_function,
+            ) in shadows:
+                results.add(
+                    (
+                        contract,
+                        contract,
+                        overshadowing_function,
+                        overshadowed_base_contract,
+                        overshadowed_function,
+                    )
+                )
 
         # Detect c3 linearization shadowing (multi inheritance shadowing).
         if indirect_shadowing:
@@ -109,9 +140,19 @@ def detect_function_shadowing(contracts, direct_shadowing=True, indirect_shadowi
                     for y in range(x + 1, len(colliding_functions)):
                         # The same function definition can appear more than once in the inheritance chain,
                         # overshadowing items between, so it is important to remember to filter it out here.
-                        if colliding_functions[y][1].contract_declarer != colliding_functions[x][1].contract_declarer:
-                            results.add((contract, colliding_functions[y][0], colliding_functions[y][1],
-                                         colliding_functions[x][0], colliding_functions[x][1]))
+                        if (
+                            colliding_functions[y][1].contract_declarer
+                            != colliding_functions[x][1].contract_declarer
+                        ):
+                            results.add(
+                                (
+                                    contract,
+                                    colliding_functions[y][0],
+                                    colliding_functions[y][1],
+                                    colliding_functions[x][0],
+                                    colliding_functions[x][1],
+                                )
+                            )
 
     return results
 
@@ -128,9 +169,18 @@ def detect_state_variable_shadowing(contracts):
     """
     results = set()
     for contract in contracts:
-        variables_declared = {variable.name: variable for variable in contract.state_variables_declared}
+        variables_declared = {
+            variable.name: variable for variable in contract.state_variables_declared
+        }
         for immediate_base_contract in contract.immediate_inheritance:
             for variable in immediate_base_contract.variables:
                 if variable.name in variables_declared:
-                    results.add((contract, variables_declared[variable.name], immediate_base_contract, variable))
+                    results.add(
+                        (
+                            contract,
+                            variables_declared[variable.name],
+                            immediate_base_contract,
+                            variable,
+                        )
+                    )
     return results

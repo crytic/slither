@@ -9,12 +9,15 @@ from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.colors import blue, green, magenta
 from slither.utils.function import get_function_id
 
+
 class FunctionIds(AbstractPrinter):
 
-    ARGUMENT = 'function-id'
-    HELP = 'Print the keccack256 signature of the functions'
+    ARGUMENT = "function-id"
+    HELP = "Print the keccack256 signature of the functions"
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#function-id'
+    WIKI = (
+        "https://github.com/trailofbits/slither/wiki/Printer-documentation#function-id"
+    )
 
     def output(self, _filename):
         """
@@ -23,15 +26,17 @@ class FunctionIds(AbstractPrinter):
                 _filename(string)
         """
 
-        txt = ''
+        txt = ""
         for contract in self.slither.contracts_derived:
-            txt += '\n{}:\n'.format(contract.name)
-            table = PrettyTable(['Name', 'ID'])
+            txt += "\n{}:\n".format(contract.name)
+            table = PrettyTable(["Name", "ID"])
             for function in contract.functions:
-                if function.visibility in ['public', 'external']:
-                    table.add_row([function.full_name, hex(get_function_id(function.full_name))])
+                if function.visibility in ["public", "external"]:
+                    table.add_row(
+                        [function.full_name, hex(get_function_id(function.full_name))]
+                    )
             for variable in contract.state_variables:
-                if variable.visibility in ['public']:
+                if variable.visibility in ["public"]:
                     variable_getter_args = ""
                     if type(variable.type) is ArrayType:
                         length = 0
@@ -39,11 +44,20 @@ class FunctionIds(AbstractPrinter):
                         while type(v.type) is ArrayType:
                             length += 1
                             v = v.type
-                        variable_getter_args = ','.join(["uint256"]*length)
+                        variable_getter_args = ",".join(["uint256"] * length)
                     elif type(variable.type) is MappingType:
                         variable_getter_args = variable.type.type_from
 
-                    table.add_row([f"{variable.name}({variable_getter_args})", hex(get_function_id(f"{variable.name}({variable_getter_args})"))])
-            txt += str(table) + '\n'
+                    table.add_row(
+                        [
+                            f"{variable.name}({variable_getter_args})",
+                            hex(
+                                get_function_id(
+                                    f"{variable.name}({variable_getter_args})"
+                                )
+                            ),
+                        ]
+                    )
+            txt += str(table) + "\n"
 
         self.info(txt)

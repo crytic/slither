@@ -1,4 +1,3 @@
-
 class ChildFunction:
     def __init__(self):
         super(ChildFunction, self).__init__()

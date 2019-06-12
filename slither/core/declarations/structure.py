@@ -3,8 +3,8 @@ from slither.core.children.child_contract import ChildContract
 
 from slither.core.variables.variable import Variable
 
-class Structure(ChildContract, SourceMapping):
 
+class Structure(ChildContract, SourceMapping):
     def __init__(self):
         super(Structure, self).__init__()
         self._name = None
@@ -25,7 +25,6 @@ class Structure(ChildContract, SourceMapping):
     def elems(self):
         return self._elems
 
-
     def is_declared_by(self, contract):
         """
         Check if the element is declared by the contract
@@ -40,7 +39,6 @@ class Structure(ChildContract, SourceMapping):
         for e in self._elems_ordered:
             ret.append(self._elems[e])
         return ret
-
 
     def __str__(self):
         return self.name

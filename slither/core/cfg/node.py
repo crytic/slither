@@ -12,14 +12,29 @@ from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.convert import convert_expression
-from slither.slithir.operations import (Balance, HighLevelCall, Index,
-                                        InternalCall, Length, LibraryCall,
-                                        LowLevelCall, Member,
-                                        OperationWithLValue, Phi, PhiCallback,
-                                        SolidityCall, Return)
-from slither.slithir.variables import (Constant, LocalIRVariable,
-                                       ReferenceVariable, StateIRVariable,
-                                       TemporaryVariable, TupleVariable)
+from slither.slithir.operations import (
+    Balance,
+    HighLevelCall,
+    Index,
+    InternalCall,
+    Length,
+    LibraryCall,
+    LowLevelCall,
+    Member,
+    OperationWithLValue,
+    Phi,
+    PhiCallback,
+    SolidityCall,
+    Return,
+)
+from slither.slithir.variables import (
+    Constant,
+    LocalIRVariable,
+    ReferenceVariable,
+    StateIRVariable,
+    TemporaryVariable,
+    TupleVariable,
+)
 from slither.all_exceptions import SlitherException
 
 logger = logging.getLogger("Node")
@@ -30,6 +45,7 @@ logger = logging.getLogger("Node")
 ###################################################################################
 ###################################################################################
 
+
 class NodeType:
 
     ENTRYPOINT = 0x0  # no expression
@@ -37,17 +53,17 @@ class NodeType:
     # Node with expression
 
     EXPRESSION = 0x10  # normal case
-    RETURN = 0x11      # RETURN may contain an expression
+    RETURN = 0x11  # RETURN may contain an expression
     IF = 0x12
-    VARIABLE = 0x13    # Declaration of variable
+    VARIABLE = 0x13  # Declaration of variable
     ASSEMBLY = 0x14
     IFLOOP = 0x15
 
     # Merging nodes
     # Can have phi IR operation
-    ENDIF = 0x50     # ENDIF node source mapping points to the if/else body
-    STARTLOOP = 0x51 # STARTLOOP node source mapping points to the entire loop body
-    ENDLOOP = 0x52   # ENDLOOP node source mapping points to the entire loop body
+    ENDIF = 0x50  # ENDIF node source mapping points to the if/else body
+    STARTLOOP = 0x51  # STARTLOOP node source mapping points to the entire loop body
+    ENDLOOP = 0x52  # ENDLOOP node source mapping points to the entire loop body
 
     # Below the nodes have no expression
     # But are used to expression CFG structure
@@ -62,38 +78,37 @@ class NodeType:
     # Only modifier node
     PLACEHOLDER = 0x40
 
-
-#    @staticmethod
+    #    @staticmethod
     def str(t):
         if t == 0x0:
-            return 'ENTRY_POINT'
+            return "ENTRY_POINT"
         if t == 0x10:
-            return 'EXPRESSION'
+            return "EXPRESSION"
         if t == 0x11:
-            return 'RETURN'
+            return "RETURN"
         if t == 0x12:
-            return 'IF'
+            return "IF"
         if t == 0x13:
-            return 'NEW VARIABLE'
+            return "NEW VARIABLE"
         if t == 0x14:
-            return 'INLINE ASM'
+            return "INLINE ASM"
         if t == 0x15:
-            return 'IF_LOOP'
+            return "IF_LOOP"
         if t == 0x20:
-            return 'THROW'
+            return "THROW"
         if t == 0x31:
-            return 'BREAK'
+            return "BREAK"
         if t == 0x32:
-            return 'CONTINUE'
+            return "CONTINUE"
         if t == 0x40:
-            return '_'
+            return "_"
         if t == 0x50:
-            return 'END_IF'
+            return "END_IF"
         if t == 0x51:
-            return 'BEGIN_LOOP'
+            return "BEGIN_LOOP"
         if t == 0x52:
-            return 'END_LOOP'
-        return 'Unknown type {}'.format(hex(t))
+            return "END_LOOP"
+        return "Unknown type {}".format(hex(t))
 
 
 # endregion
@@ -103,13 +118,14 @@ class NodeType:
 ###################################################################################
 ###################################################################################
 
+
 def link_nodes(n1, n2):
     n1.add_son(n2)
     n2.add_father(n1)
 
 
-
 # endregion
+
 
 class Node(SourceMapping, ChildFunction):
     """
@@ -121,7 +137,7 @@ class Node(SourceMapping, ChildFunction):
         super(Node, self).__init__()
         self._node_type = node_type
 
-        # TODO: rename to explicit CFG 
+        # TODO: rename to explicit CFG
         self._sons = []
         self._fathers = []
 
@@ -130,7 +146,7 @@ class Node(SourceMapping, ChildFunction):
         self._dominators = set()
         self._immediate_dominator = None
         ## Nodes of the dominators tree
-        #self._dom_predecessors = set()
+        # self._dom_predecessors = set()
         self._dom_successors = set()
         # Dominance frontier
         self._dominance_frontier = set()
@@ -152,7 +168,7 @@ class Node(SourceMapping, ChildFunction):
 
         self._internal_calls = []
         self._solidity_calls = []
-        self._high_level_calls = [] # contains library calls
+        self._high_level_calls = []  # contains library calls
         self._library_calls = []
         self._low_level_calls = []
         self._external_calls_as_expressions = []
@@ -170,7 +186,7 @@ class Node(SourceMapping, ChildFunction):
         self._local_vars_read = []
         self._local_vars_written = []
 
-        self._slithir_vars = set() # non SSA
+        self._slithir_vars = set()  # non SSA
 
         self._ssa_local_vars_read = []
         self._ssa_local_vars_written = []
@@ -353,6 +369,7 @@ class Node(SourceMapping, ChildFunction):
             Include library calls
         """
         return list(self._library_calls)
+
     @property
     def low_level_calls(self):
         """
@@ -427,7 +444,10 @@ class Node(SourceMapping, ChildFunction):
         Returns:
             bool: True if the node has a require or assert call
         """
-        return any(c.name in ['require(bool)', 'require(bool,string)', 'assert(bool)'] for c in self.internal_calls)
+        return any(
+            c.name in ["require(bool)", "require(bool,string)", "assert(bool)"]
+            for c in self.internal_calls
+        )
 
     def contains_if(self, include_loop=True):
         """
@@ -453,11 +473,9 @@ class Node(SourceMapping, ChildFunction):
             if last_ir:
                 if isinstance(last_ir, Return):
                     for r in last_ir.read:
-                        if r.type == ElementaryType('bool'):
+                        if r.type == ElementaryType("bool"):
                             return True
         return False
-
-
 
     # endregion
     ###################################################################################
@@ -559,12 +577,12 @@ class Node(SourceMapping, ChildFunction):
 
     @irs_ssa.setter
     def irs_ssa(self, irs):
-       self._irs_ssa = irs
+        self._irs_ssa = irs
 
     def add_ssa_ir(self, ir):
-        '''
+        """
             Use to place phi operation
-        '''
+        """
         self._irs_ssa.append(ir)
 
     def slithir_generation(self):
@@ -576,7 +594,9 @@ class Node(SourceMapping, ChildFunction):
 
     @staticmethod
     def _is_non_slithir_var(var):
-        return not isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
+        return not isinstance(
+            var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable)
+        )
 
     @staticmethod
     def _is_valid_slithir_var(var):
@@ -591,26 +611,26 @@ class Node(SourceMapping, ChildFunction):
 
     @property
     def dominators(self):
-        '''
+        """
             Returns:
                 set(Node)
-        '''
+        """
         return self._dominators
 
     @property
     def immediate_dominator(self):
-        '''
+        """
             Returns:
                 Node or None
-        '''
+        """
         return self._immediate_dominator
 
     @property
     def dominance_frontier(self):
-        '''
+        """
             Returns:
                 set(Node)
-        '''
+        """
         return self._dominance_frontier
 
     @property
@@ -653,13 +673,13 @@ class Node(SourceMapping, ChildFunction):
 
     def add_phi_origin_state_variable(self, variable, node):
         if variable.canonical_name not in self._phi_origins_state_variables:
-            self._phi_origins_state_variables[variable.canonical_name] = (variable, set())
+            self._phi_origins_state_variables[variable.canonical_name] = (
+                variable,
+                set(),
+            )
         (v, nodes) = self._phi_origins_state_variables[variable.canonical_name]
         assert v == variable
         nodes.add(node)
-
-
-
 
     # endregion
     ###################################################################################
@@ -672,7 +692,9 @@ class Node(SourceMapping, ChildFunction):
 
         for ir in self.irs:
 
-            self._slithir_vars |= set([v for v in ir.read if self._is_valid_slithir_var(v)])
+            self._slithir_vars |= set(
+                [v for v in ir.read if self._is_valid_slithir_var(v)]
+            )
             if isinstance(ir, OperationWithLValue):
                 var = ir.lvalue
                 if var and self._is_valid_slithir_var(var):
@@ -699,7 +721,7 @@ class Node(SourceMapping, ChildFunction):
                 if isinstance(var, (ReferenceVariable)):
                     var = var.points_to_origin
                 if var and self._is_non_slithir_var(var):
-                        self._vars_written.append(var)
+                    self._vars_written.append(var)
 
             if isinstance(ir, InternalCall):
                 self._internal_calls.append(ir.function)
@@ -713,25 +735,39 @@ class Node(SourceMapping, ChildFunction):
             elif isinstance(ir, (HighLevelCall)) and not isinstance(ir, LibraryCall):
                 if isinstance(ir.destination.type, Contract):
                     self._high_level_calls.append((ir.destination.type, ir.function))
-                elif ir.destination == SolidityVariable('this'):
+                elif ir.destination == SolidityVariable("this"):
                     self._high_level_calls.append((self.function.contract, ir.function))
                 else:
                     try:
-                        self._high_level_calls.append((ir.destination.type.type, ir.function))
+                        self._high_level_calls.append(
+                            (ir.destination.type.type, ir.function)
+                        )
                     except AttributeError:
-                        raise SlitherException(f'Function not found on {ir}. Please try compiling with a recent Solidity version.')
+                        raise SlitherException(
+                            f"Function not found on {ir}. Please try compiling with a recent Solidity version."
+                        )
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)
                 self._high_level_calls.append((ir.destination, ir.function))
                 self._library_calls.append((ir.destination, ir.function))
 
         self._vars_read = list(set(self._vars_read))
-        self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
-        self._local_vars_read = [v for v in self._vars_read if isinstance(v, LocalVariable)]
-        self._solidity_vars_read = [v for v in self._vars_read if isinstance(v, SolidityVariable)]
+        self._state_vars_read = [
+            v for v in self._vars_read if isinstance(v, StateVariable)
+        ]
+        self._local_vars_read = [
+            v for v in self._vars_read if isinstance(v, LocalVariable)
+        ]
+        self._solidity_vars_read = [
+            v for v in self._vars_read if isinstance(v, SolidityVariable)
+        ]
         self._vars_written = list(set(self._vars_written))
-        self._state_vars_written = [v for v in self._vars_written if isinstance(v, StateVariable)]
-        self._local_vars_written = [v for v in self._vars_written if isinstance(v, LocalVariable)]
+        self._state_vars_written = [
+            v for v in self._vars_written if isinstance(v, StateVariable)
+        ]
+        self._local_vars_written = [
+            v for v in self._vars_written if isinstance(v, LocalVariable)
+        ]
         self._internal_calls = list(set(self._internal_calls))
         self._solidity_calls = list(set(self._solidity_calls))
         self._high_level_calls = list(set(self._high_level_calls))
@@ -756,9 +792,11 @@ class Node(SourceMapping, ChildFunction):
             if isinstance(ir, (PhiCallback)):
                 continue
             if not isinstance(ir, (Phi, Index, Member)):
-                self._ssa_vars_read += [v for v in ir.read if isinstance(v,
-                                                                         (StateIRVariable,
-                                                                          LocalIRVariable))]
+                self._ssa_vars_read += [
+                    v
+                    for v in ir.read
+                    if isinstance(v, (StateIRVariable, LocalIRVariable))
+                ]
                 for var in ir.read:
                     if isinstance(var, (ReferenceVariable)):
                         origin = var.points_to_origin
@@ -785,24 +823,38 @@ class Node(SourceMapping, ChildFunction):
                         continue
                     self._ssa_vars_written.append(var)
         self._ssa_vars_read = list(set(self._ssa_vars_read))
-        self._ssa_state_vars_read = [v for v in self._ssa_vars_read if isinstance(v, StateVariable)]
-        self._ssa_local_vars_read = [v for v in self._ssa_vars_read if isinstance(v, LocalVariable)]
+        self._ssa_state_vars_read = [
+            v for v in self._ssa_vars_read if isinstance(v, StateVariable)
+        ]
+        self._ssa_local_vars_read = [
+            v for v in self._ssa_vars_read if isinstance(v, LocalVariable)
+        ]
         self._ssa_vars_written = list(set(self._ssa_vars_written))
-        self._ssa_state_vars_written = [v for v in self._ssa_vars_written if isinstance(v, StateVariable)]
-        self._ssa_local_vars_written = [v for v in self._ssa_vars_written if isinstance(v, LocalVariable)]
+        self._ssa_state_vars_written = [
+            v for v in self._ssa_vars_written if isinstance(v, StateVariable)
+        ]
+        self._ssa_local_vars_written = [
+            v for v in self._ssa_vars_written if isinstance(v, LocalVariable)
+        ]
 
         vars_read = [self._convert_ssa(x) for x in self._ssa_vars_read]
         vars_written = [self._convert_ssa(x) for x in self._ssa_vars_written]
 
-
         self._vars_read += [v for v in vars_read if v not in self._vars_read]
-        self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
-        self._local_vars_read = [v for v in self._vars_read if isinstance(v, LocalVariable)]
+        self._state_vars_read = [
+            v for v in self._vars_read if isinstance(v, StateVariable)
+        ]
+        self._local_vars_read = [
+            v for v in self._vars_read if isinstance(v, LocalVariable)
+        ]
 
         self._vars_written += [v for v in vars_written if v not in self._vars_written]
-        self._state_vars_written = [v for v in self._vars_written if isinstance(v, StateVariable)]
-        self._local_vars_written = [v for v in self._vars_written if isinstance(v, LocalVariable)]
-
+        self._state_vars_written = [
+            v for v in self._vars_written if isinstance(v, StateVariable)
+        ]
+        self._local_vars_written = [
+            v for v in self._vars_written if isinstance(v, LocalVariable)
+        ]
 
     # endregion
     ###################################################################################
@@ -812,7 +864,7 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     def __str__(self):
-        txt = NodeType.str(self._node_type) + ' '+ str(self.expression)
+        txt = NodeType.str(self._node_type) + " " + str(self.expression)
         return txt
 
     # endregion

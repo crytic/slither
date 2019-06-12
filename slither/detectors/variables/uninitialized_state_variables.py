@@ -14,8 +14,14 @@ from slither.core.variables.state_variable import StateVariable
 from slither.slithir.variables import ReferenceVariable
 from slither.slithir.operations.assignment import Assignment
 
-from slither.slithir.operations import (OperationWithLValue, Index, Member,
-                                        InternalCall, InternalDynamicCall, LibraryCall)
+from slither.slithir.operations import (
+    OperationWithLValue,
+    Index,
+    Member,
+    InternalCall,
+    InternalDynamicCall,
+    LibraryCall,
+)
 
 
 class UninitializedStateVarsDetection(AbstractDetector):
@@ -23,16 +29,16 @@ class UninitializedStateVarsDetection(AbstractDetector):
     Constant function detector
     """
 
-    ARGUMENT = 'uninitialized-state'
-    HELP = 'Uninitialized state variables'
+    ARGUMENT = "uninitialized-state"
+    HELP = "Uninitialized state variables"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-state-variables'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-state-variables"
 
-    WIKI_TITLE = 'Uninitialized state variables'
-    WIKI_DESCRIPTION = 'Uninitialized state variables.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Uninitialized state variables"
+    WIKI_DESCRIPTION = "Uninitialized state variables."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Uninitialized{
     address destination;
@@ -43,10 +49,10 @@ contract Uninitialized{
 }
 ```
 Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and are lost.
-'''
-    WIKI_RECOMMENDATION = '''
+"""
+    WIKI_RECOMMENDATION = """
 Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero.
-'''
+"""
 
     @staticmethod
     def written_variables(contract):
@@ -55,14 +61,13 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             for n in f.nodes:
                 ret += n.state_variables_written
                 for ir in n.irs:
-                    if isinstance(ir, LibraryCall) \
-                            or isinstance(ir, InternalCall):
+                    if isinstance(ir, LibraryCall) or isinstance(ir, InternalCall):
                         idx = 0
                         if ir.function:
                             for param in ir.function.parameters:
-                                if param.location == 'storage':
+                                if param.location == "storage":
                                     ret.append(ir.arguments[idx])
-                                idx = idx+1
+                                idx = idx + 1
 
         return ret
 
@@ -76,10 +81,13 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
     def detect_uninitialized(self, contract):
         written_variables = self.written_variables(contract)
         read_variables = self.read_variables(contract)
-        return [(variable, contract.get_functions_reading_from_variable(variable))
-                for variable in contract.state_variables if variable not in written_variables and\
-                                                            not variable.expression and\
-                                                            variable in read_variables]
+        return [
+            (variable, contract.get_functions_reading_from_variable(variable))
+            for variable in contract.state_variables
+            if variable not in written_variables
+            and not variable.expression
+            and variable in read_variables
+        ]
 
     def _detect(self):
         """ Detect uninitialized state variables
@@ -93,8 +101,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             ret = self.detect_uninitialized(c)
             for variable, functions in ret:
                 info = "{} ({}) is never initialized. It is used in:\n"
-                info = info.format(variable.canonical_name,
-                                   variable.source_mapping_str)
+                info = info.format(variable.canonical_name, variable.source_mapping_str)
                 for f in functions:
                     info += "\t- {} ({})\n".format(f.name, f.source_mapping_str)
 

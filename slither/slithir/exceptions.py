@@ -1,3 +1,5 @@
 from slither.exceptions import SlitherException
 
-class SlithIRError(SlitherException): pass
+
+class SlithIRError(SlitherException):
+    pass

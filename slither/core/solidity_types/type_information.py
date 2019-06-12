@@ -15,7 +15,7 @@ class TypeInformation(Type):
         return self._type
 
     def __str__(self):
-        return f'type({self.type.name})'
+        return f"type({self.type.name})"
 
     def __eq__(self, other):
         if not isinstance(other, TypeInformation):
