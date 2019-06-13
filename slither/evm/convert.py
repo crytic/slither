@@ -1,5 +1,6 @@
 import logging
 import sha3
+import sys
 from slither.core.declarations import (Contract, Function)
 from slither.core.cfg.node import Node
 
@@ -42,21 +43,24 @@ def get_evm_instructions(obj):
             # Get first four bytes of function singature's keccak-256 hash used as function selector
             function_hash = "0x" + get_function_hash(function.full_name)[:8]
             function_evm = get_function_evm(contract_cfg, function.name, function_hash)
+            if function_evm == "None":
+                logger.error("Function " + function.name + " not found")
+                sys.exit(-1)
             function_ins = []
             for basic_block in sorted(function_evm.basic_blocks, key=lambda x:x.start.pc):
-                function_ins.append(basic_block.instructions)
+                for ins in basic_block.instructions:
+                    function_ins.append(ins)
             obj.context["KEY_EVM_INS"] = function_ins
         else: # Node obj
             node = obj
-            function = node.function
+
+            # Get evm instructions for node's contract
             contract_pcs = _generate_source_to_evm_ins_mapping(contract_cfg.instructions,
                                                                contract_srcmap_runtime, obj.slither,
                                                                contract.source_mapping['filename_absolute'])
             contract_file = slither.source_code[contract.source_mapping['filename_absolute']].encode('utf-8')
-            
-            # Get first four bytes of function singature's keccak-256 hash used as function selector
-            function_hash = "0x" + get_function_hash(function.full_name)[:8]
-            function_evm = get_function_evm(contract_cfg, function.name, function_hash)
+
+            # Get evm instructions corresponding to node's source line number
             node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8")) + 1
             node_pcs = contract_pcs.get(node_source_line, [])
             node_ins = []
@@ -73,8 +77,10 @@ def get_function_hash(function_signature):
 
 def get_function_evm(cfg, function_name, function_hash):
     for function_evm in cfg.functions:
+        # Match function hash
         if function_evm.name[:2] == "0x" and function_evm.name == function_hash:
             return function_evm
+        # Match function name
         elif function_evm.name[:2] != "0x" and function_evm.name.split('(')[0] == function_name:
             return function_evm
     return "None"
