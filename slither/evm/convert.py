@@ -93,6 +93,9 @@ def _generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slithe
     for idx, mapping in enumerate(srcmap_runtime):
         # Parse srcmap_runtime according to its format
         # See https://solidity.readthedocs.io/en/v0.5.9/miscellaneous.html#source-mappings
+        # In order to compress these source mappings especially for bytecode, the following rules are used:
+        # If a field is empty, the value of the preceding element is used.
+        # If a : is missing, all following fields are considered empty.
 
         mapping_item = mapping.split(':')
         mapping_item += prev_mapping[len(mapping_item):]
@@ -102,6 +105,7 @@ def _generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slithe
                 mapping_item[i] = int(prev_mapping[i])
 
         offset, length, file_id, _ = mapping_item
+        prev_mapping = mapping_item
 
         if file_id == '-1':
             # Internal compiler-generated code snippets to be ignored
@@ -115,7 +119,5 @@ def _generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slithe
         # Note: Some evm instructions in mapping are not necessarily in program execution order
         # Note: The order depends on how solc creates the srcmap_runtime
         source_to_evm_mapping.setdefault(line_number, []).append(evm_instructions[idx].pc)
-
-        prev_mapping = mapping_item
 
     return(source_to_evm_mapping)
