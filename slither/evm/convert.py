@@ -30,33 +30,63 @@ def get_evm_instructions(obj):
         else:
             contract = obj
 
-        # Get contract bytecode, srcmap and cfg
+        # Get contract runtime bytecode, srcmap and cfg
         contract_bytecode_runtime = slither.crytic_compile.bytecode_runtime(contract.name)
         contract_srcmap_runtime = slither.crytic_compile.srcmap_runtime(contract.name)
         contract_cfg = CFG(contract_bytecode_runtime)
 
-        # Get evm instructions
+        # Get contract init bytecode, srcmap and cfg
+        contract_bytecode_init= slither.crytic_compile.bytecode_init(contract.name)
+        contract_srcmap_init = slither.crytic_compile.srcmap_init(contract.name)
+        contract_cfg_init = CFG(contract_bytecode_init)
+
+        # Get evm instructions for contract
         if isinstance(obj, Contract):
-            obj.context["KEY_EVM_INS"] = contract_cfg.instructions
+            # Combine the instructions of constructor and the rest of the contract
+            obj.context["KEY_EVM_INS"] = contract_cfg_init.instructions + contract_cfg.instructions
+            
+        # Get evm instructions for function
         elif isinstance(obj, Function):
+            
             function = obj
-            # Get first four bytes of function singature's keccak-256 hash used as function selector
-            function_hash = "0x" + get_function_hash(function.full_name)[:8]
-            function_evm = get_function_evm(contract_cfg, function.name, function_hash)
+            
+            # CFG depends on function being constructor or not
+            if function.is_constructor:
+                cfg = contract_cfg_init
+                name = "_dispatcher"
+                hash = ""
+            else:
+                cfg = contract_cfg
+                name = function.name
+                # Get first four bytes of function singature's keccak-256 hash used as function selector
+                hash = "0x" + get_function_hash(function.full_name)[:8]
+
+            function_evm = get_function_evm(cfg, name, hash)
             if function_evm == "None":
                 logger.error("Function " + function.name + " not found")
                 sys.exit(-1)
+                
             function_ins = []
             for basic_block in sorted(function_evm.basic_blocks, key=lambda x:x.start.pc):
                 for ins in basic_block.instructions:
                     function_ins.append(ins)
+                    
             obj.context["KEY_EVM_INS"] = function_ins
+            
         else: # Node obj
             node = obj
 
+            # CFG and srcmap depend on function being constructor or not
+            if node.function.is_constructor:
+                cfg = contract_cfg_init
+                srcmap = contract_srcmap_init
+            else:
+                cfg = contract_cfg
+                srcmap = contract_srcmap_runtime
+                
             # Get evm instructions for node's contract
-            contract_pcs = _generate_source_to_evm_ins_mapping(contract_cfg.instructions,
-                                                               contract_srcmap_runtime, obj.slither,
+            contract_pcs = _generate_source_to_evm_ins_mapping(cfg.instructions,
+                                                               srcmap, obj.slither,
                                                                contract.source_mapping['filename_absolute'])
             contract_file = slither.source_code[contract.source_mapping['filename_absolute']].encode('utf-8')
 
@@ -65,7 +95,8 @@ def get_evm_instructions(obj):
             node_pcs = contract_pcs.get(node_source_line, [])
             node_ins = []
             for pc in node_pcs:
-                node_ins.append(contract_cfg.get_instruction_at(pc))
+                node_ins.append(cfg.get_instruction_at(pc))
+
             obj.context["KEY_EVM_INS"] = node_ins
             
     return obj.context.get("KEY_EVM_INS", [])
