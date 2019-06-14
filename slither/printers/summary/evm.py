@@ -36,11 +36,15 @@ class PrinterEVM(AbstractPrinter):
             
             contract_file = self.slither.source_code[contract.source_mapping['filename_absolute']].encode('utf-8')
             contract_file_lines = open(contract.source_mapping['filename_absolute'],'r').readlines()
-            contract_cfg = evm_info['cfg', contract.name]
-            contract_pcs = evm_info['mapping', contract.name]
 
             for function in contract.functions:
                 print(f'\tFunction {function.canonical_name}')
+                if function.is_constructor:
+                    contract_cfg = evm_info['cfg_init', contract.name]
+                    contract_pcs = evm_info['mapping_init', contract.name]
+                else:
+                    contract_cfg = evm_info['cfg', contract.name]
+                    contract_pcs = evm_info['mapping', contract.name]
                 for node in function.nodes:
                     print("\t\tNode: " + str(node))
                     node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8")) + 1
@@ -78,6 +82,13 @@ class PrinterEVM(AbstractPrinter):
             evm_info['mapping', contract.name] = self._generate_source_to_evm_ins_mapping(cfg.instructions,
                                                                                  contract_srcmap_runtime, slither,
                                                                                  contract.source_mapping['filename_absolute'])
+            contract_bytecode_init= slither.crytic_compile.bytecode_init(contract.name)
+            contract_srcmap_init = slither.crytic_compile.srcmap_init(contract.name)
+            cfg_init = CFG(contract_bytecode_init)
+            evm_info['cfg_init', contract.name] = cfg_init
+            evm_info['mapping_init', contract.name] = self._generate_source_to_evm_ins_mapping(cfg_init.instructions,
+                                                                                contract_srcmap_init, slither,
+                                                                                contract.source_mapping['filename_absolute'])
         return(evm_info)
 
     
