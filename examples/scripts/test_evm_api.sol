@@ -1,8 +1,10 @@
+pragma solidity >=0.4.24 <0.5.4;
+
 contract Test {
 
   address owner;
   
-  constructor () {
+  constructor () public {
     owner = msg.sender;
   }
   
