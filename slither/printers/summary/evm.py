@@ -4,10 +4,13 @@
 
 import logging
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.evm.convert import SourceToEVM
+
 try:
     # Avoiding the addition of evm_cfg_builder as permanent dependency
     from evm_cfg_builder.cfg import CFG
 except ImportError:
+    logger = logging.getLogger('Printers')
     logger.error("To use evm printer, you need to install evm-cfg-builder from ToB")
     logger.error("Documentation: https://github.com/crytic/evm_cfg_builder")
     logger.error("Installation: pip install evm-cfg-builder")
@@ -39,16 +42,21 @@ class PrinterEVM(AbstractPrinter):
 
             for function in contract.functions:
                 print(f'\tFunction {function.canonical_name}')
+                
+                # CFG and source mapping depend on function being constructor or not
                 if function.is_constructor:
                     contract_cfg = evm_info['cfg_init', contract.name]
                     contract_pcs = evm_info['mapping_init', contract.name]
                 else:
                     contract_cfg = evm_info['cfg', contract.name]
                     contract_pcs = evm_info['mapping', contract.name]
+                    
                 for node in function.nodes:
                     print("\t\tNode: " + str(node))
-                    node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8")) + 1
-                    print('\t\tSource line {}: {}'.format(node_source_line, contract_file_lines[node_source_line-1].rstrip()))
+                    node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8"))
+                    + 1
+                    print('\t\tSource line {}: {}'.format(node_source_line,
+                                                          contract_file_lines[node_source_line-1].rstrip()))
                     print('\t\tEVM Instructions:')
                     node_pcs = contract_pcs.get(node_source_line, [])
                     for pc in node_pcs:
@@ -57,8 +65,10 @@ class PrinterEVM(AbstractPrinter):
             for modifier in contract.modifiers:
                 print(f'\tModifier {modifier.canonical_name}')
                 for node in modifier.nodes:
-                    node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8")) + 1
-                    print('\t\tSource line {}: {}'.format(node_source_line, contract_file_lines[node_source_line-1].rstrip()))
+                    node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8"))
+                    + 1
+                    print('\t\tSource line {}: {}'.format(node_source_line,
+                                                          contract_file_lines[node_source_line-1].rstrip()))
                     print('\t\tEVM Instructions:')
                     node_pcs = contract_pcs.get(node_source_line, [])
                     for pc in node_pcs:
@@ -79,58 +89,20 @@ class PrinterEVM(AbstractPrinter):
             contract_srcmap_runtime = slither.crytic_compile.srcmap_runtime(contract.name)
             cfg = CFG(contract_bytecode_runtime)
             evm_info['cfg', contract.name] = cfg
-            evm_info['mapping', contract.name] = self._generate_source_to_evm_ins_mapping(cfg.instructions,
-                                                                                 contract_srcmap_runtime, slither,
-                                                                                 contract.source_mapping['filename_absolute'])
+            evm_info['mapping', contract.name] = SourceToEVM.generate_source_to_evm_ins_mapping(
+                cfg.instructions,
+                contract_srcmap_runtime,
+                slither,
+                contract.source_mapping['filename_absolute'])
+            
             contract_bytecode_init= slither.crytic_compile.bytecode_init(contract.name)
             contract_srcmap_init = slither.crytic_compile.srcmap_init(contract.name)
             cfg_init = CFG(contract_bytecode_init)
+            
             evm_info['cfg_init', contract.name] = cfg_init
-            evm_info['mapping_init', contract.name] = self._generate_source_to_evm_ins_mapping(cfg_init.instructions,
-                                                                                contract_srcmap_init, slither,
-                                                                                contract.source_mapping['filename_absolute'])
+            evm_info['mapping_init', contract.name] = SourceToEVM.generate_source_to_evm_ins_mapping(
+                cfg_init.instructions,
+                contract_srcmap_init, slither,
+                contract.source_mapping['filename_absolute'])
+            
         return(evm_info)
-
-    
-    def _generate_source_to_evm_ins_mapping(self, evm_instructions, srcmap_runtime, slither, filename):
-        """
-        Generate Solidity source to EVM instruction mapping using evm_cfg_builder:cfg.instructions and solc:srcmap_runtime
-
-        Returns: Solidity source to EVM instruction mapping
-        """
-        
-        source_to_evm_mapping = {}
-        file_source = slither.source_code[filename].encode('utf-8')
-        prev_mapping = []
-        
-        for idx, mapping in enumerate(srcmap_runtime):
-            # Parse srcmap_runtime according to its format
-            # See https://solidity.readthedocs.io/en/v0.5.9/miscellaneous.html#source-mappings
-            # In order to compress these source mappings especially for bytecode, the following rules are used:
-            # If a field is empty, the value of the preceding element is used.
-            # If a : is missing, all following fields are considered empty.
-
-            mapping_item = mapping.split(':')
-            mapping_item += prev_mapping[len(mapping_item):]
-            
-            for i in range(len(mapping_item)):
-                if mapping_item[i] == '':
-                    mapping_item[i] = int(prev_mapping[i])
-                    
-            offset, length, file_id, _ = mapping_item
-            prev_mapping = mapping_item
-            
-            if file_id == '-1':
-                # Internal compiler-generated code snippets to be ignored
-                # See https://github.com/ethereum/solidity/issues/6119#issuecomment-467797635
-                continue
-            
-            offset = int(offset)
-            line_number = file_source[0:offset].count("\n".encode("utf-8")) + 1
-            
-            # Append evm instructions to the corresponding source line number
-            # Note: Some evm instructions in mapping are not necessarily in program execution order
-            # Note: The order depends on how solc creates the srcmap_runtime
-            source_to_evm_mapping.setdefault(line_number, []).append(evm_instructions[idx].pc)
-            
-        return(source_to_evm_mapping)
