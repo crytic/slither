@@ -58,17 +58,21 @@ def sort_and_flag_overlapping_patches(patches):
     for file in patches:
         n = len(patches[file])
         for i in range(n):
-            for j in range (0,n-i-1):
+            for j in range(0, n-i-1):
                 # Sort check
                 if int(patches[file][j]['start']) > int(patches[file][j+1]['start']):
                     temp = patches[file][j+1]
                     patches[file][j+1] = patches[file][j]
                     patches[file][j] = temp
                 # Overlap check
-                if ((int(patches[file][j]['start']) >= int(patches[file][j+1]['start']) and
-                    int(patches[file][j]['start']) <= int(patches[file][j+1]['end'])) or
-                    (int(patches[file][j+1]['start']) >= int(patches[file][j]['start']) and
-                    int(patches[file][j+1]['start']) <= int(patches[file][j]['end']))):
+                current = patches[file][j]
+                current_start = int(current['start'])
+                current_end = int(current['end'])
+                next = patches[file][j+1]
+                next_start = int(next['start'])
+                next_end = int(next['start'])
+                if ((current_start >= next_start and current_start <= next_end) or
+                    (next_start >= current_start and next_start <= current_end)):
                     patches[file][j]['overlaps'] = "Yes"
                     patches[file][j+1]['overlaps'] = "Yes"
 
@@ -92,22 +96,26 @@ def prune_overlapping_patches(args, patches):
 def generate_patch_files(slither, patches):
     for file in patches:
         _in_file = file
-        if patches[file]:
-            in_file_str = slither.source_code[patches[file][0]['file']].encode('utf-8')
+        current_patches = patches[file]
+        if current_patches:
+            in_file_str = slither.source_code[current_patches[0]['file']].encode('utf-8')
         out_file_str = ""
-        for i in range(len(patches[file])):
+        for i in range(len(current_patches)):
             if i != 0:
-                out_file_str += in_file_str[int(patches[file][i-1]['end']):int(patches[file][i]['start'])].decode('utf-8')
+                out_file_str += in_file_str[int(current_patches[i-1]['end']):int(current_patches[i]['start'])].decode('utf-8')
             else:
-                out_file_str += in_file_str[:int(patches[file][i]['start'])].decode('utf-8')
-            out_file_str += patches[file][i]['new_string']
-            if (i == (len(patches[file]) - 1)):
-                out_file_str += in_file_str[int(patches[file][i]['end']):].decode('utf-8')
+                out_file_str += in_file_str[:int(current_patches[i]['start'])].decode('utf-8')
+            out_file_str += current_patches[i]['new_string']
+            if (i == (len(current_patches) - 1)):
+                out_file_str += in_file_str[int(current_patches[i]['end']):].decode('utf-8')
+
+        logger.info(f'Output new file in {_in_file+".format"}')
         out_file = open(_in_file+".format",'w')
         out_file.write(out_file_str)
         out_file.close()
         patch_file_name = _in_file + ".format.patch"
         outFD = open(patch_file_name,"w")
+        logger.info(f'Output new file in {patch_file_name}')
         p1 = subprocess.Popen(['diff', '-u', _in_file, _in_file+".format"], stdout=outFD)
         p1.wait()
         outFD.close()

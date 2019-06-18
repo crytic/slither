@@ -29,7 +29,7 @@ Slither detectors highlight names, context and source-mapping of code constructs
 
 Run Slither-format on a single file:
 ``` 
-$ python3 -m slither-format ./utils/slither_format/tests/test_data/constant.sol
+$ slither-format ./utils/slither_format/tests/test_data/constant.sol
 ``` 
 
 This produces `constant.sol.format` file which has all the feature replacements.
