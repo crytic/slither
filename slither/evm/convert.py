@@ -1,9 +1,9 @@
 import logging
-import sha3
 import sys
 from slither.core.declarations import (Contract, Function)
 from slither.core.cfg.node import Node
 from slither.utils.function import get_function_id
+from .evm_cfg_builder import load_evm_cfg_builder
 
 logger = logging.getLogger('ConvertToEVM')
 
@@ -16,14 +16,7 @@ class SourceToEVM:
 
         if "KEY_EVM_INS" not in obj.context:
 
-            try:
-                # Avoiding the addition of evm_cfg_builder as permanent dependency
-                from evm_cfg_builder.cfg import CFG
-            except ImportError:
-                logger.error("To use evm printer, you need to install evm-cfg-builder from ToB")
-                logger.error("Documentation: https://github.com/crytic/evm_cfg_builder")
-                logger.error("Installation: pip install evm-cfg-builder")
-                sys.exit(-1)
+            CFG = load_evm_cfg_builder()
 
             slither = obj.slither
 
