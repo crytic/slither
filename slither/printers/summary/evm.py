@@ -2,6 +2,7 @@
     Module printing evm mapping of the contract
 """
 
+import sys
 import logging
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.evm.convert import SourceToEVM
