@@ -2,20 +2,9 @@
     Module printing evm mapping of the contract
 """
 
-import sys
-import logging
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.evm.convert import SourceToEVM
+from slither.evm import SourceToEVM, load_evm_cfg_builder
 
-try:
-    # Avoiding the addition of evm_cfg_builder as permanent dependency
-    from evm_cfg_builder.cfg import CFG
-except ImportError:
-    logger = logging.getLogger('Printers')
-    logger.error("To use evm printer, you need to install evm-cfg-builder from ToB")
-    logger.error("Documentation: https://github.com/crytic/evm_cfg_builder")
-    logger.error("Installation: pip install evm-cfg-builder")
-    sys.exit(-1)
 
     
 class PrinterEVM(AbstractPrinter):
@@ -84,7 +73,9 @@ class PrinterEVM(AbstractPrinter):
         """
         
         evm_info = {}
-        
+
+        CFG = load_evm_cfg_builder()
+
         for contract in slither.contracts_derived:
             contract_bytecode_runtime = slither.crytic_compile.bytecode_runtime(contract.name)
             contract_srcmap_runtime = slither.crytic_compile.srcmap_runtime(contract.name)

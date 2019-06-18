@@ -2,7 +2,7 @@ contract Test {
 
   address owner;
   
-  constructor () {
+  constructor () public {
     owner = msg.sender;
   }
   
