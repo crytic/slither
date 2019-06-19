@@ -986,6 +986,14 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         args_vars = self.all_solidity_variables_used_as_args()
         return SolidityVariableComposed('msg.sender') in conditional_vars + args_vars
 
+    def is_fallback(self):
+        """
+            Determine if the function is the fallback function for the contract
+        Returns
+            (bool)
+        """
+        return self._name == "" and not self.is_constructor
+
     # endregion
     ###################################################################################
     ###################################################################################
