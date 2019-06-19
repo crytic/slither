@@ -1,5 +1,6 @@
 import logging
 import sys
+from slither.exceptions import SlitherError
 
 logger = logging.getLogger('ConvertToEVM')
 
@@ -12,4 +13,4 @@ def load_evm_cfg_builder():
         logger.error("To use evm features, you need to install evm-cfg-builder from Trail of Bits")
         logger.error("Documentation: https://github.com/crytic/evm_cfg_builder")
         logger.error("Installation: pip install evm-cfg-builder")
-        sys.exit(-1)
+        raise SlitherError("evm-cfg-builder not installed.")
