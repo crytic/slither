@@ -3,9 +3,8 @@
 """
 
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.evm import SourceToEVM, load_evm_cfg_builder
-
-
+from slither.analyses.evm import generate_source_to_evm_ins_mapping, load_evm_cfg_builder
+from slither.utils.colors import blue, green, magenta
     
 class PrinterEVM(AbstractPrinter):
 
@@ -22,16 +21,17 @@ class PrinterEVM(AbstractPrinter):
                 _filename(string)
         """
 
+        txt = ""
         evm_info = self._extract_evm_info(self.slither)
         
         for contract in self.slither.contracts_derived:
-            print('Contract {}'.format(contract.name))
+            txt += blue('Contract {}\n'.format(contract.name))
             
             contract_file = self.slither.source_code[contract.source_mapping['filename_absolute']].encode('utf-8')
             contract_file_lines = open(contract.source_mapping['filename_absolute'],'r').readlines()
 
             for function in contract.functions:
-                print(f'\tFunction {function.canonical_name}')
+                txt += blue(f'\tFunction {function.canonical_name}\n')
                 
                 # CFG and source mapping depend on function being constructor or not
                 if function.is_constructor:
@@ -42,28 +42,28 @@ class PrinterEVM(AbstractPrinter):
                     contract_pcs = evm_info['mapping', contract.name]
                     
                 for node in function.nodes:
-                    print("\t\tNode: " + str(node))
-                    node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8"))
-                    + 1
-                    print('\t\tSource line {}: {}'.format(node_source_line,
+                    txt += green("\t\tNode: " + str(node) + "\n")
+                    node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8")) + 1
+                    txt += green('\t\tSource line {}: {}\n'.format(node_source_line,
                                                           contract_file_lines[node_source_line-1].rstrip()))
-                    print('\t\tEVM Instructions:')
+                    txt += magenta('\t\tEVM Instructions:\n')
                     node_pcs = contract_pcs.get(node_source_line, [])
                     for pc in node_pcs:
-                        print('\t\t\t0x{:x}: {}'.format(int(pc), contract_cfg.get_instruction_at(pc)))
+                        txt += magenta('\t\t\t0x{:x}: {}\n'.format(int(pc), contract_cfg.get_instruction_at(pc)))
                         
             for modifier in contract.modifiers:
-                print(f'\tModifier {modifier.canonical_name}')
+                txt += blue(f'\tModifier {modifier.canonical_name}\n')
                 for node in modifier.nodes:
-                    node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8"))
-                    + 1
-                    print('\t\tSource line {}: {}'.format(node_source_line,
+                    txt += green("\t\tNode: " + str(node) + "\n")
+                    node_source_line = contract_file[0:node.source_mapping['start']].count("\n".encode("utf-8")) + 1
+                    txt += green('\t\tSource line {}: {}\n'.format(node_source_line,
                                                           contract_file_lines[node_source_line-1].rstrip()))
-                    print('\t\tEVM Instructions:')
+                    txt += magenta('\t\tEVM Instructions:\n')
                     node_pcs = contract_pcs.get(node_source_line, [])
                     for pc in node_pcs:
-                        print('\t\t\t0x{:x}: {}'.format(int(pc), contract_cfg.get_instruction_at(pc)))
+                        txt += magenta('\t\t\t0x{:x}: {}\n'.format(int(pc), contract_cfg.get_instruction_at(pc)))
 
+            self.info(txt)
                         
     def _extract_evm_info(self, slither):
         """
@@ -81,7 +81,7 @@ class PrinterEVM(AbstractPrinter):
             contract_srcmap_runtime = slither.crytic_compile.srcmap_runtime(contract.name)
             cfg = CFG(contract_bytecode_runtime)
             evm_info['cfg', contract.name] = cfg
-            evm_info['mapping', contract.name] = SourceToEVM.generate_source_to_evm_ins_mapping(
+            evm_info['mapping', contract.name] = generate_source_to_evm_ins_mapping(
                 cfg.instructions,
                 contract_srcmap_runtime,
                 slither,
@@ -92,7 +92,7 @@ class PrinterEVM(AbstractPrinter):
             cfg_init = CFG(contract_bytecode_init)
             
             evm_info['cfg_init', contract.name] = cfg_init
-            evm_info['mapping_init', contract.name] = SourceToEVM.generate_source_to_evm_ins_mapping(
+            evm_info['mapping_init', contract.name] = generate_source_to_evm_ins_mapping(
                 cfg_init.instructions,
                 contract_srcmap_init, slither,
                 contract.source_mapping['filename_absolute'])
