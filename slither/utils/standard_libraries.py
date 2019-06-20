@@ -13,7 +13,24 @@ libraries = {
     'Dapphub-DSToken': lambda x: is_dapphub_ds_token(x),
     'Dapphub-DSProxy': lambda x: is_dapphub_ds_proxy(x),
     'Dapphub-DSGroup': lambda x: is_dapphub_ds_group(x),
-    'AragonOS-App': lambda x: is_aragonos_app(x)
+    'AragonOS-SafeMath': lambda x: is_aragonos_safemath(x),
+    'AragonOS-ERC20': lambda x: is_aragonos_erc20(x),
+    'AragonOS-AppProxyBase': lambda x: is_aragonos_app_proxy_base(x),
+    'AragonOS-AppProxyPinned': lambda x: is_aragonos_app_proxy_pinned(x),
+    'AragonOS-AppProxyUpgradeable': lambda x: is_aragonos_app_proxy_upgradeable(x),
+    'AragonOS-AppStorage': lambda x: is_aragonos_app_storage(x),
+    'AragonOS-AragonApp': lambda x: is_aragonos_aragon_app(x),
+    'AragonOS-UnsafeAragonApp': lambda x: is_aragonos_unsafe_aragon_app(x),
+    'AragonOS-Autopetrified': lambda x: is_aragonos_autopetrified(x),
+    'AragonOS-DelegateProxy': lambda x: is_aragonos_delegate_proxy(x),
+    'AragonOS-DepositableDelegateProxy': lambda x: is_aragonos_depositable_delegate_proxy(x),
+    'AragonOS-DepositableStorage': lambda x: is_aragonos_delegate_proxy(x),
+    'AragonOS-Initializable': lambda x: is_aragonos_initializable(x),
+    'AragonOS-IsContract': lambda x: is_aragonos_is_contract(x),
+    'AragonOS-Petrifiable': lambda x: is_aragonos_petrifiable(x),
+    'AragonOS-ReentrancyGuard': lambda x: is_aragonos_reentrancy_guard(x),
+    'AragonOS-TimeHelpers': lambda x: is_aragonos_time_helpers(x),
+    'AragonOS-VaultRecoverable': lambda x: is_aragonos_vault_recoverable(x)
 }
 
 def is_standard_library(contract):
@@ -63,6 +80,11 @@ def is_safemath(contract):
 def is_openzepellin_safemath(contract):
     return is_safemath(contract) and is_openzepellin(contract)
 
+
+def is_aragonos_safemath(contract):
+    return is_safemath(contract) and is_aragonos(contract)
+
+
 # endregion
 ###################################################################################
 ###################################################################################
@@ -108,6 +130,10 @@ def is_erc20(contract):
 
 
 def is_openzepellin_erc20(contract):
+    return is_erc20(contract) and is_openzepellin(contract)
+
+
+def is_aragonos_erc20(contract):
     return is_erc20(contract) and is_openzepellin(contract)
 
 
@@ -206,5 +232,53 @@ def is_dapphub_ds_group(contract):
 ###################################################################################
 ###################################################################################
 
-def is_aragonos_app(contract):
+def is_aragonos_app_proxy_base(contract):
+    return contract.name == "AppProxyBase" and is_aragonos(contract)
+
+def is_aragonos_app_proxy_pinned(contract):
+    return contract.name == "AppProxyPinned" and is_aragonos(contract)
+
+def is_aragonos_app_proxy_upgradeable(contract):
+    return contract.name == "AppProxyUpgradeable" and is_aragonos(contract)
+
+def is_aragonos_app_storage(contract):
+    return contract.name == "AppStorage" and is_aragonos(contract)
+
+def is_aragonos_aragon_app(contract):
     return contract.name == "AragonApp" and is_aragonos(contract)
+
+def is_aragonos_unsafe_aragon_app(contract):
+    return contract.name == "UnsafeAragonApp" and is_aragonos(contract)
+
+def is_aragonos_autopetrified(contract):
+    return contract.name == "Autopetrified" and is_aragonos(contract)
+
+def is_aragonos_delegate_proxy(contract):
+    return contract.name == "DelegateProxy" and is_aragonos(contract)
+
+def is_aragonos_depositable_delegate_proxy(contract):
+    return contract.name == "DepositableDelegateProxy" and is_aragonos(contract)
+
+def is_aragonos_depositable_storage(contract):
+    return contract.name == "DepositableStorage" and is_aragonos(contract)
+
+def is_aragonos_ether_token_contract(contract):
+    return contract.name == "EtherTokenConstant" and is_aragonos(contract)
+
+def is_aragonos_initializable(contract):
+    return contract.name == "Initializable" and is_aragonos(contract)
+
+def is_aragonos_is_contract(contract):
+    return contract.name == "IsContract" and is_aragonos(contract)
+
+def is_aragonos_petrifiable(contract):
+    return contract.name == "Petrifiable" and is_aragonos(contract)
+
+def is_aragonos_reentrancy_guard(contract):
+    return contract.name == "ReentrancyGuard" and is_aragonos(contract)
+
+def is_aragonos_time_helpers(contract):
+    return contract.name == "TimeHelpers" and is_aragonos(contract)
+
+def is_aragonos_vault_recoverable(contract):
+    return contract.name == "VaultRecoverable" and is_aragonos(contract)
