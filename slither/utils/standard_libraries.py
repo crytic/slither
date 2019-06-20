@@ -134,7 +134,7 @@ def is_openzepellin_erc20(contract):
 
 
 def is_aragonos_erc20(contract):
-    return is_erc20(contract) and is_openzepellin(contract)
+    return is_erc20(contract) and is_aragonos(contract)
 
 
 # endregion
