@@ -1,13 +1,11 @@
 import re, sys, logging
 from slither.core.expressions.identifier import Identifier
-from slither.core.cfg.node import Node
 from slither.slithir.operations import NewContract
 from slither.slithir.operations import Member
-from slither.utils.colors import red, yellow, set_colorization_enabled
+from slither.utils.colors import red
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('Slither.Format')
-set_colorization_enabled(True)
 
 class FormatNamingConvention:
 

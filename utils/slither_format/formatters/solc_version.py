@@ -1,9 +1,6 @@
-import re, logging
-from slither.utils.colors import red, yellow, set_colorization_enabled
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('Slither.Format')
-set_colorization_enabled(True)
+import re
+from slither.exceptions import SlitherException
+from ..utils.patches import create_patch
 
 class FormatSolcVersion:
 
@@ -23,8 +20,8 @@ class FormatSolcVersion:
         for element in elements:
             solc_version_replace = FormatSolcVersion.determine_solc_version_replacement(
                 ''.join(element['type_specific_fields']['directive'][1:]))
-            FormatSolcVersion.create_patch(slither, patches, element['source_mapping']['filename_absolute'], \
-                                           element['source_mapping']['filename_relative'], solc_version_replace, \
+            FormatSolcVersion.create_patch(slither, patches, element['source_mapping']['filename_absolute'],
+                                           element['source_mapping']['filename_relative'], solc_version_replace,
                                            element['source_mapping']['start'], element['source_mapping']['start'] +
                                            element['source_mapping']['length'])
 
@@ -39,12 +36,9 @@ class FormatSolcVersion:
             elif minor_version == '5':
                 return "pragma solidity " + FormatSolcVersion.REPLACEMENT_VERSIONS[1] + ';'
             else:
-                logger.error(red("Unknown version!"))
-                sys.exit(-1)
+                raise SlitherException("Unknown version!")
         elif len(versions) == 2:
-            version_left = versions[0]
             version_right = versions[1]
-            minor_version_left = '.'.join(version_left[2:])[2]
             minor_version_right = '.'.join(version_right[2:])[2]
             if minor_version_right == '4':
                 return "pragma solidity " + FormatSolcVersion.REPLACEMENT_VERSIONS[0] + ';'
@@ -55,11 +49,11 @@ class FormatSolcVersion:
     def create_patch(slither, patches, in_file, in_file_relative, solc_version, modify_loc_start, modify_loc_end):
         in_file_str = slither.source_code[in_file].encode('utf-8')
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-        patches[in_file_relative].append({
-            "file" : in_file,
-            "detector" : "solc-version",
-	    "start" : modify_loc_start,
-	    "end" : modify_loc_end,
-	    "old_string" : old_str_of_interest.decode('utf-8'),
-	    "new_string" : solc_version
-        })
+        create_patch(patches,
+                     "solc-version",
+                     in_file_relative,
+                     in_file,
+                     int(modify_loc_start),
+                     int(modify_loc_end),
+                     old_str_of_interest.decode('utf-8'),
+                     solc_version)

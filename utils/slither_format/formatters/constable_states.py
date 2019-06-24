@@ -1,9 +1,6 @@
-import re, logging, sys
-from slither.utils.colors import red, yellow, set_colorization_enabled
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('Slither.Format')
-set_colorization_enabled(True)
+import re
+from slither.exceptions import SlitherException
+from ..utils.patches import create_patch
 
 class FormatConstableStates:
 
@@ -21,14 +18,17 @@ class FormatConstableStates:
         old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
         (new_str_of_interest, num_repl) = re.subn(match_text, replace_text, old_str_of_interest.decode('utf-8'), 1)
         if num_repl != 0:
-            patches[in_file_relative].append({
-                "file" : in_file,
-                "detector" : "constable-states",
-                "start" : modify_loc_start,
-                "end" : modify_loc_end,
-                "old_string" : old_str_of_interest.decode('utf-8'),
-                "new_string" : new_str_of_interest
-            })
+            create_patch(
+                patches,
+                "constable-states",
+                in_file_relative,
+                in_file,
+                modify_loc_start,
+                modify_loc_end,
+                old_str_of_interest.decode('utf-8'),
+                new_str_of_interest
+            )
+
         else:
-            logger.error(red("State variable not found?!"))
-            sys.exit(-1)
+            raise SlitherException("State variable not found?!")
+
