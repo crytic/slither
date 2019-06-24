@@ -8,13 +8,8 @@ from slither.detectors.naming_convention.naming_convention import NamingConventi
 from slither.detectors.functions.external_function import ExternalFunction
 from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
 from slither.detectors.attributes.const_functions import ConstantFunctions
-from .formatters.unused_state import FormatUnusedState
-from .formatters.solc_version import FormatSolcVersion
-from .formatters.pragma import FormatPragma
 from .formatters.naming_convention import FormatNamingConvention
-from .formatters.external_function import FormatExternalFunction
-from .formatters.constable_states import FormatConstableStates
-from .formatters.constant_function import FormatConstantFunction
+from .formatters import unused_state, constable_states, pragma, solc_version, external_function
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('Slither.Format')
@@ -178,19 +173,19 @@ def choose_detectors(args):
 def apply_detector_results(slither, patches, detector_results):
     for result in detector_results:
         if result['check'] == 'unused-state':
-            FormatUnusedState.format(slither, patches, result['elements'])
+            unused_state.format(slither, patches, result['elements'])
         elif result['check'] == 'solc-version':
-            FormatSolcVersion.format(slither, patches, result['elements'])
+            solc_version.format(slither, patches, result['elements'])
         elif result['check'] == 'pragma':
-            FormatPragma.format(slither, patches, result['elements'])
+            pragma.format(slither, patches, result['elements'])
         elif result['check'] == 'naming-convention':
             FormatNamingConvention.format(slither, patches, result['elements'])
         elif result['check'] == 'external-function':
-            FormatExternalFunction.format(slither, patches, result['elements'])
+            external_function.format(slither, patches, result['elements'])
         elif result['check'] == 'constable-states':
-            FormatConstableStates.format(slither, patches, result['elements'])
+            constable_states.format(slither, patches, result['elements'])
         elif result['check'] == 'constant-function':
-            FormatConstantFunction.format(slither, patches, result['elements'])
+            constable_states.format(slither, patches, result['elements'])
         else:
             logger.error(red("Not Supported Yet."))
             sys.exit(-1)

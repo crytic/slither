@@ -13,13 +13,17 @@ class FormatNamingConvention:
     def format(slither, patches, elements):
         for element in elements:
             if (element['additional_fields']['target'] == "parameter"):
-                FormatNamingConvention.create_patch(slither, patches, element['additional_fields']['target'], \
-                                                    element['name'], element['type_specific_fields']['parent']['name'], \
+                FormatNamingConvention.create_patch(slither, patches,
+                                                    element['additional_fields']['target'],
+                                                    element['name'],
+                                                    element['type_specific_fields']['parent']['name'],
                                                     element['type_specific_fields']['parent']['type_specific_fields']
-                                                    ['parent']['name'], element['source_mapping']['filename_absolute'], \
-                                                    element['source_mapping']['filename_relative'], \
-                                                    element['source_mapping']['start'],(element['source_mapping']['start'] +
-                                                                                        element['source_mapping']['length']))
+                                                    ['parent']['name'],
+                                                    element['source_mapping']['filename_absolute'],
+                                                    element['source_mapping']['filename_relative'],
+                                                    element['source_mapping']['start'],
+                                                    (element['source_mapping']['start'] +
+                                                     element['source_mapping']['length']))
             elif (element['additional_fields']['target'] == "modifier" or
                   element['additional_fields']['target'] == "function" or
                   element['additional_fields']['target'] == "event" or
