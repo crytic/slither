@@ -1,6 +1,6 @@
-import sys, re, logging, subprocess
+import sys, logging, subprocess
 from collections import defaultdict
-from slither.utils.colors import red, yellow, set_colorization_enabled
+from slither.utils.colors import red, set_colorization_enabled
 from slither.detectors.variables.unused_state_variables import UnusedStateVars
 from slither.detectors.attributes.incorrect_solc import IncorrectSolc
 from slither.detectors.attributes.constant_pragma import ConstantPragma
@@ -8,17 +8,13 @@ from slither.detectors.naming_convention.naming_convention import NamingConventi
 from slither.detectors.functions.external_function import ExternalFunction
 from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
 from slither.detectors.attributes.const_functions import ConstantFunctions
-from slither.slithir.operations import InternalCall
-from slither.core.expressions.call_expression import CallExpression
-from slither.core.expressions.expression import Expression
-from slither.core.expressions.identifier import Identifier
-from .format_unused_state import FormatUnusedState
-from .format_solc_version import FormatSolcVersion
-from .format_pragma import FormatPragma
-from .format_naming_convention import FormatNamingConvention
-from .format_external_function import FormatExternalFunction
-from .format_constable_states import FormatConstableStates
-from .format_constant_function import FormatConstantFunction
+from .formatters.unused_state import FormatUnusedState
+from .formatters.solc_version import FormatSolcVersion
+from .formatters.pragma import FormatPragma
+from .formatters.naming_convention import FormatNamingConvention
+from .formatters.external_function import FormatExternalFunction
+from .formatters.constable_states import FormatConstableStates
+from .formatters.constant_function import FormatConstantFunction
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('Slither.Format')
