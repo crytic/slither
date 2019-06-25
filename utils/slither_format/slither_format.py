@@ -107,19 +107,17 @@ def generate_patch_files(slither, patches):
             if (i == (len(current_patches) - 1)):
                 out_file_str += in_file_str[int(current_patches[i]['end']):].decode('utf-8')
 
-        logger.info(f'Output new file in {_in_file+".format"}')
         out_file = open(_in_file+".format",'w')
         out_file.write(out_file_str)
         out_file.close()
         logger.info("slither-format successful.")
-        logger.info("Created formatted file: " + _in_file+".format")
+        logger.info(f"Created formatted file: {_in_file}.format")
         patch_file_name = _in_file + ".format.patch"
         outFD = open(patch_file_name,"w")
-        logger.info(f'Output new file in {patch_file_name}')
+        logger.info(f'Created patch: {patch_file_name}')
         p1 = subprocess.Popen(['diff', '-u', _in_file, _in_file+".format"], stdout=outFD)
         p1.wait()
         outFD.close()
-        logger.info("Created patch file: " + patch_file_name)
 
 def print_patches(number_of_slither_results, patches):
     logger.info("Number of Slither results: " + str(number_of_slither_results))
