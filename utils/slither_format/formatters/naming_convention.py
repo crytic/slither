@@ -4,6 +4,7 @@ from slither.exceptions import SlitherException
 from slither.core.expressions.identifier import Identifier
 from slither.slithir.operations import NewContract
 from slither.slithir.operations import Member
+from ..utils.patches import create_patch
 
 # The Namedtuple will be used to give all the parameters from _patch to the _create_X functions
 # Its used to improve code readability and avoid incorrect parameters order
@@ -122,16 +123,14 @@ def _create_patch_contract_definition(format_info):
                                               r'\1'+"contract"+r'\2'+format_info.name.capitalize(),
                                               old_str_of_interest.decode('utf-8'), 1)
     if num_repl != 0:
-        patch = {
-            "file" : format_info.in_file,
-            "detector" : "naming-convention (contract definition)",
-            "start": format_info.loc_start,
-            "end": format_info.loc_start+m.span()[1],
-            "old_string":old_str_of_interest.decode('utf-8'),
-            "new_string":new_str_of_interest
-        }
-        if not patch in format_info.patches[format_info.in_file_relative]:
-            format_info.patches[format_info.in_file_relative].append(patch)
+        create_patch(format_info.patches,
+                     "naming-convention (contract definition)",
+                     format_info.in_file_relative,
+                     format_info.in_file,
+                     format_info.loc_start,
+                     format_info.loc_start + m.span()[1],
+                     old_str_of_interest.decode('utf-8'),
+                     new_str_of_interest)
     else:
         raise SlitherException("Could not find contract?!")
 
@@ -153,16 +152,14 @@ def _create_patch_contract_uses(format_info):
                                                                                   sv.source_mapping['length'])]
                     (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),
                                                               old_str_of_interest.decode('utf-8'), 1)
-                    patch = {
-                        "file" : in_file,
-                        "detector" : "naming-convention (contract state variable)",
-                        "start" : sv.source_mapping['start'],
-                        "end" : sv.source_mapping['start'] + sv.source_mapping['length'],
-                        "old_string" : old_str_of_interest.decode('utf-8'),
-                        "new_string" : new_str_of_interest
-                    }
-                    if not patch in patches[in_file_relative]:
-                        patches[in_file_relative].append(patch)
+                    create_patch(patches,
+                                 "naming-convention (contract state variable)",
+                                 in_file_relative,
+                                 in_file,
+                                 sv.source_mapping['start'],
+                                 sv.source_mapping['start'] + sv.source_mapping['length'],
+                                 old_str_of_interest.decode('utf-8'),
+                                 new_str_of_interest)
             # Check function+modifier locals+parameters+returns
             # To-do: Deep-check aggregate types (struct and mapping)
             fms = contract.functions + contract.modifiers
@@ -173,16 +170,16 @@ def _create_patch_contract_uses(format_info):
                                                                                      v.source_mapping['length'])]
                         old_str_of_interest = old_str_of_interest.decode('utf-8').split('=')[0]
                         (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),old_str_of_interest, 1)
-                        patch = {
-                            "file" : in_file,
-                            "detector" : "naming-convention (contract function variable)",
-                            "start" : v.source_mapping['start'],
-                            "end" : v.source_mapping['start'] + len(old_str_of_interest),
-                            "old_string" : old_str_of_interest,
-                            "new_string" : new_str_of_interest
-                        }
-                        if not patch in patches[in_file_relative]:
-                            patches[in_file_relative].append(patch)
+
+                        create_patch(patches,
+                                     "naming-convention (contract function variable)",
+                                     in_file_relative,
+                                     in_file,
+                                     v.source_mapping['start'],
+                                     v.source_mapping['start'] + len(old_str_of_interest),
+                                     old_str_of_interest,
+                                     new_str_of_interest)
+
             # Check "new" expressions for creation of contract objects
             for function in contract.functions:
                 for node in function.nodes:
@@ -195,16 +192,14 @@ def _create_patch_contract_uses(format_info):
                             (new_str_of_interest, num_repl) = re.subn("new"+r'(.*)'+name, "new"+r'\1'+name[0].upper() +
                                                                       name[1:], old_str_of_interest, 1)
                             if num_repl != 0:
-                                patch = {
-                                    "file" : in_file,
-                                    "detector" : "naming-convention (contract new object)",
-                                    "start" : node.source_mapping['start'] + m.span()[0],
-                                    "end" : node.source_mapping['start'] + m.span()[1],
-                                    "old_string" : old_str_of_interest,
-                                    "new_string" : new_str_of_interest
-                                }
-                                if not patch in patches[in_file_relative]:
-                                    patches[in_file_relative].append(patch)
+                                create_patch(patches,
+                                             "naming-convention (contract new object)",
+                                             in_file_relative,
+                                             in_file,
+                                             node.source_mapping['start'] + m.span()[0],
+                                             node.source_mapping['start'] + m.span()[1],
+                                             old_str_of_interest,
+                                             new_str_of_interest)
                             else:
                                 raise SlitherException("Could not find new object?!")
 
@@ -227,16 +222,14 @@ def _create_patch_modifier_definition(format_info):
             (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"modifier"+r'(.*)'+name, r'\1'+"modifier"+r'\2' +
                                                       name[0].lower()+name[1:], old_str_of_interest.decode('utf-8'), 1)
             if num_repl != 0:
-                patch = {
-                    "file" : in_file,
-                    "detector" : "naming-convention (modifier definition)",
-                    "start" : modify_loc_start,
-                    "end" : modify_loc_start+m.span()[1],
-                    "old_string" : old_str_of_interest.decode('utf-8'),
-                    "new_string" : new_str_of_interest
-                }
-                if not patch in patches[in_file_relative]:
-                    patches[in_file_relative].append(patch)
+                create_patch(patches,
+                             "naming-convention (modifier definition)",
+                             in_file_relative,
+                             in_file,
+                             modify_loc_start,
+                             modify_loc_start + m.span()[1],
+                             old_str_of_interest.decode('utf-8'),
+                             new_str_of_interest)
             else:
                 raise SlitherException("Could not find modifier?!")
 
@@ -259,16 +252,14 @@ def _create_patch_modifier_uses(format_info):
                     (new_str_of_interest, num_repl) = re.subn(name, name[0].lower()+name[1:],
                                                               old_str_of_interest.decode('utf-8'),1)
                     if num_repl != 0:
-                        patch = {
-                            "file" : in_file,
-                            "detector" : "naming-convention (modifier uses)",
-                            "start" : int(function.parameters_src.source_mapping['start']),
-                            "end" : int(function.returns_src.source_mapping['start']),
-                            "old_string" : old_str_of_interest.decode('utf-8'),
-                            "new_string" : new_str_of_interest
-                        }
-                        if not patch in	patches[in_file_relative]:
-                            patches[in_file_relative].append(patch)
+                        create_patch(patches,
+                                     "naming-convention (modifier uses)",
+                                     in_file_relative,
+                                     in_file,
+                                     int(function.parameters_src.source_mapping['start']),
+                                     int(function.returns_src.source_mapping['start']),
+                                     old_str_of_interest.decode('utf-8'),
+                                     new_str_of_interest)
                     else:
                         raise SlitherException("Could not find modifier name?!")
 
@@ -291,16 +282,15 @@ def _create_patch_function_definition(format_info):
             (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"function"+r'(.*)'+name, r'\1'+"function"+r'\2'+
                                                       name[0].lower()+name[1:], old_str_of_interest.decode('utf-8'), 1)
             if num_repl != 0:
-                patch = {
-                    "file" : in_file,
-                    "detector" : "naming-convention (function definition)",
-                    "start" : modify_loc_start,
-                    "end" : modify_loc_start+m.span()[1],
-                    "old_string" : old_str_of_interest.decode('utf-8'),
-                    "new_string" : new_str_of_interest
-                }
-                if not patch in patches[in_file_relative]:
-                    patches[in_file_relative].append(patch)
+                create_patch(patches,
+                             "naming-convention (function definition)",
+                             in_file_relative,
+                             in_file,
+                             modify_loc_start,
+                             modify_loc_start+m.span()[1],
+                             old_str_of_interest.decode('utf-8'),
+                             new_str_of_interest)
+
             else:
                 raise SlitherException("Could not find function?!")
 
@@ -325,18 +315,16 @@ def _create_patch_function_calls(format_info):
                                 called_function_name = old_str_of_interest.decode('utf-8').split('.')[-1]
                                 fixed_function_name = called_function_name[0].lower() + called_function_name[1:]
                                 new_string = '.'.join(old_str_of_interest.decode('utf-8').split('.')[:-1]) + '.' + \
-                                fixed_function_name
-                                patch = {
-                                    "file" : in_file,
-                                    "detector" : "naming-convention (function calls)",
-                                    "start" : external_call.source_mapping['start'],
-                                    "end" : int(external_call.source_mapping['start']) +
-                                    int(external_call.source_mapping['length']),
-                                    "old_string" : old_str_of_interest.decode('utf-8'),
-                                    "new_string" : new_string
-                                }
-                                if not patch in patches[in_file_relative]:
-                                    patches[in_file_relative].append(patch)
+                                    fixed_function_name
+                                create_patch(patches,
+                                             "naming-convention (function calls)",
+                                             in_file_relative,
+                                             in_file,
+                                             external_call.source_mapping['start'],
+                                             int(external_call.source_mapping['start']) +
+                                             int(external_call.source_mapping['length']),
+                                             old_str_of_interest.decode('utf-8'),
+                                             new_string)
                 for internal_call in node.internal_calls_as_expressions:
                     if (str(internal_call.called) == name):
                         in_file_str = slither.source_code[in_file].encode('utf-8')
@@ -344,21 +332,22 @@ def _create_patch_function_calls(format_info):
                                                           int(internal_call.source_mapping['start']) +
                                                           int(internal_call.source_mapping['length'])]
                         old_str_of_interest = old_str_of_interest.decode('utf-8').split('(')[0]
-                        patch = {
-                            "file" : in_file,
-                            "detector" : "naming-convention (function calls)",
-                            "start" : internal_call.source_mapping['start'],
-                            "end" : int(internal_call.source_mapping['start']) +
-                            int(internal_call.source_mapping['length']) -
+                        # Avoid parameters
+                        # TODO: (JF) review me
+                        end_loc = int(internal_call.source_mapping['start']) + \
+                            int(internal_call.source_mapping['length']) - \
                             len('('.join(in_file_str[int(internal_call.source_mapping['start']):
                                                      int(internal_call.source_mapping['start']) +
                                                      int(internal_call.source_mapping['length'])] \
-                                         .decode('utf-8').split('(')[1:])) - 1,
-                            "old_string" : old_str_of_interest,
-                            "new_string" : old_str_of_interest[0].lower()+old_str_of_interest[1:]
-                        }
-                        if not patch in patches[in_file_relative]:
-                            patches[in_file_relative].append(patch)
+                                         .decode('utf-8').split('(')[1:])) - 1
+                        create_patch(patches,
+                                     "naming-convention (function calls)",
+                                     in_file_relative,
+                                     in_file,
+                                     internal_call.source_mapping['start'],
+                                     end_loc,
+                                     old_str_of_interest,
+                                     old_str_of_interest[0].lower()+old_str_of_interest[1:])
 
 
 def _create_patch_event_definition(format_info):
@@ -379,16 +368,14 @@ def _create_patch_event_definition(format_info):
                                                       event_name[0].capitalize()+event_name[1:],
                                                       old_str_of_interest.decode('utf-8'), 1)
             if num_repl != 0:
-                patch = {
-                    "file" : in_file,
-                    "detector" : "naming-convention (event definition)",
-                    "start" : modify_loc_start,
-                    "end" : modify_loc_end,
-                    "old_string" : old_str_of_interest.decode('utf-8'),
-                    "new_string" : new_str_of_interest
-                }
-                if not patch in patches[in_file_relative]:
-                    patches[in_file_relative].append(patch)
+                create_patch(patches,
+                             "naming-convention (event definition)",
+                             in_file_relative,
+                             in_file,
+                             modify_loc_start,
+                             modify_loc_end,
+                             old_str_of_interest.decode('utf-8'),
+                             new_str_of_interest)
             else:
                 raise SlitherException("Could not find event?!")
 
@@ -411,17 +398,16 @@ def _create_patch_event_calls(format_info):
                         old_str_of_interest = in_file_str[int(call.source_mapping['start']):
                                                           int(call.source_mapping['start']) +
                                                           int(call.source_mapping['length'])]
-                        patch = {
-                            "file" : in_file,
-                            "detector" : "naming-convention (event calls)",
-                            "start" : call.source_mapping['start'],
-                            "end" : int(call.source_mapping['start']) + int(call.source_mapping['length']),
-                            "old_string" : old_str_of_interest.decode('utf-8'),
-                            "new_string" : old_str_of_interest.decode('utf-8')[0].capitalize() +
-                            old_str_of_interest.decode('utf-8')[1:]
-                        }
-                        if not patch in	patches[in_file_relative]:
-                            patches[in_file_relative].append(patch)
+
+                        create_patch(patches,
+                                     "naming-convention (event calls)",
+                                     in_file_relative,
+                                     in_file,
+                                     call.source_mapping['start'],
+                                     int(call.source_mapping['start']) + int(call.source_mapping['length']),
+                                     old_str_of_interest.decode('utf-8'),
+                                     old_str_of_interest.decode('utf-8')[0].capitalize() +
+                                     old_str_of_interest.decode('utf-8')[1:])
 
 
 def _create_patch_parameter_declaration(format_info):
@@ -445,16 +431,14 @@ def _create_patch_parameter_declaration(format_info):
                 (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+name[0].upper() +
                                                           name[1:]+r'\2', old_str_of_interest.decode('utf-8'), 1)
             if num_repl != 0:
-                patch = {
-                    "file" : in_file,
-                    "detector" : "naming-convention (parameter declaration)",
-                    "start" : modify_loc_start,
-                    "end" : modify_loc_end,
-                    "old_string" : old_str_of_interest.decode('utf-8'),
-                    "new_string" : new_str_of_interest
-                }
-                if not patch in patches[in_file_relative]:
-                    patches[in_file_relative].append(patch)
+                create_patch(patches,
+                             "naming-convention (parameter declaration)",
+                             in_file_relative,
+                             in_file,
+                             modify_loc_start,
+                             modify_loc_end,
+                             old_str_of_interest.decode('utf-8'),
+                             new_str_of_interest)
             else:
                 raise SlitherException("Could not find parameter declaration?!")
 
@@ -489,16 +473,14 @@ def _create_patch_parameter_uses(format_info):
                                                                       name[0].upper()+name[1:]+r'\2',
                                                                       old_str_of_interest.decode('utf-8'), 1)
                         if num_repl != 0:
-                            patch = {
-                                "file" : in_file,
-                                "detector" : "naming-convention (parameter uses)",
-                                "start" : modify_loc_start,
-                                "end" : modify_loc_end,
-                                "old_string" : old_str_of_interest.decode('utf-8'),
-                                "new_string" : new_str_of_interest
-                            }
-                            if not patch in	patches[in_file_relative]:
-                                patches[in_file_relative].append(patch)
+                            create_patch(patches,
+                                         "naming-convention (parameter uses)",
+                                         in_file_relative,
+                                         in_file,
+                                         modify_loc_start,
+                                         modify_loc_end,
+                                         old_str_of_interest.decode('utf-8'),
+                                         new_str_of_interest)
                         else:
                             raise SlitherException("Could not find parameter use?!")
 
@@ -520,17 +502,15 @@ def _create_patch_parameter_uses(format_info):
                                                                       name[0].upper()+name[1:]+r'\2',
                                                                       old_str_of_interest_beyond_modifier_name, 1)
                         if num_repl != 0:
-                            patch = {
-                                "file" : in_file,
-                                "detector" : "naming-convention (parameter uses)",
-                                "start" : modifier.source_mapping['start'] +
-                                len(old_str_of_interest.decode('utf-8').split('(')[0]) + 1,
-                                "end" : modifier.source_mapping['start'] + modifier.source_mapping['length'],
-                                "old_string" : old_str_of_interest_beyond_modifier_name,
-                                "new_string" : new_str_of_interest
-                            }
-                            if not patch in	patches[in_file_relative]:
-                                patches[in_file_relative].append(patch)
+                            create_patch(patches,
+                                         "naming-convention (parameter uses)",
+                                         in_file_relative,
+                                         in_file,
+                                         modifier.source_mapping['start'] +
+                                         len(old_str_of_interest.decode('utf-8').split('(')[0]) + 1,
+                                         modifier.source_mapping['start'] + modifier.source_mapping['length'],
+                                         old_str_of_interest_beyond_modifier_name,
+                                         new_str_of_interest)
                         else:
                             raise SlitherException("Could not find parameter use in modifier?!")
 
@@ -559,16 +539,15 @@ def _create_patch_state_variable_declaration(format_info):
     else:
         new_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]]
         new_string = new_string[0].lower()+new_string[1:]
-    patch = {
-        "file" : in_file,
-        "detector" : "naming-convention (state variable declaration)",
-        "start" : modify_loc_start+m.span()[0],
-        "end" : modify_loc_start+m.span()[1],
-        "old_string" : old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]],
-        "new_string" : new_string
-    }
-    if not patch in	patches[in_file_relative]:
-        patches[in_file_relative].append(patch)
+
+    create_patch(patches,
+                 "naming-convention (state variable declaration)",
+                 in_file_relative,
+                 in_file,
+                 modify_loc_start+m.span()[0],
+                 modify_loc_start+m.span()[1],
+                 old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]],
+                 new_string)
 
 
 def _create_patch_state_variable_uses(format_info):
@@ -601,16 +580,15 @@ def _create_patch_state_variable_uses(format_info):
                         else:
                             new_str_of_interest = old_str_of_interest.decode('utf-8')
                             new_str_of_interest = new_str_of_interest[0].lower()+new_str_of_interest[1:]
-                        patch = {
-                            "file" : in_file,
-                            "detector" : "naming-convention (state variable uses)",
-                            "start" : modify_loc_start,
-                            "end" : modify_loc_end,
-                            "old_string" : old_str_of_interest.decode('utf-8'),
-                            "new_string" : new_str_of_interest
-                        }
-                        if not patch in patches[in_file_relative]:
-                            patches[in_file_relative].append(patch)
+
+                        create_patch(patches,
+                                     "naming-convention (state variable uses)",
+                                     in_file_relative,
+                                     in_file,
+                                     modify_loc_start,
+                                     modify_loc_end,
+                                     old_str_of_interest.decode('utf-8'),
+                                     new_str_of_interest)
 
 
 def _create_patch_enum_definition(format_info):
@@ -635,16 +613,14 @@ def _create_patch_enum_definition(format_info):
                                               name[0].capitalize()+name[1:],
                                               old_str_of_interest.decode('utf-8'), 1)
     if num_repl != 0:
-        patch = {
-            "file" : in_file,
-            "detector" : "naming-convention (enum definition)",
-            "start" : modify_loc_start,
-            "end" : modify_loc_end,
-            "old_string" : old_str_of_interest.decode('utf-8'),
-            "new_string" : new_str_of_interest
-        }
-        if not patch in patches[in_file_relative]:
-            patches[in_file_relative].append(patch)
+        create_patch(patches,
+                     "naming-convention (enum definition)",
+                     in_file_relative,
+                     in_file,
+                     modify_loc_start,
+                     modify_loc_end,
+                     old_str_of_interest.decode('utf-8'),
+                     new_str_of_interest)
     else:
         raise SlitherException("Could not find enum?!")
 
@@ -669,16 +645,16 @@ def _create_patch_enum_uses(format_info):
                                                                               sv.source_mapping['length'])]
                 (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),
                                                           old_str_of_interest.decode('utf-8'), 1)
-                patch = {
-                    "file" : in_file,
-                    "detector" : "naming-convention (enum use)",
-                    "start" : sv.source_mapping['start'],
-                    "end" : sv.source_mapping['start'] + sv.source_mapping['length'],
-                    "old_string" : old_str_of_interest.decode('utf-8'),
-                    "new_string" : new_str_of_interest
-                }
-                if not patch in	patches[in_file_relative]:
-                    patches[in_file_relative].append(patch)
+
+                create_patch(patches,
+                             "naming-convention (enum use)",
+                             in_file_relative,
+                             in_file,
+                             sv.source_mapping['start'],
+                             sv.source_mapping['start'] + sv.source_mapping['length'],
+                             old_str_of_interest.decode('utf-8'),
+                             new_str_of_interest)
+
         # Check function+modifier locals+parameters+returns
         # To-do: Deep-check aggregate types (struct and mapping)
         fms = contract.functions + contract.modifiers
@@ -690,16 +666,16 @@ def _create_patch_enum_uses(format_info):
                                                                                  v.source_mapping['length'])]
                     (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),
                                                               old_str_of_interest.decode('utf-8'), 1)
-                    patch = {
-                        "file" : in_file,
-                        "detector" : "naming-convention (enum use)",
-                        "start" : v.source_mapping['start'],
-                        "end" : v.source_mapping['start'] + v.source_mapping['length'],
-                        "old_string" : old_str_of_interest.decode('utf-8'),
-                        "new_string" : new_str_of_interest
-                    }
-                    if not patch in patches[in_file_relative]:
-                        patches[in_file_relative].append(patch)
+
+                    create_patch(patches,
+                                 "naming-convention (enum use)",
+                                 in_file_relative,
+                                 in_file,
+                                 v.source_mapping['start'],
+                                 v.source_mapping['start'] + v.source_mapping['length'],
+                                 old_str_of_interest.decode('utf-8'),
+                                 new_str_of_interest)
+
         # Capture enum uses such as "num = numbers.ONE;"
         for function in contract.functions:
             for node in function.nodes:
@@ -715,23 +691,28 @@ def _create_patch_enum_uses(format_info):
                             (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name, r'\1'+name[0].upper()+name[1:],
                                                                       old_str_of_interest, 1)
                             if num_repl != 0:
-                                patch = {
-                                    "file" : in_file,
-                                    "detector" : "naming-convention (enum use)",
-                "start" : node.source_mapping['start'] +
+
+                                # TODO (JF): review me
+                                loc_start = node.source_mapping['start'] + \
                                     len(in_file_str[node.source_mapping['start']:
                                                     (node.source_mapping['start']+
-                                                     node.source_mapping['length'])].decode('utf-8').split('=')[0]) +
-                                    1 + m.span()[0],
-                                    "end" : node.source_mapping['start'] +
+                                                     node.source_mapping['length'])].decode('utf-8').split('=')[0]) + \
+                                    1 + m.span()[0]
+
+                                loc_end = node.source_mapping['start'] +\
                                     len(in_file_str[node.source_mapping['start']:(node.source_mapping['start']+
                                                                                   node.source_mapping['length'])].\
-                                        decode('utf-8').split('=')[0]) + 1 + m.span()[0] + len(old_str_of_interest),
-                                    "old_string" : old_str_of_interest,
-                                    "new_string" : new_str_of_interest
-                                }
-                                if not patch in	patches[in_file_relative]:
-                                    patches[in_file_relative].append(patch)
+                                        decode('utf-8').split('=')[0]) + 1 + m.span()[0] + len(old_str_of_interest)
+
+                                create_patch(patches,
+                                             "naming-convention (enum use)",
+                                             in_file_relative,
+                                             in_file,
+                                             loc_start,
+                                             loc_end,
+                                             old_str_of_interest,
+                                             new_str_of_interest)
+
                             else:
                                 raise SlitherException("Could not find new object?!")
         # To-do: Check any other place/way where enum type is used
@@ -759,16 +740,15 @@ def _create_patch_struct_definition(format_info):
                                               name[0].capitalize()+name[1:],
                                               old_str_of_interest.decode('utf-8'), 1)
     if num_repl != 0:
-        patch = {
-            "file" : in_file,
-            "detector" : "naming-convention (struct definition)",
-            "start" : modify_loc_start,
-            "end" : modify_loc_end,
-            "old_string" : old_str_of_interest.decode('utf-8'),
-            "new_string" : new_str_of_interest
-        }
-        if not patch in patches[in_file_relative]:
-            patches[in_file_relative].append(patch)
+        create_patch(patches,
+                     "naming-convention (struct definition)",
+                     in_file_relative,
+                     in_file,
+                     modify_loc_start,
+                     modify_loc_end,
+                     old_str_of_interest.decode('utf-8'),
+                     new_str_of_interest)
+
     else:
         raise SlitherException("Could not find struct?!")
 
@@ -793,16 +773,15 @@ def _create_patch_struct_uses(format_info):
                                                                               sv.source_mapping['length'])]
                 (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),
                                                           old_str_of_interest.decode('utf-8'), 1)
-                patch = {
-                    "file" : in_file,
-                    "detector" : "naming-convention (struct use)",
-                    "start" : sv.source_mapping['start'],
-                    "end" : sv.source_mapping['start'] + sv.source_mapping['length'],
-                    "old_string" : old_str_of_interest.decode('utf-8'),
-                    "new_string" : new_str_of_interest
-                }
-                if not patch in patches[in_file_relative]:
-                    patches[in_file_relative].append(patch)
+
+                create_patch(patches,
+                             "naming-convention (struct use)",
+                             in_file_relative,
+                             in_file,
+                             sv.source_mapping['start'],
+                             sv.source_mapping['start'] + sv.source_mapping['length'],
+                             old_str_of_interest.decode('utf-8'),
+                             new_str_of_interest)
         # Check function+modifier locals+parameters+returns
         # To-do: Deep-check aggregate types (struct and mapping)
         fms = contract.functions + contract.modifiers
@@ -813,14 +792,13 @@ def _create_patch_struct_uses(format_info):
                                                                                  v.source_mapping['length'])]
                     (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),
                                                               old_str_of_interest.decode('utf-8'), 1)
-                    patch = {
-                        "file" : in_file,
-                        "detector" : "naming-convention (struct use)",
-                        "start" : v.source_mapping['start'],
-                        "end" : v.source_mapping['start'] + v.source_mapping['length'],
-                        "old_string" : old_str_of_interest.decode('utf-8'),
-                        "new_string" : new_str_of_interest
-                    }
-                    if not patch in patches[in_file_relative]:
-                        patches[in_file_relative].append(patch)
+
+                    create_patch(patches,
+                                 "naming-convention (struct use)",
+                                 in_file_relative,
+                                 in_file,
+                                 v.source_mapping['start'],
+                                 v.source_mapping['start'] + v.source_mapping['length'],
+                                 old_str_of_interest.decode('utf-8'),
+                                 new_str_of_interest)
         # To-do: Check any other place/way where struct type is used (e.g. typecast)
