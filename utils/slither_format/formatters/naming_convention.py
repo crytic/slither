@@ -23,7 +23,8 @@ def format(slither, patches, elements):
     for element in elements:
         target = element['additional_fields']['target']
         if (target == "parameter"):
-            _patch(slither, patches,
+            _patch(slither,
+                   patches,
                    element['additional_fields']['target'],
                    element['name'],
                    element['type_specific_fields']['parent']['name'],
@@ -36,16 +37,23 @@ def format(slither, patches, elements):
         elif target in ["modifier", "function", "event",
                         "variable", "variable_constant", "enum"
                         "structure"]:
-            _patch(slither, patches, target,
-                   element['name'], element['name'],
+            _patch(slither,
+                   patches,
+                   target,
+                   element['name'],
+                   element['name'],
                    element['type_specific_fields']['parent']['name'],
                    element['source_mapping']['filename_absolute'],
                    element['source_mapping']['filename_relative'],
                    element['source_mapping']['start'],
                    (element['source_mapping']['start'] + element['source_mapping']['length']))
         else:
-            _patch(slither, patches, element['additional_fields']['target'],
-                   element['name'], element['name'], element['name'],
+            _patch(slither,
+                   patches,
+                   element['additional_fields']['target'],
+                   element['name'],
+                   element['name'],
+                   element['name'],
                    element['source_mapping']['filename_absolute'],
                    element['source_mapping']['filename_relative'],
                    element['source_mapping']['start'],
@@ -457,75 +465,74 @@ def _create_patch_parameter_uses(format_info):
     contract_name = format_info.contract_name
     function_name = format_info.function_name
 
-    for contract in slither.contracts:
-        if (contract.name == contract_name):
-            for function in contract.functions:
-                if (function.name == function_name):
-                    in_file_str = slither.source_code[in_file].encode('utf-8')
-                    for node in function.nodes:
-                        vars = node._expression_vars_written + node._expression_vars_read
-                        for v in vars:
-                            if isinstance(v, Identifier) and str(v) == name and [str(lv) for lv in
-                                                                                 (node._local_vars_read +
-                                                                                  node._local_vars_written)
-                                                                                 if str(lv) == name]:
-                                modify_loc_start = int(v.source_mapping['start'])
-                                modify_loc_end = int(v.source_mapping['start']) + int(v.source_mapping['length'])
-                                old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-                                if(name[0] == '_'):
-                                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)',
-                                                                              r'\1'+name[0]+name[1].upper()+name[2:] +
-                                                                              r'\2', old_str_of_interest.decode('utf-8'),
-                                                                              1)
-                                else:
-                                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_' +
-                                                                              name[0].upper()+name[1:]+r'\2',
-                                                                              old_str_of_interest.decode('utf-8'), 1)
-                                if num_repl != 0:
-                                    patch = {
-                                        "file" : in_file,
-                                        "detector" : "naming-convention (parameter uses)",
-                                        "start" : modify_loc_start,
-                                        "end" : modify_loc_end,
-                                        "old_string" : old_str_of_interest.decode('utf-8'),
-                                        "new_string" : new_str_of_interest
-                                    }
-                                    if not patch in	patches[in_file_relative]:
-                                        patches[in_file_relative].append(patch)
-                                else:
-                                    raise SlitherException("Could not find parameter use?!")
+    target_contract = slither.get_contract_from_name(contract_name)
+    for function in target_contract.functions:
+        if (function.name == function_name):
+            in_file_str = slither.source_code[in_file].encode('utf-8')
+            for node in function.nodes:
+                vars = node._expression_vars_written + node._expression_vars_read
+                for v in vars:
+                    if isinstance(v, Identifier) and str(v) == name and [str(lv) for lv in
+                                                                         (node._local_vars_read +
+                                                                          node._local_vars_written)
+                                                                         if str(lv) == name]:
+                        modify_loc_start = int(v.source_mapping['start'])
+                        modify_loc_end = int(v.source_mapping['start']) + int(v.source_mapping['length'])
+                        old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                        if(name[0] == '_'):
+                            (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)',
+                                                                      r'\1'+name[0]+name[1].upper()+name[2:] +
+                                                                      r'\2', old_str_of_interest.decode('utf-8'),
+                                                                      1)
+                        else:
+                            (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_' +
+                                                                      name[0].upper()+name[1:]+r'\2',
+                                                                      old_str_of_interest.decode('utf-8'), 1)
+                        if num_repl != 0:
+                            patch = {
+                                "file" : in_file,
+                                "detector" : "naming-convention (parameter uses)",
+                                "start" : modify_loc_start,
+                                "end" : modify_loc_end,
+                                "old_string" : old_str_of_interest.decode('utf-8'),
+                                "new_string" : new_str_of_interest
+                            }
+                            if not patch in	patches[in_file_relative]:
+                                patches[in_file_relative].append(patch)
+                        else:
+                            raise SlitherException("Could not find parameter use?!")
 
-                    # Process function parameters passed to modifiers
-                    for modifier in function._expression_modifiers:
-                        for arg in modifier.arguments:
-                            if str(arg) == name:
-                                old_str_of_interest = in_file_str[modifier.source_mapping['start']:
-                                                                  modifier.source_mapping['start'] +
-                                                                  modifier.source_mapping['length']]
-                                old_str_of_interest_beyond_modifier_name = old_str_of_interest.decode('utf-8')\
-                                                                                              .split('(')[1]
-                                if(name[0] == '_'):
-                                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+name[0]+
-                                                                              name[1].upper()+name[2:]+r'\2',
-                                                                              old_str_of_interest_beyond_modifier_name, 1)
-                                else:
-                                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+
-                                                                              name[0].upper()+name[1:]+r'\2',
-                                                                              old_str_of_interest_beyond_modifier_name, 1)
-                                if num_repl != 0:
-                                    patch = {
-                                        "file" : in_file,
-                                        "detector" : "naming-convention (parameter uses)",
-                                        "start" : modifier.source_mapping['start'] +
-                                        len(old_str_of_interest.decode('utf-8').split('(')[0]) + 1,
-                                        "end" : modifier.source_mapping['start'] + modifier.source_mapping['length'],
-                                        "old_string" : old_str_of_interest_beyond_modifier_name,
-                                        "new_string" : new_str_of_interest
-                                    }
-                                    if not patch in	patches[in_file_relative]:
-                                        patches[in_file_relative].append(patch)
-                                else:
-                                    raise SlitherException("Could not find parameter use in modifier?!")
+            # Process function parameters passed to modifiers
+            for modifier in function._expression_modifiers:
+                for arg in modifier.arguments:
+                    if str(arg) == name:
+                        old_str_of_interest = in_file_str[modifier.source_mapping['start']:
+                                                          modifier.source_mapping['start'] +
+                                                          modifier.source_mapping['length']]
+                        old_str_of_interest_beyond_modifier_name = old_str_of_interest.decode('utf-8')\
+                                                                                      .split('(')[1]
+                        if(name[0] == '_'):
+                            (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+name[0]+
+                                                                      name[1].upper()+name[2:]+r'\2',
+                                                                      old_str_of_interest_beyond_modifier_name, 1)
+                        else:
+                            (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name+r'(.*)', r'\1'+'_'+
+                                                                      name[0].upper()+name[1:]+r'\2',
+                                                                      old_str_of_interest_beyond_modifier_name, 1)
+                        if num_repl != 0:
+                            patch = {
+                                "file" : in_file,
+                                "detector" : "naming-convention (parameter uses)",
+                                "start" : modifier.source_mapping['start'] +
+                                len(old_str_of_interest.decode('utf-8').split('(')[0]) + 1,
+                                "end" : modifier.source_mapping['start'] + modifier.source_mapping['length'],
+                                "old_string" : old_str_of_interest_beyond_modifier_name,
+                                "new_string" : new_str_of_interest
+                            }
+                            if not patch in	patches[in_file_relative]:
+                                patches[in_file_relative].append(patch)
+                        else:
+                            raise SlitherException("Could not find parameter use in modifier?!")
 
 
 def _create_patch_state_variable_declaration(format_info):
@@ -535,28 +542,33 @@ def _create_patch_state_variable_declaration(format_info):
     modify_loc_start, modify_loc_end = format_info.loc_start, format_info.loc_end
     _target = format_info.target
 
-    for contract in slither.contracts:
-        if (contract.name == contract_name):
-            for var in contract.state_variables:
-                if (var.name == name):
-                    in_file_str = slither.source_code[in_file].encode('utf-8')
-                    old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-                    m = re.search(name, old_str_of_interest.decode('utf-8'))
-                    if (_target == "variable_constant"):
-                        new_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]].upper()
-                    else:
-                        new_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]]
-                        new_string = new_string[0].lower()+new_string[1:]
-                    patch = {
-                        "file" : in_file,
-                        "detector" : "naming-convention (state variable declaration)",
-                        "start" : modify_loc_start+m.span()[0],
-                        "end" : modify_loc_start+m.span()[1],
-                        "old_string" : old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]],
-                        "new_string" : new_string
-                    }
-                    if not patch in	patches[in_file_relative]:
-                        patches[in_file_relative].append(patch)
+    target_contract = slither.get_contract_from_name(contract_name)
+    if not target_contract:
+        raise SlitherException(f"Contract not found {contract_name}")
+    target_var = target_contract.get_state_variable_from_name(name)
+    if not target_var:
+        raise SlitherException(f"Contract not found {name}")
+
+    # TODO (JF) target_var is not used, the above checks could be removed?
+
+    in_file_str = slither.source_code[in_file].encode('utf-8')
+    old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+    m = re.search(name, old_str_of_interest.decode('utf-8'))
+    if (_target == "variable_constant"):
+        new_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]].upper()
+    else:
+        new_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]]
+        new_string = new_string[0].lower()+new_string[1:]
+    patch = {
+        "file" : in_file,
+        "detector" : "naming-convention (state variable declaration)",
+        "start" : modify_loc_start+m.span()[0],
+        "end" : modify_loc_start+m.span()[1],
+        "old_string" : old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]],
+        "new_string" : new_string
+    }
+    if not patch in	patches[in_file_relative]:
+        patches[in_file_relative].append(patch)
 
 
 def _create_patch_state_variable_uses(format_info):
@@ -566,39 +578,39 @@ def _create_patch_state_variable_uses(format_info):
     _target = format_info.target
 
     # To-do: Check cross-contract state variable uses
-    for contract in slither.contracts:
-        if (contract.name == contract_name):
-            target_contract = contract
-    for contract in slither.contracts:
-        if (contract == target_contract or (contract in target_contract.derived_contracts)):
-            fms = contract.functions + contract.modifiers
-            for fm in fms:
-                for node in fm.nodes:
-                    vars = node._expression_vars_written + node._expression_vars_read
-                    for v in vars:
-                        if isinstance(v, Identifier) and str(v) == name and [str(sv) for sv in
-                                                                             (node._state_vars_read +
-                                                                              node._state_vars_written)
-                                                                             if str(sv) == name]:
-                            modify_loc_start = int(v.source_mapping['start'])
-                            modify_loc_end = int(v.source_mapping['start']) + int(v.source_mapping['length'])
-                            in_file_str = slither.source_code[in_file].encode('utf-8')
-                            old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-                            if (_target == "variable_constant"):
-                                new_str_of_interest = old_str_of_interest.decode('utf-8').upper()
-                            else:
-                                new_str_of_interest = old_str_of_interest.decode('utf-8')
-                                new_str_of_interest = new_str_of_interest[0].lower()+new_str_of_interest[1:]
-                            patch = {
-                                "file" : in_file,
-                                "detector" : "naming-convention (state variable uses)",
-                                "start" : modify_loc_start,
-                                "end" : modify_loc_end,
-                                "old_string" : old_str_of_interest.decode('utf-8'),
-                                "new_string" : new_str_of_interest
-                            }
-                            if not patch in patches[in_file_relative]:
-                                patches[in_file_relative].append(patch)
+    target_contract = slither.get_contract_from_name(contract_name)
+    if not target_contract:
+        raise SlitherException(f"Contract not found {contract_name}")
+
+    for contract in [target_contract] + target_contract.derived_contracts:
+        fms = contract.functions + contract.modifiers
+        for fm in fms:
+            for node in fm.nodes:
+                vars = node._expression_vars_written + node._expression_vars_read
+                for v in vars:
+                    if isinstance(v, Identifier) and str(v) == name and [str(sv) for sv in
+                                                                         (node._state_vars_read +
+                                                                          node._state_vars_written)
+                                                                         if str(sv) == name]:
+                        modify_loc_start = int(v.source_mapping['start'])
+                        modify_loc_end = int(v.source_mapping['start']) + int(v.source_mapping['length'])
+                        in_file_str = slither.source_code[in_file].encode('utf-8')
+                        old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+                        if (_target == "variable_constant"):
+                            new_str_of_interest = old_str_of_interest.decode('utf-8').upper()
+                        else:
+                            new_str_of_interest = old_str_of_interest.decode('utf-8')
+                            new_str_of_interest = new_str_of_interest[0].lower()+new_str_of_interest[1:]
+                        patch = {
+                            "file" : in_file,
+                            "detector" : "naming-convention (state variable uses)",
+                            "start" : modify_loc_start,
+                            "end" : modify_loc_end,
+                            "old_string" : old_str_of_interest.decode('utf-8'),
+                            "new_string" : new_str_of_interest
+                        }
+                        if not patch in patches[in_file_relative]:
+                            patches[in_file_relative].append(patch)
 
 
 def _create_patch_enum_definition(format_info):
@@ -607,28 +619,34 @@ def _create_patch_enum_definition(format_info):
     contract_name = format_info.contract_name
     modify_loc_start, modify_loc_end = format_info.loc_start, format_info.loc_end
 
-    for contract in slither.contracts:
-        if (contract.name == contract_name):
-            for enum in contract.enums:
-                if (enum.name == name):
-                    in_file_str = slither.source_code[in_file].encode('utf-8')
-                    old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"enum"+r'(.*)'+name, r'\1'+"enum"+r'\2'+
-                                                              name[0].capitalize()+name[1:],
-                                                              old_str_of_interest.decode('utf-8'), 1)
-                    if num_repl != 0:
-                        patch = {
-                            "file" : in_file,
-                            "detector" : "naming-convention (enum definition)",
-                            "start" : modify_loc_start,
-                            "end" : modify_loc_end,
-                            "old_string" : old_str_of_interest.decode('utf-8'),
-                            "new_string" : new_str_of_interest
-                        }
-                        if not patch in patches[in_file_relative]:
-                            patches[in_file_relative].append(patch)
-                    else:
-                        raise SlitherException("Could not find enum?!")
+    target_contract = slither.get_contract_from_name(contract_name)
+    if not target_contract:
+        raise SlitherException(f"Contract not found {contract_name}")
+
+    target_enum = slither.get_enum_from_name(name)
+    if not target_enum:
+        raise SlitherException(f"Enum not found {name}")
+
+    # TODO (JF) target_enum is not used, the above checks could be removed?
+
+    in_file_str = slither.source_code[in_file].encode('utf-8')
+    old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"enum"+r'(.*)'+name, r'\1'+"enum"+r'\2'+
+                                              name[0].capitalize()+name[1:],
+                                              old_str_of_interest.decode('utf-8'), 1)
+    if num_repl != 0:
+        patch = {
+            "file" : in_file,
+            "detector" : "naming-convention (enum definition)",
+            "start" : modify_loc_start,
+            "end" : modify_loc_end,
+            "old_string" : old_str_of_interest.decode('utf-8'),
+            "new_string" : new_str_of_interest
+        }
+        if not patch in patches[in_file_relative]:
+            patches[in_file_relative].append(patch)
+    else:
+        raise SlitherException("Could not find enum?!")
 
 
 def _create_patch_enum_uses(format_info):
@@ -636,87 +654,87 @@ def _create_patch_enum_uses(format_info):
     in_file, in_file_relative = format_info.in_file, format_info.in_file_relative
     contract_name = format_info.contract_name
 
-    for contract in slither.contracts:
-        if (contract.name == contract_name):
-            target_contract = contract
-    for contract in slither.contracts:
-        if (contract == target_contract or (contract in target_contract.derived_contracts)):
-            in_file_str = slither.source_code[in_file].encode('utf-8')
-            # Check state variable declarations of enum type
-            # To-do: Deep-check aggregate types (struct and mapping)
-            svs = contract.variables
-            for sv in svs:
-                if (str(sv.type) == contract_name + "." + name):
-                    old_str_of_interest = in_file_str[sv.source_mapping['start']:(sv.source_mapping['start']+
-                                                                                  sv.source_mapping['length'])]
+    target_contract = slither.get_contract_from_name(contract_name)
+    if not target_contract:
+        raise SlitherException(f"Contract not found {contract_name}")
+
+    for contract in [target_contract] + target_contract.derived_contracts:
+        in_file_str = slither.source_code[in_file].encode('utf-8')
+        # Check state variable declarations of enum type
+        # To-do: Deep-check aggregate types (struct and mapping)
+        svs = contract.variables
+        for sv in svs:
+            if (str(sv.type) == contract_name + "." + name):
+                old_str_of_interest = in_file_str[sv.source_mapping['start']:(sv.source_mapping['start']+
+                                                                              sv.source_mapping['length'])]
+                (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),
+                                                          old_str_of_interest.decode('utf-8'), 1)
+                patch = {
+                    "file" : in_file,
+                    "detector" : "naming-convention (enum use)",
+                    "start" : sv.source_mapping['start'],
+                    "end" : sv.source_mapping['start'] + sv.source_mapping['length'],
+                    "old_string" : old_str_of_interest.decode('utf-8'),
+                    "new_string" : new_str_of_interest
+                }
+                if not patch in	patches[in_file_relative]:
+                    patches[in_file_relative].append(patch)
+        # Check function+modifier locals+parameters+returns
+        # To-do: Deep-check aggregate types (struct and mapping)
+        fms = contract.functions + contract.modifiers
+        for fm in fms:
+            # Enum declarations
+            for v in fm.variables:
+                if (str(v.type) == contract_name + "." + name):
+                    old_str_of_interest = in_file_str[v.source_mapping['start']:(v.source_mapping['start']+
+                                                                                 v.source_mapping['length'])]
                     (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),
                                                               old_str_of_interest.decode('utf-8'), 1)
                     patch = {
                         "file" : in_file,
                         "detector" : "naming-convention (enum use)",
-                        "start" : sv.source_mapping['start'],
-                        "end" : sv.source_mapping['start'] + sv.source_mapping['length'],
+                        "start" : v.source_mapping['start'],
+                        "end" : v.source_mapping['start'] + v.source_mapping['length'],
                         "old_string" : old_str_of_interest.decode('utf-8'),
                         "new_string" : new_str_of_interest
                     }
-                    if not patch in	patches[in_file_relative]:
+                    if not patch in patches[in_file_relative]:
                         patches[in_file_relative].append(patch)
-            # Check function+modifier locals+parameters+returns
-            # To-do: Deep-check aggregate types (struct and mapping)
-            fms = contract.functions + contract.modifiers
-            for fm in fms:
-                # Enum declarations
-                for v in fm.variables:
-                    if (str(v.type) == contract_name + "." + name):
-                        old_str_of_interest = in_file_str[v.source_mapping['start']:(v.source_mapping['start']+
-                                                                                     v.source_mapping['length'])]
-                        (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),
-                                                                  old_str_of_interest.decode('utf-8'), 1)
-                        patch = {
-                            "file" : in_file,
-                            "detector" : "naming-convention (enum use)",
-                            "start" : v.source_mapping['start'],
-                            "end" : v.source_mapping['start'] + v.source_mapping['length'],
-                            "old_string" : old_str_of_interest.decode('utf-8'),
-                            "new_string" : new_str_of_interest
-                        }
-                        if not patch in patches[in_file_relative]:
-                            patches[in_file_relative].append(patch)
-            # Capture enum uses such as "num = numbers.ONE;"
-            for function in contract.functions:
-                for node in function.nodes:
-                    for ir in node.irs:
-                        if isinstance(ir, Member):
-                            if str(ir.variable_left) == name:
-                                old_str_of_interest = in_file_str[node.source_mapping['start']:
-                                                                  (node.source_mapping['start']+
-                                                                   node.source_mapping['length'])].decode('utf-8')\
-                                                                   .split('=')[1]
-                                m = re.search(r'(.*)'+name, old_str_of_interest)
-                                old_str_of_interest = old_str_of_interest[m.span()[0]:]
-                                (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name, r'\1'+name[0].upper()+name[1:],
-                                                                          old_str_of_interest, 1)
-                                if num_repl != 0:
-                                    patch = {
-                                        "file" : in_file,
-                                        "detector" : "naming-convention (enum use)",
-                    "start" : node.source_mapping['start'] +
-                                        len(in_file_str[node.source_mapping['start']:
-                                                        (node.source_mapping['start']+
-                                                         node.source_mapping['length'])].decode('utf-8').split('=')[0]) +
-                                        1 + m.span()[0],
-                                        "end" : node.source_mapping['start'] +
-                                        len(in_file_str[node.source_mapping['start']:(node.source_mapping['start']+
-                                                                                      node.source_mapping['length'])].\
-                                            decode('utf-8').split('=')[0]) + 1 + m.span()[0] + len(old_str_of_interest),
-                                        "old_string" : old_str_of_interest,
-                                        "new_string" : new_str_of_interest
-                                    }
-                                    if not patch in	patches[in_file_relative]:
-                                        patches[in_file_relative].append(patch)
-                                else:
-                                    raise SlitherException("Could not find new object?!")
-            # To-do: Check any other place/way where enum type is used
+        # Capture enum uses such as "num = numbers.ONE;"
+        for function in contract.functions:
+            for node in function.nodes:
+                for ir in node.irs:
+                    if isinstance(ir, Member):
+                        if str(ir.variable_left) == name:
+                            old_str_of_interest = in_file_str[node.source_mapping['start']:
+                                                              (node.source_mapping['start']+
+                                                               node.source_mapping['length'])].decode('utf-8')\
+                                                               .split('=')[1]
+                            m = re.search(r'(.*)'+name, old_str_of_interest)
+                            old_str_of_interest = old_str_of_interest[m.span()[0]:]
+                            (new_str_of_interest, num_repl) = re.subn(r'(.*)'+name, r'\1'+name[0].upper()+name[1:],
+                                                                      old_str_of_interest, 1)
+                            if num_repl != 0:
+                                patch = {
+                                    "file" : in_file,
+                                    "detector" : "naming-convention (enum use)",
+                "start" : node.source_mapping['start'] +
+                                    len(in_file_str[node.source_mapping['start']:
+                                                    (node.source_mapping['start']+
+                                                     node.source_mapping['length'])].decode('utf-8').split('=')[0]) +
+                                    1 + m.span()[0],
+                                    "end" : node.source_mapping['start'] +
+                                    len(in_file_str[node.source_mapping['start']:(node.source_mapping['start']+
+                                                                                  node.source_mapping['length'])].\
+                                        decode('utf-8').split('=')[0]) + 1 + m.span()[0] + len(old_str_of_interest),
+                                    "old_string" : old_str_of_interest,
+                                    "new_string" : new_str_of_interest
+                                }
+                                if not patch in	patches[in_file_relative]:
+                                    patches[in_file_relative].append(patch)
+                            else:
+                                raise SlitherException("Could not find new object?!")
+        # To-do: Check any other place/way where enum type is used
 
 
 def _create_patch_struct_definition(format_info):
@@ -725,28 +743,34 @@ def _create_patch_struct_definition(format_info):
     contract_name = format_info.contract_name
     modify_loc_start, modify_loc_end = format_info.loc_start, format_info.loc_end
 
-    for contract in slither.contracts:
-        if (contract.name == contract_name):
-            for struct in contract.structures:
-                if (struct.name == name):
-                    in_file_str = slither.source_code[in_file].encode('utf-8')
-                    old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-                    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"struct"+r'(.*)'+name, r'\1'+"struct"+r'\2'+
-                                                              name[0].capitalize()+name[1:],
-                                                              old_str_of_interest.decode('utf-8'), 1)
-                    if num_repl != 0:
-                        patch = {
-                            "file" : in_file,
-                            "detector" : "naming-convention (struct definition)",
-                            "start" : modify_loc_start,
-                            "end" : modify_loc_end,
-                            "old_string" : old_str_of_interest.decode('utf-8'),
-                            "new_string" : new_str_of_interest
-                        }
-                        if not patch in patches[in_file_relative]:
-                            patches[in_file_relative].append(patch)
-                    else:
-                        raise SlitherException("Could not find struct?!")
+    target_contract = slither.get_contract_from_name(contract_name)
+    if not target_contract:
+        raise SlitherException(f"Contract not found {contract_name}")
+
+    target_structure = slither.get_structure_from_name(name)
+    if not target_structure:
+        raise SlitherException(f"Structure not found {name}")
+
+    # TODO (JF) target_structure is not used, the above checks could be removed?
+
+    in_file_str = slither.source_code[in_file].encode('utf-8')
+    old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"struct"+r'(.*)'+name, r'\1'+"struct"+r'\2'+
+                                              name[0].capitalize()+name[1:],
+                                              old_str_of_interest.decode('utf-8'), 1)
+    if num_repl != 0:
+        patch = {
+            "file" : in_file,
+            "detector" : "naming-convention (struct definition)",
+            "start" : modify_loc_start,
+            "end" : modify_loc_end,
+            "old_string" : old_str_of_interest.decode('utf-8'),
+            "new_string" : new_str_of_interest
+        }
+        if not patch in patches[in_file_relative]:
+            patches[in_file_relative].append(patch)
+    else:
+        raise SlitherException("Could not find struct?!")
 
 
 def _create_patch_struct_uses(format_info):
@@ -754,49 +778,49 @@ def _create_patch_struct_uses(format_info):
     in_file, in_file_relative = format_info.in_file, format_info.in_file_relative
     contract_name = format_info.contract_name
 
-    for contract in slither.contracts:
-        if (contract.name == contract_name):
-            target_contract = contract
-    for contract in slither.contracts:
-        if (contract == target_contract or (contract in target_contract.derived_contracts)):
-            in_file_str = slither.source_code[in_file].encode('utf-8')
-            # Check state variables of struct type
-            # To-do: Deep-check aggregate types (struct and mapping)
-            svs = contract.variables
-            for sv in svs:
-                if (str(sv.type) == contract_name + "." + name):
-                    old_str_of_interest = in_file_str[sv.source_mapping['start']:(sv.source_mapping['start']+
-                                                                                  sv.source_mapping['length'])]
+    target_contract = slither.get_contract_from_name(contract_name)
+    if not target_contract:
+        raise SlitherException(f"Contract not found {contract_name}")
+
+    for contract in [target_contract] + target_contract.derived_contracts:
+        in_file_str = slither.source_code[in_file].encode('utf-8')
+        # Check state variables of struct type
+        # To-do: Deep-check aggregate types (struct and mapping)
+        svs = contract.variables
+        for sv in svs:
+            if (str(sv.type) == contract_name + "." + name):
+                old_str_of_interest = in_file_str[sv.source_mapping['start']:(sv.source_mapping['start']+
+                                                                              sv.source_mapping['length'])]
+                (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),
+                                                          old_str_of_interest.decode('utf-8'), 1)
+                patch = {
+                    "file" : in_file,
+                    "detector" : "naming-convention (struct use)",
+                    "start" : sv.source_mapping['start'],
+                    "end" : sv.source_mapping['start'] + sv.source_mapping['length'],
+                    "old_string" : old_str_of_interest.decode('utf-8'),
+                    "new_string" : new_str_of_interest
+                }
+                if not patch in patches[in_file_relative]:
+                    patches[in_file_relative].append(patch)
+        # Check function+modifier locals+parameters+returns
+        # To-do: Deep-check aggregate types (struct and mapping)
+        fms = contract.functions + contract.modifiers
+        for fm in fms:
+            for v in fm.variables:
+                if (str(v.type) == contract_name + "." + name):
+                    old_str_of_interest = in_file_str[v.source_mapping['start']:(v.source_mapping['start']+
+                                                                                 v.source_mapping['length'])]
                     (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),
                                                               old_str_of_interest.decode('utf-8'), 1)
                     patch = {
                         "file" : in_file,
                         "detector" : "naming-convention (struct use)",
-                        "start" : sv.source_mapping['start'],
-                        "end" : sv.source_mapping['start'] + sv.source_mapping['length'],
+                        "start" : v.source_mapping['start'],
+                        "end" : v.source_mapping['start'] + v.source_mapping['length'],
                         "old_string" : old_str_of_interest.decode('utf-8'),
                         "new_string" : new_str_of_interest
                     }
                     if not patch in patches[in_file_relative]:
                         patches[in_file_relative].append(patch)
-            # Check function+modifier locals+parameters+returns
-            # To-do: Deep-check aggregate types (struct and mapping)
-            fms = contract.functions + contract.modifiers
-            for fm in fms:
-                for v in fm.variables:
-                    if (str(v.type) == contract_name + "." + name):
-                        old_str_of_interest = in_file_str[v.source_mapping['start']:(v.source_mapping['start']+
-                                                                                     v.source_mapping['length'])]
-                        (new_str_of_interest, num_repl) = re.subn(name, name.capitalize(),
-                                                                  old_str_of_interest.decode('utf-8'), 1)
-                        patch = {
-                            "file" : in_file,
-                            "detector" : "naming-convention (struct use)",
-                            "start" : v.source_mapping['start'],
-                            "end" : v.source_mapping['start'] + v.source_mapping['length'],
-                            "old_string" : old_str_of_interest.decode('utf-8'),
-                            "new_string" : new_str_of_interest
-                        }
-                        if not patch in patches[in_file_relative]:
-                            patches[in_file_relative].append(patch)
-            # To-do: Check any other place/way where struct type is used (e.g. typecast)
+        # To-do: Check any other place/way where struct type is used (e.g. typecast)
