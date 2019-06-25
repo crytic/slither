@@ -6,7 +6,6 @@ import inspect
 import json
 import logging
 import os
-import subprocess
 import sys
 import traceback
 
@@ -23,7 +22,7 @@ from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
                                         output_detectors_json, output_printers,
                                         output_to_markdown, output_wiki)
-from crytic_compile import is_supported
+from crytic_compile import compile_all, is_supported
 from slither.exceptions import SlitherException
 
 logging.basicConfig()
@@ -35,7 +34,8 @@ logger = logging.getLogger("Slither")
 ###################################################################################
 ###################################################################################
 
-def process(filename, args, detector_classes, printer_classes):
+
+def process_single(target, args, detector_classes, printer_classes):
     """
     The core high-level code for running Slither static analysis.
 
@@ -46,11 +46,24 @@ def process(filename, args, detector_classes, printer_classes):
     if args.legacy_ast:
         ast = '--ast-json'
     args.filter_paths = parse_filter_paths(args)
-    slither = Slither(filename,
+    slither = Slither(target,
                       ast_format=ast,
+                      solc_arguments=args.solc_args,
                       **vars(args))
 
     return _process(slither, detector_classes, printer_classes)
+
+
+def process_all(target, args, detector_classes, printer_classes):
+    compilations = compile_all(target, **vars(args))
+    results = []
+    analyzed_contracts_count = 0
+    for compilation in compilations:
+        (current_results, current_analyzed_count) = process_single(compilation, args, detector_classes, printer_classes)
+        results.extend(current_results)
+        analyzed_contracts_count += current_analyzed_count
+    return results, analyzed_contracts_count
+
 
 def _process(slither, detector_classes, printer_classes):
     for detector_cls in detector_classes:
@@ -75,7 +88,7 @@ def _process(slither, detector_classes, printer_classes):
     return results, analyzed_contracts_count
 
 
-def process_files(filenames, args, detector_classes, printer_classes):
+def process_from_asts(filenames, args, detector_classes, printer_classes):
     all_contracts = []
 
     for filename in filenames:
@@ -83,15 +96,9 @@ def process_files(filenames, args, detector_classes, printer_classes):
             contract_loaded = json.load(f)
             all_contracts.append(contract_loaded['ast'])
 
-    slither = Slither(all_contracts,
-                      solc=args.solc,
-                      disable_solc_warnings=args.disable_solc_warnings,
-                      solc_arguments=args.solc_args,
-                      filter_paths=parse_filter_paths(args),
-                      triage_mode=args.triage_mode,
-                      exclude_dependencies=args.exclude_dependencies)
+    return process_single(all_contracts, args, detector_classes, printer_classes)
 
-    return _process(slither, detector_classes, printer_classes)
+
 
 # endregion
 ###################################################################################
@@ -296,7 +303,7 @@ def parse_args(detector_classes, printer_classes):
 
     group_detector = parser.add_argument_group('Detectors')
     group_printer = parser.add_argument_group('Printers')
-    group_misc = parser.add_argument_group('Additional option')
+    group_misc = parser.add_argument_group('Additional options')
 
     group_detector.add_argument('--detect',
                                 help='Comma-separated list of detectors, defaults to all, '
@@ -570,28 +577,25 @@ def main_impl(all_detector_classes, all_printer_classes):
     try:
         filename = args.filename
 
-        globbed_filenames = glob.glob(filename, recursive=True)
-
-        if os.path.isfile(filename) or is_supported(filename):
-            (results, number_contracts) = process(filename, args, detector_classes, printer_classes)
-
-        elif os.path.isdir(filename) or len(globbed_filenames) > 0:
-            extension = "*.sol" if not args.solc_ast else "*.json"
-            filenames = glob.glob(os.path.join(filename, extension))
+        # Determine if we are handling ast from solc
+        if args.solc_ast or (filename.endswith('.json') and not is_supported(filename)):
+            globbed_filenames = glob.glob(filename, recursive=True)
+            filenames = glob.glob(os.path.join(filename, "*.json"))
             if not filenames:
                 filenames = globbed_filenames
             number_contracts = 0
             results = []
-            if args.splitted and args.solc_ast:
-                (results, number_contracts) = process_files(filenames, args, detector_classes, printer_classes)
+            if args.splitted:
+                (results, number_contracts) = process_from_asts(filenames, args, detector_classes, printer_classes)
             else:
                 for filename in filenames:
-                    (results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
+                    (results_tmp, number_contracts_tmp) = process_single(filename, args, detector_classes, printer_classes)
                     number_contracts += number_contracts_tmp
                     results += results_tmp
 
+        # Rely on CryticCompile to discern the underlying type of compilations.
         else:
-            raise Exception("Unrecognised file/dir path: '#{filename}'".format(filename=filename))
+            (results, number_contracts) = process_all(filename, args, detector_classes, printer_classes)
 
         if args.json:
             output_json(results, None if stdout_json else args.json)
