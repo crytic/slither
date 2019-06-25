@@ -28,20 +28,23 @@ Slither detectors highlight names, context and source-mapping of code constructs
 ## Usage
 
 Run Slither-format on a single file:
-``` 
+
+```
 $ slither-format ./utils/slither_format/tests/test_data/constant.sol
 ``` 
 
-This produces `constant.sol.format` file which has all the feature replacements.
+This produces a `constant.sol.format` file which has all the feature replacements. It also produces a `constant.sol.format.patch` file which is a `git` compatible patch file that can be used to apply format diffs to the original file.
 
 ## Dependencies
 
 Slither-format requires Slither and all its dependencies
 
-## Known Limitations
+## To-do List of Known Limitations
 
-* Naming convention formatting on parameter uses does not work for NatSpec @param attributes
-* Naming convention formatting on parameter uses does not work for variables used as indices on LHS (e.g. `_to` in `balances[_to] = 100`)
+1. Naming convention formatting on parameter uses does not work for NatSpec @param attributes.
+2. Naming convention formatting on parameter uses does not work for variables used as indices on LHS (e.g. `_to` in `balances[_to] = 100`).
+3. Overlapping patches are ignored now - Apply the more important patch based on heuristics or user input.
+4. Other to-do's as commented in the code.
 
 ## Developer Testing
 
@@ -52,6 +55,8 @@ $ python3 ./slither_format/tests/test_constable_states.py
 $ python3 ./slither_format/tests/test_constant_function.py
 $ python3 ./slither_format/tests/test_solc_version.py
 $ python3 ./slither_format/tests/test_pragma.py
-$ python3 ./slither_format/tests/test_naming_convention.py
+$ python3 ./slither_format/tests/test_naming_convention.py (Has one expected failure because of limitation #2.)
+$ python3 ./slither_format/tests/test_detector_combinations.py
 $ python3 ./slither_format/tests/run_all_tests.py
+$ python3 ./slither_format/tests/runSlitherFormat.py
 ``` 
