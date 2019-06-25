@@ -6,7 +6,6 @@ import inspect
 import json
 import logging
 import os
-import subprocess
 import sys
 import traceback
 
@@ -23,7 +22,7 @@ from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
                                         output_detectors_json, output_printers,
                                         output_to_markdown, output_wiki)
-from crytic_compile import CryticCompile
+from crytic_compile import compile_all, is_supported
 from slither.exceptions import SlitherException
 
 logging.basicConfig()
@@ -56,7 +55,7 @@ def process_single(target, args, detector_classes, printer_classes):
 
 
 def process_all(target, args, detector_classes, printer_classes):
-    compilations = CryticCompile.compile_all(target, **vars(args))
+    compilations = compile_all(target, **vars(args))
     results = []
     analyzed_contracts_count = 0
     for compilation in compilations:
@@ -579,7 +578,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         filename = args.filename
 
         # Determine if we are handling ast from solc
-        if args.solc_ast:
+        if args.solc_ast or (filename.endswith('.json') and not is_supported(filename)):
             globbed_filenames = glob.glob(filename, recursive=True)
             filenames = glob.glob(os.path.join(filename, "*.json"))
             if not filenames:
