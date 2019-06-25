@@ -101,7 +101,7 @@ class SourceMapping(Context):
         else:
             filename = filename_used
 
-        if filename in slither.crytic_compile.src_content:
+        if slither.crytic_compile and filename in slither.crytic_compile.src_content:
             source_code = slither.crytic_compile.src_content[filename]
             (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code,
                                                                                   s,
