@@ -22,6 +22,7 @@ def format(slither, patches, elements):
 def _patch(slither, patches, in_file, in_file_relative, modify_loc_start, modify_loc_end):
     in_file_str = slither.source_code[in_file].encode('utf-8')
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
+    # Find the keywords view|pure|constant and remove them
     m = re.search("(view|pure|constant)", old_str_of_interest.decode('utf-8'))
     if m:
         create_patch(patches,
@@ -30,7 +31,7 @@ def _patch(slither, patches, in_file, in_file_relative, modify_loc_start, modify
                      in_file,
                      modify_loc_start + m.span()[0],
                      modify_loc_start + m.span()[1],
-                     m.groups(0)[0],
+                     m.groups(0)[0],  # this is view|pure|constant
                      "")
     else:
         raise SlitherException("No view/pure/constant specifier exists. Regex failed to remove specifier!")
