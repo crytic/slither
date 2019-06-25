@@ -8,8 +8,7 @@ from slither.detectors.naming_convention.naming_convention import NamingConventi
 from slither.detectors.functions.external_function import ExternalFunction
 from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
 from slither.detectors.attributes.const_functions import ConstantFunctions
-from .formatters.naming_convention import FormatNamingConvention
-from .formatters import unused_state, constable_states, pragma, solc_version, external_function
+from .formatters import unused_state, constable_states, pragma, solc_version, external_function, naming_convention
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('Slither.Format')
@@ -179,7 +178,7 @@ def apply_detector_results(slither, patches, detector_results):
         elif result['check'] == 'pragma':
             pragma.format(slither, patches, result['elements'])
         elif result['check'] == 'naming-convention':
-            FormatNamingConvention.format(slither, patches, result['elements'])
+            naming_convention.format(slither, patches, result['elements'])
         elif result['check'] == 'external-function':
             external_function.format(slither, patches, result['elements'])
         elif result['check'] == 'constable-states':
