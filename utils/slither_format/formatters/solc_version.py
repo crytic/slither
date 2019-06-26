@@ -14,12 +14,13 @@ REPLACEMENT_VERSIONS = ["0.4.25", "0.5.3"]
 # 4: version number
 PATTERN = re.compile('(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)')
 
-def format(slither, patches, elements):
+def format(slither, result):
+    elements = result['elements']
     for element in elements:
         solc_version_replace = _determine_solc_version_replacement(
             ''.join(element['type_specific_fields']['directive'][1:]))
-        _patch(slither, patches, element['source_mapping']['filename_absolute'],
-               element['source_mapping']['filename_relative'], solc_version_replace,
+
+        _patch(slither, result, element['source_mapping']['filename_absolute'], solc_version_replace,
                element['source_mapping']['start'], element['source_mapping']['start'] +
                element['source_mapping']['length'])
 
@@ -47,12 +48,10 @@ def _determine_solc_version_replacement(used_solc_version):
             return "pragma solidity " + REPLACEMENT_VERSIONS[1] + ';'
 
 
-def _patch(slither, patches, in_file, in_file_relative, solc_version, modify_loc_start, modify_loc_end):
+def _patch(slither, result, in_file, solc_version, modify_loc_start, modify_loc_end):
     in_file_str = slither.source_code[in_file].encode('utf-8')
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-    create_patch(patches,
-                 "solc-version",
-                 in_file_relative,
+    create_patch(result,
                  in_file,
                  int(modify_loc_start),
                  int(modify_loc_end),
