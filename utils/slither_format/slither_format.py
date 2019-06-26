@@ -9,6 +9,7 @@ from slither.detectors.functions.external_function import ExternalFunction
 from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
 from slither.detectors.attributes.const_functions import ConstantFunctions
 from .formatters import unused_state, constable_states, pragma, solc_version, external_function, naming_convention
+from .utils.patches import apply_patch, create_diff
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('Slither.Format')
@@ -27,30 +28,44 @@ all_detectors = {
 def slither_format(args, slither):
     patches = defaultdict(list)
     detectors_to_run = choose_detectors(args)
+
     for detector in detectors_to_run:
         slither.register_detector(detector)
-    results = []
+
     detector_results = slither.run_detectors()
     detector_results = [x for x in detector_results if x]  # remove empty results
     detector_results = [item for sublist in detector_results for item in sublist]  # flatten
-    results.extend(detector_results)
-    number_of_slither_results = get_number_of_slither_results(detector_results)
+
     # Apply slither detector results on contract files to generate patches
     apply_detector_results(slither, patches, detector_results)
-    # Sort the patches in ascending order of the source mapping i.e. from beginning of contract file to end.
-    # Multiple detectors can produce alerts on same code fragments e.g. unused-state and constable-states.
-    # The current approach makes a single pass on the contract file to apply patches.
-    # Therefore, overlapping patches are ignored for now. Neither is applied.
-    # To-do: Prioritise one detector over another (via user input or hardcoded) for overlapping patches.
-    sort_and_flag_overlapping_patches(patches)
-    # Remove overlapping patches
-    prune_overlapping_patches(args, patches)
-    if args.verbose_json:
-        print_patches_json(number_of_slither_results, patches)
-    if args.verbose_test:
-        print_patches(number_of_slither_results, patches)
-    # Generate git-compatible patch files
-    generate_patch_files(slither, patches)
+
+    counter = 0
+    for file in patches:
+        for patch in patches[file]:
+            print(file)
+            print(patch['file'])
+            original_txt = slither.source_code[patch['file']]
+            patched_txt = apply_patch(original_txt, patch)
+            diff = create_diff(original_txt, patched_txt, file)
+            with open(f'patch_{counter}', 'w') as f:
+                f.write(diff)
+
+
+
+    # # Sort the patches in ascending order of the source mapping i.e. from beginning of contract file to end.
+    # # Multiple detectors can produce alerts on same code fragments e.g. unused-state and constable-states.
+    # # The current approach makes a single pass on the contract file to apply patches.
+    # # Therefore, overlapping patches are ignored for now. Neither is applied.
+    # # To-do: Prioritise one detector over another (via user input or hardcoded) for overlapping patches.
+    # sort_and_flag_overlapping_patches(patches)
+    # # Remove overlapping patches
+    # prune_overlapping_patches(args, patches)
+    # if args.verbose_json:
+    #     print_patches_json(number_of_slither_results, patches)
+    # if args.verbose_test:
+    #     print_patches(number_of_slither_results, patches)
+    # # Generate git-compatible patch files
+    # generate_patch_files(slither, patches)
 
 def sort_and_flag_overlapping_patches(patches):
     for file in patches:
