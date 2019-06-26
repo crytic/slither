@@ -36,7 +36,7 @@ def format(slither, patches, elements):
                    (element['source_mapping']['start'] + element['source_mapping']['length']))
 
         elif target in ["modifier", "function", "event",
-                        "variable", "variable_constant", "enum"
+                        "variable", "variable_constant", "enum",
                         "structure"]:
             _patch(slither,
                    patches,
@@ -76,66 +76,44 @@ def _patch(slither, patches, _target, name, function_name, contract_name, in_fil
                              modify_loc_end)
 
     if _target == "contract":
-        _create_patch_contract_definition(format_info)
-
+        _create_patch_declaration(format_info, _convert_contract_declaration)
         _create_patch_contract_uses(format_info)
-    elif _target == "structure":
-        _create_patch_struct_definition(format_info)
 
+    elif _target == "structure":
+        _create_patch_declaration(format_info, _convert_struct_definition)
         _create_patch_struct_uses(format_info)
+
     elif _target == "event":
         _create_patch_event_definition(format_info)
-
         _create_patch_event_calls(format_info)
 
     elif _target == "function":
         if name != contract_name:
             _create_patch_function_definition(format_info)
-
             _create_patch_function_calls(format_info)
+
     elif _target == "parameter":
         _create_patch_parameter_declaration(format_info)
-
         _create_patch_parameter_uses(format_info)
 
-    elif _target in ["variable_constant", "variable"]:
-        _create_patch_state_variable_declaration(format_info)
-
+    elif _target == "variable":
+        _create_patch_declaration(format_info, _convert_state_variable_declaration)
         _create_patch_state_variable_uses(format_info)
+
+    elif _target == "variable_constant":
+        _create_patch_declaration(format_info, _convert_state_variable_constant_declaration)
+        _create_patch_state_variable_uses(format_info)
+
     elif _target == "enum":
-        _create_patch_enum_definition(format_info)
+        _create_patch_declaration(format_info, _convert_enum_declaration)
         _create_patch_enum_uses(format_info)
+
     elif _target == "modifier":
         _create_patch_modifier_definition(format_info)
         _create_patch_modifier_uses(format_info)
+
     else:
         raise SlitherException("Unknown naming convention! " + _target)
-
-
-        
-
-def _create_patch_contract_definition(format_info):
-    in_file_str = format_info.slither.source_code[format_info.in_file].encode('utf-8')
-    old_str_of_interest = in_file_str[format_info.loc_start:format_info.loc_end]
-    # Locate the name following keywords `contract` | `interface` | `library`
-    m = re.match(r'(.*)' + "(contract|interface|library)" + r'(.*)' + format_info.name, old_str_of_interest.decode('utf-8'))
-    old_str_of_interest = in_file_str[format_info.loc_start:format_info.loc_start+m.span()[1]]
-    # Capitalize the name
-    (new_str_of_interest, num_repl) = re.subn(r'(.*)' + r'(contract|interface|library)' + r'(.*)' + format_info.name,
-                                              r'\1' + r'\2' + r'\3' + format_info.name.capitalize(),
-                                              old_str_of_interest.decode('utf-8'), 1)
-
-    if num_repl != 0:
-        create_patch(format_info.patches,
-                     "naming-convention (contract definition)",
-                     format_info.in_file_relative,
-                     format_info.in_file,
-                     format_info.loc_start,
-                     format_info.loc_start + m.span()[1],
-                     old_str_of_interest.decode('utf-8'),
-                     new_str_of_interest)
-    else:
-        raise SlitherException("Could not find contract?!")
 
 
 def _create_patch_contract_uses(format_info):
@@ -557,46 +535,6 @@ def _create_patch_parameter_uses(format_info):
                             raise SlitherException("Could not find parameter use in modifier?!")
 
 
-def _create_patch_state_variable_declaration(format_info):
-    slither, patches, name = format_info.slither, format_info.patches, format_info.name
-    in_file, in_file_relative = format_info.in_file, format_info.in_file_relative
-    contract_name = format_info.contract_name
-    modify_loc_start, modify_loc_end = format_info.loc_start, format_info.loc_end
-    _target = format_info.target
-
-    target_contract = slither.get_contract_from_name(contract_name)
-    if not target_contract:
-        raise SlitherException(f"Contract not found {contract_name}")
-    target_var = target_contract.get_state_variable_from_name(name)
-    if not target_var:
-        raise SlitherException(f"Contract not found {name}")
-
-    # TODO (JF) target_var is not used, the above checks could be removed?
-
-    in_file_str = slither.source_code[in_file].encode('utf-8')
-    old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-    # Search for the state variable name and avoid the type
-    m = re.search(name, old_str_of_interest.decode('utf-8'))
-    # Skip rare cases where re search fails. To-do: Investigate
-    if not m:
-        return
-    if (_target == "variable_constant"):
-        # Convert constant state variables to upper case
-        new_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]].upper()
-    else:
-        new_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]]
-        new_string = new_string[0].lower()+new_string[1:]
-
-    create_patch(patches,
-                 "naming-convention (state variable declaration)",
-                 in_file_relative,
-                 in_file,
-                 # Target only the state variable name and avoid the type
-                 modify_loc_start+m.span()[0],
-                 modify_loc_start+m.span()[1],
-                 old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]],
-                 new_string)
-
 
 def _create_patch_state_variable_uses(format_info):
     slither, patches, name = format_info.slither, format_info.patches, format_info.name
@@ -640,40 +578,7 @@ def _create_patch_state_variable_uses(format_info):
                                      new_str_of_interest)
 
 
-def _create_patch_enum_definition(format_info):
-    slither, patches, name = format_info.slither, format_info.patches, format_info.name
-    in_file, in_file_relative = format_info.in_file, format_info.in_file_relative
-    contract_name = format_info.contract_name
-    modify_loc_start, modify_loc_end = format_info.loc_start, format_info.loc_end
 
-    target_contract = slither.get_contract_from_name(contract_name)
-    if not target_contract:
-        raise SlitherException(f"Contract not found {contract_name}")
-
-    target_enum = slither.get_enum_from_name(name)
-    if not target_enum:
-        raise SlitherException(f"Enum not found {name}")
-
-    # TODO (JF) target_enum is not used, the above checks could be removed?
-
-    in_file_str = slither.source_code[in_file].encode('utf-8')
-    old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-    # Search for the enum name after the `enum` keyword
-    # Capitalize enum name
-    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"enum"+r'(.*)'+name, r'\1'+"enum"+r'\2'+
-                                              name[0].capitalize()+name[1:],
-                                              old_str_of_interest.decode('utf-8'), 1)
-    if num_repl != 0:
-        create_patch(patches,
-                     "naming-convention (enum definition)",
-                     in_file_relative,
-                     in_file,
-                     modify_loc_start,
-                     modify_loc_end,
-                     old_str_of_interest.decode('utf-8'),
-                     new_str_of_interest)
-    else:
-        raise SlitherException("Could not find enum?!")
 
 
 def _create_patch_enum_uses(format_info):
@@ -775,40 +680,7 @@ def _create_patch_enum_uses(format_info):
         # To-do: Check any other place/way where enum type is used
 
 
-def _create_patch_struct_definition(format_info):
-    slither, patches, name = format_info.slither, format_info.patches, format_info.name
-    in_file, in_file_relative = format_info.in_file, format_info.in_file_relative
-    contract_name = format_info.contract_name
-    modify_loc_start, modify_loc_end = format_info.loc_start, format_info.loc_end
 
-    target_contract = slither.get_contract_from_name(contract_name)
-    if not target_contract:
-        raise SlitherException(f"Contract not found {contract_name}")
-
-    target_structure = slither.get_structure_from_name(name)
-    if not target_structure:
-        raise SlitherException(f"Structure not found {name}")
-
-    # TODO (JF) target_structure is not used, the above checks could be removed?
-
-    in_file_str = slither.source_code[in_file].encode('utf-8')
-    old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
-    # Capitalize the struct name beyond the keyword `struct`
-    (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"struct"+r'(.*)'+name, r'\1'+"struct"+r'\2'+
-                                              name.capitalize(),
-                                              old_str_of_interest.decode('utf-8'), 1)
-    if num_repl != 0:
-        create_patch(patches,
-                     "naming-convention (struct definition)",
-                     in_file_relative,
-                     in_file,
-                     modify_loc_start,
-                     modify_loc_end,
-                     old_str_of_interest.decode('utf-8'),
-                     new_str_of_interest)
-
-    else:
-        raise SlitherException("Could not find struct?!")
 
 
 def _create_patch_struct_uses(format_info):
@@ -860,3 +732,154 @@ def _create_patch_struct_uses(format_info):
                                  old_str_of_interest.decode('utf-8'),
                                  new_str_of_interest)
         # To-do: Check any other place/way where struct type is used (e.g. typecast)
+
+
+
+
+
+# endregion
+###################################################################################
+###################################################################################
+# region Declaration
+###################################################################################
+###################################################################################
+
+
+def _create_patch_declaration(format_info, convert_string):
+    slither, patches, name = format_info.slither, format_info.patches, format_info.name
+    in_file, in_file_relative = format_info.in_file, format_info.in_file_relative
+    modify_loc_start, modify_loc_end = format_info.loc_start, format_info.loc_end
+
+    in_file_str = slither.source_code[in_file].encode('utf-8')
+
+
+    convert_res = convert_string(name,
+                                 in_file_str,
+                                 modify_loc_start,
+                                 modify_loc_end)
+
+    if convert_res:
+        old_string, new_string, loc_start, loc_end, detector_name = convert_res
+
+        create_patch(patches,
+                     detector_name,
+                     in_file_relative,
+                     in_file,
+                     loc_start,
+                     loc_end,
+                     old_string,
+                     new_string)
+
+def _convert_contract_declaration(name, in_file_str, loc_start, loc_end):
+    old_str_of_interest = in_file_str[loc_start:loc_end]
+    # Locate the name following keywords `contract` | `interface` | `library`
+    m = re.match(r'(.*)' + "(contract|interface|library)" + r'(.*)' + name, old_str_of_interest.decode('utf-8'))
+    old_str_of_interest = in_file_str[loc_start:loc_start+m.span()[1]]
+    # Capitalize the name
+    (new_string, num_repl) = re.subn(r'(.*)' + r'(contract|interface|library)' + r'(.*)' + name,
+                                              r'\1' + r'\2' + r'\3' + name.capitalize(),
+                                              old_str_of_interest.decode('utf-8'), 1)
+
+    if num_repl == 0:
+        raise SlitherException(f"Could not find contract: {name}")
+
+    old_string = old_str_of_interest.decode('utf-8')
+
+    loc_start = loc_start
+    loc_end = loc_start + m.span()[1]
+
+    detector_name = "naming-convention (contract declaration)"
+
+    return old_string, new_string, loc_start, loc_end, detector_name
+
+
+def _convert_state_variable_declaration(name, in_file_str, loc_start, loc_end):
+    old_str_of_interest = in_file_str[loc_start:loc_end]
+    m = re.search(name, old_str_of_interest.decode('utf-8'))
+    # Skip rare cases where re search fails. To-do: Investigate
+    if not m:
+        return None
+    new_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]]
+    new_string = new_string[0].lower() + new_string[1:]
+
+    old_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]]
+
+    loc_start = loc_start + m.span()[0]
+    loc_end = loc_start + m.span()[1]
+
+    detector_name = "naming-convention (state variable declaration)"
+
+    return  old_string, new_string, loc_start, loc_end, detector_name
+
+
+def _convert_state_variable_constant_declaration(name, in_file_str, loc_start, loc_end):
+    old_str_of_interest = in_file_str[loc_start:loc_end]
+    m = re.search(name, old_str_of_interest.decode('utf-8'))
+    # Skip rare cases where re search fails. To-do: Investigate
+    if not m:
+        return None
+    # Convert constant state variables to upper case
+    new_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]].upper()
+
+    old_string = old_str_of_interest.decode('utf-8')[m.span()[0]:m.span()[1]]
+
+    loc_start = loc_start + m.span()[0]
+    loc_end = loc_start + m.span()[1]
+
+    detector_name = "naming-convention (state variable declaration)"
+
+    return old_string, new_string, loc_start, loc_end, detector_name
+
+
+def _convert_enum_declaration(name, in_file_str, loc_start, loc_end):
+    old_str_of_interest = in_file_str[loc_start:loc_end]
+    m = re.search(name, old_str_of_interest.decode('utf-8'))
+    # Skip rare cases where re search fails. To-do: Investigate
+    if not m:
+        return None
+    # Search for the enum name after the `enum` keyword
+    # Capitalize enum name
+    (new_string, num_repl) = re.subn(r'(.*)' + "enum" + r'(.*)' + name, r'\1' + "enum" + r'\2' +
+                                              name[0].capitalize() + name[1:],
+                                              old_str_of_interest.decode('utf-8'), 1)
+
+    if num_repl == 0:
+        raise SlitherException(f"Could not find enum: {name}")
+
+    old_string = old_str_of_interest.decode('utf-8')
+
+    loc_start = loc_start
+    loc_end = loc_end
+
+    detector_name = "naming-convention (enum declaration)"
+
+    return old_string, new_string, loc_start, loc_end, detector_name
+
+
+def _convert_struct_definition(name, in_file_str, loc_start, loc_end):
+    old_str_of_interest = in_file_str[loc_start:loc_end]
+    m = re.search(name, old_str_of_interest.decode('utf-8'))
+    # Skip rare cases where re search fails. To-do: Investigate
+    if not m:
+        return None
+    # Capitalize the struct name beyond the keyword `struct`
+
+    (new_string, num_repl) = re.subn(r'(.*)'+"struct"+r'(.*)'+name, r'\1'+"struct"+r'\2'+
+                                     name.capitalize(),
+                                     old_str_of_interest.decode('utf-8'), 1)
+
+    if num_repl == 0:
+        raise SlitherException(f"Could not find struct: {name}")
+
+    old_string = old_str_of_interest.decode('utf-8')
+
+    loc_start = loc_start
+    loc_end = loc_end
+
+    detector_name = "naming-convention (struct definition)"
+
+    return old_string, new_string, loc_start, loc_end, detector_name
+
+
+
+# endregion
