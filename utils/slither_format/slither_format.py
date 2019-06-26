@@ -1,5 +1,6 @@
-import sys, logging, subprocess
-from collections import defaultdict
+import sys
+import logging
+import os
 from slither.utils.colors import red, set_colorization_enabled
 from slither.detectors.variables.unused_state_variables import UnusedStateVars
 from slither.detectors.attributes.incorrect_solc import IncorrectSolc
@@ -25,9 +26,13 @@ all_detectors = {
     'constant-function': ConstantFunctions
 }
 
-def slither_format(args, slither):
-    patches = defaultdict(list)
-    detectors_to_run = choose_detectors(args)
+def slither_format(slither, **kwargs):
+    ''''
+    Keyword Args:
+        detectors_to_run (str): Comma-separated list of detectors, defaults to all
+    '''
+
+    detectors_to_run = choose_detectors(kwargs.get('detectors_to_run', 'all'))
 
     for detector in detectors_to_run:
         slither.register_detector(detector)
@@ -36,36 +41,88 @@ def slither_format(args, slither):
     detector_results = [x for x in detector_results if x]  # remove empty results
     detector_results = [item for sublist in detector_results for item in sublist]  # flatten
 
-    # Apply slither detector results on contract files to generate patches
-    apply_detector_results(slither, patches, detector_results)
+    apply_detector_results(slither, detector_results)
+
+    skip_file_generation = kwargs.get('skip-patch-generation', False)
 
     counter = 0
-    for file in patches:
-        for patch in patches[file]:
-            print(file)
-            print(patch['file'])
-            original_txt = slither.source_code[patch['file']]
-            patched_txt = apply_patch(original_txt, patch)
+    export = os.path.join('crytic-export', 'patches')
+
+    if not os.path.exists(export):
+        os.makedirs(export)
+
+    for result in detector_results:
+        if not 'patches' in result:
+            continue
+        one_line_description = result["description"].split("\n")[0]
+        logger.info(f'Issue: {one_line_description}')
+        logger.info('Generated:')
+        for file in result['patches']:
+            original_txt = slither.source_code[file]
+            patched_txt = original_txt
+            for patch in result['patches'][file]:
+                patched_txt = apply_patch(patched_txt, patch)
             diff = create_diff(original_txt, patched_txt, file)
-            with open(f'patch_{counter}', 'w') as f:
+            if not skip_file_generation:
+                continue
+            path = os.path.join(export, f'fix_{counter}.patch')
+            logger.info(f'\t- {path}')
+            with open(path, 'w') as f:
                 f.write(diff)
+            counter = counter + 1
 
 
+# endregion
+###################################################################################
+###################################################################################
+# region Detectors
+###################################################################################
+###################################################################################
 
-    # # Sort the patches in ascending order of the source mapping i.e. from beginning of contract file to end.
-    # # Multiple detectors can produce alerts on same code fragments e.g. unused-state and constable-states.
-    # # The current approach makes a single pass on the contract file to apply patches.
-    # # Therefore, overlapping patches are ignored for now. Neither is applied.
-    # # To-do: Prioritise one detector over another (via user input or hardcoded) for overlapping patches.
-    # sort_and_flag_overlapping_patches(patches)
-    # # Remove overlapping patches
-    # prune_overlapping_patches(args, patches)
-    # if args.verbose_json:
-    #     print_patches_json(number_of_slither_results, patches)
-    # if args.verbose_test:
-    #     print_patches(number_of_slither_results, patches)
-    # # Generate git-compatible patch files
-    # generate_patch_files(slither, patches)
+def choose_detectors(detectors_to_run):
+    # If detectors are specified, run only these ones
+    cls_detectors_to_run = []
+    if detectors_to_run == 'all':
+        for d in all_detectors:
+            cls_detectors_to_run.append(all_detectors[d])
+    else:
+        for d in detectors_to_run.split(','):
+            if d in all_detectors:
+                cls_detectors_to_run.append(all_detectors[d])
+            else:
+                raise Exception('Error: {} is not a detector'.format(d))
+    return cls_detectors_to_run
+
+def apply_detector_results(slither, detector_results):
+    '''
+    Apply slither detector results on contract files to generate patches
+    '''
+    for result in detector_results:
+        if result['check'] == 'unused-state':
+            unused_state.format(slither, result)
+        elif result['check'] == 'solc-version':
+            solc_version.format(slither, result)
+        elif result['check'] == 'pragma':
+            pragma.format(slither, result)
+        elif result['check'] == 'naming-convention':
+            naming_convention.format(slither, result)
+        elif result['check'] == 'external-function':
+            external_function.format(slither, result)
+        elif result['check'] == 'constable-states':
+            constable_states.format(slither, result)
+        elif result['check'] == 'constant-function':
+            constable_states.format(slither, result)
+        else:
+            logger.error(red(result['check'] + "detector not supported yet."))
+            sys.exit(-1)
+
+
+# endregion
+###################################################################################
+###################################################################################
+# region Patch triage (disable)
+###################################################################################
+###################################################################################
 
 def sort_and_flag_overlapping_patches(patches):
     for file in patches:
@@ -105,34 +162,14 @@ def prune_overlapping_patches(args, patches):
     for file in patches:
         non_overlapping_patches = [patch for patch in patches[file] if not is_overlap_patch(args, patch)]
         patches[file] = non_overlapping_patches
-            
-def generate_patch_files(slither, patches):
-    for file in patches:
-        _in_file = file
-        current_patches = patches[file]
-        if current_patches:
-            in_file_str = slither.source_code[current_patches[0]['file']].encode('utf-8')
-        out_file_str = ""
-        for i in range(len(current_patches)):
-            if i != 0:
-                out_file_str += in_file_str[int(current_patches[i-1]['end']):int(current_patches[i]['start'])].decode('utf-8')
-            else:
-                out_file_str += in_file_str[:int(current_patches[i]['start'])].decode('utf-8')
-            out_file_str += current_patches[i]['new_string']
-            if (i == (len(current_patches) - 1)):
-                out_file_str += in_file_str[int(current_patches[i]['end']):].decode('utf-8')
 
-        out_file = open(_in_file+".format",'w')
-        out_file.write(out_file_str)
-        out_file.close()
-        logger.info("slither-format successful.")
-        logger.info(f"Created formatted file: {_in_file}.format")
-        patch_file_name = _in_file + ".format.patch"
-        outFD = open(patch_file_name,"w")
-        logger.info(f'Created patch: {patch_file_name}')
-        p1 = subprocess.Popen(['diff', '-u', _in_file, _in_file+".format"], stdout=outFD)
-        p1.wait()
-        outFD.close()
+
+# endregion
+###################################################################################
+###################################################################################
+# region Debug functions
+###################################################################################
+###################################################################################
 
 def print_patches(number_of_slither_results, patches):
     logger.info("Number of Slither results: " + str(number_of_slither_results))
@@ -179,51 +216,3 @@ def print_patches_json(number_of_slither_results, patches):
     print('}')
     
 
-def choose_detectors(args):
-    # If detectors are specified, run only these ones
-    detectors_to_run = []
-    if args.detectors_to_run == 'all':
-        for d in all_detectors:
-            detectors_to_run.append(all_detectors[d])
-    else:
-        for d in args.detectors_to_run.split(','):
-            if d in all_detectors:
-                detectors_to_run.append(all_detectors[d])
-            else:
-                raise Exception('Error: {} is not a detector'.format(d))
-    return detectors_to_run
-
-def apply_detector_results(slither, patches, detector_results):
-    '''
-    Apply slither detector results on contract files to generate patches
-    '''
-    for result in detector_results:
-        if result['check'] == 'unused-state':
-            unused_state.format(slither, patches, result['elements'])
-        elif result['check'] == 'solc-version':
-            solc_version.format(slither, patches, result['elements'])
-        elif result['check'] == 'pragma':
-            pragma.format(slither, patches, result['elements'])
-        elif result['check'] == 'naming-convention':
-            naming_convention.format(slither, patches, result['elements'])
-        elif result['check'] == 'external-function':
-            external_function.format(slither, patches, result['elements'])
-        elif result['check'] == 'constable-states':
-            constable_states.format(slither, patches, result['elements'])
-        elif result['check'] == 'constant-function':
-            constable_states.format(slither, patches, result['elements'])
-        else:
-            logger.error(red(result['check'] + "detector not supported yet."))
-            sys.exit(-1)
-
-def get_number_of_slither_results (detector_results):
-    number_of_slither_results = 0
-    for result in detector_results:
-        for elem in result['elements']:
-            if (result['check'] == 'constant-function' and elem['type'] != "function"):
-                continue
-            if (result['check'] == 'unused-state' and elem['type'] != "variable"):
-                continue
-            number_of_slither_results += 1
-    return number_of_slither_results
-            

@@ -35,6 +35,11 @@ def parse_args():
                         help='displays the current version',
                         version='0.1.0',
                         action='version')
+
+    parser.add_argument('--skip-patch-generation',
+                        help='Do not generate patch files',
+                        action='store_true',
+                        default=False)
     
     group_detector = parser.add_argument_group('Detectors')
     group_detector.add_argument('--detect',
@@ -66,6 +71,6 @@ def main():
     slither = Slither(args.filename, **vars(args))
 
     # Format the input files based on slither analysis
-    slither_format(args, slither)
+    slither_format(slither, **vars(args))
 if __name__ == '__main__':
     main()
