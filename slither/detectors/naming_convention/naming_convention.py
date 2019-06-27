@@ -93,6 +93,8 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
             for func in contract.functions_declared:
                 if not self.is_mixed_case(func.name):
+                    if func.visibility in ['internal', 'private'] and self.is_mixed_case_with_underscore(func.name):
+                        continue
                     info = "Function '{}' ({}) is not in mixedCase\n"
                     info = info.format(func.canonical_name, func.source_mapping_str)
 
