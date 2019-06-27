@@ -1,5 +1,5 @@
 import re
-from slither.exceptions import SlitherException
+from ..exceptions import FormatError
 from ..utils.patches import create_patch
 
 def format(slither, result):
@@ -26,5 +26,5 @@ def _patch(slither, result, in_file, match_text, replace_text, modify_loc_start,
                      new_str_of_interest)
 
     else:
-        raise SlitherException("State variable not found?!")
+        raise FormatError("State variable not found?!")
 
