@@ -20,11 +20,15 @@ def apply_patch(original_txt, patch):
     return patched_txt
 
 
-def create_diff(original_txt, patched_txt, filename):
+def create_diff(slither, original_txt, patched_txt, filename):
+    if slither.crytic_compile:
+        relative_path = slither.crytic_compile.filename_lookup(filename).relative
+    else:
+        relative_path = filename
     diff = difflib.unified_diff(original_txt.splitlines(False),
                                 patched_txt.splitlines(False),
-                                fromfile=filename,
-                                tofile=filename,
+                                fromfile=relative_path,
+                                tofile=relative_path,
                                 lineterm='')
 
     return '\n'.join(list(diff)) + '\n'
