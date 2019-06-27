@@ -1,7 +1,5 @@
-import sys
 import logging
 import os
-from slither.utils.colors import red, set_colorization_enabled
 from slither.detectors.variables.unused_state_variables import UnusedStateVars
 from slither.detectors.attributes.incorrect_solc import IncorrectSolc
 from slither.detectors.attributes.constant_pragma import ConstantPragma
@@ -11,10 +9,10 @@ from slither.detectors.variables.possible_const_state_variables import ConstCand
 from slither.detectors.attributes.const_functions import ConstantFunctions
 from .formatters import unused_state, constable_states, pragma, solc_version, external_function, naming_convention
 from .utils.patches import apply_patch, create_diff
+from .exceptions import FormatError, FormatImpossible
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('Slither.Format')
-set_colorization_enabled(True)
 
 all_detectors = {
     'unused-state': UnusedStateVars, 
@@ -99,23 +97,25 @@ def apply_detector_results(slither, detector_results):
     Apply slither detector results on contract files to generate patches
     '''
     for result in detector_results:
-        if result['check'] == 'unused-state':
-            unused_state.format(slither, result)
-        elif result['check'] == 'solc-version':
-            solc_version.format(slither, result)
-        elif result['check'] == 'pragma':
-            pragma.format(slither, result)
-        elif result['check'] == 'naming-convention':
-            naming_convention.format(slither, result)
-        elif result['check'] == 'external-function':
-            external_function.format(slither, result)
-        elif result['check'] == 'constable-states':
-            constable_states.format(slither, result)
-        elif result['check'] == 'constant-function':
-            constable_states.format(slither, result)
-        else:
-            logger.error(red(result['check'] + "detector not supported yet."))
-            sys.exit(-1)
+        try:
+            if result['check'] == 'unused-state':
+                unused_state.format(slither, result)
+            elif result['check'] == 'solc-version':
+                solc_version.format(slither, result)
+            elif result['check'] == 'pragma':
+                pragma.format(slither, result)
+            elif result['check'] == 'naming-convention':
+                naming_convention.format(slither, result)
+            elif result['check'] == 'external-function':
+                external_function.format(slither, result)
+            elif result['check'] == 'constable-states':
+                constable_states.format(slither, result)
+            elif result['check'] == 'constant-function':
+                constable_states.format(slither, result)
+            else:
+                raise FormatError(result['check'] + "detector not supported yet.")
+        except FormatImpossible as e:
+            logger.info(f'Impossible to patch:\n{result["description"]}\nReason: {e}')
 
 
 # endregion

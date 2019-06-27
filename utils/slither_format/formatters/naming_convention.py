@@ -1,10 +1,9 @@
 import re
 import logging
-from collections import namedtuple
-from slither.exceptions import SlitherException
 from slither.core.expressions.identifier import Identifier
 from slither.slithir.operations import NewContract
 from slither.slithir.operations import Member
+from ..exceptions import FormatError
 from ..utils.patches import create_patch
 
 logging.basicConfig(level=logging.INFO)
@@ -102,7 +101,7 @@ def _patch(slither, result, element, _target):
         _create_patch_modifier_uses(slither, result, element)
 
     else:
-        raise SlitherException("Unknown naming convention! " + _target)
+        raise FormatError("Unknown naming convention! " + _target)
 
 # endregion
 ###################################################################################
@@ -127,7 +126,7 @@ def _create_patch_contract_definition(slither, result, element):
                                               old_str_of_interest.decode('utf-8'), 1)
 
     if num_repl == 0:
-        raise SlitherException(f"Could not find contract: {name}")
+        raise FormatError(f"Could not find contract: {name}")
 
     old_string = old_str_of_interest.decode('utf-8')
 
@@ -206,7 +205,7 @@ def _create_patch_enum_declaration(slither, result, element):
                                               old_str_of_interest.decode('utf-8'), 1)
 
     if num_repl == 0:
-        raise SlitherException(f"Could not find enum: {name}")
+        raise FormatError(f"Could not find enum: {name}")
 
     old_string = old_str_of_interest.decode('utf-8')
 
@@ -234,7 +233,7 @@ def _create_patch_struct_definition(slither, result, element):
                                      old_str_of_interest.decode('utf-8'), 1)
 
     if num_repl == 0:
-        raise SlitherException(f"Could not find struct: {name}")
+        raise FormatError(f"Could not find struct: {name}")
 
     old_string = old_str_of_interest.decode('utf-8')
 
@@ -266,7 +265,7 @@ def _create_patch_modifier_definition(slither, result, element):
                      old_str_of_interest.decode('utf-8'),
                      new_str_of_interest)
     else:
-        raise SlitherException("Could not find modifier?!")
+        raise FormatError(f"Could not find modifier {name}")
 
 
 def _create_patch_function_definition(slither, result, element):
@@ -290,7 +289,7 @@ def _create_patch_function_definition(slither, result, element):
                      new_str_of_interest)
 
     else:
-        raise SlitherException(f"Could not find function {name}")
+        raise FormatError(f"Could not find function {name}")
 
 def _create_patch_event_definition(slither, result, element):
     in_file, in_file_str, old_str_of_interest, loc_start, loc_end = _unpack_info(slither, element)
@@ -300,7 +299,7 @@ def _create_patch_event_definition(slither, result, element):
 
     target_contract = slither.get_contract_from_name(contract_name)
     if not target_contract:
-        raise SlitherException("Contract not found?!")
+        raise FormatError(f"Contract not found {contract_name}")
     for event in target_contract.events:
         if event.name == name:
             # Get only event name without parameters
@@ -320,7 +319,7 @@ def _create_patch_event_definition(slither, result, element):
                              old_str_of_interest.decode('utf-8'),
                              new_str_of_interest)
             else:
-                raise SlitherException("Could not find event?!")
+                raise FormatError(f"Could not find event {name}")
 
 def _create_patch_parameter_declaration(slither, result, element):
     in_file, in_file_str, old_str_of_interest, loc_start, loc_end = _unpack_info(slither, element)
@@ -343,7 +342,7 @@ def _create_patch_parameter_declaration(slither, result, element):
                      old_str_of_interest.decode('utf-8'),
                      new_str_of_interest)
     else:
-        raise SlitherException("Could not find parameter declaration?!")
+        raise FormatError(f"Could not find parameter declaration {name}")
 
 # endregion
 ###################################################################################
@@ -359,7 +358,7 @@ def _create_patch_contract_uses(slither, result, element):
 
     target_contract = slither.get_contract_from_name(name)
     if not target_contract:
-        raise SlitherException(f"Contract not found {name}")
+        raise FormatError(f"Contract not found {name}")
 
     # Check state variables of contract type
     # To-do: Deep-check aggregate types (struct and mapping)
@@ -420,7 +419,7 @@ def _create_patch_contract_uses(slither, result, element):
                                      old_str_of_interest,
                                      new_str_of_interest)
                     else:
-                        raise SlitherException("Could not find new object?!")
+                        raise FormatError(f"Could not find new object {name}")
 
 
 def _create_patch_modifier_uses(slither, result, element):
@@ -433,7 +432,7 @@ def _create_patch_modifier_uses(slither, result, element):
 
     target_contract = slither.get_contract_from_name(contract_name)
     if not target_contract:
-        raise SlitherException("Contract not found?!")
+        raise FormatError(f"Contract not found {contract_name}")
 
     modifier_contract = target_contract.get_modifier_from_signature(modifier_sig)
 
@@ -458,7 +457,7 @@ def _create_patch_modifier_uses(slither, result, element):
                                  old_str_of_interest.decode('utf-8'),
                                  new_str_of_interest)
                 else:
-                    raise SlitherException("Could not find modifier name?!")
+                    raise FormatError(f"Could not find modifier {modifier_sig}")
 
 
 
@@ -534,7 +533,7 @@ def _create_patch_event_calls(slither, result, element):
     event_name = name.split('(')[0]
     target_contract = slither.get_contract_from_name(contract_name)
     if not target_contract:
-        raise SlitherException("Contract not found?!")
+        raise FormatError(f"Contract not found {name}")
     for contract in [target_contract] + target_contract.derived_contracts:
         for function in contract.functions:
             for node in function.nodes:
@@ -602,7 +601,7 @@ def _create_patch_parameter_uses(slither, result, element):
                                  old_str_of_interest.decode('utf-8'),
                                  new_str_of_interest)
                 else:
-                    raise SlitherException("Could not find parameter use?!")
+                    raise FormatError(f"Could not find parameter use {name}")
 
     # Process function parameters passed to modifiers
     # _expression_modifiers is used to access the source mapping of the call rather
@@ -637,20 +636,18 @@ def _create_patch_parameter_uses(slither, result, element):
                                  old_str_of_interest_beyond_modifier_name,
                                  new_str_of_interest)
                 else:
-                    raise SlitherException("Could not find parameter use in modifier?!")
+                    raise FormatError(f"Could not find parameter use in modifier {modifier}")
 
 
 
 def _create_patch_state_variable_uses(slither, result, element):
-    in_file, in_file_str, old_str_of_interest, loc_start, loc_end = _unpack_info(slither, element)
-
     name = get_name(element)
     contract_name = get_contract_name(element)
 
     # To-do: Check cross-contract state variable uses
     target_contract = slither.get_contract_from_name(contract_name)
     if not target_contract:
-        raise SlitherException(f"Contract not found {contract_name}")
+        raise FormatError(f"Contract not found {contract_name}")
 
     fms = target_contract.functions + target_contract.modifiers
     for fm in fms:
@@ -690,7 +687,7 @@ def _create_patch_enum_uses(slither, result, element):
 
     target_contract = slither.get_contract_from_name(contract_name)
     if not target_contract:
-        raise SlitherException(f"Contract not found {contract_name}")
+        raise FormatError(f"Contract not found {contract_name}")
 
     in_file_str = slither.source_code[in_file].encode('utf-8')
     # Check state variable declarations of enum type
@@ -771,7 +768,7 @@ def _create_patch_enum_uses(slither, result, element):
                                          new_str_of_interest)
 
                         else:
-                            raise SlitherException("Could not find new object?!")
+                            raise FormatError(f"Could not find new object {function}")
         # To-do: Check any other place/way where enum type is used
 
 
@@ -786,7 +783,7 @@ def _create_patch_struct_uses(slither, result, element):
 
     target_contract = slither.get_contract_from_name(contract_name)
     if not target_contract:
-        raise SlitherException(f"Contract not found {contract_name}")
+        raise FormatError(f"Contract not found {contract_name}")
 
     for contract in [target_contract] + target_contract.derived_contracts:
         f_contract = contract.source_mapping['filename_absolute']

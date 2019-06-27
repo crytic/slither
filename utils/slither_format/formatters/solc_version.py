@@ -1,5 +1,5 @@
 import re
-from slither.exceptions import SlitherException
+from ..exceptions import FormatImpossible
 from ..utils.patches import create_patch
 
 
@@ -36,7 +36,7 @@ def _determine_solc_version_replacement(used_solc_version):
             # Replace with 0.5.3
             return "pragma solidity " + REPLACEMENT_VERSIONS[1] + ';'
         else:
-            raise SlitherException("Unknown version!")
+            raise FormatImpossible(f"Unknown version {versions}")
     elif len(versions) == 2:
         version_right = versions[1]
         minor_version_right = '.'.join(version_right[2:])[2]

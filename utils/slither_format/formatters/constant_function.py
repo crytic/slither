@@ -1,5 +1,5 @@
 import re
-from slither.exceptions import SlitherException
+from ..exceptions import FormatError
 from ..utils.patches import create_patch
 
 def format(slither, patches, elements):
@@ -32,4 +32,4 @@ def _patch(slither, patches, in_file, in_file_relative, modify_loc_start, modify
                      m.groups(0)[0],  # this is view|pure|constant
                      "")
     else:
-        raise SlitherException("No view/pure/constant specifier exists. Regex failed to remove specifier!")
+        raise FormatError("No view/pure/constant specifier exists. Regex failed to remove specifier!")

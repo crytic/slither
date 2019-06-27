@@ -1,5 +1,5 @@
 import re
-from slither.exceptions import SlitherException
+from ..exceptions import FormatImpossible
 from ..utils.patches import create_patch
 
 # Indicates the recommended versions for replacement
@@ -31,7 +31,7 @@ def _analyse_versions(used_solc_versions):
     for version in used_solc_versions:
         replace_solc_versions.append(_determine_solc_version_replacement(version))
     if not all(version == replace_solc_versions[0] for version in replace_solc_versions):
-        raise SlitherException("Multiple incompatible versions!")
+        raise FormatImpossible("Multiple incompatible versions!")
     else:
         return replace_solc_versions[0]
 
@@ -46,7 +46,7 @@ def _determine_solc_version_replacement(used_solc_version):
         elif minor_version == '5':
             return "pragma solidity " + REPLACEMENT_VERSIONS[1] + ';'
         else:
-            raise SlitherException("Unknown version!")
+            raise FormatImpossible("Unknown version!")
     elif len(versions) == 2:
         version_right = versions[1]
         minor_version_right = '.'.join(version_right[2:])[2]
