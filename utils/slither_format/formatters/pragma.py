@@ -3,7 +3,7 @@ from slither.exceptions import SlitherException
 from ..utils.patches import create_patch
 
 # Indicates the recommended versions for replacement
-REPLACEMENT_VERSIONS = ["0.4.25", "0.5.3"]
+REPLACEMENT_VERSIONS = ["^0.4.25", "^0.5.3"]
 
 # group:
 # 0: ^ > >= < <= (optional)
