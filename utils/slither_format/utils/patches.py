@@ -1,3 +1,4 @@
+import os
 import difflib
 from collections import defaultdict
 
@@ -23,6 +24,7 @@ def apply_patch(original_txt, patch):
 def create_diff(slither, original_txt, patched_txt, filename):
     if slither.crytic_compile:
         relative_path = slither.crytic_compile.filename_lookup(filename).relative
+        relative_path = os.path.join('.', relative_path)
     else:
         relative_path = filename
     diff = difflib.unified_diff(original_txt.splitlines(False),
