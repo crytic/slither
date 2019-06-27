@@ -305,7 +305,8 @@ def _create_patch_event_definition(slither, result, element):
         if event.name == name:
             # Get only event name without parameters
             event_name = name.split('(')[0]
-            in_file_str = slither.source_code[in_file].encode('utf-8')
+            f_event = event.source_mapping['filename_absolute']
+            in_file_str = slither.source_code[f_event].encode('utf-8')
             old_str_of_interest = in_file_str[loc_start:loc_end]
             # Capitalize event name
             (new_str_of_interest, num_repl) = re.subn(r'(.*)'+"event"+r'(.*)'+event_name, r'\1'+"event"+r'\2' +
@@ -313,7 +314,7 @@ def _create_patch_event_definition(slither, result, element):
                                                       old_str_of_interest.decode('utf-8'), 1)
             if num_repl != 0:
                 create_patch(result,
-                             in_file,
+                             f_event,
                              loc_start,
                              loc_end,
                              old_str_of_interest.decode('utf-8'),
@@ -439,7 +440,8 @@ def _create_patch_modifier_uses(slither, result, element):
     for function in target_contract.functions:
         for m in function.modifiers:
             if (m == modifier_contract):
-                in_file_str = slither.source_code[in_file].encode('utf-8')
+                f_modifier = m.source_mapping['filename_absolute']
+                in_file_str = slither.source_code[f_modifier].encode('utf-8')
                 # Get the text from function parameters until the return statement or function body beginning
                 # This text will include parameter declarations, any Solidity keywords and modifier call
                 # Parameter names cannot collide with modifier name per Solidity rules
@@ -450,7 +452,7 @@ def _create_patch_modifier_uses(slither, result, element):
                                                           old_str_of_interest.decode('utf-8'),1)
                 if num_repl != 0:
                     create_patch(result,
-                                 in_file,
+                                 f_modifier,
                                  int(function.parameters_src.source_mapping['start']),
                                  int(function.returns_src.source_mapping['start']),
                                  old_str_of_interest.decode('utf-8'),
@@ -475,7 +477,8 @@ def _create_patch_function_calls(slither, result, element):
                             # Check the called function name
                             called_function = str(external_call.called).split('.')[-1]
                             if called_function == high_level_call[1].name:
-                                in_file_str = slither.source_code[in_file].encode('utf-8')
+                                f_external_call = external_call.source_mapping['filename_absolute']
+                                in_file_str = slither.source_code[f_external_call].encode('utf-8')
                                 old_str_of_interest = in_file_str[int(external_call.source_mapping['start']):
                                                                   int(external_call.source_mapping['start']) +
                                                                   int(external_call.source_mapping['length'])]
@@ -487,7 +490,7 @@ def _create_patch_function_calls(slither, result, element):
                                 new_string = '.'.join(old_str_of_interest.decode('utf-8').split('.')[:-1]) + '.' + \
                                     fixed_function_name
                                 create_patch(result,
-                                             in_file,
+                                             f_external_call,
                                              external_call.source_mapping['start'],
                                              int(external_call.source_mapping['start']) +
                                              int(external_call.source_mapping['length']),
@@ -496,7 +499,8 @@ def _create_patch_function_calls(slither, result, element):
                 # Function call from within same contract
                 for internal_call in node.internal_calls_as_expressions:
                     if (str(internal_call.called) == name):
-                        in_file_str = slither.source_code[in_file].encode('utf-8')
+                        f_internal_call = internal_call.source_mapping['filename_absolute']
+                        in_file_str = slither.source_code[f_internal_call].encode('utf-8')
                         old_str_of_interest = in_file_str[int(internal_call.source_mapping['start']):
                                                           int(internal_call.source_mapping['start']) +
                                                           int(internal_call.source_mapping['length'])]
@@ -511,7 +515,7 @@ def _create_patch_function_calls(slither, result, element):
                                                      int(internal_call.source_mapping['length'])] \
                                          .decode('utf-8').split('(')[1:])) - 1
                         create_patch(result,
-                                     in_file,
+                                     f_internal_call,
                                      internal_call.source_mapping['start'],
                                      end_loc,
                                      old_str_of_interest,
@@ -536,13 +540,14 @@ def _create_patch_event_calls(slither, result, element):
             for node in function.nodes:
                 for call in node.internal_calls_as_expressions:
                     if (str(call.called) == event_name):
-                        in_file_str = slither.source_code[in_file].encode('utf-8')
+                        f_call = call.source_mapping['filename_absolute']
+                        in_file_str = slither.source_code[f_call].encode('utf-8')
                         old_str_of_interest = in_file_str[int(call.source_mapping['start']):
                                                           int(call.source_mapping['start']) +
                                                           int(call.source_mapping['length'])]
 
                         create_patch(result,
-                                     in_file,
+                                     f_call,
                                      call.source_mapping['start'],
                                      int(call.source_mapping['start']) + int(call.source_mapping['length']),
                                      old_str_of_interest.decode('utf-8'),
@@ -658,7 +663,8 @@ def _create_patch_state_variable_uses(slither, result, element):
                                                                      if str(sv) == name]:
                     modify_loc_start = int(v.source_mapping['start'])
                     modify_loc_end = int(v.source_mapping['start']) + int(v.source_mapping['length'])
-                    in_file_str = slither.source_code[in_file].encode('utf-8')
+                    f_function = fm.source_mapping['filename_absolute']
+                    in_file_str = slither.f_function[f_function].encode('utf-8')
                     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
                     if (element['additional_fields']['target'] == "variable_constant"):
                         # Convert constant state variables to upper case
@@ -668,7 +674,7 @@ def _create_patch_state_variable_uses(slither, result, element):
                         new_str_of_interest = new_str_of_interest[0].lower()+new_str_of_interest[1:]
 
                     create_patch(result,
-                                 in_file,
+                                 f_function,
                                  modify_loc_start,
                                  modify_loc_end,
                                  old_str_of_interest.decode('utf-8'),
@@ -783,7 +789,8 @@ def _create_patch_struct_uses(slither, result, element):
         raise SlitherException(f"Contract not found {contract_name}")
 
     for contract in [target_contract] + target_contract.derived_contracts:
-        in_file_str = slither.source_code[in_file].encode('utf-8')
+        f_contract = contract.source_mapping['filename_absolute']
+        in_file_str = slither.source_code[f_contract].encode('utf-8')
         # Check state variables of struct type
         # To-do: Deep-check aggregate types (struct and mapping)
         svs = contract.variables
@@ -795,7 +802,7 @@ def _create_patch_struct_uses(slither, result, element):
                                                           old_str_of_interest.decode('utf-8'), 1)
 
                 create_patch(result,
-                             in_file,
+                             f_contract,
                              sv.source_mapping['start'],
                              sv.source_mapping['start'] + sv.source_mapping['length'],
                              old_str_of_interest.decode('utf-8'),
