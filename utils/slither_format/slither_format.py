@@ -63,6 +63,7 @@ def slither_format(slither, **kwargs):
             for patch in result['patches'][file]:
                 patched_txt = apply_patch(patched_txt, patch)
             diff = create_diff(slither, original_txt, patched_txt, file)
+            result['paches_diff'] = diff
             if skip_file_generation:
                 continue
             path = os.path.join(export, f'fix_{counter}.patch')
