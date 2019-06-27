@@ -664,7 +664,7 @@ def _create_patch_state_variable_uses(slither, result, element):
                     modify_loc_start = int(v.source_mapping['start'])
                     modify_loc_end = int(v.source_mapping['start']) + int(v.source_mapping['length'])
                     f_function = fm.source_mapping['filename_absolute']
-                    in_file_str = slither.f_function[f_function].encode('utf-8')
+                    in_file_str = slither.source_code[f_function].encode('utf-8')
                     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
                     if (element['additional_fields']['target'] == "variable_constant"):
                         # Convert constant state variables to upper case
