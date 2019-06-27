@@ -26,8 +26,6 @@ def _patch(slither, patches, in_file, in_file_relative, modify_loc_start, modify
     m = re.search("(view|pure|constant)", old_str_of_interest.decode('utf-8'))
     if m:
         create_patch(patches,
-                     "constant-function",
-                     in_file_relative,
                      in_file,
                      modify_loc_start + m.span()[0],
                      modify_loc_start + m.span()[1],
