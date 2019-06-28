@@ -30,7 +30,8 @@ def slither_format(slither, **kwargs):
         detectors_to_run (str): Comma-separated list of detectors, defaults to all
     '''
 
-    detectors_to_run = choose_detectors(kwargs.get('detectors_to_run', 'all'))
+    detectors_to_run = choose_detectors(kwargs.get('detectors_to_run', 'all'),
+                                        kwargs.get('detectors_to_exclude', ''))
 
     for detector in detectors_to_run:
         slither.register_detector(detector)
@@ -64,6 +65,9 @@ def slither_format(slither, **kwargs):
             result['paches_diff'] = diff
             if skip_file_generation:
                 continue
+            if not diff:
+                logger.info(f'Empty patch generated {result}')
+                continue
             path = os.path.join(export, f'fix_{counter}.patch')
             logger.info(f'\t- {path}')
             with open(path, 'w') as f:
@@ -78,15 +82,21 @@ def slither_format(slither, **kwargs):
 ###################################################################################
 ###################################################################################
 
-def choose_detectors(detectors_to_run):
+def choose_detectors(detectors_to_run, detectors_to_exclude):
     # If detectors are specified, run only these ones
     cls_detectors_to_run = []
+    exclude = detectors_to_exclude.split(',')
     if detectors_to_run == 'all':
         for d in all_detectors:
+            if d in exclude:
+                continue
             cls_detectors_to_run.append(all_detectors[d])
     else:
+        exclude = detectors_to_exclude.split(',')
         for d in detectors_to_run.split(','):
             if d in all_detectors:
+                if d in exclude:
+                    continue
                 cls_detectors_to_run.append(all_detectors[d])
             else:
                 raise Exception('Error: {} is not a detector'.format(d))
