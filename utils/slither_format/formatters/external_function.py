@@ -37,6 +37,6 @@ def _patch(slither, result, in_file, modify_loc_start, modify_loc_end):
                      # start at the keyword `public`
                      modify_loc_start + m.span()[0] + 1,
                      # end after the keyword `public` = start + len('public'')
-                     modify_loc_start + m.span()[0] + 1 + 6,
-                     " public",
-                     " external")
+                     modify_loc_start + m.span()[0] + 1 + len('public'),
+                     "public",
+                     "external")
