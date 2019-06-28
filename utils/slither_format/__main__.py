@@ -50,6 +50,14 @@ def parse_args():
                                 dest='detectors_to_run',
                                 default='all')
 
+    group_detector.add_argument('--exclude',
+                                help='Comma-separated list of detectors to exclude,'
+                                     'available detectors: {}'.format(
+                                    ', '.join(d for d in available_detectors)),
+                                action='store',
+                                dest='detectors_to_exclude',
+                                default='all')
+
     cryticparser.init(parser) 
   
     if len(sys.argv) == 1: 
