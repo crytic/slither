@@ -6,7 +6,6 @@ import inspect
 import json
 import logging
 import os
-import subprocess
 import sys
 import traceback
 
@@ -22,7 +21,8 @@ from slither.slither import Slither
 from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
                                         output_detectors_json, output_printers,
-                                        output_to_markdown, output_wiki)
+                                        output_to_markdown, output_wiki, defaults_flag_in_config,
+                                        read_config_file)
 from crytic_compile import is_supported
 from slither.exceptions import SlitherException
 
@@ -253,30 +253,6 @@ def parse_filter_paths(args):
         return args.filter_paths.split(',')
     return []
 
-# Those are the flags shared by the command line and the config file
-defaults_flag_in_config = {
-    'detectors_to_run': 'all',
-    'printers_to_run': None,
-    'detectors_to_exclude': None,
-    'exclude_informational': False,
-    'exclude_low': False,
-    'exclude_medium': False,
-    'exclude_high': False,
-    'solc': 'solc',
-    'solc_args': None,
-    'disable_solc_warnings': False,
-    'json': None,
-    'truffle_version': None,
-    'disable_color': False,
-    'filter_paths': None,
-    'truffle_ignore_compile': False,
-    'truffle_build_directory': 'build/contracts',
-    'embark_ignore_compile': False,
-    'embark_overwrite_config': False,
-    # debug command
-    'legacy_ast': False,
-    'ignore_return_value': False
-    }
 
 def parse_args(detector_classes, printer_classes):
     parser = argparse.ArgumentParser(description='Slither. For usage information, see https://github.com/crytic/slither/wiki/Usage',
@@ -435,18 +411,7 @@ def parse_args(detector_classes, printer_classes):
 
     args = parser.parse_args()
 
-    if os.path.isfile(args.config_file):
-        try:
-            with open(args.config_file) as f:
-                config = json.load(f)
-                for key, elem in config.items():
-                    if key not in defaults_flag_in_config:
-                        logger.info(yellow('{} has an unknown key: {} : {}'.format(args.config_file, key, elem)))
-                        continue
-                    if getattr(args, key) == defaults_flag_in_config[key]:
-                        setattr(args, key, elem)
-        except json.decoder.JSONDecodeError as e:
-            logger.error(red('Impossible to read {}, please check the file {}'.format(args.config_file, e)))
+    read_config_file(args)
 
     return args
 

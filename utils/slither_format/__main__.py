@@ -1,13 +1,13 @@
-import os, sys
+import sys
 import argparse
 from slither import Slither
-from slither.utils.colors import red
+from slither.utils.command_line import read_config_file
 import logging
 from .slither_format import slither_format
 from crytic_compile import cryticparser
 
 logging.basicConfig()
-logging.getLogger("Slither").setLevel(logging.INFO)
+logger = logging.getLogger("Slither").setLevel(logging.INFO)
 
 # Slither detectors for which slither-format currently works
 available_detectors = ["unused-state",
@@ -40,6 +40,14 @@ def parse_args():
                         help='Do not generate patch files',
                         action='store_true',
                         default=False)
+
+
+    parser.add_argument('--config-file',
+                            help='Provide a config file (default: slither.config.json)',
+                            action='store',
+                            dest='config_file',
+                            default='slither.config.json')
+
     
     group_detector = parser.add_argument_group('Detectors')
     group_detector.add_argument('--detect',
@@ -74,6 +82,9 @@ def main():
     # ------------------------------
     # Parse all arguments
     args = parse_args()
+
+    read_config_file(args)
+
 
     # Perform slither analysis on the given filename
     slither = Slither(args.filename, **vars(args))
