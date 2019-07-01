@@ -1,8 +1,11 @@
 import re
 import logging
 from slither.core.expressions.identifier import Identifier
+from slither.core.declarations import Structure
+from slither.core.solidity_types import UserDefinedType
 from slither.slithir.operations import NewContract
 from slither.slithir.operations import Member
+from slither.visitors.expression.read_var_syntactic import ReadVarSyntactic
 from ..exceptions import FormatError
 from ..utils.patches import create_patch
 
@@ -652,7 +655,10 @@ def _create_patch_state_variable_uses(slither, result, element):
     fms = target_contract.functions + target_contract.modifiers
     for fm in fms:
         for node in fm.nodes:
-            vars = node._expression_vars_written + node._expression_vars_read
+            if not node.expression:
+                continue
+            visitor = ReadVarSyntactic(node.expression)
+            vars = visitor.result()
             for v in vars:
                 if isinstance(v, Identifier) and str(v) == name and [str(sv) for sv in
                                                                      (node._state_vars_read +
@@ -775,6 +781,7 @@ def _create_patch_enum_uses(slither, result, element):
 
 
 
+
 def _create_patch_struct_uses(slither, result, element):
     in_file, in_file_str, old_str_of_interest, loc_start, loc_end = _unpack_info(slither, element)
 
@@ -824,5 +831,26 @@ def _create_patch_struct_uses(slither, result, element):
         # To-do: Check any other place/way where struct type is used (e.g. typecast)
 
 
+        for st in contract.structures:
+            for elem in st.elems.values():
+                if isinstance(elem.type, UserDefinedType):
+                    if isinstance(elem.type.type, Structure):
+                        if str(elem.type.type) == name:
+                            old_str = str(elem.type.type)
+                            new_str = name.capitalize()
+
+                            in_file = elem.source_mapping['filename_absolute']
+                            loc_start = elem.source_mapping['start']
+                            loc_end = loc_start + len(old_str)
+
+                            create_patch(result,
+                                         in_file,
+                                         loc_start,
+                                         loc_end,
+                                         old_str,
+                                         new_str)
+
 
 # endregion
+
+
