@@ -126,7 +126,7 @@ def _patch(slither, result, element, _target):
 
     elif _target == "parameter":
         contract_name = element['type_specific_fields']['parent']['type_specific_fields']['parent']['name']
-        function_sig = element['type_specific_fields']['parent']['signature']
+        function_sig = element['type_specific_fields']['parent']['type_specific_fields']['signature']
         param_name = element['name']
         contract = slither.get_contract_from_name(contract_name)
         function = contract.get_function_from_signature(function_sig)
@@ -136,7 +136,7 @@ def _patch(slither, result, element, _target):
         # Local variable
         if element['type_specific_fields']['parent'] == 'function':
             contract_name = element['type_specific_fields']['parent']['type_specific_fields']['parent']['name']
-            function_sig = element['type_specific_fields']['parent']['signature']
+            function_sig = element['type_specific_fields']['parent']['type_specific_fields']['signature']
             var_name = element['name']
             contract = slither.get_contract_from_name(contract_name)
             function = contract.get_function_from_signature(function_sig)
@@ -144,13 +144,13 @@ def _patch(slither, result, element, _target):
         # State variable
         else:
             contract_name = element['type_specific_fields']['parent']['name']
-            var_name = element['type_specific_fields']['name']
+            var_name = element['name']
             contract = slither.get_contract_from_name(contract_name)
             target = contract.get_state_variable_from_name(var_name)
 
     elif _target == "enum":
         contract_name = element['type_specific_fields']['parent']['name']
-        enum_name = element['type_specific_fields']['name']
+        enum_name = element['name']
         contract = slither.get_contract_from_name(contract_name)
         target = contract.get_enum_from_canonical_name(enum_name)
 
