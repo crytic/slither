@@ -485,6 +485,8 @@ def main_impl(all_detector_classes, all_printer_classes):
     :param all_detector_classes: A list of all detectors that can be included/excluded.
     :param all_printer_classes: A list of all printers that can be included.
     """
+    # Set logger of Slither to info, to catch warnings related to the arg parsing
+    logger.setLevel(logging.INFO)
     args = parse_args(all_detector_classes, all_printer_classes)
 
     # Set colorization option
