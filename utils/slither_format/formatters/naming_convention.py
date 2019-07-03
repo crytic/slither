@@ -1,10 +1,8 @@
 import re
 import logging
-from slither.core.expressions.identifier import Identifier
-from slither.slithir.operations import NewContract
-from slither.slithir.operations import Member, Send, Transfer, OperationWithLValue, HighLevelCall, LowLevelCall, \
+from slither.slithir.operations import Send, Transfer, OperationWithLValue, HighLevelCall, LowLevelCall, \
     InternalCall, InternalDynamicCall
-from slither.visitors.expression.read_var_syntactic import ReadVarSyntactic
+from slither.core.declarations import Modifier
 from slither.core.solidity_types import UserDefinedType, MappingType
 from slither.core.declarations import Enum, Contract, Structure
 from ..exceptions import FormatError
@@ -324,10 +322,10 @@ def _explore_variables_declaration(slither, variables, result, target, convert):
 
 
 def _explore_modifiers_calls(slither, function, result, target, convert):
-    pass
-    #for modifier in function._expression_modifiers:
-    #    print(type(modifier))
-
+    for modifier in function.modifiers_statements:
+        _explore_irs(slither, modifier.node.irs, result, target, convert)
+    for modifier in function.explicit_base_constructor_calls_statements:
+        _explore_irs(slither, modifier.node.irs, result, target, convert)
 
 def _explore_structures_declaration(slither, structures, result, target, convert):
     for st in structures:
@@ -345,7 +343,7 @@ def _explore_structures_declaration(slither, structures, result, target, convert
             full_txt = slither.source_code[filename_source_code][full_txt_start:full_txt_end]
 
             # The name is after the space
-            matches = re.finditer('[struct][ ]*', full_txt)
+            matches = re.finditer('struct[ ]*', full_txt)
             # Look for the end offset of the largest list of ' '
             loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
             loc_end = loc_start + len(old_str)
@@ -418,7 +416,7 @@ def _explore_irs(slither, irs, result, target, convert):
                 old_str = str(target)
                 new_str = convert(old_str)
 
-                loc_start = full_txt_start + full_txt.find(str(target)) -1
+                loc_start = full_txt_start + full_txt.find(str(target))
                 loc_end = loc_start + len(old_str)
 
                 create_patch(result,
@@ -445,7 +443,10 @@ def _explore_functions(slither, functions, result, target, convert):
             full_txt = slither.source_code[filename_source_code][full_txt_start:full_txt_end]
 
             # The name is after the space
-            matches = re.finditer('[function|modifier]([ ]*)', full_txt)
+            if isinstance(target, Modifier):
+                matches = re.finditer('modifier([ ]*)', full_txt)
+            else:
+                matches = re.finditer('function([ ]*)', full_txt)
             # Look for the end offset of the largest list of ' '
             loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
             loc_end = loc_start + len(old_str)
@@ -460,6 +461,7 @@ def _explore_functions(slither, functions, result, target, convert):
 def _explore_enums(slither, enums, result, target, convert):
     for enum in enums:
         if enum == target:
+            print(target)
             old_str = enum.name
             new_str = convert(old_str)
 
@@ -469,7 +471,7 @@ def _explore_enums(slither, enums, result, target, convert):
             full_txt = slither.source_code[filename_source_code][full_txt_start:full_txt_end]
 
             # The name is after the space
-            matches = re.finditer('[enum]([ ]*)', full_txt)
+            matches = re.finditer('enum([ ]*)', full_txt)
             # Look for the end offset of the largest list of ' '
             loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
             loc_end = loc_start + len(old_str)
@@ -486,7 +488,7 @@ def _explore_contract(slither, contract, result, target, convert):
     _explore_variables_declaration(slither, contract.state_variables, result, target, convert)
     _explore_structures_declaration(slither, contract.structures, result, target, convert)
     _explore_functions(slither, contract.functions_and_modifiers, result, target, convert)
-    _explore_enums(slither, contract.functions_and_modifiers, result, target, convert)
+    _explore_enums(slither, contract.enums, result, target, convert)
 
     if contract == target:
         filename_source_code = contract.source_mapping['filename_absolute']
@@ -498,7 +500,7 @@ def _explore_contract(slither, contract, result, target, convert):
         new_str = convert(old_str)
 
         # The name is after the space
-        matches = re.finditer('[contract][ ]*', full_txt)
+        matches = re.finditer('contract[ ]*', full_txt)
         # Look for the end offset of the largest list of ' '
         loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
 
