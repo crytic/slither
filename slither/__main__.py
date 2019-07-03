@@ -46,7 +46,6 @@ def process(filename, args, detector_classes, printer_classes):
     ast = '--ast-compact-json'
     if args.legacy_ast:
         ast = '--ast-json'
-    args.filter_paths = parse_filter_paths(args)
     slither = Slither(filename,
                       ast_format=ast,
                       **vars(args))
@@ -85,7 +84,6 @@ def process_files(filenames, args, detector_classes, printer_classes):
             all_contracts.append(contract_loaded['ast'])
 
     slither = Slither(all_contracts,
-                      filter_paths=parse_filter_paths(args),
                       **vars(args))
 
     return _process(slither, detector_classes, printer_classes)
@@ -422,6 +420,8 @@ def parse_args(detector_classes, printer_classes):
 
     args = parser.parse_args()
     read_config_file(args)
+
+    args.filter_paths = parse_filter_paths(args)
 
     return args
 
