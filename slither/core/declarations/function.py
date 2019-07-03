@@ -15,9 +15,12 @@ from slither.core.expressions import (Identifier, IndexAccess, MemberAccess,
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.state_variable import StateVariable
 
+
 logger = logging.getLogger("Function")
 
 ReacheableNode = namedtuple('ReacheableNode', ['node', 'ir'])
+
+ModifierStatements = namedtuple('Modifier', ['modifier', 'node'])
 
 class Function(ChildContract, ChildInheritance, SourceMapping):
     """
@@ -324,6 +327,13 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
             list(Modifier): List of the modifiers
         """
+        return [c.modifier for c in self._modifiers]
+
+    @property
+    def modifiers_statements(self):
+        """
+            list(ModifierCall): List of the modifiers call (include expression and irs)
+        """
         return list(self._modifiers)
 
     @property
@@ -335,7 +345,16 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                             included.
         """
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
-        return [c.constructors_declared for c in self._explicit_base_constructor_calls if c.constructors_declared]
+        return [c.modifier.constructors_declared for c in self._explicit_base_constructor_calls if c.modifier.constructors_declared]
+
+    @property
+    def explicit_base_constructor_calls_statements(self):
+        """
+            list(ModifierCall): List of the base constructors called explicitly by this presumed constructor definition.
+
+        """
+        # This is a list of contracts internally, so we convert it to a list of constructor functions.
+        return [c for c in self._explicit_base_constructor_calls if c.modifier.constructors_declared]
 
 
     # endregion
