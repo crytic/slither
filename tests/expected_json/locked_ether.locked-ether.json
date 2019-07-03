@@ -19,6 +19,7 @@
               "filename_relative": "tests/locked_ether.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/locked_ether.sol",
               "filename_short": "tests/locked_ether.sol",
+              "is_dependency": false,
               "lines": [
                 26
               ],
@@ -36,6 +37,7 @@
               "filename_relative": "tests/locked_ether.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/locked_ether.sol",
               "filename_short": "tests/locked_ether.sol",
+              "is_dependency": false,
               "lines": [
                 4,
                 5,
@@ -55,6 +57,7 @@
                   "filename_relative": "tests/locked_ether.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/locked_ether.sol",
                   "filename_short": "tests/locked_ether.sol",
+                  "is_dependency": false,
                   "lines": [
                     2,
                     3,

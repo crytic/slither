@@ -19,6 +19,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 22
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     21,
                     22,
@@ -55,6 +57,7 @@
                       "filename_relative": "tests/incorrect_equality.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                       "filename_short": "tests/incorrect_equality.sol",
+                      "is_dependency": false,
                       "lines": [
                         10,
                         11,
@@ -95,6 +98,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 21,
                 22,
@@ -114,6 +118,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     10,
                     11,
@@ -160,6 +165,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 26
               ],
@@ -177,6 +183,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     25,
                     26,
@@ -196,6 +203,7 @@
                       "filename_relative": "tests/incorrect_equality.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                       "filename_short": "tests/incorrect_equality.sol",
+                      "is_dependency": false,
                       "lines": [
                         10,
                         11,
@@ -236,6 +244,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 25,
                 26,
@@ -255,6 +264,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     10,
                     11,
@@ -301,6 +311,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 33
               ],
@@ -318,6 +329,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     32,
                     33,
@@ -338,6 +350,7 @@
                       "filename_relative": "tests/incorrect_equality.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                       "filename_short": "tests/incorrect_equality.sol",
+                      "is_dependency": false,
                       "lines": [
                         30,
                         31,
@@ -427,6 +440,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 32,
                 33,
@@ -447,6 +461,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     30,
                     31,
@@ -542,6 +557,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 38
               ],
@@ -559,6 +575,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     37,
                     38,
@@ -579,6 +596,7 @@
                       "filename_relative": "tests/incorrect_equality.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                       "filename_short": "tests/incorrect_equality.sol",
+                      "is_dependency": false,
                       "lines": [
                         30,
                         31,
@@ -668,6 +686,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 37,
                 38,
@@ -688,6 +707,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     30,
                     31,
@@ -783,6 +803,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 43
               ],
@@ -800,6 +821,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     42,
                     43,
@@ -820,6 +842,7 @@
                       "filename_relative": "tests/incorrect_equality.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                       "filename_short": "tests/incorrect_equality.sol",
+                      "is_dependency": false,
                       "lines": [
                         30,
                         31,
@@ -909,6 +932,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 42,
                 43,
@@ -929,6 +953,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     30,
                     31,
@@ -1024,6 +1049,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 48
               ],
@@ -1041,6 +1067,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     47,
                     48,
@@ -1061,6 +1088,7 @@
                       "filename_relative": "tests/incorrect_equality.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                       "filename_short": "tests/incorrect_equality.sol",
+                      "is_dependency": false,
                       "lines": [
                         30,
                         31,
@@ -1150,6 +1178,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 47,
                 48,
@@ -1170,6 +1199,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     30,
                     31,
@@ -1265,6 +1295,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 54
               ],
@@ -1282,6 +1313,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     52,
                     53,
@@ -1304,6 +1336,7 @@
                       "filename_relative": "tests/incorrect_equality.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                       "filename_short": "tests/incorrect_equality.sol",
+                      "is_dependency": false,
                       "lines": [
                         30,
                         31,
@@ -1393,6 +1426,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 52,
                 53,
@@ -1415,6 +1449,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     30,
                     31,
@@ -1510,6 +1545,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 61
               ],
@@ -1527,6 +1563,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     59,
                     60,
@@ -1549,6 +1586,7 @@
                       "filename_relative": "tests/incorrect_equality.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                       "filename_short": "tests/incorrect_equality.sol",
+                      "is_dependency": false,
                       "lines": [
                         30,
                         31,
@@ -1638,6 +1676,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 59,
                 60,
@@ -1660,6 +1699,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     30,
                     31,
@@ -1755,6 +1795,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 68
               ],
@@ -1772,6 +1813,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     66,
                     67,
@@ -1794,6 +1836,7 @@
                       "filename_relative": "tests/incorrect_equality.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                       "filename_short": "tests/incorrect_equality.sol",
+                      "is_dependency": false,
                       "lines": [
                         30,
                         31,
@@ -1883,6 +1926,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 66,
                 67,
@@ -1905,6 +1949,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     30,
                     31,
@@ -2000,6 +2045,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 124
               ],
@@ -2017,6 +2063,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     123,
                     124,
@@ -2036,6 +2083,7 @@
                       "filename_relative": "tests/incorrect_equality.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                       "filename_short": "tests/incorrect_equality.sol",
+                      "is_dependency": false,
                       "lines": [
                         99,
                         100,
@@ -2094,6 +2142,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 123,
                 124,
@@ -2113,6 +2162,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     99,
                     100,
@@ -2177,6 +2227,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 128
               ],
@@ -2194,6 +2245,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     127,
                     128,
@@ -2213,6 +2265,7 @@
                       "filename_relative": "tests/incorrect_equality.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                       "filename_short": "tests/incorrect_equality.sol",
+                      "is_dependency": false,
                       "lines": [
                         99,
                         100,
@@ -2271,6 +2324,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 127,
                 128,
@@ -2290,6 +2344,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     99,
                     100,
@@ -2354,6 +2409,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 132
               ],
@@ -2371,6 +2427,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     131,
                     132,
@@ -2390,6 +2447,7 @@
                       "filename_relative": "tests/incorrect_equality.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                       "filename_short": "tests/incorrect_equality.sol",
+                      "is_dependency": false,
                       "lines": [
                         99,
                         100,
@@ -2448,6 +2506,7 @@
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
               "lines": [
                 131,
                 132,
@@ -2467,6 +2526,7 @@
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
                   "lines": [
                     99,
                     100,

@@ -19,6 +19,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 4
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -68,6 +70,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 5
               ],
@@ -85,6 +88,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -117,6 +121,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 7
               ],
@@ -134,6 +139,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -167,6 +173,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 13,
                 14,
@@ -186,6 +193,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     10,
                     11,
@@ -220,6 +228,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 14
               ],
@@ -237,6 +246,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     13,
                     14,
@@ -256,6 +266,7 @@
                       "filename_relative": "tests/shadowing_builtin_symbols.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                       "filename_short": "tests/shadowing_builtin_symbols.sol",
+                      "is_dependency": false,
                       "lines": [
                         10,
                         11,
@@ -292,6 +303,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 11
               ],
@@ -309,6 +321,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     10,
                     11,
@@ -342,6 +355,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 23,
                 24,
@@ -364,6 +378,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     18,
                     19,
@@ -403,6 +418,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 25
               ],
@@ -420,6 +436,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     23,
                     24,
@@ -442,6 +459,7 @@
                       "filename_relative": "tests/shadowing_builtin_symbols.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                       "filename_short": "tests/shadowing_builtin_symbols.sol",
+                      "is_dependency": false,
                       "lines": [
                         18,
                         19,
@@ -483,6 +501,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 26
               ],
@@ -500,6 +519,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     23,
                     24,
@@ -522,6 +542,7 @@
                       "filename_relative": "tests/shadowing_builtin_symbols.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                       "filename_short": "tests/shadowing_builtin_symbols.sol",
+                      "is_dependency": false,
                       "lines": [
                         18,
                         19,
@@ -563,6 +584,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 19
               ],
@@ -580,6 +602,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     18,
                     19,
@@ -618,6 +641,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 20
               ],
@@ -635,6 +659,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     18,
                     19,
@@ -673,6 +698,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 21
               ],
@@ -690,6 +716,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     18,
                     19,
@@ -728,6 +755,7 @@
               "filename_relative": "tests/shadowing_builtin_symbols.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
               "filename_short": "tests/shadowing_builtin_symbols.sol",
+              "is_dependency": false,
               "lines": [
                 32
               ],
@@ -745,6 +773,7 @@
                   "filename_relative": "tests/shadowing_builtin_symbols.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/shadowing_builtin_symbols.sol",
                   "filename_short": "tests/shadowing_builtin_symbols.sol",
+                  "is_dependency": false,
                   "lines": [
                     31,
                     32,

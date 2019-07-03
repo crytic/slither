@@ -77,6 +77,8 @@ class SourceMapping(Context):
         filename_relative = None
         filename_short = None
 
+        is_dependency = False
+
         lines = []
 
         # If possible, convert the filename to its absolute/relative version
@@ -85,6 +87,8 @@ class SourceMapping(Context):
             filename_absolute = filenames.absolute
             filename_relative = filenames.relative
             filename_short = filenames.short
+
+            is_dependency = slither.crytic_compile.is_dependency(filename_absolute)
 
             if filename_absolute in slither.source_code:
                 filename = filename_absolute
@@ -105,13 +109,13 @@ class SourceMapping(Context):
         else:
             (lines, starting_column, ending_column) = ([], None, None)
 
-
         return {'start':s,
                 'length':l,
                 'filename_used': filename_used,
                 'filename_relative': filename_relative,
                 'filename_absolute': filename_absolute,
                 'filename_short': filename_short,
+                'is_dependency': is_dependency,
                 'lines' : lines,
                 'starting_column': starting_column,
                 'ending_column': ending_column

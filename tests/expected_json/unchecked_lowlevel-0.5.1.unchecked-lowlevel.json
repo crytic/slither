@@ -19,6 +19,7 @@
               "filename_relative": "tests/unchecked_lowlevel-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
               "filename_short": "tests/unchecked_lowlevel-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 3
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/unchecked_lowlevel-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
                   "filename_short": "tests/unchecked_lowlevel-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     2,
                     3,
@@ -55,6 +57,7 @@
                       "filename_relative": "tests/unchecked_lowlevel-0.5.1.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
                       "filename_short": "tests/unchecked_lowlevel-0.5.1.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,
@@ -87,6 +90,7 @@
               "filename_relative": "tests/unchecked_lowlevel-0.5.1.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
               "filename_short": "tests/unchecked_lowlevel-0.5.1.sol",
+              "is_dependency": false,
               "lines": [
                 2,
                 3,
@@ -106,6 +110,7 @@
                   "filename_relative": "tests/unchecked_lowlevel-0.5.1.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel-0.5.1.sol",
                   "filename_short": "tests/unchecked_lowlevel-0.5.1.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,

@@ -19,6 +19,7 @@
               "filename_relative": "tests/too_many_digits.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
               "filename_short": "tests/too_many_digits.sol",
+              "is_dependency": false,
               "lines": [
                 10
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/too_many_digits.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                   "filename_short": "tests/too_many_digits.sol",
+                  "is_dependency": false,
                   "lines": [
                     9,
                     10,
@@ -59,6 +61,7 @@
                       "filename_relative": "tests/too_many_digits.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                       "filename_short": "tests/too_many_digits.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,
@@ -121,6 +124,7 @@
               "filename_relative": "tests/too_many_digits.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
               "filename_short": "tests/too_many_digits.sol",
+              "is_dependency": false,
               "lines": [
                 11
               ],
@@ -138,6 +142,7 @@
                   "filename_relative": "tests/too_many_digits.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                   "filename_short": "tests/too_many_digits.sol",
+                  "is_dependency": false,
                   "lines": [
                     9,
                     10,
@@ -161,6 +166,7 @@
                       "filename_relative": "tests/too_many_digits.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                       "filename_short": "tests/too_many_digits.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,
@@ -223,6 +229,7 @@
               "filename_relative": "tests/too_many_digits.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
               "filename_short": "tests/too_many_digits.sol",
+              "is_dependency": false,
               "lines": [
                 12
               ],
@@ -240,6 +247,7 @@
                   "filename_relative": "tests/too_many_digits.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                   "filename_short": "tests/too_many_digits.sol",
+                  "is_dependency": false,
                   "lines": [
                     9,
                     10,
@@ -263,6 +271,7 @@
                       "filename_relative": "tests/too_many_digits.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                       "filename_short": "tests/too_many_digits.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,
@@ -325,6 +334,7 @@
               "filename_relative": "tests/too_many_digits.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
               "filename_short": "tests/too_many_digits.sol",
+              "is_dependency": false,
               "lines": [
                 13
               ],
@@ -342,6 +352,7 @@
                   "filename_relative": "tests/too_many_digits.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                   "filename_short": "tests/too_many_digits.sol",
+                  "is_dependency": false,
                   "lines": [
                     9,
                     10,
@@ -365,6 +376,7 @@
                       "filename_relative": "tests/too_many_digits.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                       "filename_short": "tests/too_many_digits.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,
@@ -427,6 +439,7 @@
               "filename_relative": "tests/too_many_digits.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
               "filename_short": "tests/too_many_digits.sol",
+              "is_dependency": false,
               "lines": [
                 22
               ],
@@ -444,6 +457,7 @@
                   "filename_relative": "tests/too_many_digits.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                   "filename_short": "tests/too_many_digits.sol",
+                  "is_dependency": false,
                   "lines": [
                     20,
                     21,
@@ -465,6 +479,7 @@
                       "filename_relative": "tests/too_many_digits.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                       "filename_short": "tests/too_many_digits.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,
@@ -527,6 +542,7 @@
               "filename_relative": "tests/too_many_digits.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
               "filename_short": "tests/too_many_digits.sol",
+              "is_dependency": false,
               "lines": [
                 31
               ],
@@ -544,6 +560,7 @@
                   "filename_relative": "tests/too_many_digits.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                   "filename_short": "tests/too_many_digits.sol",
+                  "is_dependency": false,
                   "lines": [
                     29,
                     30,
@@ -565,6 +582,7 @@
                       "filename_relative": "tests/too_many_digits.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                       "filename_short": "tests/too_many_digits.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,

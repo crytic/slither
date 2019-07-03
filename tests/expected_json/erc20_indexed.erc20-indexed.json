@@ -19,6 +19,7 @@
               "filename_relative": "tests/erc20_indexed.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
               "filename_short": "tests/erc20_indexed.sol",
+              "is_dependency": false,
               "lines": [
                 19
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/erc20_indexed.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
                   "filename_short": "tests/erc20_indexed.sol",
+                  "is_dependency": false,
                   "lines": [
                     12,
                     13,
@@ -76,6 +78,7 @@
               "filename_relative": "tests/erc20_indexed.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
               "filename_short": "tests/erc20_indexed.sol",
+              "is_dependency": false,
               "lines": [
                 19
               ],
@@ -93,6 +96,7 @@
                   "filename_relative": "tests/erc20_indexed.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
                   "filename_short": "tests/erc20_indexed.sol",
+                  "is_dependency": false,
                   "lines": [
                     12,
                     13,
@@ -133,6 +137,7 @@
               "filename_relative": "tests/erc20_indexed.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
               "filename_short": "tests/erc20_indexed.sol",
+              "is_dependency": false,
               "lines": [
                 20
               ],
@@ -150,6 +155,7 @@
                   "filename_relative": "tests/erc20_indexed.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
                   "filename_short": "tests/erc20_indexed.sol",
+                  "is_dependency": false,
                   "lines": [
                     12,
                     13,
@@ -190,6 +196,7 @@
               "filename_relative": "tests/erc20_indexed.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
               "filename_short": "tests/erc20_indexed.sol",
+              "is_dependency": false,
               "lines": [
                 20
               ],
@@ -207,6 +214,7 @@
                   "filename_relative": "tests/erc20_indexed.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/erc20_indexed.sol",
                   "filename_short": "tests/erc20_indexed.sol",
+                  "is_dependency": false,
                   "lines": [
                     12,
                     13,
