@@ -17,6 +17,7 @@ defaults_flag_in_config = {
     'detectors_to_exclude': None,
     'exclude_dependencies': False,
     'exclude_informational': False,
+    'exclude_optimization': False,
     'exclude_low': False,
     'exclude_medium': False,
     'exclude_high': False,

@@ -200,6 +200,10 @@ def choose_detectors(args, all_detector_classes):
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
+    if args.exclude_optimization:
+        detectors_to_run = [d for d in detectors_to_run if
+                            d.IMPACT != DetectorClassification.OPTIMIZATION]
+
     if args.exclude_informational:
         detectors_to_run = [d for d in detectors_to_run if
                             d.IMPACT != DetectorClassification.INFORMATIONAL]
@@ -307,6 +311,11 @@ def parse_args(detector_classes, printer_classes):
                                 help='Exclude results that are only related to dependencies',
                                 action='store_true',
                                 default=defaults_flag_in_config['exclude_dependencies'])
+
+    group_detector.add_argument('--exclude-optimization',
+                                help='Exclude optimization analyses',
+                                action='store_true',
+                                default=defaults_flag_in_config['exclude_optimization'])
 
     group_detector.add_argument('--exclude-informational',
                                 help='Exclude informational impact analyses',
