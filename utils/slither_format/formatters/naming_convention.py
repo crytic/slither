@@ -405,16 +405,13 @@ def _explore_types(slither, result, target, convert, type, filename_source_code,
 
     if isinstance(type, MappingType):
         # Mapping has three steps:
-        # Convertir the "from" type
-        # Convertir the "to" type
-        # Convertir nested type in the "from"
+        # Convert the "from" type
+        # Convert the "to" type
+        # Convert nested type in the "from"
         # Ex: mapping (mapping (badName => uint) => uint)
 
         # Do the comparison twice, so we can factor together the re matching
         if isinstance(type.type_from, UserDefinedType) or target in [type.type_from, type.type_to]:
-
-            old_str = type.type.name
-            new_str = convert(old_str)
 
             full_txt_start = start
             full_txt_end = end
@@ -422,6 +419,8 @@ def _explore_types(slither, result, target, convert, type, filename_source_code,
             re_match = re.match(RE_MAPPING, full_txt)
 
             if type.type_from == target:
+                old_str = type.type_from.name
+                new_str = convert(old_str)
 
                 loc_start = start + re_match.start(1)
                 loc_end = loc_start + len(old_str)
@@ -434,6 +433,9 @@ def _explore_types(slither, result, target, convert, type, filename_source_code,
                              new_str)
 
             if type.type_to == target:
+
+                old_str = type.type_to.name
+                new_str = convert(old_str)
 
                 loc_start = start + re_match.start(2)
                 loc_end = loc_start + len(old_str)
