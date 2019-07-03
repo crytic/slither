@@ -4,7 +4,7 @@ import logging
 
 from slither.core.cfg.node import NodeType, link_nodes
 from slither.core.declarations.contract import Contract
-from slither.core.declarations.function import Function
+from slither.core.declarations.function import Function, ModifierStatements
 from slither.core.dominators.utils import (compute_dominance_frontier,
                                            compute_dominators)
 from slither.core.expressions import AssignmentOperation
@@ -219,6 +219,12 @@ class FunctionSolc(Function):
 
         for node in self.nodes:
             node.analyze_expressions(self)
+
+        for modifier_statement in self.modifiers_statements:
+            modifier_statement.node.analyze_expressions(self)
+
+        for modifier_statement in self.explicit_base_constructor_calls_statements:
+            modifier_statement.node.analyze_expressions(self)
 
         self._filter_ternary()
         self._remove_alone_endif()
@@ -897,9 +903,15 @@ class FunctionSolc(Function):
         self._expression_modifiers.append(m)
         for m in ExportValues(m).result():
             if isinstance(m, Function):
-                self._modifiers.append(m)
+                node = self._new_node(NodeType.STANDALONE, modifier['src'])
+                node.add_unparsed_expression(modifier)
+                self._modifiers.append(ModifierStatements(modifier=m,
+                                                          node=node))
             elif isinstance(m, Contract):
-                self._explicit_base_constructor_calls.append(m)
+                node = self._new_node(NodeType.STANDALONE, modifier['src'])
+                node.add_unparsed_expression(modifier)
+                self._explicit_base_constructor_calls.append(ModifierStatements(modifier=m,
+                                                                                node=node))
 
     # endregion
     ###################################################################################
@@ -1122,6 +1134,13 @@ class FunctionSolc(Function):
     def generate_slithir_and_analyze(self):
         for node in self.nodes:
             node.slithir_generation()
+
+        for modifier_statement in self.modifiers_statements:
+            modifier_statement.node.slithir_generation()
+
+        for modifier_statement in self.explicit_base_constructor_calls_statements:
+            modifier_statement.node.slithir_generation()
+
         self._analyze_read_write()
         self._analyze_calls()
 

@@ -34,6 +34,14 @@ class PrinterSlithIR(AbstractPrinter):
                         print('\t\tIRs:')
                         for ir in node.irs:
                             print('\t\t\t{}'.format(ir))
+                for modifier_statement in function.modifiers_statements:
+                    print(f'\t\tModifier Call {modifier_statement.node.expression}')
+                    for ir in modifier_statement.node.irs:
+                        print('\t\t\t{}'.format(ir))
+                for modifier_statement in function.explicit_base_constructor_calls_statements:
+                    print(f'\t\tConstructor Call {modifier_statement.node.expression}')
+                    for ir in modifier_statement.node.irs:
+                        print('\t\t\t{}'.format(ir))
             for modifier in contract.modifiers:
                 print('\tModifier {}'.format(modifier.canonical_name))
                 for node in modifier.nodes:
