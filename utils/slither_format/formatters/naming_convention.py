@@ -5,7 +5,7 @@ from slither.slithir.operations import Send, Transfer, OperationWithLValue, High
 from slither.core.declarations import Modifier
 from slither.core.solidity_types import UserDefinedType, MappingType
 from slither.core.declarations import Enum, Contract, Structure
-from ..exceptions import FormatError
+from ..exceptions import FormatError, FormatImpossible
 from ..utils.patches import create_patch
 
 logging.basicConfig(level=logging.INFO)
@@ -32,27 +32,53 @@ def format(slither, result):
 ###################################################################################
 ###################################################################################
 
-def _convert_CapWords(name):
-    name = name.capitalize()
+
+KEY = 'ALL_NAMES_USED'
+
+def _name_already_use(slither, name):
+    # Do not convert to a name used somewhere else
+    if not KEY in slither.context:
+        all_names = set()
+        for contract in slither.contracts_derived:
+            all_names = all_names.union(set([st.name for st in contract.structures]))
+            all_names = all_names.union(set([f.name for f in contract.functions_and_modifiers]))
+            all_names = all_names.union(set([e.name for e in contract.enums]))
+            all_names = all_names.union(set([s.name for s in contract.state_variables]))
+
+            for function in contract.functions:
+                all_names = all_names.union(set([v.name for v in function.variables]))
+
+        slither.context[KEY] = all_names
+    return name in slither.context[KEY]
+
+def _convert_CapWords(original_name, slither):
+    name = original_name.capitalize()
 
     while '_' in name:
         offset = name.find('_')
         if len(name) > offset:
             name = name[0:offset] + name[offset+1].upper() + name[offset+1:]
 
+    if _name_already_use(slither, name):
+        raise FormatImpossible(f'{original_name} cannot be converted to {name} (already used)')
     return name
 
-def _convert_mixedCase(name):
+def _convert_mixedCase(original_name, slither):
 
+    name = original_name
     while '_' in name:
         offset = name.find('_')
         if len(name) > offset:
             name = name[0:offset] + name[offset + 1].upper() + name[offset + 2:]
 
     name = name[0].lower() + name[1:]
+    if _name_already_use(slither, name):
+        raise FormatImpossible(f'{original_name} cannot be converted to {name} (already used)')
     return name
 
-def _convert_UPPER_CASE_WITH_UNDERSCORES(name):
+def _convert_UPPER_CASE_WITH_UNDERSCORES(name, slither):
+    if _name_already_use(slither, name.upper()):
+        raise FormatImpossible(f'{name} cannot be converted to {name.upper()} (already used)')
     return name.upper()
 
 conventions ={
@@ -73,7 +99,6 @@ def _get_from_contract(slither, element, name, getter):
     contract_name = element['type_specific_fields']['parent']['name']
     contract = slither.get_contract_from_name(contract_name)
     return getattr(contract, getter)(name)
-
 
 # endregion
 ###################################################################################
@@ -157,7 +182,7 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
         if isinstance(type.type, (Enum, Contract)):
             if type.type == target:
                 old_str = type.type.name
-                new_str = convert(old_str)
+                new_str = convert(old_str, slither)
 
                 loc_start = start
                 loc_end = loc_start + len(old_str)
@@ -175,7 +200,7 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
             assert isinstance(type.type, Structure)
             if type.type == target:
                 old_str = type.type.name
-                new_str = convert(old_str)
+                new_str = convert(old_str, slither)
 
                 loc_start = start
                 loc_end = loc_start + len(old_str)
@@ -214,7 +239,7 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
 
             if type.type_from == target:
                 old_str = type.type_from.name
-                new_str = convert(old_str)
+                new_str = convert(old_str, slither)
 
                 loc_start = start + re_match.start(1)
                 loc_end = loc_start + len(old_str)
@@ -229,7 +254,7 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
             if type.type_to == target:
 
                 old_str = type.type_to.name
-                new_str = convert(old_str)
+                new_str = convert(old_str, slither)
 
                 loc_start = start + re_match.start(2)
                 loc_end = loc_start + len(old_str)
@@ -275,7 +300,7 @@ def _explore_variables_declaration(slither, variables, result, target, convert):
         # If the variable is the target
         if variable == target:
             old_str = variable.name
-            new_str = convert(old_str)
+            new_str = convert(old_str, slither)
 
             # The name is after the space
             # We take all the space, as we dont know the type
@@ -308,7 +333,7 @@ def _explore_structures_declaration(slither, structures, result, target, convert
         # If the structure is the target
         if st == target:
             old_str = st.name
-            new_str = convert(old_str)
+            new_str = convert(old_str, slither)
 
             filename_source_code = st.source_mapping['filename_absolute']
             full_txt_start = st.source_mapping['start']
@@ -339,7 +364,7 @@ def _explore_events_declaration(slither, events, result, target, convert):
             filename_source_code = event.source_mapping['filename_absolute']
 
             old_str = event.name
-            new_str = convert(old_str)
+            new_str = convert(old_str, slither)
 
             loc_start = event.source_mapping['start']
             loc_end = loc_start + len(old_str)
@@ -384,7 +409,7 @@ def _explore_irs(slither, irs, result, target, convert):
                     raise FormatError(f'{target} not found in {full_txt} ({source_mapping}')
 
                 old_str = str(target)
-                new_str = convert(old_str)
+                new_str = convert(old_str, slither)
 
                 counter = 0
                 # Can be found multiple time on the same IR
@@ -415,7 +440,7 @@ def _explore_functions(slither, functions, result, target, convert):
 
         if function == target:
             old_str = function.name
-            new_str = convert(old_str)
+            new_str = convert(old_str, slither)
 
             filename_source_code = function.source_mapping['filename_absolute']
             full_txt_start = function.source_mapping['start']
@@ -443,7 +468,7 @@ def _explore_enums(slither, enums, result, target, convert):
         if enum == target:
             print(target)
             old_str = enum.name
-            new_str = convert(old_str)
+            new_str = convert(old_str, slither)
 
             filename_source_code = enum.source_mapping['filename_absolute']
             full_txt_start = enum.source_mapping['start']
@@ -477,7 +502,7 @@ def _explore_contract(slither, contract, result, target, convert):
         full_txt = slither.source_code[filename_source_code][full_txt_start:full_txt_end]
 
         old_str = contract.name
-        new_str = convert(old_str)
+        new_str = convert(old_str, slither)
 
         # The name is after the space
         matches = re.finditer('contract[ ]*', full_txt)
