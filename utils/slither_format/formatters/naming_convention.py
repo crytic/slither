@@ -303,7 +303,7 @@ def _explore_modifiers_calls(slither, function, result, target, convert):
 def _explore_structures_declaration(slither, structures, result, target, convert):
     for st in structures:
         # Explore the variable declared within the structure (VariableStructure)
-        _explore_variables_declaration(slither, st.elem.values(), result, target, convert)
+        _explore_variables_declaration(slither, st.elems.values(), result, target, convert)
 
         # If the structure is the target
         if st == target:
