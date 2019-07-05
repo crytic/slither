@@ -122,7 +122,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         elif self._function_type == FunctionType.FALLBACK:
             return 'fallback'
         elif self._function_type == FunctionType.CONSTRUCTOR_VARIABLES:
-            return 'slither_constructor_variables'
+            return 'slitherConstructorVariables'
         return self._name
 
     @property
