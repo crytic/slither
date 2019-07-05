@@ -67,7 +67,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
         self._result = []
         self._visit_expression(self.expression)
         if node.type == NodeType.RETURN:
-            self._result.append(Return(get(self.expression)))
+            r = Return(get(self.expression))
+            r.set_expression(expression)
+            self._result.append(r)
         for ir in self._result:
             ir.set_node(node)
 
@@ -125,6 +127,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         args = [get(a) for a in expression.arguments if a]
         for arg in args:
             arg_ = Argument(arg)
+            arg_.set_expression(expression)
             self._result.append(arg_)
         if isinstance(called, Function):
             # internal call

@@ -410,21 +410,28 @@ def _explore_irs(slither, irs, result, target, convert):
                 if not str(target) in full_txt:
                     raise FormatError(f'{target} not found in {full_txt} ({source_mapping}')
 
-                if full_txt.count(str(target)) > 1:
-                    raise FormatError(f'{target} found multiple times in {full_txt} ({source_mapping}')
-
                 old_str = str(target)
                 new_str = convert(old_str)
 
-                loc_start = full_txt_start + full_txt.find(str(target))
-                loc_end = loc_start + len(old_str)
+                counter = 0
+                # Can be found multiple time on the same IR
+                # We patch one by one
+                while old_str in full_txt:
 
-                create_patch(result,
-                             filename_source_code,
-                             loc_start,
-                             loc_end,
-                             old_str,
-                             new_str)
+                    target_found_at = full_txt.find((old_str))
+
+                    full_txt = full_txt[target_found_at+1:]
+                    counter += target_found_at
+
+                    loc_start = full_txt_start + counter
+                    loc_end = loc_start + len(old_str)
+
+                    create_patch(result,
+                                 filename_source_code,
+                                 loc_start,
+                                 loc_end,
+                                 old_str,
+                                 new_str)
 
 
 def _explore_functions(slither, functions, result, target, convert):
