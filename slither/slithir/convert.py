@@ -556,10 +556,10 @@ def extract_tmp_call(ins, contract):
                 internalcall.call_id = ins.call_id
                 return internalcall
             if str(ins.ori.variable_right) in [f.name for f in contract.events]:
-               eventcall = EventCall(ins.ori.variable_right)
-               eventcall.set_expression(ins.expression)
-               eventcall.call_id = ins.call_id
-               return eventcall
+                eventcall = EventCall(ins.ori.variable_right)
+                eventcall.set_expression(ins.expression)
+                eventcall.call_id = ins.call_id
+                return eventcall
         if isinstance(ins.ori.variable_left, Contract):
             st = ins.ori.variable_left.get_structure_from_name(ins.ori.variable_right)
             if st:
@@ -624,6 +624,7 @@ def extract_tmp_call(ins, contract):
         internalcall = InternalCall(ins.called.constructor, ins.nbr_arguments, ins.lvalue,
                                     ins.type_call)
         internalcall.call_id = ins.call_id
+        internalcall.set_expression(ins.expression)
         return internalcall
 
 

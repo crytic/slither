@@ -297,8 +297,9 @@ def parse_call(expression, caller_context):
                                          'IndexAccess',
                                          'MemberAccess']
 
-        expression = parse_expression(expression_to_parse, caller_context)
-        t = TypeConversion(expression, type_call)
+        expression_parsed = parse_expression(expression_to_parse, caller_context)
+        t = TypeConversion(expression_parsed, type_call)
+        t.set_offset(expression['src'], caller_context.slither)
         return t
 
     if caller_context.is_compact_ast:
@@ -312,7 +313,9 @@ def parse_call(expression, caller_context):
         arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
     if isinstance(called, SuperCallExpression):
-        return SuperCallExpression(called, arguments, type_return)
+        sp =  SuperCallExpression(called, arguments, type_return)
+        sp.set_offset(expression['src'], caller_context.slither)
+        return sp
     call_expression = CallExpression(called, arguments, type_return)
     call_expression.set_offset(expression['src'], caller_context.slither)
     return call_expression
@@ -349,7 +352,9 @@ def _parse_elementary_type_name_expression(expression, is_compact_ast, caller_co
         value = expression['attributes']['value']
     t = parse_type(UnknownType(value), caller_context)
 
-    return ElementaryTypeNameExpression(t)
+    e = ElementaryTypeNameExpression(t)
+    e.set_offset(expression['src'], caller_context.slither)
+    return e
 
 def parse_expression(expression, caller_context):
     """
@@ -393,11 +398,12 @@ def parse_expression(expression, caller_context):
         operation_type = UnaryOperationType.get_type(attributes['operator'], attributes['prefix'])
 
         if is_compact_ast:
-            expression = parse_expression(expression['subExpression'], caller_context)
+            expression_parsed = parse_expression(expression['subExpression'], caller_context)
         else:
             assert len(expression['children']) == 1
-            expression = parse_expression(expression['children'][0], caller_context)
-        unary_op = UnaryOperation(expression, operation_type)
+            expression_parsed = parse_expression(expression['children'][0], caller_context)
+        unary_op = UnaryOperation(expression_parsed, operation_type)
+        unary_op.set_offset(expression['src'], caller_context.slither)
         return unary_op
 
     elif name == 'BinaryOperation':
@@ -415,10 +421,11 @@ def parse_expression(expression, caller_context):
             left_expression = parse_expression(expression['children'][0], caller_context)
             right_expression = parse_expression(expression['children'][1], caller_context)
         binary_op = BinaryOperation(left_expression, right_expression, operation_type)
+        binary_op.set_offset(expression['src'], caller_context.slither)
         return binary_op
 
     elif name == 'FunctionCall':
-        return  parse_call(expression, caller_context)
+        return parse_call(expression, caller_context)
 
     elif name == 'TupleExpression':
         """
@@ -433,7 +440,7 @@ def parse_expression(expression, caller_context):
             Note: this is only possible with Solidity >= 0.4.12
         """
         if is_compact_ast:
-                expressions = [parse_expression(e, caller_context) if e else None for e in expression['components']]
+            expressions = [parse_expression(e, caller_context) if e else None for e in expression['components']]
         else:
             if 'children' not in expression :
                 attributes = expression['attributes']
@@ -452,6 +459,7 @@ def parse_expression(expression, caller_context):
                         if elems[idx] == '':
                             expressions.insert(idx, None)
         t = TupleExpression(expressions)
+        t.set_offset(expression['src'], caller_context.slither)
         return t
 
     elif name == 'Conditional':
@@ -466,6 +474,7 @@ def parse_expression(expression, caller_context):
             then_expression = parse_expression(children[1], caller_context)
             else_expression = parse_expression(children[2], caller_context)
         conditional = ConditionalExpression(if_expression, then_expression, else_expression)
+        conditional.set_offset(expression['src'], caller_context.slither)
         return conditional
 
     elif name == 'Assignment':
@@ -487,6 +496,7 @@ def parse_expression(expression, caller_context):
             operation_return_type = attributes['type']
 
         assignement = AssignmentOperation(left_expression, right_expression, operation_type, operation_return_type)
+        assignement.set_offset(expression['src'], caller_context.slither)
         return assignement
 
     elif name == 'Literal':
@@ -531,6 +541,7 @@ def parse_expression(expression, caller_context):
         else:
             type = ElementaryType('string')
         literal = Literal(value, type)
+        literal.set_offset(expression['src'], caller_context.slither)
         return literal
 
     elif name == 'Identifier':
@@ -584,6 +595,7 @@ def parse_expression(expression, caller_context):
         left_expression = parse_expression(left, caller_context)
         right_expression = parse_expression(right, caller_context)
         index = IndexAccess(left_expression, right_expression, index_type)
+        index.set_offset(expression['src'], caller_context.slither)
         return index
 
     elif name == 'MemberAccess':
@@ -604,8 +616,11 @@ def parse_expression(expression, caller_context):
                 raise VariableNotFound('Variable not found: {}'.format(super_name))
             return SuperIdentifier(var)
         member_access = MemberAccess(member_name, member_type, member_expression)
+        member_access.set_offset(expression['src'], caller_context.slither)
         if str(member_access) in SOLIDITY_VARIABLES_COMPOSED:
-            return Identifier(SolidityVariableComposed(str(member_access)))
+            identifier = Identifier(SolidityVariableComposed(str(member_access)))
+            identifier.set_offset(expression['src'], caller_context.slither)
+            return identifier
         return member_access
 
     elif name == 'ElementaryTypeNameExpression':
@@ -647,6 +662,7 @@ def parse_expression(expression, caller_context):
             else:
                 raise ParsingError('Incorrect type array {}'.format(type_name))
             array = NewArray(depth, array_type)
+            array.set_offset(expression['src'], caller_context.slither)
             return array
 
         if type_name[caller_context.get_key()] == 'ElementaryTypeName':
@@ -655,6 +671,7 @@ def parse_expression(expression, caller_context):
             else:
                 elem_type = ElementaryType(type_name['attributes']['name'])
             new_elem = NewElementaryType(elem_type)
+            new_elem.set_offset(expression['src'], caller_context.slither)
             return new_elem
 
         assert type_name[caller_context.get_key()] == 'UserDefinedTypeName'
@@ -664,6 +681,7 @@ def parse_expression(expression, caller_context):
         else:
             contract_name = type_name['attributes']['name']
         new = NewContract(contract_name)
+        new.set_offset(expression['src'], caller_context.slither)
         return new
 
     elif name == 'ModifierInvocation':
