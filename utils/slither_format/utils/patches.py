@@ -14,11 +14,14 @@ def create_patch(result, file, start, end, old_str, new_str):
         result['patches'][file].append(p)
 
 
-def apply_patch(original_txt, patch):
-    patched_txt = original_txt[:int(patch['start'])]
+def apply_patch(original_txt, patch, offset):
+    patched_txt = original_txt[:int(patch['start'] + offset)]
     patched_txt += patch['new_string']
-    patched_txt += original_txt[int(patch['end']):]
-    return patched_txt
+    patched_txt += original_txt[int(patch['end'] + offset):]
+
+    # Keep the diff of text added or sub, in case of multiple patches
+    patch_length_diff = len(patch['new_string']) - (patch['end'] - patch['start'])
+    return patched_txt, patch_length_diff + offset
 
 
 def create_diff(slither, original_txt, patched_txt, filename):
