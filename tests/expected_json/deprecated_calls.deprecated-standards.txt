@@ -13,5 +13,7 @@ Deprecated standard detected @ tests/deprecated_calls.sol#22:
 	- Usage of "callcode" should be replaced with "delegatecall"
 Deprecated standard detected @ tests/deprecated_calls.sol#25:
 	- Usage of "suicide()" should be replaced with "selfdestruct()"
+Deprecated standard detected @ tests/deprecated_calls.sol#2:
+	- Usage of "block.blockhash()" should be replaced with "blockhash()"
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards[0m
-INFO:Slither:tests/deprecated_calls.sol analyzed (1 contracts), 7 result(s) found
+INFO:Slither:tests/deprecated_calls.sol analyzed (1 contracts), 8 result(s) found

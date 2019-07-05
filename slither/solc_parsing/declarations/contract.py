@@ -377,7 +377,6 @@ class ContractSolc04(Contract):
         node.set_offset(variable.source_mapping, self.slither)
         node.set_function(func)
         func.add_node(node)
-        print(variable.expression)
         expression = AssignmentOperation(Identifier(variable),
                                                     variable.expression,
                                                     AssignmentOperationType.ASSIGN,
