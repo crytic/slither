@@ -620,6 +620,12 @@ def extract_tmp_call(ins, contract):
         e.set_expression(ins.expression)
         return e
 
+    if isinstance(ins.called, Contract):
+        internalcall = InternalCall(ins.called.constructor, ins.nbr_arguments, ins.lvalue,
+                                    ins.type_call)
+        internalcall.call_id = ins.call_id
+        return internalcall
+
 
     raise Exception('Not extracted {} {}'.format(type(ins.called), ins))
 
