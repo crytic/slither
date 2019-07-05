@@ -59,14 +59,20 @@ def slither_format(slither, **kwargs):
         for file in result['patches']:
             original_txt = slither.source_code[file]
             patched_txt = original_txt
-            for patch in result['patches'][file]:
-                patched_txt = apply_patch(patched_txt, patch)
+            offset = 0
+            patches = result['patches'][file]
+            patches.sort(key=lambda x:x['start'])
+            if not all(patches[i]['end'] <= patches[i+1]['end'] for i in range(len(patches)-1)):
+                logger.info(f'Impossible to generate patch; patches collisions: {patches}')
+                continue
+            for patch in patches:
+                patched_txt, offset = apply_patch(patched_txt, patch, offset)
             diff = create_diff(slither, original_txt, patched_txt, file)
             result['paches_diff'] = diff
             if skip_file_generation:
                 continue
             if not diff:
-                logger.info(f'Empty patch generated {result}')
+                logger.info(f'Impossible to generate patch; empty {result}')
                 continue
             path = os.path.join(export, f'fix_{counter}.patch')
             logger.info(f'\t- {path}')

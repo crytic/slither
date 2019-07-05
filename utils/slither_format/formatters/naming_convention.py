@@ -409,7 +409,7 @@ def _explore_irs(slither, irs, result, target, convert):
 
 def _explore_functions(slither, functions, result, target, convert):
     for function in functions:
-        _explore_variables_declaration(slither, function.local_variables, result, target, convert)
+        _explore_variables_declaration(slither, function.variables, result, target, convert)
         _explore_modifiers_calls(slither, function, result, target, convert)
         _explore_irs(slither, function.all_slithir_operations(), result, target, convert)
 
