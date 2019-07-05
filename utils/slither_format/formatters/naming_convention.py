@@ -69,27 +69,10 @@ conventions ={
 ###################################################################################
 ###################################################################################
 
-def _unpack_info(slither, element):
-    path = element['source_mapping']['filename_absolute']
-    source_code = slither.source_code[path].encode('utf-8')
-
-    loc_start = element['source_mapping']['start']
-    loc_end = loc_start + element['source_mapping']['length']
-    old_string = source_code[loc_start:loc_end]
-    return path, source_code, old_string, loc_start, loc_end
-
-def get_name(element):
-    return element['name']
-
-def get_contract_name(element):
-    target = element['additional_fields']['target']
-    if target == "parameter":
-        return element['type_specific_fields']['parent']['type_specific_fields']['parent']['name']
-    elif target in ["modifier", "function", "event",
-                    "variable", "variable_constant", "enum",
-                    "structure"]:
-        return element['type_specific_fields']['parent']['name']
-    return element['name']
+def _get_from_contract(slither, element, name, getter):
+    contract_name = element['type_specific_fields']['parent']['name']
+    contract = slither.get_contract_from_name(contract_name)
+    return getattr(contract, getter)(name)
 
 
 # endregion
@@ -105,24 +88,20 @@ def _patch(slither, result, element, _target):
         target = slither.get_contract_from_name(element['name'])
 
     elif _target == "structure":
-        target = slither.get_structure_from_name(element['name'])
+        target = _get_from_contract(slither, element, element['name'], 'get_structure_from_name')
 
     elif _target == "event":
-        target = slither.get_event_from_name(element['name'])
+        target = _get_from_contract(slither, element, element['name'], 'get_event_from_name')
 
     elif _target == "function":
         # Avoid constructor (FP?)
         if element['name'] != element['type_specific_fields']['parent']['name']:
-            contract_name = element['type_specific_fields']['parent']['name']
             function_sig = element['type_specific_fields']['signature']
-            contract = slither.get_contract_from_name(contract_name)
-            target = contract.get_function_from_signature(function_sig)
+            target = _get_from_contract(slither, element, function_sig, 'get_function_from_signature')
 
     elif _target == "modifier":
-        contract_name = element['type_specific_fields']['parent']['name']
         modifier_sig = element['type_specific_fields']['signature']
-        contract = slither.get_contract_from_name(contract_name)
-        target = contract.get_modifier_from_signature(modifier_sig)
+        target = _get_from_contract(slither, element, modifier_sig, 'get_modifier_from_signature')
 
     elif _target == "parameter":
         contract_name = element['type_specific_fields']['parent']['type_specific_fields']['parent']['name']
@@ -143,16 +122,10 @@ def _patch(slither, result, element, _target):
             target = function.get_local_variable_from_name(var_name)
         # State variable
         else:
-            contract_name = element['type_specific_fields']['parent']['name']
-            var_name = element['name']
-            contract = slither.get_contract_from_name(contract_name)
-            target = contract.get_state_variable_from_name(var_name)
+            target = _get_from_contract(slither, element, element['name'], 'get_state_variable_from_name')
 
     elif _target == "enum":
-        contract_name = element['type_specific_fields']['parent']['name']
-        enum_name = element['name']
-        contract = slither.get_contract_from_name(contract_name)
-        target = contract.get_enum_from_canonical_name(enum_name)
+        target = _get_from_contract(slither, element, element['name'], 'get_enum_from_canonical_name')
 
     else:
         raise FormatError("Unknown naming convention! " + _target)
