@@ -19,6 +19,7 @@
               "filename_relative": "tests/unused_state.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_short": "tests/unused_state.sol",
+              "is_dependency": false,
               "lines": [
                 4
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/unused_state.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
                   "filename_short": "tests/unused_state.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -61,6 +63,7 @@
               "filename_relative": "tests/unused_state.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_short": "tests/unused_state.sol",
+              "is_dependency": false,
               "lines": [
                 11,
                 12,
@@ -91,6 +94,7 @@
               "filename_relative": "tests/unused_state.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_short": "tests/unused_state.sol",
+              "is_dependency": false,
               "lines": [
                 5
               ],
@@ -108,6 +112,7 @@
                   "filename_relative": "tests/unused_state.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
                   "filename_short": "tests/unused_state.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -133,6 +138,7 @@
               "filename_relative": "tests/unused_state.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_short": "tests/unused_state.sol",
+              "is_dependency": false,
               "lines": [
                 11,
                 12,
@@ -163,6 +169,7 @@
               "filename_relative": "tests/unused_state.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_short": "tests/unused_state.sol",
+              "is_dependency": false,
               "lines": [
                 6
               ],
@@ -180,6 +187,7 @@
                   "filename_relative": "tests/unused_state.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
                   "filename_short": "tests/unused_state.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -205,6 +213,7 @@
               "filename_relative": "tests/unused_state.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_short": "tests/unused_state.sol",
+              "is_dependency": false,
               "lines": [
                 11,
                 12,
@@ -235,6 +244,7 @@
               "filename_relative": "tests/unused_state.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_short": "tests/unused_state.sol",
+              "is_dependency": false,
               "lines": [
                 7
               ],
@@ -252,6 +262,7 @@
                   "filename_relative": "tests/unused_state.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
                   "filename_short": "tests/unused_state.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -277,6 +288,7 @@
               "filename_relative": "tests/unused_state.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_state.sol",
               "filename_short": "tests/unused_state.sol",
+              "is_dependency": false,
               "lines": [
                 11,
                 12,

@@ -6,12 +6,12 @@ import inspect
 import json
 import logging
 import os
-import subprocess
 import sys
 import traceback
 
 from pkg_resources import iter_entry_points, require
 from crytic_compile import cryticparser
+from crytic_compile.platform.standard import generate_standard_export
 
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import (AbstractDetector,
@@ -24,13 +24,14 @@ from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
                                         get_detector_types_json, output_printers,
                                         output_to_markdown, output_wiki)
-from crytic_compile import is_supported
+from crytic_compile import compile_all, is_supported
 from slither.exceptions import SlitherException
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
-JSON_OUTPUT_TYPES = ["compilation", "console", "detectors", "detector-types"]
+JSON_OUTPUT_TYPES = ["compilations", "console", "detectors", "detector-types"]
+DEFAULT_JSON_OUTPUT_TYPES = ["console", "detectors", "detector-types"]
 
 ###################################################################################
 ###################################################################################
@@ -38,7 +39,8 @@ JSON_OUTPUT_TYPES = ["compilation", "console", "detectors", "detector-types"]
 ###################################################################################
 ###################################################################################
 
-def process(filename, args, detector_classes, printer_classes):
+
+def process_single(target, args, detector_classes, printer_classes):
     """
     The core high-level code for running Slither static analysis.
 
@@ -49,11 +51,26 @@ def process(filename, args, detector_classes, printer_classes):
     if args.legacy_ast:
         ast = '--ast-json'
     args.filter_paths = parse_filter_paths(args)
-    slither = Slither(filename,
+    slither = Slither(target,
                       ast_format=ast,
+                      solc_arguments=args.solc_args,
                       **vars(args))
 
     return _process(slither, detector_classes, printer_classes)
+
+
+def process_all(target, args, detector_classes, printer_classes):
+    compilations = compile_all(target, **vars(args))
+    slither_instances = []
+    results = []
+    analyzed_contracts_count = 0
+    for compilation in compilations:
+        (slither, current_results, current_analyzed_count) = process_single(compilation, args, detector_classes, printer_classes)
+        results.extend(current_results)
+        slither_instances.append(slither)
+        analyzed_contracts_count += current_analyzed_count
+    return slither_instances, results, analyzed_contracts_count
+
 
 def _process(slither, detector_classes, printer_classes):
     for detector_cls in detector_classes:
@@ -78,7 +95,7 @@ def _process(slither, detector_classes, printer_classes):
     return slither, results, analyzed_contracts_count
 
 
-def process_files(filenames, args, detector_classes, printer_classes):
+def process_from_asts(filenames, args, detector_classes, printer_classes):
     all_contracts = []
 
     for filename in filenames:
@@ -86,14 +103,9 @@ def process_files(filenames, args, detector_classes, printer_classes):
             contract_loaded = json.load(f)
             all_contracts.append(contract_loaded['ast'])
 
-    slither = Slither(all_contracts,
-                      solc=args.solc,
-                      disable_solc_warnings=args.disable_solc_warnings,
-                      solc_arguments=args.solc_args,
-                      filter_paths=parse_filter_paths(args),
-                      triage_mode=args.triage_mode)
+    return process_single(all_contracts, args, detector_classes, printer_classes)
 
-    return _process(slither, detector_classes, printer_classes)
+
 
 # endregion
 ###################################################################################
@@ -250,6 +262,7 @@ defaults_flag_in_config = {
     'detectors_to_run': 'all',
     'printers_to_run': None,
     'detectors_to_exclude': None,
+    'exclude_dependencies': False,
     'exclude_informational': False,
     'exclude_low': False,
     'exclude_medium': False,
@@ -258,7 +271,7 @@ defaults_flag_in_config = {
     'solc_args': None,
     'disable_solc_warnings': False,
     'json': None,
-    'json-types': ','.join(JSON_OUTPUT_TYPES),
+    'json-types': ','.join(DEFAULT_JSON_OUTPUT_TYPES),
     'truffle_version': None,
     'disable_color': False,
     'filter_paths': None,
@@ -287,7 +300,7 @@ def parse_args(detector_classes, printer_classes):
 
     group_detector = parser.add_argument_group('Detectors')
     group_printer = parser.add_argument_group('Printers')
-    group_misc = parser.add_argument_group('Additional option')
+    group_misc = parser.add_argument_group('Additional options')
 
     group_detector.add_argument('--detect',
                                 help='Comma-separated list of detectors, defaults to all, '
@@ -322,6 +335,11 @@ def parse_args(detector_classes, printer_classes):
                                 action='store',
                                 dest='detectors_to_exclude',
                                 default=defaults_flag_in_config['detectors_to_exclude'])
+
+    group_detector.add_argument('--exclude-dependencies',
+                                help='Exclude results that are only related to dependencies',
+                                action='store_true',
+                                default=defaults_flag_in_config['exclude_dependencies'])
 
     group_detector.add_argument('--exclude-informational',
                                 help='Exclude informational impact analyses',
@@ -573,45 +591,37 @@ def main_impl(all_detector_classes, all_printer_classes):
     try:
         filename = args.filename
 
-        globbed_filenames = glob.glob(filename, recursive=True)
-
-        if os.path.isfile(filename) or is_supported(filename):
-            (slither, results, number_contracts) = process(filename, args, detector_classes, printer_classes)
-
-        elif os.path.isdir(filename) or len(globbed_filenames) > 0:
-            extension = "*.sol" if not args.solc_ast else "*.json"
-            filenames = glob.glob(os.path.join(filename, extension))
+        # Determine if we are handling ast from solc
+        if args.solc_ast or (filename.endswith('.json') and not is_supported(filename)):
+            globbed_filenames = glob.glob(filename, recursive=True)
+            filenames = glob.glob(os.path.join(filename, "*.json"))
             if not filenames:
                 filenames = globbed_filenames
             number_contracts = 0
             results = []
-            if args.splitted and args.solc_ast:
-                (slither, results, number_contracts) = process_files(filenames, args, detector_classes, printer_classes)
+            slither_instances = []
+            if args.splitted:
+                (slither_instance, results, number_contracts) = process_from_asts(filenames, args, detector_classes, printer_classes)
+                slither_instances.append(slither_instance)
             else:
                 for filename in filenames:
-                    (slither, results_tmp, number_contracts_tmp) = process(filename, args, detector_classes, printer_classes)
+                    (slither_instance, results_tmp, number_contracts_tmp) = process_single(filename, args, detector_classes, printer_classes)
                     number_contracts += number_contracts_tmp
                     results += results_tmp
+                    slither_instances.append(slither_instance)
 
+        # Rely on CryticCompile to discern the underlying type of compilations.
         else:
-            raise Exception("Unrecognised file/dir path: '#{filename}'".format(filename=filename))
+            (slither_instances, results, number_contracts) = process_all(filename, args, detector_classes, printer_classes)
 
         # Determine if we are outputting JSON
         if outputting_json:
             # Add our compilation information to JSON
-            if 'compilation' in args.json_types:
-                json_results['compilation'] = {
-                    "abis": slither.crytic_compile.abis,
-                    "asts": slither.crytic_compile.asts,
-                    "bytecodes_init": slither.crytic_compile.bytecodes_init,
-                    "bytecodes_runtime": slither.crytic_compile.bytecodes_runtime,
-                    "compiler_version": slither.crytic_compile.compiler_version,
-                    "contracts_filenames": { key: value._asdict() for key, value in slither.crytic_compile.contracts_filenames.items()},
-                    "filenames": [x._asdict() for x in slither.crytic_compile.filenames],
-                    "srcmaps_init": slither.crytic_compile.srcmaps_init,
-                    "srcmaps_runtime": slither.crytic_compile.srcmaps_runtime,
-                    "type": str(slither.crytic_compile.type)
-                }
+            if 'compilations' in args.json_types:
+                compilation_results = []
+                for slither_instance in slither_instances:
+                    compilation_results.append(generate_standard_export(slither_instance.crytic_compile))
+                json_results['compilations'] = compilation_results
 
             # Add our detector results to JSON if desired.
             if results and 'detectors' in args.json_types:

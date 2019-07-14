@@ -19,6 +19,7 @@
               "filename_relative": "tests/reentrancy.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
               "filename_short": "tests/reentrancy.sol",
+              "is_dependency": false,
               "lines": [
                 14,
                 15,
@@ -43,6 +44,7 @@
                   "filename_relative": "tests/reentrancy.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
                   "filename_short": "tests/reentrancy.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -132,6 +134,7 @@
               "filename_relative": "tests/reentrancy.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
               "filename_short": "tests/reentrancy.sol",
+              "is_dependency": false,
               "lines": [
                 17
               ],
@@ -149,6 +152,7 @@
                   "filename_relative": "tests/reentrancy.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
                   "filename_short": "tests/reentrancy.sol",
+                  "is_dependency": false,
                   "lines": [
                     14,
                     15,
@@ -173,6 +177,7 @@
                       "filename_relative": "tests/reentrancy.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
                       "filename_short": "tests/reentrancy.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,
@@ -267,6 +272,7 @@
               "filename_relative": "tests/reentrancy.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
               "filename_short": "tests/reentrancy.sol",
+              "is_dependency": false,
               "lines": [
                 20
               ],
@@ -284,6 +290,7 @@
                   "filename_relative": "tests/reentrancy.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
                   "filename_short": "tests/reentrancy.sol",
+                  "is_dependency": false,
                   "lines": [
                     14,
                     15,
@@ -308,6 +315,7 @@
                       "filename_relative": "tests/reentrancy.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
                       "filename_short": "tests/reentrancy.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,
@@ -411,6 +419,7 @@
               "filename_relative": "tests/reentrancy.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
               "filename_short": "tests/reentrancy.sol",
+              "is_dependency": false,
               "lines": [
                 64,
                 65,
@@ -434,6 +443,7 @@
                   "filename_relative": "tests/reentrancy.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
                   "filename_short": "tests/reentrancy.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -523,6 +533,7 @@
               "filename_relative": "tests/reentrancy.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
               "filename_short": "tests/reentrancy.sol",
+              "is_dependency": false,
               "lines": [
                 67
               ],
@@ -540,6 +551,7 @@
                   "filename_relative": "tests/reentrancy.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
                   "filename_short": "tests/reentrancy.sol",
+                  "is_dependency": false,
                   "lines": [
                     64,
                     65,
@@ -563,6 +575,7 @@
                       "filename_relative": "tests/reentrancy.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
                       "filename_short": "tests/reentrancy.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,
@@ -657,6 +670,7 @@
               "filename_relative": "tests/reentrancy.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
               "filename_short": "tests/reentrancy.sol",
+              "is_dependency": false,
               "lines": [
                 68
               ],
@@ -674,6 +688,7 @@
                   "filename_relative": "tests/reentrancy.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
                   "filename_short": "tests/reentrancy.sol",
+                  "is_dependency": false,
                   "lines": [
                     64,
                     65,
@@ -697,6 +712,7 @@
                       "filename_relative": "tests/reentrancy.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy.sol",
                       "filename_short": "tests/reentrancy.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,

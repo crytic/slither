@@ -13,7 +13,7 @@ class ExternalFunction(AbstractDetector):
 
     ARGUMENT = 'external-function'
     HELP = 'Public function that could be declared as external'
-    IMPACT = DetectorClassification.INFORMATIONAL
+    IMPACT = DetectorClassification.OPTIMIZATION
     CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-as-external'
@@ -96,6 +96,10 @@ class ExternalFunction(AbstractDetector):
                                        for function in derived_contract.functions
                                        if function.full_name == base_most_function.full_name]
 
+    @staticmethod
+    def function_parameters_written(function):
+        return any(p in function.variables_written for p in function.parameters)
+
     def _detect(self):
         results = []
 
@@ -130,6 +134,11 @@ class ExternalFunction(AbstractDetector):
                 if function in completed_functions:
                     continue
 
+                # If the function has parameters which are written-to in function body, we skip
+                # because parameters of external functions will be allocated in calldata region which is immutable
+                if self.function_parameters_written(function):
+                    continue
+                
                 # Get the base-most function to know our origin of this function.
                 base_most_function = self.get_base_most_function(function)
 

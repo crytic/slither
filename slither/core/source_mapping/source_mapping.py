@@ -77,6 +77,8 @@ class SourceMapping(Context):
         filename_relative = None
         filename_short = None
 
+        is_dependency = False
+
         lines = []
 
         # If possible, convert the filename to its absolute/relative version
@@ -86,18 +88,25 @@ class SourceMapping(Context):
             filename_relative = filenames.relative
             filename_short = filenames.short
 
-            if filename_absolute in slither.source_code:
+            is_dependency = slither.crytic_compile.is_dependency(filename_absolute)
+
+            if filename_absolute in slither.source_code or filename_absolute in slither.crytic_compile.src_content:
                 filename = filename_absolute
             elif filename_relative in slither.source_code:
                 filename = filename_relative
             elif filename_short in slither.source_code:
                 filename = filename_short
-            else:#
-                filename = filename_used.used
+            else:
+                filename = filename_used
         else:
             filename = filename_used
 
-        if filename in slither.source_code:
+        if slither.crytic_compile and filename in slither.crytic_compile.src_content:
+            source_code = slither.crytic_compile.src_content[filename]
+            (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code,
+                                                                                  s,
+                                                                                  l)
+        elif filename in slither.source_code:
             source_code = slither.source_code[filename]
             (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code,
                                                                                   s,
@@ -105,13 +114,13 @@ class SourceMapping(Context):
         else:
             (lines, starting_column, ending_column) = ([], None, None)
 
-
         return {'start':s,
                 'length':l,
                 'filename_used': filename_used,
                 'filename_relative': filename_relative,
                 'filename_absolute': filename_absolute,
                 'filename_short': filename_short,
+                'is_dependency': is_dependency,
                 'lines' : lines,
                 'starting_column': starting_column,
                 'ending_column': ending_column

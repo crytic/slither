@@ -61,8 +61,11 @@ class Slither(Context):
         :param path:
         :return:
         """
-        with open(path, encoding='utf8', newline='') as f:
-            self.source_code[path] = f.read()
+        if path in self.crytic_compile.src_content:
+            self.source_code[path] = self.crytic_compile.src_content[path]
+        else:
+            with open(path, encoding='utf8', newline='') as f:
+                self.source_code[path] = f.read()
 
     # endregion
     ###################################################################################
@@ -181,10 +184,14 @@ class Slither(Context):
             A result is invalid if:
                 - All its source paths belong to the source path filtered
                 - Or a similar result was reported and saved during a previous run
+                - The --exclude-dependencies flag is set and results are only related to dependencies
         '''
         source_mapping_elements = [elem['source_mapping']['filename_absolute'] for elem in r['elements'] if 'source_mapping' in elem]
         if r['elements'] and all((any(path in src_mapping for path in self._paths_to_filter) for src_mapping in source_mapping_elements)):
             return False
+        if r['elements'] and self._exclude_dependencies:
+            return not all(element['source_mapping']['is_dependency'] for element in r['elements'])
+
         return not r['description'] in [pr['description'] for pr in self._previous_results]
 
     def load_previous_results(self):

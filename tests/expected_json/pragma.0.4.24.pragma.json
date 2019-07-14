@@ -19,6 +19,7 @@
               "filename_relative": "tests/pragma.0.4.23.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/pragma.0.4.23.sol",
               "filename_short": "tests/pragma.0.4.23.sol",
+              "is_dependency": false,
               "lines": [
                 1
               ],
@@ -44,6 +45,7 @@
               "filename_relative": "tests/pragma.0.4.24.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/pragma.0.4.24.sol",
               "filename_short": "tests/pragma.0.4.24.sol",
+              "is_dependency": false,
               "lines": [
                 1
               ],
