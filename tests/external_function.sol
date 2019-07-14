@@ -68,3 +68,15 @@ contract InternalCall {
     }
     
 }
+
+contract FunctionParameterWrite {
+  
+  function parameter_read_ok_for_external (uint i) public {
+    uint local = i;
+  }
+
+  function parameter_read_not_ok_for_external (uint i) public returns (uint) {
+    i += 1;
+    return (i);
+  }
+}

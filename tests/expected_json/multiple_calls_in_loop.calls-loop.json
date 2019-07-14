@@ -19,6 +19,7 @@
               "filename_relative": "tests/multiple_calls_in_loop.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/multiple_calls_in_loop.sol",
               "filename_short": "tests/multiple_calls_in_loop.sol",
+              "is_dependency": false,
               "lines": [
                 11
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/multiple_calls_in_loop.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/multiple_calls_in_loop.sol",
                   "filename_short": "tests/multiple_calls_in_loop.sol",
+                  "is_dependency": false,
                   "lines": [
                     9,
                     10,
@@ -57,6 +59,7 @@
                       "filename_relative": "tests/multiple_calls_in_loop.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/multiple_calls_in_loop.sol",
                       "filename_short": "tests/multiple_calls_in_loop.sol",
+                      "is_dependency": false,
                       "lines": [
                         1,
                         2,

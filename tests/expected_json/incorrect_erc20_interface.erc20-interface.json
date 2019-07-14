@@ -19,6 +19,7 @@
               "filename_relative": "tests/incorrect_erc20_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_short": "tests/incorrect_erc20_interface.sol",
+              "is_dependency": false,
               "lines": [
                 4
               ],
@@ -36,6 +37,7 @@
                   "filename_relative": "tests/incorrect_erc20_interface.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
                   "filename_short": "tests/incorrect_erc20_interface.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -71,6 +73,7 @@
               "filename_relative": "tests/incorrect_erc20_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_short": "tests/incorrect_erc20_interface.sol",
+              "is_dependency": false,
               "lines": [
                 5
               ],
@@ -88,6 +91,7 @@
                   "filename_relative": "tests/incorrect_erc20_interface.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
                   "filename_short": "tests/incorrect_erc20_interface.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -123,6 +127,7 @@
               "filename_relative": "tests/incorrect_erc20_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_short": "tests/incorrect_erc20_interface.sol",
+              "is_dependency": false,
               "lines": [
                 6
               ],
@@ -140,6 +145,7 @@
                   "filename_relative": "tests/incorrect_erc20_interface.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
                   "filename_short": "tests/incorrect_erc20_interface.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -175,6 +181,7 @@
               "filename_relative": "tests/incorrect_erc20_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_short": "tests/incorrect_erc20_interface.sol",
+              "is_dependency": false,
               "lines": [
                 7
               ],
@@ -192,6 +199,7 @@
                   "filename_relative": "tests/incorrect_erc20_interface.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
                   "filename_short": "tests/incorrect_erc20_interface.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -227,6 +235,7 @@
               "filename_relative": "tests/incorrect_erc20_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_short": "tests/incorrect_erc20_interface.sol",
+              "is_dependency": false,
               "lines": [
                 8
               ],
@@ -244,6 +253,7 @@
                   "filename_relative": "tests/incorrect_erc20_interface.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
                   "filename_short": "tests/incorrect_erc20_interface.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -279,6 +289,7 @@
               "filename_relative": "tests/incorrect_erc20_interface.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
               "filename_short": "tests/incorrect_erc20_interface.sol",
+              "is_dependency": false,
               "lines": [
                 9
               ],
@@ -296,6 +307,7 @@
                   "filename_relative": "tests/incorrect_erc20_interface.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
                   "filename_short": "tests/incorrect_erc20_interface.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,

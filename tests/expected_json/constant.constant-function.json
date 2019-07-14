@@ -19,6 +19,7 @@
               "filename_relative": "tests/constant.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
               "filename_short": "tests/constant.sol",
+              "is_dependency": false,
               "lines": [
                 5,
                 6,
@@ -38,6 +39,7 @@
                   "filename_relative": "tests/constant.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
                   "filename_short": "tests/constant.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,
@@ -82,6 +84,7 @@
               "filename_relative": "tests/constant.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
               "filename_short": "tests/constant.sol",
+              "is_dependency": false,
               "lines": [
                 3
               ],
@@ -99,6 +102,7 @@
                   "filename_relative": "tests/constant.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
                   "filename_short": "tests/constant.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,
@@ -153,6 +157,7 @@
               "filename_relative": "tests/constant.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
               "filename_short": "tests/constant.sol",
+              "is_dependency": false,
               "lines": [
                 9,
                 10,
@@ -172,6 +177,7 @@
                   "filename_relative": "tests/constant.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
                   "filename_short": "tests/constant.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,
@@ -216,6 +222,7 @@
               "filename_relative": "tests/constant.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
               "filename_short": "tests/constant.sol",
+              "is_dependency": false,
               "lines": [
                 3
               ],
@@ -233,6 +240,7 @@
                   "filename_relative": "tests/constant.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
                   "filename_short": "tests/constant.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,
@@ -287,6 +295,7 @@
               "filename_relative": "tests/constant.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
               "filename_short": "tests/constant.sol",
+              "is_dependency": false,
               "lines": [
                 22,
                 23,
@@ -306,6 +315,7 @@
                   "filename_relative": "tests/constant.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/constant.sol",
                   "filename_short": "tests/constant.sol",
+                  "is_dependency": false,
                   "lines": [
                     1,
                     2,

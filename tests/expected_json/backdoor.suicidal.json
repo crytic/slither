@@ -19,6 +19,7 @@
               "filename_relative": "tests/backdoor.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/backdoor.sol",
               "filename_short": "tests/backdoor.sol",
+              "is_dependency": false,
               "lines": [
                 4,
                 5,
@@ -38,6 +39,7 @@
                   "filename_relative": "tests/backdoor.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/backdoor.sol",
                   "filename_short": "tests/backdoor.sol",
+                  "is_dependency": false,
                   "lines": [
                     2,
                     3,

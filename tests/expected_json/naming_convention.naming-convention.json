@@ -19,6 +19,7 @@
               "filename_relative": "tests/naming_convention.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
               "filename_short": "tests/naming_convention.sol",
+              "is_dependency": false,
               "lines": [
                 3,
                 4,
@@ -93,6 +94,7 @@
               "filename_relative": "tests/naming_convention.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
               "filename_short": "tests/naming_convention.sol",
+              "is_dependency": false,
               "lines": [
                 14,
                 15,
@@ -112,6 +114,7 @@
                   "filename_relative": "tests/naming_convention.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                   "filename_short": "tests/naming_convention.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -188,6 +191,7 @@
               "filename_relative": "tests/naming_convention.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
               "filename_short": "tests/naming_convention.sol",
+              "is_dependency": false,
               "lines": [
                 23
               ],
@@ -205,6 +209,7 @@
                   "filename_relative": "tests/naming_convention.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                   "filename_short": "tests/naming_convention.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -282,6 +287,7 @@
               "filename_relative": "tests/naming_convention.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
               "filename_short": "tests/naming_convention.sol",
+              "is_dependency": false,
               "lines": [
                 30,
                 31,
@@ -302,6 +308,7 @@
                   "filename_relative": "tests/naming_convention.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                   "filename_short": "tests/naming_convention.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -379,6 +386,7 @@
               "filename_relative": "tests/naming_convention.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
               "filename_short": "tests/naming_convention.sol",
+              "is_dependency": false,
               "lines": [
                 35
               ],
@@ -396,6 +404,7 @@
                   "filename_relative": "tests/naming_convention.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                   "filename_short": "tests/naming_convention.sol",
+                  "is_dependency": false,
                   "lines": [
                     35,
                     36,
@@ -416,6 +425,7 @@
                       "filename_relative": "tests/naming_convention.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                       "filename_short": "tests/naming_convention.sol",
+                      "is_dependency": false,
                       "lines": [
                         3,
                         4,
@@ -495,6 +505,7 @@
               "filename_relative": "tests/naming_convention.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
               "filename_short": "tests/naming_convention.sol",
+              "is_dependency": false,
               "lines": [
                 9
               ],
@@ -512,6 +523,7 @@
                   "filename_relative": "tests/naming_convention.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                   "filename_short": "tests/naming_convention.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -588,6 +600,7 @@
               "filename_relative": "tests/naming_convention.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
               "filename_short": "tests/naming_convention.sol",
+              "is_dependency": false,
               "lines": [
                 11
               ],
@@ -605,6 +618,7 @@
                   "filename_relative": "tests/naming_convention.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                   "filename_short": "tests/naming_convention.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -681,6 +695,7 @@
               "filename_relative": "tests/naming_convention.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
               "filename_short": "tests/naming_convention.sol",
+              "is_dependency": false,
               "lines": [
                 6
               ],
@@ -698,6 +713,7 @@
                   "filename_relative": "tests/naming_convention.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                   "filename_short": "tests/naming_convention.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -774,6 +790,7 @@
               "filename_relative": "tests/naming_convention.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
               "filename_short": "tests/naming_convention.sol",
+              "is_dependency": false,
               "lines": [
                 41,
                 42,
@@ -793,6 +810,7 @@
                   "filename_relative": "tests/naming_convention.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                   "filename_short": "tests/naming_convention.sol",
+                  "is_dependency": false,
                   "lines": [
                     3,
                     4,
@@ -870,6 +888,7 @@
               "filename_relative": "tests/naming_convention.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
               "filename_short": "tests/naming_convention.sol",
+              "is_dependency": false,
               "lines": [
                 59
               ],
@@ -887,6 +906,7 @@
                   "filename_relative": "tests/naming_convention.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                   "filename_short": "tests/naming_convention.sol",
+                  "is_dependency": false,
                   "lines": [
                     59,
                     60
@@ -905,6 +925,7 @@
                       "filename_relative": "tests/naming_convention.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                       "filename_short": "tests/naming_convention.sol",
+                      "is_dependency": false,
                       "lines": [
                         54,
                         55,
@@ -953,6 +974,7 @@
               "filename_relative": "tests/naming_convention.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
               "filename_short": "tests/naming_convention.sol",
+              "is_dependency": false,
               "lines": [
                 56
               ],
@@ -970,6 +992,7 @@
                   "filename_relative": "tests/naming_convention.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                   "filename_short": "tests/naming_convention.sol",
+                  "is_dependency": false,
                   "lines": [
                     54,
                     55,
@@ -1015,6 +1038,7 @@
               "filename_relative": "tests/naming_convention.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
               "filename_short": "tests/naming_convention.sol",
+              "is_dependency": false,
               "lines": [
                 67
               ],
@@ -1032,6 +1056,7 @@
                   "filename_relative": "tests/naming_convention.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/naming_convention.sol",
                   "filename_short": "tests/naming_convention.sol",
+                  "is_dependency": false,
                   "lines": [
                     54,
                     55,
