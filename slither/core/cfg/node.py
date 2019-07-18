@@ -62,6 +62,10 @@ class NodeType:
     # Only modifier node
     PLACEHOLDER = 0x40
 
+    # Node not related to the CFG
+    # Use for state variable declaration, or modifier calls
+    STANDALONE = 0x50
+
 
 #    @staticmethod
     def str(t):

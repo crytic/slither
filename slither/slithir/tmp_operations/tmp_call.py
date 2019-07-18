@@ -1,14 +1,13 @@
-from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.core.declarations import Event, Contract, SolidityVariableComposed, SolidityFunction, Structure
 from slither.core.variables.variable import Variable
-from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction
-from slither.core.declarations.structure import Structure
-from slither.core.declarations.event import Event
+from slither.slithir.operations.lvalue import OperationWithLValue
 
 
 class TmpCall(OperationWithLValue):
 
     def __init__(self, called, nbr_arguments, result, type_call):
-        assert isinstance(called, (Variable,
+        assert isinstance(called, (Contract,
+                                   Variable,
                                    SolidityVariableComposed,
                                    SolidityFunction,
                                    Structure,
