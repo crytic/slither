@@ -98,9 +98,10 @@ class FunctionSolc(Function):
         # This is done to prevent collision during SSA translation
         # Use of while in case of collision
         # In the worst case, the name will be really long
-        while local_var.name in self._variables:
-            local_var.name += "_scope_{}".format(self._counter_scope_local_variables)
-            self._counter_scope_local_variables += 1
+        if local_var.name:
+            while local_var.name in self._variables:
+                local_var.name += "_scope_{}".format(self._counter_scope_local_variables)
+                self._counter_scope_local_variables += 1
         if not local_var.reference_id is None:
             self._variables_renamed[local_var.reference_id] = local_var
         self._variables[local_var.name] = local_var
