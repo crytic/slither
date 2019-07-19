@@ -122,7 +122,19 @@ class SourceMapping(Context):
                 }
 
     def set_offset(self, offset, slither):
-        if isinstance(offset, dict):
+        if offset is None:
+            self._source_mapping = {'start': 0,
+                                    'length': 0,
+                                    'filename_used': '',
+                                    'filename_relative': '',
+                                    'filename_absolute': '',
+                                    'filename_short': '',
+                                    'is_dependency': False,
+                                    'lines': 0,
+                                    'starting_column': 0,
+                                    'ending_column': 0
+                                    }
+        elif isinstance(offset, dict):
             self._source_mapping = offset
         else:
             self._source_mapping = self._convert_source_mapping(offset, slither)

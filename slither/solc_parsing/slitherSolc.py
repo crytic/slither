@@ -19,7 +19,7 @@ from .exceptions import ParsingNameReuse, ParsingContractNotFound
 class SlitherSolc(Slither):
 
     def __init__(self, filename):
-        super(SlitherSolc, self).__init__()
+        Slither.__init__(self)
         self._filename = filename
         self._contractsNotParsed = []
         self._contracts_by_id = {}
