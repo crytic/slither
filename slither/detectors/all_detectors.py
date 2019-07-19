@@ -36,5 +36,5 @@ from .source.rtlo import RightToLeftOverride
 from .statements.too_many_digits import TooManyDigits
 from .operations.unchecked_low_level_return_values import UncheckedLowLevel
 from .operations.unchecked_send_return_value import UncheckedSend
-#
+from .functions.function_id_collision import FunctionIDCollision
 #
