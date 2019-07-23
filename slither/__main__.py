@@ -22,16 +22,16 @@ from slither.slither import Slither
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
-                                        get_detector_types_json, output_printers,
-                                        output_to_markdown, output_wiki)
+                                        output_detectors_json, output_printers,
+                                        output_to_markdown, output_wiki, output_printers_json)
 from crytic_compile import compile_all, is_supported
 from slither.exceptions import SlitherException
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
-JSON_OUTPUT_TYPES = ["compilations", "console", "detectors", "detector-types"]
-DEFAULT_JSON_OUTPUT_TYPES = ["console", "detectors", "detector-types"]
+JSON_OUTPUT_TYPES = ["compilations", "console", "detectors", "list-detectors", "list-printers"]
+DEFAULT_JSON_OUTPUT_TYPES = ["console", "detectors", "list-detectors", "list-printers"]
 
 ###################################################################################
 ###################################################################################
@@ -480,7 +480,7 @@ class ListDetectors(argparse.Action):
 class ListDetectorsJson(argparse.Action):
     def __call__(self, parser, *args, **kwargs):
         detectors, _ = get_detectors_and_printers()
-        detector_types_json = get_detector_types_json(detectors)
+        detector_types_json = output_detectors_json(detectors)
         print(json.dumps(detector_types_json))
         parser.exit()
 
@@ -628,9 +628,14 @@ def main_impl(all_detector_classes, all_printer_classes):
                 json_results['detectors'] = results
 
             # Add our detector types to JSON
-            if 'detector-types' in args.json_types:
+            if 'list-detectors' in args.json_types:
                 detectors, _ = get_detectors_and_printers()
-                json_results['detector-types'] = get_detector_types_json(detectors)
+                json_results['list-detectors'] = output_detectors_json(detectors)
+
+            # Add our detector types to JSON
+            if 'list-printers' in args.json_types:
+                _, printers = get_detectors_and_printers()
+                json_results['list-printers'] = output_printers_json(printers)
 
         # Output our results to markdown if we wish to compile a checklist.
         if args.checklist:
