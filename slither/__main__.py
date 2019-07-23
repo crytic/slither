@@ -22,16 +22,14 @@ from slither.slither import Slither
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
-                                        output_detectors_json, output_printers,
-                                        output_to_markdown, output_wiki, output_printers_json)
+                                        output_detectors_json, output_printers, output_printers_json,
+                                        output_to_markdown, output_wiki, defaults_flag_in_config,
+                                        read_config_file, JSON_OUTPUT_TYPES)
 from crytic_compile import compile_all, is_supported
 from slither.exceptions import SlitherException
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
-
-JSON_OUTPUT_TYPES = ["compilations", "console", "detectors", "list-detectors", "list-printers"]
-DEFAULT_JSON_OUTPUT_TYPES = ["console", "detectors", "list-detectors", "list-printers"]
 
 ###################################################################################
 ###################################################################################
@@ -50,10 +48,8 @@ def process_single(target, args, detector_classes, printer_classes):
     ast = '--ast-compact-json'
     if args.legacy_ast:
         ast = '--ast-json'
-    args.filter_paths = parse_filter_paths(args)
     slither = Slither(target,
                       ast_format=ast,
-                      solc_arguments=args.solc_args,
                       **vars(args))
 
     return _process(slither, detector_classes, printer_classes)
@@ -206,6 +202,10 @@ def choose_detectors(args, all_detector_classes):
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
+    if args.exclude_optimization:
+        detectors_to_run = [d for d in detectors_to_run if
+                            d.IMPACT != DetectorClassification.OPTIMIZATION]
+
     if args.exclude_informational:
         detectors_to_run = [d for d in detectors_to_run if
                             d.IMPACT != DetectorClassification.INFORMATIONAL]
@@ -256,33 +256,6 @@ def parse_filter_paths(args):
     if args.filter_paths:
         return args.filter_paths.split(',')
     return []
-
-# Those are the flags shared by the command line and the config file
-defaults_flag_in_config = {
-    'detectors_to_run': 'all',
-    'printers_to_run': None,
-    'detectors_to_exclude': None,
-    'exclude_dependencies': False,
-    'exclude_informational': False,
-    'exclude_low': False,
-    'exclude_medium': False,
-    'exclude_high': False,
-    'solc': 'solc',
-    'solc_args': None,
-    'disable_solc_warnings': False,
-    'json': None,
-    'json-types': ','.join(DEFAULT_JSON_OUTPUT_TYPES),
-    'truffle_version': None,
-    'disable_color': False,
-    'filter_paths': None,
-    'truffle_ignore_compile': False,
-    'truffle_build_directory': 'build/contracts',
-    'embark_ignore_compile': False,
-    'embark_overwrite_config': False,
-    # debug command
-    'legacy_ast': False,
-    'ignore_return_value': False
-    }
 
 def parse_args(detector_classes, printer_classes):
     parser = argparse.ArgumentParser(description='Slither. For usage information, see https://github.com/crytic/slither/wiki/Usage',
@@ -340,6 +313,11 @@ def parse_args(detector_classes, printer_classes):
                                 help='Exclude results that are only related to dependencies',
                                 action='store_true',
                                 default=defaults_flag_in_config['exclude_dependencies'])
+
+    group_detector.add_argument('--exclude-optimization',
+                                help='Exclude optimization analyses',
+                                action='store_true',
+                                default=defaults_flag_in_config['exclude_optimization'])
 
     group_detector.add_argument('--exclude-informational',
                                 help='Exclude informational impact analyses',
@@ -449,19 +427,9 @@ def parse_args(detector_classes, printer_classes):
         sys.exit(1)
 
     args = parser.parse_args()
+    read_config_file(args)
 
-    if os.path.isfile(args.config_file):
-        try:
-            with open(args.config_file) as f:
-                config = json.load(f)
-                for key, elem in config.items():
-                    if key not in defaults_flag_in_config:
-                        logger.info(yellow('{} has an unknown key: {} : {}'.format(args.config_file, key, elem)))
-                        continue
-                    if getattr(args, key) == defaults_flag_in_config[key]:
-                        setattr(args, key, elem)
-        except json.decoder.JSONDecodeError as e:
-            logger.error(red('Impossible to read {}, please check the file {}'.format(args.config_file, e)))
+    args.filter_paths = parse_filter_paths(args)
 
     # Verify our json-type output is valid
     args.json_types = set(args.json_types.split(','))
@@ -541,6 +509,8 @@ def main_impl(all_detector_classes, all_printer_classes):
     :param all_detector_classes: A list of all detectors that can be included/excluded.
     :param all_printer_classes: A list of all printers that can be included.
     """
+    # Set logger of Slither to info, to catch warnings related to the arg parsing
+    logger.setLevel(logging.INFO)
     args = parse_args(all_detector_classes, all_printer_classes)
 
     # Set colorization option

@@ -4,16 +4,10 @@ import logging
 
 from slither.core.cfg.node import NodeType, link_nodes
 from slither.core.declarations.contract import Contract
-from slither.core.declarations.function import Function
-from slither.core.dominators.utils import (compute_dominance_frontier,
-                                           compute_dominators)
+from slither.core.declarations.function import Function, ModifierStatements, FunctionType
+
 from slither.core.expressions import AssignmentOperation
-from slither.core.variables.state_variable import StateVariable
-from slither.slithir.operations import (InternalCall, OperationWithLValue, Phi,
-                                        PhiCallback)
-from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
-from slither.slithir.variables import (Constant, ReferenceVariable,
-                                       StateIRVariable)
+
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.expressions.expression_parsing import \
     parse_expression
@@ -23,7 +17,6 @@ from slither.solc_parsing.variables.local_variable_init_from_tuple import \
 from slither.solc_parsing.variables.variable_declaration import \
     MultipleVariablesDeclaration
 from slither.utils.expression_manipulations import SplitTernaryExpression
-from slither.utils.utils import unroll
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
 from slither.solc_parsing.exceptions import ParsingError
@@ -105,9 +98,10 @@ class FunctionSolc(Function):
         # This is done to prevent collision during SSA translation
         # Use of while in case of collision
         # In the worst case, the name will be really long
-        while local_var.name in self._variables:
-            local_var.name += "_scope_{}".format(self._counter_scope_local_variables)
-            self._counter_scope_local_variables += 1
+        if local_var.name:
+            while local_var.name in self._variables:
+                local_var.name += "_scope_{}".format(self._counter_scope_local_variables)
+                self._counter_scope_local_variables += 1
         if not local_var.reference_id is None:
             self._variables_renamed[local_var.reference_id] = local_var
         self._variables[local_var.name] = local_var
@@ -139,14 +133,20 @@ class FunctionSolc(Function):
         if 'constant' in attributes:
             self._view = attributes['constant']
 
-        self._is_constructor = False
+        if self._name == '':
+            self._function_type = FunctionType.FALLBACK
+        else:
+            self._function_type = FunctionType.NORMAL
 
-        if 'isConstructor' in attributes:
-            self._is_constructor = attributes['isConstructor']
+        if self._name == self.contract_declarer.name:
+            self._function_type = FunctionType.CONSTRUCTOR
+
+        if 'isConstructor' in attributes and attributes['isConstructor']:
+            self._function_type = FunctionType.CONSTRUCTOR
 
         if 'kind' in attributes:
             if attributes['kind'] == 'constructor':
-                self._is_constructor = True
+                self._function_type = FunctionType.CONSTRUCTOR
 
         if 'visibility' in attributes:
             self._visibility = attributes['visibility']
@@ -219,6 +219,12 @@ class FunctionSolc(Function):
 
         for node in self.nodes:
             node.analyze_expressions(self)
+
+        for modifier_statement in self.modifiers_statements:
+            modifier_statement.node.analyze_expressions(self)
+
+        for modifier_statement in self.explicit_base_constructor_calls_statements:
+            modifier_statement.node.analyze_expressions(self)
 
         self._filter_ternary()
         self._remove_alone_endif()
@@ -897,9 +903,15 @@ class FunctionSolc(Function):
         self._expression_modifiers.append(m)
         for m in ExportValues(m).result():
             if isinstance(m, Function):
-                self._modifiers.append(m)
+                node = self._new_node(NodeType.STANDALONE, modifier['src'])
+                node.add_unparsed_expression(modifier)
+                self._modifiers.append(ModifierStatements(modifier=m,
+                                                          node=node))
             elif isinstance(m, Contract):
-                self._explicit_base_constructor_calls.append(m)
+                node = self._new_node(NodeType.STANDALONE, modifier['src'])
+                node.add_unparsed_expression(modifier)
+                self._explicit_base_constructor_calls.append(ModifierStatements(modifier=m,
+                                                                                node=node))
 
     # endregion
     ###################################################################################
@@ -1026,113 +1038,5 @@ class FunctionSolc(Function):
 
 
     # endregion
-    ###################################################################################
-    ###################################################################################
-    # region SlithIr and SSA
-    ###################################################################################
-    ###################################################################################
 
-    def get_last_ssa_state_variables_instances(self):
-        if not self.is_implemented:
-            return dict()
-
-        # node, values 
-        to_explore = [(self._entry_point, dict())]
-        # node -> values
-        explored = dict()
-        # name -> instances
-        ret = dict()
-
-        while to_explore:
-            node, values = to_explore[0]
-            to_explore = to_explore[1::]
-
-            if node.type != NodeType.ENTRYPOINT:
-                for ir_ssa in node.irs_ssa:
-                    if isinstance(ir_ssa, OperationWithLValue):
-                        lvalue = ir_ssa.lvalue
-                        if isinstance(lvalue, ReferenceVariable):
-                            lvalue = lvalue.points_to_origin
-                        if isinstance(lvalue, StateVariable):
-                            values[lvalue.canonical_name] = {lvalue}
-
-            # Check for fixpoint
-            if node in explored:
-                if values == explored[node]:
-                    continue
-                for k, instances in values.items():
-                    if not k in explored[node]:
-                        explored[node][k] = set()
-                    explored[node][k] |= instances
-                values = explored[node]
-            else:
-                explored[node] = values
-
-            # Return condition
-            if not node.sons and node.type != NodeType.THROW:
-                for name, instances in values.items():
-                    if name not in ret:
-                        ret[name] = set()
-                    ret[name] |= instances
-
-            for son in node.sons:
-                to_explore.append((son, dict(values)))
-
-        return ret
-
-    @staticmethod
-    def _unchange_phi(ir):
-        if not isinstance(ir, (Phi, PhiCallback)) or len(ir.rvalues) > 1:
-            return False
-        if not ir.rvalues:
-            return True
-        return ir.rvalues[0] == ir.lvalue
-
-    def fix_phi(self, last_state_variables_instances, initial_state_variables_instances):
-        for node in self.nodes:
-            for ir in node.irs_ssa:
-                if node == self.entry_point:
-                    if isinstance(ir.lvalue, StateIRVariable):
-                        additional = [initial_state_variables_instances[ir.lvalue.canonical_name]]
-                        additional += last_state_variables_instances[ir.lvalue.canonical_name]
-                        ir.rvalues = list(set(additional + ir.rvalues))
-                    # function parameter
-                    else:
-                        # find index of the parameter
-                        idx = self.parameters.index(ir.lvalue.non_ssa_version)
-                        # find non ssa version of that index
-                        additional = [n.ir.arguments[idx] for n in self.reachable_from_nodes]
-                        additional = unroll(additional)
-                        additional = [a for a in additional if not isinstance(a, Constant)]
-                        ir.rvalues = list(set(additional + ir.rvalues))
-                if isinstance(ir, PhiCallback):
-                    callee_ir = ir.callee_ir
-                    if isinstance(callee_ir, InternalCall):
-                        last_ssa = callee_ir.function.get_last_ssa_state_variables_instances()
-                        if ir.lvalue.canonical_name in last_ssa:
-                            ir.rvalues = list(last_ssa[ir.lvalue.canonical_name])
-                        else:
-                            ir.rvalues = [ir.lvalue]
-                    else:
-                        additional = last_state_variables_instances[ir.lvalue.canonical_name]
-                        ir.rvalues = list(set(additional + ir.rvalues))
-
-            node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
-
-    def generate_slithir_and_analyze(self):
-        for node in self.nodes:
-            node.slithir_generation()
-        self._analyze_read_write()
-        self._analyze_calls()
-
-    def generate_slithir_ssa(self, all_ssa_state_variables_instances):
-        compute_dominators(self.nodes)
-        compute_dominance_frontier(self.nodes)
-        transform_slithir_vars_to_ssa(self)
-        add_ssa_ir(self, all_ssa_state_variables_instances)
-
-    def update_read_write_using_ssa(self):
-        for node in self.nodes:
-            node.update_read_write_using_ssa()
-        self._analyze_read_write()
 
