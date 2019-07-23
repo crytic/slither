@@ -10,7 +10,7 @@ from .colors import yellow, red
 
 logger = logging.getLogger("Slither")
 
-DEFAULT_JSON_OUTPUT_TYPES = ["console", "detectors", "list-detectors", "list-printers"]
+DEFAULT_JSON_OUTPUT_TYPES = ["detectors"]
 JSON_OUTPUT_TYPES = ["compilations", "console", "detectors", "list-detectors", "list-printers"]
 
 
