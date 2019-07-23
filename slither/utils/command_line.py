@@ -156,7 +156,7 @@ def output_detectors(detector_classes):
     print(table)
 
 
-def get_detector_types_json(detector_classes):
+def output_detectors_json(detector_classes):
     detectors_list = []
     for detector in detector_classes:
         argument = detector.ARGUMENT
@@ -213,3 +213,25 @@ def output_printers(printer_classes):
         table.add_row([idx, argument, help_info])
         idx = idx + 1
     print(table)
+
+
+def output_printers_json(printer_classes):
+    printers_list = []
+    for printer in printer_classes:
+        argument = printer.ARGUMENT
+        help_info = printer.HELP
+
+        printers_list.append((argument,
+                              help_info))
+
+    # Sort by name
+    printers_list = sorted(printers_list, key=lambda element: (element[0]))
+    idx = 1
+    table = []
+    for (argument, help_info) in printers_list:
+        table.append({'index': idx,
+                      'check': argument,
+                      'title': help_info})
+        idx = idx + 1
+    return table
+
