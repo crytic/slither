@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-# TODO: temporary until the next crytic-compile release
-git clone https://github.com/crytic/crytic-compile
-cd crytic-compile
-git checkout dev
-python setup.py install
-cd ..
-
 python setup.py install
 # Used by travis_test.sh
 pip install deepdiff
