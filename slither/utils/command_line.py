@@ -10,6 +10,10 @@ from .colors import yellow, red
 
 logger = logging.getLogger("Slither")
 
+DEFAULT_JSON_OUTPUT_TYPES = ["detectors"]
+JSON_OUTPUT_TYPES = ["compilations", "console", "detectors", "list-detectors", "list-printers"]
+
+
 # Those are the flags shared by the command line and the config file
 defaults_flag_in_config = {
     'detectors_to_run': 'all',
@@ -22,6 +26,7 @@ defaults_flag_in_config = {
     'exclude_medium': False,
     'exclude_high': False,
     'json': None,
+    'json-types': ','.join(DEFAULT_JSON_OUTPUT_TYPES),
     'disable_color': False,
     'filter_paths': None,
     # debug command
@@ -196,6 +201,7 @@ def output_detectors(detector_classes):
         idx = idx + 1
     print(table)
 
+
 def output_detectors_json(detector_classes):
     detectors_list = []
     for detector in detector_classes:
@@ -234,7 +240,7 @@ def output_detectors_json(detector_classes):
                       'exploit_scenario':exploit,
                       'recommendation':recommendation})
         idx = idx + 1
-    print(json.dumps(table))
+    return table
 
 def output_printers(printer_classes):
     printers_list = []
@@ -253,3 +259,25 @@ def output_printers(printer_classes):
         table.add_row([idx, argument, help_info])
         idx = idx + 1
     print(table)
+
+
+def output_printers_json(printer_classes):
+    printers_list = []
+    for printer in printer_classes:
+        argument = printer.ARGUMENT
+        help_info = printer.HELP
+
+        printers_list.append((argument,
+                              help_info))
+
+    # Sort by name
+    printers_list = sorted(printers_list, key=lambda element: (element[0]))
+    idx = 1
+    table = []
+    for (argument, help_info) in printers_list:
+        table.append({'index': idx,
+                      'check': argument,
+                      'title': help_info})
+        idx = idx + 1
+    return table
+
