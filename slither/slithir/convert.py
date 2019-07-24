@@ -623,8 +623,6 @@ def _convert_right(left_type, right_type):
         left_size = int(left_type.type[len('uint'):])
         right_size = int(right_type.type[len('uint'):])
 
-        print(left_size)
-        print(right_size)
         return left_size > right_size
 
     elif left_type.type.startswith('byte'):
