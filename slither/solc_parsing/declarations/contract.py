@@ -373,7 +373,7 @@ class ContractSolc04(Contract):
 
     def _create_node(self, func, counter, variable):
         # Function uses to create node for state variable declaration statements
-        node = Node(NodeType.STANDALONE, counter)
+        node = Node(NodeType.OTHER_ENTRYPOINT, counter)
         node.set_offset(variable.source_mapping, self.slither)
         node.set_function(func)
         func.add_node(node)
