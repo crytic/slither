@@ -21,7 +21,7 @@ from slither.slithir.operations import (Assignment, Balance, Binary,
                                         NewElementaryType, NewStructure,
                                         OperationWithLValue, Push, Return,
                                         Send, SolidityCall, Transfer,
-                                        TypeConversion, Unary, Unpack)
+                                        TypeConversion, Unary, Unpack, Nop)
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -587,6 +587,9 @@ def extract_tmp_call(ins, contract):
         return EventCall(ins.called.name)
 
     if isinstance(ins.called, Contract):
+        # Called a base constructor, where there is no constructor
+        if ins.called.constructor is None:
+            return Nop()
         internalcall = InternalCall(ins.called.constructor, ins.nbr_arguments, ins.lvalue,
                                     ins.type_call)
         internalcall.call_id = ins.call_id

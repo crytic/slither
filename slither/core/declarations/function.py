@@ -22,7 +22,33 @@ logger = logging.getLogger("Function")
 
 ReacheableNode = namedtuple('ReacheableNode', ['node', 'ir'])
 
-ModifierStatements = namedtuple('Modifier', ['modifier', 'node'])
+class ModifierStatements:
+
+    def __init__(self, modifier, entry_point, nodes):
+        self._modifier = modifier
+        self._entry_point = entry_point
+        self._nodes = nodes
+
+
+    @property
+    def modifier(self):
+        return self._modifier
+
+    @property
+    def entry_point(self):
+        return self._entry_point
+
+    @entry_point.setter
+    def entry_point(self, entry_point):
+        self._entry_point = entry_point
+
+    @property
+    def nodes(self):
+        return self._nodes
+
+    @nodes.setter
+    def nodes(self, nodes):
+        self._nodes = nodes
 
 class FunctionType(Enum):
     NORMAL = 0
@@ -403,7 +429,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
         """
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
-        return [c for c in self._explicit_base_constructor_calls if c.modifier.constructors_declared]
+        return list(self._explicit_base_constructor_calls)
 
 
     # endregion
@@ -1266,10 +1292,12 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             node.slithir_generation()
 
         for modifier_statement in self.modifiers_statements:
-            modifier_statement.node.slithir_generation()
+            for node in modifier_statement.nodes:
+                node.slithir_generation()
 
         for modifier_statement in self.explicit_base_constructor_calls_statements:
-            modifier_statement.node.slithir_generation()
+            for node in modifier_statement.nodes:
+                node.slithir_generation()
 
         self._analyze_read_write()
         self._analyze_calls()
