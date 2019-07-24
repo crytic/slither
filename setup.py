@@ -8,7 +8,9 @@ setup(
     version='0.6.4',
     packages=find_packages(),
     python_requires='>=3.6',
-    install_requires=['prettytable>=0.7.2', 'pysha3>=1.0.2', 'crytic-compile>=0.1.1'],
+    install_requires=['prettytable>=0.7.2',
+                      'pysha3>=1.0.2',
+                      'git+https://github.com/crytic/crytic-compile.git'],
     license='AGPL-3.0',
     long_description=open('README.md').read(),
     entry_points={
