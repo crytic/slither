@@ -227,34 +227,34 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.PLUSPLUS_PRE]:
-            operation = Binary(value, value, Constant("1"), BinaryType.ADDITION)
+            operation = Binary(value, value, Constant("1", value.type), BinaryType.ADDITION)
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.MINUSMINUS_PRE]:
-            operation = Binary(value, value, Constant("1"), BinaryType.SUBTRACTION)
+            operation = Binary(value, value, Constant("1", value.type), BinaryType.SUBTRACTION)
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.PLUSPLUS_POST]:
             lvalue = TemporaryVariable(self._node)
             operation = Assignment(lvalue, value, value.type)
             self._result.append(operation)
-            operation = Binary(value, value, Constant("1"), BinaryType.ADDITION)
+            operation = Binary(value, value, Constant("1", value.type), BinaryType.ADDITION)
             self._result.append(operation)
             set_val(expression, lvalue)
         elif expression.type in [UnaryOperationType.MINUSMINUS_POST]:
             lvalue = TemporaryVariable(self._node)
             operation = Assignment(lvalue, value, value.type)
             self._result.append(operation)
-            operation = Binary(value, value, Constant("1"), BinaryType.SUBTRACTION)
+            operation = Binary(value, value, Constant("1", value.type), BinaryType.SUBTRACTION)
             self._result.append(operation)
             set_val(expression, lvalue)
         elif expression.type in [UnaryOperationType.PLUS_PRE]:
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.MINUS_PRE]:
             lvalue = TemporaryVariable(self._node)
-            operation = Binary(lvalue, Constant("0"), value, BinaryType.SUBTRACTION)
+            operation = Binary(lvalue, Constant("0", value.type), value, BinaryType.SUBTRACTION)
             self._result.append(operation)
             set_val(expression, lvalue)
         else:
-            raise Exception('Unary operation to IR not supported {}'.format(expression))
+            raise SlithIRError('Unary operation to IR not supported {}'.format(expression))
 

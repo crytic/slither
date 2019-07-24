@@ -62,6 +62,10 @@ class NodeType:
     # Only modifier node
     PLACEHOLDER = 0x40
 
+    # Node not related to the CFG
+    # Use for state variable declaration, or modifier calls
+    OTHER_ENTRYPOINT = 0x50
+
 
 #    @staticmethod
     def str(t):
@@ -107,6 +111,23 @@ def link_nodes(n1, n2):
     n1.add_son(n2)
     n2.add_father(n1)
 
+def recheable(node):
+    '''
+    Return the set of nodes reacheable from the node
+    :param node:
+    :return: set(Node)
+    '''
+    nodes = node.sons
+    visited = set()
+    while nodes:
+        next = nodes[0]
+        nodes = nodes[1:]
+        if not next in visited:
+            visited.add(next)
+            for son in next.sons:
+                if not son in visited:
+                    nodes.append(son)
+    return visited
 
 
 # endregion

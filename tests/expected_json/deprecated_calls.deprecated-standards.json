@@ -692,6 +692,125 @@
             }
           }
         ]
+      },
+      {
+        "check": "deprecated-standards",
+        "impact": "Informational",
+        "confidence": "High",
+        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#2:\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
+        "elements": [
+          {
+            "type": "node",
+            "name": "globalBlockHash = block.blockhash(0)",
+            "source_mapping": {
+              "start": 48,
+              "length": 44,
+              "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_relative": "tests/deprecated_calls.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+              "filename_short": "tests/deprecated_calls.sol",
+              "is_dependency": false,
+              "lines": [
+                2
+              ],
+              "starting_column": 5,
+              "ending_column": 49
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "slitherConstructorVariables",
+                "source_mapping": {
+                  "start": 0,
+                  "length": 906,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_relative": "tests/deprecated_calls.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                  "filename_short": "tests/deprecated_calls.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27
+                  ],
+                  "starting_column": 1,
+                  "ending_column": null
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "ContractWithDeprecatedReferences",
+                    "source_mapping": {
+                      "start": 0,
+                      "length": 906,
+                      "filename_used": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_relative": "tests/deprecated_calls.sol",
+                      "filename_absolute": "/home/travis/build/crytic/slither/tests/deprecated_calls.sol",
+                      "filename_short": "tests/deprecated_calls.sol",
+                      "is_dependency": false,
+                      "lines": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27
+                      ],
+                      "starting_column": 1,
+                      "ending_column": null
+                    }
+                  },
+                  "signature": "slitherConstructorVariables()"
+                }
+              }
+            }
+          }
+        ]
       }
     ]
   }
