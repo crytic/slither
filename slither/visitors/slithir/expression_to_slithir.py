@@ -256,5 +256,5 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
             set_val(expression, lvalue)
         else:
-            raise Exception('Unary operation to IR not supported {}'.format(expression))
+            raise SlithIRError('Unary operation to IR not supported {}'.format(expression))
 
