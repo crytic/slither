@@ -373,10 +373,14 @@ class SlitherSolc(Slither):
         contract.analyze_content_modifiers()
         contract.analyze_content_functions()
 
+
+
         contract.set_is_analyzed(True)
 
     def _convert_to_slithir(self):
+
         for contract in self.contracts:
+            contract.add_constructor_variables()
             contract.convert_expression_to_slithir()
         self._propagate_function_calls()
         for contract in self.contracts:

@@ -1,8 +1,54 @@
+import os
+import logging
 import json
 from collections import defaultdict
 from prettytable import PrettyTable
+from crytic_compile.cryticparser.defaults import defaults_flag_in_config as defaults_flag_in_config_crytic_compile
 
 from slither.detectors.abstract_detector import classification_txt
+from .colors import yellow, red
+
+logger = logging.getLogger("Slither")
+
+DEFAULT_JSON_OUTPUT_TYPES = ["detectors"]
+JSON_OUTPUT_TYPES = ["compilations", "console", "detectors", "list-detectors", "list-printers"]
+
+
+# Those are the flags shared by the command line and the config file
+defaults_flag_in_config = {
+    'detectors_to_run': 'all',
+    'printers_to_run': None,
+    'detectors_to_exclude': None,
+    'exclude_dependencies': False,
+    'exclude_informational': False,
+    'exclude_optimization': False,
+    'exclude_low': False,
+    'exclude_medium': False,
+    'exclude_high': False,
+    'json': None,
+    'json-types': ','.join(DEFAULT_JSON_OUTPUT_TYPES),
+    'disable_color': False,
+    'filter_paths': None,
+    # debug command
+    'legacy_ast': False,
+    'ignore_return_value': False,
+    **defaults_flag_in_config_crytic_compile
+    }
+
+def read_config_file(args):
+    if os.path.isfile(args.config_file):
+        try:
+            with open(args.config_file) as f:
+                config = json.load(f)
+                for key, elem in config.items():
+                    if key not in defaults_flag_in_config:
+                        logger.info(yellow('{} has an unknown key: {} : {}'.format(args.config_file, key, elem)))
+                        continue
+                    if getattr(args, key) == defaults_flag_in_config[key]:
+                        setattr(args, key, elem)
+        except json.decoder.JSONDecodeError as e:
+            logger.error(red('Impossible to read {}, please check the file {}'.format(args.config_file, e)))
+
 
 def output_to_markdown(detector_classes, printer_classes, filter_wiki):
 
@@ -155,6 +201,7 @@ def output_detectors(detector_classes):
         idx = idx + 1
     print(table)
 
+
 def output_detectors_json(detector_classes):
     detectors_list = []
     for detector in detector_classes:
@@ -193,7 +240,7 @@ def output_detectors_json(detector_classes):
                       'exploit_scenario':exploit,
                       'recommendation':recommendation})
         idx = idx + 1
-    print(json.dumps(table))
+    return table
 
 def output_printers(printer_classes):
     printers_list = []
@@ -212,3 +259,25 @@ def output_printers(printer_classes):
         table.add_row([idx, argument, help_info])
         idx = idx + 1
     print(table)
+
+
+def output_printers_json(printer_classes):
+    printers_list = []
+    for printer in printer_classes:
+        argument = printer.ARGUMENT
+        help_info = printer.HELP
+
+        printers_list.append((argument,
+                              help_info))
+
+    # Sort by name
+    printers_list = sorted(printers_list, key=lambda element: (element[0]))
+    idx = 1
+    table = []
+    for (argument, help_info) in printers_list:
+        table.append({'index': idx,
+                      'check': argument,
+                      'title': help_info})
+        idx = idx + 1
+    return table
+
