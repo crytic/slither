@@ -598,6 +598,97 @@ def extract_tmp_call(ins, contract):
 
     raise Exception('Not extracted {} {}'.format(type(ins.called), ins))
 
+
+# endregion
+###################################################################################
+###################################################################################
+# region Implicit type conversion
+###################################################################################
+###################################################################################
+
+def _convert_right(left_type, right_type):
+    assert isinstance(left_type, ElementaryType) and isinstance(right_type, ElementaryType)
+
+    if left_type.type.startswith('int'):
+        assert right_type.type.startswith('int')
+
+        left_size = int(left_type.type[len('int'):])
+        right_size = int(right_type.type[len('int'):])
+
+        return left_size > right_size
+
+    elif left_type.type.startswith('uint'):
+        assert right_type.type.startswith('uint')
+
+        left_size = int(left_type.type[len('uint'):])
+        right_size = int(right_type.type[len('uint'):])
+
+        print(left_size)
+        print(right_size)
+        return left_size > right_size
+
+    elif left_type.type.startswith('byte'):
+        assert right_type.type.startswith('byte')
+
+        left_size = int(left_type.type[len('byte'):])
+        right_size = int(right_type.type[len('byte'):])
+
+        return left_size > right_size
+
+    raise SlithIRError(f'Implicit conversion between {left_type.type} and {right_type.type} not yet supported')
+
+def implicit_type_conversions(irs):
+    new_irs = []
+    for ir in irs:
+        no_change = True
+        if isinstance(ir, Binary):
+            if ir.variable_left.type != ir.variable_right.type:
+
+                if _convert_right(ir.variable_left.type, ir.variable_right.type):
+                    variable_to_convert = ir.variable_right
+                    type_to_convert = ir.variable_left.type
+                    val = TemporaryVariable(ir.node)
+                    val.set_type(type_to_convert)
+
+                    left = val
+                    right = ir.variable_left
+                else:
+                    variable_to_convert = ir.variable_left
+                    type_to_convert = ir.variable_right.type
+                    val = TemporaryVariable(ir.node)
+                    val.set_type(type_to_convert)
+
+                    left = val
+                    right = ir.variable_left
+
+                operation = TypeConversion(val, variable_to_convert, type_to_convert)
+                new_irs.append(operation)
+                operation = Binary(ir.lvalue, left, right, ir.type)
+                new_irs.append(operation)
+                no_change = False
+
+        if isinstance(ir, Index):
+            # Is either a MappingType or an ArrayType
+            left_type = ir.variable_left.type.type_from if isinstance(ir.variable_left.type, MappingType)\
+                else ir.variable_left.type.type
+            if left_type != ir.variable_right.type:
+                variable_to_convert = ir.variable_right
+                type_to_convert = left_type
+                val = TemporaryVariable(ir.node)
+                val.set_type(type_to_convert)
+
+                operation = TypeConversion(val, variable_to_convert, type_to_convert)
+                new_irs.append(operation)
+                operation = Index(ir.lvalue, ir.variable_left, val, left_type)
+                new_irs.append(operation)
+                no_change = False
+
+        if no_change:
+            new_irs.append(ir)
+
+    return new_irs
+
+
 # endregion
 ###################################################################################
 ###################################################################################
@@ -1010,6 +1101,7 @@ def apply_ir_heuristics(irs, node):
     irs = remove_unused(irs)
     find_references_origin(irs)
     convert_constant_types(irs)
+    irs = implicit_type_conversions(irs)
 
 
     return irs

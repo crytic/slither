@@ -82,7 +82,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 assert len(left) == len(right)
                 for idx in range(len(left)):
                     if not left[idx] is None:
-                        operation = convert_assignment(left[idx], right[idx], expression.type, expression.expression_return_type)
+                        operation = convert_assignment(left[idx],
+                                                       right,
+                                                       expression.type,
+                                                       expression.expression_return_type)
                         self._result.append(operation)
                 set_val(expression, None)
             else:
@@ -100,7 +103,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
                 set_val(expression, left)
             else:
-                operation = convert_assignment(left, right, expression.type, expression.expression_return_type)
+                operation = convert_assignment(left,
+                                               right,
+                                               expression.type,
+                                               expression.expression_return_type)
                 self._result.append(operation)
                 # Return left to handle
                 # a = b = 1; 
