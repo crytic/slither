@@ -69,7 +69,7 @@ test_slither(){
 }
 
 
-test_slither tests/void-cst.json "void-cst"
+test_slither tests/void-cst.sol "void-cst"
 test_slither tests/solc_version_incorrect_05.ast.json "solc-version"
 test_slither tests/unchecked_lowlevel-0.5.1.sol "unchecked-lowlevel"
 test_slither tests/unchecked_send-0.5.1.sol "unchecked-send"
