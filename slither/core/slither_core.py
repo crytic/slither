@@ -61,8 +61,11 @@ class Slither(Context):
         :param path:
         :return:
         """
-        with open(path, encoding='utf8', newline='') as f:
-            self.source_code[path] = f.read()
+        if path in self.crytic_compile.src_content:
+            self.source_code[path] = self.crytic_compile.src_content[path]
+        else:
+            with open(path, encoding='utf8', newline='') as f:
+                self.source_code[path] = f.read()
 
     # endregion
     ###################################################################################
