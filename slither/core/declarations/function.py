@@ -143,7 +143,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
             str: function name
         """
-        if self._function_type == FunctionType.CONSTRUCTOR:
+        if self._name == '' and self._function_type == FunctionType.CONSTRUCTOR:
             return 'constructor'
         elif self._function_type == FunctionType.FALLBACK:
             return 'fallback'
