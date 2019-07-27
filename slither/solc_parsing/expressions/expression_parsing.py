@@ -579,7 +579,7 @@ def parse_expression(expression, caller_context):
         # if abi.decode is used
         # For example, abi.decode(data, ...(uint[]) )
         if right is None:
-            return _parse_elementary_type_name_expression(left, is_compact_ast, caller_context)
+            return parse_expression(left, caller_context)
 
         left_expression = parse_expression(left, caller_context)
         right_expression = parse_expression(right, caller_context)
