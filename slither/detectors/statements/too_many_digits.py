@@ -48,7 +48,6 @@ Use:
                     if isinstance(read, Constant):
                         # read.value can return an int or a str. Convert it to str
                         value_as_str = read.original_value
-                        line_of_code = str(node.expression)
                         if '00000' in value_as_str:
                             # Info to be printed
                             ret.append(node)
