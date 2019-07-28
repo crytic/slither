@@ -61,7 +61,7 @@ class Slither(Context):
         :param path:
         :return:
         """
-        if path in self.crytic_compile.src_content:
+        if self.crytic_compile and path in self.crytic_compile.src_content:
             self.source_code[path] = self.crytic_compile.src_content[path]
         else:
             with open(path, encoding='utf8', newline='') as f:
