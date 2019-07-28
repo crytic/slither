@@ -15,7 +15,7 @@ class VoidConstructor(AbstractDetector):
     WIKI_DESCRIPTION = 'Detect the call to a constructor not implemented'
     WIKI_RECOMMENDATION = 'Remove the constructor call.'
     WIKI_EXPLOIT_SCENARIO = '''
-    ```solidity
+```solidity
 contract A{}
 contract B is A{
     constructor() public A(){}
