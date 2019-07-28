@@ -112,8 +112,13 @@ $ pip install slither-analyzer
 
 ### Using Git
 
+Installing through git requires installing [crytic-compile](https://github.com/crytic/crytic-compile) from git too:
+
 ```bash
-$ git clone https://github.com/trailofbits/slither.git && cd slither
+$ git clone https://github.com/crytic/crytic-compile.git && cd crytic-compile
+$ python setup.py install 
+$ cd ..
+$ git clone https://github.com/crytic/slither.git && cd slither
 $ python setup.py install 
 ```
 
