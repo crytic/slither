@@ -2,7 +2,7 @@
 """
 import logging
 
-from slither.core.cfg.node import NodeType, link_nodes
+from slither.core.cfg.node import NodeType, link_nodes, recheable
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function, ModifierStatements, FunctionType
 
@@ -220,13 +220,13 @@ class FunctionSolc(Function):
         for node in self.nodes:
             node.analyze_expressions(self)
 
-        for modifier_statement in self.modifiers_statements:
-            modifier_statement.node.analyze_expressions(self)
+        if self._filter_ternary():
+            for modifier_statement in self.modifiers_statements:
+                modifier_statement.nodes = recheable(modifier_statement.entry_point)
 
-        for modifier_statement in self.explicit_base_constructor_calls_statements:
-            modifier_statement.node.analyze_expressions(self)
+            for modifier_statement in self.explicit_base_constructor_calls_statements:
+                modifier_statement.nodes = recheable(modifier_statement.entry_point)
 
-        self._filter_ternary()
         self._remove_alone_endif()
 
 
@@ -903,15 +903,21 @@ class FunctionSolc(Function):
         self._expression_modifiers.append(m)
         for m in ExportValues(m).result():
             if isinstance(m, Function):
-                node = self._new_node(NodeType.STANDALONE, modifier['src'])
+                entry_point = self._new_node(NodeType.OTHER_ENTRYPOINT, modifier['src'])
+                node = self._new_node(NodeType.EXPRESSION, modifier['src'])
                 node.add_unparsed_expression(modifier)
+                link_nodes(entry_point, node)
                 self._modifiers.append(ModifierStatements(modifier=m,
-                                                          node=node))
+                                                          entry_point=entry_point,
+                                                          nodes=[entry_point, node]))
             elif isinstance(m, Contract):
-                node = self._new_node(NodeType.STANDALONE, modifier['src'])
+                entry_point = self._new_node(NodeType.OTHER_ENTRYPOINT, modifier['src'])
+                node = self._new_node(NodeType.EXPRESSION, modifier['src'])
                 node.add_unparsed_expression(modifier)
+                link_nodes(entry_point, node)
                 self._explicit_base_constructor_calls.append(ModifierStatements(modifier=m,
-                                                                                node=node))
+                                                                                entry_point=entry_point,
+                                                                                nodes=[entry_point, node]))
 
     # endregion
     ###################################################################################
@@ -971,9 +977,10 @@ class FunctionSolc(Function):
 
     def _filter_ternary(self):
         ternary_found = True
+        updated = False
         while ternary_found:
             ternary_found = False
-            for node in self.nodes:
+            for node in self._nodes:
                 has_cond = HasConditional(node.expression)
                 if has_cond.result():
                     st = SplitTernaryExpression(node.expression)
@@ -982,11 +989,13 @@ class FunctionSolc(Function):
                         raise ParsingError(f'Incorrect ternary conversion {node.expression} {node.source_mapping_str}')
                     true_expr = st.true_expression
                     false_expr = st.false_expression
-                    self.split_ternary_node(node, condition, true_expr, false_expr)
+                    self._split_ternary_node(node, condition, true_expr, false_expr)
                     ternary_found = True
+                    updated = True
                     break
+        return updated
 
-    def split_ternary_node(self, node, condition, true_expr, false_expr):
+    def _split_ternary_node(self, node, condition, true_expr, false_expr):
         condition_node = self._new_node(NodeType.IF, node.source_mapping)
         condition_node.add_expression(condition)
         condition_node.analyze_expressions(self)
