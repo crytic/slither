@@ -1,9 +1,9 @@
 
 from slither.detectors.abstract_detector import (AbstractDetector,
-                                                 DetectorClassification)
+                                                 DetectorClassification,
+                                                 DetectorLanguageTarget)
 
 from slither.utils.function import get_function_id
-
 
 class FunctionIDCollision(AbstractDetector):
     """
@@ -13,6 +13,7 @@ class FunctionIDCollision(AbstractDetector):
     HELP = 'Functions IDs collision'
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
+    LANGUAGE_TARGETS = [DetectorLanguageTarget.VYPER]
 
     WIKI = 'todo'
 

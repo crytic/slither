@@ -18,6 +18,10 @@ class DetectorClassification:
     OPTIMIZATION = 4
 
 
+class DetectorLanguageTarget:
+    SOLIDITY = 0
+    VYPER = 1
+
 classification_colors = {
     DetectorClassification.INFORMATIONAL: green,
     DetectorClassification.OPTIMIZATION: green,
@@ -34,12 +38,22 @@ classification_txt = {
     DetectorClassification.HIGH: 'High',
 }
 
+language_target_txt = {
+    DetectorLanguageTarget.SOLIDITY: 'Solidity',
+    DetectorLanguageTarget.VYPER: 'Vyper'
+}
+
+txt_to_language_target ={
+    'Solidity': DetectorLanguageTarget.SOLIDITY,
+    'Vyper': DetectorLanguageTarget.VYPER
+}
 
 class AbstractDetector(metaclass=abc.ABCMeta):
     ARGUMENT = ''  # run the detector with slither.py --ARGUMENT
     HELP = ''  # help information
     IMPACT = None
     CONFIDENCE = None
+    LANGUAGE_TARGETS = [DetectorLanguageTarget.SOLIDITY]
 
     WIKI = ''
 
@@ -102,6 +116,10 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return
 
     def detect(self):
+
+        if not txt_to_language_target[self.slither.platform_language] in self.LANGUAGE_TARGETS:
+            return []
+
         all_results = self._detect()
         results = []
         # only keep valid result, and remove dupplicate

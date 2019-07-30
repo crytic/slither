@@ -195,3 +195,7 @@ class Slither(SlitherSolc, SlitherVyper):
     @property
     def triage_mode(self):
         return self._triage_mode
+
+    @property
+    def platform_language(self):
+        return self._parser.language

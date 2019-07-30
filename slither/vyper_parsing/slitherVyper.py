@@ -26,6 +26,9 @@ class SlitherVyper(Slither):
         self._contracts_by_id = {}
         self._analyzed = False
 
+    @property
+    def language(self):
+        return 'Vyper'
 
     # endregion
     ###################################################################################
