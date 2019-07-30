@@ -224,11 +224,11 @@ class SlitherSolc(Slither):
                     else:
                         father_constructors.append(self._contracts_by_id[i])
 
-            except KeyError:
-                txt = 'A contract was not found, it is likely that your codebase contains muliple contracts with the same name'
-                txt += 'Truffle does not handle this case during compilation'
-                txt += 'Please read https://github.com/trailofbits/slither/wiki#keyerror-or-nonetype-error'
-                txt += 'And update your code to remove the duplicate'
+            except KeyError as e:
+                txt = f'A contract was not found (id {e}), it is likely that your codebase contains muliple contracts with the same name. '
+                txt += 'Truffle does not handle this case during compilation. '
+                txt += 'Please read https://github.com/trailofbits/slither/wiki#keyerror-or-nonetype-error, '
+                txt += 'and update your code to remove the duplicate'
                 raise ParsingContractNotFound(txt)
             contract.setInheritance(ancestors, fathers, father_constructors)
 
