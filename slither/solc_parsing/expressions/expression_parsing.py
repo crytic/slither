@@ -476,7 +476,7 @@ def parse_expression(expression, caller_context):
             value = expression['attributes']['value']
             if value:
                 if 'subdenomination' in expression['attributes'] and expression['attributes']['subdenomination']:
-                    subdenomination = expression['subdenomination']
+                    subdenomination = expression['attributes']['subdenomination']
             elif value is None:
                 # for literal declared as hex
                 # see https://solidity.readthedocs.io/en/v0.4.25/types.html?highlight=hex#hexadecimal-literals
