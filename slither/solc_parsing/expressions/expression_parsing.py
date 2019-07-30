@@ -220,45 +220,7 @@ def filter_name(value):
     return value
 
 # endregion
-###################################################################################
-###################################################################################
-# region Conversion
-###################################################################################
-###################################################################################
 
-def convert_subdenomination(value, sub):
-    if sub is None:
-        return value
-    # to allow 0.1 ether conversion
-    if value[0:2] == "0x":
-        value = float(int(value, 16))
-    else:
-        value = float(value)
-    if sub == 'wei':
-        return int(value)
-    if sub == 'szabo':
-        return int(value * int(1e12))
-    if sub == 'finney':
-        return int(value * int(1e15))
-    if sub == 'ether':
-        return int(value * int(1e18))
-    if sub == 'seconds':
-        return int(value)
-    if sub == 'minutes':
-        return int(value * 60)
-    if sub == 'hours':
-        return int(value * 60 * 60)
-    if sub == 'days':
-        return int(value * 60 * 60 * 24)
-    if sub == 'weeks':
-        return int(value * 60 * 60 * 24 * 7)
-    if sub == 'years':
-        return int(value * 60 * 60 * 24 * 7 * 365)
-
-    logger.error('Subdemoniation not found {}'.format(sub))
-    return int(value)
-
-# endregion
 ###################################################################################
 ###################################################################################
 # region Parsing
@@ -489,14 +451,19 @@ def parse_expression(expression, caller_context):
         assignement = AssignmentOperation(left_expression, right_expression, operation_type, operation_return_type)
         return assignement
 
+
+
     elif name == 'Literal':
+
+        subdenomination = None
+
         assert 'children' not in expression
 
         if is_compact_ast:
             value = expression['value']
             if value:
                 if 'subdenomination' in expression and expression['subdenomination']:
-                    value = str(convert_subdenomination(value, expression['subdenomination']))
+                    subdenomination = expression['subdenomination']
             elif not value and value != "":
                 value = '0x'+expression['hexValue']
             type = expression['typeDescriptions']['typeString']
@@ -509,7 +476,7 @@ def parse_expression(expression, caller_context):
             value = expression['attributes']['value']
             if value:
                 if 'subdenomination' in expression['attributes'] and expression['attributes']['subdenomination']:
-                    value = str(convert_subdenomination(value, expression['attributes']['subdenomination']))
+                    subdenomination = expression['attributes']['subdenomination']
             elif value is None:
                 # for literal declared as hex
                 # see https://solidity.readthedocs.io/en/v0.4.25/types.html?highlight=hex#hexadecimal-literals
@@ -530,7 +497,7 @@ def parse_expression(expression, caller_context):
             type = ElementaryType('address')
         else:
             type = ElementaryType('string')
-        literal = Literal(value, type)
+        literal = Literal(value, type, subdenomination)
         return literal
 
     elif name == 'Identifier':

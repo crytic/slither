@@ -31,5 +31,10 @@ contract C {
         uint x2 = 1 szabo + 10 szabo + 100 szabo + 1000 szabo + 10000 szabo;
         balance += x1 + x2;
     }
+
+    function good() external{
+
+        uint x = 1 ether;
+    }
     
 }
