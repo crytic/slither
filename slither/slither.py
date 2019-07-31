@@ -155,7 +155,18 @@ class Slither(SlitherSolc):
         :return: List of registered printers outputs.
         """
 
-        return [p.output(self.filename) for p in self._printers]
+        results = []
+
+        for p in self._printers:
+            result = p.output(self.filename)
+            result['name'] = p.ARGUMENT
+            if 'filename' in result:
+                result['result_type'] = 'graph'
+            else:
+                result['result_type'] = 'text'
+
+            results.append(result)
+        return results
 
     def _check_common_things(self, thing_name, cls, base_cls, instances_list):
 

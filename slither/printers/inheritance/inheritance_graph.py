@@ -170,14 +170,20 @@ class PrinterInheritanceGraph(AbstractPrinter):
             Args:
                 filename(string)
         """
+        json_results = {}
         if filename == '':
             filename = 'contracts.dot'
         if not filename.endswith('.dot'):
             filename += ".dot"
         info = 'Inheritance Graph: ' + filename
         self.info(info)
+        json_results['filename'] = filename
         with open(filename, 'w', encoding='utf8') as f:
             f.write('digraph "" {\n')
+            json_results['digraph'] = []
             for c in self.contracts:
+                json_results['digraph'].append(self._summary(c))
                 f.write(self._summary(c))
             f.write('}')
+
+        return json_results

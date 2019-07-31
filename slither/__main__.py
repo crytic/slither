@@ -86,7 +86,7 @@ def _process(slither, detector_classes, printer_classes):
 
         results.extend(detector_results)
 
-    slither.run_printers()  # Currently printers does not return results
+    results.extend(slither.run_printers())
 
     return slither, results, analyzed_contracts_count
 
@@ -429,6 +429,12 @@ def parse_args(detector_classes, printer_classes):
     args = parser.parse_args()
     read_config_file(args)
 
+    json_types_args = args.json_types.split(',')
+    if args.printers_to_run is not None and 'printers' not in json_types_args:
+        args.json_types = json_types_args.append('printers')
+        args.json_types = json_types_args.remove('detectors')
+        args.json_types = ','.join(json_types_args)
+
     args.filter_paths = parse_filter_paths(args)
 
     # Verify our json-type output is valid
@@ -456,6 +462,13 @@ class ListPrinters(argparse.Action):
     def __call__(self, parser, *args, **kwargs):
         _, printers = get_detectors_and_printers()
         output_printers(printers)
+        parser.exit()
+
+class ListPrintersJson(argparse.Action):
+    def __call__(self, parser, *args, **kwargs):
+        _, printers = get_detectors_and_printers()
+        printer_types_json = output_printers_json(detectors)
+        print(json.dumps(printer_types_json))
         parser.exit()
 
 class OutputMarkdown(argparse.Action):
@@ -596,6 +609,10 @@ def main_impl(all_detector_classes, all_printer_classes):
             # Add our detector results to JSON if desired.
             if results and 'detectors' in args.json_types:
                 json_results['detectors'] = results
+
+            # Add our printer results to JSON if desired.
+            if results and 'printers' in args.json_types:
+                json_results['printers'] = results
 
             # Add our detector types to JSON
             if 'list-detectors' in args.json_types:
