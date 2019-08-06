@@ -54,6 +54,20 @@ class LowLevelCall(Call, OperationWithLValue):
         # remove None
         return self._unroll([x for x in all_read if x])
 
+    def can_reenter(self, callstack=None):
+        '''
+        Must be called after slithIR analysis pass
+        :return: bool
+        '''
+        return True
+
+    def can_send_eth(self):
+        '''
+        Must be called after slithIR analysis pass
+        :return: bool
+        '''
+        return self._call_value is not None
+
     @property
     def destination(self):
         return self._destination
