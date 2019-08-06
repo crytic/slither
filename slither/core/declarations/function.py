@@ -132,6 +132,10 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._function_type = None
         self._is_constructor = None
 
+        # Computed on the fly, can be True of False
+        self._can_reenter = None
+        self._can_send_eth = None
+
     ###################################################################################
     ###################################################################################
     # region General properties
@@ -169,10 +173,43 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         name, parameters, _ = self.signature
         return self.contract_declarer.name + '.' + name + '(' + ','.join(parameters) + ')'
 
-
     @property
     def contains_assembly(self):
         return self._contains_assembly
+
+    def can_reenter(self, callstack=None):
+        '''
+        Check if the function can re-enter
+        Follow internal calls.
+        Do not consider CREATE as potential re-enter, but check if the
+        destination's constructor can contain a call (recurs. follow nested CREATE)
+        For Solidity > 0.5, filter access to public variables and constant/pure/view
+        For call to this. check if the destination can re-enter
+        Do not consider Send/Transfer as there is not enough gas
+        :param callstack: used internally to check for recursion
+        :return bool:
+        '''
+        from slither.slithir.operations import Call
+        if self._can_reenter is None:
+            self._can_reenter = False
+            for ir in self.all_slithir_operations():
+                if isinstance(ir, Call) and ir.can_reenter(callstack):
+                    self._can_reenter = True
+                    return True
+        return self._can_reenter
+
+    def can_send_eth(self):
+        '''
+        Check if the function can send eth
+        :return bool:
+        '''
+        from slither.slithir.operations import Call
+        if self._can_send_eth is None:
+            for ir in self.all_slithir_operations():
+                if isinstance(ir, Call) and ir.can_send_eth():
+                    self._can_send_eth = True
+                    return True
+        return self._can_reenter
 
     @property
     def slither(self):
@@ -1183,8 +1220,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         external_calls_as_expressions = [x for x in external_calls_as_expressions if x]
         external_calls_as_expressions = [item for sublist in external_calls_as_expressions for item in sublist]
         self._external_calls_as_expressions = list(set(external_calls_as_expressions))
-
-
 
     # endregion
     ###################################################################################
