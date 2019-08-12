@@ -104,30 +104,27 @@ class SlitherSolc(Slither):
             return
 
         for contract_data in data_loaded[self.get_children()]:
-            # if self.solc_version == '0.3':
-            #     assert contract_data[self.get_key()] == 'Contract'
-            #     contract = ContractSolc03(self, contract_data)
-            if self.solc_version == '0.4':
-                assert contract_data[self.get_key()] in ['ContractDefinition', 'PragmaDirective', 'ImportDirective']
-                if contract_data[self.get_key()] == 'ContractDefinition':
-                    contract = ContractSolc04(self, contract_data)
-                    if 'src' in contract_data:
-                        contract.set_offset(contract_data['src'], self)
-                    self._contractsNotParsed.append(contract)
-                elif contract_data[self.get_key()] == 'PragmaDirective':
-                    if self._is_compact_ast:
-                        pragma = Pragma(contract_data['literals'])
-                    else:
-                        pragma = Pragma(contract_data['attributes']["literals"])
-                    pragma.set_offset(contract_data['src'], self)
-                    self._pragma_directives.append(pragma)
-                elif contract_data[self.get_key()] == 'ImportDirective':
-                    if self.is_compact_ast:
-                        import_directive = Import(contract_data["absolutePath"])
-                    else:
-                        import_directive = Import(contract_data['attributes']["absolutePath"])
-                    import_directive.set_offset(contract_data['src'], self)
-                    self._import_directives.append(import_directive)
+
+            assert contract_data[self.get_key()] in ['ContractDefinition', 'PragmaDirective', 'ImportDirective']
+            if contract_data[self.get_key()] == 'ContractDefinition':
+                contract = ContractSolc04(self, contract_data)
+                if 'src' in contract_data:
+                    contract.set_offset(contract_data['src'], self)
+                self._contractsNotParsed.append(contract)
+            elif contract_data[self.get_key()] == 'PragmaDirective':
+                if self._is_compact_ast:
+                    pragma = Pragma(contract_data['literals'])
+                else:
+                    pragma = Pragma(contract_data['attributes']["literals"])
+                pragma.set_offset(contract_data['src'], self)
+                self._pragma_directives.append(pragma)
+            elif contract_data[self.get_key()] == 'ImportDirective':
+                if self.is_compact_ast:
+                    import_directive = Import(contract_data["absolutePath"])
+                else:
+                    import_directive = Import(contract_data['attributes']["absolutePath"])
+                import_directive.set_offset(contract_data['src'], self)
+                self._import_directives.append(import_directive)
 
 
     def _parse_source_unit(self, data, filename):

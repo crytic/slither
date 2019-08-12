@@ -77,6 +77,9 @@ class Slither(Context):
     @property
     def solc_version(self):
         """str: Solidity version."""
+        if self.crytic_compile:
+            print(self.crytic_compile.compiler_version.version)
+            return self.crytic_compile.compiler_version.version
         return self._solc_version
 
     @property
