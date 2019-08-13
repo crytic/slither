@@ -20,7 +20,7 @@ class ContractSolc04(Contract):
 
 
     def __init__(self, slitherSolc, data):
-        assert slitherSolc.solc_version.startswith('0.4')
+        #assert slitherSolc.solc_version.startswith('0.4')
         super(ContractSolc04, self).__init__()
 
         self.set_slither(slitherSolc)

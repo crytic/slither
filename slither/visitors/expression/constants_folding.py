@@ -99,6 +99,13 @@ class ConstantFolding(ExpressionVisitor):
         raise NotConstant
 
     def _post_tuple_expression(self, expression):
+        if expression.expressions:
+            if len(expression.expressions) == 1:
+                cf = ConstantFolding(expression.expressions[0], self._type)
+                expr = cf.result()
+                assert isinstance(expr, Literal)
+                set_val(expression, int(expr.value))
+                return
         raise NotConstant
 
     def _post_type_conversion(self, expression):
