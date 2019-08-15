@@ -200,6 +200,10 @@ class Node(SourceMapping, ChildFunction):
         self._expression_vars_read = []
         self._expression_calls = []
 
+        # Computed on the fly, can be True of False
+        self._can_reenter = None
+        self._can_send_eth = None
+
     ###################################################################################
     ###################################################################################
     # region General's properties
@@ -401,6 +405,39 @@ class Node(SourceMapping, ChildFunction):
     @property
     def calls_as_expression(self):
         return list(self._expression_calls)
+
+    def can_reenter(self, callstack=None):
+        '''
+        Check if the node can re-enter
+        Do not consider CREATE as potential re-enter, but check if the
+        destination's constructor can contain a call (recurs. follow nested CREATE)
+        For Solidity > 0.5, filter access to public variables and constant/pure/view
+        For call to this. check if the destination can re-enter
+        Do not consider Send/Transfer as there is not enough gas
+        :param callstack: used internally to check for recursion
+        :return bool:
+        '''
+        from slither.slithir.operations import Call
+        if self._can_reenter is None:
+            self._can_reenter = False
+            for ir in self.irs:
+                if isinstance(ir, Call) and ir.can_reenter(callstack):
+                    self._can_reenter = True
+                    return True
+        return self._can_reenter
+
+    def can_send_eth(self):
+        '''
+        Check if the node can send eth
+        :return bool:
+        '''
+        from slither.slithir.operations import Call
+        if self._can_send_eth is None:
+            for ir in self.all_slithir_operations():
+                if isinstance(ir, Call) and ir.can_send_eth():
+                    self._can_send_eth = True
+                    return True
+        return self._can_reenter
 
     # endregion
     ###################################################################################

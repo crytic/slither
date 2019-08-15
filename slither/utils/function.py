@@ -1,4 +1,3 @@
-import hashlib
 import sha3
 
 def get_function_id(sig):
