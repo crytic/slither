@@ -17,6 +17,9 @@ class Send(Call, OperationWithLValue):
 
         self._call_value = value
 
+    def can_send_eth(self):
+        return True
+
     @property
     def call_value(self):
         return self._call_value
