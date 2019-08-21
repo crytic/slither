@@ -98,7 +98,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                 if not self.is_mixed_case(func.name):
                     if func.visibility in ['internal', 'private'] and self.is_mixed_case_with_underscore(func.name):
                         continue
-                    if (func.name.find("echidna_") == 0) or (func.name.find("crytic_") == 0):
+                    if func.name.startswith("echidna_") or func.name.startswith("crytic_"):
                         continue
                     info = "Function '{}' ({}) is not in mixedCase\n"
                     info = info.format(func.canonical_name, func.source_mapping_str)
