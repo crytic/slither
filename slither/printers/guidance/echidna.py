@@ -35,6 +35,7 @@ def _extract_constant_functions(slither):
     ret = {}
     for contract in slither.contracts:
         cst_functions = [f.full_name for f in contract.functions_entry_points if f.view or f.pure]
+        cst_functions += [v.function_name for v in contract.state_variables if v.visibility in ['public']]
         if cst_functions:
             ret[contract.name] = cst_functions
     return ret
