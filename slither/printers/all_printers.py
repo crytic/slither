@@ -14,3 +14,4 @@ from .summary.data_depenency import DataDependency
 from .summary.modifier_calls import Modifiers
 from .summary.require_calls import RequireOrAssert
 from .summary.constructor_calls import ConstructorPrinter
+from .guidance.echidna import Echidna
