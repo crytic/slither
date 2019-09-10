@@ -824,7 +824,12 @@ class FunctionSolc(Function):
         end_node = self._find_end_loop(node, [], 0)
 
         if not end_node:
-            raise ParsingError('Break in no-loop context {}'.format(node))
+            # If there is not end condition on the loop
+            # The exploration will reach a STARTLOOP before reaching the endloop
+            # We start with -1 as counter to catch this corner case
+            end_node = self._find_end_loop(node, [], -1)
+            if not end_node:
+                raise ParsingError('Break in no-loop context {}'.format(node.function))
 
         for son in node.sons:
             son.remove_father(node)
