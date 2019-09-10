@@ -5,6 +5,7 @@ from slither.slithir.operations import Send, Transfer, OperationWithLValue, High
 from slither.core.declarations import Modifier
 from slither.core.solidity_types import UserDefinedType, MappingType
 from slither.core.declarations import Enum, Contract, Structure
+from slither.core.solidity_types.elementary_type import ElementaryTypeName
 from ..exceptions import FormatError, FormatImpossible
 from ..utils.patches import create_patch
 
@@ -32,8 +33,20 @@ def format(slither, result):
 ###################################################################################
 ###################################################################################
 
-
 KEY = 'ALL_NAMES_USED'
+
+# https://solidity.readthedocs.io/en/v0.5.11/miscellaneous.html#reserved-keywords
+SOLIDITY_KEYWORDS = ['abstract', 'after', 'alias', 'apply', 'auto', 'case', 'catch', 'copyof', 'default', 'define',
+                     'final', 'immutable', 'implements', 'in', 'inline', 'let', 'macro', 'match', 'mutable', 'null',
+                     'of', 'override', 'partial', 'promise', 'reference', 'relocatable', 'sealed', 'sizeof', 'static',
+                     'supports', 'switch', 'try', 'typedef', 'typeof', 'unchecked']
+
+# https://solidity.readthedocs.io/en/v0.5.11/miscellaneous.html#language-grammar
+SOLIDITY_KEYWORDS += ['pragma', 'import', 'contract', 'library', 'contract', 'function', 'using', 'struct', 'enum',
+                      'public', 'private', 'internal', 'external', 'calldata', 'memory', 'modifier', 'view', 'pure',
+                      'constant', 'storage', 'for', 'if', 'while', 'break', 'return', 'throw', 'else']
+
+SOLIDITY_KEYWORDS += ElementaryTypeName
 
 def _name_already_use(slither, name):
     # Do not convert to a name used somewhere else
@@ -61,6 +74,9 @@ def _convert_CapWords(original_name, slither):
 
     if _name_already_use(slither, name):
         raise FormatImpossible(f'{original_name} cannot be converted to {name} (already used)')
+
+    if name in SOLIDITY_KEYWORDS:
+        raise FormatImpossible(f'{original_name} cannot be converted to {name} (Solidity keyword)')
     return name
 
 def _convert_mixedCase(original_name, slither):
@@ -74,11 +90,15 @@ def _convert_mixedCase(original_name, slither):
     name = name[0].lower() + name[1:]
     if _name_already_use(slither, name):
         raise FormatImpossible(f'{original_name} cannot be converted to {name} (already used)')
+    if name in SOLIDITY_KEYWORDS:
+        raise FormatImpossible(f'{original_name} cannot be converted to {name} (Solidity keyword)')
     return name
 
 def _convert_UPPER_CASE_WITH_UNDERSCORES(name, slither):
     if _name_already_use(slither, name.upper()):
         raise FormatImpossible(f'{name} cannot be converted to {name.upper()} (already used)')
+    if name.upper() in SOLIDITY_KEYWORDS:
+        raise FormatImpossible(f'{name} cannot be converted to {name.upper()} (Solidity keyword)')
     return name.upper()
 
 conventions ={
