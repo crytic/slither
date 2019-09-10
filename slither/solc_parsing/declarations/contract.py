@@ -20,7 +20,7 @@ class ContractSolc04(Contract):
 
 
     def __init__(self, slitherSolc, data):
-        assert slitherSolc.solc_version.startswith('0.4')
+        #assert slitherSolc.solc_version.startswith('0.4')
         super(ContractSolc04, self).__init__()
 
         self.set_slither(slitherSolc)
@@ -373,7 +373,7 @@ class ContractSolc04(Contract):
 
     def _create_node(self, func, counter, variable):
         # Function uses to create node for state variable declaration statements
-        node = Node(NodeType.STANDALONE, counter)
+        node = Node(NodeType.OTHER_ENTRYPOINT, counter)
         node.set_offset(variable.source_mapping, self.slither)
         node.set_function(func)
         func.add_node(node)
@@ -387,27 +387,29 @@ class ContractSolc04(Contract):
 
     def add_constructor_variables(self):
         if self.state_variables:
-            found_candidate = False
             for (idx, variable_candidate) in enumerate(self.state_variables):
                 if variable_candidate.expression and not variable_candidate.is_constant:
-                    found_candidate = True
-                    break
-            if found_candidate:
-                constructor_variable = Function()
-                constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
-                constructor_variable.set_contract(self)
-                constructor_variable.set_contract_declarer(self)
-                constructor_variable.set_visibility('internal')
-                self._functions[constructor_variable.canonical_name] = constructor_variable
 
-                prev_node = self._create_node(constructor_variable, 0, variable_candidate)
-                counter = 1
-                for v in self.state_variables[idx+1:]:
-                    if v.expression and not v.is_constant:
-                        next_node = self._create_node(constructor_variable, counter, v)
-                        prev_node.add_son(next_node)
-                        next_node.add_father(prev_node)
-                        counter += 1
+                    constructor_variable = Function()
+                    constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
+                    constructor_variable.set_contract(self)
+                    constructor_variable.set_contract_declarer(self)
+                    constructor_variable.set_visibility('internal')
+                    # For now, source mapping of the constructor variable is the whole contract
+                    # Could be improved with a targeted source mapping
+                    constructor_variable.set_offset(self.source_mapping, self.slither)
+                    self._functions[constructor_variable.canonical_name] = constructor_variable
+
+                    prev_node = self._create_node(constructor_variable, 0, variable_candidate)
+                    counter = 1
+                    for v in self.state_variables[idx+1:]:
+                        if v.expression and not v.is_constant:
+                            next_node = self._create_node(constructor_variable, counter, v)
+                            prev_node.add_son(next_node)
+                            next_node.add_father(prev_node)
+                            counter += 1
+
+                    break
 
 
 
