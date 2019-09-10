@@ -131,7 +131,7 @@ def apply_detector_results(slither, detector_results):
             else:
                 raise FormatError(result['check'] + "detector not supported yet.")
         except FormatImpossible as e:
-            logger.info(f'Impossible to patch:\n{result["description"]}\nReason: {e}')
+            logger.info(f'\nImpossible to patch:\n\t{result["description"]}\t{e}')
 
 
 # endregion
