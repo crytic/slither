@@ -321,9 +321,13 @@ def _explore_variables_declaration(slither, variables, result, target, convert):
 
 def _explore_modifiers_calls(slither, function, result, target, convert):
     for modifier in function.modifiers_statements:
-        _explore_irs(slither, modifier.node.irs, result, target, convert)
+        for node in modifier.nodes:
+            if node.irs:
+                _explore_irs(slither, node.irs, result, target, convert)
     for modifier in function.explicit_base_constructor_calls_statements:
-        _explore_irs(slither, modifier.node.irs, result, target, convert)
+        for node in modifier.nodes:
+            if node.irs:
+                _explore_irs(slither, node.irs, result, target, convert)
 
 def _explore_structures_declaration(slither, structures, result, target, convert):
     for st in structures:
