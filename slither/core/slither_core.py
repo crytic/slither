@@ -61,8 +61,11 @@ class Slither(Context):
         :param path:
         :return:
         """
-        with open(path, encoding='utf8', newline='') as f:
-            self.source_code[path] = f.read()
+        if self.crytic_compile and path in self.crytic_compile.src_content:
+            self.source_code[path] = self.crytic_compile.src_content[path]
+        else:
+            with open(path, encoding='utf8', newline='') as f:
+                self.source_code[path] = f.read()
 
     # endregion
     ###################################################################################
@@ -74,6 +77,8 @@ class Slither(Context):
     @property
     def solc_version(self):
         """str: Solidity version."""
+        if self.crytic_compile:
+            return self.crytic_compile.compiler_version.version
         return self._solc_version
 
     @property

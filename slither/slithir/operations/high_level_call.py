@@ -2,6 +2,7 @@ from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
 from slither.core.declarations.solidity_variables import SolidityVariable
+from slither.core.declarations.function import Function
 
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
@@ -85,6 +86,55 @@ class HighLevelCall(Call, OperationWithLValue):
     @property
     def type_call(self):
         return self._type_call
+
+    ###################################################################################
+    ###################################################################################
+    # region Analyses
+    ###################################################################################
+    ###################################################################################
+
+    def can_reenter(self, callstack=None):
+        '''
+        Must be called after slithIR analysis pass
+        For Solidity > 0.5, filter access to public variables and constant/pure/view
+        For call to this. check if the destination can re-enter
+        :param callstack: check for recursion
+        :return: bool
+        '''
+        # If solidity >0.5, STATICCALL is used
+        if self.slither.solc_version and self.slither.solc_version.startswith('0.5.'):
+            if isinstance(self.function, Function) and (self.function.view or self.function.pure):
+                return False
+            if isinstance(self.function, Variable):
+                return False
+        # If there is a call to itself
+        # We can check that the function called is
+        # reentrancy-safe
+        if self.destination == SolidityVariable('this'):
+            if isinstance(self.function, Variable):
+                return False
+            # In case of recursion, return False
+            callstack = [] if callstack is None else callstack
+            if self.function in callstack:
+                return False
+            callstack = callstack + [self.function]
+            if self.function.can_reenter(callstack):
+                return True
+        return True
+
+    def can_send_eth(self):
+        '''
+        Must be called after slithIR analysis pass
+        :return: bool
+        '''
+        return self._call_value is not None
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Built in
+    ###################################################################################
+    ###################################################################################
 
     def __str__(self):
         value = ''

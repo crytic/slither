@@ -181,7 +181,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         set_val(expression, val)
 
     def _post_literal(self, expression):
-        cst = Constant(expression.value, expression.type)
+        cst = Constant(expression.value, expression.type, expression.subdenomination)
         set_val(expression, cst)
 
     def _post_member_access(self, expression):
@@ -280,5 +280,5 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
             set_val(expression, lvalue)
         else:
-            raise Exception('Unary operation to IR not supported {}'.format(expression))
+            raise SlithIRError('Unary operation to IR not supported {}'.format(expression))
 

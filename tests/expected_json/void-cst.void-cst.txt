@@ -1,0 +1,5 @@
+INFO:Detectors:[92m
+Void constructor called in D.constructor() (tests/void-cst.sol#10-12):
+	-C() tests/void-cst.sol#10
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#void-constructor[0m
+INFO:Slither:tests/void-cst.sol analyzed (2 contracts), 1 result(s) found

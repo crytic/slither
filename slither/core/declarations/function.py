@@ -22,7 +22,33 @@ logger = logging.getLogger("Function")
 
 ReacheableNode = namedtuple('ReacheableNode', ['node', 'ir'])
 
-ModifierStatements = namedtuple('Modifier', ['modifier', 'node'])
+class ModifierStatements:
+
+    def __init__(self, modifier, entry_point, nodes):
+        self._modifier = modifier
+        self._entry_point = entry_point
+        self._nodes = nodes
+
+
+    @property
+    def modifier(self):
+        return self._modifier
+
+    @property
+    def entry_point(self):
+        return self._entry_point
+
+    @entry_point.setter
+    def entry_point(self, entry_point):
+        self._entry_point = entry_point
+
+    @property
+    def nodes(self):
+        return self._nodes
+
+    @nodes.setter
+    def nodes(self, nodes):
+        self._nodes = nodes
 
 class FunctionType(Enum):
     NORMAL = 0
@@ -106,6 +132,10 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._function_type = None
         self._is_constructor = None
 
+        # Computed on the fly, can be True of False
+        self._can_reenter = None
+        self._can_send_eth = None
+
     ###################################################################################
     ###################################################################################
     # region General properties
@@ -117,7 +147,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
             str: function name
         """
-        if self._function_type == FunctionType.CONSTRUCTOR:
+        if self._name == '' and self._function_type == FunctionType.CONSTRUCTOR:
             return 'constructor'
         elif self._function_type == FunctionType.FALLBACK:
             return 'fallback'
@@ -143,10 +173,43 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         name, parameters, _ = self.signature
         return self.contract_declarer.name + '.' + name + '(' + ','.join(parameters) + ')'
 
-
     @property
     def contains_assembly(self):
         return self._contains_assembly
+
+    def can_reenter(self, callstack=None):
+        '''
+        Check if the function can re-enter
+        Follow internal calls.
+        Do not consider CREATE as potential re-enter, but check if the
+        destination's constructor can contain a call (recurs. follow nested CREATE)
+        For Solidity > 0.5, filter access to public variables and constant/pure/view
+        For call to this. check if the destination can re-enter
+        Do not consider Send/Transfer as there is not enough gas
+        :param callstack: used internally to check for recursion
+        :return bool:
+        '''
+        from slither.slithir.operations import Call
+        if self._can_reenter is None:
+            self._can_reenter = False
+            for ir in self.all_slithir_operations():
+                if isinstance(ir, Call) and ir.can_reenter(callstack):
+                    self._can_reenter = True
+                    return True
+        return self._can_reenter
+
+    def can_send_eth(self):
+        '''
+        Check if the function can send eth
+        :return bool:
+        '''
+        from slither.slithir.operations import Call
+        if self._can_send_eth is None:
+            for ir in self.all_slithir_operations():
+                if isinstance(ir, Call) and ir.can_send_eth():
+                    self._can_send_eth = True
+                    return True
+        return self._can_reenter
 
     @property
     def slither(self):
@@ -403,7 +466,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
         """
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
-        return [c for c in self._explicit_base_constructor_calls if c.modifier.constructors_declared]
+        return list(self._explicit_base_constructor_calls)
 
 
     # endregion
@@ -1158,8 +1221,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         external_calls_as_expressions = [item for sublist in external_calls_as_expressions for item in sublist]
         self._external_calls_as_expressions = list(set(external_calls_as_expressions))
 
-
-
     # endregion
     ###################################################################################
     ###################################################################################
@@ -1266,10 +1327,12 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             node.slithir_generation()
 
         for modifier_statement in self.modifiers_statements:
-            modifier_statement.node.slithir_generation()
+            for node in modifier_statement.nodes:
+                node.slithir_generation()
 
         for modifier_statement in self.explicit_base_constructor_calls_statements:
-            modifier_statement.node.slithir_generation()
+            for node in modifier_statement.nodes:
+                node.slithir_generation()
 
         self._analyze_read_write()
         self._analyze_calls()

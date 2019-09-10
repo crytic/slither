@@ -14,10 +14,10 @@ setup(
     entry_points={
         'console_scripts': [
             'slither = slither.__main__:main',
-            'slither-check-upgradeability = utils.upgradeability.__main__:main',
-            'slither-find-paths = utils.possible_paths.__main__:main',
-            'slither-simil = utils.similarity.__main__:main',
-            'slither-format = utils.slither_format.__main__:main'
+            'slither-check-upgradeability = slither.tools.upgradeability.__main__:main',
+            'slither-find-paths = slither.tools.possible_paths.__main__:main',
+            'slither-simil = slither.tools.similarity.__main__:main'
+            'slither-format = slither.tools.slither_format.__main__:main'
         ]
     }
 )

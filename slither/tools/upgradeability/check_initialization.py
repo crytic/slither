@@ -11,7 +11,7 @@ class MultipleInitTarget(Exception):
     pass
 
 def _get_initialize_functions(contract):
-    return [f for f in contract.functions if f.name == 'initialize']
+    return [f for f in contract.functions if f.name == 'initialize' and f.is_implemented]
 
 def _get_all_internal_calls(function):
     all_ir = function.all_slithir_operations()

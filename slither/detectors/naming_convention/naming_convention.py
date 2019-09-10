@@ -10,6 +10,7 @@ class NamingConvention(AbstractDetector):
     Exceptions:
     - Allow constant variables name/symbol/decimals to be lowercase (ERC20)
     - Allow '_' at the beggining of the mixed_case match for private variables and unused parameters
+    - Ignore echidna properties (functions with names starting 'echidna_' or 'crytic_'
     """
 
     ARGUMENT = 'naming-convention'
@@ -92,8 +93,12 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     results.append(json)
 
             for func in contract.functions_declared:
+                if func.is_constructor:
+                    continue
                 if not self.is_mixed_case(func.name):
                     if func.visibility in ['internal', 'private'] and self.is_mixed_case_with_underscore(func.name):
+                        continue
+                    if func.name.startswith("echidna_") or func.name.startswith("crytic_"):
                         continue
                     info = "Function '{}' ({}) is not in mixedCase\n"
                     info = info.format(func.canonical_name, func.source_mapping_str)

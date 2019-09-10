@@ -9,6 +9,18 @@ class LibraryCall(HighLevelCall):
     def _check_destination(self, destination):
         assert isinstance(destination, (Contract))
 
+    def can_reenter(self, callstack=None):
+        '''
+        Must be called after slithIR analysis pass
+        :return: bool
+        '''
+        # In case of recursion, return False
+        callstack = [] if callstack is None else callstack
+        if self.function in callstack:
+            return False
+        callstack = callstack + [self.function]
+        return self.function.can_reenter(callstack)
+
     def __str__(self):
         gas = ''
         if self.call_gas:

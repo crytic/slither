@@ -11,9 +11,8 @@ from slither.core.expressions import UnaryOperation, UnaryOperationType
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.slithir.operations import (HighLevelCall, LowLevelCall,
-                                        LibraryCall,
+                                        Call,
                                         Send, Transfer)
-from slither.core.variables.variable import Variable
 
 def union_dict(d1, d2):
     d3 = {k: d1.get(k, set()) | d2.get(k, set()) for k in set(list(d1.keys()) + list(d2.keys()))}
@@ -25,12 +24,6 @@ def dict_are_equal(d1, d2):
     return all(set(d1[k]) == set(d2[k]) for k in d1.keys())
 
 class Reentrancy(AbstractDetector):
-# This detector is not meant to be registered
-# It is inherited by reentrancy variantsœ
-#    ARGUMENT = 'reentrancy'
-#    HELP = 'Reentrancy vulnerabilities'
-#    IMPACT = DetectorClassification.HIGH
-#    CONFIDENCE = DetectorClassification.HIGH
 
     KEY = 'REENTRANCY'
 
@@ -43,27 +36,10 @@ class Reentrancy(AbstractDetector):
             - low level call
             - high level call
 
-            Do not consider Send/Transfer as there is not enough gas
+
         """
         for ir in irs:
-            if isinstance(ir, LowLevelCall):
-                return True
-            if isinstance(ir, HighLevelCall) and not isinstance(ir, LibraryCall):
-                # If solidity >0.5, STATICCALL is used
-                if self.slither.solc_version and self.slither.solc_version.startswith('0.5.'):
-                    if isinstance(ir.function, Function) and (ir.function.view or ir.function.pure):
-                        continue
-                    if isinstance(ir.function, Variable):
-                        continue
-                # If there is a call to itself
-                # We can check that the function called is
-                # reentrancy-safe
-                if ir.destination == SolidityVariable('this'):
-                    if isinstance(ir.function, Variable):
-                        continue
-                    if not ir.function.all_high_level_calls():
-                        if not ir.function.all_low_level_calls():
-                            continue
+            if isinstance(ir, Call) and ir.can_reenter():
                 return True
         return False
 
@@ -73,9 +49,11 @@ class Reentrancy(AbstractDetector):
             Detect if the node can send eth
         """
         for ir in irs:
-            if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
-                if ir.call_value:
-                    return True
+            if isinstance(ir, Call) and ir.can_send_eth():
+                return True
+            # if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
+            #     if ir.call_value:
+            #         return True
         return False
 
     def _filter_if(self, node):
@@ -173,7 +151,6 @@ class Reentrancy(AbstractDetector):
                 son = sons[1]
                 self._explore(son, visited, node)
                 sons = [sons[0]]
-
 
         for son in sons:
             self._explore(son, visited)

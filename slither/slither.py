@@ -22,14 +22,14 @@ logger_printer = logging.getLogger("Printers")
 
 class Slither(SlitherSolc):
 
-    def __init__(self, contract, **kwargs):
+    def __init__(self, target, **kwargs):
         '''
             Args:
-                contract (str| list(json))
+                target (str | list(json) | CryticCompile)
             Keyword Args:
                 solc (str): solc binary location (default 'solc')
                 disable_solc_warnings (bool): True to disable solc warnings (default false)
-                solc_argeuments (str): solc arguments (default '')
+                solc_arguments (str): solc arguments (default '')
                 ast_format (str): ast format (default '--ast-compact-json')
                 filter_paths (list(str)): list of path to filter (default [])
                 triage_mode (bool): if true, switch to triage mode (default false)
@@ -46,14 +46,17 @@ class Slither(SlitherSolc):
 
         '''
         # list of files provided (see --splitted option)
-        if isinstance(contract, list):
-            self._init_from_list(contract)
-        elif contract.endswith('.json'):
-            self._init_from_raw_json(contract)
+        if isinstance(target, list):
+            self._init_from_list(target)
+        elif isinstance(target, str) and target.endswith('.json'):
+            self._init_from_raw_json(target)
         else:
             super(Slither, self).__init__('')
             try:
-                crytic_compile = CryticCompile(contract, **kwargs)
+                if isinstance(target, CryticCompile):
+                    crytic_compile = target
+                else:
+                    crytic_compile = CryticCompile(target, **kwargs)
                 self._crytic_compile = crytic_compile
             except InvalidCompilation as e:
                 raise SlitherError('Invalid compilation: \n'+str(e))
