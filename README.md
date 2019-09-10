@@ -31,7 +31,9 @@ Run Slither on a single file:
 $ slither tests/uninitialized.sol 
 ``` 
 
-For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
+For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation. 
+
+Use [solc-select](https://github.com/crytic/solc-select) if your contracts require older versions of solc.
 
 ## Detectors
 
@@ -105,8 +107,6 @@ Num | Printer | Description
 ## How to install
 
 Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler. 
-
-If your contracts require older versions of solc, [solc-select](https://github.com/crytic/solc-select) will allow you to easily switch between Solidity compiler versions on any platform. It's like NVM, for solc.
 
 ### Using Pip
 
