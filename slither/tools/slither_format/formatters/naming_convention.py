@@ -44,7 +44,7 @@ SOLIDITY_KEYWORDS = ['abstract', 'after', 'alias', 'apply', 'auto', 'case', 'cat
 # https://solidity.readthedocs.io/en/v0.5.11/miscellaneous.html#language-grammar
 SOLIDITY_KEYWORDS += ['pragma', 'import', 'contract', 'library', 'contract', 'function', 'using', 'struct', 'enum',
                       'public', 'private', 'internal', 'external', 'calldata', 'memory', 'modifier', 'view', 'pure',
-                      'constant', 'storage', 'for', 'if', 'while', 'break', 'return', 'throw', 'else']
+                      'constant', 'storage', 'for', 'if', 'while', 'break', 'return', 'throw', 'else', 'type']
 
 SOLIDITY_KEYWORDS += ElementaryTypeName
 
