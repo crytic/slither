@@ -325,13 +325,7 @@ def _explore_variables_declaration(slither, variables, result, target, convert, 
             old_str = variable.name
             new_str = convert(old_str, slither)
 
-            # The name is after the space
-            # We take all the space, as we dont know the type
-            # In comparison to other matches, it is ok as there will not be more than one
-            # 'spaces' zone (ex: for function, the body and the signature will also contain space)
-            matches = re.finditer(b'[ ]*', full_txt)
-            # Look for the end offset of the largest list of ' '
-            loc_start = full_txt_start + max(matches, key=lambda x:len(x.group())).end()
+            loc_start = full_txt_start + full_txt.find(old_str.encode('utf8'))
             loc_end = loc_start + len(old_str)
 
             create_patch(result,
@@ -532,7 +526,6 @@ def _explore_functions(slither, functions, result, target, convert):
 def _explore_enums(slither, enums, result, target, convert):
     for enum in enums:
         if enum == target:
-            print(target)
             old_str = enum.name
             new_str = convert(old_str, slither)
 
