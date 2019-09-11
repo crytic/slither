@@ -80,8 +80,10 @@ def _convert_CapWords(original_name, slither):
     return name
 
 def _convert_mixedCase(original_name, slither):
+    name = original_name
+    if isinstance(name, bytes):
+        name = name.decode('utf8')
 
-    name = str(original_name)
     while '_' in name:
         offset = name.find('_')
         if len(name) > offset:
