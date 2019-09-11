@@ -367,7 +367,7 @@ def _explore_structures_declaration(slither, structures, result, target, convert
             full_txt = slither.source_code[filename_source_code].encode('utf8')[full_txt_start:full_txt_end]
 
             # The name is after the space
-            matches = re.finditer('struct[ ]*', full_txt)
+            matches = re.finditer(b'struct[ ]*', full_txt)
             # Look for the end offset of the largest list of ' '
             loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
             loc_end = loc_start + len(old_str)
@@ -475,9 +475,9 @@ def _explore_functions(slither, functions, result, target, convert):
 
             # The name is after the space
             if isinstance(target, Modifier):
-                matches = re.finditer('modifier([ ]*)', full_txt)
+                matches = re.finditer(b'modifier([ ]*)', full_txt)
             else:
-                matches = re.finditer('function([ ]*)', full_txt)
+                matches = re.finditer(b'function([ ]*)', full_txt)
             # Look for the end offset of the largest list of ' '
             loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
             loc_end = loc_start + len(old_str)
@@ -502,7 +502,7 @@ def _explore_enums(slither, enums, result, target, convert):
             full_txt = slither.source_code[filename_source_code].encode('utf8')[full_txt_start:full_txt_end]
 
             # The name is after the space
-            matches = re.finditer('enum([ ]*)', full_txt)
+            matches = re.finditer(b'enum([ ]*)', full_txt)
             # Look for the end offset of the largest list of ' '
             loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
             loc_end = loc_start + len(old_str)
@@ -531,7 +531,7 @@ def _explore_contract(slither, contract, result, target, convert):
         new_str = convert(old_str, slither)
 
         # The name is after the space
-        matches = re.finditer('contract[ ]*', full_txt)
+        matches = re.finditer(b'contract[ ]*', full_txt)
         # Look for the end offset of the largest list of ' '
         loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
 
