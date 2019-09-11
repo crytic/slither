@@ -338,17 +338,17 @@ def _explore_variables_declaration(slither, variables, result, target, convert, 
             # Patch comment only makes sense for local variable declaration in the parameter list
             if patch_comment and isinstance(variable, LocalVariable):
                 if 'lines' in variable.source_mapping and variable.source_mapping['lines']:
-                    end_line = variable.source_mapping['lines'][0]
                     func = variable.function
+                    end_line = func.source_mapping['lines'][0]
                     if variable in func.parameters:
-                        idx = len(func.parameters) - func.parameters.index(variable)
+                        idx = len(func.parameters) - func.parameters.index(variable) + 1
                         first_line = end_line - idx - 2
 
                         potential_comments = slither.source_code[filename_source_code].encode('utf8')
                         potential_comments = potential_comments.splitlines(keepends=True)[first_line:end_line-1]
 
-                        idx_beginning = variable.source_mapping['start']
-                        idx_beginning +=  - variable.source_mapping['starting_column'] + 1
+                        idx_beginning = func.source_mapping['start']
+                        idx_beginning +=  - func.source_mapping['starting_column'] + 1
                         idx_beginning +=  - sum([len(c) for c in potential_comments])
 
                         old_comment = f'@param {old_str}'.encode('utf8')
