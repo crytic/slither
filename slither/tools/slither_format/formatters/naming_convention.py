@@ -6,6 +6,7 @@ from slither.core.declarations import Modifier
 from slither.core.solidity_types import UserDefinedType, MappingType
 from slither.core.declarations import Enum, Contract, Structure
 from slither.core.solidity_types.elementary_type import ElementaryTypeName
+from slither.core.variables.local_variable import LocalVariable
 from ..exceptions import FormatError, FormatImpossible
 from ..utils.patches import create_patch
 
@@ -302,7 +303,7 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
 
 
 
-def _explore_variables_declaration(slither, variables, result, target, convert):
+def _explore_variables_declaration(slither, variables, result, target, convert, patch_comment=False):
     for variable in variables:
         # First explore the type of the variable
         filename_source_code = variable.source_mapping['filename_absolute']
@@ -339,6 +340,45 @@ def _explore_variables_declaration(slither, variables, result, target, convert):
                          loc_end,
                          old_str,
                          new_str)
+
+            # Patch comment only makes sense for local variable declaration in the parameter list
+            if patch_comment and isinstance(variable, LocalVariable):
+                if 'lines' in variable.source_mapping and variable.source_mapping['lines']:
+                    end_line = variable.source_mapping['lines'][0]
+                    func = variable.function
+                    if variable in func.parameters:
+                        idx = len(func.parameters) - func.parameters.index(variable)
+                        first_line = end_line - idx - 2
+
+                        potential_comments = slither.source_code[filename_source_code].encode('utf8')
+                        potential_comments = potential_comments.splitlines(keepends=True)[first_line:end_line-1]
+
+                        idx_beginning = variable.source_mapping['start']
+                        idx_beginning +=  - variable.source_mapping['starting_column'] + 1
+                        idx_beginning +=  - sum([len(c) for c in potential_comments])
+
+                        old_comment = f'@param {old_str}'.encode('utf8')
+                        print(f'idx beging {idx_beginning}')
+
+                        for line in potential_comments:
+                            idx = line.find(old_comment)
+                            if idx >=0:
+                                loc_start = idx + idx_beginning
+                                print(loc_start)
+                                loc_end = loc_start + len(old_comment)
+                                new_comment = f'@param {new_str}'.encode('utf8')
+
+                                create_patch(result,
+                                             filename_source_code,
+                                             loc_start,
+                                             loc_end,
+                                             old_comment,
+                                             new_comment)
+
+                                break
+                            idx_beginning += len(line)
+
+
 
 
 def _explore_modifiers_calls(slither, function, result, target, convert):
@@ -460,7 +500,7 @@ def _explore_irs(slither, irs, result, target, convert):
 
 def _explore_functions(slither, functions, result, target, convert):
     for function in functions:
-        _explore_variables_declaration(slither, function.variables, result, target, convert)
+        _explore_variables_declaration(slither, function.variables, result, target, convert, True)
         _explore_modifiers_calls(slither, function, result, target, convert)
         _explore_irs(slither, function.all_slithir_operations(), result, target, convert)
 
