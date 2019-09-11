@@ -582,7 +582,7 @@ def parse_expression(expression, caller_context):
             if var is None:
                 raise VariableNotFound('Variable not found: {}'.format(super_name))
             sup = SuperIdentifier(var)
-            sup.set_offset(expression['src'], caller_context)
+            sup.set_offset(expression['src'], caller_context.slither)
             return sup
         member_access = MemberAccess(member_name, member_type, member_expression)
         member_access.set_offset(expression['src'], caller_context.slither)

@@ -41,7 +41,7 @@ class NodeSolc(Node):
                                                   self.expression,
                                                   AssignmentOperationType.ASSIGN,
                                                   self.variable_declaration.type)
-                _expression.set_offset(self.expression.source_mapping, caller_context)
+                _expression.set_offset(self.expression.source_mapping, self.slither)
                 self._expression = _expression
 
             expression = self.expression
