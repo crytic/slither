@@ -569,7 +569,9 @@ def parse_expression(expression, caller_context):
             var = find_variable(super_name, caller_context, is_super=True)
             if var is None:
                 raise VariableNotFound('Variable not found: {}'.format(super_name))
-            return SuperIdentifier(var)
+            sup = SuperIdentifier(var)
+            sup.set_offset(expression['src'], caller_context.slither)
+            return sup
         member_access = MemberAccess(member_name, member_type, member_expression)
         if str(member_access) in SOLIDITY_VARIABLES_COMPOSED:
             return Identifier(SolidityVariableComposed(str(member_access)))
