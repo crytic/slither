@@ -5,8 +5,14 @@ from ..utils.patches import create_patch
 def format(slither, result):
     elements = result['elements']
     for element in elements:
-        if not element.expression:
-            raise FormatImpossible(f'{element.name} is uninitialized and cannot become constant.')
+
+        # TODO: decide if this should be changed in the constant detector
+        contract_name = element['type_specific_fields']['parent']['name']
+        contract = slither.get_contract_from_name(contract_name)
+        var = contract.get_state_variable_from_name(element['name'])
+        if not var.expression:
+            raise FormatImpossible(f'{var.name} is uninitialized and cannot become constant.')
+
         _patch(slither, result, element['source_mapping']['filename_absolute'],
                element['name'],
                "constant " + element['name'],
