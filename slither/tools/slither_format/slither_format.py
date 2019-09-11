@@ -57,7 +57,7 @@ def slither_format(slither, **kwargs):
         logger.info(f'Issue: {one_line_description}')
         logger.info('Generated:')
         for file in result['patches']:
-            original_txt = slither.source_code[file]
+            original_txt = slither.source_code[file].encode('utf8')
             patched_txt = original_txt
             offset = 0
             patches = result['patches'][file]

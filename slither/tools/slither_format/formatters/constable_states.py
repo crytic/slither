@@ -13,7 +13,7 @@ def format(slither, result):
 
 
 def _patch(slither, result, in_file, match_text, replace_text, modify_loc_start, modify_loc_end):
-    in_file_str = slither.source_code[in_file].encode('utf-8')
+    in_file_str = slither.source_code[in_file].encode('utf8')
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Add keyword `constant` before the variable name
     (new_str_of_interest, num_repl) = re.subn(match_text, replace_text, old_str_of_interest.decode('utf-8'), 1)
@@ -22,7 +22,7 @@ def _patch(slither, result, in_file, match_text, replace_text, modify_loc_start,
                      in_file,
                      modify_loc_start,
                      modify_loc_end,
-                     old_str_of_interest.decode('utf-8'),
+                     old_str_of_interest,
                      new_str_of_interest)
 
     else:

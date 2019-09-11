@@ -81,7 +81,7 @@ def _convert_CapWords(original_name, slither):
 
 def _convert_mixedCase(original_name, slither):
 
-    name = original_name
+    name = str(original_name)
     while '_' in name:
         offset = name.find('_')
         if len(name) > offset:
@@ -192,9 +192,9 @@ def _patch(slither, result, element, _target):
 # group 2: beginning of the to type
 # nested mapping are within the group 1
 #RE_MAPPING = '[ ]*mapping[ ]*\([ ]*([\=\>\(\) a-zA-Z0-9\._\[\]]*)[ ]*=>[ ]*([a-zA-Z0-9\._\[\]]*)\)'
-RE_MAPPING_FROM = '([a-zA-Z0-9\._\[\]]*)'
-RE_MAPPING_TO = '([\=\>\(\) a-zA-Z0-9\._\[\]\   ]*)'
-RE_MAPPING = '[ ]*mapping[ ]*\([ ]*' + RE_MAPPING_FROM + '[ ]*' + '=>' + '[ ]*'+ RE_MAPPING_TO + '\)'
+RE_MAPPING_FROM = b'([a-zA-Z0-9\._\[\]]*)'
+RE_MAPPING_TO = b'([\=\>\(\) a-zA-Z0-9\._\[\]\   ]*)'
+RE_MAPPING = b'[ ]*mapping[ ]*\([ ]*' + RE_MAPPING_FROM + b'[ ]*' + b'=>' + b'[ ]*'+ RE_MAPPING_TO + b'\)'
 
 def _explore_type(slither, result, target, convert, type, filename_source_code, start, end):
     if isinstance(type, UserDefinedType):
@@ -253,7 +253,7 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
 
             full_txt_start = start
             full_txt_end = end
-            full_txt = slither.source_code[filename_source_code][full_txt_start:full_txt_end]
+            full_txt = slither.source_code[filename_source_code].encode('utf8')[full_txt_start:full_txt_end]
             re_match = re.match(RE_MAPPING, full_txt)
             assert re_match
 
@@ -306,7 +306,7 @@ def _explore_variables_declaration(slither, variables, result, target, convert):
         filename_source_code = variable.source_mapping['filename_absolute']
         full_txt_start = variable.source_mapping['start']
         full_txt_end = full_txt_start + variable.source_mapping['length']
-        full_txt = slither.source_code[filename_source_code][full_txt_start:full_txt_end]
+        full_txt = slither.source_code[filename_source_code].encode('utf8')[full_txt_start:full_txt_end]
 
         _explore_type(slither,
                       result,
@@ -326,7 +326,7 @@ def _explore_variables_declaration(slither, variables, result, target, convert):
             # We take all the space, as we dont know the type
             # In comparison to other matches, it is ok as there will not be more than one
             # 'spaces' zone (ex: for function, the body and the signature will also contain space)
-            matches = re.finditer('[ ]*', full_txt)
+            matches = re.finditer(b'[ ]*', full_txt)
             # Look for the end offset of the largest list of ' '
             loc_start = full_txt_start + max(matches, key=lambda x:len(x.group())).end()
             loc_end = loc_start + len(old_str)
@@ -362,7 +362,7 @@ def _explore_structures_declaration(slither, structures, result, target, convert
             filename_source_code = st.source_mapping['filename_absolute']
             full_txt_start = st.source_mapping['start']
             full_txt_end = full_txt_start + st.source_mapping['length']
-            full_txt = slither.source_code[filename_source_code][full_txt_start:full_txt_end]
+            full_txt = slither.source_code[filename_source_code].encode('utf8')[full_txt_start:full_txt_end]
 
             # The name is after the space
             matches = re.finditer('struct[ ]*', full_txt)
@@ -427,12 +427,12 @@ def _explore_irs(slither, irs, result, target, convert):
                 filename_source_code = source_mapping['filename_absolute']
                 full_txt_start = source_mapping['start']
                 full_txt_end = full_txt_start + source_mapping['length']
-                full_txt = slither.source_code[filename_source_code][full_txt_start:full_txt_end]
+                full_txt = slither.source_code[filename_source_code].encode('utf8')[full_txt_start:full_txt_end]
 
-                if not str(target) in full_txt:
+                if not target.name.encode('utf8') in full_txt:
                     raise FormatError(f'{target} not found in {full_txt} ({source_mapping}')
 
-                old_str = str(target)
+                old_str = target.name.encode('utf8')
                 new_str = convert(old_str, slither)
 
                 counter = 0
@@ -469,7 +469,7 @@ def _explore_functions(slither, functions, result, target, convert):
             filename_source_code = function.source_mapping['filename_absolute']
             full_txt_start = function.source_mapping['start']
             full_txt_end = full_txt_start + function.source_mapping['length']
-            full_txt = slither.source_code[filename_source_code][full_txt_start:full_txt_end]
+            full_txt = slither.source_code[filename_source_code].encode('utf8')[full_txt_start:full_txt_end]
 
             # The name is after the space
             if isinstance(target, Modifier):
@@ -497,7 +497,7 @@ def _explore_enums(slither, enums, result, target, convert):
             filename_source_code = enum.source_mapping['filename_absolute']
             full_txt_start = enum.source_mapping['start']
             full_txt_end = full_txt_start + enum.source_mapping['length']
-            full_txt = slither.source_code[filename_source_code][full_txt_start:full_txt_end]
+            full_txt = slither.source_code[filename_source_code].encode('utf8')[full_txt_start:full_txt_end]
 
             # The name is after the space
             matches = re.finditer('enum([ ]*)', full_txt)
@@ -523,7 +523,7 @@ def _explore_contract(slither, contract, result, target, convert):
         filename_source_code = contract.source_mapping['filename_absolute']
         full_txt_start = contract.source_mapping['start']
         full_txt_end = full_txt_start + contract.source_mapping['length']
-        full_txt = slither.source_code[filename_source_code][full_txt_start:full_txt_end]
+        full_txt = slither.source_code[filename_source_code].encode('utf8')[full_txt_start:full_txt_end]
 
         old_str = contract.name
         new_str = convert(old_str, slither)
