@@ -1,10 +1,12 @@
 import re
-from ..exceptions import FormatError
+from ..exceptions import FormatError, FormatImpossible
 from ..utils.patches import create_patch
 
 def format(slither, result):
     elements = result['elements']
     for element in elements:
+        if not element.expression:
+            raise FormatImpossible(f'{element.name} is uninitialized and cannot become constant.')
         _patch(slither, result, element['source_mapping']['filename_absolute'],
                element['name'],
                "constant " + element['name'],
