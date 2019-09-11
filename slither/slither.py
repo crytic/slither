@@ -122,6 +122,10 @@ class Slither(SlitherSolc):
     def detectors_informational(self):
         return [d for d in self.detectors if d.IMPACT == DetectorClassification.INFORMATIONAL]
 
+    @property
+    def detectors_optimization(self):
+        return [d for d in self.detectors if d.IMPACT == DetectorClassification.OPTIMIZATION]
+
     def register_detector(self, detector_class):
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
