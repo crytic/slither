@@ -7,7 +7,8 @@ from slither.detectors.naming_convention.naming_convention import NamingConventi
 from slither.detectors.functions.external_function import ExternalFunction
 from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
 from slither.detectors.attributes.const_functions import ConstantFunctions
-from .formatters import unused_state, constable_states, pragma, solc_version, external_function, naming_convention
+from .formatters import unused_state, constable_states, pragma, solc_version, \
+    external_function, naming_convention, constant_function
 from .utils.patches import apply_patch, create_diff
 from .exceptions import FormatError, FormatImpossible
 
@@ -127,7 +128,7 @@ def apply_detector_results(slither, detector_results):
             elif result['check'] == 'constable-states':
                 constable_states.format(slither, result)
             elif result['check'] == 'constant-function':
-                constable_states.format(slither, result)
+                constant_function.format(slither, result)
             else:
                 raise FormatError(result['check'] + "detector not supported yet.")
         except FormatImpossible as e:
