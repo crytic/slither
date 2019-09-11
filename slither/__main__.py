@@ -618,7 +618,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         if printer_classes:
             logger.info('%s analyzed (%d contracts)', filename, number_contracts)
         else:
-            logger.info('%s analyzed (%d contracts), %d result(s) found', filename, number_contracts, len(results))
+            logger.info('%s analyzed (%d contracts with %d detectors), %d result(s) found', filename, number_contracts, len(detector_classes), len(results))
         if args.ignore_return_value:
             return
 
