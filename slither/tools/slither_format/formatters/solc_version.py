@@ -49,11 +49,11 @@ def _determine_solc_version_replacement(used_solc_version):
 
 
 def _patch(slither, result, in_file, solc_version, modify_loc_start, modify_loc_end):
-    in_file_str = slither.source_code[in_file].encode('utf-8')
+    in_file_str = slither.source_code[in_file].encode('utf8')
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     create_patch(result,
                  in_file,
                  int(modify_loc_start),
                  int(modify_loc_end),
-                 old_str_of_interest.decode('utf-8'),
+                 old_str_of_interest,
                  solc_version)

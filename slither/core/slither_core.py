@@ -44,7 +44,7 @@ class Slither(Context):
 
     @property
     def source_code(self):
-        """ {filename: source_code}: source code """
+        """ {filename: source_code (str)}: source code """
         return self._raw_source_code
 
     @property

@@ -16,7 +16,7 @@ def format(slither, result):
 
 
 def _patch(slither, result, in_file, modify_loc_start, modify_loc_end):
-    in_file_str = slither.source_code[in_file].encode('utf-8')
+    in_file_str = slither.source_code[in_file].encode('utf8')
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Search for 'public' keyword which is in-between the function name and modifier name (if present)
     # regex: 'public' could have spaces around or be at the end of the line

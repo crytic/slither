@@ -3,6 +3,10 @@ import difflib
 from collections import defaultdict
 
 def create_patch(result, file, start, end, old_str, new_str):
+    if isinstance(old_str, str):
+        old_str = old_str.encode('utf8')
+    if isinstance(new_str, str):
+        new_str = new_str.encode('utf8')
     p = {"start": start,
          "end": end,
          "old_string": old_str,
@@ -30,8 +34,8 @@ def create_diff(slither, original_txt, patched_txt, filename):
         relative_path = os.path.join('.', relative_path)
     else:
         relative_path = filename
-    diff = difflib.unified_diff(original_txt.splitlines(False),
-                                patched_txt.splitlines(False),
+    diff = difflib.unified_diff(original_txt.decode('utf8').splitlines(False),
+                                patched_txt.decode('utf8').splitlines(False),
                                 fromfile=relative_path,
                                 tofile=relative_path,
                                 lineterm='')

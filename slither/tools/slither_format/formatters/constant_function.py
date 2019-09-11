@@ -20,7 +20,7 @@ def format(slither, patches, elements):
 
 
 def _patch(slither, patches, in_file, in_file_relative, modify_loc_start, modify_loc_end):
-    in_file_str = slither.source_code[in_file].encode('utf-8')
+    in_file_str = slither.source_code[in_file].encode('utf8')
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Find the keywords view|pure|constant and remove them
     m = re.search("(view|pure|constant)", old_str_of_interest.decode('utf-8'))
