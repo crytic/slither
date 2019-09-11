@@ -382,6 +382,7 @@ class ContractSolc04(Contract):
                                                     AssignmentOperationType.ASSIGN,
                                                     variable.type)
 
+        expression.set_offset(variable.source_mapping, self.slither)
         node.add_expression(expression)
         return node
 
