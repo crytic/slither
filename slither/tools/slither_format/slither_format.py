@@ -1,5 +1,5 @@
 import logging
-import os
+from pathlib import Path
 from slither.detectors.variables.unused_state_variables import UnusedStateVars
 from slither.detectors.attributes.incorrect_solc import IncorrectSolc
 from slither.detectors.attributes.constant_pragma import ConstantPragma
@@ -45,18 +45,24 @@ def slither_format(slither, **kwargs):
 
     skip_file_generation = kwargs.get('skip-patch-generation', False)
 
-    counter = 0
-    export = os.path.join('crytic-export', 'patches')
+    export = Path('crytic-export', 'patches')
 
-    if not os.path.exists(export):
-        os.makedirs(export)
+    export.mkdir(parents=True, exist_ok=True)
+
+    counter_result = 0
 
     for result in detector_results:
         if not 'patches' in result:
             continue
         one_line_description = result["description"].split("\n")[0]
+
+        export_result = Path(export, f'{counter_result}')
+        export_result.mkdir(parents=True, exist_ok=True)
+        counter_result += 1
+        counter = 0
+
         logger.info(f'Issue: {one_line_description}')
-        logger.info('Generated:')
+        logger.info(f'Generated: ({export_result})')
         for file in result['patches']:
             original_txt = slither.source_code[file].encode('utf8')
             patched_txt = original_txt
@@ -75,11 +81,12 @@ def slither_format(slither, **kwargs):
             if not diff:
                 logger.info(f'Impossible to generate patch; empty {result}')
                 continue
-            path = os.path.join(export, f'fix_{counter}.patch')
-            logger.info(f'\t- {path}')
+            filename = f'fix_{counter}.patch'
+            path = Path(export_result, filename)
+            logger.info(f'\t- {filename}')
             with open(path, 'w') as f:
                 f.write(diff)
-            counter = counter + 1
+            counter += 1
 
 
 # endregion
