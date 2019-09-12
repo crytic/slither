@@ -499,7 +499,8 @@ class FunctionSolc(Function):
                 variables = statement['declarations']
                 count = len(variables)
 
-                if statement['initialValue']['nodeType'] == 'TupleExpression':
+                if statement['initialValue']['nodeType'] == 'TupleExpression' and \
+                        len(statement['initialValue']['components']) == count:
                     inits = statement['initialValue']['components']
                     i = 0
                     new_node = node
