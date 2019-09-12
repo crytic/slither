@@ -361,7 +361,7 @@ def parse_expression(expression, caller_context):
         operation_type = UnaryOperationType.get_type(attributes['operator'], attributes['prefix'])
 
         if is_compact_ast:
-            expression_parsed = parse_expression(expression['subExpression'], caller_context)
+            expression = parse_expression(expression['subExpression'], caller_context)
         else:
             assert len(expression['children']) == 1
             expression = parse_expression(expression['children'][0], caller_context)
