@@ -199,6 +199,19 @@ RE_MAPPING_FROM = b'([a-zA-Z0-9\._\[\]]*)'
 RE_MAPPING_TO = b'([\=\>\(\) a-zA-Z0-9\._\[\]\   ]*)'
 RE_MAPPING = b'[ ]*mapping[ ]*\([ ]*' + RE_MAPPING_FROM + b'[ ]*' + b'=>' + b'[ ]*'+ RE_MAPPING_TO + b'\)'
 
+
+def _is_var_declaration(slither, filename, start):
+    '''
+    Detect usage of 'var ' for Solidity < 0.5
+    :param slither:
+    :param filename:
+    :param start:
+    :return:
+    '''
+    v = 'var '
+    return slither.source_code[filename][start:start + len(v)] == v
+
+
 def _explore_type(slither, result, target, convert, type, filename_source_code, start, end):
     if isinstance(type, UserDefinedType):
         # Patch type based on contract/enum
@@ -208,7 +221,10 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
                 new_str = convert(old_str, slither)
 
                 loc_start = start
-                loc_end = loc_start + len(old_str)
+                if _is_var_declaration(slither, filename_source_code, start):
+                    loc_end = loc_start + len('var')
+                else:
+                    loc_end = loc_start + len(old_str)
 
                 create_patch(result,
                              filename_source_code,
@@ -226,7 +242,10 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
                 new_str = convert(old_str, slither)
 
                 loc_start = start
-                loc_end = loc_start + len(old_str)
+                if _is_var_declaration(slither, filename_source_code, start):
+                    loc_end = loc_start + len('var')
+                else:
+                    loc_end = loc_start + len(old_str)
 
                 create_patch(result,
                              filename_source_code,
@@ -352,13 +371,11 @@ def _explore_variables_declaration(slither, variables, result, target, convert, 
                         idx_beginning +=  - sum([len(c) for c in potential_comments])
 
                         old_comment = f'@param {old_str}'.encode('utf8')
-                        print(f'idx beging {idx_beginning}')
 
                         for line in potential_comments:
                             idx = line.find(old_comment)
                             if idx >=0:
                                 loc_start = idx + idx_beginning
-                                print(loc_start)
                                 loc_end = loc_start + len(old_comment)
                                 new_comment = f'@param {new_str}'.encode('utf8')
 
