@@ -6,13 +6,13 @@ def format(slither, result):
     for element in elements:
         target_contract = slither.get_contract_from_name(element['type_specific_fields']['parent']['name'])
         if target_contract:
-            for function in target_contract.functions:
-                if function.name == element['name']:
-                    _patch(slither, result,
-                           element['source_mapping']['filename_absolute'],
-                           int(function.parameters_src.source_mapping['start']),
-                           int(function.returns_src.source_mapping['start']))
-                    break
+            function = target_contract.get_function_from_signature(element['type_specific_fields']['signature'])
+            if function:
+                _patch(slither,
+                       result,
+                       element['source_mapping']['filename_absolute'],
+                       int(function.parameters_src.source_mapping['start']),
+                       int(function.returns_src.source_mapping['start']))
 
 
 def _patch(slither, result, in_file, modify_loc_start, modify_loc_end):

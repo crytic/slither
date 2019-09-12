@@ -4,7 +4,7 @@ from slither.slithir.operations import Send, Transfer, OperationWithLValue, High
     InternalCall, InternalDynamicCall
 from slither.core.declarations import Modifier
 from slither.core.solidity_types import UserDefinedType, MappingType
-from slither.core.declarations import Enum, Contract, Structure
+from slither.core.declarations import Enum, Contract, Structure, Function
 from slither.core.solidity_types.elementary_type import ElementaryTypeName
 from slither.core.variables.local_variable import LocalVariable
 from ..exceptions import FormatError, FormatImpossible
@@ -458,7 +458,9 @@ def _explore_irs(slither, irs, result, target, convert):
         return
     for ir in irs:
         for v in get_ir_variables(ir):
-            if target == v:
+            if target == v or (
+                    isinstance(target, Function) and isinstance(v, Function) and
+                    v.canonical_name == target.canonical_name):
                 source_mapping = ir.expression.source_mapping
                 filename_source_code = source_mapping['filename_absolute']
                 full_txt_start = source_mapping['start']
@@ -498,7 +500,7 @@ def _explore_functions(slither, functions, result, target, convert):
         _explore_modifiers_calls(slither, function, result, target, convert)
         _explore_irs(slither, function.all_slithir_operations(), result, target, convert)
 
-        if function == target:
+        if function.canonical_name == target.canonical_name:
             old_str = function.name
             new_str = convert(old_str, slither)
 
