@@ -228,7 +228,7 @@ def filter_name(value):
 ###################################################################################
 
 def parse_call(expression, caller_context):
-
+    src = expression['src']
     if caller_context.is_compact_ast:
         attributes = expression
         type_conversion = expression['kind'] == 'typeConversion'
@@ -259,9 +259,9 @@ def parse_call(expression, caller_context):
                                          'IndexAccess',
                                          'MemberAccess']
 
-        expression_parsed = parse_expression(expression_to_parse, caller_context)
-        t = TypeConversion(expression_parsed, type_call)
-        t.set_offset(expression['src'], caller_context.slither)
+        expression = parse_expression(expression_to_parse, caller_context)
+        t = TypeConversion(expression, type_call)
+        t.set_offset(src, caller_context.slither)
         return t
 
     if caller_context.is_compact_ast:
@@ -279,7 +279,7 @@ def parse_call(expression, caller_context):
         sp.set_offset(expression['src'], caller_context.slither)
         return sp
     call_expression = CallExpression(called, arguments, type_return)
-    call_expression.set_offset(expression['src'], caller_context.slither)
+    call_expression.set_offset(src, caller_context.slither)
     return call_expression
 
 def parse_super_name(expression, is_compact_ast):
@@ -350,6 +350,7 @@ def parse_expression(expression, caller_context):
     # The AST naming does not follow the spec 
     name = expression[caller_context.get_key()]
     is_compact_ast = caller_context.is_compact_ast
+    src = expression['src']
 
     if name == 'UnaryOperation':
         if is_compact_ast:
@@ -363,9 +364,9 @@ def parse_expression(expression, caller_context):
             expression_parsed = parse_expression(expression['subExpression'], caller_context)
         else:
             assert len(expression['children']) == 1
-            expression_parsed = parse_expression(expression['children'][0], caller_context)
-        unary_op = UnaryOperation(expression_parsed, operation_type)
-        unary_op.set_offset(expression['src'], caller_context.slither)
+            expression = parse_expression(expression['children'][0], caller_context)
+        unary_op = UnaryOperation(expression, operation_type)
+        unary_op.set_offset(src, caller_context.slither)
         return unary_op
 
     elif name == 'BinaryOperation':
@@ -383,7 +384,7 @@ def parse_expression(expression, caller_context):
             left_expression = parse_expression(expression['children'][0], caller_context)
             right_expression = parse_expression(expression['children'][1], caller_context)
         binary_op = BinaryOperation(left_expression, right_expression, operation_type)
-        binary_op.set_offset(expression['src'], caller_context.slither)
+        binary_op.set_offset(src, caller_context.slither)
         return binary_op
 
     elif name == 'FunctionCall':
@@ -421,7 +422,7 @@ def parse_expression(expression, caller_context):
                         if elems[idx] == '':
                             expressions.insert(idx, None)
         t = TupleExpression(expressions)
-        t.set_offset(expression['src'], caller_context.slither)
+        t.set_offset(src, caller_context.slither)
         return t
 
     elif name == 'Conditional':
@@ -436,7 +437,7 @@ def parse_expression(expression, caller_context):
             then_expression = parse_expression(children[1], caller_context)
             else_expression = parse_expression(children[2], caller_context)
         conditional = ConditionalExpression(if_expression, then_expression, else_expression)
-        conditional.set_offset(expression['src'], caller_context.slither)
+        conditional.set_offset(src, caller_context.slither)
         return conditional
 
     elif name == 'Assignment':
@@ -458,7 +459,7 @@ def parse_expression(expression, caller_context):
             operation_return_type = attributes['type']
 
         assignement = AssignmentOperation(left_expression, right_expression, operation_type, operation_return_type)
-        assignement.set_offset(expression['src'], caller_context.slither)
+        assignement.set_offset(src, caller_context.slither)
         return assignement
 
 
@@ -508,7 +509,7 @@ def parse_expression(expression, caller_context):
         else:
             type = ElementaryType('string')
         literal = Literal(value, type, subdenomination)
-        literal.set_offset(expression['src'], caller_context.slither)
+        literal.set_offset(src, caller_context.slither)
         return literal
 
     elif name == 'Identifier':
@@ -539,7 +540,7 @@ def parse_expression(expression, caller_context):
         var = find_variable(value, caller_context, referenced_declaration)
 
         identifier = Identifier(var)
-        identifier.set_offset(expression['src'], caller_context.slither)
+        identifier.set_offset(src, caller_context.slither)
         return identifier
 
     elif name == 'IndexAccess':
@@ -562,7 +563,7 @@ def parse_expression(expression, caller_context):
         left_expression = parse_expression(left, caller_context)
         right_expression = parse_expression(right, caller_context)
         index = IndexAccess(left_expression, right_expression, index_type)
-        index.set_offset(expression['src'], caller_context.slither)
+        index.set_offset(src, caller_context.slither)
         return index
 
     elif name == 'MemberAccess':
@@ -582,14 +583,14 @@ def parse_expression(expression, caller_context):
             if var is None:
                 raise VariableNotFound('Variable not found: {}'.format(super_name))
             sup = SuperIdentifier(var)
-            sup.set_offset(expression['src'], caller_context.slither)
+            sup.set_offset(src, caller_context.slither)
             return sup
         member_access = MemberAccess(member_name, member_type, member_expression)
-        member_access.set_offset(expression['src'], caller_context.slither)
+        member_access.set_offset(src, caller_context.slither)
         if str(member_access) in SOLIDITY_VARIABLES_COMPOSED:
-            identifier = Identifier(SolidityVariableComposed(str(member_access)))
-            identifier.set_offset(expression['src'], caller_context.slither)
-            return identifier
+            idx = Identifier(SolidityVariableComposed(str(member_access)))
+            idx.set_offset(src, caller_context.slither)
+            return idx
         return member_access
 
     elif name == 'ElementaryTypeNameExpression':
@@ -631,7 +632,7 @@ def parse_expression(expression, caller_context):
             else:
                 raise ParsingError('Incorrect type array {}'.format(type_name))
             array = NewArray(depth, array_type)
-            array.set_offset(expression['src'], caller_context.slither)
+            array.set_offset(src, caller_context.slither)
             return array
 
         if type_name[caller_context.get_key()] == 'ElementaryTypeName':
@@ -640,7 +641,7 @@ def parse_expression(expression, caller_context):
             else:
                 elem_type = ElementaryType(type_name['attributes']['name'])
             new_elem = NewElementaryType(elem_type)
-            new_elem.set_offset(expression['src'], caller_context.slither)
+            new_elem.set_offset(src, caller_context.slither)
             return new_elem
 
         assert type_name[caller_context.get_key()] == 'UserDefinedTypeName'
@@ -650,7 +651,7 @@ def parse_expression(expression, caller_context):
         else:
             contract_name = type_name['attributes']['name']
         new = NewContract(contract_name)
-        new.set_offset(expression['src'], caller_context.slither)
+        new.set_offset(src, caller_context.slither)
         return new
 
     elif name == 'ModifierInvocation':
@@ -666,7 +667,7 @@ def parse_expression(expression, caller_context):
             arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
         call = CallExpression(called, arguments, 'Modifier')
-        call.set_offset(expression['src'], caller_context.slither)
+        call.set_offset(src, caller_context.slither)
         return call
 
     raise ParsingError('Expression not parsed %s'%name)
