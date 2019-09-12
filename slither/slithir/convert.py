@@ -708,6 +708,7 @@ def convert_to_solidity_func(ir):
     call = SolidityFunction('abi.{}()'.format(ir.function_name))
     new_ir = SolidityCall(call, ir.nbr_arguments, ir.lvalue, ir.type_call)
     new_ir.arguments = ir.arguments
+    new_ir.set_expression(ir.expression)
     if isinstance(call.return_type, list) and len(call.return_type) == 1:
         new_ir.lvalue.set_type(call.return_type[0])
     else:
