@@ -517,7 +517,7 @@ def _explore_functions(slither, functions, result, target, convert):
         _explore_modifiers_calls(slither, function, result, target, convert)
         _explore_irs(slither, function.all_slithir_operations(), result, target, convert)
 
-        if function.canonical_name == target.canonical_name:
+        if isinstance(target, Function) and function.canonical_name == target.canonical_name:
             old_str = function.name
             new_str = convert(old_str, slither)
 
