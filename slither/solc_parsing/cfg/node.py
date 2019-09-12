@@ -37,10 +37,12 @@ class NodeSolc(Node):
             if self.type == NodeType.VARIABLE:
                 # Update the expression to be an assignement to the variable
                 #print(self.variable_declaration)
-                self._expression = AssignmentOperation(Identifier(self.variable_declaration),
-                                                       self.expression,
-                                                       AssignmentOperationType.ASSIGN,
-                                                       self.variable_declaration.type)
+                _expression = AssignmentOperation(Identifier(self.variable_declaration),
+                                                  self.expression,
+                                                  AssignmentOperationType.ASSIGN,
+                                                  self.variable_declaration.type)
+                _expression.set_offset(self.expression.source_mapping, self.slither)
+                self._expression = _expression
 
             expression = self.expression
             pp = ReadVar(expression)
