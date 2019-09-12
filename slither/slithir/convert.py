@@ -386,6 +386,10 @@ def propagate_types(ir, node):
                 if t is None:
                     return
 
+                if isinstance(t, ElementaryType) and t.name == 'address':
+                    if can_be_solidity_func(ir):
+                        return convert_to_solidity_func(ir)
+
                 # convert library
                 if t in using_for or '*' in using_for:
                     new_ir = convert_to_library(ir, node, using_for)
@@ -403,7 +407,8 @@ def propagate_types(ir, node):
                 if isinstance(t, ElementaryType) and t.name == 'address':
                     if ir.destination.name == 'this':
                         return convert_type_of_high_and_internal_level_call(ir, node.function.contract)
-                    return convert_to_low_level(ir)
+                    if can_be_low_level(ir):
+                        return convert_to_low_level(ir)
 
                 # Convert push operations
                 # May need to insert a new operation
@@ -640,13 +645,21 @@ def extract_tmp_call(ins, contract):
 ###################################################################################
 ###################################################################################
 
+def can_be_low_level(ir):
+    return ir.function_name in ['transfer',
+                                'send',
+                                'call',
+                                'delegatecall',
+                                'callcode',
+                                'staticcall']
+
 def convert_to_low_level(ir):
     """
         Convert to a transfer/send/or low level call
         The funciton assume to receive a correct IR
         The checks must be done by the caller
 
-        Additionally convert abi... to solidityfunction
+        Must be called after can_be_low_level
     """
     if ir.function_name == 'transfer':
         assert len(ir.arguments) == 1
@@ -661,21 +674,6 @@ def convert_to_low_level(ir):
         ir.set_expression(prev_ir.expression)
         ir.lvalue.set_type(ElementaryType('bool'))
         return ir
-    elif ir.destination.name ==  'abi' and ir.function_name in ['encode',
-                                                                'encodePacked',
-                                                                'encodeWithSelector',
-                                                                'encodeWithSignature',
-                                                                'decode']:
-
-        call = SolidityFunction('abi.{}()'.format(ir.function_name))
-        new_ir = SolidityCall(call, ir.nbr_arguments, ir.lvalue, ir.type_call)
-        new_ir.arguments = ir.arguments
-        new_ir.set_expression(ir.expression)
-        if isinstance(call.return_type, list) and len(call.return_type) == 1:
-            new_ir.lvalue.set_type(call.return_type[0])
-        else:
-            new_ir.lvalue.set_type(call.return_type)
-        return new_ir
     elif ir.function_name in ['call',
                               'delegatecall',
                               'callcode',
@@ -692,6 +690,29 @@ def convert_to_low_level(ir):
         new_ir.set_expression(ir.expression)
         return new_ir
     raise SlithIRError('Incorrect conversion to low level {}'.format(ir))
+
+
+def can_be_solidity_func(ir):
+    return  ir.destination.name == 'abi' and ir.function_name in ['encode',
+                                                                  'encodePacked',
+                                                                  'encodeWithSelector',
+                                                                  'encodeWithSignature',
+                                                                  'decode']
+
+def convert_to_solidity_func(ir):
+    """
+    Must be called after can_be_solidity_func
+    :param ir:
+    :return:
+    """
+    call = SolidityFunction('abi.{}()'.format(ir.function_name))
+    new_ir = SolidityCall(call, ir.nbr_arguments, ir.lvalue, ir.type_call)
+    new_ir.arguments = ir.arguments
+    if isinstance(call.return_type, list) and len(call.return_type) == 1:
+        new_ir.lvalue.set_type(call.return_type[0])
+    else:
+        new_ir.lvalue.set_type(call.return_type)
+    return new_ir
 
 def convert_to_push(ir, node):
     """
@@ -864,12 +885,11 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
                 func = function
                 break
     # lowlelvel lookup needs to be done at last step
-    if not func and ir.function_name in ['call',
-                                         'delegatecall',
-                                         'callcode',
-                                         'transfer',
-                                         'send']:
-        return convert_to_low_level(ir)
+    if not func:
+        if can_be_low_level(ir):
+            return convert_to_low_level(ir)
+        if can_be_solidity_func(ir):
+            return convert_to_solidity_func(ir)
     if not func:
         logger.error('Function not found {}'.format(sig))
     ir.function = func
