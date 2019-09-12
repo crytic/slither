@@ -8,6 +8,7 @@
         "impact": "High",
         "confidence": "High",
         "description": "C.i_am_a_backdoor() (tests/backdoor.sol#4-6) allows anyone to destruct the contract\n",
+        "id": "d9be2dd6f026802003d72fda6bef529c7c822fd485d6e8f17f3e3dcff09692db",
         "elements": [
           {
             "type": "function",

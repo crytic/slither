@@ -8,6 +8,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Different versions of Solidity is used in :\n\t- Version used: ['^0.4.23', '^0.4.24']\n\t- tests/pragma.0.4.23.sol#1 declares pragma solidity^0.4.23\n\t- tests/pragma.0.4.24.sol#1 declares pragma solidity^0.4.24\n",
+        "id": "1b213c827c720014104a57dee21e848ca2463209718b766f9457cf9a7da864b5",
         "elements": [
           {
             "type": "pragma",

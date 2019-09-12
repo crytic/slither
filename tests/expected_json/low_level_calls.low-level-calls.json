@@ -8,6 +8,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Low level call in Sender.send(address) (tests/low_level_calls.sol#5-7):\n\t-_receiver.call.value(msg.value).gas(7777)() tests/low_level_calls.sol#6\n",
+        "id": "eccb51ad66e431c71796b79e26e62201a67638be6b243a059c133d2fc23cbdb8",
         "elements": [
           {
             "type": "function",

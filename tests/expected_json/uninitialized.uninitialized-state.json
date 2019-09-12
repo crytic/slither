@@ -8,6 +8,7 @@
         "impact": "High",
         "confidence": "High",
         "description": "Uninitialized.destination (tests/uninitialized.sol#5) is never initialized. It is used in:\n\t- transfer (tests/uninitialized.sol#7-9)\n",
+        "id": "b9d72c064240304f637c582907af558061621676b6c15799fec3e941ecfe2899",
         "elements": [
           {
             "type": "variable",
@@ -111,6 +112,7 @@
         "impact": "High",
         "confidence": "High",
         "description": "Test.balances (tests/uninitialized.sol#15) is never initialized. It is used in:\n\t- use (tests/uninitialized.sol#23-26)\n",
+        "id": "19fec3e281dbd48a9c7969b559ca1fc3998cd74800493ba553c234d80f4bfa3a",
         "elements": [
           {
             "type": "variable",
@@ -225,6 +227,7 @@
         "impact": "High",
         "confidence": "High",
         "description": "Test2.st (tests/uninitialized.sol#45) is never initialized. It is used in:\n\t- use (tests/uninitialized.sol#53-56)\n",
+        "id": "a1b152d139584b017fe00b3b319a5d917798f5c2ec352e35fddfd55ad3a43c63",
         "elements": [
           {
             "type": "variable",
@@ -345,6 +348,7 @@
         "impact": "High",
         "confidence": "High",
         "description": "Test2.v (tests/uninitialized.sol#47) is never initialized. It is used in:\n\t- init (tests/uninitialized.sol#49-51)\n",
+        "id": "bda10ca462e351d03d31f9454cd4d69abbf4140835db77932fb913cdd0ee030d",
         "elements": [
           {
             "type": "variable",

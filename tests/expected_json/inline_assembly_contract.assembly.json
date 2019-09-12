@@ -8,6 +8,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "GetCode.at(address) uses assembly (tests/inline_assembly_contract.sol#6-20)\n\t- tests/inline_assembly_contract.sol#7-20\n",
+        "id": "1c2bd1610eb9f8b63c5c4a35f6b3d894d6691d37cf98221ea52b7106e8083842",
         "elements": [
           {
             "type": "function",

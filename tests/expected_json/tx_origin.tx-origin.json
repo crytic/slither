@@ -8,6 +8,7 @@
         "impact": "Medium",
         "confidence": "Medium",
         "description": "TxOrigin.bug0() uses tx.origin for authorization: \"require(bool)(tx.origin == owner)\" (tests/tx_origin.sol#10)\n",
+        "id": "4d5b6e8b806b5f103d91ed4c2e757da446a858fee4e678dc92e1d83654b21fa3",
         "elements": [
           {
             "type": "node",
@@ -100,6 +101,7 @@
         "impact": "Medium",
         "confidence": "Medium",
         "description": "TxOrigin.bug2() uses tx.origin for authorization: \"tx.origin != owner\" (tests/tx_origin.sol#14)\n",
+        "id": "d591780befebc3af430a4158bf57a4b4ef714fd4def2b1cbe1cd65cdb3c1bb3c",
         "elements": [
           {
             "type": "node",

@@ -1,4 +1,4 @@
-INFO:Detectors:[92m
+[92m
 BaseContract.blockhash (state variable @ tests/shadowing_builtin_symbols.sol#4) shadows built-in symbol "blockhash"
 BaseContract.now (state variable @ tests/shadowing_builtin_symbols.sol#5) shadows built-in symbol "now"
 BaseContract.revert (event @ tests/shadowing_builtin_symbols.sol#7) shadows built-in symbol "revert"
@@ -13,4 +13,4 @@ FurtherExtendedContract.this (state variable @ tests/shadowing_builtin_symbols.s
 FurtherExtendedContract.abi (state variable @ tests/shadowing_builtin_symbols.sol#21) shadows built-in symbol "abi"
 Reserved.mutable (state variable @ tests/shadowing_builtin_symbols.sol#32) shadows built-in symbol "mutable"
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#builtin-symbol-shadowing[0m
-INFO:Slither:tests/shadowing_builtin_symbols.sol analyzed (4 contracts), 13 result(s) found
+tests/shadowing_builtin_symbols.sol analyzed (4 contracts with 1 detectors), 13 result(s) found

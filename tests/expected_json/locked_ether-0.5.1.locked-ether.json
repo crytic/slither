@@ -8,6 +8,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Contract locking ether found in :\n\tContract OnlyLocked has payable functions:\n\t - receive (tests/locked_ether-0.5.1.sol#4-6)\n\tBut does not have a function to withdraw the ether\n",
+        "id": "e6b4a196a2feae0e0f684414d4b0e005560a9bdcede4e7812b2be398c9742ec6",
         "elements": [
           {
             "type": "contract",

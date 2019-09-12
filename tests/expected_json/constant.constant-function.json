@@ -8,6 +8,7 @@
         "impact": "Medium",
         "confidence": "Medium",
         "description": "Constant.test_view_bug() (tests/constant.sol#5-7) is declared view but changes state variables:\n\t- Constant.a\n",
+        "id": "e853a0910b549fd363941ecf228d93901ddfd2c06e47d320077dc1484f8dfcc6",
         "elements": [
           {
             "type": "function",
@@ -146,6 +147,7 @@
         "impact": "Medium",
         "confidence": "Medium",
         "description": "Constant.test_constant_bug() (tests/constant.sol#9-11) is declared view but changes state variables:\n\t- Constant.a\n",
+        "id": "cf043b93a82439d650956ef7b36f0e2fb650d1a5490e339c4373921266fd316d",
         "elements": [
           {
             "type": "function",
@@ -284,6 +286,7 @@
         "impact": "Medium",
         "confidence": "Medium",
         "description": "Constant.test_assembly_bug() (tests/constant.sol#22-24) is declared view but contains assembly code\n",
+        "id": "d06d0afaaa673fad61cd4d66c43f957eb6ae007394298c4405459d161e8f8e6f",
         "elements": [
           {
             "type": "function",

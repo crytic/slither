@@ -8,6 +8,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Deprecated standard detected @ tests/deprecated_calls.sol#2:\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
+        "id": "00e5d4c65c1493bfdf0c9be0dca5c7ce3506420857104037302494df21a27a54",
         "elements": [
           {
             "type": "variable",
@@ -80,6 +81,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Deprecated standard detected @ tests/deprecated_calls.sol#7:\n\t- Usage of \"msg.gas\" should be replaced with \"gasleft()\"\n",
+        "id": "89a0c4ed3b19342f586e2b01b888d85d46f014666c0dd363f98d2dbaee21e704",
         "elements": [
           {
             "type": "node",
@@ -179,6 +181,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Deprecated standard detected @ tests/deprecated_calls.sol#9:\n\t- Usage of \"throw\" should be replaced with \"revert()\"\n",
+        "id": "f596c5e1437dd68c3006885439809116317c0c430f84848217befc0e7b08cb64",
         "elements": [
           {
             "type": "node",
@@ -278,6 +281,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Deprecated standard detected @ tests/deprecated_calls.sol#16:\n\t- Usage of \"sha3()\" should be replaced with \"keccak256()\"\n",
+        "id": "2e37f09c18adbe1b38887578cb1353aed05b09f1d505c6fd57af5b9198e62b2b",
         "elements": [
           {
             "type": "node",
@@ -383,6 +387,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Deprecated standard detected @ tests/deprecated_calls.sol#19:\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
+        "id": "d11fc399439127b2f2566865a588c8b8bdf610bc12a3e051992946a91b991ba8",
         "elements": [
           {
             "type": "node",
@@ -488,6 +493,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Deprecated standard detected @ tests/deprecated_calls.sol#22:\n\t- Usage of \"callcode\" should be replaced with \"delegatecall\"\n",
+        "id": "b931ee9bc5f8601df6805f37dab44a193a68271d1e4566b4dc54e2b44d14e233",
         "elements": [
           {
             "type": "node",
@@ -593,6 +599,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Deprecated standard detected @ tests/deprecated_calls.sol#25:\n\t- Usage of \"suicide()\" should be replaced with \"selfdestruct()\"\n",
+        "id": "0090eb0b9539af6f858e7a671ccd71d4f552f2f636e64dc5554fd5c2b5a1b6b4",
         "elements": [
           {
             "type": "node",
@@ -698,6 +705,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Deprecated standard detected @ tests/deprecated_calls.sol#2:\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
+        "id": "00e5d4c65c1493bfdf0c9be0dca5c7ce3506420857104037302494df21a27a54",
         "elements": [
           {
             "type": "node",

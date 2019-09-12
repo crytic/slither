@@ -8,6 +8,7 @@
         "impact": "High",
         "confidence": "High",
         "description": "st_bug in Uninitialized.func() (tests/uninitialized_storage_pointer.sol#10) is a storage variable never initialiazed\n",
+        "id": "9800addcf9196886a8297c61a4bdb8e33cf32e72e71cc2930a08585ab429a0ee",
         "elements": [
           {
             "type": "variable",

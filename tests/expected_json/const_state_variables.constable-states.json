@@ -8,6 +8,7 @@
         "impact": "Optimization",
         "confidence": "High",
         "description": "A.myFriendsAddress should be constant (tests/const_state_variables.sol#7)\n",
+        "id": "1a4c092820648dc42cc363ed243103df2ed0e0ecbb5c3ca9b0f9913b2807bf7f",
         "elements": [
           {
             "type": "variable",
@@ -71,6 +72,7 @@
         "impact": "Optimization",
         "confidence": "High",
         "description": "A.test should be constant (tests/const_state_variables.sol#10)\n",
+        "id": "975bd46f17739b37cf8a8fc7ad9d0c13f24cff34f51da57a2b270cf65bdf96d8",
         "elements": [
           {
             "type": "variable",
@@ -134,6 +136,7 @@
         "impact": "Optimization",
         "confidence": "High",
         "description": "A.text2 should be constant (tests/const_state_variables.sol#14)\n",
+        "id": "92938db1d8d7251741c6102cadbd5f5fd51adf45437243ea0f03e48a381f44fe",
         "elements": [
           {
             "type": "variable",
@@ -197,6 +200,7 @@
         "impact": "Optimization",
         "confidence": "High",
         "description": "B.mySistersAddress should be constant (tests/const_state_variables.sol#26)\n",
+        "id": "f3bf2450f5d8b97fb4adf6a12474392a9597664c77eaf47f4b1bcac14119aa9f",
         "elements": [
           {
             "type": "variable",
@@ -256,6 +260,7 @@
         "impact": "Optimization",
         "confidence": "High",
         "description": "MyConc.should_be_constant should be constant (tests/const_state_variables.sol#42)\n",
+        "id": "ef5c9c1bbfbd5d5db45431109b6c6155b734715b9fc5b7de716f8b3e016d7c8f",
         "elements": [
           {
             "type": "variable",
@@ -315,6 +320,7 @@
         "impact": "Optimization",
         "confidence": "High",
         "description": "MyConc.should_be_constant_2 should be constant (tests/const_state_variables.sol#43)\n",
+        "id": "3bf4fb0466420ac74a39c40e095663fd0868366202421b6bb82f52fb72a75438",
         "elements": [
           {
             "type": "variable",

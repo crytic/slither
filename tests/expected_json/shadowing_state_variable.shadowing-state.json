@@ -8,6 +8,7 @@
         "impact": "High",
         "confidence": "High",
         "description": "DerivedContract.owner (tests/shadowing_state_variable.sol#12) shadows:\n\t- BaseContract.owner (tests/shadowing_state_variable.sol#2)\n",
+        "id": "cc0ccc1335cd7481b96964251efdb2672129f16a40a718a41ca681a61a680c35",
         "elements": [
           {
             "type": "variable",

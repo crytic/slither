@@ -8,6 +8,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Pragma version \"^0.4.23\" allows old versions (tests/solc_version_incorrect.sol#2)\n",
+        "id": "8e23bbb42d580b86288abb89f46c9cdf11abf1fe2903bb510dcf33477695a066",
         "elements": [
           {
             "type": "pragma",
@@ -42,6 +43,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Pragma version \">=0.4.0<0.6.0\" allows old versions (tests/solc_version_incorrect.sol#3)\n",
+        "id": "e24c9b9db39b5463c8cf6c681a260bebad2d25d69cd501a4733dba0fd2cf1a3a",
         "elements": [
           {
             "type": "pragma",

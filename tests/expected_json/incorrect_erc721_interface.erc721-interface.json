@@ -8,6 +8,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: supportsInterface(bytes4) (tests/incorrect_erc721_interface.sol#4)\n",
+        "id": "bf1617a4add9e4be6968bf623738b226f82980922641b7bddca2ccb14b975c04",
         "elements": [
           {
             "type": "function",
@@ -57,6 +58,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: balanceOf(address) (tests/incorrect_erc721_interface.sol#7)\n",
+        "id": "cdcef4ee0d5d33d99f07375e58e8cc4263abd3993883401f88ceecdf5f657248",
         "elements": [
           {
             "type": "function",
@@ -114,6 +116,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: ownerOf(uint256) (tests/incorrect_erc721_interface.sol#8)\n",
+        "id": "a0fc9eee535afda76a7fc41fb532137ce16ef2b2b50c4b75013d01d1e5734213",
         "elements": [
           {
             "type": "function",
@@ -171,6 +174,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: safeTransferFrom(address,address,uint256,bytes) (tests/incorrect_erc721_interface.sol#9)\n",
+        "id": "98a952e9f4d228b2ea64fa6d5c84fe5e777a6b76e278c38341dd5546f49bb6b7",
         "elements": [
           {
             "type": "function",
@@ -228,6 +232,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: safeTransferFrom(address,address,uint256) (tests/incorrect_erc721_interface.sol#10)\n",
+        "id": "ca108f1d450221d33944db597df1176982a0d87f37a27b3499b915fa2031bb1f",
         "elements": [
           {
             "type": "function",
@@ -285,6 +290,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: transferFrom(address,address,uint256) (tests/incorrect_erc721_interface.sol#11)\n",
+        "id": "a86e9f59d523636d4b33c271ba904f03de235ed973e3f2471aaca7d583fd5ad6",
         "elements": [
           {
             "type": "function",
@@ -342,6 +348,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: approve(address,uint256) (tests/incorrect_erc721_interface.sol#12)\n",
+        "id": "20f85943e3082591f4d7c615867fb8918e31de6fe458e218f74991723214f169",
         "elements": [
           {
             "type": "function",
@@ -399,6 +406,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: setApprovalForAll(address,bool) (tests/incorrect_erc721_interface.sol#13)\n",
+        "id": "ad405be29301c17206bc8cc7ae20cc7434f407ed5e79ae8e8656650af404fd61",
         "elements": [
           {
             "type": "function",
@@ -456,6 +464,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: getApproved(uint256) (tests/incorrect_erc721_interface.sol#14)\n",
+        "id": "ddb2ede5c011e524cf73b3b5aae23289f1d0338c179a5b7036632f770fee25b3",
         "elements": [
           {
             "type": "function",
@@ -513,6 +522,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface: isApprovedForAll(address,address) (tests/incorrect_erc721_interface.sol#15)\n",
+        "id": "84395338fbebb5bacb5348c52bee0f4c7c930c59b362dc76bd77b54110115a5c",
         "elements": [
           {
             "type": "function",

@@ -1,4 +1,4 @@
-INFO:Detectors:[92m
+[92m
 Deprecated standard detected @ tests/deprecated_calls.sol#2:
 	- Usage of "block.blockhash()" should be replaced with "blockhash()"
 Deprecated standard detected @ tests/deprecated_calls.sol#7:
@@ -16,4 +16,4 @@ Deprecated standard detected @ tests/deprecated_calls.sol#25:
 Deprecated standard detected @ tests/deprecated_calls.sol#2:
 	- Usage of "block.blockhash()" should be replaced with "blockhash()"
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards[0m
-INFO:Slither:tests/deprecated_calls.sol analyzed (1 contracts), 8 result(s) found
+tests/deprecated_calls.sol analyzed (1 contracts with 1 detectors), 8 result(s) found

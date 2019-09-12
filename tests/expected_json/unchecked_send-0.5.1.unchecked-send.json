@@ -8,6 +8,7 @@
         "impact": "Medium",
         "confidence": "Medium",
         "description": "MyConc.bad(address) (tests/unchecked_send-0.5.1.sol#2-4) ignores return value by send calls \"dst.send(msg.value)\" (tests/unchecked_send-0.5.1.sol#3)\n",
+        "id": "01da42ad0627149899610e0343686fa92977a820e7e0683e5c82f7af85808d01",
         "elements": [
           {
             "type": "node",

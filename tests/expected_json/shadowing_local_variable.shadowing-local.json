@@ -8,6 +8,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "FurtherExtendedContract.shadowingParent.x (local variable @ tests/shadowing_local_variable.sol#25) shadows:\n\t- FurtherExtendedContract.x (state variable @ tests/shadowing_local_variable.sol#17)\n\t- ExtendedContract.x (state variable @ tests/shadowing_local_variable.sol#9)\n\t- BaseContract.x (state variable @ tests/shadowing_local_variable.sol#4)\n",
+        "id": "5e38717a1c23eab1e19f897102a28d874c9b9d0c73b3bdd0034f3176b382fef8",
         "elements": [
           {
             "type": "variable",
@@ -218,6 +219,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "FurtherExtendedContract.shadowingParent.y (local variable @ tests/shadowing_local_variable.sol#25) shadows:\n\t- BaseContract.y (state variable @ tests/shadowing_local_variable.sol#5)\n",
+        "id": "04f6a4d04525922c8f1020bd0b58a961d4941fda23608f1f4288db9dde1f22bf",
         "elements": [
           {
             "type": "variable",
@@ -336,6 +338,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "FurtherExtendedContract.shadowingParent.z (local variable @ tests/shadowing_local_variable.sol#25) shadows:\n\t- ExtendedContract.z (function @ tests/shadowing_local_variable.sol#11)\n",
+        "id": "581dcd383b94cd5590dc082b5a9d704495b9fff5db95bf58cfe9b7785ac4f5c8",
         "elements": [
           {
             "type": "variable",
@@ -458,6 +461,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "FurtherExtendedContract.shadowingParent.w (local variable @ tests/shadowing_local_variable.sol#25) shadows:\n\t- FurtherExtendedContract.w (modifier @ tests/shadowing_local_variable.sol#20-23)\n",
+        "id": "447d65733adf01117b030c140b270da8ecd62195c3fcbc835442ec05c7d0ea29",
         "elements": [
           {
             "type": "variable",
@@ -587,6 +591,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "FurtherExtendedContract.shadowingParent.v (local variable @ tests/shadowing_local_variable.sol#25) shadows:\n\t- ExtendedContract.v (event @ tests/shadowing_local_variable.sol#13)\n",
+        "id": "59e98677340909cd3dd904a8c805bccb1ae763d9391f0fc89eb8b31161827cfe",
         "elements": [
           {
             "type": "variable",

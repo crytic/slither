@@ -8,6 +8,7 @@
         "impact": "Medium",
         "confidence": "Medium",
         "description": "User.test(Target) (tests/unused_return.sol#17-29) ignores return value by external calls \"t.f()\" (tests/unused_return.sol#18)\n",
+        "id": "691bdea4b639ba261571a61982063a0040c1c4990a9573c160fa5c39741271a0",
         "elements": [
           {
             "type": "node",
@@ -172,6 +173,7 @@
         "impact": "Medium",
         "confidence": "Medium",
         "description": "User.test(Target) (tests/unused_return.sol#17-29) ignores return value by external calls \"a.add(0)\" (tests/unused_return.sol#22)\n",
+        "id": "006cf638a8481a96dcadfb16ced8b99a13be326f11389429596b476a340d55fa",
         "elements": [
           {
             "type": "node",

@@ -8,6 +8,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "A.unused (tests/unused_state.sol#4) is never used in B\n",
+        "id": "6b1b08cab892baa51985a3d40d04203e7e6bbf361632ab3195e1b92d97c010c2",
         "elements": [
           {
             "type": "variable",
@@ -83,6 +84,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "A.unused2 (tests/unused_state.sol#5) is never used in B\n",
+        "id": "5d87257d7c56740f7282f66539f70e154e25076fa6610911f398344f4a1772a5",
         "elements": [
           {
             "type": "variable",
@@ -158,6 +160,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "A.unused3 (tests/unused_state.sol#6) is never used in B\n",
+        "id": "bb310e30a742e7c220aff30660795c31cc913359bc0c155cdad7e49117ee6a6d",
         "elements": [
           {
             "type": "variable",
@@ -233,6 +236,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "A.unused4 (tests/unused_state.sol#7) is never used in B\n",
+        "id": "2d63629439c2c23af2ce6bd86d283cbfe6bad3ea38a89dfcf35cbfce8244525e",
         "elements": [
           {
             "type": "variable",

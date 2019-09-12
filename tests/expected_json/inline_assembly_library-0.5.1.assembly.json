@@ -8,6 +8,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "VectorSum.sumAsm(uint256[]) uses assembly (tests/inline_assembly_library-0.5.1.sol#16-22)\n\t- tests/inline_assembly_library-0.5.1.sol#18-21\n",
+        "id": "933695cc376038ba8d59ee9939950a333d15585299fcca18ef37038c5b606cb0",
         "elements": [
           {
             "type": "function",
@@ -215,6 +216,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "VectorSum.sumPureAsm(uint256[]) uses assembly (tests/inline_assembly_library-0.5.1.sol#25-47)\n\t- tests/inline_assembly_library-0.5.1.sol#26-47\n",
+        "id": "af7c8fceb78cbcb9e8ddcebed28d1e57a70841dfaf8beebcd61fb6a248558c26",
         "elements": [
           {
             "type": "function",

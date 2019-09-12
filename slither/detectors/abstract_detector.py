@@ -1,6 +1,6 @@
 import abc
 import re
-
+import hashlib
 from slither.utils.colors import green, yellow, red
 from slither.core.source_mapping.source_mapping import SourceMapping
 from collections import OrderedDict
@@ -145,6 +145,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         d['impact'] = classification_txt[self.IMPACT]
         d['confidence'] = classification_txt[self.CONFIDENCE]
         d['description'] = info
+        d['id'] = hashlib.sha3_256(info.encode('utf-8')).hexdigest()
         d['elements'] = []
         if additional_fields:
             d['additional_fields'] = additional_fields

@@ -8,6 +8,7 @@
         "impact": "Optimization",
         "confidence": "High",
         "description": "ContractWithFunctionNotCalled.funcNotCalled3() (tests/external_function.sol#13-15) should be declared external\n",
+        "id": "dd35cb62b6abb436ad5e8278e3090147644cd3b844db7ab4894b84fb7c161753",
         "elements": [
           {
             "type": "function",
@@ -75,6 +76,7 @@
         "impact": "Optimization",
         "confidence": "High",
         "description": "ContractWithFunctionNotCalled.funcNotCalled2() (tests/external_function.sol#17-19) should be declared external\n",
+        "id": "ac83cce7722a702357d0222107758b97c16f20457a1f0e421b26c6fa52522e6e",
         "elements": [
           {
             "type": "function",
@@ -142,6 +144,7 @@
         "impact": "Optimization",
         "confidence": "High",
         "description": "ContractWithFunctionNotCalled.funcNotCalled() (tests/external_function.sol#21-23) should be declared external\n",
+        "id": "6841be19041b6a9fbf82aafd165dc041f9c3b78ae89d9f70a46767679d56ed46",
         "elements": [
           {
             "type": "function",
@@ -209,6 +212,7 @@
         "impact": "Optimization",
         "confidence": "High",
         "description": "ContractWithFunctionNotCalled2.funcNotCalled() (tests/external_function.sol#32-39) should be declared external\n",
+        "id": "805a9726b2f8bea6c529e32823c64de1626915020827675a4a1671b8f1f36002",
         "elements": [
           {
             "type": "function",
@@ -272,6 +276,7 @@
         "impact": "Optimization",
         "confidence": "High",
         "description": "FunctionParameterWrite.parameter_read_ok_for_external(uint256) (tests/external_function.sol#74-76) should be declared external\n",
+        "id": "784919e6078665bcbffacda08fd2e733c1eeed72f949820cb4e18c21e4d0425d",
         "elements": [
           {
             "type": "function",

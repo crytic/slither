@@ -8,6 +8,7 @@
         "impact": "Medium",
         "confidence": "Medium",
         "description": "Constant.test_assembly_bug() (tests/constant-0.5.1.sol#15-17) is declared view but contains assembly code\n",
+        "id": "d236e087130bf825b0e459ba72c8781d4ddd72c1041b3b673dc25e7e73cbfefa",
         "elements": [
           {
             "type": "function",

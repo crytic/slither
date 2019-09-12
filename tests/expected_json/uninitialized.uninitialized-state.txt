@@ -1,4 +1,4 @@
-INFO:Detectors:[91m
+[91m
 Uninitialized.destination (tests/uninitialized.sol#5) is never initialized. It is used in:
 	- transfer (tests/uninitialized.sol#7-9)
 Test.balances (tests/uninitialized.sol#15) is never initialized. It is used in:
@@ -8,4 +8,4 @@ Test2.st (tests/uninitialized.sol#45) is never initialized. It is used in:
 Test2.v (tests/uninitialized.sol#47) is never initialized. It is used in:
 	- init (tests/uninitialized.sol#49-51)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-state-variables[0m
-INFO:Slither:tests/uninitialized.sol analyzed (4 contracts), 4 result(s) found
+tests/uninitialized.sol analyzed (4 contracts with 1 detectors), 4 result(s) found

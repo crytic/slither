@@ -8,6 +8,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: transfer(address,uint256) (tests/incorrect_erc20_interface.sol#4)\n",
+        "id": "445a089ab92bbaf3e729d444bce6e5886ceee3990a909418fc54ea67d04f57ae",
         "elements": [
           {
             "type": "function",
@@ -62,6 +63,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: approve(address,uint256) (tests/incorrect_erc20_interface.sol#5)\n",
+        "id": "8ad0488d3feb262e2f7bc3270b6b2d7bed302b3ff5662219269d63665025cb61",
         "elements": [
           {
             "type": "function",
@@ -116,6 +118,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: transferFrom(address,address,uint256) (tests/incorrect_erc20_interface.sol#6)\n",
+        "id": "a5d542b3a79d1d51806d352d635f1de5fa48f7183c0b9c8fa2fc89e631911681",
         "elements": [
           {
             "type": "function",
@@ -170,6 +173,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: totalSupply() (tests/incorrect_erc20_interface.sol#7)\n",
+        "id": "883433ab0e3beefb53425bd731d33b109d94823ea4cecc648017acc236cacbd2",
         "elements": [
           {
             "type": "function",
@@ -224,6 +228,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: balanceOf(address) (tests/incorrect_erc20_interface.sol#8)\n",
+        "id": "f15d80247c0ea040205495e93690f973d0fc6bb8571c90f408e991171e407284",
         "elements": [
           {
             "type": "function",
@@ -278,6 +283,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: allowance(address,address) (tests/incorrect_erc20_interface.sol#9)\n",
+        "id": "66fc5bafed58dcc4d91bcc262890ef994e948e6525691910242d6df5b695ae58",
         "elements": [
           {
             "type": "function",

@@ -8,6 +8,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Pragma version \"0.4.21\" allows old versions (None)\n",
+        "id": "a7b6bf8c3231da7d72745d7268e59d7f2e98c4f2d2c40b2a623579f6e1d1c2b0",
         "elements": [
           {
             "type": "pragma",

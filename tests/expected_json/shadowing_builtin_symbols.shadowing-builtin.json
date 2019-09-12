@@ -8,6 +8,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "BaseContract.blockhash (state variable @ tests/shadowing_builtin_symbols.sol#4) shadows built-in symbol \"blockhash\"\n",
+        "id": "f1992708a9325247cef96b16829fa02c2d80d07afbeb3882b71d6f0a9e899b9a",
         "elements": [
           {
             "type": "variable",
@@ -59,6 +60,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "BaseContract.now (state variable @ tests/shadowing_builtin_symbols.sol#5) shadows built-in symbol \"now\"\n",
+        "id": "268ae76c67a957e59d12364c797d825f662f33cff0d5e71e2f1c9b749c9316b4",
         "elements": [
           {
             "type": "variable",
@@ -110,6 +112,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "BaseContract.revert (event @ tests/shadowing_builtin_symbols.sol#7) shadows built-in symbol \"revert\"\n",
+        "id": "7340fda6516803985c49e6405f4c6e3dd1dba46eeb0fe0dad1e45fe80a2491db",
         "elements": [
           {
             "type": "event",
@@ -162,6 +165,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "ExtendedContract.assert (function @ tests/shadowing_builtin_symbols.sol#13-15) shadows built-in symbol \"assert\"\n",
+        "id": "e1cb5b2c90831eda757fb46a7f109adc3f090fd793cd9d084c07c1b7391e3d24",
         "elements": [
           {
             "type": "function",
@@ -217,6 +221,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "ExtendedContract.assert.msg (local variable @ tests/shadowing_builtin_symbols.sol#14) shadows built-in symbol \"msg\"\n",
+        "id": "57b2ef10e03c5d520fe9706499cf200eebcd1711432e2d9f8363794ddd6a7532",
         "elements": [
           {
             "type": "variable",
@@ -292,6 +297,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "ExtendedContract.ecrecover (state variable @ tests/shadowing_builtin_symbols.sol#11) shadows built-in symbol \"ecrecover\"\n",
+        "id": "8924a627f869a25833cb123f4472b7385e908a4f5b20bbf4547d29e6d7f860dd",
         "elements": [
           {
             "type": "variable",
@@ -344,6 +350,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "FurtherExtendedContract.require (modifier @ tests/shadowing_builtin_symbols.sol#23-28) shadows built-in symbol \"require\"\n",
+        "id": "7a5ee056a2374102e534b3d948c26314b0b1d8a39700616575c65c4db2eccd80",
         "elements": [
           {
             "type": "function",
@@ -407,6 +414,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "FurtherExtendedContract.require.keccak256 (local variable @ tests/shadowing_builtin_symbols.sol#25) shadows built-in symbol \"keccak256\"\n",
+        "id": "b282054d4ccba468784148f47c4eef34219e755aeb4627498b5dfdf940a6483a",
         "elements": [
           {
             "type": "variable",
@@ -490,6 +498,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "FurtherExtendedContract.require.sha3 (local variable @ tests/shadowing_builtin_symbols.sol#26) shadows built-in symbol \"sha3\"\n",
+        "id": "db014f63c1d2072d04e1c7b91f069d02ced0c91ac2741c44472a854d85556d01",
         "elements": [
           {
             "type": "variable",
@@ -573,6 +582,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "FurtherExtendedContract.blockhash (state variable @ tests/shadowing_builtin_symbols.sol#19) shadows built-in symbol \"blockhash\"\n",
+        "id": "e6ba7969d049eaaeb526d1a74c19104efb6262d3bf18cf678e29c537827b252f",
         "elements": [
           {
             "type": "variable",
@@ -630,6 +640,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "FurtherExtendedContract.this (state variable @ tests/shadowing_builtin_symbols.sol#20) shadows built-in symbol \"this\"\n",
+        "id": "29023a555b71e80869c0f1a1bfe7b21591a761c4157976ffa319eca56259b71a",
         "elements": [
           {
             "type": "variable",
@@ -687,6 +698,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "FurtherExtendedContract.abi (state variable @ tests/shadowing_builtin_symbols.sol#21) shadows built-in symbol \"abi\"\n",
+        "id": "c06268afd2843d5c652bf000d5e8e9e5a31f73aee9f1ce8943c8c990e385af8a",
         "elements": [
           {
             "type": "variable",
@@ -744,6 +756,7 @@
         "impact": "Low",
         "confidence": "High",
         "description": "Reserved.mutable (state variable @ tests/shadowing_builtin_symbols.sol#32) shadows built-in symbol \"mutable\"\n",
+        "id": "fb57f49a9bc9aba81389857944d735543ab5e9ac52b99d872249a918d9933e1c",
         "elements": [
           {
             "type": "variable",

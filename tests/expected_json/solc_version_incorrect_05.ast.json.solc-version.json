@@ -8,6 +8,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Pragma version \"^0.5.5\" is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html) (None)\n",
+        "id": "6f28caaaacadda034fc52a17ed74637e1485088835fb84e27301cb18bf398663",
         "elements": [
           {
             "type": "pragma",
@@ -40,6 +41,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Pragma version \"0.5.7\" necessitates versions too recent to be trusted. Consider deploying with 0.5.3 (None)\n",
+        "id": "a6157d2a463a0628d1adfbbc12f1b4e8519b8a99bfdf310513817ed125d2a92c",
         "elements": [
           {
             "type": "pragma",

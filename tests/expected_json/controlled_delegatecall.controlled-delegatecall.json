@@ -8,6 +8,7 @@
         "impact": "High",
         "confidence": "Medium",
         "description": "C.bad_delegate_call (tests/controlled_delegatecall.sol#8-11) uses delegatecall to a input-controlled function id\n\t- addr_bad.delegatecall(data) (tests/controlled_delegatecall.sol#10)\n",
+        "id": "ae344f39154de3bf3a8248876f20cf02b98890de8dd35ffce1236a3cdeafabd0",
         "elements": [
           {
             "type": "node",
@@ -168,6 +169,7 @@
         "impact": "High",
         "confidence": "Medium",
         "description": "C.bad_delegate_call2 (tests/controlled_delegatecall.sol#18-20) uses delegatecall to a input-controlled function id\n\t- addr_bad.delegatecall(abi.encode(func_id,data)) (tests/controlled_delegatecall.sol#19)\n",
+        "id": "de4d6d4efba2bdd2007f3750379a7ee977135fb62122be091db05cdc127c66dc",
         "elements": [
           {
             "type": "node",

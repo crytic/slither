@@ -8,6 +8,7 @@
         "impact": "Medium",
         "confidence": "Medium",
         "description": "uint_not_init in Uninitialized.func() (tests/uninitialized_local_variable.sol#4) is a local variable never initialiazed\n",
+        "id": "2c664905bce7e30b69220815bcf4d0731d29c705692a0d8cf19dd43dc687baeb",
         "elements": [
           {
             "type": "variable",

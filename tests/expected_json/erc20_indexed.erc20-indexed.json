@@ -8,6 +8,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "ERC20 event IERC20Bad.Transfer (tests/erc20_indexed.sol#19) does not index parameter 'from'\n",
+        "id": "2f96b334aa58d2ad33e95425f2da4d9fbd5a6bee97ba8878fc3282b3ea3c2a78",
         "elements": [
           {
             "type": "event",
@@ -67,6 +68,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "ERC20 event IERC20Bad.Transfer (tests/erc20_indexed.sol#19) does not index parameter 'to'\n",
+        "id": "155f98b1b4b7a0c3de451cbe8d4e849aff012a380123fb9427b83b6e22b2dd5a",
         "elements": [
           {
             "type": "event",
@@ -126,6 +128,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "ERC20 event IERC20Bad.Approval (tests/erc20_indexed.sol#20) does not index parameter 'owner'\n",
+        "id": "90d2722a1ceeee85bde7460f35a11b393bf80676a0b74d62c6924a416b4b90b3",
         "elements": [
           {
             "type": "event",
@@ -185,6 +188,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "ERC20 event IERC20Bad.Approval (tests/erc20_indexed.sol#20) does not index parameter 'spender'\n",
+        "id": "39e4819f04f95b815c4f51eb1c392313635a0cbb0fd7e6337bf8c436e395b90c",
         "elements": [
           {
             "type": "event",

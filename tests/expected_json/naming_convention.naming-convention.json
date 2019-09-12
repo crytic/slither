@@ -8,6 +8,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Contract 'naming' (tests/naming_convention.sol#3-48) is not in CapWords\n",
+        "id": "61a54b2aef3574debe665bea37bd863f84f548545e7aeedafc6271f80182899a",
         "elements": [
           {
             "type": "contract",
@@ -83,6 +84,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Struct 'naming.test' (tests/naming_convention.sol#14-16) is not in CapWords\n",
+        "id": "fd4706641db9ca2b244c0ae7e5316cdf30ce7dc19027f7b1e01637573d9011cd",
         "elements": [
           {
             "type": "struct",
@@ -180,6 +182,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Event 'namingevent_(uint256)' (tests/naming_convention.sol#23) is not in CapWords\n",
+        "id": "88a22ba5e7ed5b0f8fb62561573c7a75578bd8a216eea2252417895174d6793c",
         "elements": [
           {
             "type": "event",
@@ -276,6 +279,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Function 'naming.GetOne()' (tests/naming_convention.sol#30-33) is not in mixedCase\n",
+        "id": "e442cdd3fe0c8aea1d655c59b81a88220cbebeefdc1dbcd2616f49b329d08608",
         "elements": [
           {
             "type": "function",
@@ -375,6 +379,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Parameter 'Number2' of Number2 (tests/naming_convention.sol#35) is not in mixedCase\n",
+        "id": "58bed6a50a1d7587ba23761c68bc2b6967e25b0507003bf77529bf818fa45a57",
         "elements": [
           {
             "type": "variable",
@@ -494,6 +499,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Constant 'naming.MY_other_CONSTANT' (tests/naming_convention.sol#9) is not in UPPER_CASE_WITH_UNDERSCORES\n",
+        "id": "baa9f605d53e592277a1523d0de9904b2b68fc838be3e9a35674c7f2e8bd8707",
         "elements": [
           {
             "type": "variable",
@@ -589,6 +595,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Variable 'naming.Var_One' (tests/naming_convention.sol#11) is not in mixedCase\n",
+        "id": "e540d006cbfb72b703edaf7655ffc4431681298dd78565d6d91a7d3295254a9d",
         "elements": [
           {
             "type": "variable",
@@ -684,6 +691,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Enum 'naming.numbers' (tests/naming_convention.sol#6) is not in CapWords\n",
+        "id": "def0f6ae2024936db6131001c338948cc036266ea6da7bc5f56da89d5675f701",
         "elements": [
           {
             "type": "enum",
@@ -779,6 +787,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Modifier 'naming.CantDo()' (tests/naming_convention.sol#41-43) is not in mixedCase\n",
+        "id": "26bc52267e81626821d08eda3c3b6db674fcc38adffb4dacd70969855b3d1c34",
         "elements": [
           {
             "type": "function",
@@ -877,6 +886,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Parameter '_used' of _used (tests/naming_convention.sol#59) is not in mixedCase\n",
+        "id": "82e3b1f267546d2f12d77695266b29a8c5da53d961d6a573eba9882770bc4961",
         "elements": [
           {
             "type": "variable",
@@ -963,6 +973,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Variable 'T._myPublicVar' (tests/naming_convention.sol#56) is not in mixedCase\n",
+        "id": "48e743a85d1e3d3a7873d7d2e2efbe272c578abef9c7b7546c77556eb4cd8468",
         "elements": [
           {
             "type": "variable",
@@ -1027,6 +1038,7 @@
         "impact": "Informational",
         "confidence": "High",
         "description": "Variable 'T.l' (tests/naming_convention.sol#67) used l, O, I, which should not be used\n",
+        "id": "15393f63e671c1e02e170814700f83c93603cbba99f19153b2497f6026dc7597",
         "elements": [
           {
             "type": "variable",

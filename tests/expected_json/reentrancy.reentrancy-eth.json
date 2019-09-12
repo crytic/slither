@@ -8,6 +8,7 @@
         "impact": "High",
         "confidence": "Medium",
         "description": "Reentrancy in Reentrancy.withdrawBalance() (tests/reentrancy.sol#14-21):\n\tExternal calls:\n\t- ! (msg.sender.call.value(userBalance[msg.sender])()) (tests/reentrancy.sol#17)\n\tState variables written after the call(s):\n\t- userBalance (tests/reentrancy.sol#20)\n",
+        "id": "83e76a02ab726f209a4492f3edadbd6cc8d47a44f3adbcd2bf85e24ea0146831",
         "elements": [
           {
             "type": "function",
@@ -408,6 +409,7 @@
         "impact": "High",
         "confidence": "Medium",
         "description": "Reentrancy in Reentrancy.withdrawBalance_nested() (tests/reentrancy.sol#64-70):\n\tExternal calls:\n\t- msg.sender.call.value(amount / 2)() (tests/reentrancy.sol#67)\n\tState variables written after the call(s):\n\t- userBalance (tests/reentrancy.sol#68)\n",
+        "id": "6088fcc84061d99d41aa18737df272778b368797dbca8c0a0b8daaa5a29f987b",
         "elements": [
           {
             "type": "function",

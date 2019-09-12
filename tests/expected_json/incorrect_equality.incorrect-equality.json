@@ -8,6 +8,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "ERC20TestBalance.bad0(ERC20Function) (tests/incorrect_equality.sol#21-23) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(address(this)) == 10)\n",
+        "id": "61d72cda908d4aa7deedcbd6de0d51b990c03b75a46b7e0e427c609fe30473d5",
         "elements": [
           {
             "type": "node",
@@ -154,6 +155,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "ERC20TestBalance.bad1(ERC20Variable) (tests/incorrect_equality.sol#25-27) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(msg.sender) == 10)\n",
+        "id": "afca5d2731323286bc786540c17868632976f7194ed88316873ba12fa26a1bb4",
         "elements": [
           {
             "type": "node",
@@ -300,6 +302,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "TestContractBalance.bad0() (tests/incorrect_equality.sol#32-35) uses a dangerous strict equality:\n\t- require(bool)(address(address(this)).balance == 10000000000000000000)\n",
+        "id": "5788b50b1890265c2bcca1508aa44e460bcc8c141fbcc7792ea8c3f39fd414b7",
         "elements": [
           {
             "type": "node",
@@ -546,6 +549,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "TestContractBalance.bad1() (tests/incorrect_equality.sol#37-40) uses a dangerous strict equality:\n\t- require(bool)(10000000000000000000 == address(address(this)).balance)\n",
+        "id": "6716f558bdb9f992e50930444d709406d3143389867c1cc942df5f757a26a85a",
         "elements": [
           {
             "type": "node",
@@ -792,6 +796,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "TestContractBalance.bad2() (tests/incorrect_equality.sol#42-45) uses a dangerous strict equality:\n\t- require(bool)(address(this).balance == 10000000000000000000)\n",
+        "id": "2043ef0997412319727d45f00a594031284f9636338b73f2c67afd56a5d28189",
         "elements": [
           {
             "type": "node",
@@ -1038,6 +1043,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "TestContractBalance.bad3() (tests/incorrect_equality.sol#47-50) uses a dangerous strict equality:\n\t- require(bool)(10000000000000000000 == address(this).balance)\n",
+        "id": "db5232f7e3da871dc3151383de21a0d7ceb6cdd8e5da49c9318a831c80a38b61",
         "elements": [
           {
             "type": "node",
@@ -1284,6 +1290,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "TestContractBalance.bad4() (tests/incorrect_equality.sol#52-57) uses a dangerous strict equality:\n\t- balance == 10000000000000000000\n",
+        "id": "bfbadf7cea95cfd6a7c9aa9389b921282e3bd9fc4727fa89d13a00e3ab6bcc82",
         "elements": [
           {
             "type": "node",
@@ -1534,6 +1541,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "TestContractBalance.bad5() (tests/incorrect_equality.sol#59-64) uses a dangerous strict equality:\n\t- 10000000000000000000 == balance\n",
+        "id": "0907b87110f2dac94fb53a9955bc386dbfd1f2374d97457e81ac1595b90b25ee",
         "elements": [
           {
             "type": "node",
@@ -1784,6 +1792,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "TestContractBalance.bad6() (tests/incorrect_equality.sol#66-71) uses a dangerous strict equality:\n\t- balance == 10000000000000000000\n",
+        "id": "3200426d9494286409c77618a52787fc0f1c8d0e62e26a2590f71752ca82641d",
         "elements": [
           {
             "type": "node",
@@ -2034,6 +2043,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "TestSolidityKeyword.bad0() (tests/incorrect_equality.sol#123-125) uses a dangerous strict equality:\n\t- require(bool)(now == 0)\n",
+        "id": "24cf9b51508e0084091030b281c4bedde701ad9f5de51d510f649d03bc7d6e4f",
         "elements": [
           {
             "type": "node",
@@ -2216,6 +2226,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "TestSolidityKeyword.bad1() (tests/incorrect_equality.sol#127-129) uses a dangerous strict equality:\n\t- require(bool)(block.number == 0)\n",
+        "id": "416a40ba494c89aacf4682f6f77b1bb9a4a674fd61098c6a4d71cfbf7cc289a6",
         "elements": [
           {
             "type": "node",
@@ -2398,6 +2409,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "TestSolidityKeyword.bad2() (tests/incorrect_equality.sol#131-133) uses a dangerous strict equality:\n\t- require(bool)(block.number == 0)\n",
+        "id": "7d6bf3f3788aa1c874b032aa8c02137eb092127062fbd5cb1b4fd39847830e5e",
         "elements": [
           {
             "type": "node",

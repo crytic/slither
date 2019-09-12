@@ -8,6 +8,7 @@
         "impact": "Informational",
         "confidence": "Medium",
         "description": "C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x1 = 0x000001\n",
+        "id": "4785fe4858facf0922e6746f44f9daf7188094db6fe1c281eb6e5b53f4f7fb6a",
         "elements": [
           {
             "type": "node",
@@ -118,6 +119,7 @@
         "impact": "Informational",
         "confidence": "Medium",
         "description": "C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x2 = 0x0000000000001\n",
+        "id": "613276b6aa078856167ef9f2b8382fcb447124275f4d57abe509253dfc63e0bc",
         "elements": [
           {
             "type": "node",
@@ -228,6 +230,7 @@
         "impact": "Informational",
         "confidence": "Medium",
         "description": "C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x3 = 1000000000000000000\n",
+        "id": "e36826b868764a07bce92ad3eb9f88acd3a089050403cfb865864ba22f85f399",
         "elements": [
           {
             "type": "node",
@@ -338,6 +341,7 @@
         "impact": "Informational",
         "confidence": "Medium",
         "description": "C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x4 = 100000\n",
+        "id": "682b583114d797b0e85e2cf6dd72a25e32ce54d0a977dcb92584724f7c8874f5",
         "elements": [
           {
             "type": "node",
@@ -448,6 +452,7 @@
         "impact": "Informational",
         "confidence": "Medium",
         "description": "C.h (tests/too_many_digits.sol#20-24) uses literals with too many digits:\n\t- x2 = 100000\n",
+        "id": "06427cedc42fc49c2a7ea6332a9e31fbc1813c9a895155ee75c9f81d5ba99a80",
         "elements": [
           {
             "type": "node",

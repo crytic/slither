@@ -8,6 +8,7 @@
         "impact": "High",
         "confidence": "Medium",
         "description": "Test.direct() (tests/arbitrary_send.sol#11-13) sends eth to arbitrary user\n\tDangerous calls:\n\t- msg.sender.send(address(this).balance) (tests/arbitrary_send.sol#12)\n",
+        "id": "9aea825c9ddcff49049b63948ac53375be9c799a0b850d4b0633257c68404a75",
         "elements": [
           {
             "type": "function",
@@ -198,6 +199,7 @@
         "impact": "High",
         "confidence": "Medium",
         "description": "Test.indirect() (tests/arbitrary_send.sol#19-21) sends eth to arbitrary user\n\tDangerous calls:\n\t- destination.send(address(this).balance) (tests/arbitrary_send.sol#20)\n",
+        "id": "60297dad9b02f0c918fdb7caa0a76a1865ddbd1f32ad360918ac1e5a6f06e634",
         "elements": [
           {
             "type": "function",

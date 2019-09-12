@@ -8,6 +8,7 @@
         "impact": "Medium",
         "confidence": "Medium",
         "description": "MyConc.bad(address) (tests/unchecked_lowlevel.sol#2-4) ignores return value by low-level calls \"dst.call.value(msg.value)()\" (tests/unchecked_lowlevel.sol#3)\n",
+        "id": "7e57597ad883cef906e3d992dbe66c95dce23f2e7b7f609fe33fc9b8056a5916",
         "elements": [
           {
             "type": "node",

@@ -8,6 +8,7 @@
         "impact": "High",
         "confidence": "High",
         "description": "Backdoor function found in C.i_am_a_backdoor (tests/backdoor.sol#4-6)\n",
+        "id": "64424db57d23e5486f22aebc453ca8e4f66923f73a1334e2cd9cf68e16a28df4",
         "elements": [
           {
             "type": "function",

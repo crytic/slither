@@ -8,6 +8,7 @@
         "impact": "Medium",
         "confidence": "High",
         "description": "DerivedContract.owner (tests/shadowing_abstract.sol#7) shadows:\n\t- BaseContract.owner (tests/shadowing_abstract.sol#2)\n",
+        "id": "956a405b92b83b3edc7ac9fcc2b00c68f7956a87e7108e9f4ff6598e0dd332ce",
         "elements": [
           {
             "type": "variable",
