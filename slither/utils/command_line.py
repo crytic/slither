@@ -31,6 +31,7 @@ defaults_flag_in_config = {
     'json-types': ','.join(DEFAULT_JSON_OUTPUT_TYPES),
     'disable_color': False,
     'filter_paths': None,
+    'generate_patches': False,
     # debug command
     'legacy_ast': False,
     'ignore_return_value': False,

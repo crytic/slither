@@ -1,4 +1,4 @@
-from ..utils.patches import create_patch
+from slither.formatters.utils.patches import create_patch
 
 
 def format(slither, result):

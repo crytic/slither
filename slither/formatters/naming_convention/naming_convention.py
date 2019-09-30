@@ -7,8 +7,8 @@ from slither.core.solidity_types import UserDefinedType, MappingType
 from slither.core.declarations import Enum, Contract, Structure, Function
 from slither.core.solidity_types.elementary_type import ElementaryTypeName
 from slither.core.variables.local_variable import LocalVariable
-from ..exceptions import FormatError, FormatImpossible
-from ..utils.patches import create_patch
+from slither.formatters.exceptions import FormatError, FormatImpossible
+from slither.formatters.utils.patches import create_patch
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('Slither.Format')

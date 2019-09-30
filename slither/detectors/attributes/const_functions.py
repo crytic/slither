@@ -3,7 +3,7 @@ Module detecting constant functions
 Recursively check the called functions
 """
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-
+from slither.formatters.attributes.const_functions import format
 
 class ConstantFunctions(AbstractDetector):
     """
@@ -76,3 +76,7 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
                         results.append(json)
 
         return results
+
+    @staticmethod
+    def _format(slither, result):
+        format(slither, result)

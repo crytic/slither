@@ -3,10 +3,10 @@ import difflib
 from collections import defaultdict
 
 def create_patch(result, file, start, end, old_str, new_str):
-    if isinstance(old_str, str):
-        old_str = old_str.encode('utf8')
-    if isinstance(new_str, str):
-        new_str = new_str.encode('utf8')
+    if isinstance(old_str, bytes):
+        old_str = old_str.decode('utf8')
+    if isinstance(new_str, bytes):
+        new_str = new_str.decode('utf8')
     p = {"start": start,
          "end": end,
          "old_string": old_str,
@@ -20,7 +20,7 @@ def create_patch(result, file, start, end, old_str, new_str):
 
 def apply_patch(original_txt, patch, offset):
     patched_txt = original_txt[:int(patch['start'] + offset)]
-    patched_txt += patch['new_string']
+    patched_txt += patch['new_string'].encode('utf8')
     patched_txt += original_txt[int(patch['end'] + offset):]
 
     # Keep the diff of text added or sub, in case of multiple patches

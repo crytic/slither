@@ -380,6 +380,11 @@ def parse_args(detector_classes, printer_classes):
                             action='store_true',
                             default=False)
 
+    group_misc.add_argument('--generate-patches',
+                            help='Generate patches (json output only)',
+                            action='store_true',
+                            default=False)
+
     # debugger command
     parser.add_argument('--debug',
                         help=argparse.SUPPRESS,

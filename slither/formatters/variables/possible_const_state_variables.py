@@ -1,6 +1,6 @@
 import re
-from ..exceptions import FormatError, FormatImpossible
-from ..utils.patches import create_patch
+from slither.formatters.exceptions import FormatError, FormatImpossible
+from slither.formatters.utils.patches import create_patch
 
 def format(slither, result):
     elements = result['elements']
