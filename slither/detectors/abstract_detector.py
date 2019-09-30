@@ -1,10 +1,10 @@
 import abc
 import re
-
+from collections import OrderedDict, defaultdict
 from slither.utils.colors import green, yellow, red
 from slither.core.source_mapping.source_mapping import SourceMapping
-from collections import OrderedDict
-
+from slither.formatters.exceptions import FormatImpossible
+from slither.formatters.utils.patches import apply_patch, create_diff
 
 class IncorrectDetectorInitialization(Exception):
     pass
@@ -94,7 +94,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             raise IncorrectDetectorInitialization('CONFIDENCE is not initialized {}'.format(self.__class__.__name__))
 
     def _log(self, info):
-        self.logger.info(self.color(info))
+        if self.logger:
+            self.logger.info(self.color(info))
 
     @abc.abstractmethod
     def _detect(self):
@@ -115,6 +116,33 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                     info += result['description']
                 info += 'Reference: {}'.format(self.WIKI)
                 self._log(info)
+        if self.slither.generate_patches:
+            for result in results:
+                try:
+                    self._format(self.slither, result)
+                    if not 'patches' in result:
+                        continue
+                    result['patches_diff'] = dict()
+                    for file in result['patches']:
+                        original_txt = self.slither.source_code[file].encode('utf8')
+                        patched_txt = original_txt
+                        offset = 0
+                        patches = result['patches'][file]
+                        patches.sort(key=lambda x: x['start'])
+                        if not all(patches[i]['end'] <= patches[i + 1]['end'] for i in range(len(patches) - 1)):
+                            self._log(f'Impossible to generate patch; patches collisions: {patches}')
+                            continue
+                        for patch in patches:
+                            patched_txt, offset = apply_patch(patched_txt, patch, offset)
+                        diff = create_diff(self.slither, original_txt, patched_txt, file)
+                        if not diff:
+                            self._log(f'Impossible to generate patch; empty {result}')
+                        else:
+                            result['patches_diff'][file] = diff
+
+                except FormatImpossible as e:
+                        self._log(f'\nImpossible to patch:\n\t{result["description"]}\t{e}')
+
         if results and self.slither.triage_mode:
             while True:
                 indexes = input('Results to hide during next runs: "0,1,..." or "All" (enter to not hide results): '.format(len(results)))
@@ -310,3 +338,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                                             {},
                                             additional_fields)
         d['elements'].append(element)
+
+    @staticmethod
+    def _format(slither, result):
+        """Implement format"""
+        return

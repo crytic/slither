@@ -1,7 +1,9 @@
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
-from slither.slithir.operations import (HighLevelCall, SolidityCall )
+from slither.slithir.operations import SolidityCall
 from slither.slithir.operations import (InternalCall, InternalDynamicCall)
+from slither.formatters.functions.external_function import format
+
 
 class ExternalFunction(AbstractDetector):
     """
@@ -193,3 +195,7 @@ class ExternalFunction(AbstractDetector):
                     results.append(json)
 
         return results
+
+    @staticmethod
+    def _format(slither, result):
+        format(slither, result)

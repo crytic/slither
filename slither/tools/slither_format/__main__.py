@@ -36,12 +36,6 @@ def parse_args():
                         version='0.1.0',
                         action='version')
 
-    parser.add_argument('--skip-patch-generation',
-                        help='Do not generate patch files',
-                        action='store_true',
-                        default=False)
-
-
     parser.add_argument('--config-file',
                             help='Provide a config file (default: slither.config.json)',
                             action='store',
