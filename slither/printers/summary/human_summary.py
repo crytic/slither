@@ -66,10 +66,15 @@ class PrinterHumanSummary(AbstractPrinter):
         logger = logging.getLogger('Detectors')
         logger.setLevel(logging.ERROR)
 
+        checks_optimization = self.slither.detectors_optimization
         checks_informational = self.slither.detectors_informational
         checks_low = self.slither.detectors_low
         checks_medium = self.slither.detectors_medium
         checks_high = self.slither.detectors_high
+
+        issues_optimization = [c.detect() for c in checks_optimization]
+        issues_optimization = [c for c in issues_optimization if c]
+        issues_optimization = [item for sublist in issues_optimization for item in sublist]
 
         issues_informational = [c.detect() for c in checks_informational]
         issues_informational = [c for c in issues_informational if c]
@@ -89,14 +94,16 @@ class PrinterHumanSummary(AbstractPrinter):
 
 
 
-        return (len(issues_informational),
+        return (len(issues_optimization),
+                len(issues_informational),
                 len(issues_low),
                 len(issues_medium),
                 len(issues_high))
 
     def get_detectors_result(self):
-        issues_informational, issues_low, issues_medium, issues_high = self._get_detectors_result()
-        txt = "Number of informational issues: {}\n".format(green(issues_informational))
+        issues_optimization, issues_informational, issues_low, issues_medium, issues_high = self._get_detectors_result()
+        txt = "Number of optimization issues: {}\n".format(green(issues_optimization))
+        txt += "Number of informational issues: {}\n".format(green(issues_informational))
         txt += "Number of low issues: {}\n".format(green(issues_low))
         if issues_medium > 0:
             txt += "Number of medium issues: {}\n".format(yellow(issues_medium))
