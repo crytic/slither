@@ -32,8 +32,8 @@ class UnusedStateVars(AbstractDetector):
         # Get all the variables read in all the functions and modifiers
 
         all_functions = (contract.all_functions_called + contract.modifiers)
-        variables_used = [x.state_variables_read + x.state_variables_written for x in
-                          all_functions]
+        variables_used = [x.state_variables_read for x in all_functions]
+        variables_used += [x.state_variables_written for x in all_functions if not x.is_constructor_variables]
 
         array_candidates = [x.variables for x in all_functions]
         array_candidates = [i for sl in array_candidates for i in sl] + contract.state_variables
@@ -42,9 +42,12 @@ class UnusedStateVars(AbstractDetector):
         array_candidates = [i for sl in array_candidates for i in sl]
         array_candidates = [v for v in array_candidates if isinstance(v, StateVariable)]
 
+
+
         # Flat list
         variables_used = [item for sublist in variables_used for item in sublist]
         variables_used = list(set(variables_used + array_candidates))
+
         # Return the variables unused that are not public
         return [x for x in contract.variables if
                 x not in variables_used and x.visibility != 'public']
