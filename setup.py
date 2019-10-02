@@ -5,7 +5,7 @@ setup(
     description='Slither is a Solidity static analysis framework written in Python 3.',
     url='https://github.com/crytic/slither',
     author='Trail of Bits',
-    version='0.6.4',
+    version='0.6.6',
     packages=find_packages(),
     python_requires='>=3.6',
     install_requires=['prettytable>=0.7.2',
@@ -17,9 +17,9 @@ setup(
     entry_points={
         'console_scripts': [
             'slither = slither.__main__:main',
-            'slither-check-upgradeability = utils.upgradeability.__main__:main',
-            'slither-find-paths = utils.possible_paths.__main__:main',
-            'slither-simil = utils.similarity.__main__:main'
+            'slither-check-upgradeability = slither.tools.upgradeability.__main__:main',
+            'slither-find-paths = slither.tools.possible_paths.__main__:main',
+            'slither-simil = slither.tools.similarity.__main__:main'
         ]
     }
 )

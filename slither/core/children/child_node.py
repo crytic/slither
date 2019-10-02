@@ -18,3 +18,7 @@ class ChildNode(object):
     @property
     def contract(self):
         return self.node.function.contract
+
+    @property
+    def slither(self):
+        return self.contract.slither
