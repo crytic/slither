@@ -172,14 +172,24 @@ class ExternalFunction(AbstractDetector):
                 if is_called:
                     continue
 
-                # Loop for each function definition, and recommend it be declared external.
-                for function_definition in all_function_definitions:
-                    txt = "{} ({}) should be declared external\n"
-                    info = txt.format(function_definition.canonical_name,
-                                      function_definition.source_mapping_str)
+                # As we collect all shadowed functions in get_all_function_definitions
+                # Some function coming from a base might already been declared as external
+                all_function_definitions = [f for f in all_function_definitions if f.visibility == 'public' and
+                                            f.contract == f.contract_declarer]
+                if all_function_definitions:
+                    function_definition = all_function_definitions[0]
+                    all_function_definitions = all_function_definitions[1:]
 
-                    json = self.generate_json_result(info)
+                    txt = f"{function_definition.full_name} should be declared external:\n"
+                    txt += f"\t- {function_definition.canonical_name} ({function_definition.source_mapping_str})\n"
+                    for other_function_definition in all_function_definitions:
+                        txt += f"\t- {other_function_definition.canonical_name}"
+                        txt += f" ({other_function_definition.source_mapping_str})\n"
+
+                    json = self.generate_json_result(txt)
                     self.add_function_to_json(function_definition, json)
+                    for other_function_definition in all_function_definitions:
+                        self.add_function_to_json(other_function_definition, json)
                     results.append(json)
 
         return results
