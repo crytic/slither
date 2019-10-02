@@ -16,7 +16,7 @@ class MultipleCallsInLoop(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation/_edit#calls-inside-a-loop'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation/#calls-inside-a-loop'
 
 
     WIKI_TITLE = 'Calls inside a loop'

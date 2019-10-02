@@ -1,14 +1,18 @@
 from .variable import SlithIRVariable
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
-
+from slither.utils.arithmetic import convert_subdenomination
 
 class Constant(SlithIRVariable):
 
-    def __init__(self, val, type=None):
+    def __init__(self, val, type=None, subdenomination=None):
         super(Constant, self).__init__()
         assert isinstance(val, str)
 
         self._original_value = val
+        self._subdenomination = subdenomination
+
+        if subdenomination:
+            val = str(convert_subdenomination(val, subdenomination))
 
         if type:
             assert isinstance(type, ElementaryType)

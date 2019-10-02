@@ -171,7 +171,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         set_val(expression, val)
 
     def _post_literal(self, expression):
-        cst = Constant(expression.value, expression.type)
+        cst = Constant(expression.value, expression.type, expression.subdenomination)
         set_val(expression, cst)
 
     def _post_member_access(self, expression):
