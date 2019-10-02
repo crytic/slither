@@ -55,6 +55,7 @@ class FunctionType(Enum):
     CONSTRUCTOR = 1
     FALLBACK = 2
     CONSTRUCTOR_VARIABLES = 3 # Fake function to hold variable declaration statements
+    CONSTRUCTOR_CONSTANT_VARIABLES = 4  # Fake function to hold variable declaration statements
 
 class Function(ChildContract, ChildInheritance, SourceMapping):
     """
@@ -155,6 +156,8 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             return 'fallback'
         elif self._function_type == FunctionType.CONSTRUCTOR_VARIABLES:
             return 'slitherConstructorVariables'
+        elif self._function_type == FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES:
+            return 'slitherConstructorConstantVariables'
         return self._name
 
     @property
@@ -247,9 +250,9 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     def is_constructor_variables(self):
         """
             bool: True if the function is the constructor of the variables
-            Slither has a inbuilt function to hold the state variables initialization
+            Slither has inbuilt functions to hold the state variables initialization
         """
-        return self._function_type == FunctionType.CONSTRUCTOR_VARIABLES
+        return self._function_type in [FunctionType.CONSTRUCTOR_VARIABLES, FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES]
 
     @property
     def is_fallback(self):
