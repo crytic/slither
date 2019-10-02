@@ -35,6 +35,7 @@ class Slither(Context):
 
         self._crytic_compile = None
 
+        self._generate_patches = False
 
     ###################################################################################
     ###################################################################################
@@ -44,7 +45,7 @@ class Slither(Context):
 
     @property
     def source_code(self):
-        """ {filename: source_code}: source code """
+        """ {filename: source_code (str)}: source code """
         return self._raw_source_code
 
     @property
@@ -233,4 +234,19 @@ class Slither(Context):
     @property
     def crytic_compile(self):
         return self._crytic_compile
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Format
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def generate_patches(self):
+        return self._generate_patches
+
+    @generate_patches.setter
+    def generate_patches(self, p):
+        self._generate_patches = p
+
     # endregion
