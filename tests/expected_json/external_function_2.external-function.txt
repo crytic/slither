@@ -1,1 +1,1 @@
-INFO:Slither:tests/external_function_2.sol analyzed (4 contracts), 0 result(s) found
+tests/external_function_2.sol analyzed (4 contracts with 1 detectors), 0 result(s) found
