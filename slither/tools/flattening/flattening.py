@@ -125,22 +125,31 @@ class Flattening:
         exported.add(contract.name)
         list_contract.append(self._source_codes[contract])
 
+    def _export(self, contract, ret):
+        self._export_contract(contract, set(), ret)
+        path = Path(self.DEFAULT_EXPORT_PATH, f'{contract.name}.sol')
+        logger.info(f'Export {path}')
+        with open(path, 'w') as f:
+            if self._slither.solc_version:
+                f.write(f'pragma solidity {self._slither.solc_version};\n')
+            if self._use_abi_encoder_v2:
+                f.write('pragma experimental ABIEncoderV2;\n')
+            f.write('\n'.join(ret))
+            f.write('\n')
 
     def export(self, target=None):
 
         if not self.DEFAULT_EXPORT_PATH.exists():
             self.DEFAULT_EXPORT_PATH.mkdir(parents=True)
 
+        ret = []
         if target is None:
             for contract in self._slither.contracts_derived:
-                ret = []
-                self._export_contract(contract, set(), ret)
-                path = Path(self.DEFAULT_EXPORT_PATH, f'{contract.name}.sol')
-                logger.info(f'Export {path}')
-                with open(path, 'w') as f:
-                    if self._slither.solc_version:
-                        f.write(f'pragma solidity {self._slither.solc_version};\n')
-                    if self._use_abi_encoder_v2:
-                        f.write('pragma experimental ABIEncoderV2;\n')
-                    f.write('\n'.join(ret))
-                    f.write('\n')
+                self._export(contract, ret)
+        else:
+            contract = self._slither.get_contract_from_name(target)
+            if contract is None:
+                logger.error(f'{target} not found')
+            else:
+                self._export(contract, ret)
+
