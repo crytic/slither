@@ -34,6 +34,7 @@ class Slither(SlitherSolc):
                 filter_paths (list(str)): list of path to filter (default [])
                 triage_mode (bool): if true, switch to triage mode (default false)
                 exclude_dependencies (bool): if true, exclude results that are only related to dependencies
+                generate_patches (bool): if true, patches are generated (json output only)
 
                 truffle_ignore (bool): ignore truffle.js presence (default false)
                 truffle_build_directory (str): build truffle directory (default 'build/contracts')
@@ -63,6 +64,9 @@ class Slither(SlitherSolc):
             for path, ast in crytic_compile.asts.items():
                 self._parse_contracts_from_loaded_json(ast, path)
                 self._add_source_code(path)
+
+        if kwargs.get('generate_patches', False):
+            self.generate_patches = True
 
         self._detectors = []
         self._printers = []

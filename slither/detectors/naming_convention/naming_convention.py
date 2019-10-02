@@ -1,5 +1,7 @@
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 import re
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.formatters.naming_convention.naming_convention import format
+
 
 
 class NamingConvention(AbstractDetector):
@@ -202,3 +204,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     results.append(json)
 
         return results
+
+    @staticmethod
+    def _format(slither, result):
+        format(slither, result)

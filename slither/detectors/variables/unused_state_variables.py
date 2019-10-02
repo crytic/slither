@@ -6,6 +6,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.core.solidity_types import ArrayType
 from slither.visitors.expression.export_values import ExportValues
 from slither.core.variables.state_variable import StateVariable
+from slither.formatters.variables.unused_state_variables import format
 
 class UnusedStateVars(AbstractDetector):
     """
@@ -70,3 +71,7 @@ class UnusedStateVars(AbstractDetector):
                     results.append(json)
 
         return results
+
+    @staticmethod
+    def _format(slither, result):
+        format(slither, result)

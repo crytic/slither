@@ -2,8 +2,9 @@
     Check if an incorrect version of solc is used
 """
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 import re
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.formatters.attributes.incorrect_solc import format
 
 # group:
 # 0: ^ > >= < <= (optional)
@@ -105,3 +106,7 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
                 results.append(json)
 
         return results
+
+    @staticmethod
+    def _format(slither, result):
+        format(slither, result)

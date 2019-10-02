@@ -3,6 +3,7 @@
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.formatters.attributes.constant_pragma import format
 
 
 class ConstantPragma(AbstractDetector):
@@ -42,3 +43,7 @@ class ConstantPragma(AbstractDetector):
             results.append(json)
 
         return results
+
+    @staticmethod
+    def _format(slither, result):
+        format(slither, result)
