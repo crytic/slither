@@ -114,9 +114,11 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._all_high_level_calls = None
         self._all_library_calls = None
         self._all_low_level_calls = None
+        self._all_solidity_calls = None
         self._all_state_variables_read = None
         self._all_solidity_variables_read = None
         self._all_state_variables_written = None
+        self._all_slithir_variables = None
         self._all_conditional_state_variables_read = None
         self._all_conditional_state_variables_read_with_loop = None
         self._all_conditional_solidity_variables_read = None
@@ -799,6 +801,14 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                 lambda x: x.solidity_variables_read)
         return self._all_solidity_variables_read
 
+    def all_slithir_variables(self):
+        """ recursive version of slithir_variables
+        """
+        if self._all_slithir_variables is None:
+            self._all_slithir_variables = self._explore_functions(
+                lambda x: x.slithir_variable)
+        return self._all_slithir_variables
+
     def all_expressions(self):
         """ recursive version of variables_read
         """
@@ -848,6 +858,13 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         if self._all_library_calls is None:
             self._all_library_calls = self._explore_functions(lambda x: x.library_calls)
         return self._all_library_calls
+
+    def all_solidity_calls(self):
+        """ recursive version of solidity calls
+        """
+        if self._all_solidity_calls is None:
+            self._all_solidity_calls = self._explore_functions(lambda x: x.solidity_calls)
+        return self._all_solidity_calls
 
     @staticmethod
     def _explore_func_cond_read(func, include_loop):
