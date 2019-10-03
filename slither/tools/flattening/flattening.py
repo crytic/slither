@@ -121,7 +121,8 @@ class Flattening:
                         self._export_contract(ir.contract_created, exported, list_contract)
                 if isinstance(ir, TypeConversion):
                     self._export_from_type(ir.type, contract, exported, list_contract)
-
+        if contract.name in exported:
+            return
         exported.add(contract.name)
         list_contract.append(self._source_codes[contract])
 
@@ -142,14 +143,15 @@ class Flattening:
         if not self.DEFAULT_EXPORT_PATH.exists():
             self.DEFAULT_EXPORT_PATH.mkdir(parents=True)
 
-        ret = []
         if target is None:
             for contract in self._slither.contracts_derived:
+                ret = []
                 self._export(contract, ret)
         else:
             contract = self._slither.get_contract_from_name(target)
             if contract is None:
                 logger.error(f'{target} not found')
             else:
+                ret = []
                 self._export(contract, ret)
 
