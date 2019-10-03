@@ -1,6 +1,8 @@
 import os
 import logging
 import json
+import os
+import logging
 from collections import defaultdict
 from prettytable import PrettyTable
 from crytic_compile.cryticparser.defaults import defaults_flag_in_config as defaults_flag_in_config_crytic_compile
@@ -29,6 +31,7 @@ defaults_flag_in_config = {
     'json-types': ','.join(DEFAULT_JSON_OUTPUT_TYPES),
     'disable_color': False,
     'filter_paths': None,
+    'generate_patches': False,
     # debug command
     'legacy_ast': False,
     'ignore_return_value': False,

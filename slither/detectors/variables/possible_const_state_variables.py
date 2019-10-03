@@ -7,6 +7,8 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.visitors.expression.export_values import ExportValues
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.state_variable import StateVariable
+from slither.formatters.variables.possible_const_state_variables import format
+
 
 class ConstCandidateStateVars(AbstractDetector):
     """
@@ -94,3 +96,7 @@ class ConstCandidateStateVars(AbstractDetector):
             results.append(json)
 
         return results
+
+    @staticmethod
+    def _format(slither, result):
+        format(slither, result)

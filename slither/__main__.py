@@ -257,6 +257,7 @@ def parse_filter_paths(args):
         return args.filter_paths.split(',')
     return []
 
+
 def parse_args(detector_classes, printer_classes):
     parser = argparse.ArgumentParser(description='Slither. For usage information, see https://github.com/crytic/slither/wiki/Usage',
                                      usage="slither.py contract.sol [flag]")
@@ -376,6 +377,11 @@ def parse_args(detector_classes, printer_classes):
 
     group_misc.add_argument('--solc-ast',
                             help='Provide the contract as a json AST',
+                            action='store_true',
+                            default=False)
+
+    group_misc.add_argument('--generate-patches',
+                            help='Generate patches (json output only)',
                             action='store_true',
                             default=False)
 
