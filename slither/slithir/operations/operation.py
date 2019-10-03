@@ -1,5 +1,6 @@
 import abc
 from slither.core.context.context import Context
+from slither.core.children.child_expression import ChildExpression
 from slither.core.children.child_node import ChildNode
 from slither.utils.utils import unroll
 
@@ -21,7 +22,7 @@ class AbstractOperation(abc.ABC):
         """
         pass
 
-class Operation(Context, ChildNode, AbstractOperation):
+class Operation(Context, ChildExpression, ChildNode, AbstractOperation):
 
     @property
     def used(self):

@@ -275,7 +275,9 @@ def parse_call(expression, caller_context):
         arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
     if isinstance(called, SuperCallExpression):
-        return SuperCallExpression(called, arguments, type_return)
+        sp =  SuperCallExpression(called, arguments, type_return)
+        sp.set_offset(expression['src'], caller_context.slither)
+        return sp
     call_expression = CallExpression(called, arguments, type_return)
     call_expression.set_offset(src, caller_context.slither)
     return call_expression
@@ -386,7 +388,7 @@ def parse_expression(expression, caller_context):
         return binary_op
 
     elif name == 'FunctionCall':
-        return  parse_call(expression, caller_context)
+        return parse_call(expression, caller_context)
 
     elif name == 'TupleExpression':
         """
@@ -401,7 +403,7 @@ def parse_expression(expression, caller_context):
             Note: this is only possible with Solidity >= 0.4.12
         """
         if is_compact_ast:
-                expressions = [parse_expression(e, caller_context) if e else None for e in expression['components']]
+            expressions = [parse_expression(e, caller_context) if e else None for e in expression['components']]
         else:
             if 'children' not in expression :
                 attributes = expression['attributes']
