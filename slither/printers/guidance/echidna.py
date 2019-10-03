@@ -6,7 +6,7 @@ from collections import defaultdict
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction
 from slither.slithir.operations.binary import Binary, BinaryType
-
+from slither.core.variables.state_variable import StateVariable
 from slither.slithir.variables import Constant
 
 
@@ -53,6 +53,26 @@ def _extract_assert(slither):
             ret[contract.name] = functions_using_assert
     return ret
 
+def _extract_constants_from_irs(irs, all_cst_used, all_cst_used_in_binary, context_explored):
+    for ir in irs:
+        if isinstance(ir, Binary):
+            for r in ir.read:
+                if isinstance(r, Constant):
+                    all_cst_used_in_binary[BinaryType.str(ir.type)].append(r.value)
+        for r in ir.read:
+            if isinstance(r, Constant):
+                all_cst_used.append(r.value)
+            if isinstance(r, StateVariable):
+                if r.node_initialization:
+                    if r.node_initialization.irs:
+                        if r.node_initialization in context_explored:
+                            continue
+                        else:
+                            context_explored.add(r.node_initialization)
+                            _extract_constants_from_irs(r.node_initialization.irs,
+                                                        all_cst_used,
+                                                        all_cst_used_in_binary,
+                                                        context_explored)
 
 def _extract_constants(slither):
     ret_cst_used = defaultdict(dict)
@@ -61,14 +81,14 @@ def _extract_constants(slither):
         for function in contract.functions_entry_points:
             all_cst_used = []
             all_cst_used_in_binary = defaultdict(list)
-            for ir in function.all_slithir_operations():
-                if isinstance(ir, Binary):
-                    for r in ir.read:
-                        if isinstance(r, Constant):
-                            all_cst_used_in_binary[BinaryType.str(ir.type)].append(r.value)
-                for r in ir.read:
-                    if isinstance(r, Constant):
-                        all_cst_used.append(r.value)
+
+            context_explored = set()
+            context_explored.add(function)
+            _extract_constants_from_irs(function.all_slithir_operations(),
+                                        all_cst_used,
+                                        all_cst_used_in_binary,
+                                        context_explored)
+
             if all_cst_used:
                 ret_cst_used[contract.name][function.full_name] = all_cst_used
             if all_cst_used_in_binary:
