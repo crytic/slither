@@ -402,10 +402,12 @@ class ContractSolc04(Contract):
                     self._functions[constructor_variable.canonical_name] = constructor_variable
 
                     prev_node = self._create_node(constructor_variable, 0, variable_candidate)
+                    variable_candidate.node_initialization = prev_node
                     counter = 1
                     for v in self.state_variables[idx+1:]:
                         if v.expression and not v.is_constant:
                             next_node = self._create_node(constructor_variable, counter, v)
+                            v.node_initialization = next_node
                             prev_node.add_son(next_node)
                             next_node.add_father(prev_node)
                             counter += 1
@@ -425,10 +427,12 @@ class ContractSolc04(Contract):
                     self._functions[constructor_variable.canonical_name] = constructor_variable
 
                     prev_node = self._create_node(constructor_variable, 0, variable_candidate)
+                    variable_candidate.node_initialization = prev_node
                     counter = 1
                     for v in self.state_variables[idx+1:]:
                         if v.expression and v.is_constant:
                             next_node = self._create_node(constructor_variable, counter, v)
+                            v.node_initialization = next_node
                             prev_node.add_son(next_node)
                             next_node.add_father(prev_node)
                             counter += 1

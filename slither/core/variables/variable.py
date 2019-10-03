@@ -78,6 +78,25 @@ class Variable(SourceMapping):
         assert isinstance(t, (Type, list)) or t is None
         self._type = t
 
+    @property
+    def function_name(self):
+        '''
+        Return the name of the variable as a function signature
+        :return:
+        '''
+        from slither.core.solidity_types import ArrayType, MappingType
+        variable_getter_args = ""
+        if type(self.type) is ArrayType:
+            length = 0
+            v = self
+            while type(v.type) is ArrayType:
+                length += 1
+                v = v.type
+            variable_getter_args = ','.join(["uint256"] * length)
+        elif type(self.type) is MappingType:
+            variable_getter_args = self.type.type_from
+
+        return f"{self.name}({variable_getter_args})"
 
     def __str__(self):
         return self._name

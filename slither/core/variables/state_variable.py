@@ -4,6 +4,9 @@ from slither.utils.type import export_nested_types_from_variable
 
 class StateVariable(ChildContract, Variable):
 
+    def __init__(self):
+        super(StateVariable, self).__init__()
+        self._node_initialization = None
 
     def is_declared_by(self, contract):
         """
@@ -57,6 +60,26 @@ class StateVariable(ChildContract, Variable):
         """
         name, parameters, _ = self.signature
         return name+'('+','.join(parameters)+')'
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region IRs (initialization)
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def node_initialization(self):
+        """
+        Node for the state variable initalization
+        :return:
+        """
+        return self._node_initialization
+
+    @node_initialization.setter
+    def node_initialization(self, node_initialization):
+        self._node_initialization = node_initialization
+
 
     # endregion
     ###################################################################################
