@@ -126,6 +126,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._all_solidity_variables_used_as_args = None
 
         self._is_shadowed = False
+        self._shadows = False
 
         # set(ReacheableNode)
         self._reachable_from_nodes = set()
@@ -315,6 +316,14 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     @is_shadowed.setter
     def is_shadowed(self, is_shadowed):
         self._is_shadowed = is_shadowed
+
+    @property
+    def shadows(self):
+        return self._shadows
+
+    @shadows.setter
+    def shadows(self, _shadows):
+        self._shadows = _shadows
 
     # endregion
     ###################################################################################
