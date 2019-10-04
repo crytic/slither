@@ -117,18 +117,18 @@ def find_variable(var_name, caller_context, referenced_declaration=None, is_supe
         return conc_variables_ptr[var_name]
 
     if is_super:
-        getter_available = lambda f: f.available_functions_as_dict().items()
+        getter_available = lambda f: f.functions_declared
         d = {f.canonical_name:f for f in contract.functions}
-        functions = {f.full_name:f for f in contract.available_elements_from_inheritances(d, getter_available).values()}
+        functions = {f.full_name:f for f in contract_declarer.available_elements_from_inheritances(d, getter_available).values()}
     else:
         functions = contract.available_functions_as_dict()
     if var_name in functions:
         return functions[var_name]
 
     if is_super:
-        getter_available = lambda m: m.available_modifiers_as_dict().items()
+        getter_available = lambda m: m.modifiers_declared
         d = {m.canonical_name: m for m in contract.modifiers}
-        modifiers = {m.full_name: m for m in contract.available_elements_from_inheritances(d, getter_available).values()}
+        modifiers = {m.full_name: m for m in contract_declarer.available_elements_from_inheritances(d, getter_available).values()}
     else:
         modifiers = contract.available_modifiers_as_dict()
     if var_name in modifiers:
