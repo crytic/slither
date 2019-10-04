@@ -100,7 +100,7 @@ def _extract_constants(slither):
 
 class Echidna(AbstractPrinter):
     ARGUMENT = 'echidna'
-    HELP = 'todo'
+    HELP = 'Export Echidna guiding information'
 
     WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#echidna'
 
