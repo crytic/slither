@@ -290,7 +290,7 @@ class ContractSolc04(Contract):
 
         elements_no_params = self._modifiers_no_params
         getter = lambda f: f.modifiers
-        getter_available = lambda f: f.available_modifiers_as_dict().items()
+        getter_available = lambda f: f.modifiers_declared
         Cls = ModifierSolc
         self._modifiers = self._analyze_params_elements(elements_no_params, getter, getter_available, Cls)
 
@@ -302,7 +302,7 @@ class ContractSolc04(Contract):
 
         elements_no_params = self._functions_no_params
         getter = lambda f: f.functions
-        getter_available = lambda f: f.available_functions_as_dict().items()
+        getter_available = lambda f: f.functions_declared
         Cls = FunctionSolc
         self._functions = self._analyze_params_elements(elements_no_params, getter, getter_available, Cls)
 
@@ -354,6 +354,7 @@ class ContractSolc04(Contract):
         for element in all_elements.values():
             if accessible_elements[element.full_name] != all_elements[element.canonical_name]:
                 element.is_shadowed = True
+                accessible_elements[element.full_name].shadows = True
 
         return all_elements
 

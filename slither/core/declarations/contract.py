@@ -386,7 +386,7 @@ class Contract(ChildSlither, SourceMapping):
         accessible_elements = {}
         contracts_visited = []
         for father in self.inheritance_reverse:
-            functions = {v.full_name: v for (_, v) in getter_available(father)
+            functions = {v.full_name: v for (v) in getter_available(father)
                          if not v.contract in contracts_visited}
             contracts_visited.append(father)
             inherited_elements.update(functions)
