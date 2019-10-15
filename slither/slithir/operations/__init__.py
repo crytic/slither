@@ -12,7 +12,7 @@ from .internal_dynamic_call import InternalDynamicCall
 from .library_call import LibraryCall
 from .low_level_call import LowLevelCall
 from .lvalue import OperationWithLValue
-from .member import Member
+from .member import AccessMember
 from .new_array import NewArray
 from .new_elementary_type import NewElementaryType
 from .new_contract import NewContract
@@ -30,4 +30,9 @@ from .length import Length
 from .balance import Balance
 from .phi import Phi
 from .phi_callback import PhiCallback
+from .phi_scalar import PhiScalar
+from .phi_member_must import PhiMemberMust
 from .nop import Nop
+from .update_member import UpdateMember
+from .update_member_dependency import UpdateMemberDependency
+from .phi_member_may import PhiMemberMay

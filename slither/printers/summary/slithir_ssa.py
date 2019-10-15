@@ -1,7 +1,7 @@
 """
     Module printing summary of the contract
 """
-
+from slither.analyses.data_dependency.data_dependency import pprint_dependency
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.colors import blue, green, magenta
 
@@ -31,6 +31,7 @@ class PrinterSlithIRSSA(AbstractPrinter):
                         print('\t\tIRs:')
                         for ir in node.irs_ssa:
                             print('\t\t\t{}'.format(ir))
+                    pprint_dependency(node)
             for modifier in contract.modifiers:
                 print('\tModifier {}'.format(modifier.canonical_name))
                 for node in modifier.nodes:
@@ -41,4 +42,5 @@ class PrinterSlithIRSSA(AbstractPrinter):
                         print('\t\tIRs:')
                         for ir in node.irs_ssa:
                             print('\t\t\t{}'.format(ir))
+                    pprint_dependency(node)
         self.info(txt)

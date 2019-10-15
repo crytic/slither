@@ -3,13 +3,33 @@
 """
 
 from prettytable import PrettyTable
+
+from slither.core.declarations import Structure
+from slither.core.solidity_types import UserDefinedType
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.analyses.data_dependency.data_dependency import get_dependencies
-from slither.slithir.variables import TemporaryVariable, ReferenceVariable
+from slither.analyses.data_dependency.data_dependency import get_dependencies, pprint_dependency
+from slither.slithir.variables import TemporaryVariable, IndexVariable, Constant, MemberVariable
+
+
+def _convert(d):
+    if isinstance(d, tuple):
+        return '.'.join([x.name for x in d])
+    return d.name
 
 def _get(v, c):
-    return list(set([d.name for d in get_dependencies(v, c) if not isinstance(d, (TemporaryVariable,
-                                                                               ReferenceVariable))]))
+    return list(set([_convert(d) for d in get_dependencies(v, c) if not isinstance(d, (TemporaryVariable,
+                                                                              IndexVariable, MemberVariable, tuple))]))
+
+def add_row(v, c, table):
+    if isinstance(v.type, UserDefinedType) and isinstance(v.type.type, Structure):
+        for elem in v.type.type.elems.values():
+            if isinstance(elem.type, UserDefinedType) and isinstance(elem.type.type, Structure):
+                for elem_nested in elem.type.type.elems.values():
+                    table.add_row([f'{v.name}.{elem}.{elem_nested.name}', _get([v, Constant(elem.name), Constant(elem_nested.name)], c)])
+            else:
+                table.add_row([f'{v.name}.{elem}', _get((v, Constant(elem.name)), c)])
+    else:
+        table.add_row([v.name, _get(v, c)])
 
 class DataDependency(AbstractPrinter):
 
@@ -26,11 +46,13 @@ class DataDependency(AbstractPrinter):
         """
 
         txt = ''
+        #print(pprint_dependency(c))
         for c in self.contracts:
+            print(pprint_dependency(c))
             txt += "\nContract %s\n"%c.name
             table = PrettyTable(['Variable', 'Dependencies'])
             for v in c.state_variables:
-                table.add_row([v.name, _get(v, c)])
+                add_row(v, c, table)
 
             txt += str(table)
 
@@ -39,8 +61,8 @@ class DataDependency(AbstractPrinter):
                 txt += "\nFunction %s\n"%f.full_name
                 table = PrettyTable(['Variable', 'Dependencies'])
                 for v in f.variables:
-                    table.add_row([v.name, _get(v, f)])
+                    add_row(v, f, table)
                 for v in c.state_variables:
-                    table.add_row([v.canonical_name, _get(v, f)])
+                    add_row(v, f, table)
                 txt += str(table)
             self.info(txt)

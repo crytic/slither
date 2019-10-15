@@ -140,6 +140,8 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._can_reenter = None
         self._can_send_eth = None
 
+        self._nodes_ordered_dominators = None
+
     ###################################################################################
     ###################################################################################
     # region General properties
@@ -373,6 +375,24 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         if not self._entry_point:
             self._entry_point = node
         self._nodes.append(node)
+
+    @property
+    def nodes_ordered_dominators(self):
+        if self._nodes_ordered_dominators is None:
+            self._nodes_ordered_dominators = []
+            if self.entry_point:
+                self._compute_nodes_ordered_dominators(self.entry_point)
+        return self._nodes_ordered_dominators
+
+    def _compute_nodes_ordered_dominators(self, node):
+        if node in self._nodes_ordered_dominators:
+            return
+        self._nodes_ordered_dominators.append(node)
+        for dom in node.dominance_exploration_ordered:
+            self._compute_nodes_ordered_dominators(dom)
+
+
+
 
     # endregion
     ###################################################################################
@@ -1258,7 +1278,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     ###################################################################################
 
     def get_last_ssa_state_variables_instances(self):
-        from slither.slithir.variables import ReferenceVariable
+        from slither.slithir.variables import IndexVariable
         from slither.slithir.operations import OperationWithLValue
         from slither.core.cfg.node import NodeType
 
@@ -1280,7 +1300,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                 for ir_ssa in node.irs_ssa:
                     if isinstance(ir_ssa, OperationWithLValue):
                         lvalue = ir_ssa.lvalue
-                        if isinstance(lvalue, ReferenceVariable):
+                        if isinstance(lvalue, IndexVariable):
                             lvalue = lvalue.points_to_origin
                         if isinstance(lvalue, StateVariable):
                             values[lvalue.canonical_name] = {lvalue}
@@ -1298,7 +1318,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                 explored[node] = values
 
             # Return condition
-            if not node.sons and node.type != NodeType.THROW:
+            if node.will_return:
                 for name, instances in values.items():
                     if name not in ret:
                         ret[name] = set()

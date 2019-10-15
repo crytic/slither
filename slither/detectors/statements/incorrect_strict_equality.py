@@ -15,7 +15,7 @@ from slither.core.solidity_types import MappingType, ElementaryType
 
 from slither.core.variables.state_variable import StateVariable
 from slither.core.declarations.solidity_variables import SolidityVariable, SolidityVariableComposed
-from slither.slithir.variables import ReferenceVariable
+from slither.slithir.variables import IndexVariable
 
 class IncorrectStrictEquality(AbstractDetector):
     ARGUMENT = 'incorrect-equality'

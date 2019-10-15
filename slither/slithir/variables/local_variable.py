@@ -68,8 +68,8 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
 
     @property
     def ssa_name(self):
-        if self.is_storage:
-            return '{}_{} (-> {})'.format(self._name,
-                                             self.index,
-                                             [v.name for v in self.refers_to])
+        # if self.is_storage:
+        #     return '{}_{} (-> {})'.format(self._name,
+        #                                      self.index,
+        #                                      [v.name for v in self.refers_to])
         return '{}_{}'.format(self._name, self.index)

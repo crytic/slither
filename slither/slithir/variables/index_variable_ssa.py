@@ -3,13 +3,13 @@
     It is similar to the non-SSA version of slithIR
     as the ReferenceVariable are in SSA form in both version
 '''
-from .reference import ReferenceVariable
+from .index_variable import IndexVariable
 from .variable import SlithIRVariable
 
-class ReferenceVariableSSA(ReferenceVariable):
+class IndexVariableSSA(IndexVariable):
 
     def __init__(self, reference):
-        super(ReferenceVariableSSA, self).__init__(reference.node, reference.index)
+        super(IndexVariableSSA, self).__init__(reference.node, reference.index)
 
         self._non_ssa_version = reference
 

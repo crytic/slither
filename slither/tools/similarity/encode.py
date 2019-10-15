@@ -7,11 +7,11 @@ from slither.core.solidity_types import ElementaryType, ArrayType, MappingType, 
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.core.variables.state_variable import StateVariable
-from slither.slithir.operations import Assignment, Index, Member, Length, Balance, Binary, \
+from slither.slithir.operations import Assignment, Index, AccessMember, Length, Balance, Binary, \
     Unary, Condition, NewArray, NewStructure, NewContract, NewElementaryType, \
     SolidityCall, Push, Delete, EventCall, LibraryCall, InternalDynamicCall, \
     HighLevelCall, LowLevelCall, TypeConversion, Return, Transfer, Send, Unpack, InitArray, InternalCall
-from slither.slithir.variables import TemporaryVariable, TupleVariable, Constant, ReferenceVariable
+from slither.slithir.variables import TemporaryVariable, TupleVariable, Constant, IndexVariable
 from .cache import load_cache
 
 simil_logger = logging.getLogger("Slither-simil")
@@ -101,7 +101,7 @@ def encode_ir(ir):
         return '({}):=({})'.format(encode_ir(ir.lvalue), encode_ir(ir.rvalue))
     if isinstance(ir, Index):
         return 'index({})'.format(ntype(ir._type)) 
-    if isinstance(ir, Member):
+    if isinstance(ir, AccessMember):
         return 'member' #.format(ntype(ir._type))
     if isinstance(ir, Length):
         return 'length'
@@ -163,7 +163,7 @@ def encode_ir(ir):
         return 'solidity_variable{}'.format(ir.name)
     if isinstance(ir, TemporaryVariable):
         return 'temporary_variable'
-    if isinstance(ir, ReferenceVariable):
+    if isinstance(ir, IndexVariable):
         return 'reference({})'.format(ntype(ir._type)) 
     if isinstance(ir, LocalVariable):
         return 'local_solc_variable({})'.format(ir._location) 

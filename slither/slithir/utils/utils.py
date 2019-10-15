@@ -5,12 +5,15 @@ from slither.core.declarations.solidity_variables import SolidityVariable
 
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.constant import Constant
-from slither.slithir.variables.reference import ReferenceVariable
+from slither.slithir.variables.index_variable import IndexVariable
+from slither.slithir.variables.member_variable import MemberVariable
 from slither.slithir.variables.tuple import TupleVariable
 
 def is_valid_rvalue(v):
-    return isinstance(v, (StateVariable, LocalVariable, TemporaryVariable, Constant, SolidityVariable, ReferenceVariable))
+    return isinstance(v, (StateVariable, LocalVariable, TemporaryVariable,
+                          Constant, SolidityVariable, IndexVariable, MemberVariable))
 
 def is_valid_lvalue(v):
-    return isinstance(v, (StateVariable, LocalVariable, TemporaryVariable, ReferenceVariable, TupleVariable))
+    return isinstance(v, (StateVariable, LocalVariable, TemporaryVariable,
+                          IndexVariable, MemberVariable, TupleVariable))
 

@@ -3,9 +3,9 @@ from slither.core.children.child_function import ChildFunction
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.mapping_type import MappingType
+from slither.core.solidity_types.elementary_type import ElementaryType
 
 from slither.core.declarations.structure import Structure
-
 
 class LocalVariable(ChildFunction, Variable):
 
@@ -25,6 +25,10 @@ class LocalVariable(ChildFunction, Variable):
             (str)
         '''
         return self._location
+
+    @property
+    def is_scalar(self):
+        return isinstance(self.type, ElementaryType) and not self.is_storage
 
     @property
     def is_storage(self):

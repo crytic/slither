@@ -3,9 +3,9 @@
 """
 from slither.core.cfg.node import NodeType
 from slither.core.declarations import SolidityFunction
-from slither.slithir.operations import (Index, Member, OperationWithLValue,
+from slither.slithir.operations import (Index, AccessMember, OperationWithLValue,
                                         SolidityCall, Length, Balance)
-from slither.slithir.variables import ReferenceVariable
+from slither.slithir.variables import IndexVariable
 
 
 def _visit(node, visited, variables_written, variables_to_write):
@@ -25,14 +25,14 @@ def _visit(node, visited, variables_written, variables_to_write):
 
         if not isinstance(ir, OperationWithLValue):
             continue
-        if isinstance(ir, (Index, Member)):
+        if isinstance(ir, (Index, AccessMember)):
             refs[ir.lvalue] = ir.variable_left
         if isinstance(ir, (Length, Balance)):
             refs[ir.lvalue] = ir.value
 
         variables_written = variables_written + [ir.lvalue]
         lvalue = ir.lvalue
-        while  isinstance(lvalue, ReferenceVariable):
+        while  isinstance(lvalue, IndexVariable):
             if lvalue not in refs:
                 break
             variables_written = variables_written + [refs[lvalue]]
