@@ -4,6 +4,8 @@ from slither.slithir.operations import InternalCall
 from slither.utils.colors import green,red
 from slither.utils.colors import red, yellow, green
 
+from collections import OrderedDict
+
 logger = logging.getLogger("CheckInitialization")
 logger.setLevel(logging.INFO)
 
@@ -28,12 +30,15 @@ def _get_most_derived_init(contract):
 
 def check_initialization(s):
 
+    results = OrderedDict()
+    
     initializable = s.get_contract_from_name('Initializable')
 
     logger.info(green('Run initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialization-checks)'))
 
     if initializable is None:
         logger.info(yellow('Initializable contract not found, the contract does not follow a standard initalization schema.'))
+        results['absent'] = "Initializable contract not found, the contract does not follow a standard initalization schema."
         return
 
     init_info = ''
@@ -49,7 +54,9 @@ def check_initialization(s):
             for f in all_init_functions:
                 if not initializer in f.modifiers:
                     initializer_modifier_missing = True
-                    logger.info(red(f'{f.canonical_name} does not call initializer'))
+                    info = f'{f.canonical_name} does not call initializer'
+                    logger.info(red(info))
+                    results['missing_initializer_call'] = info
             most_derived_init = _get_most_derived_init(contract)
             if most_derived_init is None:
                 init_info += f'{contract.name} has no initialize function\n'
@@ -59,11 +66,15 @@ def check_initialization(s):
             all_init_functions_called = _get_all_internal_calls(most_derived_init) + [most_derived_init]
             missing_calls = [f for f in all_init_functions if not f in all_init_functions_called]
             for f in missing_calls:
-                logger.info(red(f'Missing call to {f.canonical_name} in {contract.name}'))
+                info = f'Missing call to {f.canonical_name} in {contract.name}'
+                logger.info(red(info))
+                results['missing_call'] = info
                 missing_call = True
             double_calls = list(set([f for f in all_init_functions_called if all_init_functions_called.count(f) > 1]))
             for f in double_calls:
-                logger.info(red(f'{f.canonical_name} is called multiple time in {contract.name}'))
+                info = f'{f.canonical_name} is called multiple time in {contract.name}'
+                logger.info(red(info))
+                results['multiple_calls'] = info
                 double_calls_found = True
 
     if not initializer_modifier_missing:
@@ -76,3 +87,5 @@ def check_initialization(s):
         logger.info(green('No missing call to an init function found'))
 
     logger.info(green('Check the deployement script to ensure that these functions are called:\n'+ init_info))
+
+    return results

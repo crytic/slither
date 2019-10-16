@@ -1,6 +1,7 @@
 import logging
 import argparse
 import sys
+import json
 
 from slither import Slither
 from crytic_compile import cryticparser
@@ -9,10 +10,11 @@ from .compare_variables_order import compare_variables_order_implementation, com
 from .compare_function_ids import compare_function_ids
 from .check_initialization import check_initialization
 
+from collections import OrderedDict
+
 logging.basicConfig()
 logging.getLogger("Slither-check-upgradeability").setLevel(logging.INFO)
 logging.getLogger("Slither").setLevel(logging.INFO)
-
 
 def parse_args():
 
@@ -48,15 +50,20 @@ def main():
     v1 = Slither(v1_filename, **vars(args))
     v1_name = args.ContractName
 
-    check_initialization(v1)
+    results = OrderedDict()
+    
+    results['check_initialization'] = check_initialization(v1)
 
     if not args.new_version:
-        compare_function_ids(v1, v1_name, proxy, proxy_name)
-        compare_variables_order_proxy(v1, v1_name, proxy, proxy_name)
+        results['compare_function_ids'] = compare_function_ids(v1, v1_name, proxy, proxy_name)
+        results['compare_variables_order_proxy'] = compare_variables_order_proxy(v1, v1_name, proxy, proxy_name)
     else:
         v2 = Slither(args.new_version, **vars(args))
         v2_name = v1_name if not args.new_contract_name else args.new_contract_name
-        check_initialization(v2)
-        compare_function_ids(v2, v2_name, proxy, proxy_name)
-        compare_variables_order_proxy(v2, v2_name, proxy, proxy_name)
-        compare_variables_order_implementation(v1, v1_name, v2, v2_name)
+        results['check_initialization_v2'] = check_initialization(v2)
+        results['compare_function_ids'] = compare_function_ids(v2, v2_name, proxy, proxy_name)
+        results['compare_variables_order_proxy'] = compare_variables_order_proxy(v2, v2_name, proxy, proxy_name)
+        results['compare_variables_order_implementation'] = compare_variables_order_implementation(v1, v1_name, v2, v2_name)
+
+    with open('results.json', 'w') as fp:
+        json.dump(results, fp)
