@@ -5,6 +5,7 @@ import json
 import os
 
 from slither import Slither
+from slither.utils.colors import red, yellow, set_colorization_enabled
 from crytic_compile import cryticparser
 
 from .compare_variables_order import compare_variables_order_implementation, compare_variables_order_proxy
@@ -14,8 +15,8 @@ from .check_initialization import check_initialization
 from collections import OrderedDict
 
 logging.basicConfig()
-logging.getLogger("Slither-check-upgradeability").setLevel(logging.INFO)
-logging.getLogger("Slither").setLevel(logging.INFO)
+logger = logging.getLogger("Slither-check-upgradeability")
+logger.setLevel(logging.INFO)
 
 def parse_args():
 
@@ -55,7 +56,7 @@ def parse_args():
 def output_json(filename, error, results):
     # Create our encapsulated JSON result.
     json_result = {
-        "success": error is None,
+        "success": error == None,
         "error": error,
         "results": results
     }
@@ -93,7 +94,7 @@ def main():
 
     # Define some variables for potential JSON output
     json_results = {}
-    output_error = None
+    output_error = ''
     outputting_json = args.json is not None
     outputting_json_stdout = args.json == '-'
 
@@ -107,9 +108,16 @@ def main():
         v2_name = v1_name if not args.new_contract_name else args.new_contract_name
         json_results['check-initialization-v2'] = check_initialization(v2)
         json_results['compare-function-ids'] = compare_function_ids(v2, v2_name, proxy, proxy_name)
-        json_results['compare-variables-order-proxy'] = compare_variables_order_proxy(v2, v2_name, proxy, proxy_name)
-        json_results['compare-variables-order-implementation'] = compare_variables_order_implementation(v1, v1_name, v2, v2_name)
+        results = compare_variables_order_proxy(v2, v2_name, proxy, proxy_name)
+        output_error = results.get('output-error', '')
+        json_results['compare-variables-order-proxy'] = results
+        results = compare_variables_order_implementation(v1, v1_name, v2, v2_name)
+        output_error += results.get('output-error', '')
+        json_results['compare-variables-order-implementation'] = results
 
+    if output_error == '':
+        output_error = None
+        
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
     if outputting_json:
         output_json(None if outputting_json_stdout else args.json, output_error, json_results)

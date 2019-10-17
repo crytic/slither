@@ -4,8 +4,6 @@ from slither.slithir.operations import InternalCall
 from slither.utils.colors import green,red
 from slither.utils.colors import red, yellow, green
 
-from collections import OrderedDict
-
 logger = logging.getLogger("CheckInitialization")
 logger.setLevel(logging.INFO)
 
@@ -30,7 +28,7 @@ def _get_most_derived_init(contract):
 
 def check_initialization(s):
 
-    results = OrderedDict()
+    results = {}
     
     initializable = s.get_contract_from_name('Initializable')
 
@@ -39,7 +37,7 @@ def check_initialization(s):
     if initializable is None:
         logger.info(yellow('Initializable contract not found, the contract does not follow a standard initalization schema.'))
         results['absent'] = "Initializable contract not found, the contract does not follow a standard initalization schema."
-        return
+        return results
 
     init_info = ''
 
@@ -56,7 +54,7 @@ def check_initialization(s):
                     initializer_modifier_missing = True
                     info = f'{f.canonical_name} does not call initializer'
                     logger.info(red(info))
-                    results['missing_initializer_call'] = info
+                    results['missing-initializer-call'] = info
             most_derived_init = _get_most_derived_init(contract)
             if most_derived_init is None:
                 init_info += f'{contract.name} has no initialize function\n'
@@ -68,13 +66,13 @@ def check_initialization(s):
             for f in missing_calls:
                 info = f'Missing call to {f.canonical_name} in {contract.name}'
                 logger.info(red(info))
-                results['missing_call'] = info
+                results['missing-call'] = info
                 missing_call = True
             double_calls = list(set([f for f in all_init_functions_called if all_init_functions_called.count(f) > 1]))
             for f in double_calls:
-                info = f'{f.canonical_name} is called multiple time in {contract.name}'
+                info = f'{f.canonical_name} is called multiple times in {contract.name}'
                 logger.info(red(info))
-                results['multiple_calls'] = info
+                results['multiple-calls'] = info
                 double_calls_found = True
 
     if not initializer_modifier_missing:

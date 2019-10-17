@@ -8,8 +8,6 @@ from slither import Slither
 from slither.utils.function import get_function_id
 from slither.utils.colors import red, green
 
-from collections import OrderedDict
-
 logger = logging.getLogger("CompareFunctions")
 logger.setLevel(logging.INFO)
 
@@ -24,7 +22,7 @@ def get_signatures(c):
 
 def compare_function_ids(implem, implem_name, proxy, proxy_name):
 
-    results = OrderedDict()
+    results = {}
     
     logger.info(green('Run function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)'))
 
@@ -32,13 +30,13 @@ def compare_function_ids(implem, implem_name, proxy, proxy_name):
     if implem_contract is None:
         info = f'{implem_name} not found in {implem.filename}'
         logger.info(red(info))
-        results['implementation_contract_not_found'] = info
+        results['implementation-contract-not-found'] = info
         return results
     proxy_contract = proxy.get_contract_from_name(proxy_name)
     if proxy_contract is None:
         info = f'{proxy_name} not found in {proxy.filename}'
         logger.info(red(info))
-        results['proxy_contract_not_found'] = info
+        results['proxy-contract-not-found'] = info
         return results
 
     signatures_implem = get_signatures(implem_contract)
@@ -54,7 +52,7 @@ def compare_function_ids(implem, implem_name, proxy, proxy_name):
             if signatures_ids_implem[k] != signatures_ids_proxy[k]:
                 info = 'Function id collision found {} {}'.format(signatures_ids_implem[k], signatures_ids_proxy[k])
                 logger.info(red(info))
-                results['function_id_collision'] = info
+                results['function-id-collision'] = info
                 
             else:
                 info = 'Shadowing between proxy and implementation found {}'.format(signatures_ids_implem[k])
