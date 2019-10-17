@@ -5,6 +5,7 @@ import logging
 from slither import Slither
 from slither.utils.function import get_function_id
 from slither.utils.colors import red, green, yellow
+from slither.exceptions import SlitherException
 
 logger = logging.getLogger("VariablesOrder")
 logger.setLevel(logging.INFO)
@@ -71,15 +72,13 @@ def compare_variables_order_proxy(implem, implem_name, proxy, proxy_name):
     if contract_implem is None:
         info = 'Contract {} not found in {}'.format(implem_name, implem.filename)
         logger.info(red(info))
-        results['output-error'] = info
-        return results
+        raise SlitherException(info)
 
     contract_proxy = proxy.get_contract_from_name(proxy_name)
     if contract_proxy is None:
         info = 'Contract {} not found in {}'.format(proxy_name, proxy.filename)
         logger.info(red(info))
-        results['output-error'] = info
-        return results
+        raise SlitherException(info)
 
     order_implem = [(variable.name, variable.type) for variable in contract_implem.state_variables if not variable.is_constant]
     order_proxy = [(variable.name, variable.type) for variable in contract_proxy.state_variables if not variable.is_constant]

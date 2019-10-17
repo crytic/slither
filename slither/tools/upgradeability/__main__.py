@@ -7,6 +7,7 @@ import os
 from slither import Slither
 from slither.utils.colors import red, yellow, set_colorization_enabled
 from crytic_compile import cryticparser
+from slither.exceptions import SlitherException
 
 from .compare_variables_order import compare_variables_order_implementation, compare_variables_order_proxy
 from .compare_function_ids import compare_function_ids
@@ -106,13 +107,24 @@ def main():
     else:
         v2 = Slither(args.new_version, **vars(args))
         v2_name = v1_name if not args.new_contract_name else args.new_contract_name
+
         json_results['check-initialization-v2'] = check_initialization(v2)
+
         json_results['compare-function-ids'] = compare_function_ids(v2, v2_name, proxy, proxy_name)
-        results = compare_variables_order_proxy(v2, v2_name, proxy, proxy_name)
-        output_error = results.get('output-error', '')
+
+        results = {}
+        output_error = ''
+
+        try:
+            results = compare_variables_order_proxy(v2, v2_name, proxy, proxy_name)
+        except SlitherException as se:
+            output_error = str(se)
         json_results['compare-variables-order-proxy'] = results
-        results = compare_variables_order_implementation(v1, v1_name, v2, v2_name)
-        output_error += results.get('output-error', '')
+        
+        try:
+            results = compare_variables_order_implementation(v1, v1_name, v2, v2_name)
+        except SlitherException as se:
+            output_error += str(se)
         json_results['compare-variables-order-implementation'] = results
 
     if output_error == '':
