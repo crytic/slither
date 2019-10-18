@@ -20,15 +20,13 @@ def compare_variables_order_implementation(v1, contract_name1, v2, contract_name
     if contract_v1 is None:
         info = 'Contract {} not found in {}'.format(contract_name1, v1.filename)
         logger.info(red(info))
-        results['output-error'] = info
-        return results
+        raise SlitherException(info)
 
     contract_v2 = v2.get_contract_from_name(contract_name2)
     if contract_v2 is None:
         info = 'Contract {} not found in {}'.format(contract_name2, v2.filename)
         logger.info(red(info))
-        results['output-error'] = info
-        return results
+        raise SlitherException(info)
 
     order_v1 = [(variable.name, variable.type) for variable in contract_v1.state_variables if not variable.is_constant]
     order_v2 = [(variable.name, variable.type) for variable in contract_v2.state_variables if not variable.is_constant]
