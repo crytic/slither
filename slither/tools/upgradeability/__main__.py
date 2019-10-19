@@ -59,7 +59,9 @@ def output_json(filename, error, results):
     json_result = {
         "success": error == None,
         "error": error,
-        "results": results
+        "results": {
+            "upgradeability-check": results
+            }
     }
 
     # Determine if we should output to stdout
