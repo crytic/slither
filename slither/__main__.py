@@ -19,6 +19,7 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
+from slither.utils.json_utils import output_json
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
@@ -103,33 +104,6 @@ def process_from_asts(filenames, args, detector_classes, printer_classes):
 
 
 
-# endregion
-###################################################################################
-###################################################################################
-# region Output
-###################################################################################
-###################################################################################
-
-
-def output_json(filename, error, results):
-    # Create our encapsulated JSON result.
-    json_result = {
-        "success": error is None,
-        "error": error,
-        "results": results
-    }
-
-    # Determine if we should output to stdout
-    if filename is None:
-        # Write json to console
-        print(json.dumps(json_result))
-    else:
-        # Write json to file
-        if os.path.isfile(filename):
-            logger.info(yellow(f'{filename} exists already, the overwrite is prevented'))
-        else:
-            with open(filename, 'w', encoding='utf8') as f:
-                json.dump(json_result, f, indent=2)
 
 # endregion
 ###################################################################################
