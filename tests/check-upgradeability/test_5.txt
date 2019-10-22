@@ -1,7 +1,7 @@
 INFO:CheckInitialization:[92mRun initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialization-checks)[0m
 INFO:CheckInitialization:[91mContract_lack_to_call_modifier.initialize() does not call initializer[0m
 INFO:CheckInitialization:[91mMissing call to Contract_no_bug.initialize() in Contract_not_called_super_init[0m
-INFO:CheckInitialization:[91mContract_no_bug.initialize() is called multiples time in Contract_double_call[0m
+INFO:CheckInitialization:[91mContract_no_bug.initialize() is called multiple times in Contract_double_call[0m
 INFO:CheckInitialization:[92mCheck the deployement script to ensure that these functions are called:
 Contract_no_bug needs to be initialized by initialize()
 Contract_lack_to_call_modifier needs to be initialized by initialize()
