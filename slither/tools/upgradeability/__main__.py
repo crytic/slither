@@ -1,19 +1,16 @@
 import logging
 import argparse
 import sys
-import json
-import os
 
 from slither import Slither
-from slither.utils.colors import red, yellow, set_colorization_enabled
 from crytic_compile import cryticparser
 from slither.exceptions import SlitherException
+from slither.utils.json_utils import output_json
 
 from .compare_variables_order import compare_variables_order_implementation, compare_variables_order_proxy
 from .compare_function_ids import compare_function_ids
 from .check_initialization import check_initialization
 
-from collections import OrderedDict
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-check-upgradeability")
@@ -47,36 +44,7 @@ def parse_args():
 
     return parser.parse_args()
 
-###################################################################################
-###################################################################################
-# region Output
-###################################################################################
-###################################################################################
 
-
-def output_json(filename, error, results):
-    # Create our encapsulated JSON result.
-    json_result = {
-        "success": error == None,
-        "error": error,
-        "results": {
-            "upgradeability-check": results
-            }
-    }
-
-    # Determine if we should output to stdout
-    if filename is None:
-        # Write json to console
-        print(json.dumps(json_result))
-    else:
-        # Write json to file
-        if os.path.isfile(filename):
-            logger.info(yellow(f'{filename} exists already, the overwrite is prevented'))
-        else:
-            with open(filename, 'w', encoding='utf8') as f:
-                json.dump(json_result, f, indent=2)
-
-# endregion
 ###################################################################################
 ###################################################################################
 # region Main
@@ -98,8 +66,6 @@ def main():
     # Define some variables for potential JSON output
     json_results = {}
     output_error = ''
-    outputting_json = args.json is not None
-    outputting_json_stdout = args.json == '-'
 
     json_results['check-initialization'] = check_initialization(v1)
 
@@ -133,8 +99,8 @@ def main():
         output_error = None
         
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
-    if outputting_json:
-        output_json(None if outputting_json_stdout else args.json, output_error, json_results)
+    if args.json:
+        output_json(args.json, output_error, {"upgradeability-check": json_results})
 
         
 # endregion
