@@ -174,14 +174,12 @@ def _check_events(erc_event, contract, ret):
 
 
 
-def generic_erc_checks(contract, erc_functions, erc_events, explored=None):
+def generic_erc_checks(contract, erc_functions, erc_events, ret, explored=None):
 
     if explored is None:
         explored = set()
 
     explored.add(contract)
-
-    ret = defaultdict(list)
 
     logger.info(f'# Check {contract.name}\n')
 
@@ -195,4 +193,4 @@ def generic_erc_checks(contract, erc_functions, erc_events, explored=None):
     logger.info('\n')
 
     for derived_contract in contract.derived_contracts:
-        generic_erc_checks(derived_contract, erc_functions, erc_events, explored)
+        generic_erc_checks(derived_contract, erc_functions, erc_events, ret, explored)
