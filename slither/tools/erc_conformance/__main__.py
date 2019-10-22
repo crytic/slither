@@ -1,9 +1,12 @@
 import argparse
 import logging
+from collections import defaultdict
+
 from slither import Slither
 from crytic_compile import cryticparser
 from slither.utils.erc import ERCS
 from .erc.ercs import generic_erc_checks
+from .erc.erc20 import check_erc20
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
@@ -18,7 +21,9 @@ logger.addHandler(ch)
 logger.handlers[0].setFormatter(formatter)
 logger.propagate = False
 
-
+ADDITIONAL_CHECKS = {
+    "ERC20": check_erc20
+}
 
 def parse_args():
     """
@@ -52,6 +57,8 @@ def main():
     # Perform slither analysis on the given filename
     slither = Slither(args.project, **vars(args))
 
+    ret = defaultdict(list)
+
     if args.erc.upper() in ERCS:
 
         contract = slither.get_contract_from_name(args.contract_name)
@@ -61,7 +68,11 @@ def main():
             return
         # First elem is the function, second is the event
         erc = ERCS[args.erc.upper()]
-        generic_erc_checks(contract, erc[0], erc[1])
+        generic_erc_checks(contract, erc[0], erc[1], ret)
+
+        if args.erc.upper() in ADDITIONAL_CHECKS:
+            ADDITIONAL_CHECKS[args.erc.upper()](contract, ret)
+
     else:
         logger.error(f'Incorrect ERC selected {args.erc}')
         return

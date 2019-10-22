@@ -1,25 +1,35 @@
 import logging
-from collections import defaultdict
-from slither.utils.erc import ERC20, ERC20_EVENTS
-from .ercs import generic_erc_checks
-from slither.exceptions import SlitherException
 
 logger = logging.getLogger("Slither-conformance")
 
-def check_erc20(slither, contract_name):
+def approval_race_condition(contract, ret):
+    increaseAllowance = contract.get_function_from_signature('increaseAllowance(address,uint256)')
 
-    contract = slither.get_contract_from_name(contract_name)
+    if not increaseAllowance:
+        increaseAllowance = contract.get_function_from_signature('safeIncreaseAllowance(address,uint256)')
 
-    if not contract:
-        raise SlitherException(f'{contract_name} not found')
+    if increaseAllowance:
+        txt = f'\t[✓] {contract.name} has {increaseAllowance.full_name}'
+        logger.info(txt)
+    else:
+        txt = f'\t[ ] {contract.name} is not protected for the ERC20 approval race condition'
+        ret["lack_of_erc20_race_condition_protection"].append({
+            "description": txt,
+            "contract": contract.name
+        })
+        logger.info(txt)
 
-    signatures = generic_erc_checks(contract, ERC20, ERC20_EVENTS)
+def check_erc20(contract, ret, explored=None):
 
-    ret = defaultdict(dict)
+    if explored is None:
+        explored = set()
 
-    ret['erc20'] = {
-        "signatures": signatures
-    }
+    explored.add(contract)
+
+    approval_race_condition(contract, ret)
+
+    for derived_contract in contract.derived_contracts:
+        check_erc20(derived_contract, ret, explored)
 
     return ret
 
