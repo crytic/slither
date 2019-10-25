@@ -21,7 +21,7 @@ class ContractSummary(AbstractPrinter):
 
         txt = ""
         for c in self.contracts:
-            (name, _inheritance, _var, func_summaries, _modif_summaries) = c.get_summary()
+            (name, _inheritance, _var, func_summaries, _modif_summaries) = c.get_summary(False)
             txt += blue("\n+ Contract %s\n"%name)
             # (c_name, f_name, visi, _, _, _, _, _) in func_summaries
             public = [(elem[0], (elem[1], elem[2]) ) for elem in func_summaries]
