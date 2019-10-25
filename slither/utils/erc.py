@@ -29,7 +29,7 @@ ERC20 = [ERC('totalSupply', [], 'uint256', True, True, []),
 
 ERC20_OPTIONAL = [ERC('name', [], 'string', True, False, []),
                   ERC('symbol', [], 'string', True, False, []),
-                  ERC('decimals', [], 'string', True, False, [])]
+                  ERC('decimals', [], 'uint8', True, False, [])]
 
 ERC20 = ERC20 + ERC20_OPTIONAL
 
