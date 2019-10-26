@@ -3,6 +3,7 @@ Detect incorrect erc20 interface.
 Some contracts do not return a bool on transfer/transferFrom/approve, which may lead to preventing the contract to be used with contracts compiled with recent solc (>0.4.22)
 """
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils import json_utils
 
 
 class IncorrectERC20InterfaceDetection(AbstractDetector):
@@ -92,7 +93,7 @@ contract Token{
                                                                                               function.full_name,
                                                                                               function.source_mapping_str)
                     json = self.generate_json_result(info)
-                    self.add_function_to_json(function, json)
+                    json_utils.add_function_to_json(function, json)
                     results.append(json)
 
         return results

@@ -4,6 +4,8 @@ Recursively check the called functions
 """
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.formatters.attributes.const_functions import format
+from slither.utils import json_utils
+
 
 class ConstantFunctions(AbstractDetector):
     """
@@ -59,7 +61,7 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
                         info = '{} ({}) is declared {} but contains assembly code\n'
                         info = info.format(f.canonical_name, f.source_mapping_str, attr)
                         json = self.generate_json_result(info, {'contains_assembly': True})
-                        self.add_function_to_json(f, json)
+                        json_utils.add_function_to_json(f, json)
                         results.append(json)
 
                     variables_written = f.all_state_variables_written()
@@ -71,8 +73,8 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
                             info += '\t- {}\n'.format(variable_written.canonical_name)
 
                         json = self.generate_json_result(info, {'contains_assembly': False})
-                        self.add_function_to_json(f, json)
-                        self.add_variables_to_json(variables_written, json)
+                        json_utils.add_function_to_json(f, json)
+                        json_utils.add_variables_to_json(variables_written, json)
                         results.append(json)
 
         return results

@@ -11,7 +11,7 @@ from slither.detectors.abstract_detector import DetectorClassification
 from slither.slithir.operations import (HighLevelCall, LowLevelCall,
                                         LibraryCall,
                                         Send, Transfer)
-
+from slither.utils import json_utils
 
 from .reentrancy import Reentrancy
 class ReentrancyEth(Reentrancy):
@@ -104,11 +104,11 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
             json = self.generate_json_result(info)
 
             # Add the function with the re-entrancy first
-            self.add_function_to_json(func, json)
+            json_utils.add_function_to_json(func, json)
 
             # Add all underlying calls in the function which are potentially problematic.
             for call_info in calls:
-                self.add_node_to_json(call_info, json, {
+                json_utils.add_node_to_json(call_info, json, {
                     "underlying_type": "external_calls"
                 })
 
@@ -117,13 +117,13 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
             # If the calls are not the same ones that send eth, add the eth sending nodes.
             if calls != send_eth:
                 for call_info in send_eth:
-                    self.add_node_to_json(call_info, json, {
+                    json_utils.add_node_to_json(call_info, json, {
                         "underlying_type": "external_calls_sending_eth"
                     })
 
             # Add all variables written via nodes which write them.
             for (v, node) in varsWritten:
-                self.add_node_to_json(node, json, {
+                json_utils.add_node_to_json(node, json, {
                     "underlying_type": "variables_written",
                     "variable_name": v.name
                 })

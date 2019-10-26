@@ -3,6 +3,7 @@ Module detecting deprecated standards.
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils import json_utils
 from slither.visitors.expression.export_values import ExportValues
 from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction
 from slither.core.cfg.node import NodeType
@@ -162,9 +163,9 @@ contract ContractWithDeprecatedReferences {
                     # Generate relevant JSON data for this deprecated standard.
                     json = self.generate_json_result(info)
                     if isinstance(source_object, StateVariableSolc) or isinstance(source_object, StateVariable):
-                        self.add_variable_to_json(source_object, json)
+                        json_utils.add_variable_to_json(source_object, json)
                     else:
-                        self.add_nodes_to_json([source_object], json)
+                        json_utils.add_nodes_to_json([source_object], json)
 
                     results.append(json)
 

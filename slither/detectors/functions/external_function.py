@@ -3,6 +3,7 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 from slither.slithir.operations import SolidityCall
 from slither.slithir.operations import (InternalCall, InternalDynamicCall)
 from slither.formatters.functions.external_function import format
+from slither.utils import json_utils
 
 
 class ExternalFunction(AbstractDetector):
@@ -189,9 +190,9 @@ class ExternalFunction(AbstractDetector):
                         txt += f" ({other_function_definition.source_mapping_str})\n"
 
                     json = self.generate_json_result(txt)
-                    self.add_function_to_json(function_definition, json)
+                    json_utils.add_function_to_json(function_definition, json)
                     for other_function_definition in all_function_definitions:
-                        self.add_function_to_json(other_function_definition, json)
+                        json_utils.add_function_to_json(other_function_definition, json)
                     results.append(json)
 
         return results

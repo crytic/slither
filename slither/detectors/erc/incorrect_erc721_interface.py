@@ -2,6 +2,7 @@
 Detect incorrect erc721 interface.
 """
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils import json_utils
 
 
 class IncorrectERC721InterfaceDetection(AbstractDetector):
@@ -91,7 +92,7 @@ contract Token{
                                                                                                function.full_name,
                                                                                                function.source_mapping_str)
                     json = self.generate_json_result(info)
-                    self.add_function_to_json(function, json)
+                    json_utils.add_function_to_json(function, json)
                     results.append(json)
 
         return results

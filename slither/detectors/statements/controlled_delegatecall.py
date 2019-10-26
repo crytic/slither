@@ -1,6 +1,8 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall
 from slither.analyses.data_dependency.data_dependency import is_tainted
+from slither.utils import json_utils
+
 
 class ControlledDelegateCall(AbstractDetector):
     """
@@ -52,8 +54,8 @@ Bob calls `delegate` and delegates the execution to its malicious contract. As a
                         node_info = func_info + '\t- {} ({})\n'.format(node.expression, node.source_mapping_str)
 
                         json = self.generate_json_result(node_info)
-                        self.add_node_to_json(node, json)
-                        self.add_function_to_json(f, json)
+                        json_utils.add_node_to_json(node, json)
+                        json_utils.add_function_to_json(f, json)
                         results.append(json)
 
         return results
