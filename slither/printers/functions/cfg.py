@@ -3,6 +3,8 @@
 
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.function import Function
+from slither.utils import json_utils
+
 
 class CFG(AbstractPrinter):
 
@@ -18,9 +20,20 @@ class CFG(AbstractPrinter):
                 _filename(string)
         """
 
+        info = ''
+        all_files = []
         for contract in self.contracts:
             for function in contract.functions + contract.modifiers:
                 filename = "{}-{}-{}.dot".format(original_filename, contract.name, function.full_name)
-                self.info('Export {}'.format(filename))
-                function.slithir_cfg_to_dot(filename)
+                info += 'Export {}'.format(filename)
+                content = function.slithir_cfg_to_dot(filename)
+                with open(filename, 'w', encoding='utf8') as f:
+                    f.write(content)
+                all_files.append((filename, content))
 
+        self.info(info)
+
+        json = self.generate_json_result(info)
+        for filename, content in all_files:
+            json_utils.add_file_to_json(filename, content, json)
+        return json

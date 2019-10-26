@@ -9,6 +9,7 @@
 from slither.core.declarations.contract import Contract
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils import json_utils
 from slither.utils.inheritance_analysis import (detect_c3_function_shadowing,
                                                 detect_state_variable_shadowing)
 
@@ -156,14 +157,23 @@ class PrinterInheritanceGraph(AbstractPrinter):
             Args:
                 filename(string)
         """
+
         if filename == '':
             filename = 'contracts.dot'
         if not filename.endswith('.dot'):
             filename += ".dot"
         info = 'Inheritance Graph: ' + filename
         self.info(info)
+
+        content = 'digraph "" {\n'
+        for c in self.contracts:
+            content += self._summary(c) + '\n'
+        content += '}'
+
         with open(filename, 'w', encoding='utf8') as f:
-            f.write('digraph "" {\n')
-            for c in self.contracts:
-                f.write(self._summary(c))
-            f.write('}')
+            f.write(content)
+
+        json = self.generate_json_result(info)
+        json_utils.add_file_to_json(filename, content, json)
+
+        return json

@@ -1,5 +1,7 @@
 import abc
 
+from slither.utils import json_utils
+
 
 class IncorrectPrinterInitialization(Exception):
     pass
@@ -29,6 +31,13 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
     def info(self, info):
         if self.logger:
             self.logger.info(info)
+
+
+    def generate_json_result(self, info, additional_fields={}):
+        d = json_utils.generate_json_result(info, additional_fields)
+        d['printer'] = self.ARGUMENT
+
+        return d
 
     @abc.abstractmethod
     def output(self, filename):

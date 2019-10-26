@@ -1,11 +1,10 @@
 """
     Module printing summary of the contract
 """
-import collections
 from prettytable import PrettyTable
 
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.utils.colors import blue, green, magenta
+from slither.utils import json_utils
 from slither.utils.function import get_function_id
 
 class FunctionIds(AbstractPrinter):
@@ -23,6 +22,7 @@ class FunctionIds(AbstractPrinter):
         """
 
         txt = ''
+        all_tables = []
         for contract in self.slither.contracts_derived:
             txt += '\n{}:\n'.format(contract.name)
             table = PrettyTable(['Name', 'ID'])
@@ -34,5 +34,12 @@ class FunctionIds(AbstractPrinter):
                     sig = variable.function_name
                     table.add_row([sig, hex(get_function_id(sig))])
             txt += str(table) + '\n'
+            all_tables.append((contract.name, table))
 
         self.info(txt)
+
+        json = self.generate_json_result(txt)
+        for name, table in all_tables:
+            json_utils.add_pretty_table_to_json(table, name, json)
+
+        return json

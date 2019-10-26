@@ -300,6 +300,50 @@ def add_pragma_to_json(pragma, d, additional_fields=None):
 # endregion
 ###################################################################################
 ###################################################################################
+# region File
+###################################################################################
+###################################################################################
+
+
+def add_file_to_json(filename, content, d, additional_fields=None):
+    if additional_fields is None:
+        additional_fields = {}
+    type_specific_fields = {
+        'filename': filename,
+        'content': content
+    }
+    element = _create_base_element('file',
+                                   type_specific_fields,
+                                   additional_fields)
+
+    d['elements'].append(element)
+
+
+# endregion
+###################################################################################
+###################################################################################
+# region Pretty Table
+###################################################################################
+###################################################################################
+
+
+def add_pretty_table_to_json(content, name, d, additional_fields=None):
+    if additional_fields is None:
+        additional_fields = {}
+    type_specific_fields = {
+        'content': content,
+        'name': name
+    }
+    element = _create_base_element('pretty_table',
+                                   type_specific_fields,
+                                   additional_fields)
+
+    d['elements'].append(element)
+
+
+# endregion
+###################################################################################
+###################################################################################
 # region Others
 ###################################################################################
 ###################################################################################
