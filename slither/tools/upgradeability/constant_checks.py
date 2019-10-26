@@ -30,7 +30,7 @@ def constant_conformance_check(contract_v1, contract_v2):
         if state_v2:
             if state_v1.is_constant:
                 if not state_v2.is_constant:
-                    info = f'{state_v1.canonical_name} was constant and {contract_v2.name} is not'
+                    info = f'{state_v1.canonical_name} ({state_v1.source_mapping_str}) was constant and {state_v2.canonical_name} is not ({state_v2.source_mapping_str})'
                     logger.info(red(info))
                     results['were_constants'].append({
                         'description': info,
@@ -41,7 +41,7 @@ def constant_conformance_check(contract_v1, contract_v2):
                     })
                     error_found = True
             elif state_v2.is_constant:
-                info = f'{state_v1.canonical_name} was not constant and {contract_v2.name} is'
+                info = f'{state_v1.canonical_name} ({state_v1.source_mapping_str}) was not constant but {state_v2.canonical_name} is ({state_v2.source_mapping_str})'
                 logger.info(red(info))
                 results['became_constants'].append({
                     'description': info,
