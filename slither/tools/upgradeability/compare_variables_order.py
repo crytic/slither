@@ -2,6 +2,8 @@
     Check if the variables respect the same ordering
 '''
 import logging
+
+from slither.utils import json_utils
 from slither.utils.colors import red, green, yellow
 
 logger = logging.getLogger("Slither-check-upgradeability")
@@ -29,11 +31,11 @@ def compare_variables_order(contract1, contract2, missing_variable_check=True):
             if missing_variable_check:
                 info = f'Variable only in {contract1.name}: {variable1.name} ({variable1.source_mapping_str})'
                 logger.info(yellow(info))
-                results['missing_variables'].append({
-                    'description': info,
-                    'variable': variable1.name,
-                    'source_mapping': variable1.source_mapping
-                })
+
+                json_elem = json_utils.generate_json_result(info)
+                json_utils.add_variable_to_json(variable1, json_elem)
+                results['missing_variables'].append(json_elem)
+
                 error_found = True
             continue
 
@@ -44,14 +46,12 @@ def compare_variables_order(contract1, contract2, missing_variable_check=True):
             info += f'\t Variable {idx} in {contract1.name}: {variable1.name} {variable1.type} ({variable1.source_mapping_str})\n'
             info += f'\t Variable {idx} in {contract2.name}: {variable2.name} {variable2.type} ({variable2.source_mapping_str})\n'
             logger.info(red(info))
-            results['different-variables'].append({
-                'description': info,
-                'index': idx,
-                'variable1': variable1.name,
-                'variable1_source_mapping': variable1.source_mapping,
-                'variable2': variable2.name,
-                'variable2_source_mapping': variable2.source_mapping,
-            })
+
+            json_elem = json_utils.generate_json_result(info, additional_fields={'index': idx})
+            json_utils.add_variable_to_json(variable1, json_elem)
+            json_utils.add_variable_to_json(variable2, json_elem)
+            results['different-variables'].append(json_elem)
+
             error_found = True
 
     idx = idx + 1
@@ -61,12 +61,9 @@ def compare_variables_order(contract1, contract2, missing_variable_check=True):
 
         info = f'Extra variables in {contract2.name}: {variable2.name} ({variable2.source_mapping_str})\n'
         logger.info(yellow(info))
-        results['extra-variables'].append({
-            'description': info,
-            'index': idx,
-            'variable': variable2.name,
-            'variable_source_mapping': variable2.source_mapping
-        })
+        json_elem = json_utils.generate_json_result(info, additional_fields={'index': idx})
+        json_utils.add_variable_to_json(variable2, json_elem)
+        results['extra-variables'].append(json_elem)
         idx = idx + 1
 
     if not error_found:

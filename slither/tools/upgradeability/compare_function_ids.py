@@ -5,6 +5,9 @@
 
 import logging
 from slither import Slither
+from slither.core.declarations import Function
+from slither.exceptions import SlitherError
+from slither.utils import json_utils
 from slither.utils.function import get_function_id
 from slither.utils.colors import red, green
 
@@ -19,6 +22,20 @@ def get_signatures(c):
     variables = [variable.name+ '()' for variable in variables if variable.visibility in ['public']]
     return list(set(functions+variables))
 
+
+def _get_function_or_variable(contract, signature):
+    f = contract.get_function_from_signature(signature)
+
+    if f:
+        return f
+
+    for variable in contract.state_variables:
+        # Todo: can lead to incorrect variable in case of shadowing
+        if variable.visibility in ['public']:
+            if variable.name + '()' == signature:
+                return variable
+
+    raise SlitherError(f'Function id checks: {signature} not found in {contract.name}')
 
 def compare_function_ids(implem, proxy):
 
@@ -40,20 +57,42 @@ def compare_function_ids(implem, proxy):
         if k in signatures_ids_proxy:
             error_found = True
             if signatures_ids_implem[k] != signatures_ids_proxy[k]:
-                info = 'Function id collision found {} {}'.format(signatures_ids_implem[k], signatures_ids_proxy[k])
+
+                implem_function = _get_function_or_variable(implem, signatures_ids_implem[k])
+                proxy_function = _get_function_or_variable(proxy, signatures_ids_proxy[k])
+
+                info = f'Function id collision found: {implem_function.canonical_name} ({implem_function.source_mapping_str}) {proxy_function.canonical_name} ({proxy_function.source_mapping_str})'
                 logger.info(red(info))
-                results['function-id-collision'].append({
-                    'description': info,
-                    'function1': signatures_ids_implem[k],
-                    'function2': signatures_ids_proxy[k],
-                })
+                json_elem = json_utils.generate_json_result(info)
+                if isinstance(implem_function, Function):
+                    json_utils.add_function_to_json(implem_function, json_elem)
+                else:
+                    json_utils.add_variable_to_json(implem_function, json_elem)
+                if isinstance(proxy_function, Function):
+                    json_utils.add_function_to_json(proxy_function, json_elem)
+                else:
+                    json_utils.add_variable_to_json(proxy_function, json_elem)
+                results['function-id-collision'].append(json_elem)
                 
             else:
-                info = 'Shadowing between proxy and implementation found {}'.format(signatures_ids_implem[k])
+
+                implem_function = _get_function_or_variable(implem, signatures_ids_implem[k])
+                proxy_function = _get_function_or_variable(proxy, signatures_ids_proxy[k])
+
+                info = f'Shadowing between {implem_function.canonical_name} ({implem_function.source_mapping_str}) and {proxy_function.canonical_name} ({proxy_function.source_mapping_str})'
                 logger.info(red(info))
-                results['shadowing'].append({
-                    'function': signatures_ids_implem[k]
-                })
+
+                json_elem = json_utils.generate_json_result(info)
+                json_elem = json_utils.generate_json_result(info)
+                if isinstance(implem_function, Function):
+                    json_utils.add_function_to_json(implem_function, json_elem)
+                else:
+                    json_utils.add_variable_to_json(implem_function, json_elem)
+                if isinstance(proxy_function, Function):
+                    json_utils.add_function_to_json(proxy_function, json_elem)
+                else:
+                    json_utils.add_variable_to_json(proxy_function, json_elem)
+                results['shadowing'].append(json_elem)
 
     if not error_found:
         logger.info(green('No error found'))
