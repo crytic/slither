@@ -508,6 +508,16 @@ class Contract(ChildSlither, SourceMapping):
         """
         return next((v for v in self.state_variables if v.name == variable_name), None)
 
+    def get_state_variable_from_canonical_name(self, canonical_name):
+        """
+            Return a state variable from a canonical_name
+        Args:
+            canonical_name (str): name of the variable
+        Returns:
+            StateVariable
+        """
+        return next((v for v in self.state_variables if v.name == canonical_name), None)
+
     def get_structure_from_name(self, structure_name):
         """
             Return a structure from a name
