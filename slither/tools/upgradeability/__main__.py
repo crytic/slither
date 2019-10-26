@@ -6,6 +6,7 @@ from collections import defaultdict
 from slither import Slither
 from crytic_compile import cryticparser
 from slither.exceptions import SlitherException
+from slither.utils.colors import red
 from slither.utils.json_utils import output_json
 
 from .compare_variables_order import compare_variables_order
@@ -79,6 +80,7 @@ def _checks_on_contract_update(contract_v1, contract_v2, json_results):
     :param json_results:
     :return:
     """
+
     ret = compare_variables_order(contract_v1, contract_v2)
     json_results['compare-variables-order-implementation'][contract_v1.name][contract_v2.name] = ret
 
@@ -131,7 +133,7 @@ def main():
         v1_contract = v1.get_contract_from_name(v1_name)
         if v1_contract is None:
             info = 'Contract {} not found in {}'.format(v1_name, v1.filename)
-            logger.error(info)
+            logger.error(red(info))
             if args.json:
                 output_json(args.json, str(info), {"upgradeability-check": json_results})
             return
@@ -149,7 +151,7 @@ def main():
             proxy_contract = proxy.get_contract_from_name(args.proxy_name)
             if proxy_contract is None:
                 info = 'Proxy {} not found in {}'.format(args.proxy_name, proxy.filename)
-                logger.error(info)
+                logger.error(red(info))
                 if args.json:
                     output_json(args.json, str(info), {"upgradeability-check": json_results})
                 return
@@ -166,7 +168,7 @@ def main():
             v2_contract = v2.get_contract_from_name(args.new_contract_name)
             if v2_contract is None:
                 info = 'New logic contract {} not found in {}'.format(args.new_contract_name, v2.filename)
-                logger.error(info)
+                logger.error(red(info))
                 if args.json:
                     output_json(args.json, str(info), {"upgradeability-check": json_results})
                 return

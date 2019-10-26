@@ -128,6 +128,31 @@ then
     exit -1
 fi
 
+slither-check-upgradeability "$DIR_TESTS/contractV1.sol" ContractV1 --solc solc-0.5.0 --new-contract-filename "$DIR_TESTS/contract_v2_constant.sol" --new-contract-name ContractV2 > test_10.txt 2>&1
+DIFF=$(diff test_10.txt "$DIR_TESTS/test_10.txt")
+if [  "$DIFF" != "" ]
+then
+    echo "slither-check-upgradeability 10 failed"
+    cat test_10.txt
+    echo ""
+    cat "$DIR_TESTS/test_10.txt"
+    echo ""
+    echo "$DIFF"
+    exit -1
+fi
+
+slither-check-upgradeability "$DIR_TESTS/contract_v1_var_init.sol" ContractV1 --solc solc-0.5.0  > test_11.txt 2>&1
+DIFF=$(diff test_11.txt "$DIR_TESTS/test_11.txt")
+if [  "$DIFF" != "" ]
+then
+    echo "slither-check-upgradeability 11 failed"
+    cat test_11.txt
+    echo ""
+    cat "$DIR_TESTS/test_11.txt"
+    echo ""
+    echo "$DIFF"
+    exit -1
+fi
 
 rm test_1.txt
 rm test_2.txt
@@ -138,4 +163,5 @@ rm test_6.txt
 rm test_7.txt
 rm test_8.txt
 rm test_9.txt
-
+rm test_10.txt
+rm test_11.txt
