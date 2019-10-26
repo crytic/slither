@@ -5,6 +5,8 @@
 from prettytable import PrettyTable
 from slither.core.declarations import Function
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils import json_utils
+
 
 class Modifiers(AbstractPrinter):
 
@@ -19,6 +21,9 @@ class Modifiers(AbstractPrinter):
             Args:
                 _filename(string)
         """
+
+        all_txt = ''
+        all_tables = []
 
         for contract in self.slither.contracts_derived:
             txt = "\nContract %s"%contract.name
@@ -35,3 +40,9 @@ class Modifiers(AbstractPrinter):
                 table.add_row([function.name, [m.name for m in set(modifiers)]])
             txt += "\n"+str(table)
             self.info(txt)
+
+        json = self.generate_json_result(all_txt)
+        for name, table in all_tables:
+            json_utils.add_pretty_table_to_json(table, name, json)
+
+        return json

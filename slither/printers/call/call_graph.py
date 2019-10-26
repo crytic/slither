@@ -16,6 +16,9 @@ from slither.core.variables.variable import Variable
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 
 # return unique id for contract to use as subgraph name
+from slither.utils import json_utils
+
+
 def _contract_subgraph(contract):
     return f'cluster_{contract.id}_{contract.name}'
 
@@ -163,13 +166,25 @@ class PrinterCallGraph(AbstractPrinter):
         if filename == ".dot":
             filename = "all_contracts.dot"
 
+        info = ''
+        results = []
         with open(filename, 'w', encoding='utf8') as f:
-            self.info(f'Call Graph: {filename}')
-            f.write('\n'.join(['strict digraph {'] + [self._process_functions(self.slither.functions)] +  ['}']))
-
+            info += f'Call Graph: {filename}'
+            content = '\n'.join(['strict digraph {'] + [self._process_functions(self.slither.functions)] +  ['}'])
+            f.write(content)
+            results.append((filename, content))
 
         for derived_contract in self.slither.contracts_derived:
             with open(f'{derived_contract.name}.dot', 'w', encoding='utf8') as f:
-                self.info(f'Call Graph: {derived_contract.name}.dot')
-                f.write('\n'.join(['strict digraph {'] + [self._process_functions(derived_contract.functions)] +  ['}']))
+                info += f'Call Graph: {derived_contract.name}.dot'
+                content = '\n'.join(['strict digraph {'] + [self._process_functions(derived_contract.functions)] +  ['}'])
+                f.write(content)
+                results.append((filename, content))
+
+        self.info(info)
+        json = self.generate_json_result(info)
+        for filename, content in results:
+            json_utils.add_file_to_json(filename, content, json)
+
+        return json
 

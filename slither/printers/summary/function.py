@@ -4,6 +4,8 @@
 
 from prettytable import PrettyTable
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils import json_utils
+
 
 class FunctionSummary(AbstractPrinter):
 
@@ -27,6 +29,9 @@ class FunctionSummary(AbstractPrinter):
             Args:
                 _filename(string)
         """
+
+        all_tables = []
+        all_txt = ''
 
         for c in self.contracts:
             (name, inheritance, var, func_summaries, modif_summaries) = c.get_summary()
@@ -62,3 +67,12 @@ class FunctionSummary(AbstractPrinter):
             txt += "\n\n"+str(table)
             txt += "\n"
             self.info(txt)
+
+            all_tables.append((name, table))
+            all_txt += txt
+
+        json = self.generate_json_result(all_txt)
+        for name, table in all_tables:
+            json_utils.add_pretty_table_to_json(table, name, json)
+
+        return json
