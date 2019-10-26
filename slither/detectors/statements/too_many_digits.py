@@ -4,6 +4,8 @@ Module detecting numbers with too many digits.
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.variables import Constant
+from slither.utils import json_utils
+
 
 class TooManyDigits(AbstractDetector):
     """
@@ -71,7 +73,7 @@ Use:
 
                         # Add the result in result
                         json = self.generate_json_result(node_info)
-                        self.add_node_to_json(node, json)
+                        json_utils.add_node_to_json(node, json)
                         results.append(json)
 
         return results

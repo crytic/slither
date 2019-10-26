@@ -9,6 +9,7 @@ from slither.core.cfg.node import NodeType
 from slither.core.declarations import Function, SolidityFunction
 from slither.core.expressions import UnaryOperation, UnaryOperationType
 from slither.detectors.abstract_detector import DetectorClassification
+from slither.utils import json_utils
 from slither.visitors.expression.export_values import ExportValues
 from slither.slithir.operations import (HighLevelCall, LowLevelCall,
                                         LibraryCall,
@@ -101,11 +102,11 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
             json = self.generate_json_result(info)
 
             # Add the function with the re-entrancy first
-            self.add_function_to_json(func, json)
+            json_utils.add_function_to_json(func, json)
 
             # Add all underlying calls in the function which are potentially problematic.
             for call_info in calls:
-                self.add_node_to_json(call_info, json, {
+                json_utils.add_node_to_json(call_info, json, {
                     "underlying_type": "external_calls"
                 })
 
@@ -114,13 +115,13 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
             # If the calls are not the same ones that send eth, add the eth sending nodes.
             if calls != send_eth:
                 for call_info in send_eth:
-                    self.add_node_to_json(call_info, json, {
+                    json_utils.add_node_to_json(call_info, json, {
                         "underlying_type": "external_calls_sending_eth"
                     })
 
             # Add all variables written via nodes which write them.
             for (v, node) in varsWritten:
-                self.add_node_to_json(node, json, {
+                json_utils.add_node_to_json(node, json, {
                     "underlying_type": "variables_written",
                     "variable_name": v.name
                 })

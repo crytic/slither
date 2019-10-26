@@ -4,6 +4,7 @@ Recursively check the called functions
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils import json_utils
 
 
 class ShadowingAbstractDetection(AbstractDetector):
@@ -72,7 +73,7 @@ contract DerivedContract is BaseContract{
                                                        var.source_mapping_str)
 
                     json = self.generate_json_result(info)
-                    self.add_variables_to_json(all_variables, json)
+                    json_utils.add_variables_to_json(all_variables, json)
                     results.append(json)
 
         return results

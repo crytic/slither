@@ -3,6 +3,7 @@ Module detecting local variable shadowing
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils import json_utils
 
 
 class LocalShadowing(AbstractDetector):
@@ -117,14 +118,14 @@ contract Bug {
 
                     # Generate relevant JSON data for this shadowing definition.
                     json = self.generate_json_result(info)
-                    self.add_variable_to_json(local_variable, json)
+                    json_utils.add_variable_to_json(local_variable, json)
                     for overshadowed_entry in overshadowed:
                         if overshadowed_entry[0] in [self.OVERSHADOWED_FUNCTION, self.OVERSHADOWED_MODIFIER]:
-                            self.add_function_to_json(overshadowed_entry[2], json)
+                            json_utils.add_function_to_json(overshadowed_entry[2], json)
                         elif overshadowed_entry[0] == self.OVERSHADOWED_EVENT:
-                            self.add_event_to_json(overshadowed_entry[2], json)
+                            json_utils.add_event_to_json(overshadowed_entry[2], json)
                         elif overshadowed_entry[0] == self.OVERSHADOWED_STATE_VARIABLE:
-                            self.add_variable_to_json(overshadowed_entry[2], json)
+                            json_utils.add_variable_to_json(overshadowed_entry[2], json)
                     results.append(json)
 
         return results

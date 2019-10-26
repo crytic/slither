@@ -4,6 +4,7 @@
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.formatters.attributes.constant_pragma import format
+from slither.utils import json_utils
 
 
 class ConstantPragma(AbstractDetector):
@@ -39,7 +40,7 @@ class ConstantPragma(AbstractDetector):
 
             # Add each pragma to our elements
             for p in pragma:
-                self.add_pragma_to_json(p, json)
+                json_utils.add_pragma_to_json(p, json)
             results.append(json)
 
         return results

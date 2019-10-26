@@ -4,6 +4,7 @@ Module detecting state variables that could be declared as constant
 
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils import json_utils
 from slither.visitors.expression.export_values import ExportValues
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.state_variable import StateVariable
@@ -91,7 +92,7 @@ class ConstCandidateStateVars(AbstractDetector):
             info = "{} should be constant ({})\n".format(v.canonical_name,
                                                          v.source_mapping_str)
             json = self.generate_json_result(info)
-            self.add_variable_to_json(v, json)
+            json_utils.add_variable_to_json(v, json)
 
             results.append(json)
 
