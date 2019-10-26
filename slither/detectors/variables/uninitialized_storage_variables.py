@@ -6,6 +6,7 @@
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils import json_utils
 
 from slither.visitors.expression.find_push import FindPush
 
@@ -110,8 +111,8 @@ Bob calls `func`. As a result, `owner` is override to 0.
 
 
             json = self.generate_json_result(info)
-            self.add_variable_to_json(uninitialized_storage_variable, json)
-            self.add_function_to_json(function, json)
+            json_utils.add_variable_to_json(uninitialized_storage_variable, json)
+            json_utils.add_function_to_json(function, json)
             results.append(json)
 
         return results

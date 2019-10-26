@@ -9,6 +9,7 @@ from slither.core.declarations.solidity_variables import (SolidityFunction,
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.slithir.operations import Binary, BinaryType
+from slither.utils import json_utils
 
 
 class Timestamp(AbstractDetector):
@@ -77,8 +78,8 @@ class Timestamp(AbstractDetector):
                     info += '\t- {} ({})\n'.format(node.expression, node.source_mapping_str)
 
                 json = self.generate_json_result(info)
-                self.add_function_to_json(func, json)
-                self.add_nodes_to_json(nodes, json)
+                json_utils.add_function_to_json(func, json)
+                json_utils.add_nodes_to_json(nodes, json)
                 results.append(json)
 
         return results

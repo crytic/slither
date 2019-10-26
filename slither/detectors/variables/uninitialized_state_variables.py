@@ -16,6 +16,7 @@ from slither.slithir.operations.assignment import Assignment
 
 from slither.slithir.operations import (OperationWithLValue, Index, Member,
                                         InternalCall, InternalDynamicCall, LibraryCall)
+from slither.utils import json_utils
 
 
 class UninitializedStateVarsDetection(AbstractDetector):
@@ -102,8 +103,8 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
                 source += [f.source_mapping for f in functions]
 
                 json = self.generate_json_result(info)
-                self.add_variable_to_json(variable, json)
-                self.add_functions_to_json(functions, json)
+                json_utils.add_variable_to_json(variable, json)
+                json_utils.add_functions_to_json(functions, json)
                 results.append(json)
 
         return results
