@@ -3,6 +3,7 @@ Module detecting reserved keyword shadowing
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils import json_utils
 
 
 class BuiltinSymbolShadowing(AbstractDetector):
@@ -140,11 +141,11 @@ contract Bug {
                     # Generate relevant JSON data for this shadowing definition.
                     json = self.generate_json_result(info)
                     if shadow_type in [self.SHADOWING_FUNCTION, self.SHADOWING_MODIFIER]:
-                        self.add_function_to_json(shadow_object, json)
+                        json_utils.add_function_to_json(shadow_object, json)
                     elif shadow_type == self.SHADOWING_EVENT:
-                        self.add_event_to_json(shadow_object, json)
+                        json_utils.add_event_to_json(shadow_object, json)
                     elif shadow_type in [self.SHADOWING_STATE_VARIABLE, self.SHADOWING_LOCAL_VARIABLE]:
-                        self.add_variable_to_json(shadow_object, json)
+                        json_utils.add_variable_to_json(shadow_object, json)
                     results.append(json)
 
         return results

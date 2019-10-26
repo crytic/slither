@@ -16,6 +16,8 @@ from slither.core.solidity_types import MappingType, ElementaryType
 from slither.core.variables.state_variable import StateVariable
 from slither.core.declarations.solidity_variables import SolidityVariable, SolidityVariableComposed
 from slither.slithir.variables import ReferenceVariable
+from slither.utils import json_utils
+
 
 class IncorrectStrictEquality(AbstractDetector):
     ARGUMENT = 'incorrect-equality'
@@ -123,8 +125,8 @@ contract Crowdsale{
                     node_info = func_info + f"\t- {str(node.expression)}\n"
 
                     json = self.generate_json_result(node_info)
-                    self.add_node_to_json(node, json)
-                    self.add_function_to_json(f, json)
+                    json_utils.add_node_to_json(node, json)
+                    json_utils.add_function_to_json(f, json)
                     results.append(json)
 
         return results

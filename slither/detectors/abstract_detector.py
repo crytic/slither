@@ -1,8 +1,9 @@
 import abc
 import re
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
+
+from slither.utils import json_utils
 from slither.utils.colors import green, yellow, red
-from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
 
@@ -167,177 +168,14 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     def color(self):
         return classification_colors[self.IMPACT]
 
-    def generate_json_result(self, info, additional_fields={}):
-        d = OrderedDict()
+    def generate_json_result(self, info, additional_fields=None):
+        d = json_utils.generate_json_result(info, additional_fields)
+
         d['check'] = self.ARGUMENT
         d['impact'] = classification_txt[self.IMPACT]
         d['confidence'] = classification_txt[self.CONFIDENCE]
-        d['description'] = info
-        d['elements'] = []
-        if additional_fields:
-            d['additional_fields'] = additional_fields
+
         return d
-
-    @staticmethod
-    def _create_base_element(type, name, source_mapping, type_specific_fields={}, additional_fields={}):
-        element = {'type': type,
-                   'name': name,
-                   'source_mapping': source_mapping}
-        if type_specific_fields:
-            element['type_specific_fields'] = type_specific_fields
-        if additional_fields:
-            element['additional_fields'] = additional_fields
-        return element
-
-    def _create_parent_element(self, element):
-        from slither.core.children.child_contract import ChildContract
-        from slither.core.children.child_function import ChildFunction
-        from slither.core.children.child_inheritance import ChildInheritance
-        if isinstance(element, ChildInheritance):
-            if element.contract_declarer:
-                contract = {'elements': []}
-                self.add_contract_to_json(element.contract_declarer, contract)
-                return contract['elements'][0]
-        elif isinstance(element, ChildContract):
-            if element.contract:
-                contract = {'elements': []}
-                self.add_contract_to_json(element.contract, contract)
-                return contract['elements'][0]
-        elif isinstance(element, ChildFunction):
-            if element.function:
-                function = {'elements': []}
-                self.add_function_to_json(element.function, function)
-                return function['elements'][0]
-        return None
-
-    def add_variable_to_json(self, variable, d, additional_fields={}):
-        type_specific_fields = {
-            'parent': self._create_parent_element(variable)
-        }
-        element = self._create_base_element('variable',
-                                            variable.name,
-                                            variable.source_mapping,
-                                            type_specific_fields,
-                                            additional_fields)
-        d['elements'].append(element)
-
-    def add_variables_to_json(self, variables, d):
-        for variable in sorted(variables, key=lambda x:x.name):
-            self.add_variable_to_json(variable, d)
-
-    def add_contract_to_json(self, contract, d, additional_fields={}):
-        element = self._create_base_element('contract',
-                                            contract.name,
-                                            contract.source_mapping,
-                                            {},
-                                            additional_fields)
-        d['elements'].append(element)
-
-    def add_function_to_json(self, function, d, additional_fields={}):
-        type_specific_fields = {
-            'parent': self._create_parent_element(function),
-            'signature': function.full_name
-        }
-        element = self._create_base_element('function',
-                                            function.name,
-                                            function.source_mapping,
-                                            type_specific_fields,
-                                            additional_fields)
-        d['elements'].append(element)
-
-    def add_functions_to_json(self, functions, d, additional_fields={}):
-        for function in sorted(functions, key=lambda x: x.name):
-            self.add_function_to_json(function, d, additional_fields)
-
-    def add_enum_to_json(self, enum, d, additional_fields={}):
-        type_specific_fields = {
-            'parent': self._create_parent_element(enum)
-        }
-        element = self._create_base_element('enum',
-                                            enum.name,
-                                            enum.source_mapping,
-                                            type_specific_fields,
-                                            additional_fields)
-        d['elements'].append(element)
-
-    def add_struct_to_json(self, struct, d, additional_fields={}):
-        type_specific_fields = {
-            'parent': self._create_parent_element(struct)
-        }
-        element = self._create_base_element('struct',
-                                            struct.name,
-                                            struct.source_mapping,
-                                            type_specific_fields,
-                                            additional_fields)
-        d['elements'].append(element)
-
-    def add_event_to_json(self, event, d, additional_fields={}):
-        type_specific_fields = {
-            'parent': self._create_parent_element(event),
-            'signature': event.full_name
-        }
-        element = self._create_base_element('event',
-                                            event.name,
-                                            event.source_mapping,
-                                            type_specific_fields,
-                                            additional_fields)
-
-        d['elements'].append(element)
-
-    def add_node_to_json(self, node, d, additional_fields={}):
-        type_specific_fields = {
-            'parent': self._create_parent_element(node),
-        }
-        node_name = str(node.expression) if node.expression else ""
-        element = self._create_base_element('node',
-                                            node_name,
-                                            node.source_mapping,
-                                            type_specific_fields,
-                                            additional_fields)
-        d['elements'].append(element)
-
-    def add_nodes_to_json(self, nodes, d):
-        for node in sorted(nodes, key=lambda x: x.node_id):
-            self.add_node_to_json(node, d)
-
-    def add_pragma_to_json(self, pragma, d, additional_fields={}):
-        type_specific_fields = {
-            'directive': pragma.directive
-        }
-        element = self._create_base_element('pragma',
-                                            pragma.version,
-                                            pragma.source_mapping,
-                                            type_specific_fields,
-                                            additional_fields)
-        d['elements'].append(element)
-
-    def add_other_to_json(self, name, source_mapping, d, additional_fields={}):
-        # If this a tuple with (filename, start, end), convert it to a source mapping.
-        if isinstance(source_mapping, tuple):
-            # Parse the source id
-            (filename, start, end) = source_mapping
-            source_id = next((source_unit_id for (source_unit_id, source_unit_filename) in self.slither.source_units.items() if source_unit_filename == filename), -1)
-
-            # Convert to a source mapping string
-            source_mapping = f"{start}:{end}:{source_id}"
-
-        # If this is a source mapping string, parse it.
-        if isinstance(source_mapping, str):
-            source_mapping_str = source_mapping
-            source_mapping = SourceMapping()
-            source_mapping.set_offset(source_mapping_str, self.slither)
-
-        # If this is a source mapping object, get the underlying source mapping dictionary
-        if isinstance(source_mapping, SourceMapping):
-            source_mapping = source_mapping.source_mapping
-
-        # Create the underlying element and add it to our resulting json
-        element = self._create_base_element('other',
-                                            name,
-                                            source_mapping,
-                                            {},
-                                            additional_fields)
-        d['elements'].append(element)
 
     @staticmethod
     def _format(slither, result):

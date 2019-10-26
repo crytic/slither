@@ -1,7 +1,7 @@
 import re
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.formatters.naming_convention.naming_convention import format
-
+from slither.utils import json_utils
 
 
 class NamingConvention(AbstractDetector):
@@ -64,7 +64,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                                                                         contract.source_mapping_str)
 
                 json = self.generate_json_result(info)
-                self.add_contract_to_json(contract, json, {
+                json_utils.add_contract_to_json(contract, json, {
                     "target": "contract",
                     "convention": "CapWords"
                 })
@@ -76,7 +76,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     info = info.format(struct.canonical_name, struct.source_mapping_str)
 
                     json = self.generate_json_result(info)
-                    self.add_struct_to_json(struct, json, {
+                    json_utils.add_struct_to_json(struct, json, {
                         "target": "structure",
                         "convention": "CapWords"
                     })
@@ -88,7 +88,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     info = info.format(event.canonical_name, event.source_mapping_str)
 
                     json = self.generate_json_result(info)
-                    self.add_event_to_json(event, json, {
+                    json_utils.add_event_to_json(event, json, {
                         "target": "event",
                         "convention": "CapWords"
                     })
@@ -106,7 +106,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     info = info.format(func.canonical_name, func.source_mapping_str)
 
                     json = self.generate_json_result(info)
-                    self.add_function_to_json(func, json, {
+                    json_utils.add_function_to_json(func, json, {
                         "target": "function",
                         "convention": "mixedCase"
                     })
@@ -127,7 +127,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                                            argument.source_mapping_str)
 
                         json = self.generate_json_result(info)
-                        self.add_variable_to_json(argument, json, {
+                        json_utils.add_variable_to_json(argument, json, {
                             "target": "parameter",
                             "convention": "mixedCase"
                         })
@@ -140,7 +140,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         info = info.format(var.canonical_name, var.source_mapping_str)
 
                         json = self.generate_json_result(info)
-                        self.add_variable_to_json(var, json, {
+                        json_utils.add_variable_to_json(var, json, {
                             "target": "variable",
                             "convention": "l_O_I_should_not_be_used"
                         })
@@ -156,7 +156,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         info = info.format(var.canonical_name, var.source_mapping_str)
 
                         json = self.generate_json_result(info)
-                        self.add_variable_to_json(var, json, {
+                        json_utils.add_variable_to_json(var, json, {
                             "target": "variable_constant",
                             "convention": "UPPER_CASE_WITH_UNDERSCORES"
                         })
@@ -172,7 +172,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         info = info.format(var.canonical_name, var.source_mapping_str)
 
                         json = self.generate_json_result(info)
-                        self.add_variable_to_json(var, json, {
+                        json_utils.add_variable_to_json(var, json, {
                             "target": "variable",
                             "convention": "mixedCase"
                         })
@@ -184,7 +184,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     info = info.format(enum.canonical_name, enum.source_mapping_str)
 
                     json = self.generate_json_result(info)
-                    self.add_enum_to_json(enum, json, {
+                    json_utils.add_enum_to_json(enum, json, {
                         "target": "enum",
                         "convention": "CapWords"
                     })
@@ -197,7 +197,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                                        modifier.source_mapping_str)
 
                     json = self.generate_json_result(info)
-                    self.add_function_to_json(modifier, json, {
+                    json_utils.add_function_to_json(modifier, json, {
                         "target": "modifier",
                         "convention": "mixedCase"
                     })

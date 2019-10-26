@@ -6,6 +6,7 @@ from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.slithir.operations import (HighLevelCall, LowLevelCall, Send,
                                         Transfer, NewContract, LibraryCall, InternalCall)
+from slither.utils import json_utils
 
 
 class LockedEther(AbstractDetector):
@@ -84,8 +85,8 @@ Every ether sent to `Locked` will be lost.'''
                                       [f.name for f in funcs_payable])
 
                     json = self.generate_json_result(info)
-                    self.add_contract_to_json(contract, json)
-                    self.add_functions_to_json(funcs_payable, json)
+                    json_utils.add_contract_to_json(contract, json)
+                    json_utils.add_functions_to_json(funcs_payable, json)
                     results.append(json)
 
         return results

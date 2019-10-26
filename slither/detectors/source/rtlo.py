@@ -1,6 +1,9 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 import re
 
+from slither.utils import json_utils
+
+
 class RightToLeftOverride(AbstractDetector):
     """
     Detect the usage of a Right-To-Left-Override (U+202E) character
@@ -72,8 +75,10 @@ contract Token
 
                     info += f"\t- {pattern.findall(source_encoded)[0]}\n"
                     json = self.generate_json_result(info)
-                    self.add_other_to_json("rtlo-character",
-                                           (filename, idx, len(self.RTLO_CHARACTER_ENCODED)), json)
+                    json_utils.add_other_to_json("rtlo-character",
+                                                 (filename, idx, len(self.RTLO_CHARACTER_ENCODED)),
+                                                 json,
+                                                 self.slither)
                     results.append(json)
 
                     # Advance the start index for the next iteration

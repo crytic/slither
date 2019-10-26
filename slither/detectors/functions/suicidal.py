@@ -5,6 +5,8 @@ A suicidal contract is an unprotected function that calls selfdestruct
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils import json_utils
+
 
 class Suicidal(AbstractDetector):
     """
@@ -77,7 +79,7 @@ Bob calls `kill` and destructs the contract.'''
                                   func.source_mapping_str)
 
                 json = self.generate_json_result(info)
-                self.add_function_to_json(func, json)
+                json_utils.add_function_to_json(func, json)
                 results.append(json)
 
         return results

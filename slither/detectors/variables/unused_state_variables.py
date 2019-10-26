@@ -4,6 +4,7 @@ Module detecting unused state variables
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.solidity_types import ArrayType
+from slither.utils import json_utils
 from slither.visitors.expression.export_values import ExportValues
 from slither.core.variables.state_variable import StateVariable
 from slither.formatters.variables.unused_state_variables import format
@@ -66,8 +67,8 @@ class UnusedStateVars(AbstractDetector):
 
 
                     json = self.generate_json_result(info)
-                    self.add_variable_to_json(var, json)
-                    self.add_contract_to_json(c, json)
+                    json_utils.add_variable_to_json(var, json)
+                    json_utils.add_contract_to_json(c, json)
                     results.append(json)
 
         return results

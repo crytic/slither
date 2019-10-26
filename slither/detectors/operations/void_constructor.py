@@ -1,6 +1,8 @@
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Nop
+from slither.utils import json_utils
+
 
 class VoidConstructor(AbstractDetector):
 
@@ -40,7 +42,7 @@ By reading B's constructor definition, the reader might assume that `A()` initia
                             info += "\t-{} {}\n".format(str(node.expression), node.source_mapping_str)
 
                             json = self.generate_json_result(info)
-                            self.add_function_to_json(cst, json)
-                            self.add_nodes_to_json([node], json)
+                            json_utils.add_function_to_json(cst, json)
+                            json_utils.add_nodes_to_json([node], json)
                             results.append(json)
         return results

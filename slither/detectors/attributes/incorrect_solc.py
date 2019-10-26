@@ -12,6 +12,8 @@ from slither.formatters.attributes.incorrect_solc import format
 # 2: version number
 # 3: version number
 # 4: version number
+from slither.utils import json_utils
+
 PATTERN = re.compile('(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)')
 
 class IncorrectSolc(AbstractDetector):
@@ -102,7 +104,7 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
                 info = f"Pragma version \"{p.version}\" {reason} ({p.source_mapping_str})\n"
 
                 json = self.generate_json_result(info)
-                self.add_pragma_to_json(p, json)
+                json_utils.add_pragma_to_json(p, json)
                 results.append(json)
 
         return results
