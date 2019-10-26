@@ -12,7 +12,7 @@
 [92mNo error found[0m
 [92m
 ## Run function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)[0m
-[91mShadowing between proxy and implementation found myFunc()[0m
+[91mShadowing between ContractV2.myFunc (tests/check-upgradeability/contractV2_bug.sol#4) and Proxy.myFunc() (tests/check-upgradeability/proxy.sol#11)[0m
 [92m
 ## Run variables ordering checks between ContractV2 and Proxy... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
 [91mDifferent variables between ContractV2 and Proxy:

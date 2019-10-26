@@ -1,6 +1,7 @@
 import logging
 
 from slither.slithir.operations import InternalCall
+from slither.utils import json_utils
 from slither.utils.colors import red, yellow, green
 
 logger = logging.getLogger("Slither-check-upgradeability")
@@ -73,12 +74,9 @@ def check_initialization(contract):
             initializer_modifier_missing = True
             info = f'{f.canonical_name} does not call the initializer modifier'
             logger.info(red(info))
-            results['missing-initializer-modifier'].append({
-                'description': info,
-                'function': f.full_name,
-                'contract': f.contract_declarer.name,
-                'source_mapping': f.source_mapping
-            })
+            json_elem = json_utils.generate_json_result(info)
+            json_utils.add_function_to_json(f, json_elem)
+            results['missing-initializer-modifier'].append(json_elem)
 
     if not initializer_modifier_missing:
         logger.info(green('All the init functions have the initializer modifier'))
@@ -105,15 +103,10 @@ def check_initialization(contract):
     for f in missing_calls:
         info = f'Missing call to {f.canonical_name} in {most_derived_init.canonical_name}'
         logger.info(red(info))
-        results['missing-calls'].append({
-            'description': info,
-            'function': f.full_name,
-            'contract': f.contract_declarer.name,
-            'source_mapping': f.source_mapping,
-            'most_derived_init': most_derived_init.full_name,
-            'most_derived_init_contract': most_derived_init.contract_declarer.name,
-            'most_derived_init_source_mapping': most_derived_init.source_mapping,
-        })
+        json_elem = json_utils.generate_json_result(info)
+        json_utils.add_function_to_json(f, json_elem, {"is_most_derived_init_function": False})
+        json_utils.add_function_to_json(most_derived_init, json_elem, {"is_most_derived_init_function": True})
+        results['missing-calls'].append(json_elem)
         missing_call = True
     if not missing_call:
         logger.info(green('No missing call to an init function found'))
@@ -124,12 +117,9 @@ def check_initialization(contract):
     for f in double_calls:
         info = f'{f.canonical_name} is called multiple times in {most_derived_init.full_name}'
         logger.info(red(info))
-        results['multiple-calls'].append({
-            'description': info,
-            'function': f.full_name,
-            'contract': f.contract_declarer.name,
-            'source_mapping': f.source_mapping,
-        })
+        json_elem = json_utils.generate_json_result(info)
+        json_utils.add_function_to_json(f, json_elem)
+        results['multiple-calls'].append(json_elem)
         double_calls_found = True
     if not double_calls_found:
         logger.info(green('No double call to init functions found'))
@@ -138,12 +128,9 @@ def check_initialization(contract):
 
     init_info = f'{contract.name} needs to be initialized by {most_derived_init.full_name}\n'
     logger.info(green('Check the deployement script to ensure that these functions are called:\n' + init_info))
-    results['initialize_target'] = {
-        'description': init_info,
-        'function': most_derived_init.full_name,
-        'contract': most_derived_init.contract_declarer.name,
-        'source_mapping': most_derived_init.source_mapping
-    }
+    json_elem = json_utils.generate_json_result(init_info)
+    json_utils.add_function_to_json(most_derived_init, json_elem)
+    results['initialize_target'] = json_elem
 
     if not error_found:
         logger.info(green('No error found'))
