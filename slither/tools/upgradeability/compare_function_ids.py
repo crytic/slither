@@ -12,7 +12,8 @@ logger = logging.getLogger("Slither-check-upgradeability")
 
 def get_signatures(c):
     functions = c.functions
-    functions = [f.full_name for f in functions if f.visibility in ['public', 'external'] and not f.is_constructor]
+    functions = [f.full_name for f in functions if f.visibility in ['public', 'external'] and
+                 not f.is_constructor and not f.is_fallback]
 
     variables = c.state_variables
     variables = [variable.name+ '()' for variable in variables if variable.visibility in ['public']]
