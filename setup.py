@@ -22,6 +22,7 @@ setup(
             'slither-simil = slither.tools.similarity.__main__:main',
             'slither-flat = slither.tools.flattening.__main__:main',
             'slither-format = slither.tools.slither_format.__main__:main'
+            'slither-kspec-coverage = slither.tools.kspec_coverage.__main__:main'
         ]
     }
 )
