@@ -14,8 +14,8 @@ from slither import Slither
 
 def kspec_coverage(args):
 
-    contract = args.filename
-    kspec = args.kspec_proof
+    contract = args.contract
+    kspec = args.kspec
 
     print(f'Running Slither analysis')
     slither = Slither(contract)

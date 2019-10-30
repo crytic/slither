@@ -1,4 +1,3 @@
-import glob
 import re
 from math import sqrt
 from slither.core.solidity_types.user_defined_type import UserDefinedType
@@ -8,7 +7,7 @@ from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.tools.possible_paths.possible_paths import find_target_paths
 from tabulate import tabulate
 
-def get_all_covered_kspec_functions(targets):
+def get_all_covered_kspec_functions(target):
     # Create a set of our discovered functions which are covered
     covered_functions = set()
 
@@ -21,29 +20,27 @@ def get_all_covered_kspec_functions(targets):
             'int': 'int256'
         }.get(type, type)
 
-    # Loop for each target file
-    for target in targets:
-        # Read the file contents
-        with open(target, 'r', encoding='utf8') as target_file:
-            lines = target_file.readlines()
+    # Read the file contents
+    with open(target, 'r', encoding='utf8') as target_file:
+        lines = target_file.readlines()
 
-        # Loop for each line, if a line matches our behaviour regex, and the next one matches our interface regex,
-        # we add our finding
-        i = 0
-        while i < len(lines):
-            match = BEHAVIOUR_PATTERN.match(lines[i])
+    # Loop for each line, if a line matches our behaviour regex, and the next one matches our interface regex,
+    # we add our finding
+    i = 0
+    while i < len(lines):
+        match = BEHAVIOUR_PATTERN.match(lines[i])
+        if match:
+            contract_name = match.groups()[1]
+            match = INTERFACE_PATTERN.match(lines[i + 1])
             if match:
-                contract_name = match.groups()[1]
-                match = INTERFACE_PATTERN.match(lines[i + 1])
-                if match:
-                    function_full_name = match.groups()[0]
-                    start, end = function_full_name.index('(') + 1, function_full_name.index(')')
-                    function_arguments = function_full_name[start:end].split(',')
-                    function_arguments = [refactor_type(arg.strip().split(' ')[0]) for arg in function_arguments]
-                    function_full_name = function_full_name[:start] + ','.join(function_arguments) + ')'
-                    covered_functions.add((contract_name, function_full_name))
-                    i += 1
-            i += 1
+                function_full_name = match.groups()[0]
+                start, end = function_full_name.index('(') + 1, function_full_name.index(')')
+                function_arguments = function_full_name[start:end].split(',')
+                function_arguments = [refactor_type(arg.strip().split(' ')[0]) for arg in function_arguments]
+                function_full_name = function_full_name[:start] + ','.join(function_arguments) + ')'
+                covered_functions.add((contract_name, function_full_name))
+                i += 1
+        i += 1
     return covered_functions
 
 

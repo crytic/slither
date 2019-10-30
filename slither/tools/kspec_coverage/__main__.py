@@ -15,20 +15,16 @@ def parse_args():
     :return: Returns the arguments for the program.
     """
     parser = argparse.ArgumentParser(description='kspec_coverage',
-                                     usage='kspec_coverage filename -k kproof')
+                                     usage='kspec_coverage contract kspec')
 
-    parser.add_argument('filename', help='The filename of the contract or truffle directory to analyze.')
-    parser.add_argument('--kspec-proof', '-k', help='The filename of the K spec proof for the analyzed contracts')
-    parser.add_argument('--verbose-test', '-v', help='verbose mode output for testing',action='store_true',default=False)
-    parser.add_argument('--verbose-json', '-j', help='verbose json output',action='store_true',default=False)
-    parser.add_argument('--version',
-                        help='displays the current version',
-                        version='0.1.0',
-                        action='version')
+    parser.add_argument('contract', help='The filename of the contract or truffle directory to analyze.')
+    parser.add_argument('kspec', help='The filename of the K spec proof(s) for the analyzed contract(s)')
+    
+    parser.add_argument('--version', help='displays the current version', version='0.1.0',action='version')
 
     cryticparser.init(parser) 
   
-    if len(sys.argv) < 3: 
+    if len(sys.argv) < 2: 
         parser.print_help(sys.stderr) 
         sys.exit(1)
      
@@ -37,8 +33,8 @@ def parse_args():
 
 def main():
     # ------------------------------
-    #       Usage: python3 -m kspec_coverage filename -k kproof
-    #       Example: python3 -m kspec_coverage contract.sol -k kproof.txt
+    #       Usage: python3 -m kspec_coverage contract kspec
+    #       Example: python3 -m kspec_coverage contract.sol kproof.txt
     # ------------------------------
     # Parse all arguments
 
