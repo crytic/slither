@@ -1,10 +1,8 @@
 import re
 from math import sqrt
 from slither.core.solidity_types.user_defined_type import UserDefinedType
-from slither.solc_parsing.declarations.structure import Structure
 from slither.solc_parsing.declarations.function import Function
 from slither.core.declarations.solidity_variables import SolidityFunction
-from slither.tools.possible_paths.possible_paths import find_target_paths
 from tabulate import tabulate
 
 def get_all_covered_kspec_functions(target):
