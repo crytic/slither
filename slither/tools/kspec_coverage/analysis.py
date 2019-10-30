@@ -212,51 +212,10 @@ def run_general_analysis(slither, kspec_functions, consider_derived=True):
         print(f"Could not find {len(kspec_functions_unresolved)}/{len(kspec_functions)}"
               f" functions referenced in klab spec")
 
-
-def run_abi_encoding_v2_analysis(slither, kspec_functions):
-
-    # Collect all compiled functions
-    compiled_functions = get_slither_functions(slither, include_variable=False, include_interfaces=True)
-    compiled_functions_by_name = {(contract.name, function.full_name): function
-                                  for (contract, function) in compiled_functions}
-
-    # Determine which kspec functions were resolved
-    kspec_resolved = set(compiled_functions_by_name.keys())
-    functions_using_structs = {}
-    for contract, function in compiled_functions:
-        if (contract.name, function.full_name) not in kspec_resolved:
-            for p in function.parameters + function.returns:
-                if isinstance(p.type, UserDefinedType):
-                    # TODO: This is naive, should unpack inner types if this is an array, etc.
-                    if isinstance(p.type.type, Structure):
-                        functions_using_structs[(contract, function)] = set()
-
-    # Obtain our functions using structs
-    if functions_using_structs:
-        print(f"Paths to untested functions using ABIEncoderV2:")
-        funcs_using_structs_by_name = {}
-        for contract, function in functions_using_structs.keys():
-            reaching_paths = find_target_paths(function.slither, {function})
-            reaching_paths_str = [' -> '.join([f"{f.canonical_name}" for f in reaching_path]) for reaching_path in
-                                  reaching_paths]
-            func_desc = (contract.name, function.full_name)
-            if func_desc not in funcs_using_structs_by_name:
-                funcs_using_structs_by_name[func_desc] = set()
-            funcs_using_structs_by_name[func_desc] |= set(reaching_paths_str)
-
-        for contract_name, function_name in sorted(funcs_using_structs_by_name):
-            print(f"\t-{contract_name}.{function_name}")
-            reaching_paths_str = funcs_using_structs_by_name[(contract_name, function_name)]
-            for path_str in reaching_paths_str:
-                print(f"\t\t{path_str}\n")
-
-
 def run_analysis(slither, kspec):
     # Get all of our kspec'd functions (tuple(contract_name, function_name)).
     kspec_functions = get_all_covered_kspec_functions(kspec)
     
-    # Run our general analysis
+    # Run analysis
     run_general_analysis(slither, kspec_functions)
 
-    # Run our abi encoding v2 analysis
-    run_abi_encoding_v2_analysis(slither, kspec_functions)
