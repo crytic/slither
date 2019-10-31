@@ -29,7 +29,7 @@ def parse_args():
 def main():
     # ------------------------------
     #       Usage: python3 -m kspec_coverage contract kspec
-    #       Example: python3 -m kspec_coverage contract.sol kproof.txt
+    #       Example: python3 -m kspec_coverage contract.sol kspec.md
     # ------------------------------
     # Parse all arguments
 

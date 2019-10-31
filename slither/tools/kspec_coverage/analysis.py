@@ -105,7 +105,7 @@ def _get_functions_reached(compiled_functions, origin_func_desc, results):
                                        results)
 
 
-def run_general_analysis(slither, kspec_functions, consider_derived=True):
+def run_coverage_analysis(slither, kspec_functions, consider_derived=True):
     # Collect all compiled functions
     compiled_functions = get_slither_functions(slither)
     compiled_functions = {(contract.name, function.full_name): function for (contract, function) in compiled_functions}
@@ -199,7 +199,9 @@ def run_general_analysis(slither, kspec_functions, consider_derived=True):
         print("There is a {:.2%} standard deviation among percentage of functions covered per contract\n".format(
             average_deviation_percentage
         ))
-
+    else:
+        print("All contract functions have corresponding kspec functions specified.")
+        
     # Print our message for unresolved kspecs
     if len(kspec_functions_unresolved) != 0:
         for contract_name, function_name in sorted(kspec_functions_unresolved):
@@ -210,7 +212,7 @@ def run_general_analysis(slither, kspec_functions, consider_derived=True):
 def run_analysis(slither, kspec):
     # Get all of our kspec'd functions (tuple(contract_name, function_name)).
     kspec_functions = get_all_covered_kspec_functions(kspec)
-    
-    # Run analysis
-    run_general_analysis(slither, kspec_functions)
+
+    # Run coverage analysis
+    run_coverage_analysis(slither, kspec_functions)
 

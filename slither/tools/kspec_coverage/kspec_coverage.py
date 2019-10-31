@@ -6,7 +6,6 @@ def kspec_coverage(args):
     contract = args.contract
     kspec = args.kspec
 
-    print(f'Running Slither analysis')
     slither = Slither(contract)
 
     # Run the analysis on the k-framework
