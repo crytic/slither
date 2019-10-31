@@ -125,82 +125,79 @@ def run_coverage_analysis(slither, kspec_functions, consider_derived=True):
 
     # Print out messages regarding covered functions
     covered_percentages = []
-    if len(kspec_functions_reached) != len(compiled_functions):
-        previous_contract = None
-        header_row = ['Contract Name', 'kspec funcs', 'kspec reached funcs', 'not covered funcs']
-        rows = []
-        current_kspec_direct, current_kspec_indirect, current_kspec_missing = ([], [], [])
-        count_kspec_direct, count_kspec_indirect, count_kspec_missing = (0, 0, 0)
+    previous_contract = None
+    header_row = ['Contract Name', 'kspec funcs', 'kspec reached funcs', 'not covered funcs']
+    rows = []
+    current_kspec_direct, current_kspec_indirect, current_kspec_missing = ([], [], [])
+    count_kspec_direct, count_kspec_indirect, count_kspec_missing = (0, 0, 0)
 
-        def add_current_row():
-            total_current_count = len(current_kspec_direct) + len(current_kspec_indirect) + len (current_kspec_missing)
-            covered_percentage = 1 - (len(current_kspec_missing) / total_current_count)
-            desc_column = "{} ({:.2%})".format(previous_contract, covered_percentage)
-            rows.append([desc_column,
-                         '\n'.join(current_kspec_direct),
-                         '\n'.join(current_kspec_indirect),
-                         '\n'.join(current_kspec_missing)])
-            nonlocal count_kspec_direct
-            nonlocal count_kspec_indirect
-            nonlocal count_kspec_missing
-            count_kspec_direct += len(current_kspec_direct)
-            count_kspec_indirect += len(current_kspec_indirect)
-            count_kspec_missing += len(current_kspec_missing)
-            covered_percentages.append(covered_percentage)
+    def add_current_row():
+        total_current_count = len(current_kspec_direct) + len(current_kspec_indirect) + len (current_kspec_missing)
+        covered_percentage = 1 - (len(current_kspec_missing) / total_current_count)
+        desc_column = "{} ({:.2%})".format(previous_contract, covered_percentage)
+        rows.append([desc_column,
+                     '\n'.join(current_kspec_direct),
+                     '\n'.join(current_kspec_indirect),
+                     '\n'.join(current_kspec_missing)])
+        nonlocal count_kspec_direct
+        nonlocal count_kspec_indirect
+        nonlocal count_kspec_missing
+        count_kspec_direct += len(current_kspec_direct)
+        count_kspec_indirect += len(current_kspec_indirect)
+        count_kspec_missing += len(current_kspec_missing)
+        covered_percentages.append(covered_percentage)
 
-        for compiled_func_desc in sorted(compiled_functions_set):
-            compiled_func = compiled_functions[compiled_func_desc]
-            if not isinstance(compiled_func, Function) or compiled_func.contract_declarer.name != compiled_func_desc[0]:
-                continue
+    for compiled_func_desc in sorted(compiled_functions_set):
+        compiled_func = compiled_functions[compiled_func_desc]
+        if not isinstance(compiled_func, Function) or compiled_func.contract_declarer.name != compiled_func_desc[0]:
+            continue
 
-            # If we are now describing a new contract, append our previous row and clear our current function info.
-            if compiled_func_desc[0] != previous_contract:
-                if previous_contract is not None:
-                    add_current_row()
+        # If we are now describing a new contract, append our previous row and clear our current function info.
+        if compiled_func_desc[0] != previous_contract:
+            if previous_contract is not None:
+                add_current_row()
 
-                previous_contract = compiled_func_desc[0]
-                current_kspec_direct = []
-                current_kspec_indirect = []
-                current_kspec_missing = []
+            previous_contract = compiled_func_desc[0]
+            current_kspec_direct = []
+            current_kspec_indirect = []
+            current_kspec_missing = []
 
-            # Determine which column to add the function to
-            if compiled_func_desc in kspec_functions:
-                current_kspec_direct.append(compiled_func_desc[1])
-            elif compiled_func_desc in kspec_functions_reached:
-                current_kspec_indirect.append(compiled_func_desc[1])
-            else:
-                current_kspec_missing.append(compiled_func_desc[1])
+        # Determine which column to add the function to
+        if compiled_func_desc in kspec_functions:
+            current_kspec_direct.append(compiled_func_desc[1])
+        elif compiled_func_desc in kspec_functions_reached:
+            current_kspec_indirect.append(compiled_func_desc[1])
+        else:
+            current_kspec_missing.append(compiled_func_desc[1])
 
-        # Add our last constructed row
-        if previous_contract is not None:
-            add_current_row()
+    # Add our last constructed row
+    if previous_contract is not None:
+        add_current_row()
 
-        # Create our table and print it
-        print(tabulate(rows, header_row, tablefmt='grid'))
+    # Create our table and print it
+    print(tabulate(rows, header_row, tablefmt='grid'))
 
-        # Output our collected statistics.
-        total_functions_displayed = count_kspec_direct + count_kspec_indirect + count_kspec_missing
-        print("{}/{} ({:.2%}) functions are directly covered by a kspec".format(
-            count_kspec_direct, total_functions_displayed, count_kspec_direct/total_functions_displayed
-        ))
-        print("{}/{} ({:.2%}) functions are reached by a kspec".format(
-            count_kspec_indirect, total_functions_displayed, count_kspec_indirect/total_functions_displayed
-        ))
-        print("{}/{} ({:.2%}) functions are not reached by a kspec".format(
-            count_kspec_missing, total_functions_displayed, count_kspec_missing/total_functions_displayed
-        ))
+    # Output our collected statistics.
+    total_functions_displayed = count_kspec_direct + count_kspec_indirect + count_kspec_missing
+    print("{}/{} ({:.2%}) functions are directly covered by a kspec".format(
+        count_kspec_direct, total_functions_displayed, count_kspec_direct/total_functions_displayed
+    ))
+    print("{}/{} ({:.2%}) functions are reached by a kspec".format(
+        count_kspec_indirect, total_functions_displayed, count_kspec_indirect/total_functions_displayed
+    ))
+    print("{}/{} ({:.2%}) functions are not reached by a kspec".format(
+        count_kspec_missing, total_functions_displayed, count_kspec_missing/total_functions_displayed
+    ))
 
-        # Calculate the general deviation among coverage
-        average_percentage = sum(covered_percentages) / len(covered_percentages)
-        average_deviation_percentage = 0
-        for covered_percentage in covered_percentages:
-            average_deviation_percentage += pow(covered_percentage - average_percentage, 2)
-        average_deviation_percentage = sqrt(average_deviation_percentage / len(covered_percentages))
-        print("There is a {:.2%} standard deviation among percentage of functions covered per contract\n".format(
-            average_deviation_percentage
-        ))
-    else:
-        print("All contract functions have corresponding kspec functions specified.")
+    # Calculate the general deviation among coverage
+    average_percentage = sum(covered_percentages) / len(covered_percentages)
+    average_deviation_percentage = 0
+    for covered_percentage in covered_percentages:
+        average_deviation_percentage += pow(covered_percentage - average_percentage, 2)
+    average_deviation_percentage = sqrt(average_deviation_percentage / len(covered_percentages))
+    print("There is a {:.2%} standard deviation among percentage of functions covered per contract\n".format(
+        average_deviation_percentage
+    ))
         
     # Print our message for unresolved kspecs
     if len(kspec_functions_unresolved) != 0:
