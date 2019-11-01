@@ -9,8 +9,8 @@ def parse_args():
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
     """
-    parser = argparse.ArgumentParser(description='kspec_coverage',
-                                     usage='kspec_coverage contract kspec')
+    parser = argparse.ArgumentParser(description='slither-kspec-coverage',
+                                     usage='slither-kspec-coverage contract.sol kspec.md')
 
     parser.add_argument('contract', help='The filename of the contract or truffle directory to analyze.')
     parser.add_argument('kspec', help='The filename of the K spec proof(s) for the analyzed contract(s)')
@@ -28,8 +28,8 @@ def parse_args():
 
 def main():
     # ------------------------------
-    #       Usage: python3 -m kspec_coverage contract kspec
-    #       Example: python3 -m kspec_coverage contract.sol kspec.md
+    #       Usage: slither-kspec-coverage contract kspec
+    #       Example: slither-kspec-coverage contract.sol kspec.md
     # ------------------------------
     # Parse all arguments
 
