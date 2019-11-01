@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity >=0.4.24;
 
 contract Token {
   mapping(address => uint) public balanceOf;
