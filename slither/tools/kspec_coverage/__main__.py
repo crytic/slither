@@ -1,8 +1,12 @@
 import sys
+import logging
 import argparse
 from slither import Slither
 from .kspec_coverage import kspec_coverage
 from crytic_compile import cryticparser
+
+logging.basicConfig()
+logger = logging.getLogger("Slither.kspec").setLevel(logging.INFO)
 
 def parse_args():
     """

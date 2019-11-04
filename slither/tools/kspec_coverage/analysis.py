@@ -1,22 +1,26 @@
 import re
+import logging
 from math import sqrt
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.solc_parsing.declarations.function import Function
 from slither.core.declarations.solidity_variables import SolidityFunction
 from tabulate import tabulate
 
-def get_all_covered_kspec_functions(target):
+logging.basicConfig(level=logging.WARNING)
+logger = logging.getLogger('Slither.kspec')
+
+def _refactor_type(type):
+    return {
+        'uint': 'uint256',
+        'int': 'int256'
+    }.get(type, type)
+
+def _get_all_covered_kspec_functions(target):
     # Create a set of our discovered functions which are covered
     covered_functions = set()
 
     BEHAVIOUR_PATTERN = re.compile('behaviour\s+(\S+)\s+of\s+(\S+)')
     INTERFACE_PATTERN = re.compile('interface\s+([^\r\n]+)')
-
-    def refactor_type(type):
-        return {
-            'uint': 'uint256',
-            'int': 'int256'
-        }.get(type, type)
 
     # Read the file contents
     with open(target, 'r', encoding='utf8') as target_file:
@@ -34,7 +38,7 @@ def get_all_covered_kspec_functions(target):
                 function_full_name = match.groups()[0]
                 start, end = function_full_name.index('(') + 1, function_full_name.index(')')
                 function_arguments = function_full_name[start:end].split(',')
-                function_arguments = [refactor_type(arg.strip().split(' ')[0]) for arg in function_arguments]
+                function_arguments = [_refactor_type(arg.strip().split(' ')[0]) for arg in function_arguments]
                 function_full_name = function_full_name[:start] + ','.join(function_arguments) + ')'
                 covered_functions.add((contract_name, function_full_name))
                 i += 1
@@ -42,8 +46,7 @@ def get_all_covered_kspec_functions(target):
     return covered_functions
 
 
-def get_slither_functions(slither, include_functions=True, include_modifiers=False, include_interfaces=False,
-                          include_variable=True):
+def _get_slither_functions(slither, include_modifiers=False, include_interfaces=False):
     # Loop for each compilation's underlying contracts
     results = []
 
@@ -53,8 +56,7 @@ def get_slither_functions(slither, include_functions=True, include_modifiers=Fal
             continue
         # Loop for each function
         functions_to_search = []
-        if include_functions:
-            functions_to_search += contract.functions
+        functions_to_search += contract.functions_declared
         if include_modifiers:
             functions_to_search += contract.modifiers
         for function in functions_to_search:
@@ -63,11 +65,10 @@ def get_slither_functions(slither, include_functions=True, include_modifiers=Fal
             results.append((contract, function))
 
         # Loop for each state variable
-        if include_variable:
-            for variable in contract.variables:
-                if variable.visibility not in ['public', 'external']:
-                    continue
-                results.append((contract, variable))
+        for variable in contract.variables:
+            if variable.visibility not in ['public', 'external']:
+                continue
+            results.append((contract, variable))
 
     return results
 
@@ -105,9 +106,23 @@ def _get_functions_reached(compiled_functions, origin_func_desc, results):
                                        results)
 
 
-def run_coverage_analysis(slither, kspec_functions, consider_derived=True):
+def _add_current_row(covered_percentages, count_kspec_direct, count_kspec_indirect, count_kspec_missing,
+                     current_kspec_direct, current_kspec_indirect, current_kspec_missing, previous_contract, rows):
+    total_current_count = len(current_kspec_direct) + len(current_kspec_indirect) + len (current_kspec_missing)
+    covered_percentage = 1 - (len(current_kspec_missing) / total_current_count)
+    desc_column = "{} ({:.2%})".format(previous_contract, covered_percentage)
+    rows.append([desc_column,
+                 '\n'.join(current_kspec_direct),
+                 '\n'.join(current_kspec_indirect),
+                 '\n'.join(current_kspec_missing)])
+    count_kspec_direct += len(current_kspec_direct)
+    count_kspec_indirect += len(current_kspec_indirect)
+    count_kspec_missing += len(current_kspec_missing)
+    covered_percentages.append(covered_percentage)
+
+def _run_coverage_analysis(slither, kspec_functions, consider_derived=True):
     # Collect all compiled functions
-    compiled_functions = get_slither_functions(slither)
+    compiled_functions = _get_slither_functions(slither)
     compiled_functions = {(contract.name, function.full_name): function for (contract, function) in compiled_functions}
 
     # Determine which klab specs were not resolved.
@@ -117,8 +132,7 @@ def run_coverage_analysis(slither, kspec_functions, consider_derived=True):
 
     # Determine all functions that are touched by the resolved kspec functions
     kspec_functions_reached = set()
-    all_available_functions = get_slither_functions(slither, include_interfaces=True,
-                                                    include_modifiers=True)
+    all_available_functions = _get_slither_functions(slither, include_interfaces=True, include_modifiers=True)
 
     for func_desc in kspec_functions_resolved:
         _get_functions_reached(all_available_functions, func_desc, kspec_functions_reached)
@@ -131,22 +145,6 @@ def run_coverage_analysis(slither, kspec_functions, consider_derived=True):
     current_kspec_direct, current_kspec_indirect, current_kspec_missing = ([], [], [])
     count_kspec_direct, count_kspec_indirect, count_kspec_missing = (0, 0, 0)
 
-    def add_current_row():
-        total_current_count = len(current_kspec_direct) + len(current_kspec_indirect) + len (current_kspec_missing)
-        covered_percentage = 1 - (len(current_kspec_missing) / total_current_count)
-        desc_column = "{} ({:.2%})".format(previous_contract, covered_percentage)
-        rows.append([desc_column,
-                     '\n'.join(current_kspec_direct),
-                     '\n'.join(current_kspec_indirect),
-                     '\n'.join(current_kspec_missing)])
-        nonlocal count_kspec_direct
-        nonlocal count_kspec_indirect
-        nonlocal count_kspec_missing
-        count_kspec_direct += len(current_kspec_direct)
-        count_kspec_indirect += len(current_kspec_indirect)
-        count_kspec_missing += len(current_kspec_missing)
-        covered_percentages.append(covered_percentage)
-
     for compiled_func_desc in sorted(compiled_functions_set):
         compiled_func = compiled_functions[compiled_func_desc]
         if not isinstance(compiled_func, Function) or compiled_func.contract_declarer.name != compiled_func_desc[0]:
@@ -155,7 +153,8 @@ def run_coverage_analysis(slither, kspec_functions, consider_derived=True):
         # If we are now describing a new contract, append our previous row and clear our current function info.
         if compiled_func_desc[0] != previous_contract:
             if previous_contract is not None:
-                add_current_row()
+                _add_current_row(covered_percentages, count_kspec_direct, count_kspec_indirect, count_kspec_missing,
+                                 current_kspec_direct, current_kspec_indirect, current_kspec_missing, previous_contract, rows)
 
             previous_contract = compiled_func_desc[0]
             current_kspec_direct = []
@@ -172,44 +171,23 @@ def run_coverage_analysis(slither, kspec_functions, consider_derived=True):
 
     # Add our last constructed row
     if previous_contract is not None:
-        add_current_row()
+        _add_current_row(covered_percentages, count_kspec_direct, count_kspec_indirect, count_kspec_missing,
+                         current_kspec_direct, current_kspec_indirect, current_kspec_missing, previous_contract, rows)
 
     # Create our table and print it
-    print(tabulate(rows, header_row, tablefmt='grid'))
+    logger.info(tabulate(rows, header_row, tablefmt='grid'))
 
-    # Output our collected statistics.
-    total_functions_displayed = count_kspec_direct + count_kspec_indirect + count_kspec_missing
-    print("{}/{} ({:.2%}) functions are directly covered by a kspec".format(
-        count_kspec_direct, total_functions_displayed, count_kspec_direct/total_functions_displayed
-    ))
-    print("{}/{} ({:.2%}) functions are reached by a kspec".format(
-        count_kspec_indirect, total_functions_displayed, count_kspec_indirect/total_functions_displayed
-    ))
-    print("{}/{} ({:.2%}) functions are not reached by a kspec".format(
-        count_kspec_missing, total_functions_displayed, count_kspec_missing/total_functions_displayed
-    ))
-
-    # Calculate the general deviation among coverage
-    average_percentage = sum(covered_percentages) / len(covered_percentages)
-    average_deviation_percentage = 0
-    for covered_percentage in covered_percentages:
-        average_deviation_percentage += pow(covered_percentage - average_percentage, 2)
-    average_deviation_percentage = sqrt(average_deviation_percentage / len(covered_percentages))
-    print("There is a {:.2%} standard deviation among percentage of functions covered per contract\n".format(
-        average_deviation_percentage
-    ))
-        
     # Print our message for unresolved kspecs
     if len(kspec_functions_unresolved) != 0:
         for contract_name, function_name in sorted(kspec_functions_unresolved):
-            print(f"Could not find function for klab spec:{contract_name}.{function_name}")
-        print(f"Could not find {len(kspec_functions_unresolved)}/{len(kspec_functions)}"
+            logger.info(f"Could not find function for klab spec:{contract_name}.{function_name}")
+        logger.info(f"Could not find {len(kspec_functions_unresolved)}/{len(kspec_functions)}"
               f" functions referenced in klab spec")
 
 def run_analysis(slither, kspec):
     # Get all of our kspec'd functions (tuple(contract_name, function_name)).
-    kspec_functions = get_all_covered_kspec_functions(kspec)
+    kspec_functions = _get_all_covered_kspec_functions(kspec)
 
     # Run coverage analysis
-    run_coverage_analysis(slither, kspec_functions)
+    _run_coverage_analysis(slither, kspec_functions)
 
