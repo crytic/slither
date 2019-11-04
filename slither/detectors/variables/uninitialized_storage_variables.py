@@ -6,9 +6,6 @@
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.utils import json_utils
-
-from slither.visitors.expression.find_push import FindPush
 
 
 class UninitializedStorageVars(AbstractDetector):
@@ -109,10 +106,9 @@ Bob calls `func`. As a result, `owner` is override to 0.
             info = "{} in {} ({}) is a storage variable never initialiazed\n"
             info = info.format(var_name, function.canonical_name, uninitialized_storage_variable.source_mapping_str)
 
-
             json = self.generate_json_result(info)
-            json_utils.add_variable_to_json(uninitialized_storage_variable, json)
-            json_utils.add_function_to_json(function, json)
+            self.add_variable_to_json(uninitialized_storage_variable, json)
+            self.add_function_to_json(function, json)
             results.append(json)
 
         return results
