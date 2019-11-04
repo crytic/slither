@@ -29,6 +29,8 @@ class RequireOrAssert(AbstractPrinter):
                 _filename(string)
         """
 
+        all_tables = []
+        all_txt = ''
         for contract in self.slither.contracts_derived:
             txt = "\nContract %s"%contract.name
             table = PrettyTable(["Function",
@@ -40,3 +42,11 @@ class RequireOrAssert(AbstractPrinter):
                 table.add_row([function.name, self._convert([str(m.expression) for m in set(require)])])
             txt += "\n"+str(table)
             self.info(txt)
+            all_tables.append((contract.name, table))
+            all_txt += txt
+
+        json = self.generate_json_result(all_txt)
+        for name, table in all_tables:
+            self.add_pretty_table_to_json(table, name, json)
+
+        return json

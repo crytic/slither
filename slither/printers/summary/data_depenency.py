@@ -25,6 +25,9 @@ class DataDependency(AbstractPrinter):
                 _filename(string)
         """
 
+        all_tables = []
+        all_txt = ''
+
         txt = ''
         for c in self.contracts:
             txt += "\nContract %s\n"%c.name
@@ -44,3 +47,12 @@ class DataDependency(AbstractPrinter):
                     table.add_row([v.canonical_name, _get(v, f)])
                 txt += str(table)
             self.info(txt)
+
+            all_txt += txt
+            all_tables.append((c.name, table))
+
+        json = self.generate_json_result(all_txt)
+        for name, table in all_tables:
+            self.add_pretty_table_to_json(table, name, json)
+
+        return json
