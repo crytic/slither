@@ -5,7 +5,6 @@
 """
 
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.utils import json_utils
 from slither.utils.colors import blue, green
 
 

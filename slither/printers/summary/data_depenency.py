@@ -53,6 +53,6 @@ class DataDependency(AbstractPrinter):
 
         json = self.generate_json_result(all_txt)
         for name, table in all_tables:
-            json_utils.add_pretty_table_to_json(table, name, json)
+            self.add_pretty_table_to_json(table, name, json)
 
         return json
