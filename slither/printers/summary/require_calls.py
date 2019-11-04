@@ -6,7 +6,6 @@ from prettytable import PrettyTable
 from slither.core.declarations import SolidityFunction
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slithir.operations import SolidityCall
-from slither.utils import json_utils
 
 require_or_assert = [SolidityFunction("assert(bool)"),
                      SolidityFunction("require(bool)"),
@@ -48,6 +47,6 @@ class RequireOrAssert(AbstractPrinter):
 
         json = self.generate_json_result(all_txt)
         for name, table in all_tables:
-            json_utils.add_pretty_table_to_json(table, name, json)
+            self.add_pretty_table_to_json(table, name, json)
 
         return json

@@ -9,14 +9,8 @@ from collections import defaultdict
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.declarations.function import Function
-from slither.core.declarations.contract import Contract
-from slither.core.expressions.member_access import MemberAccess
-from slither.core.expressions.identifier import Identifier
 from slither.core.variables.variable import Variable
-from slither.core.solidity_types.user_defined_type import UserDefinedType
 
-# return unique id for contract to use as subgraph name
-from slither.utils import json_utils
 
 
 def _contract_subgraph(contract):
@@ -184,7 +178,7 @@ class PrinterCallGraph(AbstractPrinter):
         self.info(info)
         json = self.generate_json_result(info)
         for filename, content in results:
-            json_utils.add_file_to_json(filename, content, json)
+            self.add_file_to_json(filename, content, json)
 
         return json
 

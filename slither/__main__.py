@@ -604,11 +604,12 @@ def main_impl(all_detector_classes, all_printer_classes):
 
         # Dont print the number of result for printers
         if number_contracts == 0:
-            logger.warn(red('No contract was analyzed'))
+            logger.warning(red('No contract was analyzed'))
         if printer_classes:
             logger.info('%s analyzed (%d contracts)', filename, number_contracts)
         else:
-            logger.info('%s analyzed (%d contracts with %d detectors), %d result(s) found', filename, number_contracts, len(detector_classes), len(results))
+            logger.info('%s analyzed (%d contracts with %d detectors), %d result(s) found', filename,
+                        number_contracts, len(detector_classes), len(results_detectors))
         if args.ignore_return_value:
             return
 

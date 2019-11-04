@@ -4,7 +4,6 @@
 from prettytable import PrettyTable
 
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.utils import json_utils
 from slither.utils.function import get_function_id
 
 class FunctionIds(AbstractPrinter):
@@ -40,6 +39,6 @@ class FunctionIds(AbstractPrinter):
 
         json = self.generate_json_result(txt)
         for name, table in all_tables:
-            json_utils.add_pretty_table_to_json(table, name, json)
+            self.add_pretty_table_to_json(table, name, json)
 
         return json

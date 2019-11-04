@@ -2,8 +2,6 @@
 """
 
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.core.declarations.function import Function
-from slither.utils import json_utils
 
 
 class CFG(AbstractPrinter):
@@ -35,5 +33,5 @@ class CFG(AbstractPrinter):
 
         json = self.generate_json_result(info)
         for filename, content in all_files:
-            json_utils.add_file_to_json(filename, content, json)
+            self.add_file_to_json(filename, content, json)
         return json

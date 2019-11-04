@@ -5,7 +5,6 @@
 from prettytable import PrettyTable
 from slither.core.declarations import Function
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.utils import json_utils
 
 
 class Modifiers(AbstractPrinter):
@@ -43,6 +42,6 @@ class Modifiers(AbstractPrinter):
 
         json = self.generate_json_result(all_txt)
         for name, table in all_tables:
-            json_utils.add_pretty_table_to_json(table, name, json)
+            self.add_pretty_table_to_json(table, name, json)
 
         return json

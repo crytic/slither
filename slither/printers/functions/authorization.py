@@ -5,7 +5,6 @@
 from prettytable import PrettyTable
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.function import Function
-from slither.utils import json_utils
 
 
 class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
@@ -51,6 +50,6 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
         self.info(txt)
         json = self.generate_json_result(txt)
         for name, table in all_tables:
-            json_utils.add_pretty_table_to_json(table, name, json)
+            self.add_pretty_table_to_json(table, name, json)
 
         return json
