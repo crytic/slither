@@ -5,7 +5,6 @@ from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.slithir.operations import (HighLevelCall, LibraryCall,
                                         LowLevelCall, Send, Transfer)
-from slither.utils import json_utils
 
 
 class MultipleCallsInLoop(AbstractDetector):
@@ -92,7 +91,7 @@ If one of the destinations has a fallback function which reverts, `bad` will alw
                 info = info.format(func.canonical_name, node.expression, node.source_mapping_str)
 
                 json = self.generate_json_result(info)
-                json_utils.add_node_to_json(node, json)
+                self.add_node_to_json(node, json)
                 results.append(json)
 
         return results

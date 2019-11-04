@@ -5,7 +5,6 @@ Module detecting unused return values from external calls
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import HighLevelCall, InternalCall, InternalDynamicCall
 from slither.core.variables.state_variable import StateVariable
-from slither.utils import json_utils
 
 
 class UnusedReturnValues(AbstractDetector):
@@ -83,8 +82,8 @@ contract MyConc{
                                            node.source_mapping_str)
 
                         json = self.generate_json_result(info)
-                        json_utils.add_node_to_json(node, json)
-                        json_utils.add_function_to_json(f, json)
+                        self.add_node_to_json(node, json)
+                        self.add_function_to_json(f, json)
                         results.append(json)
 
         return results
