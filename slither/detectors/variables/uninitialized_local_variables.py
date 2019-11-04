@@ -97,17 +97,9 @@ Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and ar
                     self._detect_uninitialized(function, function.entry_point, [])
         all_results = list(set(self.results))
         for(function, uninitialized_local_variable) in all_results:
-            var_name = uninitialized_local_variable.name
 
-            info = "{} in {} ({}) is a local variable never initialiazed\n"
-            info = info.format(var_name,
-                               function.canonical_name,
-                               uninitialized_local_variable.source_mapping_str)
-
-
+            info = [uninitialized_local_variable, " is a local variable never initialiazed\n"]
             json = self.generate_json_result(info)
-            self.add_variable_to_json(uninitialized_local_variable, json)
-            self.add_function_to_json(function, json)
             results.append(json)
 
         return results

@@ -49,6 +49,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     WIKI_EXPLOIT_SCENARIO = ''
     WIKI_RECOMMENDATION = ''
 
+    STANDARD_JSON = True
+
     def __init__(self, slither, logger):
         self.slither = slither
         self.contracts = slither.contracts
@@ -169,7 +171,10 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return classification_colors[self.IMPACT]
 
     def generate_json_result(self, info, additional_fields=None):
-        d = json_utils.generate_json_result(info, additional_fields)
+        d = json_utils.generate_json_result(info,
+                                            additional_fields,
+                                            standard_format=self.STANDARD_JSON,
+                                            markdown_root=self.slither.markdown_root)
 
         d['check'] = self.ARGUMENT
         d['impact'] = classification_txt[self.IMPACT]

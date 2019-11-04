@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "low-level-calls",
-        "impact": "Informational",
-        "confidence": "High",
-        "description": "Low level call in Sender.send(address) (tests/low_level_calls.sol#5-7):\n\t-_receiver.call.value(msg.value).gas(7777)() tests/low_level_calls.sol#6\n",
         "elements": [
           {
             "type": "function",
@@ -119,7 +115,12 @@
               }
             }
           }
-        ]
+        ],
+        "description": "Low level call in Sender.send(address) (tests/low_level_calls.sol#5-7):\n\t- _receiver.call.value(msg.value).gas(7777)() (tests/low_level_calls.sol#6)\n",
+        "markdown": "Low level call in [Sender.send(address)](tests/low_level_calls.sol#L5-L7):\n\t- [_receiver.call.value(msg.value).gas(7777)()](tests/low_level_calls.sol#L6)\n",
+        "check": "low-level-calls",
+        "impact": "Informational",
+        "confidence": "High"
       }
     ]
   }

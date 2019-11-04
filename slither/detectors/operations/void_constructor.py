@@ -36,12 +36,10 @@ By reading B's constructor definition, the reader might assume that `A()` initia
                 for constructor_call in cst.explicit_base_constructor_calls_statements:
                     for node in constructor_call.nodes:
                         if any(isinstance(ir, Nop) for ir in node.irs):
-                            info = "Void constructor called in {} ({}):\n"
-                            info = info.format(cst.canonical_name, cst.source_mapping_str)
-                            info += "\t-{} {}\n".format(str(node.expression), node.source_mapping_str)
+                            info = ["Void constructor called in ", cst, ":\n"]
+                            info += ["\t- ", node, "\n"]
 
                             json = self.generate_json_result(info)
-                            self.add_function_to_json(cst, json)
-                            self.add_nodes_to_json([node], json)
+
                             results.append(json)
         return results

@@ -132,16 +132,22 @@ class SourceMapping(Context):
         else:
             self._source_mapping = self._convert_source_mapping(offset, slither)
 
-
-    @property
-    def source_mapping_str(self):
-
+    def _get_lines_str(self, line_descr=""):
         lines = self.source_mapping.get('lines', None)
         if not lines:
             lines = ''
         elif len(lines) == 1:
-            lines = '#{}'.format(lines[0])
+            lines = '#{}{}'.format(line_descr, lines[0])
         else:
-            lines = '#{}-{}'.format(lines[0], lines[-1])
-        return '{}{}'.format(self.source_mapping['filename_short'], lines)
+            lines = '#{}{}-{}{}'.format(line_descr, lines[0], line_descr, lines[-1])
+        return lines
+
+    def source_mapping_to_markdown(self, markdown_root):
+        lines = self._get_lines_str(line_descr="L")
+        return f'{markdown_root}{self.source_mapping["filename_relative"]}{lines}'
+
+    @property
+    def source_mapping_str(self):
+        lines = self._get_lines_str()
+        return f'{self.source_mapping["filename_short"]}{lines}'
 

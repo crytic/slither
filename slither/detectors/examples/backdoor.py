@@ -26,11 +26,11 @@ class Backdoor(AbstractDetector):
             for f in contract.functions:
                 if 'backdoor' in f.name:
                     # Info to be printed
-                    info = 'Backdoor function found in {}.{} ({})\n'
-                    info = info.format(contract.name, f.name, f.source_mapping_str)
+                    info = ['Backdoor function found in ', f, '\n']
+
                     # Add the result in result
                     json = self.generate_json_result(info)
-                    self.add_function_to_json(f, json)
+
                     results.append(json)
 
         return results

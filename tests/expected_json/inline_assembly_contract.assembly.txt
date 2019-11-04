@@ -1,5 +1,5 @@
-INFO:Detectors:[92m
-GetCode.at(address) uses assembly (tests/inline_assembly_contract.sol#6-20)
-	- tests/inline_assembly_contract.sol#7-20
+[92m
+GetCode.at(address) (tests/inline_assembly_contract.sol#6-20) uses assembly
+	- INLINE ASM None (tests/inline_assembly_contract.sol#7-20)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage[0m
-INFO:Slither:tests/inline_assembly_contract.sol analyzed (1 contracts), 1 result(s) found
+tests/inline_assembly_contract.sol analyzed (1 contracts with 1 detectors), 1 result(s) found

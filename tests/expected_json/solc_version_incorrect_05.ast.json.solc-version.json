@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "solc-version",
-        "impact": "Informational",
-        "confidence": "High",
-        "description": "Pragma version \"^0.5.5\" is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html) (None)\n",
         "elements": [
           {
             "type": "pragma",
@@ -33,13 +29,14 @@
               ]
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Pragma version^0.5.5 (None) is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)\n",
+        "markdown": "Pragma version[^0.5.5](None) is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)\n",
         "check": "solc-version",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Pragma version \"0.5.7\" necessitates versions too recent to be trusted. Consider deploying with 0.5.3 (None)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "pragma",
@@ -64,7 +61,12 @@
               ]
             }
           }
-        ]
+        ],
+        "description": "Pragma version0.5.7 (None) necessitates versions too recent to be trusted. Consider deploying with 0.5.3\n",
+        "markdown": "Pragma version[0.5.7](None) necessitates versions too recent to be trusted. Consider deploying with 0.5.3\n",
+        "check": "solc-version",
+        "impact": "Informational",
+        "confidence": "High"
       }
     ]
   }

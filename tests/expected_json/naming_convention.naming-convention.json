@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "naming-convention",
-        "impact": "Informational",
-        "confidence": "High",
-        "description": "Contract 'naming' (tests/naming_convention.sol#3-48) is not in CapWords\n",
         "elements": [
           {
             "type": "contract",
@@ -76,13 +72,14 @@
               "convention": "CapWords"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Contract naming (tests/naming_convention.sol#3-48) is not in CapWords\n",
+        "markdown": "Contract [naming](tests/naming_convention.sol#L3-L48) is not in CapWords\n",
         "check": "naming-convention",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Struct 'naming.test' (tests/naming_convention.sol#14-16) is not in CapWords\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "struct",
@@ -173,13 +170,14 @@
               "convention": "CapWords"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Struct naming.test (tests/naming_convention.sol#14-16) is not in CapWords\n",
+        "markdown": "Struct [naming.test](tests/naming_convention.sol#L14-L16) is not in CapWords\n",
         "check": "naming-convention",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Event 'namingevent_(uint256)' (tests/naming_convention.sol#23) is not in CapWords\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "event",
@@ -269,13 +267,14 @@
               "convention": "CapWords"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Event namingevent_(uint256) (tests/naming_convention.sol#23) is not in CapWords\n",
+        "markdown": "Event [namingevent_(uint256)](tests/naming_convention.sol#L23) is not in CapWords\n",
         "check": "naming-convention",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Function 'naming.GetOne()' (tests/naming_convention.sol#30-33) is not in mixedCase\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -368,13 +367,14 @@
               "convention": "mixedCase"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Function naming.GetOne() (tests/naming_convention.sol#30-33) is not in mixedCase\n",
+        "markdown": "Function [naming.GetOne()](tests/naming_convention.sol#L30-L33) is not in mixedCase\n",
         "check": "naming-convention",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Parameter 'Number2' of Number2 (tests/naming_convention.sol#35) is not in mixedCase\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -487,13 +487,14 @@
               "convention": "mixedCase"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Parameter naming.setInt(uint256,uint256).Number2 (tests/naming_convention.sol#35) is not in mixedCase\n",
+        "markdown": "Parameter [naming.setInt(uint256,uint256).Number2](tests/naming_convention.sol#L35) is not in mixedCase\n",
         "check": "naming-convention",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Constant 'naming.MY_other_CONSTANT' (tests/naming_convention.sol#9) is not in UPPER_CASE_WITH_UNDERSCORES\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -582,13 +583,14 @@
               "convention": "UPPER_CASE_WITH_UNDERSCORES"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Constant naming.MY_other_CONSTANT (tests/naming_convention.sol#9) is not in UPPER_CASE_WITH_UNDERSCORES\n",
+        "markdown": "Constant [naming.MY_other_CONSTANT](tests/naming_convention.sol#L9) is not in UPPER_CASE_WITH_UNDERSCORES\n",
         "check": "naming-convention",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Variable 'naming.Var_One' (tests/naming_convention.sol#11) is not in mixedCase\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -677,13 +679,14 @@
               "convention": "mixedCase"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Variable naming.Var_One (tests/naming_convention.sol#11) is not in mixedCase\n",
+        "markdown": "Variable [naming.Var_One](tests/naming_convention.sol#L11) is not in mixedCase\n",
         "check": "naming-convention",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Enum 'naming.numbers' (tests/naming_convention.sol#6) is not in CapWords\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "enum",
@@ -772,13 +775,14 @@
               "convention": "CapWords"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Enum naming.numbers (tests/naming_convention.sol#6) is not in CapWords\n",
+        "markdown": "Enum [naming.numbers](tests/naming_convention.sol#L6) is not in CapWords\n",
         "check": "naming-convention",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Modifier 'naming.CantDo()' (tests/naming_convention.sol#41-43) is not in mixedCase\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -870,13 +874,14 @@
               "convention": "mixedCase"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Modifier naming.CantDo() (tests/naming_convention.sol#41-43) is not in mixedCase\n",
+        "markdown": "Modifier [naming.CantDo()](tests/naming_convention.sol#L41-L43) is not in mixedCase\n",
         "check": "naming-convention",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Parameter '_used' of _used (tests/naming_convention.sol#59) is not in mixedCase\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -956,13 +961,14 @@
               "convention": "mixedCase"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Parameter T.test(uint256,uint256)._used (tests/naming_convention.sol#59) is not in mixedCase\n",
+        "markdown": "Parameter [T.test(uint256,uint256)._used](tests/naming_convention.sol#L59) is not in mixedCase\n",
         "check": "naming-convention",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Variable 'T._myPublicVar' (tests/naming_convention.sol#56) is not in mixedCase\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -1020,13 +1026,14 @@
               "convention": "mixedCase"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Variable T._myPublicVar (tests/naming_convention.sol#56) is not in mixedCase\n",
+        "markdown": "Variable [T._myPublicVar](tests/naming_convention.sol#L56) is not in mixedCase\n",
         "check": "naming-convention",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Variable 'T.l' (tests/naming_convention.sol#67) used l, O, I, which should not be used\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -1084,7 +1091,12 @@
               "convention": "l_O_I_should_not_be_used"
             }
           }
-        ]
+        ],
+        "description": "Variable T.l (tests/naming_convention.sol#67) used l, O, I, which should not be used\n",
+        "markdown": "Variable [T.l](tests/naming_convention.sol#L67) used l, O, I, which should not be used\n",
+        "check": "naming-convention",
+        "impact": "Informational",
+        "confidence": "High"
       }
     ]
   }

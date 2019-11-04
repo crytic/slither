@@ -1,4 +1,4 @@
-INFO:Detectors:[92m
+[92m
 Timestamp.bad0() (tests/timestamp.sol#4-6) uses timestamp for comparisons
 	Dangerous comparisons:
 	- require(bool)(block.timestamp == 0) (tests/timestamp.sol#5)
@@ -9,4 +9,4 @@ Timestamp.bad2() (tests/timestamp.sol#13-15) uses timestamp for comparisons
 	Dangerous comparisons:
 	- block.timestamp > 0 (tests/timestamp.sol#14)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp[0m
-INFO:Slither:tests/timestamp.sol analyzed (1 contracts), 3 result(s) found
+tests/timestamp.sol analyzed (1 contracts with 1 detectors), 3 result(s) found

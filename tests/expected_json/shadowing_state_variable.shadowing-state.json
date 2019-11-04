@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "shadowing-state",
-        "impact": "High",
-        "confidence": "High",
-        "description": "DerivedContract.owner (tests/shadowing_state_variable.sol#12) shadows:\n\t- BaseContract.owner (tests/shadowing_state_variable.sol#2)\n",
         "elements": [
           {
             "type": "variable",
@@ -103,7 +99,12 @@
               }
             }
           }
-        ]
+        ],
+        "description": "DerivedContract.owner (tests/shadowing_state_variable.sol#12) shadows:\n\t- BaseContract.owner (tests/shadowing_state_variable.sol#2)\n",
+        "markdown": "[DerivedContract.owner](tests/shadowing_state_variable.sol#L12) shadows:\n\t- [BaseContract.owner](tests/shadowing_state_variable.sol#L2)\n",
+        "check": "shadowing-state",
+        "impact": "High",
+        "confidence": "High"
       }
     ]
   }

@@ -4,11 +4,75 @@
   "results": {
     "detectors": [
       {
-        "check": "unused-return",
-        "impact": "Medium",
-        "confidence": "Medium",
-        "description": "User.test(Target) (tests/unused_return.sol#17-29) ignores return value by external calls \"t.f()\" (tests/unused_return.sol#18)\n",
         "elements": [
+          {
+            "type": "function",
+            "name": "test",
+            "source_mapping": {
+              "start": 239,
+              "length": 354,
+              "filename_used": "/home/travis/build/crytic/slither/tests/unused_return.sol",
+              "filename_relative": "tests/unused_return.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_return.sol",
+              "filename_short": "tests/unused_return.sol",
+              "is_dependency": false,
+              "lines": [
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "User",
+                "source_mapping": {
+                  "start": 189,
+                  "length": 406,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/unused_return.sol",
+                  "filename_relative": "tests/unused_return.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_return.sol",
+                  "filename_short": "tests/unused_return.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "test(Target)"
+            }
+          },
           {
             "type": "node",
             "name": "t.f()",
@@ -96,7 +160,16 @@
                 }
               }
             }
-          },
+          }
+        ],
+        "description": "User.test(Target) (tests/unused_return.sol#17-29) ignores return value by t.f() (tests/unused_return.sol#18)\n",
+        "markdown": "[User.test(Target)](tests/unused_return.sol#L17-L29) ignores return value by [t.f()](tests/unused_return.sol#L18)\n",
+        "check": "unused-return",
+        "impact": "Medium",
+        "confidence": "Medium"
+      },
+      {
+        "elements": [
           {
             "type": "function",
             "name": "test",
@@ -164,15 +237,7 @@
               },
               "signature": "test(Target)"
             }
-          }
-        ]
-      },
-      {
-        "check": "unused-return",
-        "impact": "Medium",
-        "confidence": "Medium",
-        "description": "User.test(Target) (tests/unused_return.sol#17-29) ignores return value by external calls \"a.add(0)\" (tests/unused_return.sol#22)\n",
-        "elements": [
+          },
           {
             "type": "node",
             "name": "a.add(0)",
@@ -260,76 +325,13 @@
                 }
               }
             }
-          },
-          {
-            "type": "function",
-            "name": "test",
-            "source_mapping": {
-              "start": 239,
-              "length": 354,
-              "filename_used": "/home/travis/build/crytic/slither/tests/unused_return.sol",
-              "filename_relative": "tests/unused_return.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_return.sol",
-              "filename_short": "tests/unused_return.sol",
-              "is_dependency": false,
-              "lines": [
-                17,
-                18,
-                19,
-                20,
-                21,
-                22,
-                23,
-                24,
-                25,
-                26,
-                27,
-                28,
-                29
-              ],
-              "starting_column": 5,
-              "ending_column": 6
-            },
-            "type_specific_fields": {
-              "parent": {
-                "type": "contract",
-                "name": "User",
-                "source_mapping": {
-                  "start": 189,
-                  "length": 406,
-                  "filename_used": "/home/travis/build/crytic/slither/tests/unused_return.sol",
-                  "filename_relative": "tests/unused_return.sol",
-                  "filename_absolute": "/home/travis/build/crytic/slither/tests/unused_return.sol",
-                  "filename_short": "tests/unused_return.sol",
-                  "is_dependency": false,
-                  "lines": [
-                    13,
-                    14,
-                    15,
-                    16,
-                    17,
-                    18,
-                    19,
-                    20,
-                    21,
-                    22,
-                    23,
-                    24,
-                    25,
-                    26,
-                    27,
-                    28,
-                    29,
-                    30
-                  ],
-                  "starting_column": 1,
-                  "ending_column": 2
-                }
-              },
-              "signature": "test(Target)"
-            }
           }
-        ]
+        ],
+        "description": "User.test(Target) (tests/unused_return.sol#17-29) ignores return value by a.add(0) (tests/unused_return.sol#22)\n",
+        "markdown": "[User.test(Target)](tests/unused_return.sol#L17-L29) ignores return value by [a.add(0)](tests/unused_return.sol#L22)\n",
+        "check": "unused-return",
+        "impact": "Medium",
+        "confidence": "Medium"
       }
     ]
   }

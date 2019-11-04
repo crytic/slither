@@ -88,11 +88,8 @@ class ConstCandidateStateVars(AbstractDetector):
 
         # Create a result for each finding
         for v in constable_variables:
-            info = "{} should be constant ({})\n".format(v.canonical_name,
-                                                         v.source_mapping_str)
+            info = [v, " should be constant\n"]
             json = self.generate_json_result(info)
-            self.add_variable_to_json(v, json)
-
             results.append(json)
 
         return results

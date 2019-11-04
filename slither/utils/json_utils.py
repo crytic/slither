@@ -3,7 +3,11 @@ import json
 import logging
 from collections import OrderedDict
 
+from slither.core.cfg.node import Node
+from slither.core.declarations import Contract, Function, Enum, Event, Structure, Pragma
 from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.variables.variable import Variable
+from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
 
 logger = logging.getLogger("Slither")
@@ -54,12 +58,79 @@ def output_json(filename, error, results):
 ###################################################################################
 ###################################################################################
 
-def generate_json_result(info, additional_fields=None):
+def _convert_to_description(d):
+    if isinstance(d, str):
+        return d
+
+    if not isinstance(d, SourceMapping):
+        raise SlitherError(f'{d} does not inherit from SourceMapping, conversion impossible')
+
+    if isinstance(d, Node):
+        if d.expression:
+            return f'{d.expression} ({d.source_mapping_str})'
+        else:
+            return f'{str(d)} ({d.source_mapping_str})'
+
+    if hasattr(d, 'canonical_name'):
+        return f'{d.canonical_name} ({d.source_mapping_str})'
+
+    if hasattr(d, 'name'):
+        return f'{d.name} ({d.source_mapping_str})'
+
+    raise SlitherError(f'{type(d)} cannot be converted (no name, or canonical_name')
+
+def _convert_to_markdown(d, markdown_root):
+    if isinstance(d, str):
+        return d
+
+    if not isinstance(d, SourceMapping):
+        raise SlitherError(f'{d} does not inherit from SourceMapping, conversion impossible')
+
+    if isinstance(d, Node):
+        if d.expression:
+            return f'[{d.expression}]({d.source_mapping_to_markdown(markdown_root)})'
+        else:
+            return f'[{str(d)}]({d.source_mapping_to_markdown(markdown_root)})'
+
+    if hasattr(d, 'canonical_name'):
+        return f'[{d.canonical_name}]({d.source_mapping_to_markdown(markdown_root)})'
+
+    if hasattr(d, 'name'):
+        return f'[{d.name}]({d.source_mapping_to_markdown(markdown_root)})'
+
+    raise SlitherError(f'{type(d)} cannot be converted (no name, or canonical_name')
+
+def generate_json_result(info, additional_fields=None, markdown_root='', standard_format=False):
     if additional_fields is None:
         additional_fields = {}
     d = OrderedDict()
     d['elements'] = []
-    d['description'] = info
+    d['description'] = ''.join(_convert_to_description(d) for d in info)
+    d['markdown'] = ''.join(_convert_to_markdown(d, markdown_root) for d in info)
+
+    if standard_format:
+        to_add = [i for i in info if not isinstance(i, str)]
+
+        for add in to_add:
+            if isinstance(add, Variable):
+                add_variable_to_json(add, d)
+            elif isinstance(add, Contract):
+                add_contract_to_json(add, d)
+            elif isinstance(add, Function):
+                add_function_to_json(add, d)
+            elif isinstance(add, Enum):
+                add_enum_to_json(add, d)
+            elif isinstance(add, Event):
+                add_event_to_json(add, d)
+            elif isinstance(add, Structure):
+                add_struct_to_json(add, d)
+            elif isinstance(add, Pragma):
+                add_pragma_to_json(add, d)
+            elif isinstance(add, Node):
+                add_node_to_json(add, d)
+            else:
+                raise SlitherError(f'Impossible to add {type(add)} to the json')
+
     if additional_fields:
         d['additional_fields'] = additional_fields
 
