@@ -10,12 +10,7 @@
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.variables.state_variable import StateVariable
-from slither.slithir.variables import ReferenceVariable
-from slither.slithir.operations.assignment import Assignment
-
-from slither.slithir.operations import (OperationWithLValue, Index, Member,
-                                        InternalCall, InternalDynamicCall, LibraryCall)
+from slither.slithir.operations import InternalCall, LibraryCall
 
 
 class UninitializedStateVarsDetection(AbstractDetector):
