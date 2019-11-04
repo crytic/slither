@@ -543,6 +543,8 @@ def main_impl(all_detector_classes, all_printer_classes):
     crytic_compile_error.propagate = False
     crytic_compile_error.setLevel(logging.INFO)
 
+    results_detectors = []
+    results_printers = []
     try:
         filename = args.filename
 
@@ -553,8 +555,7 @@ def main_impl(all_detector_classes, all_printer_classes):
             if not filenames:
                 filenames = globbed_filenames
             number_contracts = 0
-            results_detectors = []
-            results_printers = []
+
             slither_instances = []
             if args.splitted:
                 (slither_instance, results_detectors, results_printers, number_contracts) = process_from_asts(filenames, args, detector_classes, printer_classes)
@@ -638,7 +639,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     if output_error:
         sys.exit(-1)
     else:
-        exit(len(results_detectors))
+        exit(results_detectors)
 
 
 if __name__ == '__main__':
