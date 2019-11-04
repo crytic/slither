@@ -195,10 +195,22 @@ class PrinterHumanSummary(AbstractPrinter):
         txt = "\n"
         txt += self._compilation_type()
 
+        results = {
+            'contracts': {
+                "elements": []
+            },
+            'number_lines': 0,
+            'number_lines_in_dependencies': 0,
+            'standard_libraries': [],
+            'ercs': [],
+        }
+
         lines_number = self._lines_number()
         if lines_number:
             total_lines, total_dep_lines = lines_number
             txt += f'Number of lines: {total_lines} (+ {total_dep_lines} in dependencies)\n'
+            results['number_lines'] = total_lines
+            results['number_lines__dependencies'] = total_dep_lines
 
         number_contracts, number_contracts_deps = self._number_contracts()
         txt += f'Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies) \n\n'
@@ -208,10 +220,12 @@ class PrinterHumanSummary(AbstractPrinter):
         libs = self._standard_libraries()
         if libs:
             txt += f'\nUse: {", ".join(libs)}\n'
+            results['standard_libraries'] = [str(l) for l in libs]
 
         ercs = self._ercs()
         if ercs:
             txt += f'ERCs: {", ".join(ercs)}\n'
+            results['ercs'] = [str(e) for e in ercs]
 
         for contract in self.slither.contracts_derived:
             txt += "\nContract {}\n".format(contract.name)
@@ -226,3 +240,31 @@ class PrinterHumanSummary(AbstractPrinter):
                 txt += self.get_summary_erc20(contract)
 
         self.info(txt)
+
+        for contract in self.slither.contracts_derived:
+            optimization, info, low, medium, high = self._get_detectors_result()
+            contract_d = {'contract_name': contract.name,
+                          'is_complex_code': self._is_complex_code(contract),
+                          'optimization_issues': optimization,
+                          'informational_issues': info,
+                          'low_issues': low,
+                          'medium_issues': medium,
+                          'high_issues': high,
+                          'is_erc20': contract.is_erc20(),
+                          'number_functions': self._number_functions(contract)}
+            if contract_d['is_erc20']:
+                pause, mint_limited, race_condition_mitigated = self._get_summary_erc20(contract)
+                contract_d['erc20_pause'] = pause
+                if mint_limited is not None:
+                    contract_d['erc20_can_mint'] = True
+                    contract_d['erc20_mint_limited'] = mint_limited
+                else:
+                    contract_d['erc20_can_mint'] = False
+                contract_d['erc20_race_condition_mitigated'] = race_condition_mitigated
+
+            self.add_contract_to_json(contract, results['contracts'], additional_fields=contract_d)
+
+        json = self.generate_json_result(txt, additional_fields=results)
+
+        return json
+

@@ -3,7 +3,6 @@
 """
 
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.utils.colors import blue, green, magenta
 
 class PrinterSlithIR(AbstractPrinter):
 
