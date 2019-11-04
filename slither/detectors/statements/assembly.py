@@ -4,7 +4,6 @@ Module detecting usage of inline assembly
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.cfg.node import NodeType
-from slither.utils import json_utils
 
 
 class Assembly(AbstractDetector):
@@ -59,8 +58,8 @@ class Assembly(AbstractDetector):
                     info += "\t- {}\n".format(node.source_mapping_str)
 
                 json = self.generate_json_result(info)
-                json_utils.add_function_to_json(func, json)
-                json_utils.add_nodes_to_json(nodes, json)
+                self.add_function_to_json(func, json)
+                self.add_nodes_to_json(nodes, json)
                 results.append(json)
 
         return results

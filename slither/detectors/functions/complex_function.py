@@ -5,7 +5,6 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 from slither.slithir.operations import (HighLevelCall,
                                         LowLevelCall,
                                         LibraryCall)
-from slither.utils import json_utils
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 
 
@@ -106,7 +105,7 @@ class ComplexFunction(AbstractDetector):
                 self.log(info)
 
                 json = self.generate_json_result(info)
-                json_utils.add_function_to_json(func, json, {
+                self.add_function_to_json(func, json, {
                     'high_number_of_external_calls': cause == self.CAUSE_EXTERNAL_CALL,
                     'high_number_of_branches': cause == self.CAUSE_CYCLOMATIC,
                     'high_number_of_state_variables': cause == self.CAUSE_STATE_VARS

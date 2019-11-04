@@ -6,13 +6,11 @@
 """
 
 from slither.core.cfg.node import NodeType
-from slither.core.declarations import Function, SolidityFunction, SolidityVariable
+from slither.core.declarations import Function
 from slither.core.expressions import UnaryOperation, UnaryOperationType
-from slither.detectors.abstract_detector import (AbstractDetector,
-                                                 DetectorClassification)
-from slither.slithir.operations import (HighLevelCall, LowLevelCall,
-                                        Call,
-                                        Send, Transfer)
+from slither.detectors.abstract_detector import AbstractDetector
+from slither.slithir.operations import Call
+
 
 def union_dict(d1, d2):
     d3 = {k: d1.get(k, set()) | d2.get(k, set()) for k in set(list(d1.keys()) + list(d2.keys()))}
