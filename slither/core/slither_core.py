@@ -37,6 +37,8 @@ class Slither(Context):
 
         self._generate_patches = False
 
+        self._markdown_root = ""
+
     ###################################################################################
     ###################################################################################
     # region Source code
@@ -67,6 +69,10 @@ class Slither(Context):
         else:
             with open(path, encoding='utf8', newline='') as f:
                 self.source_code[path] = f.read()
+
+    @property
+    def markdown_root(self):
+        return self._markdown_root
 
     # endregion
     ###################################################################################

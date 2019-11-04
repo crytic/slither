@@ -1,5 +1,5 @@
-INFO:Detectors:[92m
+[92m
 Low level call in Sender.send(address) (tests/low_level_calls.sol#5-7):
-	-_receiver.call.value(msg.value).gas(7777)() tests/low_level_calls.sol#6
+	- _receiver.call.value(msg.value).gas(7777)() (tests/low_level_calls.sol#6)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls[0m
-INFO:Slither:tests/low_level_calls.sol analyzed (2 contracts), 1 result(s) found
+tests/low_level_calls.sol analyzed (2 contracts with 1 detectors), 1 result(s) found

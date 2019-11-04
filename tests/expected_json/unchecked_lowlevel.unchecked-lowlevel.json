@@ -4,11 +4,57 @@
   "results": {
     "detectors": [
       {
-        "check": "unchecked-lowlevel",
-        "impact": "Medium",
-        "confidence": "Medium",
-        "description": "MyConc.bad(address) (tests/unchecked_lowlevel.sol#2-4) ignores return value by low-level calls \"dst.call.value(msg.value)()\" (tests/unchecked_lowlevel.sol#3)\n",
         "elements": [
+          {
+            "type": "function",
+            "name": "bad",
+            "source_mapping": {
+              "start": 21,
+              "length": 88,
+              "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
+              "filename_relative": "tests/unchecked_lowlevel.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
+              "filename_short": "tests/unchecked_lowlevel.sol",
+              "is_dependency": false,
+              "lines": [
+                2,
+                3,
+                4
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "MyConc",
+                "source_mapping": {
+                  "start": 0,
+                  "length": 214,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
+                  "filename_relative": "tests/unchecked_lowlevel.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
+                  "filename_short": "tests/unchecked_lowlevel.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "bad(address)"
+            }
+          },
           {
             "type": "node",
             "name": "dst.call.value(msg.value)()",
@@ -78,58 +124,13 @@
                 }
               }
             }
-          },
-          {
-            "type": "function",
-            "name": "bad",
-            "source_mapping": {
-              "start": 21,
-              "length": 88,
-              "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
-              "filename_relative": "tests/unchecked_lowlevel.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
-              "filename_short": "tests/unchecked_lowlevel.sol",
-              "is_dependency": false,
-              "lines": [
-                2,
-                3,
-                4
-              ],
-              "starting_column": 5,
-              "ending_column": 6
-            },
-            "type_specific_fields": {
-              "parent": {
-                "type": "contract",
-                "name": "MyConc",
-                "source_mapping": {
-                  "start": 0,
-                  "length": 214,
-                  "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
-                  "filename_relative": "tests/unchecked_lowlevel.sol",
-                  "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_lowlevel.sol",
-                  "filename_short": "tests/unchecked_lowlevel.sol",
-                  "is_dependency": false,
-                  "lines": [
-                    1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6,
-                    7,
-                    8,
-                    9,
-                    10
-                  ],
-                  "starting_column": 1,
-                  "ending_column": 2
-                }
-              },
-              "signature": "bad(address)"
-            }
           }
-        ]
+        ],
+        "description": "MyConc.bad(address) (tests/unchecked_lowlevel.sol#2-4) ignores return value by dst.call.value(msg.value)() (tests/unchecked_lowlevel.sol#3)\n",
+        "markdown": "[MyConc.bad(address)](tests/unchecked_lowlevel.sol#L2-L4) ignores return value by [dst.call.value(msg.value)()](tests/unchecked_lowlevel.sol#L3)\n",
+        "check": "unchecked-lowlevel",
+        "impact": "Medium",
+        "confidence": "Medium"
       }
     ]
   }

@@ -68,6 +68,8 @@ class Slither(SlitherSolc):
         if kwargs.get('generate_patches', False):
             self.generate_patches = True
 
+        self._markdown_root = kwargs.get('markdown_root', "")
+
         self._detectors = []
         self._printers = []
 

@@ -46,6 +46,7 @@ contract Token
     WIKI_RECOMMENDATION = 'Special control characters must not be allowed.'
 
     RTLO_CHARACTER_ENCODED = "\u202e".encode('utf-8')
+    STANDARD_JSON = False
 
     def _detect(self):
         results = []

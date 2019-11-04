@@ -48,14 +48,13 @@ class LowLevelCalls(AbstractDetector):
         for c in self.contracts:
             values = self.detect_low_level_calls(c)
             for func, nodes in values:
-                info = "Low level call in {} ({}):\n"
-                info = info.format(func.canonical_name, func.source_mapping_str)
+                info = ["Low level call in ", func,":\n"]
+
                 for node in nodes:
-                    info += "\t-{} {}\n".format(str(node.expression), node.source_mapping_str)
+                    info += ['\t- ', node, '\n']
 
                 json = self.generate_json_result(info)
-                self.add_function_to_json(func, json)
-                self.add_nodes_to_json(nodes, json)
+
                 results.append(json)
 
         return results

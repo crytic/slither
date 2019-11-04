@@ -331,6 +331,11 @@ def parse_args(detector_classes, printer_classes):
                             action='store',
                             default=defaults_flag_in_config['json-types'])
 
+    group_misc.add_argument('--markdown-root',
+                            help='URL for markdown generation',
+                            action='store',
+                            default="")
+
     group_misc.add_argument('--disable-color',
                             help='Disable output colorization',
                             action='store_true',

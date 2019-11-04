@@ -4,11 +4,65 @@
   "results": {
     "detectors": [
       {
-        "check": "unchecked-send",
-        "impact": "Medium",
-        "confidence": "Medium",
-        "description": "MyConc.bad(address) (tests/unchecked_send-0.5.1.sol#2-4) ignores return value by send calls \"dst.send(msg.value)\" (tests/unchecked_send-0.5.1.sol#3)\n",
         "elements": [
+          {
+            "type": "function",
+            "name": "bad",
+            "source_mapping": {
+              "start": 21,
+              "length": 86,
+              "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
+              "filename_relative": "tests/unchecked_send-0.5.1.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
+              "filename_short": "tests/unchecked_send-0.5.1.sol",
+              "is_dependency": false,
+              "lines": [
+                2,
+                3,
+                4
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "MyConc",
+                "source_mapping": {
+                  "start": 0,
+                  "length": 419,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
+                  "filename_relative": "tests/unchecked_send-0.5.1.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
+                  "filename_short": "tests/unchecked_send-0.5.1.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "bad(address)"
+            }
+          },
           {
             "type": "node",
             "name": "dst.send(msg.value)",
@@ -86,66 +140,13 @@
                 }
               }
             }
-          },
-          {
-            "type": "function",
-            "name": "bad",
-            "source_mapping": {
-              "start": 21,
-              "length": 86,
-              "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
-              "filename_relative": "tests/unchecked_send-0.5.1.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
-              "filename_short": "tests/unchecked_send-0.5.1.sol",
-              "is_dependency": false,
-              "lines": [
-                2,
-                3,
-                4
-              ],
-              "starting_column": 5,
-              "ending_column": 6
-            },
-            "type_specific_fields": {
-              "parent": {
-                "type": "contract",
-                "name": "MyConc",
-                "source_mapping": {
-                  "start": 0,
-                  "length": 419,
-                  "filename_used": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
-                  "filename_relative": "tests/unchecked_send-0.5.1.sol",
-                  "filename_absolute": "/home/travis/build/crytic/slither/tests/unchecked_send-0.5.1.sol",
-                  "filename_short": "tests/unchecked_send-0.5.1.sol",
-                  "is_dependency": false,
-                  "lines": [
-                    1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6,
-                    7,
-                    8,
-                    9,
-                    10,
-                    11,
-                    12,
-                    13,
-                    14,
-                    15,
-                    16,
-                    17,
-                    18
-                  ],
-                  "starting_column": 1,
-                  "ending_column": 2
-                }
-              },
-              "signature": "bad(address)"
-            }
           }
-        ]
+        ],
+        "description": "MyConc.bad(address) (tests/unchecked_send-0.5.1.sol#2-4) ignores return value by dst.send(msg.value) (tests/unchecked_send-0.5.1.sol#3)\n",
+        "markdown": "[MyConc.bad(address)](tests/unchecked_send-0.5.1.sol#L2-L4) ignores return value by [dst.send(msg.value)](tests/unchecked_send-0.5.1.sol#L3)\n",
+        "check": "unchecked-send",
+        "impact": "Medium",
+        "confidence": "Medium"
       }
     ]
   }

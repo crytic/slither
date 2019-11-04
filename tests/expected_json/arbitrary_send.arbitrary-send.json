@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "arbitrary-send",
-        "impact": "High",
-        "confidence": "Medium",
-        "description": "Test.direct() (tests/arbitrary_send.sol#11-13) sends eth to arbitrary user\n\tDangerous calls:\n\t- msg.sender.send(address(this).balance) (tests/arbitrary_send.sol#12)\n",
         "elements": [
           {
             "type": "function",
@@ -191,13 +187,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Test.direct() (tests/arbitrary_send.sol#11-13) sends eth to arbitrary user\n\tDangerous calls:\n\t- msg.sender.send(address(this).balance) (tests/arbitrary_send.sol#12)\n",
+        "markdown": "[Test.direct()](tests/arbitrary_send.sol#L11-L13) sends eth to arbitrary user\n\tDangerous calls:\n\t- [msg.sender.send(address(this).balance)](tests/arbitrary_send.sol#L12)\n",
         "check": "arbitrary-send",
         "impact": "High",
-        "confidence": "Medium",
-        "description": "Test.indirect() (tests/arbitrary_send.sol#19-21) sends eth to arbitrary user\n\tDangerous calls:\n\t- destination.send(address(this).balance) (tests/arbitrary_send.sol#20)\n",
+        "confidence": "Medium"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -381,7 +378,12 @@
               }
             }
           }
-        ]
+        ],
+        "description": "Test.indirect() (tests/arbitrary_send.sol#19-21) sends eth to arbitrary user\n\tDangerous calls:\n\t- destination.send(address(this).balance) (tests/arbitrary_send.sol#20)\n",
+        "markdown": "[Test.indirect()](tests/arbitrary_send.sol#L19-L21) sends eth to arbitrary user\n\tDangerous calls:\n\t- [destination.send(address(this).balance)](tests/arbitrary_send.sol#L20)\n",
+        "check": "arbitrary-send",
+        "impact": "High",
+        "confidence": "Medium"
       }
     ]
   }

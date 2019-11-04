@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "void-cst",
-        "impact": "Low",
-        "confidence": "High",
-        "description": "Void constructor called in D.constructor() (tests/void-cst.sol#10-12):\n\t-C() tests/void-cst.sol#10\n",
         "elements": [
           {
             "type": "function",
@@ -123,7 +119,12 @@
               }
             }
           }
-        ]
+        ],
+        "description": "Void constructor called in D.constructor() (tests/void-cst.sol#10-12):\n\t- C() (tests/void-cst.sol#10)\n",
+        "markdown": "Void constructor called in [D.constructor()](tests/void-cst.sol#L10-L12):\n\t- [C()](tests/void-cst.sol#L10)\n",
+        "check": "void-cst",
+        "impact": "Low",
+        "confidence": "High"
       }
     ]
   }

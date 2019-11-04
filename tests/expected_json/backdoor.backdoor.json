@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "backdoor",
-        "impact": "High",
-        "confidence": "High",
-        "description": "Backdoor function found in C.i_am_a_backdoor (tests/backdoor.sol#4-6)\n",
         "elements": [
           {
             "type": "function",
@@ -56,7 +52,12 @@
               "signature": "i_am_a_backdoor()"
             }
           }
-        ]
+        ],
+        "description": "Backdoor function found in C.i_am_a_backdoor() (tests/backdoor.sol#4-6)\n",
+        "markdown": "Backdoor function found in [C.i_am_a_backdoor()](tests/backdoor.sol#L4-L6)\n",
+        "check": "backdoor",
+        "impact": "High",
+        "confidence": "High"
       }
     ]
   }

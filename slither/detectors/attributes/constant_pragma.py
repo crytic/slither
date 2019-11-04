@@ -30,16 +30,14 @@ class ConstantPragma(AbstractDetector):
         versions = sorted(list(set(versions)))
 
         if len(versions) > 1:
-            info = "Different versions of Solidity is used in {}:\n".format(self.filename)
-            info += "\t- Version used: {}\n".format([str(v) for v in versions])
+            info = [f"Different versions of Solidity is used in {self.filename}:\n"]
+            info += [f"\t- Version used: {[str(v) for v in versions]}\n"]
+
             for p in pragma:
-                info += "\t- {} declares {}\n".format(p.source_mapping_str, str(p))
+                info += ["\t- ", p, "\n"]
 
             json = self.generate_json_result(info)
 
-            # Add each pragma to our elements
-            for p in pragma:
-                self.add_pragma_to_json(p, json)
             results.append(json)
 
         return results

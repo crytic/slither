@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "erc20-indexed",
-        "impact": "Informational",
-        "confidence": "High",
-        "description": "ERC20 event IERC20Bad.Transfer (tests/erc20_indexed.sol#19) does not index parameter 'from'\n",
         "elements": [
           {
             "type": "event",
@@ -60,13 +56,14 @@
               "parameter_name": "from"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "ERC20 event IERC20BadTransfer(address,address,uint256) (tests/erc20_indexed.sol#19)does not index parameter from\n",
+        "markdown": "ERC20 event [IERC20BadTransfer(address,address,uint256)](tests/erc20_indexed.sol#L19)does not index parameter from\n",
         "check": "erc20-indexed",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "ERC20 event IERC20Bad.Transfer (tests/erc20_indexed.sol#19) does not index parameter 'to'\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "event",
@@ -119,13 +116,14 @@
               "parameter_name": "to"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "ERC20 event IERC20BadTransfer(address,address,uint256) (tests/erc20_indexed.sol#19)does not index parameter to\n",
+        "markdown": "ERC20 event [IERC20BadTransfer(address,address,uint256)](tests/erc20_indexed.sol#L19)does not index parameter to\n",
         "check": "erc20-indexed",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "ERC20 event IERC20Bad.Approval (tests/erc20_indexed.sol#20) does not index parameter 'owner'\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "event",
@@ -178,13 +176,14 @@
               "parameter_name": "owner"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "ERC20 event IERC20BadApproval(address,address,uint256) (tests/erc20_indexed.sol#20)does not index parameter owner\n",
+        "markdown": "ERC20 event [IERC20BadApproval(address,address,uint256)](tests/erc20_indexed.sol#L20)does not index parameter owner\n",
         "check": "erc20-indexed",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "ERC20 event IERC20Bad.Approval (tests/erc20_indexed.sol#20) does not index parameter 'spender'\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "event",
@@ -237,7 +236,12 @@
               "parameter_name": "spender"
             }
           }
-        ]
+        ],
+        "description": "ERC20 event IERC20BadApproval(address,address,uint256) (tests/erc20_indexed.sol#20)does not index parameter spender\n",
+        "markdown": "ERC20 event [IERC20BadApproval(address,address,uint256)](tests/erc20_indexed.sol#L20)does not index parameter spender\n",
+        "check": "erc20-indexed",
+        "impact": "Informational",
+        "confidence": "High"
       }
     ]
   }
