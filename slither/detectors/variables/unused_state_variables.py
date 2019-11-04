@@ -64,7 +64,6 @@ class UnusedStateVars(AbstractDetector):
                                                                   var.source_mapping_str,
                                                                   c.name)
 
-
                     json = self.generate_json_result(info)
                     self.add_variable_to_json(var, json)
                     self.add_contract_to_json(c, json)

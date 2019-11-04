@@ -3,7 +3,6 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.formatters.naming_convention.naming_convention import format
 
 
-
 class NamingConvention(AbstractDetector):
     """
     Check if naming conventions are followed

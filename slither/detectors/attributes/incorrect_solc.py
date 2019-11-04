@@ -12,6 +12,7 @@ from slither.formatters.attributes.incorrect_solc import format
 # 2: version number
 # 3: version number
 # 4: version number
+
 PATTERN = re.compile('(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)')
 
 class IncorrectSolc(AbstractDetector):

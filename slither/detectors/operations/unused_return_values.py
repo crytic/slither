@@ -6,6 +6,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.slithir.operations import HighLevelCall, InternalCall, InternalDynamicCall
 from slither.core.variables.state_variable import StateVariable
 
+
 class UnusedReturnValues(AbstractDetector):
     """
     If the return value of a function is never used, it's likely to be bug
