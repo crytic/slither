@@ -43,7 +43,7 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
     # Indicates the allowed versions.
     ALLOWED_VERSIONS = ["0.4.25", "0.4.26", "0.5.3"]
     # Indicates the versions too recent.
-    TOO_RECENT_VERSIONS = ["0.5.4", "0.5.7", "0.5.8", "0.5.9", "0.5.10", "0.5.11"]
+    TOO_RECENT_VERSIONS = ["0.5.4", "0.5.7", "0.5.8", "0.5.9", "0.5.10", "0.5.11", "0.5.12", "0.5.13"]
     # Indicates the versions that should not be used.
     BUGGY_VERSIONS = ["0.4.22", "0.5.5", "0.5.6", "^0.4.22", "^0.5.5", "^0.5.6"]
 
