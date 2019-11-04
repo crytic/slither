@@ -1,11 +1,11 @@
 import abc
 import re
-from collections import OrderedDict
 
-from slither.utils import json_utils
 from slither.utils.colors import green, yellow, red
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
+from slither.utils import json_utils
+
 
 class IncorrectDetectorInitialization(Exception):
     pass
@@ -176,6 +176,54 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         d['confidence'] = classification_txt[self.CONFIDENCE]
 
         return d
+
+    @staticmethod
+    def add_variable_to_json(e, d, additional_fields=None):
+        json_utils.add_variable_to_json(e, d, additional_fields=additional_fields)
+
+    @staticmethod
+    def add_variables_to_json(e, d):
+        json_utils.add_variables_to_json(e, d)
+
+    @staticmethod
+    def add_contract_to_json(e, d, additional_fields=None):
+        json_utils.add_contract_to_json(e, d, additional_fields=additional_fields)
+
+    @staticmethod
+    def add_function_to_json(e, d, additional_fields=None):
+        json_utils.add_function_to_json(e, d, additional_fields=additional_fields)
+
+    @staticmethod
+    def add_functions_to_json(e, d, additional_fields=None):
+        json_utils.add_functions_to_json(e, d, additional_fields=additional_fields)
+
+    @staticmethod
+    def add_enum_to_json(e, d, additional_fields=None):
+        json_utils.add_enum_to_json(e, d, additional_fields=additional_fields)
+
+    @staticmethod
+    def add_struct_to_json(e, d, additional_fields=None):
+        json_utils.add_struct_to_json(e, d, additional_fields=additional_fields)
+
+    @staticmethod
+    def add_event_to_json(e, d, additional_fields=None):
+        json_utils.add_event_to_json(e, d, additional_fields=additional_fields)
+
+    @staticmethod
+    def add_pragma_to_json(e, d, additional_fields=None):
+        json_utils.add_pragma_to_json(e, d, additional_fields=additional_fields)
+
+    @staticmethod
+    def add_node_to_json(e, d, additional_fields=None):
+        json_utils.add_node_to_json(e, d, additional_fields=additional_fields)
+
+    @staticmethod
+    def add_nodes_to_json(e, d):
+        json_utils.add_nodes_to_json(e, d)
+
+    @staticmethod
+    def add_other_to_json(name, source_mapping, d, slither, additional_fields=None):
+        json_utils.add_other_to_json(name, source_mapping, d, slither, additional_fields=additional_fields)
 
     @staticmethod
     def _format(slither, result):

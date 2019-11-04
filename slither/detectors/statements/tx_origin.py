@@ -3,7 +3,6 @@ Module detecting usage of `tx.origin` in a conditional node
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.utils import json_utils
 
 
 class TxOrigin(AbstractDetector):
@@ -74,7 +73,7 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
                                                                                         node.source_mapping_str)
 
                     json = self.generate_json_result(info)
-                    json_utils.add_node_to_json(node, json)
+                    self.add_node_to_json(node, json)
                     results.append(json)
 
         return results

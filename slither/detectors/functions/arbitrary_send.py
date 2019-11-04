@@ -17,7 +17,6 @@ from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
 from slither.slithir.operations import (HighLevelCall, Index, LowLevelCall,
                                         Send, SolidityCall, Transfer)
-from slither.utils import json_utils
 
 
 class ArbitrarySend(AbstractDetector):
@@ -118,8 +117,8 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
                     info += '\t- {} ({})\n'.format(node.expression, node.source_mapping_str)
 
                 json = self.generate_json_result(info)
-                json_utils.add_function_to_json(func, json)
-                json_utils.add_nodes_to_json(nodes, json)
+                self.add_function_to_json(func, json)
+                self.add_nodes_to_json(nodes, json)
                 results.append(json)
 
         return results
