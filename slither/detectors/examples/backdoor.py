@@ -1,5 +1,4 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.utils import json_utils
 
 
 class Backdoor(AbstractDetector):
@@ -31,7 +30,7 @@ class Backdoor(AbstractDetector):
                     info = info.format(contract.name, f.name, f.source_mapping_str)
                     # Add the result in result
                     json = self.generate_json_result(info)
-                    json_utils.add_function_to_json(f, json)
+                    self.add_function_to_json(f, json)
                     results.append(json)
 
         return results
