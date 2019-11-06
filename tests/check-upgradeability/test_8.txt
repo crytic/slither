@@ -4,7 +4,7 @@
 [92mNo missing call to an init function found[0m
 [92mNo double call to init functions found[0m
 [92mCheck the deployement script to ensure that these functions are called:
-Contract_no_bug needs to be initialized by initialize()
+Contract_no_bug_inherits needs to be initialized by initialize()
 [0m
 [92mNo error found[0m
 [92m
@@ -14,5 +14,5 @@ Contract_no_bug needs to be initialized by initialize()
 ## Run function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)[0m
 [92mNo error found[0m
 [92m
-## Run variables ordering checks between Contract_no_bug and Proxy... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
+## Run variables ordering checks between Contract_no_bug_inherits and Proxy... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
 [92mNo error found[0m
