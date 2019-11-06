@@ -22,7 +22,8 @@ setup(
             'slither-simil = slither.tools.similarity.__main__:main',
             'slither-flat = slither.tools.flattening.__main__:main',
             'slither-format = slither.tools.slither_format.__main__:main',
-            'slither-check-erc = slither.tools.erc_conformance.__main__:main'
+            'slither-check-erc = slither.tools.erc_conformance.__main__:main',
+            'slither-check-kspec = slither.tools.kspec_coverage.__main__:main'
         ]
     }
 )

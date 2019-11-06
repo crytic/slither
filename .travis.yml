@@ -20,6 +20,7 @@ env:
   - TEST_SUITE=scripts/travis_test_slither_config.sh
   - TEST_SUITE=scripts/travis_test_simil.sh
   - TEST_SUITE=scripts/travis_test_erc.sh
+  - TEST_SUITE=scripts/travis_test_kspec.sh
 branches:
   only:
   - master
