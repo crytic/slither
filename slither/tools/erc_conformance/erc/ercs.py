@@ -1,8 +1,7 @@
 import logging
-from collections import defaultdict
 
-from slither.core.solidity_types import MappingType
 from slither.slithir.operations import EventCall
+from slither.utils import json_utils
 from slither.utils.type import export_nested_types_from_variable, export_return_type_from_variable
 
 logger = logging.getLogger("Slither-conformance")
@@ -26,12 +25,12 @@ def _check_signature(erc_function, contract, ret):
         if not state_variable_as_function or not state_variable_as_function.visibility in ['public', 'external']:
             txt = f'[ ] {sig} is missing {"" if required else "(optional)"}'
             logger.info(txt)
-            ret["missing_function"].append({
-                "description": txt,
-                "contract": contract.name,
+            missing_func = json_utils.generate_json_result(txt, additional_fields={
                 "function": sig,
                 "required": required
             })
+            json_utils.add_contract_to_json(contract, missing_func)
+            ret["missing_function"].append(missing_func)
             return
 
         types = [str(x) for x in export_nested_types_from_variable(state_variable_as_function)]
@@ -39,12 +38,12 @@ def _check_signature(erc_function, contract, ret):
         if types != parameters:
             txt = f'[ ] {sig} is missing {"" if required else "(optional)"}'
             logger.info(txt)
-            ret["missing_function"].append({
-                "description": txt,
-                "contract": contract.name,
+            missing_func = json_utils.generate_json_result(txt, additional_fields={
                 "function": sig,
                 "required": required
             })
+            json_utils.add_contract_to_json(contract, missing_func)
+            ret["missing_function"].append(missing_func)
             return
 
         function_return_type = [export_return_type_from_variable(state_variable_as_function)]
@@ -64,27 +63,28 @@ def _check_signature(erc_function, contract, ret):
             logger.info(txt)
         else:
             txt = f'\t[ ] {sig} -> () should return {return_type}'
-            ret["incorrect_return_type"].append({
-                "description": txt,
-                "contract": contract.name,
-                "function": sig,
+            logger.info(txt)
+
+            incorrect_return = json_utils.generate_json_result(txt, additional_fields={
                 "expected_return_type": return_type,
                 "actual_return_type": function_return_type
             })
-            logger.info(txt)
+            json_utils.add_function_to_json(function, incorrect_return)
+            ret["incorrect_return_type"].append(incorrect_return)
+
     elif not return_type:
         txt = f'\t[✓] {sig} -> () (correct return type)'
         logger.info(txt)
     else:
         txt = f'\t[ ] {sig} -> () should return {return_type}'
-        ret["incorrect_return_type"].append({
-            "description": txt,
-            "contract": contract.name,
-            "function": sig,
-            "expected_return_type": return_type,
-            "actual_return_type": ""
-        })
         logger.info(txt)
+
+        incorrect_return = json_utils.generate_json_result(txt, additional_fields={
+            "expected_return_type": return_type,
+            "actual_return_type": function_return_type
+        })
+        json_utils.add_function_to_json(function, incorrect_return)
+        ret["incorrect_return_type"].append(incorrect_return)
 
     if view:
         if function_view:
@@ -92,12 +92,11 @@ def _check_signature(erc_function, contract, ret):
             logger.info(txt)
         else:
             txt = f'\t[ ] {sig} should be view'
-            ret["should_be_view"].append({
-                "description": txt,
-                "contract": contract.name,
-                "function": sig
-            })
             logger.info(txt)
+
+            should_be_view = json_utils.generate_json_result(txt)
+            json_utils.add_function_to_json(function, should_be_view)
+            ret["should_be_view"].append(should_be_view)
 
     if events:
         for event in events:
@@ -105,13 +104,14 @@ def _check_signature(erc_function, contract, ret):
 
             if not function:
                 txt = f'\t[ ] Must emit be view {event_sig}'
-                ret["missing_event_emmited"].append({
-                    "description": txt,
-                    "contract": contract.name,
-                    "function": sig,
+                logger.info(txt)
+
+                missing_event_emmited = json_utils.generate_json_result(txt, additional_fields={
                     "missing_event": event_sig
                 })
-                logger.info(txt)
+                json_utils.add_function_to_json(function, missing_event_emmited)
+                ret["missing_event_emmited"].append(missing_event_emmited)
+
             else:
                 event_found = False
                 for ir in function.all_slithir_operations():
@@ -125,15 +125,13 @@ def _check_signature(erc_function, contract, ret):
                     logger.info(txt)
                 else:
                     txt = f'\t[ ] Must emit be view {event_sig}'
-                    ret["missing_event_emmited"].append({
-                        "description": txt,
-                        "contract": contract.name,
-                        "function": sig,
-                        "missing_event": event_sig
-                    })
                     logger.info(txt)
 
-
+                    missing_event_emmited = json_utils.generate_json_result(txt, additional_fields={
+                        "missing_event": event_sig
+                    })
+                    json_utils.add_function_to_json(function, missing_event_emmited)
+                    ret["missing_event_emmited"].append(missing_event_emmited)
 
 
 def _check_events(erc_event, contract, ret):
@@ -147,11 +145,13 @@ def _check_events(erc_event, contract, ret):
     if not event:
         txt = f'[ ] {sig} is missing'
         logger.info(txt)
-        ret["missing_event"].append({
-            "description": txt,
-            "contract": contract.name,
+
+        missing_event = json_utils.generate_json_result(txt, additional_fields={
             "event": sig
         })
+        json_utils.add_contract_to_json(contract, missing_event)
+        ret["missing_event"].append(missing_event)
+
         return
 
     txt = f'[✓] {sig} is present'
@@ -165,13 +165,12 @@ def _check_events(erc_event, contract, ret):
             else:
                 txt = f'\t[ ] parameter {i} should be indexed'
                 logger.info(txt)
-                ret["missing_event_index"].append({
-                    "description": txt,
-                    "contract": contract.name,
-                    "event": sig,
+
+                missing_event_index = json_utils.generate_json_result(txt, additional_fields={
                     "missing_index": i
                 })
-
+                json_utils.add_event_to_json(event, missing_event_index)
+                ret["missing_event_index"].append(missing_event_index)
 
 
 def generic_erc_checks(contract, erc_functions, erc_events, ret, explored=None):
