@@ -12,8 +12,8 @@ from .colors import yellow, red
 
 logger = logging.getLogger("Slither")
 
-DEFAULT_JSON_OUTPUT_TYPES = ["detectors"]
-JSON_OUTPUT_TYPES = ["compilations", "console", "detectors", "list-detectors", "list-printers"]
+DEFAULT_JSON_OUTPUT_TYPES = ["detectors", "printers"]
+JSON_OUTPUT_TYPES = ["compilations", "console", "detectors", "printers", "list-detectors", "list-printers"]
 
 
 # Those are the flags shared by the command line and the config file

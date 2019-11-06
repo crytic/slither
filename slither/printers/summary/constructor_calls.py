@@ -35,13 +35,13 @@ class ConstructorPrinter(AbstractPrinter):
 					stack_definition.append(self._get_soruce_code(cst))
 			if len(stack_name)>0:
 				print(" ",stack_name[len(stack_name)-1], sep=' ', end='', flush=True)
-				count = len(stack_name)-2;
+				count = len(stack_name)-2
 				while count>=0:
 					print("-->",stack_name[count], sep=' ', end='', flush=True)
-					count= count-1;
+					count= count-1
 				print("\n Constructor Definitions:")
 				count = len(stack_definition)-1
 				while count>=0:
 					print("\n Contract name:", stack_name[count])
 					print ("\n", stack_definition[count])
-					count = count-1;
+					count = count-1
