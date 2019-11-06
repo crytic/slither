@@ -20,17 +20,32 @@ def constant_conformance_check(contract_v1, contract_v2):
     state_variables_v1 = contract_v1.state_variables
     state_variables_v2 = contract_v2.state_variables
 
-    for idx in range(0, len(state_variables_v1)):
-        state_v1 = contract_v1.state_variables[idx]
+    v2_additional_variables = len(state_variables_v2) - len(state_variables_v1)
+    if v2_additional_variables < 0:
+        v2_additional_variables = 0
 
-        if len(state_variables_v2) <= idx:
+    # We keep two index, because we need to have them out of sync if v2
+    # has additional non constant variables
+    idx_v1 = 0
+    idx_v2 = 0
+    while idx_v1 < len(state_variables_v1):
+
+        state_v1 = contract_v1.state_variables[idx_v1]
+        if len(state_variables_v2) <= idx_v2:
             break
 
-        state_v2 = contract_v2.state_variables[idx]
+        state_v2 = contract_v2.state_variables[idx_v2]
 
         if state_v2:
             if state_v1.is_constant:
                 if not state_v2.is_constant:
+
+                    # If v2 has additional non constant variables, we need to skip them
+                    if (state_v1.name != state_v2.name or state_v1.type != state_v2.type) and v2_additional_variables>0:
+                        v2_additional_variables -= 1
+                        idx_v2 += 1
+                        continue
+
                     info = f'{state_v1.canonical_name} ({state_v1.source_mapping_str}) was constant and {state_v2.canonical_name} is not ({state_v2.source_mapping_str})'
                     logger.info(red(info))
 
@@ -60,6 +75,9 @@ def constant_conformance_check(contract_v1, contract_v2):
             results['not_found_in_v2'].append(json_elem)
 
             error_found = True
+
+        idx_v1 += 1
+        idx_v2 += 1
 
     if not error_found:
         logger.info(green('No error found'))
