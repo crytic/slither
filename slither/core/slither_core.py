@@ -27,6 +27,7 @@ class Slither(Context):
         self._raw_source_code = {}
         self._all_functions = set()
         self._all_modifiers = set()
+        self._all_state_variables = None
 
         self._previous_results_filename = 'slither.db.json'
         self._results_to_hide = []
@@ -164,6 +165,20 @@ class Slither(Context):
                     if isinstance(ir, InternalCall):
                         ir.function.add_reachable_from_node(node, ir)
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Variables
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def state_variables(self):
+        if self._all_state_variables is None:
+            state_variables = [c.state_variables for c in self.contracts]
+            state_variables = [item for sublist in state_variables for item in sublist]
+            self._all_state_variables = set(state_variables)
+        return list(self._all_state_variables)
 
     # endregion
     ###################################################################################
