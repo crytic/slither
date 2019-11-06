@@ -1,0 +1,4 @@
+## Check for functions coverage
+[92m[✓] SafeAdd.add(uint256,uint256)[0m
+[91m[ ] (Missing) SafeAdd.add_v2(uint256,uint256)[0m
+[93m[ ] (Unresolved) SafeAdd.addv2(uint256,uint256)[0m
