@@ -5,6 +5,7 @@ Module detecting numbers with too many digits.
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.variables import Constant
 
+
 class TooManyDigits(AbstractDetector):
     """
     Detect numbers with too many digits

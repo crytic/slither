@@ -5,6 +5,7 @@ Recursively check the called functions
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.formatters.attributes.const_functions import format
 
+
 class ConstantFunctions(AbstractDetector):
     """
     Constant function detector

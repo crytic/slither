@@ -2,6 +2,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.slithir.operations import LowLevelCall
 from slither.analyses.data_dependency.data_dependency import is_tainted
 
+
 class ControlledDelegateCall(AbstractDetector):
     """
     """

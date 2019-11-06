@@ -3,7 +3,6 @@
 
 """
 
-import itertools
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
 from slither.core.declarations import Function
 from slither.detectors.abstract_detector import (AbstractDetector,
@@ -15,7 +14,7 @@ from slither.core.solidity_types import MappingType, ElementaryType
 
 from slither.core.variables.state_variable import StateVariable
 from slither.core.declarations.solidity_variables import SolidityVariable, SolidityVariableComposed
-from slither.slithir.variables import ReferenceVariable
+
 
 class IncorrectStrictEquality(AbstractDetector):
     ARGUMENT = 'incorrect-equality'

@@ -4,6 +4,7 @@ Module detecting usage of `tx.origin` in a conditional node
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
+
 class TxOrigin(AbstractDetector):
     """
     Detect usage of tx.origin in a conditional node
