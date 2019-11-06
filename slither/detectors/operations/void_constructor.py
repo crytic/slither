@@ -2,6 +2,7 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Nop
 
+
 class VoidConstructor(AbstractDetector):
 
     ARGUMENT = 'void-cst'

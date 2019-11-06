@@ -8,7 +8,7 @@ def kspec_coverage(args):
 
     slither = Slither(contract)
 
-    # Run the analysis on the k-framework
-    run_analysis(slither, kspec)
+    # Run the analysis on the Klab specs
+    run_analysis(args, slither, kspec)
 
 

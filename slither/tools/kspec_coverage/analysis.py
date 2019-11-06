@@ -1,10 +1,7 @@
 import re
 import logging
-from math import sqrt
-from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.solc_parsing.declarations.function import Function
-from slither.core.declarations.solidity_variables import SolidityFunction
-from tabulate import tabulate
+from slither.utils import json_utils
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger('Slither.kspec')
@@ -72,16 +69,7 @@ def _get_slither_functions(slither, include_modifiers=False, include_interfaces=
     return results
 
 
-def _add_current_row(count_kspec_direct, count_kspec_missing,
-                     current_kspec_direct, current_kspec_missing, previous_contract, rows):
-    desc_column = "{}".format(previous_contract)
-    rows.append([desc_column,
-                 '\n'.join(current_kspec_direct),
-                 '\n'.join(current_kspec_missing)])
-    count_kspec_direct += len(current_kspec_direct)
-    count_kspec_missing += len(current_kspec_missing)
-
-def _run_coverage_analysis(slither, kspec_functions, consider_derived=True):
+def _run_coverage_analysis(args, slither, kspec_functions, consider_derived=True):
     # Collect all slither functions
     slither_functions = _get_slither_functions(slither)
     slither_functions = {(contract.name, function.full_name): function for (contract, function) in slither_functions}
@@ -91,53 +79,53 @@ def _run_coverage_analysis(slither, kspec_functions, consider_derived=True):
     kspec_functions_resolved = kspec_functions & slither_functions_set
     kspec_functions_unresolved = kspec_functions - kspec_functions_resolved
 
-    # Print out messages regarding covered functions
-    previous_contract = None
-    header_row = ['Contract Name', 'kspec funcs', 'not covered funcs']
-    rows = []
-    current_kspec_direct, current_kspec_missing = ([], [])
-    count_kspec_direct, count_kspec_missing = (0, 0)
+    kspec_missing = []
+    kspec_present = []
 
     for slither_func_desc in sorted(slither_functions_set):
         slither_func = slither_functions[slither_func_desc]
         if not isinstance(slither_func, Function) or slither_func.contract_declarer.name != slither_func_desc[0]:
             continue
-
-        # If we are now describing a new contract, append our previous row and clear our current function info.
-        if slither_func_desc[0] != previous_contract:
-            if previous_contract is not None:
-                _add_current_row(count_kspec_direct, count_kspec_missing,
-                                 current_kspec_direct, current_kspec_missing, previous_contract, rows)
-
-            previous_contract = slither_func_desc[0]
-            current_kspec_direct = []
-            current_kspec_missing = []
-
-        # Determine which column to add the function to
         if slither_func_desc in kspec_functions:
-            current_kspec_direct.append(slither_func_desc[1])
+            kspec_present.append(slither_func)
         else:
-            current_kspec_missing.append(slither_func_desc[1])
+            kspec_missing.append(slither_func)
 
-    # Add our last constructed row
-    if previous_contract is not None:
-        _add_current_row(count_kspec_direct, count_kspec_missing,
-                         current_kspec_direct, current_kspec_missing, previous_contract, rows)
+    json_kspec_present = json_utils.generate_json_result("Functions with kspec present")
+    for function in kspec_present:
+        if args.json:
+            json_utils.add_function_to_json(function, json_kspec_present)
+        else:
+            logger.info(f"kspec present for {function.contract.name}.{function.full_name}")            
 
-    # Create our table and print it
-    logger.info(tabulate(rows, header_row, tablefmt='grid'))
-
-    # Print our message for unresolved kspecs
-    if len(kspec_functions_unresolved) != 0:
+    json_kspec_missing = json_utils.generate_json_result("Functions with kspec missing")
+    for function in kspec_missing:
+        if args.json:
+            json_utils.add_function_to_json(function, json_kspec_missing)
+        else:
+            logger.warning(f"kspec missing for {function.contract.name}.{function.full_name}")
+    
+    # Handle unresolved kspecs
+    if args.json:
+        kspec_functions_unresolved_str = ', '.join(str(e) for e in list(kspec_functions_unresolved))
+        json_kspec_unresolved = json_utils.generate_json_result("Kspec unresolved functions " +
+                                                                kspec_functions_unresolved_str)
+    else:
         for contract_name, function_name in sorted(kspec_functions_unresolved):
-            logger.info(f"Could not find function for klab spec:{contract_name}.{function_name}")
-        logger.info(f"Could not find {len(kspec_functions_unresolved)}/{len(kspec_functions)}"
-              f" functions referenced in klab spec")
+            logger.warning(f"Could not find function for klab spec:{contract_name}.{function_name}")
 
-def run_analysis(slither, kspec):
+    if args.json:
+        json_utils.output_json(args.json, None,
+                               {
+                                   "kspec_present": json_kspec_present,
+                                   "kspec_missing": json_kspec_missing,
+                                   "kspec_unresolved": json_kspec_unresolved
+                               })
+                
+def run_analysis(args, slither, kspec):
     # Get all of our kspec'd functions (tuple(contract_name, function_name)).
     kspec_functions = _get_all_covered_kspec_functions(kspec)
 
     # Run coverage analysis
-    _run_coverage_analysis(slither, kspec_functions)
+    _run_coverage_analysis(args, slither, kspec_functions)
 

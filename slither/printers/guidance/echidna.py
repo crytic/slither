@@ -138,4 +138,6 @@ class Echidna(AbstractPrinter):
              'constants_used': cst_used,
              'constants_used_in_binary': cst_used_in_binary}
 
-        print(json.dumps(d, indent=4))
+        self.info(json.dumps(d, indent=4))
+
+        return d
