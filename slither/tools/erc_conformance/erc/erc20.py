@@ -1,6 +1,9 @@
 import logging
 
+from slither.utils import json_utils
+
 logger = logging.getLogger("Slither-conformance")
+
 
 def approval_race_condition(contract, ret):
     increaseAllowance = contract.get_function_from_signature('increaseAllowance(address,uint256)')
@@ -13,14 +16,14 @@ def approval_race_condition(contract, ret):
         logger.info(txt)
     else:
         txt = f'\t[ ] {contract.name} is not protected for the ERC20 approval race condition'
-        ret["lack_of_erc20_race_condition_protection"].append({
-            "description": txt,
-            "contract": contract.name
-        })
         logger.info(txt)
 
-def check_erc20(contract, ret, explored=None):
+        lack_of_erc20_race_condition_protection = json_utils.generate_json_result(txt)
+        json_utils.add_contract_to_json(contract, lack_of_erc20_race_condition_protection)
+        ret["lack_of_erc20_race_condition_protection"].append(lack_of_erc20_race_condition_protection)
 
+
+def check_erc20(contract, ret, explored=None):
     if explored is None:
         explored = set()
 
@@ -32,5 +35,3 @@ def check_erc20(contract, ret, explored=None):
         check_erc20(derived_contract, ret, explored)
 
     return ret
-
-

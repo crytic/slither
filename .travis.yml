@@ -19,6 +19,7 @@ env:
   - TEST_SUITE=scripts/travis_test_printers.sh
   - TEST_SUITE=scripts/travis_test_slither_config.sh
   - TEST_SUITE=scripts/travis_test_simil.sh
+  - TEST_SUITE=scripts/travis_test_erc.sh
 branches:
   only:
   - master

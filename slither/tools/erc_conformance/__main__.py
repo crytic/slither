@@ -5,6 +5,7 @@ from collections import defaultdict
 from slither import Slither
 from crytic_compile import cryticparser
 from slither.utils.erc import ERCS
+from slither.utils.json_utils import output_json
 from .erc.ercs import generic_erc_checks
 from .erc.erc20 import check_erc20
 
@@ -46,10 +47,21 @@ def parse_args():
         default="erc20",
     )
 
+    parser.add_argument('--json',
+                        help='Export the results as a JSON file ("--json -" to export to stdout)',
+                        action='store',
+                        default=False)
+
     # Add default arguments from crytic-compile
     cryticparser.init(parser)
 
     return parser.parse_args()
+
+def _log_error(err, args):
+    if args.json:
+        output_json(args.json, str(err), {"upgradeability-check": []})
+
+    logger.error(err)
 
 def main():
     args = parse_args()
@@ -64,7 +76,8 @@ def main():
         contract = slither.get_contract_from_name(args.contract_name)
 
         if not contract:
-            logger.error(f'Contract not found: {args.contract_name}')
+            err = f'Contract not found: {args.contract_name}'
+            _log_error(err, args)
             return
         # First elem is the function, second is the event
         erc = ERCS[args.erc.upper()]
@@ -74,8 +87,12 @@ def main():
             ADDITIONAL_CHECKS[args.erc.upper()](contract, ret)
 
     else:
-        logger.error(f'Incorrect ERC selected {args.erc}')
+        err = f'Incorrect ERC selected {args.erc}'
+        _log_error(err, args)
         return
+
+    if args.json:
+        output_json(args.json, None, {"upgradeability-check": ret})
 
 
 if __name__ == '__main__':
