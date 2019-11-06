@@ -19,12 +19,13 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
+from slither.utils.json_utils import output_json
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
                                         output_detectors_json, output_printers, output_printers_json,
                                         output_to_markdown, output_wiki, defaults_flag_in_config,
-                                        read_config_file, JSON_OUTPUT_TYPES)
+                                        read_config_file, JSON_OUTPUT_TYPES, DEFAULT_JSON_OUTPUT_TYPES)
 from crytic_compile import compile_all, is_supported
 from slither.exceptions import SlitherException
 
@@ -58,14 +59,16 @@ def process_single(target, args, detector_classes, printer_classes):
 def process_all(target, args, detector_classes, printer_classes):
     compilations = compile_all(target, **vars(args))
     slither_instances = []
-    results = []
+    results_detectors = []
+    results_printers = []
     analyzed_contracts_count = 0
     for compilation in compilations:
-        (slither, current_results, current_analyzed_count) = process_single(compilation, args, detector_classes, printer_classes)
-        results.extend(current_results)
+        (slither, current_results_detectors, current_results_printers, current_analyzed_count) = process_single(compilation, args, detector_classes, printer_classes)
+        results_detectors.extend(current_results_detectors)
+        results_printers.extend(current_results_printers)
         slither_instances.append(slither)
         analyzed_contracts_count += current_analyzed_count
-    return slither_instances, results, analyzed_contracts_count
+    return slither_instances, results_detectors, results_printers, analyzed_contracts_count
 
 
 def _process(slither, detector_classes, printer_classes):
@@ -77,18 +80,21 @@ def _process(slither, detector_classes, printer_classes):
 
     analyzed_contracts_count = len(slither.contracts)
 
-    results = []
+    results_detectors = []
+    results_printers = []
 
     if not printer_classes:
         detector_results = slither.run_detectors()
         detector_results = [x for x in detector_results if x]  # remove empty results
         detector_results = [item for sublist in detector_results for item in sublist]  # flatten
+        results_detectors.extend(detector_results)
 
-        results.extend(detector_results)
+    else:
+        printer_results = slither.run_printers()
+        printer_results = [x for x in printer_results if x]  # remove empty results
+        results_printers.extend(printer_results)
 
-    slither.run_printers()  # Currently printers does not return results
-
-    return slither, results, analyzed_contracts_count
+    return slither, results_detectors, results_printers, analyzed_contracts_count
 
 
 def process_from_asts(filenames, args, detector_classes, printer_classes):
@@ -103,33 +109,6 @@ def process_from_asts(filenames, args, detector_classes, printer_classes):
 
 
 
-# endregion
-###################################################################################
-###################################################################################
-# region Output
-###################################################################################
-###################################################################################
-
-
-def output_json(filename, error, results):
-    # Create our encapsulated JSON result.
-    json_result = {
-        "success": error is None,
-        "error": error,
-        "results": results
-    }
-
-    # Determine if we should output to stdout
-    if filename is None:
-        # Write json to console
-        print(json.dumps(json_result))
-    else:
-        # Write json to file
-        if os.path.isfile(filename):
-            logger.info(yellow(f'{filename} exists already, the overwrite is prevented'))
-        else:
-            with open(filename, 'w', encoding='utf8') as f:
-                json.dump(json_result, f, indent=2)
 
 # endregion
 ###################################################################################
@@ -346,9 +325,9 @@ def parse_args(detector_classes, printer_classes):
                             default=defaults_flag_in_config['json'])
 
     group_misc.add_argument('--json-types',
-                            help='Comma-separated list of result types to output to JSON, defaults to all, '
-                                 'available types: {}'.format(
-                                     ', '.join(output_type for output_type in JSON_OUTPUT_TYPES)),
+                            help=f'Comma-separated list of result types to output to JSON, defaults to ' +\
+                                 f'{",".join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. ' +\
+                                 f'Available types: {",".join(output_type for output_type in JSON_OUTPUT_TYPES)}',
                             action='store',
                             default=defaults_flag_in_config['json-types'])
 
@@ -564,6 +543,8 @@ def main_impl(all_detector_classes, all_printer_classes):
     crytic_compile_error.propagate = False
     crytic_compile_error.setLevel(logging.INFO)
 
+    results_detectors = []
+    results_printers = []
     try:
         filename = args.filename
 
@@ -574,21 +555,22 @@ def main_impl(all_detector_classes, all_printer_classes):
             if not filenames:
                 filenames = globbed_filenames
             number_contracts = 0
-            results = []
+
             slither_instances = []
             if args.splitted:
-                (slither_instance, results, number_contracts) = process_from_asts(filenames, args, detector_classes, printer_classes)
+                (slither_instance, results_detectors, results_printers, number_contracts) = process_from_asts(filenames, args, detector_classes, printer_classes)
                 slither_instances.append(slither_instance)
             else:
                 for filename in filenames:
-                    (slither_instance, results_tmp, number_contracts_tmp) = process_single(filename, args, detector_classes, printer_classes)
+                    (slither_instance, results_detectors_tmp, results_printers_tmp, number_contracts_tmp) = process_single(filename, args, detector_classes, printer_classes)
                     number_contracts += number_contracts_tmp
-                    results += results_tmp
+                    results_detectors += results_detectors_tmp
+                    results_printers += results_printers_tmp
                     slither_instances.append(slither_instance)
 
         # Rely on CryticCompile to discern the underlying type of compilations.
         else:
-            (slither_instances, results, number_contracts) = process_all(filename, args, detector_classes, printer_classes)
+            (slither_instances, results_detectors, results_printers, number_contracts) = process_all(filename, args, detector_classes, printer_classes)
 
         # Determine if we are outputting JSON
         if outputting_json:
@@ -600,8 +582,12 @@ def main_impl(all_detector_classes, all_printer_classes):
                 json_results['compilations'] = compilation_results
 
             # Add our detector results to JSON if desired.
-            if results and 'detectors' in args.json_types:
-                json_results['detectors'] = results
+            if results_detectors and 'detectors' in args.json_types:
+                json_results['detectors'] = results_detectors
+
+            # Add our printer results to JSON if desired.
+            if results_printers and 'printers' in args.json_types:
+                json_results['printers'] = results_printers
 
             # Add our detector types to JSON
             if 'list-detectors' in args.json_types:
@@ -615,15 +601,16 @@ def main_impl(all_detector_classes, all_printer_classes):
 
         # Output our results to markdown if we wish to compile a checklist.
         if args.checklist:
-            output_results_to_markdown(results)
+            output_results_to_markdown(results_detectors)
 
         # Dont print the number of result for printers
         if number_contracts == 0:
-            logger.warn(red('No contract was analyzed'))
+            logger.warning(red('No contract was analyzed'))
         if printer_classes:
             logger.info('%s analyzed (%d contracts)', filename, number_contracts)
         else:
-            logger.info('%s analyzed (%d contracts with %d detectors), %d result(s) found', filename, number_contracts, len(detector_classes), len(results))
+            logger.info('%s analyzed (%d contracts with %d detectors), %d result(s) found', filename,
+                        number_contracts, len(detector_classes), len(results_detectors))
         if args.ignore_return_value:
             return
 
@@ -652,7 +639,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     if output_error:
         sys.exit(-1)
     else:
-        exit(results)
+        exit(results_detectors)
 
 
 if __name__ == '__main__':
