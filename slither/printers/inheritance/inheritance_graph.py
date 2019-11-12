@@ -172,7 +172,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         with open(filename, 'w', encoding='utf8') as f:
             f.write(content)
 
-        json = self.generate_json_result(info)
-        self.add_file_to_json(filename, content, json)
+        res = self.generate_output(info)
+        res.add_file(filename, content)
 
-        return json
+        return res

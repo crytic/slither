@@ -31,7 +31,7 @@ class CFG(AbstractPrinter):
 
         self.info(info)
 
-        json = self.generate_json_result(info)
+        res = self.generate_output(info)
         for filename, content in all_files:
-            self.add_file_to_json(filename, content, json)
-        return json
+            res.add_file(filename, content)
+        return res

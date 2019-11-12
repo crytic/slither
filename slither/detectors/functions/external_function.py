@@ -187,9 +187,9 @@ class ExternalFunction(AbstractDetector):
                     for other_function_definition in all_function_definitions:
                         info += [f"\t- ", other_function_definition, "\n"]
 
-                    json = self.generate_json_result(info)
+                    res = self.generate_result(info)
 
-                    results.append(json)
+                    results.append(res)
 
         return results
 

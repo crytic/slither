@@ -76,12 +76,10 @@ In this case, Transfer and Approval events should have the 'indexed' keyword on 
                     info = ["ERC20 event ", event, f"does not index parameter {parameter}\n"]
 
                     # Add the events to the JSON (note: we do not add the params/vars as they have no source mapping).
-                    json = self.generate_json_result(info)
+                    res = self.generate_result(info)
 
-                    self.add_event_to_json(event, json, {
-                        "parameter_name": parameter.name
-                    })
-                    results.append(json)
+                    res.add(event, {"parameter_name": parameter.name})
+                    results.append(res)
 
 
         return results

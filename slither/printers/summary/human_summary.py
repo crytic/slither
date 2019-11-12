@@ -4,6 +4,7 @@ Module printing summary of the contract
 import logging
 
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils import output
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 from slither.utils.colors import green, red, yellow
 from slither.utils.standard_libraries import is_standard_library
@@ -205,6 +206,7 @@ class PrinterHumanSummary(AbstractPrinter):
             'ercs': [],
         }
 
+
         lines_number = self._lines_number()
         if lines_number:
             total_lines, total_dep_lines = lines_number
@@ -241,6 +243,7 @@ class PrinterHumanSummary(AbstractPrinter):
 
         self.info(txt)
 
+        results_contract = output.Output('')
         for contract in self.slither.contracts_derived:
             optimization, info, low, medium, high = self._get_detectors_result()
             contract_d = {'contract_name': contract.name,
@@ -262,9 +265,11 @@ class PrinterHumanSummary(AbstractPrinter):
                     contract_d['erc20_can_mint'] = False
                 contract_d['erc20_race_condition_mitigated'] = race_condition_mitigated
 
-            self.add_contract_to_json(contract, results['contracts'], additional_fields=contract_d)
+            results_contract.add_contract(contract, additional_fields=contract_d)
 
-        json = self.generate_json_result(txt, additional_fields=results)
+        results['contracts']['elements'] = results_contract.elements
+
+        json = self.generate_output(txt, additional_fields=results)
 
         return json
 

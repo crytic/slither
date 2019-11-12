@@ -93,7 +93,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
                 for f in functions:
                     info += ["\t- ", f, "\n"]
 
-                json = self.generate_json_result(info)
+                json = self.generate_result(info)
                 results.append(json)
 
         return results

@@ -95,14 +95,14 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
 
             # Create our JSON result
-            json = self.generate_json_result(info)
+            res = self.generate_result(info)
 
             # Add the function with the re-entrancy first
-            self.add_function_to_json(func, json)
+            res.add(func)
 
             # Add all underlying calls in the function which are potentially problematic.
             for call_info in calls:
-                self.add_node_to_json(call_info, json, {
+                res.add(call_info, {
                     "underlying_type": "external_calls"
                 })
 
@@ -111,18 +111,18 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
             # If the calls are not the same ones that send eth, add the eth sending nodes.
             if calls != send_eth:
                 for call_info in send_eth:
-                    self.add_node_to_json(call_info, json, {
+                    res.add(call_info, {
                         "underlying_type": "external_calls_sending_eth"
                     })
 
             # Add all variables written via nodes which write them.
             for (v, node) in varsWritten:
-                self.add_node_to_json(node, json, {
+                res.add(node, {
                     "underlying_type": "variables_written",
                     "variable_name": v.name
                 })
 
             # Append our result
-            results.append(json)
+            results.append(res)
 
         return results

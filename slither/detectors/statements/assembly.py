@@ -56,7 +56,7 @@ class Assembly(AbstractDetector):
                 for node in nodes:
                     info += ["\t- ", node, "\n"]
 
-                json = self.generate_json_result(info)
-                results.append(json)
+                res = self.generate_result(info)
+                results.append(res)
 
         return results

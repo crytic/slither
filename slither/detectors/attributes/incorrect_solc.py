@@ -102,7 +102,7 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
             for (reason, p) in disallowed_pragmas:
                 info = ["Pragma version", p, f" {reason}\n"]
 
-                json = self.generate_json_result(info)
+                json = self.generate_result(info)
 
                 results.append(json)
 

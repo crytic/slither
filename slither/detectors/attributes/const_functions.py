@@ -59,9 +59,9 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
                         attr = 'view' if f.view else 'pure'
 
                         info = [f, f' is declared {attr} but contains assembly code\n']
-                        json = self.generate_json_result(info, {'contains_assembly': True})
+                        res = self.generate_result(info, {'contains_assembly': True})
 
-                        results.append(json)
+                        results.append(res)
 
                     variables_written = f.all_state_variables_written()
                     if variables_written:
@@ -72,9 +72,9 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
                         for variable_written in variables_written:
                             info += ['\t- ', variable_written, '\n']
 
-                        json = self.generate_json_result(info, {'contains_assembly': False})
+                        res = self.generate_result(info, {'contains_assembly': False})
 
-                        results.append(json)
+                        results.append(res)
 
         return results
 

@@ -5,7 +5,7 @@ from collections import defaultdict
 from slither import Slither
 from crytic_compile import cryticparser
 from slither.utils.erc import ERCS
-from slither.utils.json_utils import output_json
+from slither.utils.output import output_to_json
 from .erc.ercs import generic_erc_checks
 from .erc.erc20 import check_erc20
 
@@ -59,7 +59,7 @@ def parse_args():
 
 def _log_error(err, args):
     if args.json:
-        output_json(args.json, str(err), {"upgradeability-check": []})
+        output_to_json(args.json, str(err), {"upgradeability-check": []})
 
     logger.error(err)
 
@@ -92,7 +92,7 @@ def main():
         return
 
     if args.json:
-        output_json(args.json, None, {"upgradeability-check": ret})
+        output_to_json(args.json, None, {"upgradeability-check": ret})
 
 
 if __name__ == '__main__':

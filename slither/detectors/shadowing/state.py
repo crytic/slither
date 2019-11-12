@@ -80,9 +80,8 @@ contract DerivedContract is BaseContract{
                     for var in variables:
                         info += ["\t- ", var, "\n"]
 
-                    json = self.generate_json_result(info)
-
-                    results.append(json)
+                    res = self.generate_result(info)
+                    results.append(res)
 
 
         return results

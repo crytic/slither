@@ -176,9 +176,9 @@ class PrinterCallGraph(AbstractPrinter):
                 results.append((filename, content))
 
         self.info(info)
-        json = self.generate_json_result(info)
+        res = self.generate_output(info)
         for filename, content in results:
-            self.add_file_to_json(filename, content, json)
+            res.add_file(filename, content)
 
-        return json
+        return res
 

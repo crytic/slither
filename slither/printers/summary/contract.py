@@ -3,6 +3,7 @@
 """
 import collections
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils import output
 from slither.utils.colors import blue, green, magenta
 
 
@@ -24,7 +25,7 @@ class ContractSummary(AbstractPrinter):
         all_contracts = []
         for c in self.contracts:
             txt += blue("\n+ Contract %s\n" % c.name)
-            additional_fields = {"elements": []}
+            additional_fields = output.Output('')
 
             # Order the function with
             # contract_declarer -> list_functions
@@ -47,15 +48,15 @@ class ContractSummary(AbstractPrinter):
                     if function.visibility not in ['external', 'public', 'internal', 'private']:
                         txt += "    - {}  ({})\n".format(function, function.visibility)
 
-                    self.add_function_to_json(function, additional_fields, additional_fields={"visibility":
-                                                                                              function.visibility})
+                    additional_fields.add(function, additional_fields={"visibility":
+                                                                       function.visibility})
 
-            all_contracts.append((c, additional_fields))
+            all_contracts.append((c, additional_fields.data))
 
         self.info(txt)
 
-        json = self.generate_json_result(txt)
+        res = self.generate_output(txt)
         for contract, additional_fields in all_contracts:
-            self.add_contract_to_json(contract, json, additional_fields=additional_fields)
+            res.add(contract, additional_fields=additional_fields)
 
-        return json
+        return res

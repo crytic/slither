@@ -51,7 +51,7 @@ Bob calls `delegate` and delegates the execution to its malicious contract. As a
 
                     for node in nodes:
                         node_info = func_info + ['\t- ', node,'\n']
-                        json = self.generate_json_result(node_info)
-                        results.append(json)
+                        res = self.generate_result(node_info)
+                        results.append(res)
 
         return results

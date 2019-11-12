@@ -127,7 +127,7 @@ contract Bug {
 
                     info = [shadow_object, f' ({shadow_type}) shadows built-in symbol"\n']
 
-                    json = self.generate_json_result(info)
-                    results.append(json)
+                    res = self.generate_result(info)
+                    results.append(res)
 
         return results

@@ -53,8 +53,8 @@ class LowLevelCalls(AbstractDetector):
                 for node in nodes:
                     info += ['\t- ', node, '\n']
 
-                json = self.generate_json_result(info)
+                res = self.generate_result(info)
 
-                results.append(json)
+                results.append(res)
 
         return results

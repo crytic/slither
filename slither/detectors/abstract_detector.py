@@ -4,7 +4,7 @@ import re
 from slither.utils.colors import green, yellow, red
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
-from slither.utils import json_utils
+from slither.utils.output import Output
 
 
 class IncorrectDetectorInitialization(Exception):
@@ -103,10 +103,12 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def _detect(self):
         """TODO Documentation"""
-        return
+        return []
 
     def detect(self):
         all_results = self._detect()
+        # Keep only dictionaries
+        all_results = [r.data for r in all_results]
         results = []
         # only keep valid result, and remove dupplicate
         [results.append(r) for r in all_results if self.slither.valid_result(r) and r not in results]
@@ -170,65 +172,17 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     def color(self):
         return classification_colors[self.IMPACT]
 
-    def generate_json_result(self, info, additional_fields=None):
-        d = json_utils.generate_json_result(info,
-                                            additional_fields,
-                                            standard_format=self.STANDARD_JSON,
-                                            markdown_root=self.slither.markdown_root)
+    def generate_result(self, info, additional_fields=None):
+        output = Output(info,
+                        additional_fields,
+                        standard_format=self.STANDARD_JSON,
+                        markdown_root=self.slither.markdown_root)
 
-        d['check'] = self.ARGUMENT
-        d['impact'] = classification_txt[self.IMPACT]
-        d['confidence'] = classification_txt[self.CONFIDENCE]
+        output.data['check'] = self.ARGUMENT
+        output.data['impact'] = classification_txt[self.IMPACT]
+        output.data['confidence'] = classification_txt[self.CONFIDENCE]
 
-        return d
-
-    @staticmethod
-    def add_variable_to_json(e, d, additional_fields=None):
-        json_utils.add_variable_to_json(e, d, additional_fields=additional_fields)
-
-    @staticmethod
-    def add_variables_to_json(e, d):
-        json_utils.add_variables_to_json(e, d)
-
-    @staticmethod
-    def add_contract_to_json(e, d, additional_fields=None):
-        json_utils.add_contract_to_json(e, d, additional_fields=additional_fields)
-
-    @staticmethod
-    def add_function_to_json(e, d, additional_fields=None):
-        json_utils.add_function_to_json(e, d, additional_fields=additional_fields)
-
-    @staticmethod
-    def add_functions_to_json(e, d, additional_fields=None):
-        json_utils.add_functions_to_json(e, d, additional_fields=additional_fields)
-
-    @staticmethod
-    def add_enum_to_json(e, d, additional_fields=None):
-        json_utils.add_enum_to_json(e, d, additional_fields=additional_fields)
-
-    @staticmethod
-    def add_struct_to_json(e, d, additional_fields=None):
-        json_utils.add_struct_to_json(e, d, additional_fields=additional_fields)
-
-    @staticmethod
-    def add_event_to_json(e, d, additional_fields=None):
-        json_utils.add_event_to_json(e, d, additional_fields=additional_fields)
-
-    @staticmethod
-    def add_pragma_to_json(e, d, additional_fields=None):
-        json_utils.add_pragma_to_json(e, d, additional_fields=additional_fields)
-
-    @staticmethod
-    def add_node_to_json(e, d, additional_fields=None):
-        json_utils.add_node_to_json(e, d, additional_fields=additional_fields)
-
-    @staticmethod
-    def add_nodes_to_json(e, d):
-        json_utils.add_nodes_to_json(e, d)
-
-    @staticmethod
-    def add_other_to_json(name, source_mapping, d, slither, additional_fields=None):
-        json_utils.add_other_to_json(name, source_mapping, d, slither, additional_fields=additional_fields)
+        return output
 
     @staticmethod
     def _format(slither, result):

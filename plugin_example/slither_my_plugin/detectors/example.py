@@ -23,6 +23,6 @@ class Example(AbstractDetector):
 
         info = 'This is an example!'
 
-        json = self.generate_json_result(info)
+        json = self.generate_result(info)
 
         return [json]

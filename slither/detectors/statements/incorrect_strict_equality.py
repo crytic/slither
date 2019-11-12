@@ -120,7 +120,7 @@ contract Crowdsale{
                 for node in nodes:
                     node_info = func_info + [f"\t- ", node, "\n"]
 
-                    json = self.generate_json_result(node_info)
-                    results.append(json)
+                    res = self.generate_result(node_info)
+                    results.append(res)
 
         return results

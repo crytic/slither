@@ -88,7 +88,7 @@ contract Token{
             if functions:
                 for function in functions:
                     info = [c, " has incorrect ERC20 function interface:", function, "\n"]
-                    json = self.generate_json_result(info) 
+                    json = self.generate_result(info)
 
                     results.append(json)
 

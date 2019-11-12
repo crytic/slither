@@ -157,7 +157,7 @@ contract ContractWithDeprecatedReferences {
                     for (dep_id, original_desc, recommended_disc) in deprecated_entries:
                         info += [f"\t- Usage of \"{original_desc}\" should be replaced with \"{recommended_disc}\"\n"]
 
-                    json = self.generate_json_result(info)
-                    results.append(json)
+                    res = self.generate_result(info)
+                    results.append(res)
 
         return results
