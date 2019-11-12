@@ -26,6 +26,7 @@
         ],
         "description": "/home/travis/build/crytic/slither/tests/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:\n\t- b'        test1(/*A\\xe2\\x80\\xae/*B*/2 , 1/*\\xe2\\x80\\xad'\n",
         "markdown": "/home/travis/build/crytic/slither/tests/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:\n\t- b'        test1(/*A\\xe2\\x80\\xae/*B*/2 , 1/*\\xe2\\x80\\xad'\n",
+        "id": "a6c8caf0e8d2182254c7b66c9808b999315b14fe10087f12bdc0afa72a43c223",
         "check": "rtlo",
         "impact": "High",
         "confidence": "High"
