@@ -1,3 +1,4 @@
+import hashlib
 import os
 import json
 import logging
@@ -101,6 +102,31 @@ def _convert_to_markdown(d, markdown_root):
 
     raise SlitherError(f'{type(d)} cannot be converted (no name, or canonical_name')
 
+def _convert_to_id(d):
+    '''
+    Id keeps the source mapping of the node, otherwise we risk to consider two different node as the same
+    :param d:
+    :return:
+    '''
+    if isinstance(d, str):
+        return d
+
+    if not isinstance(d, SourceMapping):
+        raise SlitherError(f'{d} does not inherit from SourceMapping, conversion impossible')
+
+    if isinstance(d, Node):
+        if d.expression:
+            return f'{d.expression} ({d.source_mapping_str})'
+        else:
+            return f'{str(d)} ({d.source_mapping_str})'
+
+    if hasattr(d, 'canonical_name'):
+        return f'{d.canonical_name}'
+
+    if hasattr(d, 'name'):
+        return f'{d.name}'
+
+    raise SlitherError(f'{type(d)} cannot be converted (no name, or canonical_name')
 
 # endregion
 ###################################################################################
@@ -160,6 +186,9 @@ class Output:
         self._data['elements'] = []
         self._data['description'] = ''.join(_convert_to_description(d) for d in info)
         self._data['markdown'] = ''.join(_convert_to_markdown(d, markdown_root) for d in info)
+
+        id_txt = ''.join(_convert_to_id(d) for d in info)
+        self._data['id'] = hashlib.sha3_256(id_txt.encode('utf-8')).hexdigest()
 
         if standard_format:
             to_add = [i for i in info if not isinstance(i, str)]

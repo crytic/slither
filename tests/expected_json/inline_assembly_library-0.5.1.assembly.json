@@ -207,6 +207,7 @@
         ],
         "description": "VectorSum.sumAsm(uint256[]) (tests/inline_assembly_library-0.5.1.sol#16-22) uses assembly\n\t- INLINE ASM None (tests/inline_assembly_library-0.5.1.sol#18-21)\n",
         "markdown": "[VectorSum.sumAsm(uint256[])](tests/inline_assembly_library-0.5.1.sol#L16-L22) uses assembly\n\t- [INLINE ASM None](tests/inline_assembly_library-0.5.1.sol#L18-L21)\n",
+        "id": "2d646463bf10753d2433783ea4a212d84dfb51269bb062f4ea5db21bd8ec6cb6",
         "check": "assembly",
         "impact": "Informational",
         "confidence": "High"
@@ -465,6 +466,7 @@
         ],
         "description": "VectorSum.sumPureAsm(uint256[]) (tests/inline_assembly_library-0.5.1.sol#25-47) uses assembly\n\t- INLINE ASM None (tests/inline_assembly_library-0.5.1.sol#26-47)\n",
         "markdown": "[VectorSum.sumPureAsm(uint256[])](tests/inline_assembly_library-0.5.1.sol#L25-L47) uses assembly\n\t- [INLINE ASM None](tests/inline_assembly_library-0.5.1.sol#L26-L47)\n",
+        "id": "df1118184108ae4b7b7300da137ebfc86c3279fcaffabf289d8e79bc23228105",
         "check": "assembly",
         "impact": "Informational",
         "confidence": "High"

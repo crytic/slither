@@ -122,6 +122,7 @@
         ],
         "description": "Void constructor called in D.constructor() (tests/void-cst.sol#10-12):\n\t- C() (tests/void-cst.sol#10)\n",
         "markdown": "Void constructor called in [D.constructor()](tests/void-cst.sol#L10-L12):\n\t- [C()](tests/void-cst.sol#L10)\n",
+        "id": "2d4e0ed4dc3c0871d43c6de59147f2bc48b0b2591237bfca8cdc3576388fce5a",
         "check": "void-cst",
         "impact": "Low",
         "confidence": "High"

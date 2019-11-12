@@ -144,6 +144,7 @@
         ],
         "description": "MyConc.bad(address) (tests/unchecked_send-0.5.1.sol#2-4) ignores return value by dst.send(msg.value) (tests/unchecked_send-0.5.1.sol#3)\n",
         "markdown": "[MyConc.bad(address)](tests/unchecked_send-0.5.1.sol#L2-L4) ignores return value by [dst.send(msg.value)](tests/unchecked_send-0.5.1.sol#L3)\n",
+        "id": "9e4d70a9e602a08c249500b8a32bd5cfe289229d2621a0f299c694c30c30d883",
         "check": "unchecked-send",
         "impact": "Medium",
         "confidence": "Medium"
