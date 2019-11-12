@@ -36,6 +36,8 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
     WIKI_RECOMMENDATION = 'Apply the [check-effects-interactions pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy).'
 
+    STANDARD_JSON = False
+
     def find_reentrancies(self):
         result = {}
         for contract in self.contracts:
@@ -78,28 +80,29 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
         for (func, calls, send_eth), varsWritten in result_sorted:
             calls = sorted(list(set(calls)), key=lambda x: x.node_id)
             send_eth = sorted(list(set(send_eth)), key=lambda x: x.node_id)
-            info = 'Reentrancy in {} ({}):\n'
-            info = info.format(func.canonical_name, func.source_mapping_str)
-            info += '\tExternal calls:\n'
+            info = ['Reentrancy in ', func, ':\n']
+
+            info += ['\tExternal calls:\n']
             for call_info in calls:
-                info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
+                info += ['\t- ' , call_info, '\n']
             if calls != send_eth and send_eth:
-                info += '\tExternal calls sending eth:\n'
+                info += ['\tExternal calls sending eth:\n']
                 for call_info in send_eth:
-                    info += '\t- {} ({})\n'.format(call_info.expression, call_info.source_mapping_str)
-            info += '\tState variables written after the call(s):\n'
+                    info += ['\t- ', call_info, '\n']
+            info += ['\tState variables written after the call(s):\n']
             for (v, node) in sorted(varsWritten, key=lambda x: (x[0].name, x[1].node_id)):
-                info += '\t- {} ({})\n'.format(v, node.source_mapping_str)
+                info += ['\t- ', v, ' in ', node, '\n']
+
 
             # Create our JSON result
-            json = self.generate_json_result(info)
+            res = self.generate_result(info)
 
             # Add the function with the re-entrancy first
-            self.add_function_to_json(func, json)
+            res.add(func)
 
             # Add all underlying calls in the function which are potentially problematic.
             for call_info in calls:
-                self.add_node_to_json(call_info, json, {
+                res.add(call_info, {
                     "underlying_type": "external_calls"
                 })
 
@@ -108,18 +111,18 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
             # If the calls are not the same ones that send eth, add the eth sending nodes.
             if calls != send_eth:
                 for call_info in send_eth:
-                    self.add_node_to_json(call_info, json, {
+                    res.add(call_info, {
                         "underlying_type": "external_calls_sending_eth"
                     })
 
             # Add all variables written via nodes which write them.
             for (v, node) in varsWritten:
-                self.add_node_to_json(node, json, {
+                res.add(node, {
                     "underlying_type": "variables_written",
                     "variable_name": v.name
                 })
 
             # Append our result
-            results.append(json)
+            results.append(res)
 
         return results

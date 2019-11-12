@@ -51,8 +51,8 @@ class DataDependency(AbstractPrinter):
             all_txt += txt
             all_tables.append((c.name, table))
 
-        json = self.generate_json_result(all_txt)
+        res = self.generate_output(all_txt)
         for name, table in all_tables:
-            self.add_pretty_table_to_json(table, name, json)
+            res.add_pretty_table(table, name)
 
-        return json
+        return res

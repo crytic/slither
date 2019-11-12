@@ -60,13 +60,8 @@ class UnusedStateVars(AbstractDetector):
             unusedVars = self.detect_unused(c)
             if unusedVars:
                 for var in unusedVars:
-                    info = "{} ({}) is never used in {}\n".format(var.canonical_name,
-                                                                  var.source_mapping_str,
-                                                                  c.name)
-
-                    json = self.generate_json_result(info)
-                    self.add_variable_to_json(var, json)
-                    self.add_contract_to_json(c, json)
+                    info = [var, " is never used in ", c, "\n"]
+                    json = self.generate_result(info)
                     results.append(json)
 
         return results

@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "constant-function",
-        "impact": "Medium",
-        "confidence": "Medium",
-        "description": "Constant.test_view_bug() (tests/constant.sol#5-7) is declared view but changes state variables:\n\t- Constant.a\n",
         "elements": [
           {
             "type": "function",
@@ -137,15 +133,16 @@
             }
           }
         ],
+        "description": "Constant.test_view_bug() (tests/constant.sol#5-7) is declared view but changes state variables:\n\t- Constant.a (tests/constant.sol#3)\n",
+        "markdown": "[Constant.test_view_bug()](tests/constant.sol#L5-L7) is declared view but changes state variables:\n\t- [Constant.a](tests/constant.sol#L3)\n",
         "additional_fields": {
           "contains_assembly": false
-        }
-      },
-      {
+        },
         "check": "constant-function",
         "impact": "Medium",
-        "confidence": "Medium",
-        "description": "Constant.test_constant_bug() (tests/constant.sol#9-11) is declared view but changes state variables:\n\t- Constant.a\n",
+        "confidence": "Medium"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -275,15 +272,16 @@
             }
           }
         ],
+        "description": "Constant.test_constant_bug() (tests/constant.sol#9-11) is declared view but changes state variables:\n\t- Constant.a (tests/constant.sol#3)\n",
+        "markdown": "[Constant.test_constant_bug()](tests/constant.sol#L9-L11) is declared view but changes state variables:\n\t- [Constant.a](tests/constant.sol#L3)\n",
         "additional_fields": {
           "contains_assembly": false
-        }
-      },
-      {
+        },
         "check": "constant-function",
         "impact": "Medium",
-        "confidence": "Medium",
-        "description": "Constant.test_assembly_bug() (tests/constant.sol#22-24) is declared view but contains assembly code\n",
+        "confidence": "Medium"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -351,9 +349,14 @@
             }
           }
         ],
+        "description": "Constant.test_assembly_bug() (tests/constant.sol#22-24) is declared view but contains assembly code\n",
+        "markdown": "[Constant.test_assembly_bug()](tests/constant.sol#L22-L24) is declared view but contains assembly code\n",
         "additional_fields": {
           "contains_assembly": true
-        }
+        },
+        "check": "constant-function",
+        "impact": "Medium",
+        "confidence": "Medium"
       }
     ]
   }

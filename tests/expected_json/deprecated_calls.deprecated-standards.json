@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "deprecated-standards",
-        "impact": "Informational",
-        "confidence": "High",
-        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#2:\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
         "elements": [
           {
             "type": "variable",
@@ -73,13 +69,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Deprecated standard detected ContractWithDeprecatedReferences.globalBlockHash (tests/deprecated_calls.sol#2):\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
+        "markdown": "Deprecated standard detected [ContractWithDeprecatedReferences.globalBlockHash](tests/deprecated_calls.sol#L2):\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
         "check": "deprecated-standards",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#7:\n\t- Usage of \"msg.gas\" should be replaced with \"gasleft()\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "node",
@@ -172,13 +169,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Deprecated standard detected msg.gas == msg.value (tests/deprecated_calls.sol#7):\n\t- Usage of \"msg.gas\" should be replaced with \"gasleft()\"\n",
+        "markdown": "Deprecated standard detected [msg.gas == msg.value](tests/deprecated_calls.sol#L7):\n\t- Usage of \"msg.gas\" should be replaced with \"gasleft()\"\n",
         "check": "deprecated-standards",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#9:\n\t- Usage of \"throw\" should be replaced with \"revert()\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "node",
@@ -271,13 +269,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Deprecated standard detected THROW None (tests/deprecated_calls.sol#9):\n\t- Usage of \"throw\" should be replaced with \"revert()\"\n",
+        "markdown": "Deprecated standard detected [THROW None](tests/deprecated_calls.sol#L9):\n\t- Usage of \"throw\" should be replaced with \"revert()\"\n",
         "check": "deprecated-standards",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#16:\n\t- Usage of \"sha3()\" should be replaced with \"keccak256()\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "node",
@@ -376,13 +375,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Deprecated standard detected sha3Result = sha3()(test deprecated sha3 usage) (tests/deprecated_calls.sol#16):\n\t- Usage of \"sha3()\" should be replaced with \"keccak256()\"\n",
+        "markdown": "Deprecated standard detected [sha3Result = sha3()(test deprecated sha3 usage)](tests/deprecated_calls.sol#L16):\n\t- Usage of \"sha3()\" should be replaced with \"keccak256()\"\n",
         "check": "deprecated-standards",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#19:\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "node",
@@ -481,13 +481,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Deprecated standard detected blockHashResult = block.blockhash(0) (tests/deprecated_calls.sol#19):\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
+        "markdown": "Deprecated standard detected [blockHashResult = block.blockhash(0)](tests/deprecated_calls.sol#L19):\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
         "check": "deprecated-standards",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#22:\n\t- Usage of \"callcode\" should be replaced with \"delegatecall\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "node",
@@ -586,13 +587,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Deprecated standard detected address(this).callcode() (tests/deprecated_calls.sol#22):\n\t- Usage of \"callcode\" should be replaced with \"delegatecall\"\n",
+        "markdown": "Deprecated standard detected [address(this).callcode()](tests/deprecated_calls.sol#L22):\n\t- Usage of \"callcode\" should be replaced with \"delegatecall\"\n",
         "check": "deprecated-standards",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#25:\n\t- Usage of \"suicide()\" should be replaced with \"selfdestruct()\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "node",
@@ -691,13 +693,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Deprecated standard detected suicide(address)(address(0)) (tests/deprecated_calls.sol#25):\n\t- Usage of \"suicide()\" should be replaced with \"selfdestruct()\"\n",
+        "markdown": "Deprecated standard detected [suicide(address)(address(0))](tests/deprecated_calls.sol#L25):\n\t- Usage of \"suicide()\" should be replaced with \"selfdestruct()\"\n",
         "check": "deprecated-standards",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Deprecated standard detected @ tests/deprecated_calls.sol#2:\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "node",
@@ -810,7 +813,12 @@
               }
             }
           }
-        ]
+        ],
+        "description": "Deprecated standard detected globalBlockHash = block.blockhash(0) (tests/deprecated_calls.sol#2):\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
+        "markdown": "Deprecated standard detected [globalBlockHash = block.blockhash(0)](tests/deprecated_calls.sol#L2):\n\t- Usage of \"block.blockhash()\" should be replaced with \"blockhash()\"\n",
+        "check": "deprecated-standards",
+        "impact": "Informational",
+        "confidence": "High"
       }
     ]
   }

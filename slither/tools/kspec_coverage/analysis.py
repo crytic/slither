@@ -4,16 +4,18 @@ import logging
 from slither.core.declarations import Function
 from slither.core.variables.variable import Variable
 from slither.utils.colors import yellow, green, red
-from slither.utils import json_utils
+from slither.utils import output
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger('Slither.kspec')
+
 
 def _refactor_type(type):
     return {
         'uint': 'uint256',
         'int': 'int256'
     }.get(type, type)
+
 
 def _get_all_covered_kspec_functions(target):
     # Create a set of our discovered functions which are covered
@@ -56,8 +58,9 @@ def _get_slither_functions(slither):
     # TODO: integrate state variables
     all_functions_declared += list(set([s for s in slither.state_variables if s.visibility in ['public', 'external']]))
     slither_functions = {(function.contract.name, function.full_name): function for function in all_functions_declared}
-                
+
     return slither_functions
+
 
 def _generate_output(kspec, message, color, generate_json):
     info = ""
@@ -67,11 +70,12 @@ def _generate_output(kspec, message, color, generate_json):
         logger.info(color(info))
 
     if generate_json:
-        json_kspec_present = json_utils.generate_json_result(info)
+        json_kspec_present = output.Output(info)
         for function in kspec:
-            json_utils.add_function_to_json(function, json_kspec_present)
-        return json_kspec_present
+            json_kspec_present.add(function)
+        return json_kspec_present.data
     return None
+
 
 def _generate_output_unresolved(kspec, message, color, generate_json):
     info = ""
@@ -81,8 +85,8 @@ def _generate_output_unresolved(kspec, message, color, generate_json):
         logger.info(color(info))
 
     if generate_json:
-        json_kspec_present = json_utils.generate_json_result(info, additional_fields={"signatures": kspec})
-        return json_kspec_present
+        json_kspec_present = output.Output(info, additional_fields={"signatures": kspec})
+        return json_kspec_present.data
     return None
 
 
@@ -94,7 +98,6 @@ def _run_coverage_analysis(args, slither, kspec_functions):
     slither_functions_set = set(slither_functions)
     kspec_functions_resolved = kspec_functions & slither_functions_set
     kspec_functions_unresolved = kspec_functions - kspec_functions_resolved
-
 
     kspec_missing = []
     kspec_present = []
@@ -114,23 +117,24 @@ def _run_coverage_analysis(args, slither, kspec_functions):
                                                     red,
                                                     args.json)
     json_kspec_missing_variables = _generate_output([f for f in kspec_missing if isinstance(f, Variable)],
-                                                     "[ ] (Missing variable)",
-                                                     yellow,
-                                                     args.json)
+                                                    "[ ] (Missing variable)",
+                                                    yellow,
+                                                    args.json)
     json_kspec_unresolved = _generate_output_unresolved(kspec_functions_unresolved,
                                                         "[ ] (Unresolved)",
                                                         yellow,
                                                         args.json)
-    
+
     # Handle unresolved kspecs
     if args.json:
-        json_utils.output_json(args.json, None, {
-                                   "functions_present": json_kspec_present,
-                                   "functions_missing": json_kspec_missing_functions,
-                                   "variables_missing": json_kspec_missing_variables,
-                                   "functions_unresolved": json_kspec_unresolved
-                               })
-                
+        output.output_to_json(args.json, None, {
+            "functions_present": json_kspec_present,
+            "functions_missing": json_kspec_missing_functions,
+            "variables_missing": json_kspec_missing_variables,
+            "functions_unresolved": json_kspec_unresolved
+        })
+
+
 def run_analysis(args, slither, kspec):
     # Get all of our kspec'd functions (tuple(contract_name, function_name)).
     if ',' in kspec:
@@ -143,4 +147,3 @@ def run_analysis(args, slither, kspec):
 
     # Run coverage analysis
     _run_coverage_analysis(args, slither, kspec_functions)
-

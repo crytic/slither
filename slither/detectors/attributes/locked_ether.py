@@ -74,18 +74,14 @@ Every ether sent to `Locked` will be lost.'''
             funcs_payable = [function for function in contract.functions if function.payable]
             if funcs_payable:
                 if self.do_no_send_ether(contract):
-                    txt = "Contract locking ether found in {}:\n".format(self.filename)
-                    txt += "\tContract {} has payable functions:\n".format(contract.name)
+                    info = [f"Contract locking ether found in {self.filename}:\n"]
+                    info += ["\tContract ", contract, " has payable functions:\n"]
                     for function in funcs_payable:
-                        txt += "\t - {} ({})\n".format(function.name, function.source_mapping_str)
-                    txt += "\tBut does not have a function to withdraw the ether\n"
-                    info = txt.format(self.filename,
-                                      contract.name,
-                                      [f.name for f in funcs_payable])
+                        info += [f"\t - ", function, "\n"]
+                    info += "\tBut does not have a function to withdraw the ether\n"
 
-                    json = self.generate_json_result(info)
-                    self.add_contract_to_json(contract, json)
-                    self.add_functions_to_json(funcs_payable, json)
+                    json = self.generate_result(info)
+
                     results.append(json)
 
         return results

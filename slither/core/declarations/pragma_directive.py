@@ -17,5 +17,9 @@ class Pragma(SourceMapping):
     def version(self):
         return ''.join(self.directive[1:])
 
+    @property
+    def name(self):
+        return self.version
+
     def __str__(self):
         return 'pragma '+''.join(self.directive)

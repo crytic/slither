@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "uninitialized-state",
-        "impact": "High",
-        "confidence": "High",
-        "description": "Uninitialized.destination (tests/uninitialized-0.5.1.sol#5) is never initialized. It is used in:\n\t- transfer (tests/uninitialized-0.5.1.sol#7-9)\n",
         "elements": [
           {
             "type": "variable",
@@ -104,13 +100,14 @@
               "signature": "transfer()"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Uninitialized.destination (tests/uninitialized-0.5.1.sol#5) is never initialized. It is used in:\n\t- Uninitialized.transfer() (tests/uninitialized-0.5.1.sol#7-9)\n",
+        "markdown": "[Uninitialized.destination](tests/uninitialized-0.5.1.sol#L5) is never initialized. It is used in:\n\t- [Uninitialized.transfer()](tests/uninitialized-0.5.1.sol#L7-L9)\n",
         "check": "uninitialized-state",
         "impact": "High",
-        "confidence": "High",
-        "description": "Test.balances (tests/uninitialized-0.5.1.sol#15) is never initialized. It is used in:\n\t- use (tests/uninitialized-0.5.1.sol#23-26)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -218,13 +215,14 @@
               "signature": "use()"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Test.balances (tests/uninitialized-0.5.1.sol#15) is never initialized. It is used in:\n\t- Test.use() (tests/uninitialized-0.5.1.sol#23-26)\n",
+        "markdown": "[Test.balances](tests/uninitialized-0.5.1.sol#L15) is never initialized. It is used in:\n\t- [Test.use()](tests/uninitialized-0.5.1.sol#L23-L26)\n",
         "check": "uninitialized-state",
         "impact": "High",
-        "confidence": "High",
-        "description": "Test2.st (tests/uninitialized-0.5.1.sol#45) is never initialized. It is used in:\n\t- use (tests/uninitialized-0.5.1.sol#53-56)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -338,13 +336,14 @@
               "signature": "use()"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Test2.st (tests/uninitialized-0.5.1.sol#45) is never initialized. It is used in:\n\t- Test2.use() (tests/uninitialized-0.5.1.sol#53-56)\n",
+        "markdown": "[Test2.st](tests/uninitialized-0.5.1.sol#L45) is never initialized. It is used in:\n\t- [Test2.use()](tests/uninitialized-0.5.1.sol#L53-L56)\n",
         "check": "uninitialized-state",
         "impact": "High",
-        "confidence": "High",
-        "description": "Test2.v (tests/uninitialized-0.5.1.sol#47) is never initialized. It is used in:\n\t- init (tests/uninitialized-0.5.1.sol#49-51)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -457,7 +456,12 @@
               "signature": "init()"
             }
           }
-        ]
+        ],
+        "description": "Test2.v (tests/uninitialized-0.5.1.sol#47) is never initialized. It is used in:\n\t- Test2.init() (tests/uninitialized-0.5.1.sol#49-51)\n",
+        "markdown": "[Test2.v](tests/uninitialized-0.5.1.sol#L47) is never initialized. It is used in:\n\t- [Test2.init()](tests/uninitialized-0.5.1.sol#L49-L51)\n",
+        "check": "uninitialized-state",
+        "impact": "High",
+        "confidence": "High"
       }
     ]
   }

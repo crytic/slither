@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "pragma",
-        "impact": "Informational",
-        "confidence": "High",
-        "description": "Different versions of Solidity is used in :\n\t- Version used: ['^0.4.23', '^0.4.24']\n\t- tests/pragma.0.4.23.sol#1 declares pragma solidity^0.4.23\n\t- tests/pragma.0.4.24.sol#1 declares pragma solidity^0.4.24\n",
         "elements": [
           {
             "type": "pragma",
@@ -61,7 +57,12 @@
               ]
             }
           }
-        ]
+        ],
+        "description": "Different versions of Solidity is used in :\n\t- Version used: ['^0.4.23', '^0.4.24']\n\t- ^0.4.23 (tests/pragma.0.4.23.sol#1)\n\t- ^0.4.24 (tests/pragma.0.4.24.sol#1)\n",
+        "markdown": "Different versions of Solidity is used in :\n\t- Version used: ['^0.4.23', '^0.4.24']\n\t- [^0.4.23](tests/pragma.0.4.23.sol#L1)\n\t- [^0.4.24](tests/pragma.0.4.24.sol#L1)\n",
+        "check": "pragma",
+        "impact": "Informational",
+        "confidence": "High"
       }
     ]
   }

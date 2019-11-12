@@ -1,7 +1,7 @@
-INFO:Detectors:[92m
+[92m
 Different versions of Solidity is used in :
 	- Version used: ['^0.4.23', '^0.4.24']
-	- tests/pragma.0.4.23.sol#1 declares pragma solidity^0.4.23
-	- tests/pragma.0.4.24.sol#1 declares pragma solidity^0.4.24
+	- ^0.4.23 (tests/pragma.0.4.23.sol#1)
+	- ^0.4.24 (tests/pragma.0.4.24.sol#1)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used[0m
-INFO:Slither:tests/pragma.0.4.24.sol analyzed (1 contracts), 1 result(s) found
+tests/pragma.0.4.24.sol analyzed (1 contracts with 1 detectors), 1 result(s) found
