@@ -80,7 +80,7 @@ Every ether sent to `Locked` will be lost.'''
                         info += [f"\t - ", function, "\n"]
                     info += "\tBut does not have a function to withdraw the ether\n"
 
-                    json = self.generate_json_result(info)
+                    json = self.generate_result(info)
 
                     results.append(json)
 

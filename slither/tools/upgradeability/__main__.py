@@ -7,7 +7,7 @@ from slither import Slither
 from crytic_compile import cryticparser
 from slither.exceptions import SlitherException
 from slither.utils.colors import red
-from slither.utils.json_utils import output_json
+from slither.utils.output import output_to_json
 
 from .compare_variables_order import compare_variables_order
 from .compare_function_ids import compare_function_ids
@@ -135,7 +135,7 @@ def main():
             info = 'Contract {} not found in {}'.format(v1_name, v1.filename)
             logger.error(red(info))
             if args.json:
-                output_json(args.json, str(info), {"upgradeability-check": json_results})
+                output_to_json(args.json, str(info), {"upgradeability-check": json_results})
             return
 
         _checks_on_contract(v1_contract, json_results)
@@ -153,7 +153,7 @@ def main():
                 info = 'Proxy {} not found in {}'.format(args.proxy_name, proxy.filename)
                 logger.error(red(info))
                 if args.json:
-                    output_json(args.json, str(info), {"upgradeability-check": json_results})
+                    output_to_json(args.json, str(info), {"upgradeability-check": json_results})
                 return
             json_results['proxy-present'] = True
             _checks_on_contract_and_proxy(v1_contract, proxy_contract, json_results)
@@ -170,7 +170,7 @@ def main():
                 info = 'New logic contract {} not found in {}'.format(args.new_contract_name, v2.filename)
                 logger.error(red(info))
                 if args.json:
-                    output_json(args.json, str(info), {"upgradeability-check": json_results})
+                    output_to_json(args.json, str(info), {"upgradeability-check": json_results})
                 return
             json_results['contract_v2-present'] = True
 
@@ -183,12 +183,12 @@ def main():
             _checks_on_contract_update(v1_contract, v2_contract, json_results)
 
         if args.json:
-            output_json(args.json, None, {"upgradeability-check": json_results})
+            output_to_json(args.json, None, {"upgradeability-check": json_results})
 
     except SlitherException as e:
         logger.error(str(e))
         if args.json:
-            output_json(args.json, str(e), {"upgradeability-check": json_results})
+            output_to_json(args.json, str(e), {"upgradeability-check": json_results})
         return
 
 # endregion

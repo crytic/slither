@@ -1,6 +1,6 @@
 import logging
 
-from slither.utils import json_utils
+from slither.utils import output
 from slither.utils.colors import red, green
 
 logger = logging.getLogger("Slither-check-upgradeability")
@@ -20,9 +20,9 @@ def check_variable_initialization(contract):
         if s.initialized and not s.is_constant:
             info = f'{s.canonical_name} has an initial value ({s.source_mapping_str})'
             logger.info(red(info))
-            json_elem = json_utils.generate_json_result(info)
-            json_utils.add_variable_to_json(s, json_elem)
-            results['variables-initialized'].append(json_elem)
+            res = output.Output(info)
+            res.add(s)
+            results['variables-initialized'].append(res.data)
             error_found = True
 
     if not error_found:

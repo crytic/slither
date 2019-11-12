@@ -109,8 +109,8 @@ contract Bug {
                         info += ["\t- ", overshadowed_entry[1], f" ({overshadowed_entry[0]})\n"]
 
                     # Generate relevant JSON data for this shadowing definition.
-                    json = self.generate_json_result(info)
+                    res = self.generate_result(info)
 
-                    results.append(json)
+                    results.append(res)
 
         return results

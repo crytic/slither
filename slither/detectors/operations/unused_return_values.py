@@ -76,9 +76,9 @@ contract MyConc{
                     for node in unused_return:
                         info = [f, f" ignores return value by ", node, "\n"]
 
-                        json = self.generate_json_result(info)
+                        res = self.generate_result(info)
 
-                        results.append(json)
+                        results.append(res)
 
         return results
 

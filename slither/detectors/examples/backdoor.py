@@ -29,8 +29,8 @@ class Backdoor(AbstractDetector):
                     info = ['Backdoor function found in ', f, '\n']
 
                     # Add the result in result
-                    json = self.generate_json_result(info)
+                    res = self.generate_result(info)
 
-                    results.append(json)
+                    results.append(res)
 
         return results

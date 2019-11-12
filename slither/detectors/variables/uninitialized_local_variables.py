@@ -99,7 +99,7 @@ Bob calls `transfer`. As a result, the ethers are sent to the address 0x0 and ar
         for(function, uninitialized_local_variable) in all_results:
 
             info = [uninitialized_local_variable, " is a local variable never initialiazed\n"]
-            json = self.generate_json_result(info)
+            json = self.generate_result(info)
             results.append(json)
 
         return results

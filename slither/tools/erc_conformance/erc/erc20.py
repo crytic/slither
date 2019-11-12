@@ -1,6 +1,6 @@
 import logging
 
-from slither.utils import json_utils
+from slither.utils import output
 
 logger = logging.getLogger("Slither-conformance")
 
@@ -18,9 +18,9 @@ def approval_race_condition(contract, ret):
         txt = f'\t[ ] {contract.name} is not protected for the ERC20 approval race condition'
         logger.info(txt)
 
-        lack_of_erc20_race_condition_protection = json_utils.generate_json_result(txt)
-        json_utils.add_contract_to_json(contract, lack_of_erc20_race_condition_protection)
-        ret["lack_of_erc20_race_condition_protection"].append(lack_of_erc20_race_condition_protection)
+        lack_of_erc20_race_condition_protection = output.Output(txt)
+        lack_of_erc20_race_condition_protection.add(contract)
+        ret["lack_of_erc20_race_condition_protection"].append(lack_of_erc20_race_condition_protection.data)
 
 
 def check_erc20(contract, ret, explored=None):

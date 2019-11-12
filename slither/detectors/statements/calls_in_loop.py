@@ -88,7 +88,7 @@ If one of the destinations has a fallback function which reverts, `bad` will alw
                 func = node.function
 
                 info = [func, " has external calls inside a loop: ", node, "\n"]
-                json = self.generate_json_result(info)
-                results.append(json)
+                res = self.generate_result(info)
+                results.append(res)
 
         return results

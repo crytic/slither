@@ -69,7 +69,7 @@ Use:
                         node_info = func_info + ['\n\t- ', node,'\n']
 
                         # Add the result in result
-                        json = self.generate_json_result(node_info)
-                        results.append(json)
+                        res = self.generate_result(node_info)
+                        results.append(res)
 
         return results

@@ -36,9 +36,9 @@ class ConstantPragma(AbstractDetector):
             for p in pragma:
                 info += ["\t- ", p, "\n"]
 
-            json = self.generate_json_result(info)
+            res = self.generate_result(info)
 
-            results.append(json)
+            results.append(res)
 
         return results
 

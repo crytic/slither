@@ -39,7 +39,7 @@ By reading B's constructor definition, the reader might assume that `A()` initia
                             info = ["Void constructor called in ", cst, ":\n"]
                             info += ["\t- ", node, "\n"]
 
-                            json = self.generate_json_result(info)
+                            res = self.generate_result(info)
 
-                            results.append(json)
+                            results.append(res)
         return results

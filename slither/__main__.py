@@ -19,7 +19,7 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
-from slither.utils.json_utils import output_json
+from slither.utils.output import output_to_json
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, yellow, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
@@ -638,7 +638,7 @@ def main_impl(all_detector_classes, all_printer_classes):
                 'stderr': StandardOutputCapture.get_stderr_output()
             }
         StandardOutputCapture.disable()
-        output_json(None if outputting_json_stdout else args.json, output_error, json_results)
+        output_to_json(None if outputting_json_stdout else args.json, output_error, json_results)
 
     # Exit with the appropriate status code
     if output_error:

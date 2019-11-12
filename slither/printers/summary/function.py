@@ -70,8 +70,8 @@ class FunctionSummary(AbstractPrinter):
             all_tables.append((name, table))
             all_txt += txt
 
-        json = self.generate_json_result(all_txt)
+        res = self.generate_output(all_txt)
         for name, table in all_tables:
-            self.add_pretty_table_to_json(table, name, json)
+            res.add_pretty_table(table, name)
 
-        return json
+        return res

@@ -75,6 +75,6 @@ class PrinterInheritance(AbstractPrinter):
                     result['base_to_child'][base.name]['not_immediate'] = list(map(str, immediate))
         self.info(info)
 
-        json = self.generate_json_result(info, additional_fields=result)
+        res = self.generate_output(info, additional_fields=result)
 
-        return json
+        return res

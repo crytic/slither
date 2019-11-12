@@ -88,25 +88,25 @@ Do not report reentrancies that involve ethers (see `reentrancy-eth`)'''
                 info += ['\t- ', v, ' in ', node, '\n']
 
             # Create our JSON result
-            json = self.generate_json_result(info)
+            res = self.generate_result(info)
 
             # Add the function with the re-entrancy first
-            self.add_function_to_json(func, json)
+            res.add(func)
 
             # Add all underlying calls in the function which are potentially problematic.
             for call_info in calls:
-                self.add_node_to_json(call_info, json, {
+                res.add(call_info, {
                     "underlying_type": "external_calls"
                 })
 
             # Add all variables written via nodes which write them.
             for (v, node) in varsWritten:
-                self.add_node_to_json(node, json, {
+                res.add(node, {
                     "underlying_type": "variables_written",
                     "variable_name": v.name
                 })
 
             # Append our result
-            results.append(json)
+            results.append(res)
 
         return results

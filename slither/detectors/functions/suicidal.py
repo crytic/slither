@@ -75,8 +75,8 @@ Bob calls `kill` and destructs the contract.'''
 
                 info = [func, " allows anyone to destruct the contract\n"]
 
-                json = self.generate_json_result(info)
+                res = self.generate_result(info)
 
-                results.append(json)
+                results.append(res)
 
         return results
