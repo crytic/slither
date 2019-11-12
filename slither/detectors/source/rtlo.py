@@ -68,7 +68,9 @@ contract Token
                 else:
                     # We found another instance of the character, define our output
                     idx = start_index + result_index
-                    info = f"{filename} contains a unicode right-to-left-override character at byte offset {idx}:\n"
+                    
+                    relative = self.slither.crytic_compile.filename_lookup(filename).relative
+                    info = f"{relative} contains a unicode right-to-left-override character at byte offset {idx}:\n"
 
                     # We have a patch, so pattern.find will return at least one result
 
