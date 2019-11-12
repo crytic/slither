@@ -156,6 +156,7 @@
         ],
         "description": "TxOrigin.bug0() (tests/tx_origin.sol#9-11) uses tx.origin for authorization: require(bool)(tx.origin == owner) (tests/tx_origin.sol#10)\n",
         "markdown": "[TxOrigin.bug0()](tests/tx_origin.sol#L9-L11) uses tx.origin for authorization: [require(bool)(tx.origin == owner)](tests/tx_origin.sol#L10)\n",
+        "id": "ee75fdded0c273df2f7875bab74fc778ff8f0c85bbed968c80d5fd787bbef62e",
         "check": "tx-origin",
         "impact": "Medium",
         "confidence": "Medium"
@@ -317,6 +318,7 @@
         ],
         "description": "TxOrigin.bug2() (tests/tx_origin.sol#13-17) uses tx.origin for authorization: tx.origin != owner (tests/tx_origin.sol#14)\n",
         "markdown": "[TxOrigin.bug2()](tests/tx_origin.sol#L13-L17) uses tx.origin for authorization: [tx.origin != owner](tests/tx_origin.sol#L14)\n",
+        "id": "76446f7e20ba58a5f2094d357d8982c01225c8f61d73f33ed98316c3a4e892f0",
         "check": "tx-origin",
         "impact": "Medium",
         "confidence": "Medium"

@@ -130,6 +130,7 @@
         ],
         "description": "MyConc.bad(address) (tests/unchecked_lowlevel-0.5.1.sol#2-4) ignores return value by dst.call.value(msg.value)() (tests/unchecked_lowlevel-0.5.1.sol#3)\n",
         "markdown": "[MyConc.bad(address)](tests/unchecked_lowlevel-0.5.1.sol#L2-L4) ignores return value by [dst.call.value(msg.value)()](tests/unchecked_lowlevel-0.5.1.sol#L3)\n",
+        "id": "44ab2ac22a418dc8ec66536dc7409a0a2c23fd3276b3fb7fe919ec1f1eaf483f",
         "check": "unchecked-lowlevel",
         "impact": "Medium",
         "confidence": "Medium"

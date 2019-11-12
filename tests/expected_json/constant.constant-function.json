@@ -135,6 +135,7 @@
         ],
         "description": "Constant.test_view_bug() (tests/constant.sol#5-7) is declared view but changes state variables:\n\t- Constant.a (tests/constant.sol#3)\n",
         "markdown": "[Constant.test_view_bug()](tests/constant.sol#L5-L7) is declared view but changes state variables:\n\t- [Constant.a](tests/constant.sol#L3)\n",
+        "id": "4dee61d8835d20c6f1f7c195d8bd1e9de5dbcc096396a5b8db391136f9f5fdf1",
         "additional_fields": {
           "contains_assembly": false
         },
@@ -274,6 +275,7 @@
         ],
         "description": "Constant.test_constant_bug() (tests/constant.sol#9-11) is declared view but changes state variables:\n\t- Constant.a (tests/constant.sol#3)\n",
         "markdown": "[Constant.test_constant_bug()](tests/constant.sol#L9-L11) is declared view but changes state variables:\n\t- [Constant.a](tests/constant.sol#L3)\n",
+        "id": "145e2d34dfc5b932c8d67d480c0eaec9baa8c728e2a310529572c0c4a5c6046a",
         "additional_fields": {
           "contains_assembly": false
         },
@@ -351,6 +353,7 @@
         ],
         "description": "Constant.test_assembly_bug() (tests/constant.sol#22-24) is declared view but contains assembly code\n",
         "markdown": "[Constant.test_assembly_bug()](tests/constant.sol#L22-L24) is declared view but contains assembly code\n",
+        "id": "1f892cae08b89096bdc4d6ecdf55a3adc4b4314390e054fe2547d9c8e9f76e23",
         "additional_fields": {
           "contains_assembly": true
         },

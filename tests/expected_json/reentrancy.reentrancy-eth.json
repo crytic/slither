@@ -400,6 +400,7 @@
         ],
         "description": "Reentrancy in Reentrancy.withdrawBalance() (tests/reentrancy.sol#14-21):\n\tExternal calls:\n\t- ! (msg.sender.call.value(userBalance[msg.sender])()) (tests/reentrancy.sol#17)\n\tState variables written after the call(s):\n\t- Reentrancy.userBalance (tests/reentrancy.sol#4) in userBalance[msg.sender] = 0 (tests/reentrancy.sol#20)\n",
         "markdown": "Reentrancy in [Reentrancy.withdrawBalance()](tests/reentrancy.sol#L14-L21):\n\tExternal calls:\n\t- [! (msg.sender.call.value(userBalance[msg.sender])())](tests/reentrancy.sol#L17)\n\tState variables written after the call(s):\n\t- [Reentrancy.userBalance](tests/reentrancy.sol#L4) in [userBalance[msg.sender] = 0](tests/reentrancy.sol#L20)\n",
+        "id": "330f0fadcfdda2b4364ee67d3112ff00e0e369162004c451163f0663c9b01313",
         "check": "reentrancy-eth",
         "impact": "High",
         "confidence": "Medium"
@@ -798,6 +799,7 @@
         ],
         "description": "Reentrancy in Reentrancy.withdrawBalance_nested() (tests/reentrancy.sol#64-70):\n\tExternal calls:\n\t- msg.sender.call.value(amount / 2)() (tests/reentrancy.sol#67)\n\tState variables written after the call(s):\n\t- Reentrancy.userBalance (tests/reentrancy.sol#4) in userBalance[msg.sender] = 0 (tests/reentrancy.sol#68)\n",
         "markdown": "Reentrancy in [Reentrancy.withdrawBalance_nested()](tests/reentrancy.sol#L64-L70):\n\tExternal calls:\n\t- [msg.sender.call.value(amount / 2)()](tests/reentrancy.sol#L67)\n\tState variables written after the call(s):\n\t- [Reentrancy.userBalance](tests/reentrancy.sol#L4) in [userBalance[msg.sender] = 0](tests/reentrancy.sol#L68)\n",
+        "id": "30220828bfef61c2377527c7cee2ae5be443001f8dd39992d6e5af67153c402f",
         "check": "reentrancy-eth",
         "impact": "High",
         "confidence": "Medium"

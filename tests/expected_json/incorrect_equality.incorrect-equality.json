@@ -146,6 +146,7 @@
         ],
         "description": "ERC20TestBalance.bad0(ERC20Function) (tests/incorrect_equality.sol#21-23) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(address(this)) == 10) (tests/incorrect_equality.sol#22)\n",
         "markdown": "[ERC20TestBalance.bad0(ERC20Function)](tests/incorrect_equality.sol#L21-L23) uses a dangerous strict equality:\n\t- [require(bool)(erc.balanceOf(address(this)) == 10)](tests/incorrect_equality.sol#L22)\n",
+        "id": "75aa0ac0f7038b6a92030dee5c4c8f4cc6ab3f491558e18c61b6db5fbbf971e4",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
@@ -293,6 +294,7 @@
         ],
         "description": "ERC20TestBalance.bad1(ERC20Variable) (tests/incorrect_equality.sol#25-27) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(msg.sender) == 10) (tests/incorrect_equality.sol#26)\n",
         "markdown": "[ERC20TestBalance.bad1(ERC20Variable)](tests/incorrect_equality.sol#L25-L27) uses a dangerous strict equality:\n\t- [require(bool)(erc.balanceOf(msg.sender) == 10)](tests/incorrect_equality.sol#L26)\n",
+        "id": "747d47c020b94e00fa06cc310b205306c37fda3811bafde5ee820ff84656127e",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
@@ -540,6 +542,7 @@
         ],
         "description": "TestContractBalance.bad0() (tests/incorrect_equality.sol#32-35) uses a dangerous strict equality:\n\t- require(bool)(address(address(this)).balance == 10000000000000000000) (tests/incorrect_equality.sol#33)\n",
         "markdown": "[TestContractBalance.bad0()](tests/incorrect_equality.sol#L32-L35) uses a dangerous strict equality:\n\t- [require(bool)(address(address(this)).balance == 10000000000000000000)](tests/incorrect_equality.sol#L33)\n",
+        "id": "90491e5c72bcd00b473b5d5748a62145c1c156d5805735ee893953595c144f7b",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
@@ -787,6 +790,7 @@
         ],
         "description": "TestContractBalance.bad1() (tests/incorrect_equality.sol#37-40) uses a dangerous strict equality:\n\t- require(bool)(10000000000000000000 == address(address(this)).balance) (tests/incorrect_equality.sol#38)\n",
         "markdown": "[TestContractBalance.bad1()](tests/incorrect_equality.sol#L37-L40) uses a dangerous strict equality:\n\t- [require(bool)(10000000000000000000 == address(address(this)).balance)](tests/incorrect_equality.sol#L38)\n",
+        "id": "1931d5770ec78d317bd036dc509a5f9914db54236e9ae451204efc17559396cb",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
@@ -1034,6 +1038,7 @@
         ],
         "description": "TestContractBalance.bad2() (tests/incorrect_equality.sol#42-45) uses a dangerous strict equality:\n\t- require(bool)(address(this).balance == 10000000000000000000) (tests/incorrect_equality.sol#43)\n",
         "markdown": "[TestContractBalance.bad2()](tests/incorrect_equality.sol#L42-L45) uses a dangerous strict equality:\n\t- [require(bool)(address(this).balance == 10000000000000000000)](tests/incorrect_equality.sol#L43)\n",
+        "id": "55f882e1ab114a792fce75d5cce66a3213ac069aa7cbb5625ca5623eb20171a0",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
@@ -1281,6 +1286,7 @@
         ],
         "description": "TestContractBalance.bad3() (tests/incorrect_equality.sol#47-50) uses a dangerous strict equality:\n\t- require(bool)(10000000000000000000 == address(this).balance) (tests/incorrect_equality.sol#48)\n",
         "markdown": "[TestContractBalance.bad3()](tests/incorrect_equality.sol#L47-L50) uses a dangerous strict equality:\n\t- [require(bool)(10000000000000000000 == address(this).balance)](tests/incorrect_equality.sol#L48)\n",
+        "id": "0f6f6872f53fd271e9a246cb5d6bbe56cdeb34df832f28844dd1e758d1ea8e20",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
@@ -1532,6 +1538,7 @@
         ],
         "description": "TestContractBalance.bad4() (tests/incorrect_equality.sol#52-57) uses a dangerous strict equality:\n\t- balance == 10000000000000000000 (tests/incorrect_equality.sol#54)\n",
         "markdown": "[TestContractBalance.bad4()](tests/incorrect_equality.sol#L52-L57) uses a dangerous strict equality:\n\t- [balance == 10000000000000000000](tests/incorrect_equality.sol#L54)\n",
+        "id": "10a836ebf912b1c384df149242be6ac888bd7739ab7b0e28e20221665a35dc1b",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
@@ -1783,6 +1790,7 @@
         ],
         "description": "TestContractBalance.bad5() (tests/incorrect_equality.sol#59-64) uses a dangerous strict equality:\n\t- 10000000000000000000 == balance (tests/incorrect_equality.sol#61)\n",
         "markdown": "[TestContractBalance.bad5()](tests/incorrect_equality.sol#L59-L64) uses a dangerous strict equality:\n\t- [10000000000000000000 == balance](tests/incorrect_equality.sol#L61)\n",
+        "id": "627eca9af27adf553a7508940ba1f8985ab374b291311fab8ca51db936af8a45",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
@@ -2034,6 +2042,7 @@
         ],
         "description": "TestContractBalance.bad6() (tests/incorrect_equality.sol#66-71) uses a dangerous strict equality:\n\t- balance == 10000000000000000000 (tests/incorrect_equality.sol#68)\n",
         "markdown": "[TestContractBalance.bad6()](tests/incorrect_equality.sol#L66-L71) uses a dangerous strict equality:\n\t- [balance == 10000000000000000000](tests/incorrect_equality.sol#L68)\n",
+        "id": "76e879b9ffe8cbfbecfe665508a4e826d2f7a1276895e72df3c027f8e7d48dc5",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
@@ -2217,6 +2226,7 @@
         ],
         "description": "TestSolidityKeyword.bad0() (tests/incorrect_equality.sol#123-125) uses a dangerous strict equality:\n\t- require(bool)(now == 0) (tests/incorrect_equality.sol#124)\n",
         "markdown": "[TestSolidityKeyword.bad0()](tests/incorrect_equality.sol#L123-L125) uses a dangerous strict equality:\n\t- [require(bool)(now == 0)](tests/incorrect_equality.sol#L124)\n",
+        "id": "e1a99aa0ace22569091c55b4b2c0d5f6b2650aa86a5e65aba3c7fa75ab50c5e9",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
@@ -2400,6 +2410,7 @@
         ],
         "description": "TestSolidityKeyword.bad1() (tests/incorrect_equality.sol#127-129) uses a dangerous strict equality:\n\t- require(bool)(block.number == 0) (tests/incorrect_equality.sol#128)\n",
         "markdown": "[TestSolidityKeyword.bad1()](tests/incorrect_equality.sol#L127-L129) uses a dangerous strict equality:\n\t- [require(bool)(block.number == 0)](tests/incorrect_equality.sol#L128)\n",
+        "id": "554e3fc05ff46a0c04a7a239f3ed04926fd3506208c5badaaebb1dc4ba8ef13a",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
@@ -2583,6 +2594,7 @@
         ],
         "description": "TestSolidityKeyword.bad2() (tests/incorrect_equality.sol#131-133) uses a dangerous strict equality:\n\t- require(bool)(block.number == 0) (tests/incorrect_equality.sol#132)\n",
         "markdown": "[TestSolidityKeyword.bad2()](tests/incorrect_equality.sol#L131-L133) uses a dangerous strict equality:\n\t- [require(bool)(block.number == 0)](tests/incorrect_equality.sol#L132)\n",
+        "id": "820ed197f8fa55086981bdcc258e50464c75815e1ec873a426297361ad32e1d8",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"

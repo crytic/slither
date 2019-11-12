@@ -103,6 +103,7 @@
         ],
         "description": "Uninitialized.destination (tests/uninitialized.sol#5) is never initialized. It is used in:\n\t- Uninitialized.transfer() (tests/uninitialized.sol#7-9)\n",
         "markdown": "[Uninitialized.destination](tests/uninitialized.sol#L5) is never initialized. It is used in:\n\t- [Uninitialized.transfer()](tests/uninitialized.sol#L7-L9)\n",
+        "id": "e4711aebbd53922a9fe1e728917bf8e98eac065305e20d766b6b552debe79e44",
         "check": "uninitialized-state",
         "impact": "High",
         "confidence": "High"
@@ -218,6 +219,7 @@
         ],
         "description": "Test.balances (tests/uninitialized.sol#15) is never initialized. It is used in:\n\t- Test.use() (tests/uninitialized.sol#23-26)\n",
         "markdown": "[Test.balances](tests/uninitialized.sol#L15) is never initialized. It is used in:\n\t- [Test.use()](tests/uninitialized.sol#L23-L26)\n",
+        "id": "a2750d175b02d51aeb47a4576f74725ba991d3c8cf828a33ee78ccc34cf9e7d7",
         "check": "uninitialized-state",
         "impact": "High",
         "confidence": "High"
@@ -339,6 +341,7 @@
         ],
         "description": "Test2.st (tests/uninitialized.sol#45) is never initialized. It is used in:\n\t- Test2.use() (tests/uninitialized.sol#53-56)\n",
         "markdown": "[Test2.st](tests/uninitialized.sol#L45) is never initialized. It is used in:\n\t- [Test2.use()](tests/uninitialized.sol#L53-L56)\n",
+        "id": "427f100397f455d8000eff7b1d2463763ca8e452d5d98f7b7de693fd5e625a32",
         "check": "uninitialized-state",
         "impact": "High",
         "confidence": "High"
@@ -459,6 +462,7 @@
         ],
         "description": "Test2.v (tests/uninitialized.sol#47) is never initialized. It is used in:\n\t- Test2.init() (tests/uninitialized.sol#49-51)\n",
         "markdown": "[Test2.v](tests/uninitialized.sol#L47) is never initialized. It is used in:\n\t- [Test2.init()](tests/uninitialized.sol#L49-L51)\n",
+        "id": "bf96eee949943a12926cf1407a2df2b07e99b30a6fc2e78aebf088cdefcf77a7",
         "check": "uninitialized-state",
         "impact": "High",
         "confidence": "High"

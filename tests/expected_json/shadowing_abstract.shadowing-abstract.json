@@ -90,6 +90,7 @@
         ],
         "description": "DerivedContract.owner (tests/shadowing_abstract.sol#7) shadows:\n\t- BaseContract.owner (tests/shadowing_abstract.sol#2)\n",
         "markdown": "[DerivedContract.owner](tests/shadowing_abstract.sol#L7) shadows:\n\t- [BaseContract.owner](tests/shadowing_abstract.sol#L2)\n",
+        "id": "9c5c3fc5091b9ecd6ec271fdbb3036d9d3426cdf9a09d6cc293fd7de9240e4ab",
         "check": "shadowing-abstract",
         "impact": "Medium",
         "confidence": "High"
