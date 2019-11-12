@@ -219,7 +219,7 @@ class Output:
                                        additional_fields)
         self._data['elements'].append(element)
 
-    def add_variables_to_output(self, variables):
+    def add_variables(self, variables):
         for variable in sorted(variables, key=lambda x: x.name):
             self.add_variable(variable)
 
