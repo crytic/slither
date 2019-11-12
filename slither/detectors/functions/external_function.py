@@ -182,17 +182,14 @@ class ExternalFunction(AbstractDetector):
                     function_definition = all_function_definitions[0]
                     all_function_definitions = all_function_definitions[1:]
 
-                    txt = f"{function_definition.full_name} should be declared external:\n"
-                    txt += f"\t- {function_definition.canonical_name} ({function_definition.source_mapping_str})\n"
+                    info = [f"{function_definition.full_name} should be declared external:\n"]
+                    info += [f"\t- ", function_definition, "\n"]
                     for other_function_definition in all_function_definitions:
-                        txt += f"\t- {other_function_definition.canonical_name}"
-                        txt += f" ({other_function_definition.source_mapping_str})\n"
+                        info += [f"\t- ", other_function_definition, "\n"]
 
-                    json = self.generate_json_result(txt)
-                    self.add_function_to_json(function_definition, json)
-                    for other_function_definition in all_function_definitions:
-                        self.add_function_to_json(other_function_definition, json)
-                    results.append(json)
+                    res = self.generate_result(info)
+
+                    results.append(res)
 
         return results
 

@@ -64,15 +64,12 @@ Use:
                 # iterate over all the nodes
                 ret = self._detect_too_many_digits(f)
                 if ret:
-                    func_info = '{}.{} ({}) uses literals with too many digits:'.format(f.contract.name,
-                                                                                   f.name,
-                                                                                   f.source_mapping_str)
+                    func_info = [f, ' uses literals with too many digits:']
                     for node in ret:
-                        node_info = func_info + '\n\t- {}\n'.format(node.expression)
+                        node_info = func_info + ['\n\t- ', node,'\n']
 
                         # Add the result in result
-                        json = self.generate_json_result(node_info)
-                        self.add_node_to_json(node, json)
-                        results.append(json)
+                        res = self.generate_result(node_info)
+                        results.append(res)
 
         return results

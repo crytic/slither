@@ -1,15 +1,15 @@
-INFO:Detectors:[92m
-FurtherExtendedContract.shadowingParent.x (local variable @ tests/shadowing_local_variable.sol#25) shadows:
-	- FurtherExtendedContract.x (state variable @ tests/shadowing_local_variable.sol#17)
-	- ExtendedContract.x (state variable @ tests/shadowing_local_variable.sol#9)
-	- BaseContract.x (state variable @ tests/shadowing_local_variable.sol#4)
-FurtherExtendedContract.shadowingParent.y (local variable @ tests/shadowing_local_variable.sol#25) shadows:
-	- BaseContract.y (state variable @ tests/shadowing_local_variable.sol#5)
-FurtherExtendedContract.shadowingParent.z (local variable @ tests/shadowing_local_variable.sol#25) shadows:
-	- ExtendedContract.z (function @ tests/shadowing_local_variable.sol#11)
-FurtherExtendedContract.shadowingParent.w (local variable @ tests/shadowing_local_variable.sol#25) shadows:
-	- FurtherExtendedContract.w (modifier @ tests/shadowing_local_variable.sol#20-23)
-FurtherExtendedContract.shadowingParent.v (local variable @ tests/shadowing_local_variable.sol#25) shadows:
-	- ExtendedContract.v (event @ tests/shadowing_local_variable.sol#13)
+[92m
+FurtherExtendedContract.shadowingParent(uint256).x (tests/shadowing_local_variable.sol#25) shadows:
+	- FurtherExtendedContract.x (tests/shadowing_local_variable.sol#17) (state variable)
+	- ExtendedContract.x (tests/shadowing_local_variable.sol#9) (state variable)
+	- BaseContract.x (tests/shadowing_local_variable.sol#4) (state variable)
+FurtherExtendedContract.shadowingParent(uint256).y (tests/shadowing_local_variable.sol#25) shadows:
+	- BaseContract.y (tests/shadowing_local_variable.sol#5) (state variable)
+FurtherExtendedContract.shadowingParent(uint256).z (tests/shadowing_local_variable.sol#25) shadows:
+	- ExtendedContract.z() (tests/shadowing_local_variable.sol#11) (function)
+FurtherExtendedContract.shadowingParent(uint256).w (tests/shadowing_local_variable.sol#25) shadows:
+	- FurtherExtendedContract.w() (tests/shadowing_local_variable.sol#20-23) (modifier)
+FurtherExtendedContract.shadowingParent(uint256).v (tests/shadowing_local_variable.sol#25) shadows:
+	- ExtendedContractv() (tests/shadowing_local_variable.sol#13) (event)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing[0m
-INFO:Slither:tests/shadowing_local_variable.sol analyzed (3 contracts), 5 result(s) found
+tests/shadowing_local_variable.sol analyzed (3 contracts with 1 detectors), 5 result(s) found

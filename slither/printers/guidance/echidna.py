@@ -140,4 +140,6 @@ class Echidna(AbstractPrinter):
 
         self.info(json.dumps(d, indent=4))
 
-        return d
+        res = self.generate_output(json.dumps(d, indent=4))
+
+        return res

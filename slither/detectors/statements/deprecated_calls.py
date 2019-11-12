@@ -152,20 +152,12 @@ contract ContractWithDeprecatedReferences {
                 for deprecated_reference in deprecated_references:
                     source_object = deprecated_reference[0]
                     deprecated_entries = deprecated_reference[1]
-                    info = 'Deprecated standard detected @ {}:\n'.format(source_object.source_mapping_str)
+                    info = ['Deprecated standard detected ', source_object, ':\n']
 
                     for (dep_id, original_desc, recommended_disc) in deprecated_entries:
-                        info += "\t- Usage of \"{}\" should be replaced with \"{}\"\n".format(original_desc,
-                                                                                              recommended_disc)
+                        info += [f"\t- Usage of \"{original_desc}\" should be replaced with \"{recommended_disc}\"\n"]
 
-
-                    # Generate relevant JSON data for this deprecated standard.
-                    json = self.generate_json_result(info)
-                    if isinstance(source_object, StateVariableSolc) or isinstance(source_object, StateVariable):
-                        self.add_variable_to_json(source_object, json)
-                    else:
-                        self.add_nodes_to_json([source_object], json)
-
-                    results.append(json)
+                    res = self.generate_result(info)
+                    results.append(res)
 
         return results

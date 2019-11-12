@@ -3,7 +3,7 @@
 '''
 import logging
 
-from slither.utils import json_utils
+from slither.utils.output import Output
 from slither.utils.colors import red, green, yellow
 
 logger = logging.getLogger("Slither-check-upgradeability")
@@ -32,9 +32,9 @@ def compare_variables_order(contract1, contract2, missing_variable_check=True):
                 info = f'Variable only in {contract1.name}: {variable1.name} ({variable1.source_mapping_str})'
                 logger.info(yellow(info))
 
-                json_elem = json_utils.generate_json_result(info)
-                json_utils.add_variable_to_json(variable1, json_elem)
-                results['missing_variables'].append(json_elem)
+                res = Output(info)
+                res.add(variable1)
+                results['missing_variables'].append(res.data)
 
                 error_found = True
             continue
@@ -47,10 +47,10 @@ def compare_variables_order(contract1, contract2, missing_variable_check=True):
             info += f'\t Variable {idx} in {contract2.name}: {variable2.name} {variable2.type} ({variable2.source_mapping_str})\n'
             logger.info(red(info))
 
-            json_elem = json_utils.generate_json_result(info, additional_fields={'index': idx})
-            json_utils.add_variable_to_json(variable1, json_elem)
-            json_utils.add_variable_to_json(variable2, json_elem)
-            results['different-variables'].append(json_elem)
+            res = Output(info, additional_fields={'index': idx})
+            res.add(variable1)
+            res.add(variable2)
+            results['different-variables'].append(res.data)
 
             error_found = True
 
@@ -61,9 +61,9 @@ def compare_variables_order(contract1, contract2, missing_variable_check=True):
 
         info = f'Extra variables in {contract2.name}: {variable2.name} ({variable2.source_mapping_str})\n'
         logger.info(yellow(info))
-        json_elem = json_utils.generate_json_result(info, additional_fields={'index': idx})
-        json_utils.add_variable_to_json(variable2, json_elem)
-        results['extra-variables'].append(json_elem)
+        res = Output(info, additional_fields={'index': idx})
+        res.add(variable2)
+        results['extra-variables'].append(res.data)
         idx = idx + 1
 
     if not error_found:

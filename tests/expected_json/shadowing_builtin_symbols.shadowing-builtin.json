@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "shadowing-builtin",
-        "impact": "Low",
-        "confidence": "High",
-        "description": "BaseContract.blockhash (state variable @ tests/shadowing_builtin_symbols.sol#4) shadows built-in symbol \"blockhash\"\n",
         "elements": [
           {
             "type": "variable",
@@ -52,13 +48,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "BaseContract.blockhash (tests/shadowing_builtin_symbols.sol#4) (state variable) shadows built-in symbol\"\n",
+        "markdown": "[BaseContract.blockhash](tests/shadowing_builtin_symbols.sol#L4) (state variable) shadows built-in symbol\"\n",
         "check": "shadowing-builtin",
         "impact": "Low",
-        "confidence": "High",
-        "description": "BaseContract.now (state variable @ tests/shadowing_builtin_symbols.sol#5) shadows built-in symbol \"now\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -103,13 +100,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "BaseContract.now (tests/shadowing_builtin_symbols.sol#5) (state variable) shadows built-in symbol\"\n",
+        "markdown": "[BaseContract.now](tests/shadowing_builtin_symbols.sol#L5) (state variable) shadows built-in symbol\"\n",
         "check": "shadowing-builtin",
         "impact": "Low",
-        "confidence": "High",
-        "description": "BaseContract.revert (event @ tests/shadowing_builtin_symbols.sol#7) shadows built-in symbol \"revert\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "event",
@@ -155,13 +153,14 @@
               "signature": "revert(bool)"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "BaseContractrevert(bool) (tests/shadowing_builtin_symbols.sol#7) (event) shadows built-in symbol\"\n",
+        "markdown": "[BaseContractrevert(bool)](tests/shadowing_builtin_symbols.sol#L7) (event) shadows built-in symbol\"\n",
         "check": "shadowing-builtin",
         "impact": "Low",
-        "confidence": "High",
-        "description": "ExtendedContract.assert (function @ tests/shadowing_builtin_symbols.sol#13-15) shadows built-in symbol \"assert\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -210,13 +209,14 @@
               "signature": "assert(bool)"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "ExtendedContract.assert(bool) (tests/shadowing_builtin_symbols.sol#13-15) (function) shadows built-in symbol\"\n",
+        "markdown": "[ExtendedContract.assert(bool)](tests/shadowing_builtin_symbols.sol#L13-L15) (function) shadows built-in symbol\"\n",
         "check": "shadowing-builtin",
         "impact": "Low",
-        "confidence": "High",
-        "description": "ExtendedContract.assert.msg (local variable @ tests/shadowing_builtin_symbols.sol#14) shadows built-in symbol \"msg\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -285,13 +285,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "ExtendedContract.assert(bool).msg (tests/shadowing_builtin_symbols.sol#14) (local variable) shadows built-in symbol\"\n",
+        "markdown": "[ExtendedContract.assert(bool).msg](tests/shadowing_builtin_symbols.sol#L14) (local variable) shadows built-in symbol\"\n",
         "check": "shadowing-builtin",
         "impact": "Low",
-        "confidence": "High",
-        "description": "ExtendedContract.ecrecover (state variable @ tests/shadowing_builtin_symbols.sol#11) shadows built-in symbol \"ecrecover\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -337,13 +338,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "ExtendedContract.ecrecover (tests/shadowing_builtin_symbols.sol#11) (state variable) shadows built-in symbol\"\n",
+        "markdown": "[ExtendedContract.ecrecover](tests/shadowing_builtin_symbols.sol#L11) (state variable) shadows built-in symbol\"\n",
         "check": "shadowing-builtin",
         "impact": "Low",
-        "confidence": "High",
-        "description": "FurtherExtendedContract.require (modifier @ tests/shadowing_builtin_symbols.sol#23-28) shadows built-in symbol \"require\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -400,13 +402,14 @@
               "signature": "require()"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "FurtherExtendedContract.require() (tests/shadowing_builtin_symbols.sol#23-28) (modifier) shadows built-in symbol\"\n",
+        "markdown": "[FurtherExtendedContract.require()](tests/shadowing_builtin_symbols.sol#L23-L28) (modifier) shadows built-in symbol\"\n",
         "check": "shadowing-builtin",
         "impact": "Low",
-        "confidence": "High",
-        "description": "FurtherExtendedContract.require.keccak256 (local variable @ tests/shadowing_builtin_symbols.sol#25) shadows built-in symbol \"keccak256\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -483,13 +486,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "FurtherExtendedContract.require().keccak256 (tests/shadowing_builtin_symbols.sol#25) (local variable) shadows built-in symbol\"\n",
+        "markdown": "[FurtherExtendedContract.require().keccak256](tests/shadowing_builtin_symbols.sol#L25) (local variable) shadows built-in symbol\"\n",
         "check": "shadowing-builtin",
         "impact": "Low",
-        "confidence": "High",
-        "description": "FurtherExtendedContract.require.sha3 (local variable @ tests/shadowing_builtin_symbols.sol#26) shadows built-in symbol \"sha3\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -566,13 +570,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "FurtherExtendedContract.require().sha3 (tests/shadowing_builtin_symbols.sol#26) (local variable) shadows built-in symbol\"\n",
+        "markdown": "[FurtherExtendedContract.require().sha3](tests/shadowing_builtin_symbols.sol#L26) (local variable) shadows built-in symbol\"\n",
         "check": "shadowing-builtin",
         "impact": "Low",
-        "confidence": "High",
-        "description": "FurtherExtendedContract.blockhash (state variable @ tests/shadowing_builtin_symbols.sol#19) shadows built-in symbol \"blockhash\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -623,13 +628,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "FurtherExtendedContract.blockhash (tests/shadowing_builtin_symbols.sol#19) (state variable) shadows built-in symbol\"\n",
+        "markdown": "[FurtherExtendedContract.blockhash](tests/shadowing_builtin_symbols.sol#L19) (state variable) shadows built-in symbol\"\n",
         "check": "shadowing-builtin",
         "impact": "Low",
-        "confidence": "High",
-        "description": "FurtherExtendedContract.this (state variable @ tests/shadowing_builtin_symbols.sol#20) shadows built-in symbol \"this\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -680,13 +686,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "FurtherExtendedContract.this (tests/shadowing_builtin_symbols.sol#20) (state variable) shadows built-in symbol\"\n",
+        "markdown": "[FurtherExtendedContract.this](tests/shadowing_builtin_symbols.sol#L20) (state variable) shadows built-in symbol\"\n",
         "check": "shadowing-builtin",
         "impact": "Low",
-        "confidence": "High",
-        "description": "FurtherExtendedContract.abi (state variable @ tests/shadowing_builtin_symbols.sol#21) shadows built-in symbol \"abi\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -737,13 +744,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "FurtherExtendedContract.abi (tests/shadowing_builtin_symbols.sol#21) (state variable) shadows built-in symbol\"\n",
+        "markdown": "[FurtherExtendedContract.abi](tests/shadowing_builtin_symbols.sol#L21) (state variable) shadows built-in symbol\"\n",
         "check": "shadowing-builtin",
         "impact": "Low",
-        "confidence": "High",
-        "description": "Reserved.mutable (state variable @ tests/shadowing_builtin_symbols.sol#32) shadows built-in symbol \"mutable\"\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -786,7 +794,12 @@
               }
             }
           }
-        ]
+        ],
+        "description": "Reserved.mutable (tests/shadowing_builtin_symbols.sol#32) (state variable) shadows built-in symbol\"\n",
+        "markdown": "[Reserved.mutable](tests/shadowing_builtin_symbols.sol#L32) (state variable) shadows built-in symbol\"\n",
+        "check": "shadowing-builtin",
+        "impact": "Low",
+        "confidence": "High"
       }
     ]
   }

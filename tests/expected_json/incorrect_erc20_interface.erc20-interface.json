@@ -4,11 +4,32 @@
   "results": {
     "detectors": [
       {
-        "check": "erc20-interface",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: transfer(address,uint256) (tests/incorrect_erc20_interface.sol#4)\n",
         "elements": [
+          {
+            "type": "contract",
+            "name": "Token",
+            "source_mapping": {
+              "start": 26,
+              "length": 355,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+              "filename_relative": "tests/incorrect_erc20_interface.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+              "filename_short": "tests/incorrect_erc20_interface.sol",
+              "is_dependency": false,
+              "lines": [
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          },
           {
             "type": "function",
             "name": "transfer",
@@ -55,14 +76,40 @@
               "signature": "transfer(address,uint256)"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.transfer(address,uint256) (tests/incorrect_erc20_interface.sol#4)\n",
+        "markdown": "[Token](tests/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.transfer(address,uint256)](tests/incorrect_erc20_interface.sol#L4)\n",
         "check": "erc20-interface",
         "impact": "Medium",
-        "confidence": "High",
-        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: approve(address,uint256) (tests/incorrect_erc20_interface.sol#5)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
+          {
+            "type": "contract",
+            "name": "Token",
+            "source_mapping": {
+              "start": 26,
+              "length": 355,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+              "filename_relative": "tests/incorrect_erc20_interface.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+              "filename_short": "tests/incorrect_erc20_interface.sol",
+              "is_dependency": false,
+              "lines": [
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          },
           {
             "type": "function",
             "name": "approve",
@@ -109,14 +156,40 @@
               "signature": "approve(address,uint256)"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.approve(address,uint256) (tests/incorrect_erc20_interface.sol#5)\n",
+        "markdown": "[Token](tests/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.approve(address,uint256)](tests/incorrect_erc20_interface.sol#L5)\n",
         "check": "erc20-interface",
         "impact": "Medium",
-        "confidence": "High",
-        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: transferFrom(address,address,uint256) (tests/incorrect_erc20_interface.sol#6)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
+          {
+            "type": "contract",
+            "name": "Token",
+            "source_mapping": {
+              "start": 26,
+              "length": 355,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+              "filename_relative": "tests/incorrect_erc20_interface.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+              "filename_short": "tests/incorrect_erc20_interface.sol",
+              "is_dependency": false,
+              "lines": [
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          },
           {
             "type": "function",
             "name": "transferFrom",
@@ -163,14 +236,40 @@
               "signature": "transferFrom(address,address,uint256)"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.transferFrom(address,address,uint256) (tests/incorrect_erc20_interface.sol#6)\n",
+        "markdown": "[Token](tests/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.transferFrom(address,address,uint256)](tests/incorrect_erc20_interface.sol#L6)\n",
         "check": "erc20-interface",
         "impact": "Medium",
-        "confidence": "High",
-        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: totalSupply() (tests/incorrect_erc20_interface.sol#7)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
+          {
+            "type": "contract",
+            "name": "Token",
+            "source_mapping": {
+              "start": 26,
+              "length": 355,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+              "filename_relative": "tests/incorrect_erc20_interface.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+              "filename_short": "tests/incorrect_erc20_interface.sol",
+              "is_dependency": false,
+              "lines": [
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          },
           {
             "type": "function",
             "name": "totalSupply",
@@ -217,14 +316,40 @@
               "signature": "totalSupply()"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.totalSupply() (tests/incorrect_erc20_interface.sol#7)\n",
+        "markdown": "[Token](tests/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.totalSupply()](tests/incorrect_erc20_interface.sol#L7)\n",
         "check": "erc20-interface",
         "impact": "Medium",
-        "confidence": "High",
-        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: balanceOf(address) (tests/incorrect_erc20_interface.sol#8)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
+          {
+            "type": "contract",
+            "name": "Token",
+            "source_mapping": {
+              "start": 26,
+              "length": 355,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+              "filename_relative": "tests/incorrect_erc20_interface.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+              "filename_short": "tests/incorrect_erc20_interface.sol",
+              "is_dependency": false,
+              "lines": [
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          },
           {
             "type": "function",
             "name": "balanceOf",
@@ -271,14 +396,40 @@
               "signature": "balanceOf(address)"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.balanceOf(address) (tests/incorrect_erc20_interface.sol#8)\n",
+        "markdown": "[Token](tests/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.balanceOf(address)](tests/incorrect_erc20_interface.sol#L8)\n",
         "check": "erc20-interface",
         "impact": "Medium",
-        "confidence": "High",
-        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface: allowance(address,address) (tests/incorrect_erc20_interface.sol#9)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
+          {
+            "type": "contract",
+            "name": "Token",
+            "source_mapping": {
+              "start": 26,
+              "length": 355,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+              "filename_relative": "tests/incorrect_erc20_interface.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_erc20_interface.sol",
+              "filename_short": "tests/incorrect_erc20_interface.sol",
+              "is_dependency": false,
+              "lines": [
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "starting_column": 1,
+              "ending_column": 2
+            }
+          },
           {
             "type": "function",
             "name": "allowance",
@@ -325,7 +476,12 @@
               "signature": "allowance(address,address)"
             }
           }
-        ]
+        ],
+        "description": "Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.allowance(address,address) (tests/incorrect_erc20_interface.sol#9)\n",
+        "markdown": "[Token](tests/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.allowance(address,address)](tests/incorrect_erc20_interface.sol#L9)\n",
+        "check": "erc20-interface",
+        "impact": "Medium",
+        "confidence": "High"
       }
     ]
   }

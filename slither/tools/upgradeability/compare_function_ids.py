@@ -4,10 +4,9 @@
 '''
 
 import logging
-from slither import Slither
 from slither.core.declarations import Function
 from slither.exceptions import SlitherError
-from slither.utils import json_utils
+from slither.utils.output import Output
 from slither.utils.function import get_function_id
 from slither.utils.colors import red, green
 
@@ -63,16 +62,10 @@ def compare_function_ids(implem, proxy):
 
                 info = f'Function id collision found: {implem_function.canonical_name} ({implem_function.source_mapping_str}) {proxy_function.canonical_name} ({proxy_function.source_mapping_str})'
                 logger.info(red(info))
-                json_elem = json_utils.generate_json_result(info)
-                if isinstance(implem_function, Function):
-                    json_utils.add_function_to_json(implem_function, json_elem)
-                else:
-                    json_utils.add_variable_to_json(implem_function, json_elem)
-                if isinstance(proxy_function, Function):
-                    json_utils.add_function_to_json(proxy_function, json_elem)
-                else:
-                    json_utils.add_variable_to_json(proxy_function, json_elem)
-                results['function-id-collision'].append(json_elem)
+                res = Output(info)
+                res.add(implem_function)
+                res.add(proxy_function)
+                results['function-id-collision'].append(res.data)
                 
             else:
 
@@ -82,17 +75,10 @@ def compare_function_ids(implem, proxy):
                 info = f'Shadowing between {implem_function.canonical_name} ({implem_function.source_mapping_str}) and {proxy_function.canonical_name} ({proxy_function.source_mapping_str})'
                 logger.info(red(info))
 
-                json_elem = json_utils.generate_json_result(info)
-                json_elem = json_utils.generate_json_result(info)
-                if isinstance(implem_function, Function):
-                    json_utils.add_function_to_json(implem_function, json_elem)
-                else:
-                    json_utils.add_variable_to_json(implem_function, json_elem)
-                if isinstance(proxy_function, Function):
-                    json_utils.add_function_to_json(proxy_function, json_elem)
-                else:
-                    json_utils.add_variable_to_json(proxy_function, json_elem)
-                results['shadowing'].append(json_elem)
+                res = Output(info)
+                res.add(implem_function)
+                res.add(proxy_function)
+                results['shadowing'].append(res.data)
 
     if not error_found:
         logger.info(green('No error found'))

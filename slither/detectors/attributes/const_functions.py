@@ -57,24 +57,24 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
                 if f.view or f.pure:
                     if f.contains_assembly:
                         attr = 'view' if f.view else 'pure'
-                        info = '{} ({}) is declared {} but contains assembly code\n'
-                        info = info.format(f.canonical_name, f.source_mapping_str, attr)
-                        json = self.generate_json_result(info, {'contains_assembly': True})
-                        self.add_function_to_json(f, json)
-                        results.append(json)
+
+                        info = [f, f' is declared {attr} but contains assembly code\n']
+                        res = self.generate_result(info, {'contains_assembly': True})
+
+                        results.append(res)
 
                     variables_written = f.all_state_variables_written()
                     if variables_written:
                         attr = 'view' if f.view else 'pure'
-                        info = '{} ({}) is declared {} but changes state variables:\n'
-                        info = info.format(f.canonical_name, f.source_mapping_str, attr)
-                        for variable_written in variables_written:
-                            info += '\t- {}\n'.format(variable_written.canonical_name)
 
-                        json = self.generate_json_result(info, {'contains_assembly': False})
-                        self.add_function_to_json(f, json)
-                        self.add_variables_to_json(variables_written, json)
-                        results.append(json)
+                        info = [f, f' is declared {attr} but changes state variables:\n']
+
+                        for variable_written in variables_written:
+                            info += ['\t- ', variable_written, '\n']
+
+                        res = self.generate_result(info, {'contains_assembly': False})
+
+                        results.append(res)
 
         return results
 

@@ -47,14 +47,11 @@ Bob calls `delegate` and delegates the execution to its malicious contract. As a
                     continue
                 nodes = self.controlled_delegatecall(f)
                 if nodes:
-                    func_info = '{}.{} ({}) uses delegatecall to a input-controlled function id\n'
-                    func_info = func_info.format(contract.name, f.name, f.source_mapping_str)
-                    for node in nodes:
-                        node_info = func_info + '\t- {} ({})\n'.format(node.expression, node.source_mapping_str)
+                    func_info = [f, ' uses delegatecall to a input-controlled function id\n']
 
-                        json = self.generate_json_result(node_info)
-                        self.add_node_to_json(node, json)
-                        self.add_function_to_json(f, json)
-                        results.append(json)
+                    for node in nodes:
+                        node_info = func_info + ['\t- ', node,'\n']
+                        res = self.generate_result(node_info)
+                        results.append(res)
 
         return results

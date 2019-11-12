@@ -100,10 +100,10 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
         # If we found any disallowed pragmas, we output our findings.
         if disallowed_pragmas:
             for (reason, p) in disallowed_pragmas:
-                info = f"Pragma version \"{p.version}\" {reason} ({p.source_mapping_str})\n"
+                info = ["Pragma version", p, f" {reason}\n"]
 
-                json = self.generate_json_result(info)
-                self.add_pragma_to_json(p, json)
+                json = self.generate_result(info)
+
                 results.append(json)
 
         return results

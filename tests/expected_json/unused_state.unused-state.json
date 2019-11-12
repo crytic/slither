@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "unused-state",
-        "impact": "Informational",
-        "confidence": "High",
-        "description": "A.unused (tests/unused_state.sol#4) is never used in B\n",
         "elements": [
           {
             "type": "variable",
@@ -76,13 +72,14 @@
               "ending_column": 2
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "A.unused (tests/unused_state.sol#4) is never used in B (tests/unused_state.sol#11-16)\n",
+        "markdown": "[A.unused](tests/unused_state.sol#L4) is never used in [B](tests/unused_state.sol#L11-L16)\n",
         "check": "unused-state",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "A.unused2 (tests/unused_state.sol#5) is never used in B\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -151,13 +148,14 @@
               "ending_column": 2
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "A.unused2 (tests/unused_state.sol#5) is never used in B (tests/unused_state.sol#11-16)\n",
+        "markdown": "[A.unused2](tests/unused_state.sol#L5) is never used in [B](tests/unused_state.sol#L11-L16)\n",
         "check": "unused-state",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "A.unused3 (tests/unused_state.sol#6) is never used in B\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -226,13 +224,14 @@
               "ending_column": 2
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "A.unused3 (tests/unused_state.sol#6) is never used in B (tests/unused_state.sol#11-16)\n",
+        "markdown": "[A.unused3](tests/unused_state.sol#L6) is never used in [B](tests/unused_state.sol#L11-L16)\n",
         "check": "unused-state",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "A.unused4 (tests/unused_state.sol#7) is never used in B\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -301,7 +300,12 @@
               "ending_column": 2
             }
           }
-        ]
+        ],
+        "description": "A.unused4 (tests/unused_state.sol#7) is never used in B (tests/unused_state.sol#11-16)\n",
+        "markdown": "[A.unused4](tests/unused_state.sol#L7) is never used in [B](tests/unused_state.sol#L11-L16)\n",
+        "check": "unused-state",
+        "impact": "Informational",
+        "confidence": "High"
       }
     ]
   }

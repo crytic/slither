@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "shadowing-local",
-        "impact": "Low",
-        "confidence": "High",
-        "description": "FurtherExtendedContract.shadowingParent.x (local variable @ tests/shadowing_local_variable.sol#25) shadows:\n\t- FurtherExtendedContract.x (state variable @ tests/shadowing_local_variable.sol#17)\n\t- ExtendedContract.x (state variable @ tests/shadowing_local_variable.sol#9)\n\t- BaseContract.x (state variable @ tests/shadowing_local_variable.sol#4)\n",
         "elements": [
           {
             "type": "variable",
@@ -211,13 +207,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "FurtherExtendedContract.shadowingParent(uint256).x (tests/shadowing_local_variable.sol#25) shadows:\n\t- FurtherExtendedContract.x (tests/shadowing_local_variable.sol#17) (state variable)\n\t- ExtendedContract.x (tests/shadowing_local_variable.sol#9) (state variable)\n\t- BaseContract.x (tests/shadowing_local_variable.sol#4) (state variable)\n",
+        "markdown": "[FurtherExtendedContract.shadowingParent(uint256).x](tests/shadowing_local_variable.sol#L25) shadows:\n\t- [FurtherExtendedContract.x](tests/shadowing_local_variable.sol#L17) (state variable)\n\t- [ExtendedContract.x](tests/shadowing_local_variable.sol#L9) (state variable)\n\t- [BaseContract.x](tests/shadowing_local_variable.sol#L4) (state variable)\n",
         "check": "shadowing-local",
         "impact": "Low",
-        "confidence": "High",
-        "description": "FurtherExtendedContract.shadowingParent.y (local variable @ tests/shadowing_local_variable.sol#25) shadows:\n\t- BaseContract.y (state variable @ tests/shadowing_local_variable.sol#5)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -329,13 +326,14 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "FurtherExtendedContract.shadowingParent(uint256).y (tests/shadowing_local_variable.sol#25) shadows:\n\t- BaseContract.y (tests/shadowing_local_variable.sol#5) (state variable)\n",
+        "markdown": "[FurtherExtendedContract.shadowingParent(uint256).y](tests/shadowing_local_variable.sol#L25) shadows:\n\t- [BaseContract.y](tests/shadowing_local_variable.sol#L5) (state variable)\n",
         "check": "shadowing-local",
         "impact": "Low",
-        "confidence": "High",
-        "description": "FurtherExtendedContract.shadowingParent.z (local variable @ tests/shadowing_local_variable.sol#25) shadows:\n\t- ExtendedContract.z (function @ tests/shadowing_local_variable.sol#11)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -451,13 +449,14 @@
               "signature": "z()"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "FurtherExtendedContract.shadowingParent(uint256).z (tests/shadowing_local_variable.sol#25) shadows:\n\t- ExtendedContract.z() (tests/shadowing_local_variable.sol#11) (function)\n",
+        "markdown": "[FurtherExtendedContract.shadowingParent(uint256).z](tests/shadowing_local_variable.sol#L25) shadows:\n\t- [ExtendedContract.z()](tests/shadowing_local_variable.sol#L11) (function)\n",
         "check": "shadowing-local",
         "impact": "Low",
-        "confidence": "High",
-        "description": "FurtherExtendedContract.shadowingParent.w (local variable @ tests/shadowing_local_variable.sol#25) shadows:\n\t- FurtherExtendedContract.w (modifier @ tests/shadowing_local_variable.sol#20-23)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -580,13 +579,14 @@
               "signature": "w()"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "FurtherExtendedContract.shadowingParent(uint256).w (tests/shadowing_local_variable.sol#25) shadows:\n\t- FurtherExtendedContract.w() (tests/shadowing_local_variable.sol#20-23) (modifier)\n",
+        "markdown": "[FurtherExtendedContract.shadowingParent(uint256).w](tests/shadowing_local_variable.sol#L25) shadows:\n\t- [FurtherExtendedContract.w()](tests/shadowing_local_variable.sol#L20-L23) (modifier)\n",
         "check": "shadowing-local",
         "impact": "Low",
-        "confidence": "High",
-        "description": "FurtherExtendedContract.shadowingParent.v (local variable @ tests/shadowing_local_variable.sol#25) shadows:\n\t- ExtendedContract.v (event @ tests/shadowing_local_variable.sol#13)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -702,7 +702,12 @@
               "signature": "v()"
             }
           }
-        ]
+        ],
+        "description": "FurtherExtendedContract.shadowingParent(uint256).v (tests/shadowing_local_variable.sol#25) shadows:\n\t- ExtendedContractv() (tests/shadowing_local_variable.sol#13) (event)\n",
+        "markdown": "[FurtherExtendedContract.shadowingParent(uint256).v](tests/shadowing_local_variable.sol#L25) shadows:\n\t- [ExtendedContractv()](tests/shadowing_local_variable.sol#L13) (event)\n",
+        "check": "shadowing-local",
+        "impact": "Low",
+        "confidence": "High"
       }
     ]
   }

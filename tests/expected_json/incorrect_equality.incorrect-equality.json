@@ -4,11 +4,66 @@
   "results": {
     "detectors": [
       {
-        "check": "incorrect-equality",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "ERC20TestBalance.bad0(ERC20Function) (tests/incorrect_equality.sol#21-23) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(address(this)) == 10)\n",
         "elements": [
+          {
+            "type": "function",
+            "name": "bad0",
+            "source_mapping": {
+              "start": 404,
+              "length": 101,
+              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
+              "filename_relative": "tests/incorrect_equality.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
+              "filename_short": "tests/incorrect_equality.sol",
+              "is_dependency": false,
+              "lines": [
+                21,
+                22,
+                23
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "ERC20TestBalance",
+                "source_mapping": {
+                  "start": 165,
+                  "length": 445,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
+                  "filename_relative": "tests/incorrect_equality.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
+                  "filename_short": "tests/incorrect_equality.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "bad0(ERC20Function)"
+            }
+          },
           {
             "type": "node",
             "name": "require(bool)(erc.balanceOf(address(this)) == 10)",
@@ -87,22 +142,31 @@
                 }
               }
             }
-          },
+          }
+        ],
+        "description": "ERC20TestBalance.bad0(ERC20Function) (tests/incorrect_equality.sol#21-23) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(address(this)) == 10) (tests/incorrect_equality.sol#22)\n",
+        "markdown": "[ERC20TestBalance.bad0(ERC20Function)](tests/incorrect_equality.sol#L21-L23) uses a dangerous strict equality:\n\t- [require(bool)(erc.balanceOf(address(this)) == 10)](tests/incorrect_equality.sol#L22)\n",
+        "check": "incorrect-equality",
+        "impact": "Medium",
+        "confidence": "High"
+      },
+      {
+        "elements": [
           {
             "type": "function",
-            "name": "bad0",
+            "name": "bad1",
             "source_mapping": {
-              "start": 404,
-              "length": 101,
+              "start": 511,
+              "length": 97,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
               "is_dependency": false,
               "lines": [
-                21,
-                22,
-                23
+                25,
+                26,
+                27
               ],
               "starting_column": 5,
               "ending_column": 6
@@ -144,17 +208,9 @@
                   "ending_column": 2
                 }
               },
-              "signature": "bad0(ERC20Function)"
+              "signature": "bad1(ERC20Variable)"
             }
-          }
-        ]
-      },
-      {
-        "check": "incorrect-equality",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "ERC20TestBalance.bad1(ERC20Variable) (tests/incorrect_equality.sol#25-27) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(msg.sender) == 10)\n",
-        "elements": [
+          },
           {
             "type": "node",
             "name": "require(bool)(erc.balanceOf(msg.sender) == 10)",
@@ -233,22 +289,32 @@
                 }
               }
             }
-          },
+          }
+        ],
+        "description": "ERC20TestBalance.bad1(ERC20Variable) (tests/incorrect_equality.sol#25-27) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(msg.sender) == 10) (tests/incorrect_equality.sol#26)\n",
+        "markdown": "[ERC20TestBalance.bad1(ERC20Variable)](tests/incorrect_equality.sol#L25-L27) uses a dangerous strict equality:\n\t- [require(bool)(erc.balanceOf(msg.sender) == 10)](tests/incorrect_equality.sol#L26)\n",
+        "check": "incorrect-equality",
+        "impact": "Medium",
+        "confidence": "High"
+      },
+      {
+        "elements": [
           {
             "type": "function",
-            "name": "bad1",
+            "name": "bad0",
             "source_mapping": {
-              "start": 511,
-              "length": 97,
+              "start": 648,
+              "length": 133,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
               "is_dependency": false,
               "lines": [
-                25,
-                26,
-                27
+                32,
+                33,
+                34,
+                35
               ],
               "starting_column": 5,
               "ending_column": 6
@@ -256,51 +322,92 @@
             "type_specific_fields": {
               "parent": {
                 "type": "contract",
-                "name": "ERC20TestBalance",
+                "name": "TestContractBalance",
                 "source_mapping": {
-                  "start": 165,
-                  "length": 445,
+                  "start": 612,
+                  "length": 1754,
                   "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
                   "is_dependency": false,
                   "lines": [
-                    10,
-                    11,
-                    12,
-                    13,
-                    14,
-                    15,
-                    16,
-                    17,
-                    18,
-                    19,
-                    20,
-                    21,
-                    22,
-                    23,
-                    24,
-                    25,
-                    26,
-                    27,
-                    28
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58,
+                    59,
+                    60,
+                    61,
+                    62,
+                    63,
+                    64,
+                    65,
+                    66,
+                    67,
+                    68,
+                    69,
+                    70,
+                    71,
+                    72,
+                    73,
+                    74,
+                    75,
+                    76,
+                    77,
+                    78,
+                    79,
+                    80,
+                    81,
+                    82,
+                    83,
+                    84,
+                    85,
+                    86,
+                    87,
+                    88,
+                    89,
+                    90,
+                    91,
+                    92,
+                    93,
+                    94,
+                    95,
+                    96,
+                    97
                   ],
                   "starting_column": 1,
                   "ending_column": 2
                 }
               },
-              "signature": "bad1(ERC20Variable)"
+              "signature": "bad0()"
             }
-          }
-        ]
-      },
-      {
-        "check": "incorrect-equality",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "TestContractBalance.bad0() (tests/incorrect_equality.sol#32-35) uses a dangerous strict equality:\n\t- require(bool)(address(address(this)).balance == 10000000000000000000)\n",
-        "elements": [
+          },
           {
             "type": "node",
             "name": "require(bool)(address(address(this)).balance == 10000000000000000000)",
@@ -429,12 +536,21 @@
                 }
               }
             }
-          },
+          }
+        ],
+        "description": "TestContractBalance.bad0() (tests/incorrect_equality.sol#32-35) uses a dangerous strict equality:\n\t- require(bool)(address(address(this)).balance == 10000000000000000000) (tests/incorrect_equality.sol#33)\n",
+        "markdown": "[TestContractBalance.bad0()](tests/incorrect_equality.sol#L32-L35) uses a dangerous strict equality:\n\t- [require(bool)(address(address(this)).balance == 10000000000000000000)](tests/incorrect_equality.sol#L33)\n",
+        "check": "incorrect-equality",
+        "impact": "Medium",
+        "confidence": "High"
+      },
+      {
+        "elements": [
           {
             "type": "function",
-            "name": "bad0",
+            "name": "bad1",
             "source_mapping": {
-              "start": 648,
+              "start": 787,
               "length": 133,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
@@ -442,10 +558,10 @@
               "filename_short": "tests/incorrect_equality.sol",
               "is_dependency": false,
               "lines": [
-                32,
-                33,
-                34,
-                35
+                37,
+                38,
+                39,
+                40
               ],
               "starting_column": 5,
               "ending_column": 6
@@ -536,17 +652,9 @@
                   "ending_column": 2
                 }
               },
-              "signature": "bad0()"
+              "signature": "bad1()"
             }
-          }
-        ]
-      },
-      {
-        "check": "incorrect-equality",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "TestContractBalance.bad1() (tests/incorrect_equality.sol#37-40) uses a dangerous strict equality:\n\t- require(bool)(10000000000000000000 == address(address(this)).balance)\n",
-        "elements": [
+          },
           {
             "type": "node",
             "name": "require(bool)(10000000000000000000 == address(address(this)).balance)",
@@ -675,23 +783,32 @@
                 }
               }
             }
-          },
+          }
+        ],
+        "description": "TestContractBalance.bad1() (tests/incorrect_equality.sol#37-40) uses a dangerous strict equality:\n\t- require(bool)(10000000000000000000 == address(address(this)).balance) (tests/incorrect_equality.sol#38)\n",
+        "markdown": "[TestContractBalance.bad1()](tests/incorrect_equality.sol#L37-L40) uses a dangerous strict equality:\n\t- [require(bool)(10000000000000000000 == address(address(this)).balance)](tests/incorrect_equality.sol#L38)\n",
+        "check": "incorrect-equality",
+        "impact": "Medium",
+        "confidence": "High"
+      },
+      {
+        "elements": [
           {
             "type": "function",
-            "name": "bad1",
+            "name": "bad2",
             "source_mapping": {
-              "start": 787,
-              "length": 133,
+              "start": 926,
+              "length": 124,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
               "is_dependency": false,
               "lines": [
-                37,
-                38,
-                39,
-                40
+                42,
+                43,
+                44,
+                45
               ],
               "starting_column": 5,
               "ending_column": 6
@@ -782,17 +899,9 @@
                   "ending_column": 2
                 }
               },
-              "signature": "bad1()"
+              "signature": "bad2()"
             }
-          }
-        ]
-      },
-      {
-        "check": "incorrect-equality",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "TestContractBalance.bad2() (tests/incorrect_equality.sol#42-45) uses a dangerous strict equality:\n\t- require(bool)(address(this).balance == 10000000000000000000)\n",
-        "elements": [
+          },
           {
             "type": "node",
             "name": "require(bool)(address(this).balance == 10000000000000000000)",
@@ -921,12 +1030,21 @@
                 }
               }
             }
-          },
+          }
+        ],
+        "description": "TestContractBalance.bad2() (tests/incorrect_equality.sol#42-45) uses a dangerous strict equality:\n\t- require(bool)(address(this).balance == 10000000000000000000) (tests/incorrect_equality.sol#43)\n",
+        "markdown": "[TestContractBalance.bad2()](tests/incorrect_equality.sol#L42-L45) uses a dangerous strict equality:\n\t- [require(bool)(address(this).balance == 10000000000000000000)](tests/incorrect_equality.sol#L43)\n",
+        "check": "incorrect-equality",
+        "impact": "Medium",
+        "confidence": "High"
+      },
+      {
+        "elements": [
           {
             "type": "function",
-            "name": "bad2",
+            "name": "bad3",
             "source_mapping": {
-              "start": 926,
+              "start": 1056,
               "length": 124,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
@@ -934,10 +1052,10 @@
               "filename_short": "tests/incorrect_equality.sol",
               "is_dependency": false,
               "lines": [
-                42,
-                43,
-                44,
-                45
+                47,
+                48,
+                49,
+                50
               ],
               "starting_column": 5,
               "ending_column": 6
@@ -1028,17 +1146,9 @@
                   "ending_column": 2
                 }
               },
-              "signature": "bad2()"
+              "signature": "bad3()"
             }
-          }
-        ]
-      },
-      {
-        "check": "incorrect-equality",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "TestContractBalance.bad3() (tests/incorrect_equality.sol#47-50) uses a dangerous strict equality:\n\t- require(bool)(10000000000000000000 == address(this).balance)\n",
-        "elements": [
+          },
           {
             "type": "node",
             "name": "require(bool)(10000000000000000000 == address(this).balance)",
@@ -1167,23 +1277,34 @@
                 }
               }
             }
-          },
+          }
+        ],
+        "description": "TestContractBalance.bad3() (tests/incorrect_equality.sol#47-50) uses a dangerous strict equality:\n\t- require(bool)(10000000000000000000 == address(this).balance) (tests/incorrect_equality.sol#48)\n",
+        "markdown": "[TestContractBalance.bad3()](tests/incorrect_equality.sol#L47-L50) uses a dangerous strict equality:\n\t- [require(bool)(10000000000000000000 == address(this).balance)](tests/incorrect_equality.sol#L48)\n",
+        "check": "incorrect-equality",
+        "impact": "Medium",
+        "confidence": "High"
+      },
+      {
+        "elements": [
           {
             "type": "function",
-            "name": "bad3",
+            "name": "bad4",
             "source_mapping": {
-              "start": 1056,
-              "length": 124,
+              "start": 1186,
+              "length": 170,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
               "is_dependency": false,
               "lines": [
-                47,
-                48,
-                49,
-                50
+                52,
+                53,
+                54,
+                55,
+                56,
+                57
               ],
               "starting_column": 5,
               "ending_column": 6
@@ -1274,17 +1395,9 @@
                   "ending_column": 2
                 }
               },
-              "signature": "bad3()"
+              "signature": "bad4()"
             }
-          }
-        ]
-      },
-      {
-        "check": "incorrect-equality",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "TestContractBalance.bad4() (tests/incorrect_equality.sol#52-57) uses a dangerous strict equality:\n\t- balance == 10000000000000000000\n",
-        "elements": [
+          },
           {
             "type": "node",
             "name": "balance == 10000000000000000000",
@@ -1415,12 +1528,21 @@
                 }
               }
             }
-          },
+          }
+        ],
+        "description": "TestContractBalance.bad4() (tests/incorrect_equality.sol#52-57) uses a dangerous strict equality:\n\t- balance == 10000000000000000000 (tests/incorrect_equality.sol#54)\n",
+        "markdown": "[TestContractBalance.bad4()](tests/incorrect_equality.sol#L52-L57) uses a dangerous strict equality:\n\t- [balance == 10000000000000000000](tests/incorrect_equality.sol#L54)\n",
+        "check": "incorrect-equality",
+        "impact": "Medium",
+        "confidence": "High"
+      },
+      {
+        "elements": [
           {
             "type": "function",
-            "name": "bad4",
+            "name": "bad5",
             "source_mapping": {
-              "start": 1186,
+              "start": 1362,
               "length": 170,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
@@ -1428,12 +1550,12 @@
               "filename_short": "tests/incorrect_equality.sol",
               "is_dependency": false,
               "lines": [
-                52,
-                53,
-                54,
-                55,
-                56,
-                57
+                59,
+                60,
+                61,
+                62,
+                63,
+                64
               ],
               "starting_column": 5,
               "ending_column": 6
@@ -1524,17 +1646,9 @@
                   "ending_column": 2
                 }
               },
-              "signature": "bad4()"
+              "signature": "bad5()"
             }
-          }
-        ]
-      },
-      {
-        "check": "incorrect-equality",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "TestContractBalance.bad5() (tests/incorrect_equality.sol#59-64) uses a dangerous strict equality:\n\t- 10000000000000000000 == balance\n",
-        "elements": [
+          },
           {
             "type": "node",
             "name": "10000000000000000000 == balance",
@@ -1665,25 +1779,34 @@
                 }
               }
             }
-          },
+          }
+        ],
+        "description": "TestContractBalance.bad5() (tests/incorrect_equality.sol#59-64) uses a dangerous strict equality:\n\t- 10000000000000000000 == balance (tests/incorrect_equality.sol#61)\n",
+        "markdown": "[TestContractBalance.bad5()](tests/incorrect_equality.sol#L59-L64) uses a dangerous strict equality:\n\t- [10000000000000000000 == balance](tests/incorrect_equality.sol#L61)\n",
+        "check": "incorrect-equality",
+        "impact": "Medium",
+        "confidence": "High"
+      },
+      {
+        "elements": [
           {
             "type": "function",
-            "name": "bad5",
+            "name": "bad6",
             "source_mapping": {
-              "start": 1362,
-              "length": 170,
+              "start": 1538,
+              "length": 179,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
               "is_dependency": false,
               "lines": [
-                59,
-                60,
-                61,
-                62,
-                63,
-                64
+                66,
+                67,
+                68,
+                69,
+                70,
+                71
               ],
               "starting_column": 5,
               "ending_column": 6
@@ -1774,17 +1897,9 @@
                   "ending_column": 2
                 }
               },
-              "signature": "bad5()"
+              "signature": "bad6()"
             }
-          }
-        ]
-      },
-      {
-        "check": "incorrect-equality",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "TestContractBalance.bad6() (tests/incorrect_equality.sol#66-71) uses a dangerous strict equality:\n\t- balance == 10000000000000000000\n",
-        "elements": [
+          },
           {
             "type": "node",
             "name": "balance == 10000000000000000000",
@@ -1915,25 +2030,31 @@
                 }
               }
             }
-          },
+          }
+        ],
+        "description": "TestContractBalance.bad6() (tests/incorrect_equality.sol#66-71) uses a dangerous strict equality:\n\t- balance == 10000000000000000000 (tests/incorrect_equality.sol#68)\n",
+        "markdown": "[TestContractBalance.bad6()](tests/incorrect_equality.sol#L66-L71) uses a dangerous strict equality:\n\t- [balance == 10000000000000000000](tests/incorrect_equality.sol#L68)\n",
+        "check": "incorrect-equality",
+        "impact": "Medium",
+        "confidence": "High"
+      },
+      {
+        "elements": [
           {
             "type": "function",
-            "name": "bad6",
+            "name": "bad0",
             "source_mapping": {
-              "start": 1538,
-              "length": 179,
+              "start": 2935,
+              "length": 59,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
               "is_dependency": false,
               "lines": [
-                66,
-                67,
-                68,
-                69,
-                70,
-                71
+                123,
+                124,
+                125
               ],
               "starting_column": 5,
               "ending_column": 6
@@ -1941,100 +2062,61 @@
             "type_specific_fields": {
               "parent": {
                 "type": "contract",
-                "name": "TestContractBalance",
+                "name": "TestSolidityKeyword",
                 "source_mapping": {
-                  "start": 612,
-                  "length": 1754,
+                  "start": 2368,
+                  "length": 774,
                   "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_relative": "tests/incorrect_equality.sol",
                   "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
                   "filename_short": "tests/incorrect_equality.sol",
                   "is_dependency": false,
                   "lines": [
-                    30,
-                    31,
-                    32,
-                    33,
-                    34,
-                    35,
-                    36,
-                    37,
-                    38,
-                    39,
-                    40,
-                    41,
-                    42,
-                    43,
-                    44,
-                    45,
-                    46,
-                    47,
-                    48,
-                    49,
-                    50,
-                    51,
-                    52,
-                    53,
-                    54,
-                    55,
-                    56,
-                    57,
-                    58,
-                    59,
-                    60,
-                    61,
-                    62,
-                    63,
-                    64,
-                    65,
-                    66,
-                    67,
-                    68,
-                    69,
-                    70,
-                    71,
-                    72,
-                    73,
-                    74,
-                    75,
-                    76,
-                    77,
-                    78,
-                    79,
-                    80,
-                    81,
-                    82,
-                    83,
-                    84,
-                    85,
-                    86,
-                    87,
-                    88,
-                    89,
-                    90,
-                    91,
-                    92,
-                    93,
-                    94,
-                    95,
-                    96,
-                    97
+                    99,
+                    100,
+                    101,
+                    102,
+                    103,
+                    104,
+                    105,
+                    106,
+                    107,
+                    108,
+                    109,
+                    110,
+                    111,
+                    112,
+                    113,
+                    114,
+                    115,
+                    116,
+                    117,
+                    118,
+                    119,
+                    120,
+                    121,
+                    122,
+                    123,
+                    124,
+                    125,
+                    126,
+                    127,
+                    128,
+                    129,
+                    130,
+                    131,
+                    132,
+                    133,
+                    134,
+                    135
                   ],
                   "starting_column": 1,
                   "ending_column": 2
                 }
               },
-              "signature": "bad6()"
+              "signature": "bad0()"
             }
-          }
-        ]
-      },
-      {
-        "check": "incorrect-equality",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "TestSolidityKeyword.bad0() (tests/incorrect_equality.sol#123-125) uses a dangerous strict equality:\n\t- require(bool)(now == 0)\n",
-        "elements": [
+          },
           {
             "type": "node",
             "name": "require(bool)(now == 0)",
@@ -2131,22 +2213,31 @@
                 }
               }
             }
-          },
+          }
+        ],
+        "description": "TestSolidityKeyword.bad0() (tests/incorrect_equality.sol#123-125) uses a dangerous strict equality:\n\t- require(bool)(now == 0) (tests/incorrect_equality.sol#124)\n",
+        "markdown": "[TestSolidityKeyword.bad0()](tests/incorrect_equality.sol#L123-L125) uses a dangerous strict equality:\n\t- [require(bool)(now == 0)](tests/incorrect_equality.sol#L124)\n",
+        "check": "incorrect-equality",
+        "impact": "Medium",
+        "confidence": "High"
+      },
+      {
+        "elements": [
           {
             "type": "function",
-            "name": "bad0",
+            "name": "bad1",
             "source_mapping": {
-              "start": 2935,
-              "length": 59,
+              "start": 3000,
+              "length": 66,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
               "is_dependency": false,
               "lines": [
-                123,
-                124,
-                125
+                127,
+                128,
+                129
               ],
               "starting_column": 5,
               "ending_column": 6
@@ -2206,17 +2297,9 @@
                   "ending_column": 2
                 }
               },
-              "signature": "bad0()"
+              "signature": "bad1()"
             }
-          }
-        ]
-      },
-      {
-        "check": "incorrect-equality",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "TestSolidityKeyword.bad1() (tests/incorrect_equality.sol#127-129) uses a dangerous strict equality:\n\t- require(bool)(block.number == 0)\n",
-        "elements": [
+          },
           {
             "type": "node",
             "name": "require(bool)(block.number == 0)",
@@ -2313,22 +2396,31 @@
                 }
               }
             }
-          },
+          }
+        ],
+        "description": "TestSolidityKeyword.bad1() (tests/incorrect_equality.sol#127-129) uses a dangerous strict equality:\n\t- require(bool)(block.number == 0) (tests/incorrect_equality.sol#128)\n",
+        "markdown": "[TestSolidityKeyword.bad1()](tests/incorrect_equality.sol#L127-L129) uses a dangerous strict equality:\n\t- [require(bool)(block.number == 0)](tests/incorrect_equality.sol#L128)\n",
+        "check": "incorrect-equality",
+        "impact": "Medium",
+        "confidence": "High"
+      },
+      {
+        "elements": [
           {
             "type": "function",
-            "name": "bad1",
+            "name": "bad2",
             "source_mapping": {
-              "start": 3000,
-              "length": 66,
+              "start": 3072,
+              "length": 67,
               "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_relative": "tests/incorrect_equality.sol",
               "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
               "filename_short": "tests/incorrect_equality.sol",
               "is_dependency": false,
               "lines": [
-                127,
-                128,
-                129
+                131,
+                132,
+                133
               ],
               "starting_column": 5,
               "ending_column": 6
@@ -2388,17 +2480,9 @@
                   "ending_column": 2
                 }
               },
-              "signature": "bad1()"
+              "signature": "bad2()"
             }
-          }
-        ]
-      },
-      {
-        "check": "incorrect-equality",
-        "impact": "Medium",
-        "confidence": "High",
-        "description": "TestSolidityKeyword.bad2() (tests/incorrect_equality.sol#131-133) uses a dangerous strict equality:\n\t- require(bool)(block.number == 0)\n",
-        "elements": [
+          },
           {
             "type": "node",
             "name": "require(bool)(block.number == 0)",
@@ -2495,85 +2579,13 @@
                 }
               }
             }
-          },
-          {
-            "type": "function",
-            "name": "bad2",
-            "source_mapping": {
-              "start": 3072,
-              "length": 67,
-              "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
-              "filename_relative": "tests/incorrect_equality.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
-              "filename_short": "tests/incorrect_equality.sol",
-              "is_dependency": false,
-              "lines": [
-                131,
-                132,
-                133
-              ],
-              "starting_column": 5,
-              "ending_column": 6
-            },
-            "type_specific_fields": {
-              "parent": {
-                "type": "contract",
-                "name": "TestSolidityKeyword",
-                "source_mapping": {
-                  "start": 2368,
-                  "length": 774,
-                  "filename_used": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
-                  "filename_relative": "tests/incorrect_equality.sol",
-                  "filename_absolute": "/home/travis/build/crytic/slither/tests/incorrect_equality.sol",
-                  "filename_short": "tests/incorrect_equality.sol",
-                  "is_dependency": false,
-                  "lines": [
-                    99,
-                    100,
-                    101,
-                    102,
-                    103,
-                    104,
-                    105,
-                    106,
-                    107,
-                    108,
-                    109,
-                    110,
-                    111,
-                    112,
-                    113,
-                    114,
-                    115,
-                    116,
-                    117,
-                    118,
-                    119,
-                    120,
-                    121,
-                    122,
-                    123,
-                    124,
-                    125,
-                    126,
-                    127,
-                    128,
-                    129,
-                    130,
-                    131,
-                    132,
-                    133,
-                    134,
-                    135
-                  ],
-                  "starting_column": 1,
-                  "ending_column": 2
-                }
-              },
-              "signature": "bad2()"
-            }
           }
-        ]
+        ],
+        "description": "TestSolidityKeyword.bad2() (tests/incorrect_equality.sol#131-133) uses a dangerous strict equality:\n\t- require(bool)(block.number == 0) (tests/incorrect_equality.sol#132)\n",
+        "markdown": "[TestSolidityKeyword.bad2()](tests/incorrect_equality.sol#L131-L133) uses a dangerous strict equality:\n\t- [require(bool)(block.number == 0)](tests/incorrect_equality.sol#L132)\n",
+        "check": "incorrect-equality",
+        "impact": "Medium",
+        "confidence": "High"
       }
     ]
   }
