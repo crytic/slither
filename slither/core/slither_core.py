@@ -32,11 +32,13 @@ class Slither(Context):
         self._previous_results_filename = 'slither.db.json'
         self._results_to_hide = []
         self._previous_results = []
+        self._previous_results_ids = set()
         self._paths_to_filter = set()
 
         self._crytic_compile = None
 
         self._generate_patches = False
+        self._exclude_dependencies = False
 
         self._markdown_root = ""
 
@@ -216,6 +218,9 @@ class Slither(Context):
         if r['elements'] and self._exclude_dependencies:
             return not all(element['source_mapping']['is_dependency'] for element in r['elements'])
 
+        if r['id'] in self._previous_results_ids:
+            return False
+        # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
         return not r['description'] in [pr['description'] for pr in self._previous_results]
 
     def load_previous_results(self):
@@ -224,6 +229,10 @@ class Slither(Context):
             if os.path.isfile(filename):
                 with open(filename) as f:
                     self._previous_results = json.load(f)
+                    if self._previous_results:
+                        for r in self._previous_results:
+                            if 'id' in r:
+                                self._previous_results_ids.add(r['id'])
         except json.decoder.JSONDecodeError:
             logger.error(red('Impossible to decode {}. Consider removing the file'.format(filename)))
 

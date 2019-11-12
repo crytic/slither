@@ -102,6 +102,7 @@
         ],
         "description": "DerivedContract.owner (tests/shadowing_state_variable.sol#12) shadows:\n\t- BaseContract.owner (tests/shadowing_state_variable.sol#2)\n",
         "markdown": "[DerivedContract.owner](tests/shadowing_state_variable.sol#L12) shadows:\n\t- [BaseContract.owner](tests/shadowing_state_variable.sol#L2)\n",
+        "id": "9c5c3fc5091b9ecd6ec271fdbb3036d9d3426cdf9a09d6cc293fd7de9240e4ab",
         "check": "shadowing-state",
         "impact": "High",
         "confidence": "High"

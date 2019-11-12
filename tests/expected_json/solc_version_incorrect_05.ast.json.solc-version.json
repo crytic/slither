@@ -32,6 +32,7 @@
         ],
         "description": "Pragma version^0.5.5 (None) is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)\n",
         "markdown": "Pragma version[^0.5.5](None) is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)\n",
+        "id": "8bcf06a2e2c13723dbc16f843f73830ebdb86b7e8ee599524a0b9824bb89381c",
         "check": "solc-version",
         "impact": "Informational",
         "confidence": "High"
@@ -64,6 +65,7 @@
         ],
         "description": "Pragma version0.5.7 (None) necessitates versions too recent to be trusted. Consider deploying with 0.5.3\n",
         "markdown": "Pragma version[0.5.7](None) necessitates versions too recent to be trusted. Consider deploying with 0.5.3\n",
+        "id": "997cf0cfc722f31f7566c3fd180c01b0c7466a19df7c65ee590e9f3778cf62ee",
         "check": "solc-version",
         "impact": "Informational",
         "confidence": "High"

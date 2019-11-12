@@ -60,6 +60,7 @@
         ],
         "description": "Different versions of Solidity is used in :\n\t- Version used: ['^0.4.23', '^0.4.24']\n\t- ^0.4.23 (tests/pragma.0.4.23.sol#1)\n\t- ^0.4.24 (tests/pragma.0.4.24.sol#1)\n",
         "markdown": "Different versions of Solidity is used in :\n\t- Version used: ['^0.4.23', '^0.4.24']\n\t- [^0.4.23](tests/pragma.0.4.23.sol#L1)\n\t- [^0.4.24](tests/pragma.0.4.24.sol#L1)\n",
+        "id": "ab9edf8af725d611d1eaeb16713c0f2e9f51804dc985b1bc823bd87645713fb7",
         "check": "pragma",
         "impact": "Informational",
         "confidence": "High"
