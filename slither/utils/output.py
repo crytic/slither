@@ -186,7 +186,7 @@ class Output:
         self._data['elements'] = []
         self._data['description'] = ''.join(_convert_to_description(d) for d in info)
         self._data['markdown'] = ''.join(_convert_to_markdown(d, markdown_root) for d in info)
-        
+
         id_txt = ''.join(_convert_to_id(d) for d in info)
         self._data['id'] = hashlib.sha3_256(id_txt.encode('utf-8')).hexdigest()
 
