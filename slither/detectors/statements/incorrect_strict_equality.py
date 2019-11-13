@@ -3,7 +3,6 @@
 
 """
 
-import itertools
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
 from slither.core.declarations import Function
 from slither.detectors.abstract_detector import (AbstractDetector,
@@ -15,7 +14,7 @@ from slither.core.solidity_types import MappingType, ElementaryType
 
 from slither.core.variables.state_variable import StateVariable
 from slither.core.declarations.solidity_variables import SolidityVariable, SolidityVariableComposed
-from slither.slithir.variables import ReferenceVariable
+
 
 class IncorrectStrictEquality(AbstractDetector):
     ARGUMENT = 'incorrect-equality'
@@ -112,19 +111,16 @@ contract Crowdsale{
             ret = sorted(list(ret.items()), key=lambda x:x[0].name)
             for f, nodes in ret:
 
-                func_info = "{} ({}) uses a dangerous strict equality:\n".format(f.canonical_name,
-                                                                                 f.source_mapping_str)
+                func_info = [f, " uses a dangerous strict equality:\n"]
 
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)
 
                 # Output each node with the function info header as a separate result.
                 for node in nodes:
-                    node_info = func_info + f"\t- {str(node.expression)}\n"
+                    node_info = func_info + [f"\t- ", node, "\n"]
 
-                    json = self.generate_json_result(node_info)
-                    self.add_node_to_json(node, json)
-                    self.add_function_to_json(f, json)
-                    results.append(json)
+                    res = self.generate_result(node_info)
+                    results.append(res)
 
         return results

@@ -2,8 +2,9 @@
     Check if an incorrect version of solc is used
 """
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 import re
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.formatters.attributes.incorrect_solc import format
 
 # group:
 # 0: ^ > >= < <= (optional)
@@ -11,6 +12,7 @@ import re
 # 2: version number
 # 3: version number
 # 4: version number
+
 PATTERN = re.compile('(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)')
 
 class IncorrectSolc(AbstractDetector):
@@ -42,7 +44,7 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
     # Indicates the allowed versions.
     ALLOWED_VERSIONS = ["0.4.25", "0.4.26", "0.5.3"]
     # Indicates the versions too recent.
-    TOO_RECENT_VERSIONS = ["0.5.4", "0.5.7", "0.5.8", "0.5.9", "0.5.10"]
+    TOO_RECENT_VERSIONS = ["0.5.4", "0.5.7", "0.5.8", "0.5.9", "0.5.10", "0.5.11", "0.5.12", "0.5.13"]
     # Indicates the versions that should not be used.
     BUGGY_VERSIONS = ["0.4.22", "0.5.5", "0.5.6", "^0.4.22", "^0.5.5", "^0.5.6"]
 
@@ -98,10 +100,14 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
         # If we found any disallowed pragmas, we output our findings.
         if disallowed_pragmas:
             for (reason, p) in disallowed_pragmas:
-                info = f"Pragma version \"{p.version}\" {reason} ({p.source_mapping_str})\n"
+                info = ["Pragma version", p, f" {reason}\n"]
 
-                json = self.generate_json_result(info)
-                self.add_pragma_to_json(p, json)
+                json = self.generate_result(info)
+
                 results.append(json)
 
         return results
+
+    @staticmethod
+    def _format(slither, result):
+        format(slither, result)

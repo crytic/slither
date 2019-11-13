@@ -1,16 +1,16 @@
-INFO:Detectors:[92m
-BaseContract.blockhash (state variable @ tests/shadowing_builtin_symbols.sol#4) shadows built-in symbol "blockhash"
-BaseContract.now (state variable @ tests/shadowing_builtin_symbols.sol#5) shadows built-in symbol "now"
-BaseContract.revert (event @ tests/shadowing_builtin_symbols.sol#7) shadows built-in symbol "revert"
-ExtendedContract.assert (function @ tests/shadowing_builtin_symbols.sol#13-15) shadows built-in symbol "assert"
-ExtendedContract.assert.msg (local variable @ tests/shadowing_builtin_symbols.sol#14) shadows built-in symbol "msg"
-ExtendedContract.ecrecover (state variable @ tests/shadowing_builtin_symbols.sol#11) shadows built-in symbol "ecrecover"
-FurtherExtendedContract.require (modifier @ tests/shadowing_builtin_symbols.sol#23-28) shadows built-in symbol "require"
-FurtherExtendedContract.require.keccak256 (local variable @ tests/shadowing_builtin_symbols.sol#25) shadows built-in symbol "keccak256"
-FurtherExtendedContract.require.sha3 (local variable @ tests/shadowing_builtin_symbols.sol#26) shadows built-in symbol "sha3"
-FurtherExtendedContract.blockhash (state variable @ tests/shadowing_builtin_symbols.sol#19) shadows built-in symbol "blockhash"
-FurtherExtendedContract.this (state variable @ tests/shadowing_builtin_symbols.sol#20) shadows built-in symbol "this"
-FurtherExtendedContract.abi (state variable @ tests/shadowing_builtin_symbols.sol#21) shadows built-in symbol "abi"
-Reserved.mutable (state variable @ tests/shadowing_builtin_symbols.sol#32) shadows built-in symbol "mutable"
+[92m
+BaseContract.blockhash (tests/shadowing_builtin_symbols.sol#4) (state variable) shadows built-in symbol"
+BaseContract.now (tests/shadowing_builtin_symbols.sol#5) (state variable) shadows built-in symbol"
+BaseContractrevert(bool) (tests/shadowing_builtin_symbols.sol#7) (event) shadows built-in symbol"
+ExtendedContract.assert(bool) (tests/shadowing_builtin_symbols.sol#13-15) (function) shadows built-in symbol"
+ExtendedContract.assert(bool).msg (tests/shadowing_builtin_symbols.sol#14) (local variable) shadows built-in symbol"
+ExtendedContract.ecrecover (tests/shadowing_builtin_symbols.sol#11) (state variable) shadows built-in symbol"
+FurtherExtendedContract.require() (tests/shadowing_builtin_symbols.sol#23-28) (modifier) shadows built-in symbol"
+FurtherExtendedContract.require().keccak256 (tests/shadowing_builtin_symbols.sol#25) (local variable) shadows built-in symbol"
+FurtherExtendedContract.require().sha3 (tests/shadowing_builtin_symbols.sol#26) (local variable) shadows built-in symbol"
+FurtherExtendedContract.blockhash (tests/shadowing_builtin_symbols.sol#19) (state variable) shadows built-in symbol"
+FurtherExtendedContract.this (tests/shadowing_builtin_symbols.sol#20) (state variable) shadows built-in symbol"
+FurtherExtendedContract.abi (tests/shadowing_builtin_symbols.sol#21) (state variable) shadows built-in symbol"
+Reserved.mutable (tests/shadowing_builtin_symbols.sol#32) (state variable) shadows built-in symbol"
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#builtin-symbol-shadowing[0m
-INFO:Slither:tests/shadowing_builtin_symbols.sol analyzed (4 contracts), 13 result(s) found
+tests/shadowing_builtin_symbols.sol analyzed (4 contracts with 1 detectors), 13 result(s) found

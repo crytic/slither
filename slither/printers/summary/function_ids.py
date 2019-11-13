@@ -1,12 +1,9 @@
 """
     Module printing summary of the contract
 """
-import collections
 from prettytable import PrettyTable
 
-from slither.core.solidity_types import ArrayType, MappingType
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.utils.colors import blue, green, magenta
 from slither.utils.function import get_function_id
 
 class FunctionIds(AbstractPrinter):
@@ -24,6 +21,7 @@ class FunctionIds(AbstractPrinter):
         """
 
         txt = ''
+        all_tables = []
         for contract in self.slither.contracts_derived:
             txt += '\n{}:\n'.format(contract.name)
             table = PrettyTable(['Name', 'ID'])
@@ -32,18 +30,15 @@ class FunctionIds(AbstractPrinter):
                     table.add_row([function.full_name, hex(get_function_id(function.full_name))])
             for variable in contract.state_variables:
                 if variable.visibility in ['public']:
-                    variable_getter_args = ""
-                    if type(variable.type) is ArrayType:
-                        length = 0
-                        v = variable
-                        while type(v.type) is ArrayType:
-                            length += 1
-                            v = v.type
-                        variable_getter_args = ','.join(["uint256"]*length)
-                    elif type(variable.type) is MappingType:
-                        variable_getter_args = variable.type.type_from
-
-                    table.add_row([f"{variable.name}({variable_getter_args})", hex(get_function_id(f"{variable.name}({variable_getter_args})"))])
+                    sig = variable.function_name
+                    table.add_row([sig, hex(get_function_id(sig))])
             txt += str(table) + '\n'
+            all_tables.append((contract.name, table))
 
         self.info(txt)
+
+        res = self.generate_output(txt)
+        for name, table in all_tables:
+            res.add_pretty_table(table, name)
+
+        return res

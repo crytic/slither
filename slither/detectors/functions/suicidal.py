@@ -6,6 +6,7 @@ A suicidal contract is an unprotected function that calls selfdestruct
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
+
 class Suicidal(AbstractDetector):
     """
     Unprotected function detector
@@ -72,12 +73,10 @@ Bob calls `kill` and destructs the contract.'''
             functions = self.detect_suicidal(c)
             for func in functions:
 
-                txt = "{} ({}) allows anyone to destruct the contract\n"
-                info = txt.format(func.canonical_name,
-                                  func.source_mapping_str)
+                info = [func, " allows anyone to destruct the contract\n"]
 
-                json = self.generate_json_result(info)
-                self.add_function_to_json(func, json)
-                results.append(json)
+                res = self.generate_result(info)
+
+                results.append(res)
 
         return results

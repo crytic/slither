@@ -16,7 +16,7 @@ class MultipleCallsInLoop(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation/_edit#calls-inside-a-loop'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation/#calls-inside-a-loop'
 
 
     WIKI_TITLE = 'Calls inside a loop'
@@ -87,11 +87,8 @@ If one of the destinations has a fallback function which reverts, `bad` will alw
             for node in values:
                 func = node.function
 
-                info = "{} has external calls inside a loop: \"{}\" ({})\n"
-                info = info.format(func.canonical_name, node.expression, node.source_mapping_str)
-
-                json = self.generate_json_result(info)
-                self.add_node_to_json(node, json)
-                results.append(json)
+                info = [func, " has external calls inside a loop: ", node, "\n"]
+                res = self.generate_result(info)
+                results.append(res)
 
         return results

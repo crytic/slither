@@ -1,5 +1,5 @@
-INFO:Detectors:[92m
-Pragma version "^0.4.23" allows old versions (tests/solc_version_incorrect.sol#2)
-Pragma version ">=0.4.0<0.6.0" allows old versions (tests/solc_version_incorrect.sol#3)
+[92m
+Pragma version^0.4.23 (tests/solc_version_incorrect.sol#2) allows old versions
+Pragma version>=0.4.0<0.6.0 (tests/solc_version_incorrect.sol#3) allows old versions
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity[0m
-INFO:Slither:tests/solc_version_incorrect.sol analyzed (1 contracts), 2 result(s) found
+tests/solc_version_incorrect.sol analyzed (1 contracts with 1 detectors), 2 result(s) found

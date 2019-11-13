@@ -20,6 +20,7 @@ generate_expected_json(){
     sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$output_filename_txt" -i
 }
 
+#generate_expected_json tests/void-cst.sol "void-cst"
 #generate_expected_json tests/solc_version_incorrect_05.ast.json "solc-version"
 #generate_expected_json tests/uninitialized-0.5.1.sol "uninitialized-state"
 #generate_expected_json tests/backdoor.sol "backdoor"

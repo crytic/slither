@@ -9,13 +9,10 @@ from collections import defaultdict
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.declarations.function import Function
-from slither.core.declarations.contract import Contract
-from slither.core.expressions.member_access import MemberAccess
-from slither.core.expressions.identifier import Identifier
 from slither.core.variables.variable import Variable
-from slither.core.solidity_types.user_defined_type import UserDefinedType
 
-# return unique id for contract to use as subgraph name
+
+
 def _contract_subgraph(contract):
     return f'cluster_{contract.id}_{contract.name}'
 
@@ -163,13 +160,25 @@ class PrinterCallGraph(AbstractPrinter):
         if filename == ".dot":
             filename = "all_contracts.dot"
 
+        info = ''
+        results = []
         with open(filename, 'w', encoding='utf8') as f:
-            self.info(f'Call Graph: {filename}')
-            f.write('\n'.join(['strict digraph {'] + [self._process_functions(self.slither.functions)] +  ['}']))
-
+            info += f'Call Graph: {filename}'
+            content = '\n'.join(['strict digraph {'] + [self._process_functions(self.slither.functions)] +  ['}'])
+            f.write(content)
+            results.append((filename, content))
 
         for derived_contract in self.slither.contracts_derived:
             with open(f'{derived_contract.name}.dot', 'w', encoding='utf8') as f:
-                self.info(f'Call Graph: {derived_contract.name}.dot')
-                f.write('\n'.join(['strict digraph {'] + [self._process_functions(derived_contract.functions)] +  ['}']))
+                info += f'Call Graph: {derived_contract.name}.dot'
+                content = '\n'.join(['strict digraph {'] + [self._process_functions(derived_contract.functions)] +  ['}'])
+                f.write(content)
+                results.append((filename, content))
+
+        self.info(info)
+        res = self.generate_output(info)
+        for filename, content in results:
+            res.add_file(filename, content)
+
+        return res
 

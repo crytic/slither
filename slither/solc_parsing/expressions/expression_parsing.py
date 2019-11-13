@@ -117,18 +117,18 @@ def find_variable(var_name, caller_context, referenced_declaration=None, is_supe
         return conc_variables_ptr[var_name]
 
     if is_super:
-        getter_available = lambda f: f.available_functions_as_dict().items()
+        getter_available = lambda f: f.functions_declared
         d = {f.canonical_name:f for f in contract.functions}
-        functions = {f.full_name:f for f in contract.available_elements_from_inheritances(d, getter_available).values()}
+        functions = {f.full_name:f for f in contract_declarer.available_elements_from_inheritances(d, getter_available).values()}
     else:
         functions = contract.available_functions_as_dict()
     if var_name in functions:
         return functions[var_name]
 
     if is_super:
-        getter_available = lambda m: m.available_modifiers_as_dict().items()
+        getter_available = lambda m: m.modifiers_declared
         d = {m.canonical_name: m for m in contract.modifiers}
-        modifiers = {m.full_name: m for m in contract.available_elements_from_inheritances(d, getter_available).values()}
+        modifiers = {m.full_name: m for m in contract_declarer.available_elements_from_inheritances(d, getter_available).values()}
     else:
         modifiers = contract.available_modifiers_as_dict()
     if var_name in modifiers:
@@ -220,45 +220,7 @@ def filter_name(value):
     return value
 
 # endregion
-###################################################################################
-###################################################################################
-# region Conversion
-###################################################################################
-###################################################################################
 
-def convert_subdenomination(value, sub):
-    if sub is None:
-        return value
-    # to allow 0.1 ether conversion
-    if value[0:2] == "0x":
-        value = float(int(value, 16))
-    else:
-        value = float(value)
-    if sub == 'wei':
-        return int(value)
-    if sub == 'szabo':
-        return int(value * int(1e12))
-    if sub == 'finney':
-        return int(value * int(1e15))
-    if sub == 'ether':
-        return int(value * int(1e18))
-    if sub == 'seconds':
-        return int(value)
-    if sub == 'minutes':
-        return int(value * 60)
-    if sub == 'hours':
-        return int(value * 60 * 60)
-    if sub == 'days':
-        return int(value * 60 * 60 * 24)
-    if sub == 'weeks':
-        return int(value * 60 * 60 * 24 * 7)
-    if sub == 'years':
-        return int(value * 60 * 60 * 24 * 7 * 365)
-
-    logger.error('Subdemoniation not found {}'.format(sub))
-    return int(value)
-
-# endregion
 ###################################################################################
 ###################################################################################
 # region Parsing
@@ -266,7 +228,7 @@ def convert_subdenomination(value, sub):
 ###################################################################################
 
 def parse_call(expression, caller_context):
-
+    src = expression['src']
     if caller_context.is_compact_ast:
         attributes = expression
         type_conversion = expression['kind'] == 'typeConversion'
@@ -299,6 +261,7 @@ def parse_call(expression, caller_context):
 
         expression = parse_expression(expression_to_parse, caller_context)
         t = TypeConversion(expression, type_call)
+        t.set_offset(src, caller_context.slither)
         return t
 
     if caller_context.is_compact_ast:
@@ -312,9 +275,11 @@ def parse_call(expression, caller_context):
         arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
     if isinstance(called, SuperCallExpression):
-        return SuperCallExpression(called, arguments, type_return)
+        sp =  SuperCallExpression(called, arguments, type_return)
+        sp.set_offset(expression['src'], caller_context.slither)
+        return sp
     call_expression = CallExpression(called, arguments, type_return)
-    call_expression.set_offset(expression['src'], caller_context.slither)
+    call_expression.set_offset(src, caller_context.slither)
     return call_expression
 
 def parse_super_name(expression, is_compact_ast):
@@ -349,7 +314,9 @@ def _parse_elementary_type_name_expression(expression, is_compact_ast, caller_co
         value = expression['attributes']['value']
     t = parse_type(UnknownType(value), caller_context)
 
-    return ElementaryTypeNameExpression(t)
+    e = ElementaryTypeNameExpression(t)
+    e.set_offset(expression['src'], caller_context.slither)
+    return e
 
 def parse_expression(expression, caller_context):
     """
@@ -383,6 +350,7 @@ def parse_expression(expression, caller_context):
     # The AST naming does not follow the spec 
     name = expression[caller_context.get_key()]
     is_compact_ast = caller_context.is_compact_ast
+    src = expression['src']
 
     if name == 'UnaryOperation':
         if is_compact_ast:
@@ -398,6 +366,7 @@ def parse_expression(expression, caller_context):
             assert len(expression['children']) == 1
             expression = parse_expression(expression['children'][0], caller_context)
         unary_op = UnaryOperation(expression, operation_type)
+        unary_op.set_offset(src, caller_context.slither)
         return unary_op
 
     elif name == 'BinaryOperation':
@@ -415,10 +384,11 @@ def parse_expression(expression, caller_context):
             left_expression = parse_expression(expression['children'][0], caller_context)
             right_expression = parse_expression(expression['children'][1], caller_context)
         binary_op = BinaryOperation(left_expression, right_expression, operation_type)
+        binary_op.set_offset(src, caller_context.slither)
         return binary_op
 
     elif name == 'FunctionCall':
-        return  parse_call(expression, caller_context)
+        return parse_call(expression, caller_context)
 
     elif name == 'TupleExpression':
         """
@@ -433,7 +403,7 @@ def parse_expression(expression, caller_context):
             Note: this is only possible with Solidity >= 0.4.12
         """
         if is_compact_ast:
-                expressions = [parse_expression(e, caller_context) if e else None for e in expression['components']]
+            expressions = [parse_expression(e, caller_context) if e else None for e in expression['components']]
         else:
             if 'children' not in expression :
                 attributes = expression['attributes']
@@ -452,6 +422,7 @@ def parse_expression(expression, caller_context):
                         if elems[idx] == '':
                             expressions.insert(idx, None)
         t = TupleExpression(expressions)
+        t.set_offset(src, caller_context.slither)
         return t
 
     elif name == 'Conditional':
@@ -466,6 +437,7 @@ def parse_expression(expression, caller_context):
             then_expression = parse_expression(children[1], caller_context)
             else_expression = parse_expression(children[2], caller_context)
         conditional = ConditionalExpression(if_expression, then_expression, else_expression)
+        conditional.set_offset(src, caller_context.slither)
         return conditional
 
     elif name == 'Assignment':
@@ -487,16 +459,22 @@ def parse_expression(expression, caller_context):
             operation_return_type = attributes['type']
 
         assignement = AssignmentOperation(left_expression, right_expression, operation_type, operation_return_type)
+        assignement.set_offset(src, caller_context.slither)
         return assignement
 
+
+
     elif name == 'Literal':
+
+        subdenomination = None
+
         assert 'children' not in expression
 
         if is_compact_ast:
             value = expression['value']
             if value:
                 if 'subdenomination' in expression and expression['subdenomination']:
-                    value = str(convert_subdenomination(value, expression['subdenomination']))
+                    subdenomination = expression['subdenomination']
             elif not value and value != "":
                 value = '0x'+expression['hexValue']
             type = expression['typeDescriptions']['typeString']
@@ -509,7 +487,7 @@ def parse_expression(expression, caller_context):
             value = expression['attributes']['value']
             if value:
                 if 'subdenomination' in expression['attributes'] and expression['attributes']['subdenomination']:
-                    value = str(convert_subdenomination(value, expression['attributes']['subdenomination']))
+                    subdenomination = expression['attributes']['subdenomination']
             elif value is None:
                 # for literal declared as hex
                 # see https://solidity.readthedocs.io/en/v0.4.25/types.html?highlight=hex#hexadecimal-literals
@@ -530,7 +508,8 @@ def parse_expression(expression, caller_context):
             type = ElementaryType('address')
         else:
             type = ElementaryType('string')
-        literal = Literal(value, type)
+        literal = Literal(value, type, subdenomination)
+        literal.set_offset(src, caller_context.slither)
         return literal
 
     elif name == 'Identifier':
@@ -561,7 +540,7 @@ def parse_expression(expression, caller_context):
         var = find_variable(value, caller_context, referenced_declaration)
 
         identifier = Identifier(var)
-        identifier.set_offset(expression['src'], caller_context.slither)
+        identifier.set_offset(src, caller_context.slither)
         return identifier
 
     elif name == 'IndexAccess':
@@ -579,11 +558,12 @@ def parse_expression(expression, caller_context):
         # if abi.decode is used
         # For example, abi.decode(data, ...(uint[]) )
         if right is None:
-            return _parse_elementary_type_name_expression(left, is_compact_ast, caller_context)
+            return parse_expression(left, caller_context)
 
         left_expression = parse_expression(left, caller_context)
         right_expression = parse_expression(right, caller_context)
         index = IndexAccess(left_expression, right_expression, index_type)
+        index.set_offset(src, caller_context.slither)
         return index
 
     elif name == 'MemberAccess':
@@ -602,10 +582,15 @@ def parse_expression(expression, caller_context):
             var = find_variable(super_name, caller_context, is_super=True)
             if var is None:
                 raise VariableNotFound('Variable not found: {}'.format(super_name))
-            return SuperIdentifier(var)
+            sup = SuperIdentifier(var)
+            sup.set_offset(src, caller_context.slither)
+            return sup
         member_access = MemberAccess(member_name, member_type, member_expression)
+        member_access.set_offset(src, caller_context.slither)
         if str(member_access) in SOLIDITY_VARIABLES_COMPOSED:
-            return Identifier(SolidityVariableComposed(str(member_access)))
+            idx = Identifier(SolidityVariableComposed(str(member_access)))
+            idx.set_offset(src, caller_context.slither)
+            return idx
         return member_access
 
     elif name == 'ElementaryTypeNameExpression':
@@ -647,6 +632,7 @@ def parse_expression(expression, caller_context):
             else:
                 raise ParsingError('Incorrect type array {}'.format(type_name))
             array = NewArray(depth, array_type)
+            array.set_offset(src, caller_context.slither)
             return array
 
         if type_name[caller_context.get_key()] == 'ElementaryTypeName':
@@ -655,6 +641,7 @@ def parse_expression(expression, caller_context):
             else:
                 elem_type = ElementaryType(type_name['attributes']['name'])
             new_elem = NewElementaryType(elem_type)
+            new_elem.set_offset(src, caller_context.slither)
             return new_elem
 
         assert type_name[caller_context.get_key()] == 'UserDefinedTypeName'
@@ -664,6 +651,7 @@ def parse_expression(expression, caller_context):
         else:
             contract_name = type_name['attributes']['name']
         new = NewContract(contract_name)
+        new.set_offset(src, caller_context.slither)
         return new
 
     elif name == 'ModifierInvocation':
@@ -679,7 +667,7 @@ def parse_expression(expression, caller_context):
             arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
         call = CallExpression(called, arguments, 'Modifier')
-        call.set_offset(expression['src'], caller_context.slither)
+        call.set_offset(src, caller_context.slither)
         return call
 
     raise ParsingError('Expression not parsed %s'%name)

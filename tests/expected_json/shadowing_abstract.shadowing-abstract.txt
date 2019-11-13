@@ -1,5 +1,5 @@
-INFO:Detectors:[93m
+[93m
 DerivedContract.owner (tests/shadowing_abstract.sol#7) shadows:
 	- BaseContract.owner (tests/shadowing_abstract.sol#2)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#state-variable-shadowing-from-abstract-contracts[0m
-INFO:Slither:tests/shadowing_abstract.sol analyzed (2 contracts), 1 result(s) found
+tests/shadowing_abstract.sol analyzed (2 contracts with 1 detectors), 1 result(s) found

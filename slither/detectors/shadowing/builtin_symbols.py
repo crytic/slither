@@ -77,7 +77,7 @@ contract Bug {
         results = []
         for local in function_or_modifier.variables:
             if self.is_builtin_symbol(local.name):
-                results.append((self.SHADOWING_LOCAL_VARIABLE, local, function_or_modifier))
+                results.append((self.SHADOWING_LOCAL_VARIABLE, local))
         return results
 
     def detect_builtin_shadowing_definitions(self, contract):
@@ -92,18 +92,18 @@ contract Bug {
         # Loop through all functions, modifiers, variables (state and local) to detect any built-in symbol keywords.
         for function in contract.functions_declared:
             if self.is_builtin_symbol(function.name):
-                result.append((self.SHADOWING_FUNCTION, function, None))
+                result.append((self.SHADOWING_FUNCTION, function))
             result += self.detect_builtin_shadowing_locals(function)
         for modifier in contract.modifiers_declared:
             if self.is_builtin_symbol(modifier.name):
-                result.append((self.SHADOWING_MODIFIER, modifier, None))
+                result.append((self.SHADOWING_MODIFIER, modifier))
             result += self.detect_builtin_shadowing_locals(modifier)
         for variable in contract.state_variables_declared:
             if self.is_builtin_symbol(variable.name):
-                result.append((self.SHADOWING_STATE_VARIABLE, variable, None))
+                result.append((self.SHADOWING_STATE_VARIABLE, variable))
         for event in contract.events_declared:
             if self.is_builtin_symbol(event.name):
-                result.append((self.SHADOWING_EVENT, event, None))
+                result.append((self.SHADOWING_EVENT, event))
 
         return result
 
@@ -124,27 +124,10 @@ contract Bug {
                     # Obtain components
                     shadow_type = shadow[0]
                     shadow_object = shadow[1]
-                    local_variable_parent = shadow[2]
 
-                    # Build the path for our info string
-                    local_variable_path = contract.name + "."
-                    if local_variable_parent is not None:
-                        local_variable_path += local_variable_parent.name + "."
-                    local_variable_path += shadow_object.name
+                    info = [shadow_object, f' ({shadow_type}) shadows built-in symbol"\n']
 
-                    info = '{} ({} @ {}) shadows built-in symbol \"{}"\n'.format(local_variable_path,
-                                                                                 shadow_type,
-                                                                                 shadow_object.source_mapping_str,
-                                                                                 shadow_object.name)
-
-                    # Generate relevant JSON data for this shadowing definition.
-                    json = self.generate_json_result(info)
-                    if shadow_type in [self.SHADOWING_FUNCTION, self.SHADOWING_MODIFIER]:
-                        self.add_function_to_json(shadow_object, json)
-                    elif shadow_type == self.SHADOWING_EVENT:
-                        self.add_event_to_json(shadow_object, json)
-                    elif shadow_type in [self.SHADOWING_STATE_VARIABLE, self.SHADOWING_LOCAL_VARIABLE]:
-                        self.add_variable_to_json(shadow_object, json)
-                    results.append(json)
+                    res = self.generate_result(info)
+                    results.append(res)
 
         return results

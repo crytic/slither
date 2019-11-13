@@ -3,7 +3,7 @@
 """
 
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.utils.colors import blue, green, magenta
+
 
 class PrinterSlithIRSSA(AbstractPrinter):
 
@@ -21,24 +21,26 @@ class PrinterSlithIRSSA(AbstractPrinter):
 
         txt = ""
         for contract in self.contracts:
-            print('Contract {}'.format(contract.name))
+            txt += 'Contract {}'.format(contract.name)
             for function in contract.functions:
-                print('\tFunction {}'.format(function.canonical_name))
+                txt += '\tFunction {}'.format(function.canonical_name)
                 for node in function.nodes:
                     if node.expression:
-                        print('\t\tExpression: {}'.format(node.expression))
+                        txt += '\t\tExpression: {}'.format(node.expression)
                     if node.irs_ssa:
-                        print('\t\tIRs:')
+                        txt += '\t\tIRs:'
                         for ir in node.irs_ssa:
-                            print('\t\t\t{}'.format(ir))
+                            txt += '\t\t\t{}'.format(ir)
             for modifier in contract.modifiers:
-                print('\tModifier {}'.format(modifier.canonical_name))
+                txt += '\tModifier {}'.format(modifier.canonical_name)
                 for node in modifier.nodes:
-                    print(node)
+                    txt += str(node)
                     if node.expression:
-                        print('\t\tExpression: {}'.format(node.expression))
+                        txt += '\t\tExpression: {}'.format(node.expression)
                     if node.irs_ssa:
-                        print('\t\tIRs:')
+                        txt += '\t\tIRs:'
                         for ir in node.irs_ssa:
-                            print('\t\t\t{}'.format(ir))
+                            txt += '\t\t\t{}'.format(ir)
         self.info(txt)
+        res = self.generate_output(txt)
+        return res

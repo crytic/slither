@@ -87,12 +87,9 @@ contract Token{
             functions = IncorrectERC20InterfaceDetection.detect_incorrect_erc20_interface(c)
             if functions:
                 for function in functions:
-                    info = "{} ({}) has incorrect ERC20 function interface: {} ({})\n".format(c.name,
-                                                                                              c.source_mapping_str,
-                                                                                              function.full_name,
-                                                                                              function.source_mapping_str)
-                    json = self.generate_json_result(info)
-                    self.add_function_to_json(function, json)
+                    info = [c, " has incorrect ERC20 function interface:", function, "\n"]
+                    json = self.generate_result(info)
+
                     results.append(json)
 
         return results

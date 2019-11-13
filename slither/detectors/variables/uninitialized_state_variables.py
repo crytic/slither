@@ -10,12 +10,7 @@
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.variables.state_variable import StateVariable
-from slither.slithir.variables import ReferenceVariable
-from slither.slithir.operations.assignment import Assignment
-
-from slither.slithir.operations import (OperationWithLValue, Index, Member,
-                                        InternalCall, InternalDynamicCall, LibraryCall)
+from slither.slithir.operations import InternalCall, LibraryCall
 
 
 class UninitializedStateVarsDetection(AbstractDetector):
@@ -92,18 +87,13 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         for c in self.slither.contracts_derived:
             ret = self.detect_uninitialized(c)
             for variable, functions in ret:
-                info = "{} ({}) is never initialized. It is used in:\n"
-                info = info.format(variable.canonical_name,
-                                   variable.source_mapping_str)
+
+                info = [variable, " is never initialized. It is used in:\n"]
+
                 for f in functions:
-                    info += "\t- {} ({})\n".format(f.name, f.source_mapping_str)
+                    info += ["\t- ", f, "\n"]
 
-                source = [variable.source_mapping]
-                source += [f.source_mapping for f in functions]
-
-                json = self.generate_json_result(info)
-                self.add_variable_to_json(variable, json)
-                self.add_functions_to_json(functions, json)
+                json = self.generate_result(info)
                 results.append(json)
 
         return results

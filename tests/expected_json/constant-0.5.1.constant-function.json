@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "constant-function",
-        "impact": "Medium",
-        "confidence": "Medium",
-        "description": "Constant.test_assembly_bug() (tests/constant-0.5.1.sol#15-17) is declared view but contains assembly code\n",
         "elements": [
           {
             "type": "function",
@@ -68,9 +64,15 @@
             }
           }
         ],
+        "description": "Constant.test_assembly_bug() (tests/constant-0.5.1.sol#15-17) is declared view but contains assembly code\n",
+        "markdown": "[Constant.test_assembly_bug()](tests/constant-0.5.1.sol#L15-L17) is declared view but contains assembly code\n",
+        "id": "1f892cae08b89096bdc4d6ecdf55a3adc4b4314390e054fe2547d9c8e9f76e23",
         "additional_fields": {
           "contains_assembly": true
-        }
+        },
+        "check": "constant-function",
+        "impact": "Medium",
+        "confidence": "Medium"
       }
     ]
   }

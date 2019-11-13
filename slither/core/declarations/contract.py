@@ -386,7 +386,7 @@ class Contract(ChildSlither, SourceMapping):
         accessible_elements = {}
         contracts_visited = []
         for father in self.inheritance_reverse:
-            functions = {v.full_name: v for (_, v) in getter_available(father)
+            functions = {v.full_name: v for (v) in getter_available(father)
                          if not v.contract in contracts_visited}
             contracts_visited.append(father)
             inherited_elements.update(functions)
@@ -508,6 +508,16 @@ class Contract(ChildSlither, SourceMapping):
         """
         return next((v for v in self.state_variables if v.name == variable_name), None)
 
+    def get_state_variable_from_canonical_name(self, canonical_name):
+        """
+            Return a state variable from a canonical_name
+        Args:
+            canonical_name (str): name of the variable
+        Returns:
+            StateVariable
+        """
+        return next((v for v in self.state_variables if v.name == canonical_name), None)
+
     def get_structure_from_name(self, structure_name):
         """
             Return a structure from a name
@@ -528,15 +538,25 @@ class Contract(ChildSlither, SourceMapping):
         """
         return next((st for st in self.structures if st.canonical_name == structure_name), None)
 
-    def get_event_from_name(self, event_name):
+    def get_event_from_signature(self, event_signature):
         """
-            Return an event from a name
+            Return an event from a signature
         Args:
-            event_name (str): name of the event
+            event_signature (str): signature of the event
         Returns:
             Event
         """
-        return next((e for e in self.events if e.name == event_name), None)
+        return next((e for e in self.events if e.full_name == event_signature), None)
+
+    def get_event_from_canonical_name(self, event_canonical_name):
+        """
+            Return an event from a canonical name
+        Args:
+            event_canonical_name (str): name of the event
+        Returns:
+            Event
+        """
+        return next((e for e in self.events if e.canonical_name == event_canonical_name), None)
 
     def get_enum_from_name(self, enum_name):
         """
@@ -614,6 +634,25 @@ class Contract(ChildSlither, SourceMapping):
         all_state_variables_read = [item for sublist in all_state_variables_read for item in sublist]
         return list(set(all_state_variables_read))
 
+    @property
+    def all_library_calls(self):
+        '''
+            list((Contract, Function): List all of the libraries func called
+        '''
+        all_high_level_calls = [f.all_library_calls() for f in self.functions + self.modifiers]
+        all_high_level_calls = [item for sublist in all_high_level_calls for item in sublist]
+        return list(set(all_high_level_calls))
+
+    @property
+    def all_high_level_calls(self):
+        '''
+            list((Contract, Function|Variable)): List all of the external high level calls
+        '''
+        all_high_level_calls = [f.all_high_level_calls() for f in self.functions + self.modifiers]
+        all_high_level_calls = [item for sublist in all_high_level_calls for item in sublist]
+        return list(set(all_high_level_calls))
+
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -621,14 +660,15 @@ class Contract(ChildSlither, SourceMapping):
     ###################################################################################
     ###################################################################################
 
-    def get_summary(self):
+    def get_summary(self, include_shadowed=True):
         """ Return the function summary
 
+        :param include_shadowed: boolean to indicate if shadowed functions should be included (default True)
         Returns:
             (str, list, list, list, list): (name, inheritance, variables, fuction summaries, modifier summaries)
         """
-        func_summaries = [f.get_summary() for f in self.functions]
-        modif_summaries = [f.get_summary() for f in self.modifiers]
+        func_summaries = [f.get_summary() for f in self.functions if (not f.is_shadowed or include_shadowed)]
+        modif_summaries = [f.get_summary() for f in self.modifiers if (not f.is_shadowed or include_shadowed)]
         return (self.name, [str(x) for x in self.inheritance], [str(x) for x in self.variables], func_summaries, modif_summaries)
 
     def is_signature_only(self):

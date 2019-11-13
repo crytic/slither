@@ -1,7 +1,7 @@
-INFO:Detectors:[93m
+[93m
 Contract locking ether found in :
-	Contract OnlyLocked has payable functions:
-	 - receive (tests/locked_ether-0.5.1.sol#4-6)
+	Contract OnlyLocked (tests/locked_ether-0.5.1.sol#26) has payable functions:
+	 - Locked.receive() (tests/locked_ether-0.5.1.sol#4-6)
 	But does not have a function to withdraw the ether
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether[0m
-INFO:Slither:tests/locked_ether-0.5.1.sol analyzed (4 contracts), 1 result(s) found
+tests/locked_ether-0.5.1.sol analyzed (4 contracts with 1 detectors), 1 result(s) found
