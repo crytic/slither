@@ -2,6 +2,9 @@
 
 ### Test printer 
 
+# Needed for evm printer
+pip install evm-cfg-builder
+
 slither "tests/*.json" --print all
 
 if [ $? -ne 0 ]; then
