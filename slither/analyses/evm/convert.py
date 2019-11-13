@@ -1,16 +1,16 @@
 import logging
-import sys
 from slither.core.declarations import (Contract, Function)
 from slither.core.cfg.node import Node
 from slither.utils.function import get_function_id
+from slither.exceptions import SlitherError
 from .evm_cfg_builder import load_evm_cfg_builder
 
 logger = logging.getLogger('ConvertToEVM')
 
 KEY_EVM_INS = "EVM_INSTRUCTIONS"
 
-def get_evm_instructions (obj):
 
+def get_evm_instructions(obj):
     assert isinstance(obj, (Function, Contract, Node))
 
     if KEY_EVM_INS not in obj.context:
@@ -38,7 +38,7 @@ def get_evm_instructions (obj):
         contract_info['cfg'] = CFG(contract_info['bytecode_runtime'])
 
         # Get contract init bytecode, srcmap and cfg
-        contract_info['bytecode_init']= slither.crytic_compile.bytecode_init(contract_info['contract'].name)
+        contract_info['bytecode_init'] = slither.crytic_compile.bytecode_init(contract_info['contract'].name)
         contract_info['srcmap_init'] = slither.crytic_compile.srcmap_init(contract_info['contract'].name)
         contract_info['cfg_init'] = CFG(contract_info['bytecode_init'])
 
@@ -75,56 +75,55 @@ def get_evm_instructions (obj):
     return obj.context.get(KEY_EVM_INS, [])
 
 
-def _get_evm_instructions_contract (contract_info):
-
+def _get_evm_instructions_contract(contract_info):
     # Combine the instructions of constructor and the rest of the contract
     return contract_info['cfg_init'].instructions + contract_info['cfg'].instructions
 
 
-def _get_evm_instructions_function (function_info):
+def _get_evm_instructions_function(function_info):
+    function = function_info['function']
 
-            function = function_info['function']
+    # CFG depends on function being constructor or not
+    if function.is_constructor:
+        cfg = function_info['contract_info']['cfg_init']
+        # _dispatcher is the only function recognised by evm-cfg-builder in bytecode_init.
+        # _dispatcher serves the role of the constructor in init code,
+        #    given that there are no other functions.
+        # Todo: Could rename it appropriately in evm-cfg-builder
+        #    by detecting that init bytecode is being parsed.
+        name = "_dispatcher"
+        hash = ""
+    else:
+        cfg = function_info['contract_info']['cfg']
+        name = function.name
+        # Get first four bytes of function singature's keccak-256 hash used as function selector
+        hash = str(hex(get_function_id(function.full_name)))
 
-            # CFG depends on function being constructor or not
-            if function.is_constructor:
-                cfg = function_info['contract_info']['cfg_init']
-                # _dispatcher is the only function recognised by evm-cfg-builder in bytecode_init.
-                # _dispatcher serves the role of the constructor in init code,
-                #    given that there are no other functions.
-                # Todo: Could rename it appropriately in evm-cfg-builder
-                #    by detecting that init bytecode is being parsed.
-                name = "_dispatcher"
-                hash = ""
-            else:
-                cfg = function_info['contract_info']['cfg']
-                name = function.name
-                # Get first four bytes of function singature's keccak-256 hash used as function selector
-                hash = str(hex(get_function_id(function.full_name)))
+    function_evm = _get_function_evm(cfg, name, hash)
+    if function_evm is None:
+        logger.error("Function " + function.name + " not found in the EVM code")
+        raise SlitherError("Function " + function.name + " not found in the EVM code")
 
-            function_evm = _get_function_evm(cfg, name, hash)
-            if function_evm == "None":
-                logger.error("Function " + function.name + " not found")
-                sys.exit(-1)
+    function_ins = []
+    for basic_block in sorted(function_evm.basic_blocks, key=lambda x: x.start.pc):
+        for ins in basic_block.instructions:
+            function_ins.append(ins)
 
-            function_ins = []
-            for basic_block in sorted(function_evm.basic_blocks, key=lambda x:x.start.pc):
-                for ins in basic_block.instructions:
-                    function_ins.append(ins)
-
-            return function_ins
+    return function_ins
 
 
-def _get_evm_instructions_node (node_info):
+def _get_evm_instructions_node(node_info):
     # Get evm instructions for node's contract
     contract_pcs = generate_source_to_evm_ins_mapping(node_info['cfg'].instructions,
-                                                                  node_info['srcmap'],
-                                                                  node_info['slither'],
-                                                                  node_info['contract'].source_mapping['filename_absolute'])
-    contract_file = node_info['slither'].source_code[node_info['contract'].source_mapping['filename_absolute']].encode('utf-8')
+                                                      node_info['srcmap'],
+                                                      node_info['slither'],
+                                                      node_info['contract'].source_mapping['filename_absolute'])
+    contract_file = node_info['slither'].source_code[node_info['contract'].source_mapping['filename_absolute']].encode(
+        'utf-8')
 
     # Get evm instructions corresponding to node's source line number
-    node_source_line = contract_file[0:node_info['node'].source_mapping['start']].count("\n".encode("utf-8"))\
-    + 1
+    node_source_line = contract_file[0:node_info['node'].source_mapping['start']].count("\n".encode("utf-8")) \
+                       + 1
     node_pcs = contract_pcs.get(node_source_line, [])
     node_ins = []
     for pc in node_pcs:
@@ -141,7 +140,7 @@ def _get_function_evm(cfg, function_name, function_hash):
         # Match function name
         elif function_evm.name[:2] != "0x" and function_evm.name.split('(')[0] == function_name:
             return function_evm
-    return "None"
+    return None
 
 
 def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither, filename):
@@ -186,4 +185,4 @@ def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither
         # Note: The order depends on how solc creates the srcmap_runtime
         source_to_evm_mapping.setdefault(line_number, []).append(evm_instructions[idx].pc)
 
-    return(source_to_evm_mapping)
+    return source_to_evm_mapping
