@@ -680,10 +680,13 @@ class FunctionSolc(Function):
         elif name == 'Block':
             node = self._parse_block(statement, node)
         elif name == 'InlineAssembly':
-            break_node = self._new_node(NodeType.ASSEMBLY, statement['src'])
+            asm_node = self._new_node(NodeType.ASSEMBLY, statement['src'])
             self._contains_assembly = True
-            link_nodes(node, break_node)
-            node = break_node
+            # Added with solc 0.4.12
+            if 'operations' in statement:
+                asm_node.add_inline_asm(statement['operations'])
+            link_nodes(node, asm_node)
+            node = asm_node
         elif name == 'DoWhileStatement':
             node = self._parse_dowhile(statement, node)
         # For Continue / Break / Return / Throw
