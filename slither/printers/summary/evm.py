@@ -1,10 +1,9 @@
 """
     Module printing evm mapping of the contract
 """
-
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.analyses.evm import generate_source_to_evm_ins_mapping, load_evm_cfg_builder
-from slither.utils.colors import blue, green, magenta
+from slither.utils.colors import blue, green, magenta, red
 
 
 class PrinterEVM(AbstractPrinter):
@@ -21,6 +20,12 @@ class PrinterEVM(AbstractPrinter):
         """
 
         txt = ""
+
+        if not self.slither.crytic_compile:
+            txt = 'The EVM printer requires to compile with crytic-compile'
+            self.info(red(txt))
+            res = self.generate_output(txt)
+            return res
         evm_info = self._extract_evm_info(self.slither)
 
         for contract in self.slither.contracts_derived:

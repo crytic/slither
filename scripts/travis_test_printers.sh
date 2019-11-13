@@ -12,3 +12,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+slither examples/scripts/test_evm_api.sol --print evm --solc solc-0.5.1

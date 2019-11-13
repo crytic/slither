@@ -19,6 +19,9 @@ def get_evm_instructions(obj):
 
         slither = obj.slither
 
+        if not slither.crytic_compile:
+            raise SlitherError('EVM features require to compile with crytic-compile')
+
         contract_info = {}
         function_info = {}
         node_info = {}
