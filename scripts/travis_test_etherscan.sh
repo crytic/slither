@@ -18,7 +18,7 @@ fi
 
 slither rinkeby:0xFe05820C5A92D9bc906D4A46F662dbeba794d3b7 --solc "./solc-0.4.25"
 
-if [ $? -ne 76 ]
+if [ $? -ne 70 ]
 then
     echo "Etherscan test failed"
     exit -1

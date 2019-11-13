@@ -1,17 +1,19 @@
-INFO:Detectors:[92m
-Deprecated standard detected @ tests/deprecated_calls.sol#2:
+[92m
+Deprecated standard detected ContractWithDeprecatedReferences.globalBlockHash (tests/deprecated_calls.sol#2):
 	- Usage of "block.blockhash()" should be replaced with "blockhash()"
-Deprecated standard detected @ tests/deprecated_calls.sol#7:
+Deprecated standard detected msg.gas == msg.value (tests/deprecated_calls.sol#7):
 	- Usage of "msg.gas" should be replaced with "gasleft()"
-Deprecated standard detected @ tests/deprecated_calls.sol#9:
+Deprecated standard detected THROW None (tests/deprecated_calls.sol#9):
 	- Usage of "throw" should be replaced with "revert()"
-Deprecated standard detected @ tests/deprecated_calls.sol#16:
+Deprecated standard detected sha3Result = sha3()(test deprecated sha3 usage) (tests/deprecated_calls.sol#16):
 	- Usage of "sha3()" should be replaced with "keccak256()"
-Deprecated standard detected @ tests/deprecated_calls.sol#19:
+Deprecated standard detected blockHashResult = block.blockhash(0) (tests/deprecated_calls.sol#19):
 	- Usage of "block.blockhash()" should be replaced with "blockhash()"
-Deprecated standard detected @ tests/deprecated_calls.sol#22:
+Deprecated standard detected address(this).callcode() (tests/deprecated_calls.sol#22):
 	- Usage of "callcode" should be replaced with "delegatecall"
-Deprecated standard detected @ tests/deprecated_calls.sol#25:
+Deprecated standard detected suicide(address)(address(0)) (tests/deprecated_calls.sol#25):
 	- Usage of "suicide()" should be replaced with "selfdestruct()"
+Deprecated standard detected globalBlockHash = block.blockhash(0) (tests/deprecated_calls.sol#2):
+	- Usage of "block.blockhash()" should be replaced with "blockhash()"
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards[0m
-INFO:Slither:tests/deprecated_calls.sol analyzed (1 contracts), 7 result(s) found
+tests/deprecated_calls.sol analyzed (1 contracts with 1 detectors), 8 result(s) found

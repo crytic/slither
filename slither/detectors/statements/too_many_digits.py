@@ -5,6 +5,7 @@ Module detecting numbers with too many digits.
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.variables import Constant
 
+
 class TooManyDigits(AbstractDetector):
     """
     Detect numbers with too many digits
@@ -48,7 +49,6 @@ Use:
                     if isinstance(read, Constant):
                         # read.value can return an int or a str. Convert it to str
                         value_as_str = read.original_value
-                        line_of_code = str(node.expression)
                         if '00000' in value_as_str:
                             # Info to be printed
                             ret.append(node)
@@ -64,15 +64,12 @@ Use:
                 # iterate over all the nodes
                 ret = self._detect_too_many_digits(f)
                 if ret:
-                    func_info = '{}.{} ({}) uses literals with too many digits:'.format(f.contract.name,
-                                                                                   f.name,
-                                                                                   f.source_mapping_str)
+                    func_info = [f, ' uses literals with too many digits:']
                     for node in ret:
-                        node_info = func_info + '\n\t- {}\n'.format(node.expression)
+                        node_info = func_info + ['\n\t- ', node,'\n']
 
                         # Add the result in result
-                        json = self.generate_json_result(node_info)
-                        self.add_node_to_json(node, json)
-                        results.append(json)
+                        res = self.generate_result(node_info)
+                        results.append(res)
 
         return results

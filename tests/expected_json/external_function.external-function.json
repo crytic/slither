@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "external-function",
-        "impact": "Optimization",
-        "confidence": "High",
-        "description": "ContractWithFunctionNotCalled.funcNotCalled3() (tests/external_function.sol#13-15) should be declared external\n",
         "elements": [
           {
             "type": "function",
@@ -68,13 +64,15 @@
               "signature": "funcNotCalled3()"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "funcNotCalled3() should be declared external:\n\t- ContractWithFunctionNotCalled.funcNotCalled3() (tests/external_function.sol#13-15)\n",
+        "markdown": "funcNotCalled3() should be declared external:\n\t- [ContractWithFunctionNotCalled.funcNotCalled3()](tests/external_function.sol#L13-L15)\n",
+        "id": "026d9a579ea0304e58c8a5174296494f4b672e4ea032f4e17504f3dac327c4e6",
         "check": "external-function",
         "impact": "Optimization",
-        "confidence": "High",
-        "description": "ContractWithFunctionNotCalled.funcNotCalled2() (tests/external_function.sol#17-19) should be declared external\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -135,13 +133,15 @@
               "signature": "funcNotCalled2()"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "funcNotCalled2() should be declared external:\n\t- ContractWithFunctionNotCalled.funcNotCalled2() (tests/external_function.sol#17-19)\n",
+        "markdown": "funcNotCalled2() should be declared external:\n\t- [ContractWithFunctionNotCalled.funcNotCalled2()](tests/external_function.sol#L17-L19)\n",
+        "id": "1ef1f19a92a8ab8d27df156d50dd75628ec3057b5f5eb16b7d1faa0e5c3850a0",
         "check": "external-function",
         "impact": "Optimization",
-        "confidence": "High",
-        "description": "ContractWithFunctionNotCalled.funcNotCalled() (tests/external_function.sol#21-23) should be declared external\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -202,13 +202,15 @@
               "signature": "funcNotCalled()"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "funcNotCalled() should be declared external:\n\t- ContractWithFunctionNotCalled.funcNotCalled() (tests/external_function.sol#21-23)\n",
+        "markdown": "funcNotCalled() should be declared external:\n\t- [ContractWithFunctionNotCalled.funcNotCalled()](tests/external_function.sol#L21-L23)\n",
+        "id": "369a2f3d071735755ff4f5bc43081fe858bbfb07eed94e5c6dda3c8daa22ba26",
         "check": "external-function",
         "impact": "Optimization",
-        "confidence": "High",
-        "description": "ContractWithFunctionNotCalled2.funcNotCalled() (tests/external_function.sol#32-39) should be declared external\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -265,13 +267,15 @@
               "signature": "funcNotCalled()"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "funcNotCalled() should be declared external:\n\t- ContractWithFunctionNotCalled2.funcNotCalled() (tests/external_function.sol#32-39)\n",
+        "markdown": "funcNotCalled() should be declared external:\n\t- [ContractWithFunctionNotCalled2.funcNotCalled()](tests/external_function.sol#L32-L39)\n",
+        "id": "80a0a3a3954cc6e314079a1d8d96d6739d521ddbcf738e63078d7f210e443562",
         "check": "external-function",
         "impact": "Optimization",
-        "confidence": "High",
-        "description": "FunctionParameterWrite.parameter_read_ok_for_external(uint256) (tests/external_function.sol#74-76) should be declared external\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -324,7 +328,13 @@
               "signature": "parameter_read_ok_for_external(uint256)"
             }
           }
-        ]
+        ],
+        "description": "parameter_read_ok_for_external(uint256) should be declared external:\n\t- FunctionParameterWrite.parameter_read_ok_for_external(uint256) (tests/external_function.sol#74-76)\n",
+        "markdown": "parameter_read_ok_for_external(uint256) should be declared external:\n\t- [FunctionParameterWrite.parameter_read_ok_for_external(uint256)](tests/external_function.sol#L74-L76)\n",
+        "id": "3a0a42d128eff9fb04d8f7605bf2d6f7574c2cbbdffa2dcabbae66d7568ecc59",
+        "check": "external-function",
+        "impact": "Optimization",
+        "confidence": "High"
       }
     ]
   }

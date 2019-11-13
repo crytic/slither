@@ -25,6 +25,9 @@ class DataDependency(AbstractPrinter):
                 _filename(string)
         """
 
+        all_tables = []
+        all_txt = ''
+
         txt = ''
         for c in self.contracts:
             txt += "\nContract %s\n"%c.name
@@ -44,3 +47,12 @@ class DataDependency(AbstractPrinter):
                     table.add_row([v.canonical_name, _get(v, f)])
                 txt += str(table)
             self.info(txt)
+
+            all_txt += txt
+            all_tables.append((c.name, table))
+
+        res = self.generate_output(all_txt)
+        for name, table in all_tables:
+            res.add_pretty_table(table, name)
+
+        return res

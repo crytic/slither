@@ -32,3 +32,18 @@ def export_nested_types_from_variable(variable):
     return l
 
 
+def export_return_type_from_variable(variable):
+    """
+    Return the type returned by a variable
+    :param variable
+    :return: Type
+    """
+    if isinstance(variable.type, MappingType):
+        return export_return_type_from_variable(variable.type.type_to)
+
+    if isinstance(variable.type, ArrayType):
+        return variable.type.type
+
+    return variable.type
+
+

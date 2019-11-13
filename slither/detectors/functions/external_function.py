@@ -1,7 +1,9 @@
 from slither.detectors.abstract_detector import (AbstractDetector,
                                                  DetectorClassification)
-from slither.slithir.operations import (HighLevelCall, SolidityCall )
+from slither.slithir.operations import SolidityCall
 from slither.slithir.operations import (InternalCall, InternalDynamicCall)
+from slither.formatters.functions.external_function import format
+
 
 class ExternalFunction(AbstractDetector):
     """
@@ -172,14 +174,25 @@ class ExternalFunction(AbstractDetector):
                 if is_called:
                     continue
 
-                # Loop for each function definition, and recommend it be declared external.
-                for function_definition in all_function_definitions:
-                    txt = "{} ({}) should be declared external\n"
-                    info = txt.format(function_definition.canonical_name,
-                                      function_definition.source_mapping_str)
+                # As we collect all shadowed functions in get_all_function_definitions
+                # Some function coming from a base might already been declared as external
+                all_function_definitions = [f for f in all_function_definitions if f.visibility == 'public' and
+                                            f.contract == f.contract_declarer]
+                if all_function_definitions:
+                    function_definition = all_function_definitions[0]
+                    all_function_definitions = all_function_definitions[1:]
 
-                    json = self.generate_json_result(info)
-                    self.add_function_to_json(function_definition, json)
-                    results.append(json)
+                    info = [f"{function_definition.full_name} should be declared external:\n"]
+                    info += [f"\t- ", function_definition, "\n"]
+                    for other_function_definition in all_function_definitions:
+                        info += [f"\t- ", other_function_definition, "\n"]
+
+                    res = self.generate_result(info)
+
+                    results.append(res)
 
         return results
+
+    @staticmethod
+    def _format(slither, result):
+        format(slither, result)

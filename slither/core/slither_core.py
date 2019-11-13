@@ -27,14 +27,20 @@ class Slither(Context):
         self._raw_source_code = {}
         self._all_functions = set()
         self._all_modifiers = set()
+        self._all_state_variables = None
 
         self._previous_results_filename = 'slither.db.json'
         self._results_to_hide = []
         self._previous_results = []
+        self._previous_results_ids = set()
         self._paths_to_filter = set()
 
         self._crytic_compile = None
 
+        self._generate_patches = False
+        self._exclude_dependencies = False
+
+        self._markdown_root = ""
 
     ###################################################################################
     ###################################################################################
@@ -44,7 +50,7 @@ class Slither(Context):
 
     @property
     def source_code(self):
-        """ {filename: source_code}: source code """
+        """ {filename: source_code (str)}: source code """
         return self._raw_source_code
 
     @property
@@ -61,8 +67,15 @@ class Slither(Context):
         :param path:
         :return:
         """
-        with open(path, encoding='utf8', newline='') as f:
-            self.source_code[path] = f.read()
+        if self.crytic_compile and path in self.crytic_compile.src_content:
+            self.source_code[path] = self.crytic_compile.src_content[path]
+        else:
+            with open(path, encoding='utf8', newline='') as f:
+                self.source_code[path] = f.read()
+
+    @property
+    def markdown_root(self):
+        return self._markdown_root
 
     # endregion
     ###################################################################################
@@ -74,6 +87,8 @@ class Slither(Context):
     @property
     def solc_version(self):
         """str: Solidity version."""
+        if self.crytic_compile:
+            return self.crytic_compile.compiler_version.version
         return self._solc_version
 
     @property
@@ -152,6 +167,20 @@ class Slither(Context):
                     if isinstance(ir, InternalCall):
                         ir.function.add_reachable_from_node(node, ir)
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Variables
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def state_variables(self):
+        if self._all_state_variables is None:
+            state_variables = [c.state_variables for c in self.contracts]
+            state_variables = [item for sublist in state_variables for item in sublist]
+            self._all_state_variables = set(state_variables)
+        return list(self._all_state_variables)
 
     # endregion
     ###################################################################################
@@ -189,6 +218,9 @@ class Slither(Context):
         if r['elements'] and self._exclude_dependencies:
             return not all(element['source_mapping']['is_dependency'] for element in r['elements'])
 
+        if r['id'] in self._previous_results_ids:
+            return False
+        # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
         return not r['description'] in [pr['description'] for pr in self._previous_results]
 
     def load_previous_results(self):
@@ -197,6 +229,10 @@ class Slither(Context):
             if os.path.isfile(filename):
                 with open(filename) as f:
                     self._previous_results = json.load(f)
+                    if self._previous_results:
+                        for r in self._previous_results:
+                            if 'id' in r:
+                                self._previous_results_ids.add(r['id'])
         except json.decoder.JSONDecodeError:
             logger.error(red('Impossible to decode {}. Consider removing the file'.format(filename)))
 
@@ -228,4 +264,19 @@ class Slither(Context):
     @property
     def crytic_compile(self):
         return self._crytic_compile
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Format
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def generate_patches(self):
+        return self._generate_patches
+
+    @generate_patches.setter
+    def generate_patches(self, p):
+        self._generate_patches = p
+
     # endregion

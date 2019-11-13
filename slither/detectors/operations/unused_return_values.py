@@ -6,6 +6,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.slithir.operations import HighLevelCall, InternalCall, InternalDynamicCall
 from slither.core.variables.state_variable import StateVariable
 
+
 class UnusedReturnValues(AbstractDetector):
     """
     If the return value of a function is never used, it's likely to be bug
@@ -73,17 +74,11 @@ contract MyConc{
                 if unused_return:
 
                     for node in unused_return:
-                        info = "{} ({}) ignores return value by {} \"{}\" ({})\n"
-                        info = info.format(f.canonical_name,
-                                           f.source_mapping_str,
-                                           self._txt_description,
-                                           node.expression,
-                                           node.source_mapping_str)
+                        info = [f, f" ignores return value by ", node, "\n"]
 
-                        json = self.generate_json_result(info)
-                        self.add_node_to_json(node, json)
-                        self.add_function_to_json(f, json)
-                        results.append(json)
+                        res = self.generate_result(info)
+
+                        results.append(res)
 
         return results
 

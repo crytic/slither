@@ -1,7 +1,10 @@
 import logging
 
 from slither.core.declarations.contract import Contract
+from slither.core.declarations.function import Function, FunctionType
 from slither.core.declarations.enum import Enum
+from slither.core.cfg.node import Node, NodeType
+from slither.core.expressions import AssignmentOperation, Identifier, AssignmentOperationType
 from slither.slithir.variables import StateIRVariable
 from slither.solc_parsing.declarations.event import EventSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
@@ -17,7 +20,7 @@ class ContractSolc04(Contract):
 
 
     def __init__(self, slitherSolc, data):
-        assert slitherSolc.solc_version.startswith('0.4')
+        #assert slitherSolc.solc_version.startswith('0.4')
         super(ContractSolc04, self).__init__()
 
         self.set_slither(slitherSolc)
@@ -287,7 +290,7 @@ class ContractSolc04(Contract):
 
         elements_no_params = self._modifiers_no_params
         getter = lambda f: f.modifiers
-        getter_available = lambda f: f.available_modifiers_as_dict().items()
+        getter_available = lambda f: f.modifiers_declared
         Cls = ModifierSolc
         self._modifiers = self._analyze_params_elements(elements_no_params, getter, getter_available, Cls)
 
@@ -299,7 +302,7 @@ class ContractSolc04(Contract):
 
         elements_no_params = self._functions_no_params
         getter = lambda f: f.functions
-        getter_available = lambda f: f.available_functions_as_dict().items()
+        getter_available = lambda f: f.functions_declared
         Cls = FunctionSolc
         self._functions = self._analyze_params_elements(elements_no_params, getter, getter_available, Cls)
 
@@ -319,7 +322,6 @@ class ContractSolc04(Contract):
         :return:
         """
         all_elements = {}
-        accessible_elements = {}
 
         for father in self.inheritance:
             for element in getter(father):
@@ -352,6 +354,7 @@ class ContractSolc04(Contract):
         for element in all_elements.values():
             if accessible_elements[element.full_name] != all_elements[element.canonical_name]:
                 element.is_shadowed = True
+                accessible_elements[element.full_name].shadows = True
 
         return all_elements
 
@@ -367,6 +370,79 @@ class ContractSolc04(Contract):
                 except VariableNotFound:
                     pass
         return
+
+
+    def _create_node(self, func, counter, variable):
+        # Function uses to create node for state variable declaration statements
+        node = Node(NodeType.OTHER_ENTRYPOINT, counter)
+        node.set_offset(variable.source_mapping, self.slither)
+        node.set_function(func)
+        func.add_node(node)
+        expression = AssignmentOperation(Identifier(variable),
+                                                    variable.expression,
+                                                    AssignmentOperationType.ASSIGN,
+                                                    variable.type)
+
+        expression.set_offset(variable.source_mapping, self.slither)
+        node.add_expression(expression)
+        return node
+
+    def add_constructor_variables(self):
+        if self.state_variables:
+            for (idx, variable_candidate) in enumerate(self.state_variables):
+                if variable_candidate.expression and not variable_candidate.is_constant:
+
+                    constructor_variable = Function()
+                    constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
+                    constructor_variable.set_contract(self)
+                    constructor_variable.set_contract_declarer(self)
+                    constructor_variable.set_visibility('internal')
+                    # For now, source mapping of the constructor variable is the whole contract
+                    # Could be improved with a targeted source mapping
+                    constructor_variable.set_offset(self.source_mapping, self.slither)
+                    self._functions[constructor_variable.canonical_name] = constructor_variable
+
+                    prev_node = self._create_node(constructor_variable, 0, variable_candidate)
+                    variable_candidate.node_initialization = prev_node
+                    counter = 1
+                    for v in self.state_variables[idx+1:]:
+                        if v.expression and not v.is_constant:
+                            next_node = self._create_node(constructor_variable, counter, v)
+                            v.node_initialization = next_node
+                            prev_node.add_son(next_node)
+                            next_node.add_father(prev_node)
+                            counter += 1
+                    break
+
+            for (idx, variable_candidate) in enumerate(self.state_variables):
+                if variable_candidate.expression and variable_candidate.is_constant:
+
+                    constructor_variable = Function()
+                    constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES)
+                    constructor_variable.set_contract(self)
+                    constructor_variable.set_contract_declarer(self)
+                    constructor_variable.set_visibility('internal')
+                    # For now, source mapping of the constructor variable is the whole contract
+                    # Could be improved with a targeted source mapping
+                    constructor_variable.set_offset(self.source_mapping, self.slither)
+                    self._functions[constructor_variable.canonical_name] = constructor_variable
+
+                    prev_node = self._create_node(constructor_variable, 0, variable_candidate)
+                    variable_candidate.node_initialization = prev_node
+                    counter = 1
+                    for v in self.state_variables[idx+1:]:
+                        if v.expression and v.is_constant:
+                            next_node = self._create_node(constructor_variable, counter, v)
+                            v.node_initialization = next_node
+                            prev_node.add_son(next_node)
+                            next_node.add_father(prev_node)
+                            counter += 1
+
+                    break
+
+
+
+
 
     def analyze_state_variables(self):
         for var in self.variables:

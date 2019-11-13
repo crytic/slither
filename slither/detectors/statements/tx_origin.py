@@ -4,6 +4,7 @@ Module detecting usage of `tx.origin` in a conditional node
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
+
 class TxOrigin(AbstractDetector):
     """
     Detect usage of tx.origin in a conditional node
@@ -67,12 +68,8 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
             for func, nodes in values:
 
                 for node in nodes:
-                    info = "{} uses tx.origin for authorization: \"{}\" ({})\n".format(func.canonical_name,
-                                                                                       node.expression,
-                                                                                        node.source_mapping_str)
-
-                    json = self.generate_json_result(info)
-                    self.add_node_to_json(node, json)
-                    results.append(json)
+                    info = [func, " uses tx.origin for authorization: ", node, "\n"]
+                    res = self.generate_result(info)
+                    results.append(res)
 
         return results

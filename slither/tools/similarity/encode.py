@@ -195,7 +195,7 @@ def encode_contract(cfilename, **kwargs):
         # Iterate over all the functions
         for function in contract.functions_declared:
 
-            if function.nodes == []:
+            if function.nodes == [] or function.is_constructor_variables:
                 continue
 
             x = (cfilename,contract.name,function.name)

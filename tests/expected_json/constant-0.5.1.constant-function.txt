@@ -1,4 +1,4 @@
-INFO:Detectors:[93m
+[93m
 Constant.test_assembly_bug() (tests/constant-0.5.1.sol#15-17) is declared view but contains assembly code
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#constant-functions-changing-the-state[0m
-INFO:Slither:tests/constant-0.5.1.sol analyzed (1 contracts), 1 result(s) found
+tests/constant-0.5.1.sol analyzed (1 contracts with 1 detectors), 1 result(s) found

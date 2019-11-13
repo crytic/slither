@@ -1,5 +1,6 @@
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 import re
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.formatters.naming_convention.naming_convention import format
 
 
 class NamingConvention(AbstractDetector):
@@ -10,6 +11,7 @@ class NamingConvention(AbstractDetector):
     Exceptions:
     - Allow constant variables name/symbol/decimals to be lowercase (ERC20)
     - Allow '_' at the beggining of the mixed_case match for private variables and unused parameters
+    - Ignore echidna properties (functions with names starting 'echidna_' or 'crytic_'
     """
 
     ARGUMENT = 'naming-convention'
@@ -28,6 +30,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
     WIKI_RECOMMENDATION = 'Follow the Solidity [naming convention](https://solidity.readthedocs.io/en/v0.4.25/style-guide.html#naming-conventions).'
 
+    STANDARD_JSON = False
 
     @staticmethod
     def is_cap_words(name):
@@ -41,7 +44,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
     def is_mixed_case_with_underscore(name):
         # Allow _ at the beginning to represent private variable
         # or unused parameters
-        return re.search('^[a-z_]([A-Za-z0-9]+)?_?$', name) is not None
+        return re.search('^[_]?[a-z]([A-Za-z0-9]+)?_?$', name) is not None
 
     @staticmethod
     def is_upper_case_with_underscores(name):
@@ -57,51 +60,53 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
         for contract in self.contracts:
 
             if not self.is_cap_words(contract.name):
-                info = "Contract '{}' ({}) is not in CapWords\n".format(contract.name,
-                                                                        contract.source_mapping_str)
+                info = ["Contract ", contract, " is not in CapWords\n"]
 
-                json = self.generate_json_result(info)
-                self.add_contract_to_json(contract, json, {
+                res = self.generate_result(info)
+                res.add(contract, {
                     "target": "contract",
                     "convention": "CapWords"
                 })
-                results.append(json)
+                results.append(res)
 
             for struct in contract.structures_declared:
                 if not self.is_cap_words(struct.name):
-                    info = "Struct '{}' ({}) is not in CapWords\n"
-                    info = info.format(struct.canonical_name, struct.source_mapping_str)
+                    info = ["Struct ", struct, " is not in CapWords\n"]
 
-                    json = self.generate_json_result(info)
-                    self.add_struct_to_json(struct, json, {
+                    res = self.generate_result(info)
+                    res.add(struct, {
                         "target": "structure",
                         "convention": "CapWords"
                     })
-                    results.append(json)
+                    results.append(res)
 
             for event in contract.events_declared:
                 if not self.is_cap_words(event.name):
-                    info = "Event '{}' ({}) is not in CapWords\n"
-                    info = info.format(event.canonical_name, event.source_mapping_str)
+                    info = ["Event ", event, " is not in CapWords\n"]
 
-                    json = self.generate_json_result(info)
-                    self.add_event_to_json(event, json, {
+                    res = self.generate_result(info)
+                    res.add(event, {
                         "target": "event",
                         "convention": "CapWords"
                     })
-                    results.append(json)
+                    results.append(res)
 
             for func in contract.functions_declared:
+                if func.is_constructor:
+                    continue
                 if not self.is_mixed_case(func.name):
-                    info = "Function '{}' ({}) is not in mixedCase\n"
-                    info = info.format(func.canonical_name, func.source_mapping_str)
+                    if func.visibility in ['internal', 'private'] and self.is_mixed_case_with_underscore(func.name):
+                        continue
+                    if func.name.startswith("echidna_") or func.name.startswith("crytic_"):
+                        continue
+                    info = ["Function ", func, " is not in mixedCase\n"]
 
-                    json = self.generate_json_result(info)
-                    self.add_function_to_json(func, json, {
+                    res = self.generate_result(info)
+                    res.add(func, {
                         "target": "function",
                         "convention": "mixedCase"
                     })
-                    results.append(json)
+                    results.append(res)
 
                 for argument in func.parameters:
                     # Ignore parameter names that are not specified i.e. empty strings
@@ -112,30 +117,26 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     else:
                         correct_naming = self.is_mixed_case_with_underscore(argument.name)
                     if not correct_naming:
-                        info = "Parameter '{}' of {} ({}) is not in mixedCase\n"
-                        info = info.format(argument.name,
-                                           argument.canonical_name,
-                                           argument.source_mapping_str)
+                        info = ["Parameter ", argument, " is not in mixedCase\n"]
 
-                        json = self.generate_json_result(info)
-                        self.add_variable_to_json(argument, json, {
+                        res = self.generate_result(info)
+                        res.add(argument, {
                             "target": "parameter",
                             "convention": "mixedCase"
                         })
-                        results.append(json)
+                        results.append(res)
 
             for var in contract.state_variables_declared:
                 if self.should_avoid_name(var.name):
                     if not self.is_upper_case_with_underscores(var.name):
-                        info = "Variable '{}' ({}) used l, O, I, which should not be used\n"
-                        info = info.format(var.canonical_name, var.source_mapping_str)
+                        info = ["Variable ", var," used l, O, I, which should not be used\n"]
 
-                        json = self.generate_json_result(info)
-                        self.add_variable_to_json(var, json, {
+                        res = self.generate_result(info)
+                        res.add(var, {
                             "target": "variable",
                             "convention": "l_O_I_should_not_be_used"
                         })
-                        results.append(json)
+                        results.append(res)
 
                 if var.is_constant is True:
                     # For ERC20 compatibility
@@ -143,15 +144,14 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         continue
 
                     if not self.is_upper_case_with_underscores(var.name):
-                        info = "Constant '{}' ({}) is not in UPPER_CASE_WITH_UNDERSCORES\n"
-                        info = info.format(var.canonical_name, var.source_mapping_str)
+                        info = ["Constant ", var," is not in UPPER_CASE_WITH_UNDERSCORES\n"]
 
-                        json = self.generate_json_result(info)
-                        self.add_variable_to_json(var, json, {
+                        res = self.generate_result(info)
+                        res.add(var, {
                             "target": "variable_constant",
                             "convention": "UPPER_CASE_WITH_UNDERSCORES"
                         })
-                        results.append(json)
+                        results.append(res)
 
                 else:
                     if var.visibility == 'private':
@@ -159,39 +159,39 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     else:
                         correct_naming = self.is_mixed_case(var.name)
                     if not correct_naming:
-                        info = "Variable '{}' ({}) is not in mixedCase\n"
-                        info = info.format(var.canonical_name, var.source_mapping_str)
+                        info = ["Variable ", var, " is not in mixedCase\n"]
 
-                        json = self.generate_json_result(info)
-                        self.add_variable_to_json(var, json, {
+                        res = self.generate_result(info)
+                        res.add(var, {
                             "target": "variable",
                             "convention": "mixedCase"
                         })
-                        results.append(json)
+                        results.append(res)
 
             for enum in contract.enums_declared:
                 if not self.is_cap_words(enum.name):
-                    info = "Enum '{}' ({}) is not in CapWords\n"
-                    info = info.format(enum.canonical_name, enum.source_mapping_str)
+                    info = ["Enum ", enum, " is not in CapWords\n"]
 
-                    json = self.generate_json_result(info)
-                    self.add_enum_to_json(enum, json, {
+                    res = self.generate_result(info)
+                    res.add(enum, {
                         "target": "enum",
                         "convention": "CapWords"
                     })
-                    results.append(json)
+                    results.append(res)
 
             for modifier in contract.modifiers_declared:
                 if not self.is_mixed_case(modifier.name):
-                    info = "Modifier '{}' ({}) is not in mixedCase\n"
-                    info = info.format(modifier.canonical_name,
-                                       modifier.source_mapping_str)
+                    info = ["Modifier ", modifier, " is not in mixedCase\n"]
 
-                    json = self.generate_json_result(info)
-                    self.add_function_to_json(modifier, json, {
+                    res = self.generate_result(info)
+                    res.add(modifier, {
                         "target": "modifier",
                         "convention": "mixedCase"
                     })
-                    results.append(json)
+                    results.append(res)
 
         return results
+
+    @staticmethod
+    def _format(slither, result):
+        format(slither, result)

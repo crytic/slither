@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "solc-version",
-        "impact": "Informational",
-        "confidence": "High",
-        "description": "Pragma version \"0.4.21\" allows old versions (None)\n",
         "elements": [
           {
             "type": "pragma",
@@ -32,7 +28,13 @@
               ]
             }
           }
-        ]
+        ],
+        "description": "Pragma version0.4.21 (None) allows old versions\n",
+        "markdown": "Pragma version[0.4.21](None) allows old versions\n",
+        "id": "328ceb03806c74c48201abc80cb5625f6c8f47711913161dc99748ee6a99b64f",
+        "check": "solc-version",
+        "impact": "Informational",
+        "confidence": "High"
       }
     ]
   }

@@ -1,8 +1,13 @@
-INFO:Detectors:[92m
-ContractWithFunctionNotCalled.funcNotCalled3() (tests/external_function.sol#13-15) should be declared external
-ContractWithFunctionNotCalled.funcNotCalled2() (tests/external_function.sol#17-19) should be declared external
-ContractWithFunctionNotCalled.funcNotCalled() (tests/external_function.sol#21-23) should be declared external
-ContractWithFunctionNotCalled2.funcNotCalled() (tests/external_function.sol#32-39) should be declared external
-FunctionParameterWrite.parameter_read_ok_for_external(uint256) (tests/external_function.sol#74-76) should be declared external
+[92m
+funcNotCalled3() should be declared external:
+	- ContractWithFunctionNotCalled.funcNotCalled3() (tests/external_function.sol#13-15)
+funcNotCalled2() should be declared external:
+	- ContractWithFunctionNotCalled.funcNotCalled2() (tests/external_function.sol#17-19)
+funcNotCalled() should be declared external:
+	- ContractWithFunctionNotCalled.funcNotCalled() (tests/external_function.sol#21-23)
+funcNotCalled() should be declared external:
+	- ContractWithFunctionNotCalled2.funcNotCalled() (tests/external_function.sol#32-39)
+parameter_read_ok_for_external(uint256) should be declared external:
+	- FunctionParameterWrite.parameter_read_ok_for_external(uint256) (tests/external_function.sol#74-76)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-as-external[0m
-INFO:Slither:tests/external_function.sol analyzed (6 contracts), 5 result(s) found
+tests/external_function.sol analyzed (6 contracts with 1 detectors), 5 result(s) found

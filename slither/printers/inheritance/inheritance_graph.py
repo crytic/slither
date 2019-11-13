@@ -10,7 +10,6 @@ from slither.core.declarations.contract import Contract
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.inheritance_analysis import (detect_c3_function_shadowing,
-                                                detect_function_shadowing,
                                                 detect_state_variable_shadowing)
 
 
@@ -26,19 +25,6 @@ class PrinterInheritanceGraph(AbstractPrinter):
         inheritance = [x.inheritance for x in slither.contracts]
         self.inheritance = set([item for sublist in inheritance for item in sublist])
 
-        # Create a lookup of direct shadowing instances.
-        self.direct_overshadowing_functions = {}
-        shadows = detect_function_shadowing(slither.contracts, True, False)
-        for overshadowing_instance in shadows:
-            overshadowing_function = overshadowing_instance[2]
-
-            # Add overshadowing function entry.
-            if overshadowing_function not in self.direct_overshadowing_functions:
-                self.direct_overshadowing_functions[overshadowing_function] = set()
-            self.direct_overshadowing_functions[overshadowing_function].add(overshadowing_instance)
-
-        # Create a lookup of shadowing state variables.
-        # Format: { colliding_variable : set([colliding_variables]) }
         self.overshadowing_state_variables = {}
         shadows = detect_state_variable_shadowing(slither.contracts)
         for overshadowing_instance in shadows:
@@ -55,7 +41,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         func_name = func.full_name
         pattern = '<TR><TD align="left">    %s</TD></TR>'
         pattern_shadow = '<TR><TD align="left"><font color="#FFA500">    %s</font></TD></TR>'
-        if func in self.direct_overshadowing_functions:
+        if func.shadows:
             return pattern_shadow % func_name
         return pattern % func_name
 
@@ -89,12 +75,10 @@ class PrinterInheritanceGraph(AbstractPrinter):
         # If this variable is an overshadowing variable, we'll want to return information describing it.
         result = []
         indirect_shadows = detect_c3_function_shadowing(contract)
-        if indirect_shadows:
-            for collision_set in sorted(indirect_shadows, key=lambda x: x[0][1].name):
-                winner = collision_set[-1][1].contract_declarer.name
-                collision_steps = [colliding_function.contract_declarer.name for _, colliding_function in collision_set]
-                collision_steps = ', '.join(collision_steps)
-                result.append(f"'{collision_set[0][1].full_name}' collides in inherited contracts {collision_steps} where {winner} is chosen.")
+        for winner, colliding_functions in indirect_shadows.items():
+            collision_steps = ', '.join([f.contract_declarer.name
+                                         for f in colliding_functions] + [winner.contract_declarer.name])
+            result.append(f"'{winner.full_name}' collides in inherited contracts {collision_steps} where {winner.contract_declarer.name} is chosen.")
         return '\n'.join(result)
 
     def _get_port_id(self, var, contract):
@@ -116,10 +100,12 @@ class PrinterInheritanceGraph(AbstractPrinter):
         # Functions
         visibilities = ['public', 'external']
         public_functions = [self._get_pattern_func(f, contract) for f in contract.functions if
-                            not f.is_constructor and f.contract_declarer == contract and f.visibility in visibilities]
+                            not f.is_constructor and not f.is_constructor_variables
+                            and f.contract_declarer == contract and f.visibility in visibilities]
         public_functions = ''.join(public_functions)
         private_functions = [self._get_pattern_func(f, contract) for f in contract.functions if
-                             not f.is_constructor and f.contract_declarer == contract and f.visibility not in visibilities]
+                             not f.is_constructor and not f.is_constructor_variables
+                             and f.contract_declarer == contract and f.visibility not in visibilities]
         private_functions = ''.join(private_functions)
 
         # Modifiers
@@ -170,14 +156,23 @@ class PrinterInheritanceGraph(AbstractPrinter):
             Args:
                 filename(string)
         """
+
         if filename == '':
             filename = 'contracts.dot'
         if not filename.endswith('.dot'):
             filename += ".dot"
         info = 'Inheritance Graph: ' + filename
         self.info(info)
+
+        content = 'digraph "" {\n'
+        for c in self.contracts:
+            content += self._summary(c) + '\n'
+        content += '}'
+
         with open(filename, 'w', encoding='utf8') as f:
-            f.write('digraph "" {\n')
-            for c in self.contracts:
-                f.write(self._summary(c))
-            f.write('}')
+            f.write(content)
+
+        res = self.generate_output(info)
+        res.add_file(filename, content)
+
+        return res

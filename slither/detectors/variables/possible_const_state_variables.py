@@ -7,6 +7,8 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.visitors.expression.export_values import ExportValues
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.state_variable import StateVariable
+from slither.formatters.variables.possible_const_state_variables import format
+
 
 class ConstCandidateStateVars(AbstractDetector):
     """
@@ -76,7 +78,7 @@ class ConstCandidateStateVars(AbstractDetector):
         all_functions = [c.all_functions_called for c in self.slither.contracts]
         all_functions = list(set([item for sublist in all_functions for item in sublist]))
 
-        all_variables_written = [f.state_variables_written for f in all_functions]
+        all_variables_written = [f.state_variables_written for f in all_functions if not f.is_constructor_variables]
         all_variables_written = set([item for sublist in all_variables_written for item in sublist])
 
         constable_variables = [v for v in all_non_constant_elementary_variables
@@ -86,11 +88,12 @@ class ConstCandidateStateVars(AbstractDetector):
 
         # Create a result for each finding
         for v in constable_variables:
-            info = "{} should be constant ({})\n".format(v.canonical_name,
-                                                         v.source_mapping_str)
-            json = self.generate_json_result(info)
-            self.add_variable_to_json(v, json)
-
+            info = [v, " should be constant\n"]
+            json = self.generate_result(info)
             results.append(json)
 
         return results
+
+    @staticmethod
+    def _format(slither, result):
+        format(slither, result)

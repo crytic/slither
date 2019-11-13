@@ -1,15 +1,13 @@
-INFO:Detectors:[92m
-C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:
-	- x1 = 0x000001
-C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:
-	- x2 = 0x0000000000001
-C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:
-	- x3 = 1000000000000000000
-C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:
-	- x4 = 100000
-C.h (tests/too_many_digits.sol#20-24) uses literals with too many digits:
-	- x2 = 100000
-C.i (tests/too_many_digits.sol#29-33) uses literals with too many digits:
-	- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000
+[92m
+C.f() (tests/too_many_digits.sol#9-15) uses literals with too many digits:
+	- x1 = 0x000001 (tests/too_many_digits.sol#10)
+C.f() (tests/too_many_digits.sol#9-15) uses literals with too many digits:
+	- x2 = 0x0000000000001 (tests/too_many_digits.sol#11)
+C.f() (tests/too_many_digits.sol#9-15) uses literals with too many digits:
+	- x3 = 1000000000000000000 (tests/too_many_digits.sol#12)
+C.f() (tests/too_many_digits.sol#9-15) uses literals with too many digits:
+	- x4 = 100000 (tests/too_many_digits.sol#13)
+C.h() (tests/too_many_digits.sol#20-24) uses literals with too many digits:
+	- x2 = 100000 (tests/too_many_digits.sol#22)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits[0m
-INFO:Slither:tests/too_many_digits.sol analyzed (1 contracts), 6 result(s) found
+tests/too_many_digits.sol analyzed (1 contracts with 1 detectors), 5 result(s) found

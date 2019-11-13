@@ -4,11 +4,89 @@
   "results": {
     "detectors": [
       {
-        "check": "too-many-digits",
-        "impact": "Informational",
-        "confidence": "Medium",
-        "description": "C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x1 = 0x000001\n",
         "elements": [
+          {
+            "type": "function",
+            "name": "f",
+            "source_mapping": {
+              "start": 174,
+              "length": 195,
+              "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+              "filename_relative": "tests/too_many_digits.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+              "filename_short": "tests/too_many_digits.sol",
+              "is_dependency": false,
+              "lines": [
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "C",
+                "source_mapping": {
+                  "start": 25,
+                  "length": 897,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+                  "filename_relative": "tests/too_many_digits.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+                  "filename_short": "tests/too_many_digits.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "f()"
+            }
+          },
           {
             "type": "node",
             "name": "x1 = 0x000001",
@@ -56,7 +134,7 @@
                     "name": "C",
                     "source_mapping": {
                       "start": 25,
-                      "length": 833,
+                      "length": 897,
                       "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                       "filename_relative": "tests/too_many_digits.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
@@ -95,7 +173,12 @@
                         32,
                         33,
                         34,
-                        35
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40
                       ],
                       "starting_column": 1,
                       "ending_column": 2
@@ -106,14 +189,98 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "C.f() (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x1 = 0x000001 (tests/too_many_digits.sol#10)\n",
+        "markdown": "[C.f()](tests/too_many_digits.sol#L9-L15) uses literals with too many digits:\n\t- [x1 = 0x000001](tests/too_many_digits.sol#L10)\n",
+        "id": "ad33e4cde46622380bf364b6f0829b9a7c8491e1c219e977211e3ed81a9927ed",
         "check": "too-many-digits",
         "impact": "Informational",
-        "confidence": "Medium",
-        "description": "C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x2 = 0x0000000000001\n",
+        "confidence": "Medium"
+      },
+      {
         "elements": [
+          {
+            "type": "function",
+            "name": "f",
+            "source_mapping": {
+              "start": 174,
+              "length": 195,
+              "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+              "filename_relative": "tests/too_many_digits.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+              "filename_short": "tests/too_many_digits.sol",
+              "is_dependency": false,
+              "lines": [
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "C",
+                "source_mapping": {
+                  "start": 25,
+                  "length": 897,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+                  "filename_relative": "tests/too_many_digits.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+                  "filename_short": "tests/too_many_digits.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "f()"
+            }
+          },
           {
             "type": "node",
             "name": "x2 = 0x0000000000001",
@@ -161,7 +328,7 @@
                     "name": "C",
                     "source_mapping": {
                       "start": 25,
-                      "length": 833,
+                      "length": 897,
                       "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                       "filename_relative": "tests/too_many_digits.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
@@ -200,7 +367,12 @@
                         32,
                         33,
                         34,
-                        35
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40
                       ],
                       "starting_column": 1,
                       "ending_column": 2
@@ -211,14 +383,98 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "C.f() (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x2 = 0x0000000000001 (tests/too_many_digits.sol#11)\n",
+        "markdown": "[C.f()](tests/too_many_digits.sol#L9-L15) uses literals with too many digits:\n\t- [x2 = 0x0000000000001](tests/too_many_digits.sol#L11)\n",
+        "id": "584a7ffb54e80195135c9bdc36073c0f8edd8fb9f3208b3b2b181a5612f66c25",
         "check": "too-many-digits",
         "impact": "Informational",
-        "confidence": "Medium",
-        "description": "C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x3 = 1000000000000000000\n",
+        "confidence": "Medium"
+      },
+      {
         "elements": [
+          {
+            "type": "function",
+            "name": "f",
+            "source_mapping": {
+              "start": 174,
+              "length": 195,
+              "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+              "filename_relative": "tests/too_many_digits.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+              "filename_short": "tests/too_many_digits.sol",
+              "is_dependency": false,
+              "lines": [
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "C",
+                "source_mapping": {
+                  "start": 25,
+                  "length": 897,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+                  "filename_relative": "tests/too_many_digits.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+                  "filename_short": "tests/too_many_digits.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "f()"
+            }
+          },
           {
             "type": "node",
             "name": "x3 = 1000000000000000000",
@@ -266,7 +522,7 @@
                     "name": "C",
                     "source_mapping": {
                       "start": 25,
-                      "length": 833,
+                      "length": 897,
                       "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                       "filename_relative": "tests/too_many_digits.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
@@ -305,7 +561,12 @@
                         32,
                         33,
                         34,
-                        35
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40
                       ],
                       "starting_column": 1,
                       "ending_column": 2
@@ -316,14 +577,98 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "C.f() (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x3 = 1000000000000000000 (tests/too_many_digits.sol#12)\n",
+        "markdown": "[C.f()](tests/too_many_digits.sol#L9-L15) uses literals with too many digits:\n\t- [x3 = 1000000000000000000](tests/too_many_digits.sol#L12)\n",
+        "id": "b88a6bfe113e8a92f42e445b6c3dfeb799c2254bc3c9c17c8fd92cb48f342385",
         "check": "too-many-digits",
         "impact": "Informational",
-        "confidence": "Medium",
-        "description": "C.f (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x4 = 100000\n",
+        "confidence": "Medium"
+      },
+      {
         "elements": [
+          {
+            "type": "function",
+            "name": "f",
+            "source_mapping": {
+              "start": 174,
+              "length": 195,
+              "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+              "filename_relative": "tests/too_many_digits.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+              "filename_short": "tests/too_many_digits.sol",
+              "is_dependency": false,
+              "lines": [
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "C",
+                "source_mapping": {
+                  "start": 25,
+                  "length": 897,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+                  "filename_relative": "tests/too_many_digits.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+                  "filename_short": "tests/too_many_digits.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "f()"
+            }
+          },
           {
             "type": "node",
             "name": "x4 = 100000",
@@ -371,7 +716,7 @@
                     "name": "C",
                     "source_mapping": {
                       "start": 25,
-                      "length": 833,
+                      "length": 897,
                       "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                       "filename_relative": "tests/too_many_digits.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
@@ -410,7 +755,12 @@
                         32,
                         33,
                         34,
-                        35
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40
                       ],
                       "starting_column": 1,
                       "ending_column": 2
@@ -421,14 +771,96 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "C.f() (tests/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x4 = 100000 (tests/too_many_digits.sol#13)\n",
+        "markdown": "[C.f()](tests/too_many_digits.sol#L9-L15) uses literals with too many digits:\n\t- [x4 = 100000](tests/too_many_digits.sol#L13)\n",
+        "id": "3f65c504c516f8c6d309479729b47889c1b002be56d955a99eaafe9accab5688",
         "check": "too-many-digits",
         "impact": "Informational",
-        "confidence": "Medium",
-        "description": "C.h (tests/too_many_digits.sol#20-24) uses literals with too many digits:\n\t- x2 = 100000\n",
+        "confidence": "Medium"
+      },
+      {
         "elements": [
+          {
+            "type": "function",
+            "name": "h",
+            "source_mapping": {
+              "start": 453,
+              "length": 113,
+              "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+              "filename_relative": "tests/too_many_digits.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+              "filename_short": "tests/too_many_digits.sol",
+              "is_dependency": false,
+              "lines": [
+                20,
+                21,
+                22,
+                23,
+                24
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "C",
+                "source_mapping": {
+                  "start": 25,
+                  "length": 897,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+                  "filename_relative": "tests/too_many_digits.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
+                  "filename_short": "tests/too_many_digits.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "h()"
+            }
+          },
           {
             "type": "node",
             "name": "x2 = 100000",
@@ -474,7 +906,7 @@
                     "name": "C",
                     "source_mapping": {
                       "start": 25,
-                      "length": 833,
+                      "length": 897,
                       "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
                       "filename_relative": "tests/too_many_digits.sol",
                       "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
@@ -513,7 +945,12 @@
                         32,
                         33,
                         34,
-                        35
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40
                       ],
                       "starting_column": 1,
                       "ending_column": 2
@@ -524,110 +961,13 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "C.h() (tests/too_many_digits.sol#20-24) uses literals with too many digits:\n\t- x2 = 100000 (tests/too_many_digits.sol#22)\n",
+        "markdown": "[C.h()](tests/too_many_digits.sol#L20-L24) uses literals with too many digits:\n\t- [x2 = 100000](tests/too_many_digits.sol#L22)\n",
+        "id": "5f803e158c8bf519958ed6d12ba22e3100916c9a24f952d5cd574fd9ffe3aedb",
         "check": "too-many-digits",
         "impact": "Informational",
-        "confidence": "Medium",
-        "description": "C.i (tests/too_many_digits.sol#29-33) uses literals with too many digits:\n\t- x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000\n",
-        "elements": [
-          {
-            "type": "node",
-            "name": "x2 = 1000000000000 + 10000000000000 + 100000000000000 + 1000000000000000 + 10000000000000000",
-            "source_mapping": {
-              "start": 749,
-              "length": 67,
-              "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-              "filename_relative": "tests/too_many_digits.sol",
-              "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-              "filename_short": "tests/too_many_digits.sol",
-              "is_dependency": false,
-              "lines": [
-                31
-              ],
-              "starting_column": 9,
-              "ending_column": 76
-            },
-            "type_specific_fields": {
-              "parent": {
-                "type": "function",
-                "name": "i",
-                "source_mapping": {
-                  "start": 650,
-                  "length": 201,
-                  "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-                  "filename_relative": "tests/too_many_digits.sol",
-                  "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-                  "filename_short": "tests/too_many_digits.sol",
-                  "is_dependency": false,
-                  "lines": [
-                    29,
-                    30,
-                    31,
-                    32,
-                    33
-                  ],
-                  "starting_column": 5,
-                  "ending_column": 6
-                },
-                "type_specific_fields": {
-                  "parent": {
-                    "type": "contract",
-                    "name": "C",
-                    "source_mapping": {
-                      "start": 25,
-                      "length": 833,
-                      "filename_used": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-                      "filename_relative": "tests/too_many_digits.sol",
-                      "filename_absolute": "/home/travis/build/crytic/slither/tests/too_many_digits.sol",
-                      "filename_short": "tests/too_many_digits.sol",
-                      "is_dependency": false,
-                      "lines": [
-                        3,
-                        4,
-                        5,
-                        6,
-                        7,
-                        8,
-                        9,
-                        10,
-                        11,
-                        12,
-                        13,
-                        14,
-                        15,
-                        16,
-                        17,
-                        18,
-                        19,
-                        20,
-                        21,
-                        22,
-                        23,
-                        24,
-                        25,
-                        26,
-                        27,
-                        28,
-                        29,
-                        30,
-                        31,
-                        32,
-                        33,
-                        34,
-                        35
-                      ],
-                      "starting_column": 1,
-                      "ending_column": 2
-                    }
-                  },
-                  "signature": "i()"
-                }
-              }
-            }
-          }
-        ]
+        "confidence": "Medium"
       }
     ]
   }

@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "solc-version",
-        "impact": "Informational",
-        "confidence": "High",
-        "description": "Pragma version \"^0.4.23\" allows old versions (tests/solc_version_incorrect.sol#2)\n",
         "elements": [
           {
             "type": "pragma",
@@ -35,13 +31,15 @@
               ]
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Pragma version^0.4.23 (tests/solc_version_incorrect.sol#2) allows old versions\n",
+        "markdown": "Pragma version[^0.4.23](tests/solc_version_incorrect.sol#L2) allows old versions\n",
+        "id": "c88d5b50c78f468b95732feb91693016824f78333adab2fdcca3152eec2bfa73",
         "check": "solc-version",
         "impact": "Informational",
-        "confidence": "High",
-        "description": "Pragma version \">=0.4.0<0.6.0\" allows old versions (tests/solc_version_incorrect.sol#3)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "pragma",
@@ -72,7 +70,13 @@
               ]
             }
           }
-        ]
+        ],
+        "description": "Pragma version>=0.4.0<0.6.0 (tests/solc_version_incorrect.sol#3) allows old versions\n",
+        "markdown": "Pragma version[>=0.4.0<0.6.0](tests/solc_version_incorrect.sol#L3) allows old versions\n",
+        "id": "dfd3e70c2367b0c8eca5afa86d1773b9c7aa1d0a155e3a0495188800c41fe390",
+        "check": "solc-version",
+        "impact": "Informational",
+        "confidence": "High"
       }
     ]
   }

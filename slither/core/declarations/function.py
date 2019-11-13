@@ -4,6 +4,7 @@
 import logging
 from collections import namedtuple
 from itertools import groupby
+from enum import Enum
 
 from slither.core.children.child_contract import ChildContract
 from slither.core.children.child_inheritance import ChildInheritance
@@ -13,11 +14,48 @@ from slither.core.declarations.solidity_variables import (SolidityFunction,
 from slither.core.expressions import (Identifier, IndexAccess, MemberAccess,
                                       UnaryOperation)
 from slither.core.source_mapping.source_mapping import SourceMapping
+
 from slither.core.variables.state_variable import StateVariable
+from slither.utils.utils import unroll
 
 logger = logging.getLogger("Function")
 
 ReacheableNode = namedtuple('ReacheableNode', ['node', 'ir'])
+
+class ModifierStatements:
+
+    def __init__(self, modifier, entry_point, nodes):
+        self._modifier = modifier
+        self._entry_point = entry_point
+        self._nodes = nodes
+
+
+    @property
+    def modifier(self):
+        return self._modifier
+
+    @property
+    def entry_point(self):
+        return self._entry_point
+
+    @entry_point.setter
+    def entry_point(self, entry_point):
+        self._entry_point = entry_point
+
+    @property
+    def nodes(self):
+        return self._nodes
+
+    @nodes.setter
+    def nodes(self, nodes):
+        self._nodes = nodes
+
+class FunctionType(Enum):
+    NORMAL = 0
+    CONSTRUCTOR = 1
+    FALLBACK = 2
+    CONSTRUCTOR_VARIABLES = 3 # Fake function to hold variable declaration statements
+    CONSTRUCTOR_CONSTANT_VARIABLES = 4  # Fake function to hold variable declaration statements
 
 class Function(ChildContract, ChildInheritance, SourceMapping):
     """
@@ -31,7 +69,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._pure = None
         self._payable = None
         self._visibility = None
-        self._is_constructor = None
+
         self._is_implemented = None
         self._is_empty = None
         self._entry_point = None
@@ -76,9 +114,11 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._all_high_level_calls = None
         self._all_library_calls = None
         self._all_low_level_calls = None
+        self._all_solidity_calls = None
         self._all_state_variables_read = None
         self._all_solidity_variables_read = None
         self._all_state_variables_written = None
+        self._all_slithir_variables = None
         self._all_conditional_state_variables_read = None
         self._all_conditional_state_variables_read_with_loop = None
         self._all_conditional_solidity_variables_read = None
@@ -86,11 +126,19 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._all_solidity_variables_used_as_args = None
 
         self._is_shadowed = False
+        self._shadows = False
 
         # set(ReacheableNode)
         self._reachable_from_nodes = set()
         self._reachable_from_functions = set()
 
+        # Constructor, fallback, State variable constructor
+        self._function_type = None
+        self._is_constructor = None
+
+        # Computed on the fly, can be True of False
+        self._can_reenter = None
+        self._can_send_eth = None
 
     ###################################################################################
     ###################################################################################
@@ -103,11 +151,14 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
             str: function name
         """
-        if self._name == '':
-            if self.is_constructor:
-                return 'constructor'
-            else:
-                return 'fallback'
+        if self._name == '' and self._function_type == FunctionType.CONSTRUCTOR:
+            return 'constructor'
+        elif self._function_type == FunctionType.FALLBACK:
+            return 'fallback'
+        elif self._function_type == FunctionType.CONSTRUCTOR_VARIABLES:
+            return 'slitherConstructorVariables'
+        elif self._function_type == FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES:
+            return 'slitherConstructorConstantVariables'
         return self._name
 
     @property
@@ -129,15 +180,42 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         return self.contract_declarer.name + '.' + name + '(' + ','.join(parameters) + ')'
 
     @property
-    def is_constructor(self):
-        """
-            bool: True if the function is the constructor
-        """
-        return self._is_constructor or self._name == self.contract_declarer.name
-
-    @property
     def contains_assembly(self):
         return self._contains_assembly
+
+    def can_reenter(self, callstack=None):
+        '''
+        Check if the function can re-enter
+        Follow internal calls.
+        Do not consider CREATE as potential re-enter, but check if the
+        destination's constructor can contain a call (recurs. follow nested CREATE)
+        For Solidity > 0.5, filter access to public variables and constant/pure/view
+        For call to this. check if the destination can re-enter
+        Do not consider Send/Transfer as there is not enough gas
+        :param callstack: used internally to check for recursion
+        :return bool:
+        '''
+        from slither.slithir.operations import Call
+        if self._can_reenter is None:
+            self._can_reenter = False
+            for ir in self.all_slithir_operations():
+                if isinstance(ir, Call) and ir.can_reenter(callstack):
+                    self._can_reenter = True
+                    return True
+        return self._can_reenter
+
+    def can_send_eth(self):
+        '''
+        Check if the function can send eth
+        :return bool:
+        '''
+        from slither.slithir.operations import Call
+        if self._can_send_eth is None:
+            for ir in self.all_slithir_operations():
+                if isinstance(ir, Call) and ir.can_send_eth():
+                    self._can_send_eth = True
+                    return True
+        return self._can_reenter
 
     @property
     def slither(self):
@@ -150,6 +228,41 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         :return:
         """
         return self.contract_declarer == contract
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Type (FunctionType)
+    ###################################################################################
+    ###################################################################################
+
+    def set_function_type(self, t):
+        assert isinstance(t, FunctionType)
+        self._function_type = t
+
+    @property
+    def is_constructor(self):
+        """
+            bool: True if the function is the constructor
+        """
+        return self._function_type == FunctionType.CONSTRUCTOR
+
+    @property
+    def is_constructor_variables(self):
+        """
+            bool: True if the function is the constructor of the variables
+            Slither has inbuilt functions to hold the state variables initialization
+        """
+        return self._function_type in [FunctionType.CONSTRUCTOR_VARIABLES, FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES]
+
+    @property
+    def is_fallback(self):
+        """
+            Determine if the function is the fallback function for the contract
+        Returns
+            (bool)
+        """
+        return self._function_type == FunctionType.FALLBACK
 
     # endregion
     ###################################################################################
@@ -179,6 +292,9 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         return self._visibility
 
+    def set_visibility(self, v):
+        self._visibility = v
+
     @property
     def view(self):
         """
@@ -200,6 +316,14 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     @is_shadowed.setter
     def is_shadowed(self, is_shadowed):
         self._is_shadowed = is_shadowed
+
+    @property
+    def shadows(self):
+        return self._shadows
+
+    @shadows.setter
+    def shadows(self, _shadows):
+        self._shadows = _shadows
 
     # endregion
     ###################################################################################
@@ -244,6 +368,11 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             Node: Entry point of the function
         """
         return self._entry_point
+
+    def add_node(self, node):
+        if not self._entry_point:
+            self._entry_point = node
+        self._nodes.append(node)
 
     # endregion
     ###################################################################################
@@ -324,6 +453,13 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
             list(Modifier): List of the modifiers
         """
+        return [c.modifier for c in self._modifiers]
+
+    @property
+    def modifiers_statements(self):
+        """
+            list(ModifierCall): List of the modifiers call (include expression and irs)
+        """
         return list(self._modifiers)
 
     @property
@@ -335,7 +471,16 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                             included.
         """
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
-        return [c.constructors_declared for c in self._explicit_base_constructor_calls if c.constructors_declared]
+        return [c.modifier.constructors_declared for c in self._explicit_base_constructor_calls if c.modifier.constructors_declared]
+
+    @property
+    def explicit_base_constructor_calls_statements(self):
+        """
+            list(ModifierCall): List of the base constructors called explicitly by this presumed constructor definition.
+
+        """
+        # This is a list of contracts internally, so we convert it to a list of constructor functions.
+        return list(self._explicit_base_constructor_calls)
 
 
     # endregion
@@ -665,6 +810,14 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                 lambda x: x.solidity_variables_read)
         return self._all_solidity_variables_read
 
+    def all_slithir_variables(self):
+        """ recursive version of slithir_variables
+        """
+        if self._all_slithir_variables is None:
+            self._all_slithir_variables = self._explore_functions(
+                lambda x: x.slithir_variable)
+        return self._all_slithir_variables
+
     def all_expressions(self):
         """ recursive version of variables_read
         """
@@ -714,6 +867,13 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         if self._all_library_calls is None:
             self._all_library_calls = self._explore_functions(lambda x: x.library_calls)
         return self._all_library_calls
+
+    def all_solidity_calls(self):
+        """ recursive version of solidity calls
+        """
+        if self._all_solidity_calls is None:
+            self._all_solidity_calls = self._explore_functions(lambda x: x.solidity_calls)
+        return self._all_solidity_calls
 
     @staticmethod
     def _explore_func_cond_read(func, include_loop):
@@ -986,6 +1146,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         args_vars = self.all_solidity_variables_used_as_args()
         return SolidityVariableComposed('msg.sender') in conditional_vars + args_vars
 
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -1089,9 +1250,136 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         external_calls_as_expressions = [item for sublist in external_calls_as_expressions for item in sublist]
         self._external_calls_as_expressions = list(set(external_calls_as_expressions))
 
-
-
     # endregion
+    ###################################################################################
+    ###################################################################################
+    # region SlithIr and SSA
+    ###################################################################################
+    ###################################################################################
+
+    def get_last_ssa_state_variables_instances(self):
+        from slither.slithir.variables import ReferenceVariable
+        from slither.slithir.operations import OperationWithLValue
+        from slither.core.cfg.node import NodeType
+
+        if not self.is_implemented:
+            return dict()
+
+        # node, values
+        to_explore = [(self._entry_point, dict())]
+        # node -> values
+        explored = dict()
+        # name -> instances
+        ret = dict()
+
+        while to_explore:
+            node, values = to_explore[0]
+            to_explore = to_explore[1::]
+
+            if node.type != NodeType.ENTRYPOINT:
+                for ir_ssa in node.irs_ssa:
+                    if isinstance(ir_ssa, OperationWithLValue):
+                        lvalue = ir_ssa.lvalue
+                        if isinstance(lvalue, ReferenceVariable):
+                            lvalue = lvalue.points_to_origin
+                        if isinstance(lvalue, StateVariable):
+                            values[lvalue.canonical_name] = {lvalue}
+
+            # Check for fixpoint
+            if node in explored:
+                if values == explored[node]:
+                    continue
+                for k, instances in values.items():
+                    if not k in explored[node]:
+                        explored[node][k] = set()
+                    explored[node][k] |= instances
+                values = explored[node]
+            else:
+                explored[node] = values
+
+            # Return condition
+            if not node.sons and node.type != NodeType.THROW:
+                for name, instances in values.items():
+                    if name not in ret:
+                        ret[name] = set()
+                    ret[name] |= instances
+
+            for son in node.sons:
+                to_explore.append((son, dict(values)))
+
+        return ret
+
+    @staticmethod
+    def _unchange_phi(ir):
+        from slither.slithir.operations import (Phi, PhiCallback)
+        if not isinstance(ir, (Phi, PhiCallback)) or len(ir.rvalues) > 1:
+            return False
+        if not ir.rvalues:
+            return True
+        return ir.rvalues[0] == ir.lvalue
+
+    def fix_phi(self, last_state_variables_instances, initial_state_variables_instances):
+        from slither.slithir.operations import (InternalCall, PhiCallback)
+        from slither.slithir.variables import (Constant, StateIRVariable)
+        for node in self.nodes:
+            for ir in node.irs_ssa:
+                if node == self.entry_point:
+                    if isinstance(ir.lvalue, StateIRVariable):
+                        additional = [initial_state_variables_instances[ir.lvalue.canonical_name]]
+                        additional += last_state_variables_instances[ir.lvalue.canonical_name]
+                        ir.rvalues = list(set(additional + ir.rvalues))
+                    # function parameter
+                    else:
+                        # find index of the parameter
+                        idx = self.parameters.index(ir.lvalue.non_ssa_version)
+                        # find non ssa version of that index
+                        additional = [n.ir.arguments[idx] for n in self.reachable_from_nodes]
+                        additional = unroll(additional)
+                        additional = [a for a in additional if not isinstance(a, Constant)]
+                        ir.rvalues = list(set(additional + ir.rvalues))
+                if isinstance(ir, PhiCallback):
+                    callee_ir = ir.callee_ir
+                    if isinstance(callee_ir, InternalCall):
+                        last_ssa = callee_ir.function.get_last_ssa_state_variables_instances()
+                        if ir.lvalue.canonical_name in last_ssa:
+                            ir.rvalues = list(last_ssa[ir.lvalue.canonical_name])
+                        else:
+                            ir.rvalues = [ir.lvalue]
+                    else:
+                        additional = last_state_variables_instances[ir.lvalue.canonical_name]
+                        ir.rvalues = list(set(additional + ir.rvalues))
+
+            node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
+
+    def generate_slithir_and_analyze(self):
+        for node in self.nodes:
+            node.slithir_generation()
+
+        for modifier_statement in self.modifiers_statements:
+            for node in modifier_statement.nodes:
+                node.slithir_generation()
+
+        for modifier_statement in self.explicit_base_constructor_calls_statements:
+            for node in modifier_statement.nodes:
+                node.slithir_generation()
+
+        self._analyze_read_write()
+        self._analyze_calls()
+
+    def generate_slithir_ssa(self, all_ssa_state_variables_instances):
+        from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
+        from slither.core.dominators.utils import (compute_dominance_frontier,
+                                                   compute_dominators)
+        compute_dominators(self.nodes)
+        compute_dominance_frontier(self.nodes)
+        transform_slithir_vars_to_ssa(self)
+        add_ssa_ir(self, all_ssa_state_variables_instances)
+
+    def update_read_write_using_ssa(self):
+        for node in self.nodes:
+            node.update_read_write_using_ssa()
+        self._analyze_read_write()
+
     ###################################################################################
     ###################################################################################
     # region Built in definitions

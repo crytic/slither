@@ -68,23 +68,23 @@ contract Bug {
                     # Check functions
                     for scope_function in scope_contract.functions_declared:
                         if variable.name == scope_function.name:
-                            overshadowed.append((self.OVERSHADOWED_FUNCTION, scope_contract.name, scope_function))
+                            overshadowed.append((self.OVERSHADOWED_FUNCTION, scope_function))
                     # Check modifiers
                     for scope_modifier in scope_contract.modifiers_declared:
                         if variable.name == scope_modifier.name:
-                            overshadowed.append((self.OVERSHADOWED_MODIFIER, scope_contract.name, scope_modifier))
+                            overshadowed.append((self.OVERSHADOWED_MODIFIER, scope_modifier))
                     # Check events
                     for scope_event in scope_contract.events_declared:
                         if variable.name == scope_event.name:
-                            overshadowed.append((self.OVERSHADOWED_EVENT, scope_contract.name, scope_event))
+                            overshadowed.append((self.OVERSHADOWED_EVENT, scope_event))
                     # Check state variables
                     for scope_state_variable in scope_contract.state_variables_declared:
                         if variable.name == scope_state_variable.name:
-                            overshadowed.append((self.OVERSHADOWED_STATE_VARIABLE, scope_contract.name, scope_state_variable))
+                            overshadowed.append((self.OVERSHADOWED_STATE_VARIABLE, scope_state_variable))
 
                 # If we have found any overshadowed objects, we'll want to add it to our result list.
                 if overshadowed:
-                    result.append((contract.name, function.name, variable, overshadowed))
+                    result.append((variable, overshadowed))
 
         return result
 
@@ -102,29 +102,15 @@ contract Bug {
             shadows = self.detect_shadowing_definitions(contract)
             if shadows:
                 for shadow in shadows:
-                    local_parent_name = shadow[1]
-                    local_variable = shadow[2]
-                    overshadowed = shadow[3]
-                    info = '{}.{}.{} (local variable @ {}) shadows:\n'.format(contract.name,
-                                                                              local_parent_name,
-                                                                              local_variable.name,
-                                                                              local_variable.source_mapping_str)
+                    local_variable = shadow[0]
+                    overshadowed = shadow[1]
+                    info = [local_variable, ' shadows:\n']
                     for overshadowed_entry in overshadowed:
-                        info += "\t- {}.{} ({} @ {})\n".format(overshadowed_entry[1],
-                                                               overshadowed_entry[2],
-                                                               overshadowed_entry[0],
-                                                               overshadowed_entry[2].source_mapping_str)
+                        info += ["\t- ", overshadowed_entry[1], f" ({overshadowed_entry[0]})\n"]
 
                     # Generate relevant JSON data for this shadowing definition.
-                    json = self.generate_json_result(info)
-                    self.add_variable_to_json(local_variable, json)
-                    for overshadowed_entry in overshadowed:
-                        if overshadowed_entry[0] in [self.OVERSHADOWED_FUNCTION, self.OVERSHADOWED_MODIFIER]:
-                            self.add_function_to_json(overshadowed_entry[2], json)
-                        elif overshadowed_entry[0] == self.OVERSHADOWED_EVENT:
-                            self.add_event_to_json(overshadowed_entry[2], json)
-                        elif overshadowed_entry[0] == self.OVERSHADOWED_STATE_VARIABLE:
-                            self.add_variable_to_json(overshadowed_entry[2], json)
-                    results.append(json)
+                    res = self.generate_result(info)
+
+                    results.append(res)
 
         return results

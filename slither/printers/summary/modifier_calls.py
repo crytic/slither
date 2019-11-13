@@ -6,6 +6,7 @@ from prettytable import PrettyTable
 from slither.core.declarations import Function
 from slither.printers.abstract_printer import AbstractPrinter
 
+
 class Modifiers(AbstractPrinter):
 
     ARGUMENT = 'modifiers'
@@ -19,6 +20,9 @@ class Modifiers(AbstractPrinter):
             Args:
                 _filename(string)
         """
+
+        all_txt = ''
+        all_tables = []
 
         for contract in self.slither.contracts_derived:
             txt = "\nContract %s"%contract.name
@@ -35,3 +39,9 @@ class Modifiers(AbstractPrinter):
                 table.add_row([function.name, [m.name for m in set(modifiers)]])
             txt += "\n"+str(table)
             self.info(txt)
+
+        res = self.generate_output(all_txt)
+        for name, table in all_tables:
+            res.add_pretty_table(table, name)
+
+        return res
