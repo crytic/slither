@@ -2,6 +2,7 @@
     Contract module
 """
 import logging
+
 from slither.core.children.child_slither import ChildSlither
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.declarations.function import Function
@@ -41,6 +42,9 @@ class Contract(ChildSlither, SourceMapping):
         self._kind = None
 
         self._signatures = None
+
+        self._is_upgradeable = None
+        self._is_upgradeable_proxy = None
 
 
         self._initial_state_variables = [] # ssa
@@ -810,6 +814,50 @@ class Contract(ChildSlither, SourceMapping):
     def update_read_write_using_ssa(self):
         for function in self.functions + self.modifiers:
             function.update_read_write_using_ssa()
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Upgradeability
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def is_upgradeable(self):
+        if self._is_upgradeable is None:
+            self._is_upgradeable = False
+            initializable = self.slither.get_contract_from_name('Initializable')
+            if initializable:
+                if initializable in self.inheritance:
+                    self._is_upgradeable = True
+            else:
+                for c in self.inheritance + [self]:
+                    # This might lead to false positive
+                    if 'upgradeable' in c.name.lower() or 'upgradable' in c.name.lower():
+                        self._is_upgradeable = True
+                        break
+        return self._is_upgradeable
+
+    @property
+    def is_upgradeable_proxy(self):
+        from slither.core.cfg.node import NodeType
+        from slither.slithir.operations import LowLevelCall
+        if self._is_upgradeable_proxy is None:
+            self._is_upgradeable_proxy = False
+            for f in self.functions:
+                if f.is_fallback:
+                    for node in f.nodes:
+                        for ir in node.irs:
+                            if isinstance(ir, LowLevelCall) and ir.function_name == 'delegatecall':
+                                self._is_upgradeable_proxy = True
+                                return self._is_upgradeable_proxy
+                        if node.type == NodeType.ASSEMBLY:
+                            inline_asm = node.inline_asm
+                            if inline_asm:
+                                if 'delegatecall' in inline_asm:
+                                    self._is_upgradeable_proxy = True
+                                    return self._is_upgradeable_proxy
+        return self._is_upgradeable_proxy
 
     # endregion
     ###################################################################################
