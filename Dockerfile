@@ -14,11 +14,15 @@ RUN wget https://github.com/ethereum/solidity/releases/download/v0.4.25/solc-sta
  && chmod +x solc-static-linux \
  && mv solc-static-linux /usr/bin/solc
 
+RUN useradd -m slither
+USER slither
+
 # If this fails, the solc-static-linux binary has changed while it should not.
 RUN [ "c9b268750506b88fe71371100050e9dd1e7edcf8f69da34d1cd09557ecb24580  /usr/bin/solc" = "$(sha256sum /usr/bin/solc)" ]
 
-RUN git clone https://github.com/trailofbits/slither.git
-WORKDIR slither
+COPY --chown=slither:slither . /home/slither/slither
+WORKDIR /home/slither/slither
 
-RUN python3 setup.py install
+RUN python3 setup.py install --user
+ENV PATH="/home/slither/.local/bin:${PATH}"
 CMD /bin/bash
