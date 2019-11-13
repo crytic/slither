@@ -24,8 +24,27 @@ class ContractSummary(AbstractPrinter):
 
         all_contracts = []
         for c in self.contracts:
-            txt += blue("\n+ Contract %s\n" % c.name)
-            additional_fields = output.Output('')
+
+            is_upgradeable_proxy = c.is_upgradeable_proxy
+            is_upgradeable = c.is_upgradeable
+
+            additional_txt_info = ''
+
+            if is_upgradeable_proxy:
+                additional_txt_info += ' (Upgradeable Proxy)'
+
+            if is_upgradeable:
+                additional_txt_info += ' (Upgradeable)'
+
+            if c in self.slither.contracts_derived:
+                additional_txt_info += ' (Most derived contract)'
+
+            txt += blue(f"\n+ Contract {c.name}{additional_txt_info}\n")
+            additional_fields = output.Output('', additional_fields={
+                'is_upgradeable_proxy': is_upgradeable_proxy,
+                'is_upgradeable': is_upgradeable,
+                'is_most_derived': c in self.slither.contracts_derived
+            })
 
             # Order the function with
             # contract_declarer -> list_functions
@@ -49,7 +68,7 @@ class ContractSummary(AbstractPrinter):
                         txt += "    - {}  ({})\n".format(function, function.visibility)
 
                     additional_fields.add(function, additional_fields={"visibility":
-                                                                       function.visibility})
+                                                                       function.visibility,})
 
             all_contracts.append((c, additional_fields.data))
 

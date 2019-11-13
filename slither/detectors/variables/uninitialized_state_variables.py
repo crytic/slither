@@ -44,7 +44,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
 '''
 
     @staticmethod
-    def written_variables(contract):
+    def _written_variables(contract):
         ret = []
         for f in contract.all_functions_called + contract.modifiers:
             for n in f.nodes:
@@ -57,24 +57,48 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
                             for param in ir.function.parameters:
                                 if param.location == 'storage':
                                     ret.append(ir.arguments[idx])
-                                idx = idx+1
+                                idx = idx + 1
 
         return ret
 
+    def _variable_written_in_proxy(self):
+        # Hack to memoize without having it define in the init
+        if hasattr(self, '__variables_written_in_proxy'):
+            return self.__variables_written_in_proxy
+
+        variables_written_in_proxy = []
+        for c in self.slither.contracts:
+            if c.is_upgradeable_proxy:
+                variables_written_in_proxy += self._written_variables(c)
+
+        self.__variables_written_in_proxy = list(set([v.name for v in variables_written_in_proxy]))
+        return self.__variables_written_in_proxy
+
+    def _written_variables_in_proxy(self, contract):
+        variables = []
+        if contract.is_upgradeable:
+            variables_name_written_in_proxy = self._variable_written_in_proxy()
+            if variables_name_written_in_proxy:
+                variables_in_contract = [contract.get_state_variable_from_name(v) for v in variables_name_written_in_proxy]
+                variables_in_contract = [v for v in variables_in_contract if v]
+                variables += variables_in_contract
+        return list(set(variables))
+
     @staticmethod
-    def read_variables(contract):
+    def _read_variables(contract):
         ret = []
         for f in contract.all_functions_called + contract.modifiers:
             ret += f.state_variables_read
         return ret
 
-    def detect_uninitialized(self, contract):
-        written_variables = self.written_variables(contract)
-        read_variables = self.read_variables(contract)
+    def _detect_uninitialized(self, contract):
+        written_variables = self._written_variables(contract)
+        written_variables += self._written_variables_in_proxy(contract)
+        read_variables = self._read_variables(contract)
         return [(variable, contract.get_functions_reading_from_variable(variable))
-                for variable in contract.state_variables if variable not in written_variables and\
-                                                            not variable.expression and\
-                                                            variable in read_variables]
+                for variable in contract.state_variables if variable not in written_variables and \
+                not variable.expression and \
+                variable in read_variables]
 
     def _detect(self):
         """ Detect uninitialized state variables
@@ -85,7 +109,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         """
         results = []
         for c in self.slither.contracts_derived:
-            ret = self.detect_uninitialized(c)
+            ret = self._detect_uninitialized(c)
             for variable, functions in ret:
 
                 info = [variable, " is never initialized. It is used in:\n"]
