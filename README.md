@@ -20,7 +20,7 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 * Average execution time of less than 1 second per contract
 
 
-## Bug and Optimizations Detection
+## Bugs and Optimizations Detection
 
 Run Slither on a Truffle/Embark/Dapp/Etherlime application:
 ```
