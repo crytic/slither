@@ -89,6 +89,11 @@ Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), 
 ```
 $ pip install slither-analyzer
 ```
+For MacOS
+
+```
+$ pip3 install slither-analyzer
+```
 
 ### Using Git
 
