@@ -161,7 +161,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
             filename = 'contracts.dot'
         if not filename.endswith('.dot'):
             filename += ".dot"
-        info = 'Inheritance Graph: ' + filename
+        info = 'Inheritance Graph: ' + filename + '\n'
         self.info(info)
 
         content = 'digraph "" {\n'
