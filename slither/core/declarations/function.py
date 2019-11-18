@@ -1028,19 +1028,21 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             filename (str)
         """
         from slither.core.cfg.node import NodeType
+        content = ''
         with open(filename, 'w', encoding='utf8') as f:
-            f.write('digraph{\n')
+            content += 'digraph{\n'
             for node in self.nodes:
                 label = 'Node Type: {} {}\n'.format(NodeType.str(node.type), node.node_id)
                 if node.expression:
                     label += '\nEXPRESSION:\n{}\n'.format(node.expression)
                 if node.irs:
                     label += '\nIRs:\n' + '\n'.join([str(ir) for ir in node.irs])
-                f.write('{}[label="{}"];\n'.format(node.node_id, label))
+                content += '{}[label="{}"];\n'.format(node.node_id, label)
                 for son in node.sons:
-                    f.write('{}->{};\n'.format(node.node_id, son.node_id))
+                    content += '{}->{};\n'.format(node.node_id, son.node_id)
 
-            f.write("}\n")
+            content += "}\n"
+        return content
 
     def dominator_tree_to_dot(self, filename):
         """

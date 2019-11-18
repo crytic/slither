@@ -163,15 +163,15 @@ class PrinterCallGraph(AbstractPrinter):
         info = ''
         results = []
         with open(filename, 'w', encoding='utf8') as f:
-            info += f'Call Graph: {filename}'
-            content = '\n'.join(['strict digraph {'] + [self._process_functions(self.slither.functions)] +  ['}'])
+            info += f'Call Graph: {filename}\n'
+            content = '\n'.join(['strict digraph {'] + [self._process_functions(self.slither.functions)] + ['}'])
             f.write(content)
             results.append((filename, content))
 
         for derived_contract in self.slither.contracts_derived:
             with open(f'{derived_contract.name}.dot', 'w', encoding='utf8') as f:
-                info += f'Call Graph: {derived_contract.name}.dot'
-                content = '\n'.join(['strict digraph {'] + [self._process_functions(derived_contract.functions)] +  ['}'])
+                info += f'Call Graph: {derived_contract.name}.dot\n'
+                content = '\n'.join(['strict digraph {'] + [self._process_functions(derived_contract.functions)] + ['}'])
                 f.write(content)
                 results.append((filename, content))
 
