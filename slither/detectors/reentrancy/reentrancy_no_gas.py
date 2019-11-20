@@ -6,7 +6,7 @@
 """
 from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import DetectorClassification
-from slither.slithir.operations import Send, Transfer
+from slither.slithir.operations import Send, Transfer, EventCall
 from .reentrancy import Reentrancy
 
 
@@ -62,7 +62,7 @@ Only report reentrancy that are based on `transfer` or `send`.'''
                                        tuple(sorted(list(node.context[self.KEY]['calls']), key=lambda x: x.node_id)),
                                        tuple(sorted(list(node.context[self.KEY]['send_eth']), key=lambda x: x.node_id)))
                         finding_vars = [(v, node) for v in node.context[self.KEY]['written']]
-                        finding_vars += [(v, node) for v in node.context[self.KEY]['events']]
+                        finding_vars += [(e, e.node) for e in node.context[self.KEY]['events']]
                         if finding_vars:
                             if finding_key not in result:
                                 result[finding_key] = set()
@@ -98,11 +98,11 @@ Only report reentrancy that are based on `transfer` or `send`.'''
                 for (v, node) in sorted(varsWritten, key=lambda x: (x[0].name, x[1].node_id)):
                     info += ['\t- ', v, ' in ', node, '\n']
 
-            events = [(e, node) for (e, node) in varsWrittenOrEvent if isinstance(e, str)]
+            events = [(e, node) for (e, node) in varsWrittenOrEvent if isinstance(e, EventCall)]
             if events:
                 info += ['\tEvent emitted after the call(s):\n']
-                for (e, node) in sorted(events, key=lambda x: (x[0], x[1].node_id)):
-                    info += ['\t- ', e, ' in ', node, '\n']
+                for (_, node) in sorted(events, key=lambda x: x[1].node_id):
+                    info += ['\t- ', node, '\n']
 
             # Create our JSON result
             res = self.generate_result(info)

@@ -52,7 +52,7 @@ If `d.()` reenters, the `Counter` events will be showed in an incorrect order, w
                         finding_key = (node.function,
                                        tuple(sorted(list(node.context[self.KEY]['calls']), key=lambda x: x.node_id)),
                                        tuple(sorted(list(node.context[self.KEY]['send_eth']), key=lambda x: x.node_id)))
-                        finding_vars = [(v, node) for v in node.context[self.KEY]['events']]
+                        finding_vars = list(node.context[self.KEY]['events'])
                         if finding_vars:
                             if finding_key not in result:
                                 result[finding_key] = set()
@@ -82,8 +82,8 @@ If `d.()` reenters, the `Counter` events will be showed in an incorrect order, w
                 for call_info in send_eth:
                     info += ['\t- ', call_info, '\n']
             info += ['\tEvent emitted after the call(s):\n']
-            for (e, node) in sorted(events, key=lambda x: (x[0], x[1].node_id)):
-                info += ['\t- ', e, ' in ', node, '\n']
+            for event in sorted(events, key=lambda x: x.node.node_id):
+                info += ['\t- ', event.node, '\n']
 
             # Create our JSON result
             res = self.generate_result(info)
