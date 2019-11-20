@@ -304,8 +304,7 @@ def propagate_type_and_convert_call(result, node):
                     result.insert(idx, new_ins[0])
                     result.insert(idx+1, new_ins[1])
                     idx = idx + 1
-                else:
-                    assert len(new_ins) == 3
+                elif len(new_ins) == 3:
                     new_ins[0].set_node(ins.node)
                     new_ins[1].set_node(ins.node)
                     new_ins[2].set_node(ins.node)
@@ -314,6 +313,23 @@ def propagate_type_and_convert_call(result, node):
                     result.insert(idx+1, new_ins[1])
                     result.insert(idx+2, new_ins[2])
                     idx = idx + 2
+                else:
+                    # Pop conversion
+                    assert len(new_ins) == 6
+                    new_ins[0].set_node(ins.node)
+                    new_ins[1].set_node(ins.node)
+                    new_ins[2].set_node(ins.node)
+                    new_ins[3].set_node(ins.node)
+                    new_ins[4].set_node(ins.node)
+                    new_ins[5].set_node(ins.node)
+                    del result[idx]
+                    result.insert(idx, new_ins[0])
+                    result.insert(idx + 1, new_ins[1])
+                    result.insert(idx + 2, new_ins[2])
+                    result.insert(idx + 3, new_ins[3])
+                    result.insert(idx + 4, new_ins[4])
+                    result.insert(idx + 5, new_ins[5])
+                    idx = idx + 5
             else:
                 new_ins.set_node(ins.node)
                 result[idx] = new_ins
@@ -416,6 +432,8 @@ def propagate_types(ir, node):
                 if isinstance(t, ArrayType) or (isinstance(t, ElementaryType) and t.type == 'bytes'):
                     if ir.function_name == 'push' and len(ir.arguments) == 1:
                         return convert_to_push(ir, node)
+                    if ir.function_name == 'pop' and len(ir.arguments) == 0:
+                        return convert_to_pop(ir, node)
 
             elif isinstance(ir, Index):
                 if isinstance(ir.variable_left.type, MappingType):
@@ -727,6 +745,7 @@ def convert_to_push(ir, node):
     As a result, the function return may return a list
     """
 
+    # TODO remove Push Operator, and change this to existing operators
 
     lvalue = ir.lvalue
     if isinstance(ir.arguments[0], list):
@@ -770,6 +789,54 @@ def convert_to_push(ir, node):
         return ret
 
     return ir
+
+
+def convert_to_pop(ir, node):
+    """
+    Convert pop operators
+    Return a list of 6 operations
+    """
+
+    ret = []
+
+    arr = ir.destination
+    length = ReferenceVariable(node)
+    length.set_type(ElementaryType('uint256'))
+
+    ir_length = Length(arr, length)
+    ir_length.set_expression(ir.expression)
+    ir_length.lvalue.points_to = arr
+    ret.append(ir_length)
+
+    val = TemporaryVariable(node)
+
+    ir_sub_1 = Binary(val, length, Constant("1", ElementaryType('uint256')), BinaryType.SUBTRACTION)
+    ir_sub_1.set_expression(ir.expression)
+    ret.append(ir_sub_1)
+
+    element_to_delete = ReferenceVariable(node)
+    ir_assign_element_to_delete = Index(element_to_delete, arr, val, ElementaryType('uint256'))
+    ir_length.lvalue.points_to = arr
+    element_to_delete.set_type(ElementaryType('uint256'))
+    ir_assign_element_to_delete.set_expression(ir.expression)
+    ret.append(ir_assign_element_to_delete)
+
+    ir_delete = Delete(element_to_delete, element_to_delete)
+    ir_delete.set_expression(ir.expression)
+    ret.append(ir_delete)
+
+    length_to_assign = ReferenceVariable(node)
+    length_to_assign.set_type(ElementaryType('uint256'))
+    ir_length = Length(arr, length_to_assign)
+    ir_length.set_expression(ir.expression)
+    ir_length.lvalue.points_to = arr
+    ret.append(ir_length)
+
+    ir_assign_length = Assignment(length_to_assign, val, ElementaryType('uint256'))
+    ir_assign_length.set_expression(ir.expression)
+    ret.append(ir_assign_length)
+
+    return ret
 
 def look_for_library(contract, ir, node, using_for, t):
     for destination in using_for[t]:
