@@ -21,26 +21,26 @@ class PrinterSlithIRSSA(AbstractPrinter):
 
         txt = ""
         for contract in self.contracts:
-            txt += 'Contract {}'.format(contract.name)
+            txt += 'Contract {}'.format(contract.name) + '\n'
             for function in contract.functions:
-                txt += '\tFunction {}'.format(function.canonical_name)
+                txt += '\tFunction {}'.format(function.canonical_name) + '\n'
                 for node in function.nodes:
                     if node.expression:
-                        txt += '\t\tExpression: {}'.format(node.expression)
+                        txt += '\t\tExpression: {}'.format(node.expression) + '\n'
                     if node.irs_ssa:
-                        txt += '\t\tIRs:'
+                        txt += '\t\tIRs:' + '\n'
                         for ir in node.irs_ssa:
-                            txt += '\t\t\t{}'.format(ir)
+                            txt += '\t\t\t{}'.format(ir) + '\n'
             for modifier in contract.modifiers:
-                txt += '\tModifier {}'.format(modifier.canonical_name)
+                txt += '\tModifier {}'.format(modifier.canonical_name) + '\n'
                 for node in modifier.nodes:
-                    txt += str(node)
+                    txt += str(node) + '\n'
                     if node.expression:
-                        txt += '\t\tExpression: {}'.format(node.expression)
+                        txt += '\t\tExpression: {}'.format(node.expression) + '\n'
                     if node.irs_ssa:
-                        txt += '\t\tIRs:'
+                        txt += '\t\tIRs:' + '\n'
                         for ir in node.irs_ssa:
-                            txt += '\t\t\t{}'.format(ir)
+                            txt += '\t\t\t{}'.format(ir) + '\n'
         self.info(txt)
         res = self.generate_output(txt)
         return res
