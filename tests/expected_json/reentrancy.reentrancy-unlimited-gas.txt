@@ -1,0 +1,8 @@
+[92m
+Reentrancy in Reentrancy.withdrawBalance_fixed_2() (tests/reentrancy.sol#33-40):
+	External calls:
+	- msg.sender.transfer(userBalance[msg.sender]) (tests/reentrancy.sol#38)
+	State variables written after the call(s):
+	- Reentrancy.userBalance (tests/reentrancy.sol#4) in userBalance[msg.sender] = 0 (tests/reentrancy.sol#39)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3[0m
+tests/reentrancy.sol analyzed (1 contracts with 1 detectors), 1 result(s) found
