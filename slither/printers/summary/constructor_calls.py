@@ -23,8 +23,8 @@ class ConstructorPrinter(AbstractPrinter):
         for contract in self.contracts:
             stack_name = []
             stack_definition = []
-            info += "\n\nContact Name: " + contract.name
-            info += "	Constructor Call Sequence: "
+            info += "\n\nContact Name: " + contract.name + '\n'
+            info += "	Constructor Call Sequence: " + '\n'
             cst = contract.constructors_declared
             if cst:
                 stack_name.append(contract.name)
@@ -35,16 +35,16 @@ class ConstructorPrinter(AbstractPrinter):
                     stack_name.append(inherited_contract.name)
                     stack_definition.append(self._get_soruce_code(cst))
             if len(stack_name) > 0:
-                info += " " + ' '.join(stack_name[len(stack_name) - 1])
+                info += " " + ' '.join(stack_name[len(stack_name) - 1]) + '\n'
                 count = len(stack_name) - 2
                 while count >= 0:
-                    info += "-->" + ' '.join(stack_name[count])
+                    info += "-->" + ' '.join(stack_name[count]) + '\n'
                     count = count - 1
-                info += "\n Constructor Definitions:"
+                info += "\n Constructor Definitions:" + '\n'
                 count = len(stack_definition) - 1
                 while count >= 0:
-                    info += "\n Contract name:" + str(stack_name[count])
-                    info += "\n" + str(stack_definition[count])
+                    info += "\n Contract name:" + str(stack_name[count]) + '\n'
+                    info += "\n" + str(stack_definition[count]) + '\n'
                     count = count - 1
 
         self.info(info)

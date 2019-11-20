@@ -22,8 +22,11 @@ class CFG(AbstractPrinter):
         all_files = []
         for contract in self.contracts:
             for function in contract.functions + contract.modifiers:
-                filename = "{}-{}-{}.dot".format(original_filename, contract.name, function.full_name)
-                info += 'Export {}'.format(filename)
+                if original_filename:
+                    filename = "{}-{}-{}.dot".format(original_filename, contract.name, function.full_name)
+                else:
+                    filename = "{}-{}.dot".format(contract.name, function.full_name)
+                info += 'Export {}\n'.format(filename)
                 content = function.slithir_cfg_to_dot(filename)
                 with open(filename, 'w', encoding='utf8') as f:
                     f.write(content)

@@ -93,6 +93,7 @@ class Flattening:
     def _export_contract(self, contract, exported, list_contract):
         if contract.name in exported:
             return
+        exported.add(contract.name)
         for inherited in contract.inheritance:
             self._export_contract(inherited, exported, list_contract)
 
@@ -121,9 +122,6 @@ class Flattening:
                         self._export_contract(ir.contract_created, exported, list_contract)
                 if isinstance(ir, TypeConversion):
                     self._export_from_type(ir.type, contract, exported, list_contract)
-        if contract.name in exported:
-            return
-        exported.add(contract.name)
         list_contract.append(self._source_codes[contract])
 
     def _export(self, contract, ret):
