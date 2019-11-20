@@ -11,6 +11,8 @@ from .functions.suicidal import Suicidal
 from .reentrancy.reentrancy_benign import ReentrancyBenign
 from .reentrancy.reentrancy_read_before_write import ReentrancyReadBeforeWritten
 from .reentrancy.reentrancy_eth import ReentrancyEth
+from .reentrancy.reentrancy_no_gas import ReentrancyNoGas
+from .reentrancy.reentrancy_events import ReentrancyEvent
 from .variables.unused_state_variables import UnusedStateVars
 from .variables.possible_const_state_variables import ConstCandidateStateVars
 from .statements.tx_origin import TxOrigin
