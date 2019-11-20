@@ -21,7 +21,7 @@ from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils.output import output_to_json
 from slither.utils.output_capture import StandardOutputCapture
-from slither.utils.colors import red, yellow, set_colorization_enabled
+from slither.utils.colors import red, blue, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
                                         output_detectors_json, output_printers, output_printers_json,
                                         output_to_markdown, output_wiki, defaults_flag_in_config,
@@ -616,6 +616,8 @@ def main_impl(all_detector_classes, all_printer_classes):
         else:
             logger.info('%s analyzed (%d contracts with %d detectors), %d result(s) found', filename,
                         number_contracts, len(detector_classes), len(results_detectors))
+
+        logger.info(blue('Use https://crytic.io/ to get access to additional detectors and a Github integration'))
         if args.ignore_return_value:
             return
 
