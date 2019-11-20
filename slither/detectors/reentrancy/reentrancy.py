@@ -147,7 +147,7 @@ class Reentrancy(AbstractDetector):
 
         node.context[self.KEY]['read'] |= state_vars_read
 
-        node.context[self.KEY]['events'] |= set([ir.name for ir in node.irs if isinstance(ir, EventCall)])
+        node.context[self.KEY]['events'] |= set([ir for ir in node.irs if isinstance(ir, EventCall)])
 
         sons = node.sons
         if contains_call and node.type in [NodeType.IF, NodeType.IFLOOP]:
