@@ -31,6 +31,7 @@ generate_expected_json(){
 #generate_expected_json tests/pragma.0.4.24.sol "pragma"
 #generate_expected_json tests/old_solc.sol.json "solc-version"
 #generate_expected_json tests/reentrancy.sol "reentrancy-eth"
+generate_expected_json tests/reentrancy.sol "reentrancy-unlimited-gas"
 #generate_expected_json tests/uninitialized_storage_pointer.sol "uninitialized-storage"
 #generate_expected_json tests/tx_origin.sol "tx-origin"
 #generate_expected_json tests/unused_state.sol "unused-state"
