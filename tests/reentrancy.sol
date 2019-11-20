@@ -70,3 +70,21 @@ contract Reentrancy {
     }   
 
 }
+
+
+contract Called{
+    function f() public;
+}
+
+contract ReentrancyEvent {
+
+    event E();
+
+    function test(Called c) public{
+
+        c.f();
+        emit E();
+
+    }
+}
+
