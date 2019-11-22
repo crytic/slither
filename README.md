@@ -38,8 +38,6 @@ Use [solc-select](https://github.com/crytic/solc-select) if your contracts requi
 
 ### Detectors
 
-
-
 Slither has more than 30 public detectors, including:
 - `shadowing-state`: [State variables shadowing](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variable-shadowing)
 - `reentrancy-eth`: [Reentrancy vulnerabilities](https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities)
@@ -87,11 +85,6 @@ Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), 
 ### Using Pip
 
 ```
-$ pip install slither-analyzer
-```
-For MacOS
-
-```
 $ pip3 install slither-analyzer
 ```
 
@@ -99,7 +92,7 @@ $ pip3 install slither-analyzer
 
 ```bash
 $ git clone https://github.com/crytic/slither.git && cd slither
-$ python setup.py install 
+$ python3 setup.py install
 ```
 
 We recommend using an Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation), if you prefer to install Slither via git.
