@@ -1,11 +1,9 @@
-import os
-import logging
 import json
 import os
 import logging
 from collections import defaultdict
 from prettytable import PrettyTable
-from crytic_compile.cryticparser.defaults import defaults_flag_in_config as defaults_flag_in_config_crytic_compile
+from crytic_compile.cryticparser.defaults import DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE
 
 from slither.detectors.abstract_detector import classification_txt
 from .colors import yellow, red
@@ -35,7 +33,7 @@ defaults_flag_in_config = {
     # debug command
     'legacy_ast': False,
     'ignore_return_value': False,
-    **defaults_flag_in_config_crytic_compile
+    **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE
     }
 
 def read_config_file(args):
