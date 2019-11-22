@@ -41,10 +41,9 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
     TOO_RECENT_VERSION_TXT = "necessitates versions too recent to be trusted. Consider deploying with 0.5.3"
     BUGGY_VERSION_TXT = "is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)"
 
-    # Indicates the allowed versions.
+    # Indicates the allowed versions. Must be formatted in increasing order.
     ALLOWED_VERSIONS = ["0.4.25", "0.4.26", "0.5.3"]
-    # Indicates the versions too recent.
-    TOO_RECENT_VERSIONS = ["0.5.4", "0.5.7", "0.5.8", "0.5.9", "0.5.10", "0.5.11", "0.5.12", "0.5.13"]
+    
     # Indicates the versions that should not be used.
     BUGGY_VERSIONS = ["0.4.22", "0.5.5", "0.5.6", "^0.4.22", "^0.5.5", "^0.5.6"]
 
@@ -54,7 +53,7 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
             return self.LESS_THAN_TXT
         version_number = '.'.join(version[2:])
         if version_number not in self.ALLOWED_VERSIONS:
-            if version_number in self.TOO_RECENT_VERSIONS:
+            if version_number > self.ALLOWED_VERSIONS[-1]:
                 return self.TOO_RECENT_VERSION_TXT
             return self.OLD_VERSION_TXT
         return None
