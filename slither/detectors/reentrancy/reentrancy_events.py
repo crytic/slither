@@ -14,7 +14,7 @@ class ReentrancyEvent(Reentrancy):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-4'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3'
 
     WIKI_TITLE = 'Reentrancy vulnerabilities'
     WIKI_DESCRIPTION = '''
