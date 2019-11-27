@@ -139,7 +139,7 @@
         "additional_fields": {
           "contains_assembly": false
         },
-        "check": "constant-function",
+        "check": "constant-function-state",
         "impact": "Medium",
         "confidence": "Medium"
       },
@@ -279,7 +279,7 @@
         "additional_fields": {
           "contains_assembly": false
         },
-        "check": "constant-function",
+        "check": "constant-function-state",
         "impact": "Medium",
         "confidence": "Medium"
       },
@@ -357,7 +357,7 @@
         "additional_fields": {
           "contains_assembly": true
         },
-        "check": "constant-function",
+        "check": "constant-function-asm",
         "impact": "Medium",
         "confidence": "Medium"
       }
