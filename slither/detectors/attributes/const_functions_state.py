@@ -6,7 +6,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.formatters.attributes.const_functions import format
 
 
-class ConstantFunctions(AbstractDetector):
+class ConstantFunctionsState(AbstractDetector):
     """
     Constant function detector
     """
@@ -20,7 +20,7 @@ class ConstantFunctions(AbstractDetector):
 
     WIKI_TITLE = 'Constant functions changing the state'
     WIKI_DESCRIPTION = '''
-Functions declared as `constant`/`pure`/`view` changing the state or using assembly code.
+Functions declared as `constant`/`pure`/`view` changing the state.
 
 `constant`/`pure`/`view` was not enforced prior Solidity 0.5.
 Starting from Solidity 0.5, a call to a `constant`/`pure`/`view` function uses the `STATICCALL` opcode, which reverts in case of state modification.
@@ -50,31 +50,24 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
             list: {'vuln', 'filename,'contract','func','#varsWritten'}
         """
         results = []
-        for c in self.contracts:
-            for f in c.functions:
-                if f.contract_declarer != c:
-                    continue
-                if f.view or f.pure:
-                    if f.contains_assembly:
-                        attr = 'view' if f.view else 'pure'
+        if self.slither.solc_version < "0.5.0":
+            for c in self.contracts:
+                for f in c.functions:
+                    if f.contract_declarer != c:
+                        continue
+                    if f.view or f.pure:
+                        variables_written = f.all_state_variables_written()
+                        if variables_written:
+                            attr = 'view' if f.view else 'pure'
 
-                        info = [f, f' is declared {attr} but contains assembly code\n']
-                        res = self.generate_result(info, {'contains_assembly': True})
+                            info = [f, f' is declared {attr} but changes state variables:\n']
 
-                        results.append(res)
+                            for variable_written in variables_written:
+                                info += ['\t- ', variable_written, '\n']
 
-                    variables_written = f.all_state_variables_written()
-                    if variables_written:
-                        attr = 'view' if f.view else 'pure'
+                            res = self.generate_result(info, {'contains_assembly': False})
 
-                        info = [f, f' is declared {attr} but changes state variables:\n']
-
-                        for variable_written in variables_written:
-                            info += ['\t- ', variable_written, '\n']
-
-                        res = self.generate_result(info, {'contains_assembly': False})
-
-                        results.append(res)
+                            results.append(res)
 
         return results
 
