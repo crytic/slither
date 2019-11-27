@@ -22,7 +22,7 @@ class Slither(Context):
         self._contracts = {}
         self._filename = None
         self._source_units = {}
-        self._solc_version = None # '0.3' or '0.4':!
+        self._solc_version = None  # '0.3' or '0.4':!
         self._pragma_directives = []
         self._import_directives = []
         self._raw_source_code = {}
@@ -101,7 +101,6 @@ class Slither(Context):
     def import_directives(self):
         """ list(core.declarations.Import): Import directives"""
         return self._import_directives
-
 
     # endregion
     ###################################################################################
@@ -222,10 +221,18 @@ class Slither(Context):
         source_mapping_elements = [elem['source_mapping']['filename_absolute']
                                    for elem in r['elements'] if 'source_mapping' in elem]
         source_mapping_elements = map(lambda x: os.path.normpath(x) if x else x, source_mapping_elements)
-        matching = all(
-            any(bool(re.search(self.relative_path_format(path), src_mapping)) for path in self._paths_to_filter)
-            for src_mapping in source_mapping_elements
-        )
+        matching = False
+
+        for path in self._paths_to_filter:
+            try:
+                if any(bool(re.search(self.relative_path_format(path), src_mapping))
+                       for src_mapping in source_mapping_elements):
+                    matching = True
+                    break
+            except re.error:
+                logger.error(f'Incorrect regular expression for --filter-paths {path}.'
+                             '\nSlither supports the Python re format'
+                             ': https://docs.python.org/3/library/re.html')
 
         if r['elements'] and matching:
             return False
@@ -277,6 +284,7 @@ class Slither(Context):
     @property
     def crytic_compile(self):
         return self._crytic_compile
+
     # endregion
     ###################################################################################
     ###################################################################################
