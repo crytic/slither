@@ -53,7 +53,7 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
             return self.LESS_THAN_TXT
         version_number = '.'.join(version[2:])
         if version_number not in self.ALLOWED_VERSIONS:
-            if version_number > self.ALLOWED_VERSIONS[-1]:
+            if list(map(int, version[2:])) > list(map(int, self.ALLOWED_VERSIONS[-1].split('.'))) :
                 return self.TOO_RECENT_VERSION_TXT
             return self.OLD_VERSION_TXT
         return None
