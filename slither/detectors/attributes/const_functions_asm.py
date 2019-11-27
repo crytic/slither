@@ -11,7 +11,7 @@ class ConstantFunctionsAsm(AbstractDetector):
     Constant function detector
     """
 
-    ARGUMENT = 'constant-function'  # run the detector with slither.py --ARGUMENT
+    ARGUMENT = 'constant-function-asm'  # run the detector with slither.py --ARGUMENT
     HELP = 'Constant functions changing the state'  # help information
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM

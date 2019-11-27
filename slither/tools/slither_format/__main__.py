@@ -16,7 +16,8 @@ available_detectors = ["unused-state",
                        "naming-convention",
                        "external-function",
                        "constable-states",
-                       "constant-function"]
+                       "constant-function-asm",
+                       "constatnt-function-state"]
 
 detectors_to_run = []
 
