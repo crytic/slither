@@ -1,0 +1,151 @@
+{
+  "success": true,
+  "error": null,
+  "results": {
+    "detectors": [
+      {
+        "elements": [
+          {
+            "type": "function",
+            "name": "bug",
+            "source_mapping": {
+              "start": 86,
+              "length": 68,
+              "filename_used": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+              "filename_relative": "tests/reentrancy-0.5.1-events.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+              "filename_short": "tests/reentrancy-0.5.1-events.sol",
+              "is_dependency": false,
+              "lines": [
+                14,
+                15,
+                16,
+                17
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Test",
+                "source_mapping": {
+                  "start": 51,
+                  "length": 193,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+                  "filename_relative": "tests/reentrancy-0.5.1-events.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+                  "filename_short": "tests/reentrancy-0.5.1-events.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "bug(C)"
+            }
+          },
+          {
+            "type": "node",
+            "name": "c.f()",
+            "source_mapping": {
+              "start": 120,
+              "length": 5,
+              "filename_used": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+              "filename_relative": "tests/reentrancy-0.5.1-events.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+              "filename_short": "tests/reentrancy-0.5.1-events.sol",
+              "is_dependency": false,
+              "lines": [
+                15
+              ],
+              "starting_column": 9,
+              "ending_column": 14
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "bug",
+                "source_mapping": {
+                  "start": 86,
+                  "length": 68,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+                  "filename_relative": "tests/reentrancy-0.5.1-events.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+                  "filename_short": "tests/reentrancy-0.5.1-events.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    14,
+                    15,
+                    16,
+                    17
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "Test",
+                    "source_mapping": {
+                      "start": 51,
+                      "length": 193,
+                      "filename_used": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+                      "filename_relative": "tests/reentrancy-0.5.1-events.sol",
+                      "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+                      "filename_short": "tests/reentrancy-0.5.1-events.sol",
+                      "is_dependency": false,
+                      "lines": [
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24
+                      ],
+                      "starting_column": 1,
+                      "ending_column": 2
+                    }
+                  },
+                  "signature": "bug(C)"
+                }
+              }
+            },
+            "additional_fields": {
+              "underlying_type": "external_calls"
+            }
+          }
+        ],
+        "description": "Reentrancy in Test.bug(C) (tests/reentrancy-0.5.1-events.sol#14-17):\n\tExternal calls:\n\t- c.f() (tests/reentrancy-0.5.1-events.sol#15)\n\tEvent emitted after the call(s):\n\t- E() (tests/reentrancy-0.5.1-events.sol#16)\n",
+        "markdown": "Reentrancy in [Test.bug(C)](tests/reentrancy-0.5.1-events.sol#L14-L17):\n\tExternal calls:\n\t- [c.f()](tests/reentrancy-0.5.1-events.sol#L15)\n\tEvent emitted after the call(s):\n\t- [E()](tests/reentrancy-0.5.1-events.sol#L16)\n",
+        "id": "9654da7d8b8d85c90bc2ee1ddaea365f98f14d9981149b354f8a3d84f98ea576",
+        "check": "reentrancy-events",
+        "impact": "Low",
+        "confidence": "Medium"
+      }
+    ]
+  }
+}
