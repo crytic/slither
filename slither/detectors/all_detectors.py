@@ -22,7 +22,8 @@ from .operations.unused_return_values import UnusedReturnValues
 from .naming_convention.naming_convention import NamingConvention
 from .functions.external_function import ExternalFunction
 from .statements.controlled_delegatecall import ControlledDelegateCall
-from .attributes.const_functions import ConstantFunctions
+from .attributes.const_functions_asm import ConstantFunctionsAsm
+from .attributes.const_functions_state import ConstantFunctionsState
 from .shadowing.abstract import ShadowingAbstractDetection
 from .shadowing.state import StateShadowing
 from .shadowing.local import LocalShadowing
