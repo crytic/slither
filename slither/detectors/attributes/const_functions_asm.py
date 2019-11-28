@@ -50,19 +50,20 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
             list: {'vuln', 'filename,'contract','func','#varsWritten'}
         """
         results = []
-        if self.slither.solc_version < "0.5.0":
-            for c in self.contracts:
-                for f in c.functions:
-                    if f.contract_declarer != c:
-                        continue
-                    if f.view or f.pure:
-                        if f.contains_assembly:
-                            attr = 'view' if f.view else 'pure'
+        if self.slither.solc_version and self.slither.solc_version >= "0.5.0":
+            return results
+        for c in self.contracts:
+            for f in c.functions:
+                if f.contract_declarer != c:
+                    continue
+                if f.view or f.pure:
+                    if f.contains_assembly:
+                        attr = 'view' if f.view else 'pure'
 
-                            info = [f, f' is declared {attr} but contains assembly code\n']
-                            res = self.generate_result(info, {'contains_assembly': True})
+                        info = [f, f' is declared {attr} but contains assembly code\n']
+                        res = self.generate_result(info, {'contains_assembly': True})
 
-                            results.append(res)
+                        results.append(res)
 
         return results
 
