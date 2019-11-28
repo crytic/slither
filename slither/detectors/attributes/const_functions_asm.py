@@ -50,7 +50,7 @@ All the calls to `get` revert, breaking Bob's smart contract execution.'''
             list: {'vuln', 'filename,'contract','func','#varsWritten'}
         """
         results = []
-        if self.slither._solc_version < "0.5.0":
+        if self.slither.solc_version < "0.5.0":
             for c in self.contracts:
                 for f in c.functions:
                     if f.contract_declarer != c:
