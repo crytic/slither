@@ -1,8 +1,4 @@
 [93m
-Constant.test_view_bug() (tests/constant.sol#5-7) is declared view but changes state variables:
-	- Constant.a (tests/constant.sol#3)
-Constant.test_constant_bug() (tests/constant.sol#9-11) is declared view but changes state variables:
-	- Constant.a (tests/constant.sol#3)
 Constant.test_assembly_bug() (tests/constant.sol#22-24) is declared view but contains assembly code
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#constant-functions-changing-the-state[0m
 tests/constant.sol analyzed (1 contracts with 1 detectors), 3 result(s) found

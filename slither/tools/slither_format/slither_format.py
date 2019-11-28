@@ -6,7 +6,8 @@ from slither.detectors.attributes.constant_pragma import ConstantPragma
 from slither.detectors.naming_convention.naming_convention import NamingConvention
 from slither.detectors.functions.external_function import ExternalFunction
 from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
-from slither.detectors.attributes.const_functions import ConstantFunctions
+from slither.detectors.attributes.const_functions_asm import ConstantFunctionsAsm
+from slither.detectors.attributes.const_functions_state import ConstantFunctionsState
 from slither.utils.colors import yellow
 
 logging.basicConfig(level=logging.INFO)
@@ -19,7 +20,8 @@ all_detectors = {
     'naming-convention': NamingConvention,
     'external-function': ExternalFunction,
     'constable-states' : ConstCandidateStateVars,
-    'constant-function': ConstantFunctions
+    'constant-function-asm': ConstantFunctionsAsm,
+    'constant-functions-state': ConstantFunctionsState
 }
 
 def slither_format(slither, **kwargs):
