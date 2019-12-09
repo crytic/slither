@@ -87,7 +87,7 @@ class Reentrancy(AbstractDetector):
         # calls returns the list of calls that can callback
         # read returns the variable read
         # read_prior_calls returns the variable read prior a call
-        fathers_context = {'send_eth': set(), 'calls': set(), 'read': set(), 'read_prior_calls': {}, 'events': set()}
+        fathers_context = {'send_eth': set(), 'calls': set(), 'read': set(), 'read_prior_calls': {}}
 
         for father in node.fathers:
             if self.KEY in father.context:
@@ -97,7 +97,6 @@ class Reentrancy(AbstractDetector):
                 fathers_context['read'] |= set(father.context[self.KEY]['read'])
                 fathers_context['read_prior_calls'] = union_dict(fathers_context['read_prior_calls'],
                                                                  father.context[self.KEY]['read_prior_calls'])
-                fathers_context['events'] |= set(father.context[self.KEY]['events'])
 
         # Exclude path that dont bring further information
         if node in self.visited_all_paths:
@@ -106,8 +105,7 @@ class Reentrancy(AbstractDetector):
                     if fathers_context['read'].issubset(self.visited_all_paths[node]['read']):
                         if dict_are_equal(self.visited_all_paths[node]['read_prior_calls'],
                                           fathers_context['read_prior_calls']):
-                            if fathers_context['events'].issubset(self.visited_all_paths[node]['events']):
-                                return
+                            return
         else:
             self.visited_all_paths[node] = {'send_eth': set(), 'calls': set(), 'read': set(),
                                             'read_prior_calls': {}, 'events': set()}
@@ -117,7 +115,6 @@ class Reentrancy(AbstractDetector):
         self.visited_all_paths[node]['read'] |= fathers_context['read']
         self.visited_all_paths[node]['read_prior_calls'] = union_dict(self.visited_all_paths[node]['read_prior_calls'],
                                                                       fathers_context['read_prior_calls'])
-        self.visited_all_paths[node]['events'] |= fathers_context['events']
 
         node.context[self.KEY] = fathers_context
 
@@ -147,7 +144,7 @@ class Reentrancy(AbstractDetector):
 
         node.context[self.KEY]['read'] |= state_vars_read
 
-        node.context[self.KEY]['events'] |= set([ir for ir in node.irs if isinstance(ir, EventCall)])
+        node.context[self.KEY]['events'] = set([ir for ir in node.irs if isinstance(ir, EventCall)])
 
         sons = node.sons
         if contains_call and node.type in [NodeType.IF, NodeType.IFLOOP]:
