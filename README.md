@@ -1,7 +1,7 @@
 # Slither, the Solidity source analyzer
 <img src="./logo.png" alt="Logo" width="500"/>
 
-[![Build Status](https://travis-ci.com/crytic/slither.svg?token=JEF97dFy1QsDCfQ2Wusd&branch=master)](https://travis-ci.com/crytic/slither)
+[![Build Status](https://img.shields.io/github/workflow/status/crytic/slither/CI/master)](https://github.com/crytic/slither/actions)
 [![Slack Status](https://empireslacking.herokuapp.com/badge.svg)](https://empireslacking.herokuapp.com)
 [![PyPI version](https://badge.fury.io/py/slither-analyzer.svg)](https://badge.fury.io/py/slither-analyzer)
 
@@ -28,11 +28,11 @@ slither .
 ```
 
 Run Slither on a single file:
-``` 
-$ slither tests/uninitialized.sol 
-``` 
+```
+$ slither tests/uninitialized.sol
+```
 
-For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation. 
+For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
 
 Use [solc-select](https://github.com/crytic/solc-select) if your contracts require older versions of solc.
 
@@ -80,7 +80,7 @@ See the [Tool documentation](https://github.com/crytic/slither/wiki/Tool-Documen
 
 ## How to install
 
-Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler. 
+Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
 
 ### Using Pip
 
@@ -99,7 +99,7 @@ We recommend using an Python virtual environment, as detailed in the [Developer 
 
 ### Using Docker
 
-Use the [`eth-security-toolbox`](https://github.com/trailofbits/eth-security-toolbox/) docker image. It includes all of our security tools and every major version of Solidity in a single image. `/home/share` will be mounted to `/share`  in the container. 
+Use the [`eth-security-toolbox`](https://github.com/trailofbits/eth-security-toolbox/) docker image. It includes all of our security tools and every major version of Solidity in a single image. `/home/share` will be mounted to `/share`  in the container.
 
 ```
 docker pull trailofbits/eth-security-toolbox
