@@ -21,5 +21,11 @@ class Pragma(SourceMapping):
     def name(self):
         return self.version
 
+    @property
+    def is_solidity_version(self):
+        if len(self._directive) > 0:
+            return self._directive[0].lower() == 'solidity'
+        return False
+
     def __str__(self):
         return 'pragma '+''.join(self.directive)
