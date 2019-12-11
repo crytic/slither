@@ -51,7 +51,7 @@ class DataDependency(AbstractPrinter):
         txt = ''
         #print(pprint_dependency(c))
         for c in self.contracts:
-            print(pprint_dependency(c))
+            #print(pprint_dependency(c))
             txt += "\nContract %s\n"%c.name
             table = PrettyTable(['Variable', 'Dependencies'])
             for v in c.state_variables:

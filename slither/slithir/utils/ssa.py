@@ -402,7 +402,6 @@ def create_phi_member(base, member, new_vals, node, instances, instances_tempora
     phi.rvalues = [base]
     update_refers_to(phi)
     node.add_ssa_ir(phi)
-    print(phi)
 
     return new_var
 
@@ -429,7 +428,6 @@ def update_test(new_ir, node, instances, instances_temporary):
     if isinstance(new_ir, UpdateMember):
         # We save new_var, so we know what is the latest member value
         # If the base is a MemberVariableSSa
-        print('#####')
         new_var = create_phi_member(new_ir.base, new_ir.member, new_ir.new_value,
                                     node, instances, instances_temporary)
 
