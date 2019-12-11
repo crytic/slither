@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "constable-states",
-        "impact": "Optimization",
-        "confidence": "High",
-        "description": "A.myFriendsAddress should be constant (tests/const_state_variables.sol#7)\n",
         "elements": [
           {
             "type": "variable",
@@ -64,13 +60,15 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "A.myFriendsAddress (tests/const_state_variables.sol#7) should be constant\n",
+        "markdown": "[A.myFriendsAddress](tests/const_state_variables.sol#L7) should be constant\n",
+        "id": "1454db80653b732bf6acbe54ff0ae4707002207a2a8216708c12d61c88a43e5f",
         "check": "constable-states",
         "impact": "Optimization",
-        "confidence": "High",
-        "description": "A.test should be constant (tests/const_state_variables.sol#10)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -127,13 +125,15 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "A.test (tests/const_state_variables.sol#10) should be constant\n",
+        "markdown": "[A.test](tests/const_state_variables.sol#L10) should be constant\n",
+        "id": "5d9e3fb413322b71a93e90f7e89bd8c83cd4884d577d039598c681fe9db38b1d",
         "check": "constable-states",
         "impact": "Optimization",
-        "confidence": "High",
-        "description": "A.text2 should be constant (tests/const_state_variables.sol#14)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -190,13 +190,15 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "A.text2 (tests/const_state_variables.sol#14) should be constant\n",
+        "markdown": "[A.text2](tests/const_state_variables.sol#L14) should be constant\n",
+        "id": "df11e6201c4558a8c5cd90b55b134b9ca8f07203b2264d3aa93bd7745e8cb4ba",
         "check": "constable-states",
         "impact": "Optimization",
-        "confidence": "High",
-        "description": "B.mySistersAddress should be constant (tests/const_state_variables.sol#26)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -249,13 +251,15 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "B.mySistersAddress (tests/const_state_variables.sol#26) should be constant\n",
+        "markdown": "[B.mySistersAddress](tests/const_state_variables.sol#L26) should be constant\n",
+        "id": "bee93a722c8eae4a48aade67d8ef537d84c106f48fc9eb738c795fce10d3bc63",
         "check": "constable-states",
         "impact": "Optimization",
-        "confidence": "High",
-        "description": "MyConc.should_be_constant should be constant (tests/const_state_variables.sol#42)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -308,13 +312,15 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "MyConc.should_be_constant (tests/const_state_variables.sol#42) should be constant\n",
+        "markdown": "[MyConc.should_be_constant](tests/const_state_variables.sol#L42) should be constant\n",
+        "id": "cbcafa2a3efba4d21ac1b51b4b823e5082d556bc3d6cf3fd2ab3188f9f218fc1",
         "check": "constable-states",
         "impact": "Optimization",
-        "confidence": "High",
-        "description": "MyConc.should_be_constant_2 should be constant (tests/const_state_variables.sol#43)\n",
+        "confidence": "High"
+      },
+      {
         "elements": [
           {
             "type": "variable",
@@ -367,7 +373,13 @@
               }
             }
           }
-        ]
+        ],
+        "description": "MyConc.should_be_constant_2 (tests/const_state_variables.sol#43) should be constant\n",
+        "markdown": "[MyConc.should_be_constant_2](tests/const_state_variables.sol#L43) should be constant\n",
+        "id": "9a48a4122de1a6a4774a9f1e0d4917bd0fa08f17b4af41b86ba07689e51bf711",
+        "check": "constable-states",
+        "impact": "Optimization",
+        "confidence": "High"
       }
     ]
   }

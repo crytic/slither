@@ -156,14 +156,23 @@ class PrinterInheritanceGraph(AbstractPrinter):
             Args:
                 filename(string)
         """
+
         if filename == '':
             filename = 'contracts.dot'
         if not filename.endswith('.dot'):
             filename += ".dot"
-        info = 'Inheritance Graph: ' + filename
+        info = 'Inheritance Graph: ' + filename + '\n'
         self.info(info)
+
+        content = 'digraph "" {\n'
+        for c in self.contracts:
+            content += self._summary(c) + '\n'
+        content += '}'
+
         with open(filename, 'w', encoding='utf8') as f:
-            f.write('digraph "" {\n')
-            for c in self.contracts:
-                f.write(self._summary(c))
-            f.write('}')
+            f.write(content)
+
+        res = self.generate_output(info)
+        res.add_file(filename, content)
+
+        return res

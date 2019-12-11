@@ -4,51 +4,83 @@
 '''
 
 import logging
-from slither import Slither
+from slither.core.declarations import Function
+from slither.exceptions import SlitherError
+from slither.utils.output import Output
 from slither.utils.function import get_function_id
 from slither.utils.colors import red, green
 
-logger = logging.getLogger("CompareFunctions")
-logger.setLevel(logging.INFO)
+logger = logging.getLogger("Slither-check-upgradeability")
 
 def get_signatures(c):
     functions = c.functions
-    functions = [f.full_name for f in functions if f.visibility in ['public', 'external'] and not f.is_constructor]
+    functions = [f.full_name for f in functions if f.visibility in ['public', 'external'] and
+                 not f.is_constructor and not f.is_fallback]
 
     variables = c.state_variables
     variables = [variable.name+ '()' for variable in variables if variable.visibility in ['public']]
     return list(set(functions+variables))
 
 
-def compare_function_ids(implem, implem_name, proxy, proxy_name):
+def _get_function_or_variable(contract, signature):
+    f = contract.get_function_from_signature(signature)
 
-    logger.info(green('Run function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)'))
+    if f:
+        return f
 
-    implem_contract = implem.get_contract_from_name(implem_name)
-    if implem_contract is None:
-        logger.info(red(f'{implem_name} not found in {implem.filename}'))
-        return
-    proxy_contract = proxy.get_contract_from_name(proxy_name)
-    if proxy_contract is None:
-        logger.info(red(f'{proxy_name} not found in {proxy.filename}'))
-        return
+    for variable in contract.state_variables:
+        # Todo: can lead to incorrect variable in case of shadowing
+        if variable.visibility in ['public']:
+            if variable.name + '()' == signature:
+                return variable
 
-    signatures_implem = get_signatures(implem_contract)
-    signatures_proxy = get_signatures(proxy_contract)
+    raise SlitherError(f'Function id checks: {signature} not found in {contract.name}')
+
+def compare_function_ids(implem, proxy):
+
+    results = {
+        'function-id-collision':[],
+        'shadowing':[],
+    }
+    
+    logger.info(green('\n## Run function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)'))
+
+    signatures_implem = get_signatures(implem)
+    signatures_proxy = get_signatures(proxy)
 
     signatures_ids_implem = {get_function_id(s): s for s in signatures_implem}
     signatures_ids_proxy = {get_function_id(s): s for s in signatures_proxy}
 
-    found = False
+    error_found = False
     for (k, _) in signatures_ids_implem.items():
         if k in signatures_ids_proxy:
-            found = True
+            error_found = True
             if signatures_ids_implem[k] != signatures_ids_proxy[k]:
-                logger.info(red('Function id collision found {} {}'.format(signatures_ids_implem[k],
-                                                                           signatures_ids_proxy[k])))
+
+                implem_function = _get_function_or_variable(implem, signatures_ids_implem[k])
+                proxy_function = _get_function_or_variable(proxy, signatures_ids_proxy[k])
+
+                info = f'Function id collision found: {implem_function.canonical_name} ({implem_function.source_mapping_str}) {proxy_function.canonical_name} ({proxy_function.source_mapping_str})'
+                logger.info(red(info))
+                res = Output(info)
+                res.add(implem_function)
+                res.add(proxy_function)
+                results['function-id-collision'].append(res.data)
+                
             else:
-                logger.info(red('Shadowing between proxy and implementation found {}'.format(signatures_ids_implem[k])))
 
-    if not found:
-        logger.info(green('No function ids collision found'))
+                implem_function = _get_function_or_variable(implem, signatures_ids_implem[k])
+                proxy_function = _get_function_or_variable(proxy, signatures_ids_proxy[k])
 
+                info = f'Shadowing between {implem_function.canonical_name} ({implem_function.source_mapping_str}) and {proxy_function.canonical_name} ({proxy_function.source_mapping_str})'
+                logger.info(red(info))
+
+                res = Output(info)
+                res.add(implem_function)
+                res.add(proxy_function)
+                results['shadowing'].append(res.data)
+
+    if not error_found:
+        logger.info(green('No error found'))
+
+    return results

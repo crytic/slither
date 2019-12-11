@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "reentrancy-eth",
-        "impact": "High",
-        "confidence": "Medium",
-        "description": "Reentrancy in Reentrancy.withdrawBalance() (tests/reentrancy-0.5.1.sol#14-22):\n\tExternal calls:\n\t- (ret,mem) = msg.sender.call.value(userBalance[msg.sender])() (tests/reentrancy-0.5.1.sol#17)\n\tState variables written after the call(s):\n\t- userBalance (tests/reentrancy-0.5.1.sol#21)\n",
         "elements": [
           {
             "type": "function",
@@ -350,13 +346,15 @@
               "variable_name": "userBalance"
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Reentrancy in Reentrancy.withdrawBalance() (tests/reentrancy-0.5.1.sol#14-22):\n\tExternal calls:\n\t- (ret,mem) = msg.sender.call.value(userBalance[msg.sender])() (tests/reentrancy-0.5.1.sol#17)\n\tState variables written after the call(s):\n\t- Reentrancy.userBalance (tests/reentrancy-0.5.1.sol#4) in userBalance[msg.sender] = 0 (tests/reentrancy-0.5.1.sol#21)\n",
+        "markdown": "Reentrancy in [Reentrancy.withdrawBalance()](tests/reentrancy-0.5.1.sol#L14-L22):\n\tExternal calls:\n\t- [(ret,mem) = msg.sender.call.value(userBalance[msg.sender])()](tests/reentrancy-0.5.1.sol#L17)\n\tState variables written after the call(s):\n\t- [Reentrancy.userBalance](tests/reentrancy-0.5.1.sol#L4) in [userBalance[msg.sender] = 0](tests/reentrancy-0.5.1.sol#L21)\n",
+        "id": "90119c12446a44e514bb4ccd7a0e869f210d7c3ec349d24d4237ace685a75df9",
         "check": "reentrancy-eth",
         "impact": "High",
-        "confidence": "Medium",
-        "description": "Reentrancy in Reentrancy.withdrawBalance_fixed_3() (tests/reentrancy-0.5.1.sol#44-53):\n\tExternal calls:\n\t- (ret,mem) = msg.sender.call.value(amount)() (tests/reentrancy-0.5.1.sol#49)\n\tState variables written after the call(s):\n\t- userBalance (tests/reentrancy-0.5.1.sol#51)\n",
+        "confidence": "Medium"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -702,7 +700,13 @@
               "variable_name": "userBalance"
             }
           }
-        ]
+        ],
+        "description": "Reentrancy in Reentrancy.withdrawBalance_fixed_3() (tests/reentrancy-0.5.1.sol#44-53):\n\tExternal calls:\n\t- (ret,mem) = msg.sender.call.value(amount)() (tests/reentrancy-0.5.1.sol#49)\n\tState variables written after the call(s):\n\t- Reentrancy.userBalance (tests/reentrancy-0.5.1.sol#4) in userBalance[msg.sender] = amount (tests/reentrancy-0.5.1.sol#51)\n",
+        "markdown": "Reentrancy in [Reentrancy.withdrawBalance_fixed_3()](tests/reentrancy-0.5.1.sol#L44-L53):\n\tExternal calls:\n\t- [(ret,mem) = msg.sender.call.value(amount)()](tests/reentrancy-0.5.1.sol#L49)\n\tState variables written after the call(s):\n\t- [Reentrancy.userBalance](tests/reentrancy-0.5.1.sol#L4) in [userBalance[msg.sender] = amount](tests/reentrancy-0.5.1.sol#L51)\n",
+        "id": "048dce6132290bdee94cd1e52c330873fed4b1c9ad2f49df4ba3d6ef49266a41",
+        "check": "reentrancy-eth",
+        "impact": "High",
+        "confidence": "Medium"
       }
     ]
   }

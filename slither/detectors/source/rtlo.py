@@ -1,6 +1,7 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 import re
 
+
 class RightToLeftOverride(AbstractDetector):
     """
     Detect the usage of a Right-To-Left-Override (U+202E) character
@@ -45,6 +46,7 @@ contract Token
     WIKI_RECOMMENDATION = 'Special control characters must not be allowed.'
 
     RTLO_CHARACTER_ENCODED = "\u202e".encode('utf-8')
+    STANDARD_JSON = False
 
     def _detect(self):
         results = []
@@ -66,15 +68,18 @@ contract Token
                 else:
                     # We found another instance of the character, define our output
                     idx = start_index + result_index
-                    info = f"{filename} contains a unicode right-to-left-override character at byte offset {idx}:\n"
+                    
+                    relative = self.slither.crytic_compile.filename_lookup(filename).relative
+                    info = f"{relative} contains a unicode right-to-left-override character at byte offset {idx}:\n"
 
                     # We have a patch, so pattern.find will return at least one result
 
                     info += f"\t- {pattern.findall(source_encoded)[0]}\n"
-                    json = self.generate_json_result(info)
-                    self.add_other_to_json("rtlo-character",
-                                           (filename, idx, len(self.RTLO_CHARACTER_ENCODED)), json)
-                    results.append(json)
+                    res = self.generate_result(info)
+                    res.add_other("rtlo-character",
+                                  (filename, idx, len(self.RTLO_CHARACTER_ENCODED)),
+                                  self.slither)
+                    results.append(res)
 
                     # Advance the start index for the next iteration
                     start_index = result_index + 1

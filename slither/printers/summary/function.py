@@ -5,6 +5,7 @@
 from prettytable import PrettyTable
 from slither.printers.abstract_printer import AbstractPrinter
 
+
 class FunctionSummary(AbstractPrinter):
 
     ARGUMENT = 'function-summary'
@@ -27,6 +28,9 @@ class FunctionSummary(AbstractPrinter):
             Args:
                 _filename(string)
         """
+
+        all_tables = []
+        all_txt = ''
 
         for c in self.contracts:
             (name, inheritance, var, func_summaries, modif_summaries) = c.get_summary()
@@ -62,3 +66,12 @@ class FunctionSummary(AbstractPrinter):
             txt += "\n\n"+str(table)
             txt += "\n"
             self.info(txt)
+
+            all_tables.append((name, table))
+            all_txt += txt
+
+        res = self.generate_output(all_txt)
+        for name, table in all_tables:
+            res.add_pretty_table(table, name)
+
+        return res

@@ -1,19 +1,17 @@
-import os
-import logging
 import json
 import os
 import logging
 from collections import defaultdict
 from prettytable import PrettyTable
-from crytic_compile.cryticparser.defaults import defaults_flag_in_config as defaults_flag_in_config_crytic_compile
+from crytic_compile.cryticparser.defaults import DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE
 
 from slither.detectors.abstract_detector import classification_txt
 from .colors import yellow, red
 
 logger = logging.getLogger("Slither")
 
-DEFAULT_JSON_OUTPUT_TYPES = ["detectors"]
-JSON_OUTPUT_TYPES = ["compilations", "console", "detectors", "list-detectors", "list-printers"]
+DEFAULT_JSON_OUTPUT_TYPES = ["detectors", "printers"]
+JSON_OUTPUT_TYPES = ["compilations", "console", "detectors", "printers", "list-detectors", "list-printers"]
 
 
 # Those are the flags shared by the command line and the config file
@@ -35,7 +33,7 @@ defaults_flag_in_config = {
     # debug command
     'legacy_ast': False,
     'ignore_return_value': False,
-    **defaults_flag_in_config_crytic_compile
+    **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE
     }
 
 def read_config_file(args):

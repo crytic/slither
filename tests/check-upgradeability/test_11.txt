@@ -1,0 +1,6 @@
+[92m
+## Run initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialization-checks)[0m
+[93mInitializable contract not found, the contract does not follow a standard initalization schema.[0m
+[92m
+## Run variable initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks)[0m
+[91mContractV1.destination has an initial value (tests/check-upgradeability/contract_v1_var_init.sol#2)[0m

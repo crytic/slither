@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "timestamp",
-        "impact": "Low",
-        "confidence": "Medium",
-        "description": "Timestamp.bad0() (tests/timestamp.sol#4-6) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- require(bool)(block.timestamp == 0) (tests/timestamp.sol#5)\n",
         "elements": [
           {
             "type": "function",
@@ -149,13 +145,15 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Timestamp.bad0() (tests/timestamp.sol#4-6) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- require(bool)(block.timestamp == 0) (tests/timestamp.sol#5)\n",
+        "markdown": "[Timestamp.bad0()](tests/timestamp.sol#L4-L6) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- [require(bool)(block.timestamp == 0)](tests/timestamp.sol#L5)\n",
+        "id": "40a3d28a47f4ff093afc58a30950747eef4db7fe47ace94e10bc4e763e77d82f",
         "check": "timestamp",
         "impact": "Low",
-        "confidence": "Medium",
-        "description": "Timestamp.bad1() (tests/timestamp.sol#8-11) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- require(bool)(time == 0) (tests/timestamp.sol#10)\n",
+        "confidence": "Medium"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -299,13 +297,15 @@
               }
             }
           }
-        ]
-      },
-      {
+        ],
+        "description": "Timestamp.bad1() (tests/timestamp.sol#8-11) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- require(bool)(time == 0) (tests/timestamp.sol#10)\n",
+        "markdown": "[Timestamp.bad1()](tests/timestamp.sol#L8-L11) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- [require(bool)(time == 0)](tests/timestamp.sol#L10)\n",
+        "id": "62968bb5164984fc4ed41aa04d9413d371e20127d858b730fe122bc03c8e5c21",
         "check": "timestamp",
         "impact": "Low",
-        "confidence": "Medium",
-        "description": "Timestamp.bad2() (tests/timestamp.sol#13-15) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- block.timestamp > 0 (tests/timestamp.sol#14)\n",
+        "confidence": "Medium"
+      },
+      {
         "elements": [
           {
             "type": "function",
@@ -447,7 +447,13 @@
               }
             }
           }
-        ]
+        ],
+        "description": "Timestamp.bad2() (tests/timestamp.sol#13-15) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- block.timestamp > 0 (tests/timestamp.sol#14)\n",
+        "markdown": "[Timestamp.bad2()](tests/timestamp.sol#L13-L15) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- [block.timestamp > 0](tests/timestamp.sol#L14)\n",
+        "id": "64a9f860d4e2c9cf89239b055236c4d39129725ffc45e3348bbd1856822b331d",
+        "check": "timestamp",
+        "impact": "Low",
+        "confidence": "Medium"
       }
     ]
   }

@@ -4,10 +4,6 @@
   "results": {
     "detectors": [
       {
-        "check": "rtlo",
-        "impact": "High",
-        "confidence": "High",
-        "description": "/home/travis/build/crytic/slither/tests/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:\n\t- b'        test1(/*A\\xe2\\x80\\xae/*B*/2 , 1/*\\xe2\\x80\\xad'\n",
         "elements": [
           {
             "type": "other",
@@ -27,7 +23,13 @@
               "ending_column": 21
             }
           }
-        ]
+        ],
+        "description": "tests/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:\n\t- b'        test1(/*A\\xe2\\x80\\xae/*B*/2 , 1/*\\xe2\\x80\\xad'\n",
+        "markdown": "tests/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:\n\t- b'        test1(/*A\\xe2\\x80\\xae/*B*/2 , 1/*\\xe2\\x80\\xad'\n",
+        "id": "7d1d0efc4c3c51bc1cc85572c67fa5244f01af85ab9e4bcef199d928a3b5447b",
+        "check": "rtlo",
+        "impact": "High",
+        "confidence": "High"
       }
     ]
   }

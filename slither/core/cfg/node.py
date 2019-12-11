@@ -205,6 +205,8 @@ class Node(SourceMapping, ChildFunction):
         self._can_reenter = None
         self._can_send_eth = None
 
+        self._asm_source_code = None
+
     ###################################################################################
     ###################################################################################
     # region General's properties
@@ -525,6 +527,19 @@ class Node(SourceMapping, ChildFunction):
                             return True
         return False
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region EVM
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def inline_asm(self):
+        return self._asm_source_code
+
+    def add_inline_asm(self, asm):
+        self._asm_source_code = asm
 
 
     # endregion

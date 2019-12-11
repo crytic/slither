@@ -6,6 +6,7 @@ from prettytable import PrettyTable
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.function import Function
 
+
 class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
 
     ARGUMENT = 'vars-and-auth'
@@ -33,12 +34,22 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
                 _filename(string)
         """
 
+        txt = ''
+        all_tables = []
         for contract in self.contracts:
-            txt = "\nContract %s\n"%contract.name
+            txt += "\nContract %s\n"%contract.name
             table = PrettyTable(["Function", "State variables written", "Conditions on msg.sender"])
             for function in contract.functions:
 
                 state_variables_written = [v.name for v in function.all_state_variables_written()]
                 msg_sender_condition = self.get_msg_sender_checks(function)
                 table.add_row([function.name, str(state_variables_written), str(msg_sender_condition)])
-            self.info(txt + str(table))
+            all_tables.append((contract.name, table))
+            txt += str(table) + '\n'
+
+        self.info(txt)
+        res = self.generate_output(txt)
+        for name, table in all_tables:
+            res.add_pretty_table(table, name)
+
+        return res

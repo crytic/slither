@@ -1,5 +1,5 @@
-INFO:Detectors:[92m
-Pragma version "^0.5.5" is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html) (None)
-Pragma version "0.5.7" necessitates versions too recent to be trusted. Consider deploying with 0.5.3 (None)
+[92m
+Pragma version^0.5.5 (None) is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)
+Pragma version0.5.7 (None) necessitates versions too recent to be trusted. Consider deploying with 0.5.3
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity[0m
-INFO:Slither:tests/solc_version_incorrect_05.ast.json analyzed (1 contracts), 2 result(s) found
+tests/solc_version_incorrect_05.ast.json analyzed (1 contracts with 1 detectors), 2 result(s) found

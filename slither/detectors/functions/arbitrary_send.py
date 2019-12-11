@@ -109,16 +109,13 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
             arbitrary_send = self.detect_arbitrary_send(c)
             for (func, nodes) in arbitrary_send:
 
-                info = "{} ({}) sends eth to arbitrary user\n"
-                info = info.format(func.canonical_name,
-                                   func.source_mapping_str)
-                info += '\tDangerous calls:\n'
+                info = [func, " sends eth to arbitrary user\n"]
+                info += ['\tDangerous calls:\n']
                 for node in nodes:
-                    info += '\t- {} ({})\n'.format(node.expression, node.source_mapping_str)
+                    info += ['\t- ', node, '\n']
 
-                json = self.generate_json_result(info)
-                self.add_function_to_json(func, json)
-                self.add_nodes_to_json(nodes, json)
-                results.append(json)
+                res = self.generate_result(info)
+
+                results.append(res)
 
         return results

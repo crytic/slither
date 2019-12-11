@@ -32,6 +32,8 @@ In this case, Transfer and Approval events should have the 'indexed' keyword on 
 
     WIKI_RECOMMENDATION = 'Add the `indexed` keyword to event parameters which should include it, according to the ERC20 specification.'
 
+    STANDARD_JSON = False
+
     @staticmethod
     def detect_erc20_unindexed_event_params(contract):
         """
@@ -71,14 +73,13 @@ In this case, Transfer and Approval events should have the 'indexed' keyword on 
                 # Add each problematic event definition to our result list
                 for (event, parameter) in unindexed_params:
 
-                    info = "ERC20 event {}.{} ({}) does not index parameter '{}'\n".format(c.name, event.name, event.source_mapping_str, parameter.name)
+                    info = ["ERC20 event ", event, f"does not index parameter {parameter}\n"]
 
                     # Add the events to the JSON (note: we do not add the params/vars as they have no source mapping).
-                    json = self.generate_json_result(info)
-                    self.add_event_to_json(event, json, {
-                        "parameter_name": parameter.name
-                    })
-                    results.append(json)
+                    res = self.generate_result(info)
+
+                    res.add(event, {"parameter_name": parameter.name})
+                    results.append(res)
 
 
         return results

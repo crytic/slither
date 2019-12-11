@@ -1,5 +1,7 @@
 import abc
 
+from slither.utils import output
+
 
 class IncorrectPrinterInitialization(Exception):
     pass
@@ -29,6 +31,15 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
     def info(self, info):
         if self.logger:
             self.logger.info(info)
+
+
+    def generate_output(self, info, additional_fields=None):
+        if additional_fields is None:
+            additional_fields = {}
+        d = output.Output(info, additional_fields)
+        d.data['printer'] = self.ARGUMENT
+
+        return d
 
     @abc.abstractmethod
     def output(self, filename):

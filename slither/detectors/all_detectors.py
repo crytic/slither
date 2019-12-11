@@ -11,6 +11,8 @@ from .functions.suicidal import Suicidal
 from .reentrancy.reentrancy_benign import ReentrancyBenign
 from .reentrancy.reentrancy_read_before_write import ReentrancyReadBeforeWritten
 from .reentrancy.reentrancy_eth import ReentrancyEth
+from .reentrancy.reentrancy_no_gas import ReentrancyNoGas
+from .reentrancy.reentrancy_events import ReentrancyEvent
 from .variables.unused_state_variables import UnusedStateVars
 from .variables.possible_const_state_variables import ConstCandidateStateVars
 from .statements.tx_origin import TxOrigin
@@ -20,7 +22,8 @@ from .operations.unused_return_values import UnusedReturnValues
 from .naming_convention.naming_convention import NamingConvention
 from .functions.external_function import ExternalFunction
 from .statements.controlled_delegatecall import ControlledDelegateCall
-from .attributes.const_functions import ConstantFunctions
+from .attributes.const_functions_asm import ConstantFunctionsAsm
+from .attributes.const_functions_state import ConstantFunctionsState
 from .shadowing.abstract import ShadowingAbstractDetection
 from .shadowing.state import StateShadowing
 from .shadowing.local import LocalShadowing

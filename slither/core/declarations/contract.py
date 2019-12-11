@@ -2,6 +2,7 @@
     Contract module
 """
 import logging
+
 from slither.core.children.child_slither import ChildSlither
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.declarations.function import Function
@@ -41,6 +42,9 @@ class Contract(ChildSlither, SourceMapping):
         self._kind = None
 
         self._signatures = None
+
+        self._is_upgradeable = None
+        self._is_upgradeable_proxy = None
 
 
         self._initial_state_variables = [] # ssa
@@ -508,6 +512,16 @@ class Contract(ChildSlither, SourceMapping):
         """
         return next((v for v in self.state_variables if v.name == variable_name), None)
 
+    def get_state_variable_from_canonical_name(self, canonical_name):
+        """
+            Return a state variable from a canonical_name
+        Args:
+            canonical_name (str): name of the variable
+        Returns:
+            StateVariable
+        """
+        return next((v for v in self.state_variables if v.name == canonical_name), None)
+
     def get_structure_from_name(self, structure_name):
         """
             Return a structure from a name
@@ -528,15 +542,25 @@ class Contract(ChildSlither, SourceMapping):
         """
         return next((st for st in self.structures if st.canonical_name == structure_name), None)
 
-    def get_event_from_name(self, event_name):
+    def get_event_from_signature(self, event_signature):
         """
-            Return an event from a name
+            Return an event from a signature
         Args:
-            event_name (str): name of the event
+            event_signature (str): signature of the event
         Returns:
             Event
         """
-        return next((e for e in self.events if e.name == event_name), None)
+        return next((e for e in self.events if e.full_name == event_signature), None)
+
+    def get_event_from_canonical_name(self, event_canonical_name):
+        """
+            Return an event from a canonical name
+        Args:
+            event_canonical_name (str): name of the event
+        Returns:
+            Event
+        """
+        return next((e for e in self.events if e.canonical_name == event_canonical_name), None)
 
     def get_enum_from_name(self, enum_name):
         """
@@ -640,14 +664,15 @@ class Contract(ChildSlither, SourceMapping):
     ###################################################################################
     ###################################################################################
 
-    def get_summary(self):
+    def get_summary(self, include_shadowed=True):
         """ Return the function summary
 
+        :param include_shadowed: boolean to indicate if shadowed functions should be included (default True)
         Returns:
             (str, list, list, list, list): (name, inheritance, variables, fuction summaries, modifier summaries)
         """
-        func_summaries = [f.get_summary() for f in self.functions]
-        modif_summaries = [f.get_summary() for f in self.modifiers]
+        func_summaries = [f.get_summary() for f in self.functions if (not f.is_shadowed or include_shadowed)]
+        modif_summaries = [f.get_summary() for f in self.modifiers if (not f.is_shadowed or include_shadowed)]
         return (self.name, [str(x) for x in self.inheritance], [str(x) for x in self.variables], func_summaries, modif_summaries)
 
     def is_signature_only(self):
@@ -789,6 +814,50 @@ class Contract(ChildSlither, SourceMapping):
     def update_read_write_using_ssa(self):
         for function in self.functions + self.modifiers:
             function.update_read_write_using_ssa()
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Upgradeability
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def is_upgradeable(self):
+        if self._is_upgradeable is None:
+            self._is_upgradeable = False
+            initializable = self.slither.get_contract_from_name('Initializable')
+            if initializable:
+                if initializable in self.inheritance:
+                    self._is_upgradeable = True
+            else:
+                for c in self.inheritance + [self]:
+                    # This might lead to false positive
+                    if 'upgradeable' in c.name.lower() or 'upgradable' in c.name.lower():
+                        self._is_upgradeable = True
+                        break
+        return self._is_upgradeable
+
+    @property
+    def is_upgradeable_proxy(self):
+        from slither.core.cfg.node import NodeType
+        from slither.slithir.operations import LowLevelCall
+        if self._is_upgradeable_proxy is None:
+            self._is_upgradeable_proxy = False
+            for f in self.functions:
+                if f.is_fallback:
+                    for node in f.nodes:
+                        for ir in node.irs:
+                            if isinstance(ir, LowLevelCall) and ir.function_name == 'delegatecall':
+                                self._is_upgradeable_proxy = True
+                                return self._is_upgradeable_proxy
+                        if node.type == NodeType.ASSEMBLY:
+                            inline_asm = node.inline_asm
+                            if inline_asm:
+                                if 'delegatecall' in inline_asm:
+                                    self._is_upgradeable_proxy = True
+                                    return self._is_upgradeable_proxy
+        return self._is_upgradeable_proxy
 
     # endregion
     ###################################################################################

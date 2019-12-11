@@ -69,16 +69,14 @@ class Timestamp(AbstractDetector):
             dangerous_timestamp = self.detect_dangerous_timestamp(c)
             for (func, nodes) in dangerous_timestamp:
 
-                info = "{} ({}) uses timestamp for comparisons\n"
-                info = info.format(func.canonical_name,
-                                   func.source_mapping_str)
-                info += '\tDangerous comparisons:\n'
-                for node in nodes:
-                    info += '\t- {} ({})\n'.format(node.expression, node.source_mapping_str)
+                info = [func, " uses timestamp for comparisons\n"]
 
-                json = self.generate_json_result(info)
-                self.add_function_to_json(func, json)
-                self.add_nodes_to_json(nodes, json)
-                results.append(json)
+                info += ['\tDangerous comparisons:\n']
+                for node in nodes:
+                    info += ['\t- ', node, '\n']
+
+                res = self.generate_result(info)
+
+                results.append(res)
 
         return results
