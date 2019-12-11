@@ -23,11 +23,13 @@ logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
 
 key = 'expressionToSlithIR'
 
+
 def get(expression):
     val = expression.context[key]
     # we delete the item to reduce memory use
     del expression.context[key]
     return val
+
 
 def set_val(expression, val):
     expression.context[key] = val
@@ -45,6 +47,7 @@ def convert_assignement_member(left, right, t, return_type):
         operations.append(UpdateMember(left.base, left.member, val))
 
     return operations, left
+
 
 def convert_assignment(left, right, t, return_type):
     if isinstance(left, MemberVariable):
@@ -75,6 +78,7 @@ def convert_assignment(left, right, t, return_type):
 
     raise SlithIRError('Missing type during assignment conversion')
 
+
 class ExpressionToSlithIR(ExpressionVisitor):
 
     def __init__(self, expression, node):
@@ -96,12 +100,13 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def _post_assignement_operation(self, expression):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
-        if isinstance(left, list): # tuple expression:
-            if isinstance(right, list): # unbox assigment
+        if isinstance(left, list):  # tuple expression:
+            if isinstance(right, list):  # unbox assigment
                 assert len(left) == len(right)
                 for idx in range(len(left)):
                     if not left[idx] is None:
-                        (operations, _) = convert_assignment(left[idx], right[idx], expression.type, expression.expression_return_type)
+                        (operations, _) = convert_assignment(left[idx], right[idx], expression.type,
+                                                             expression.expression_return_type)
                         for operation in operations:
                             operation.set_expression(expression)
                             self._result.append(operation)
@@ -123,7 +128,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
                 set_val(expression, left)
             else:
-                (operations, value_returned) = convert_assignment(left, right, expression.type, expression.expression_return_type)
+                (operations, value_returned) = convert_assignment(left, right, expression.type,
+                                                                  expression.expression_return_type)
                 for operation in operations:
                     operation.set_expression(expression)
                     self._result.append(operation)
@@ -305,4 +311,3 @@ class ExpressionToSlithIR(ExpressionVisitor):
             set_val(expression, lvalue)
         else:
             raise SlithIRError('Unary operation to IR not supported {}'.format(expression))
-

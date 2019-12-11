@@ -43,6 +43,7 @@ def is_dependent(variable, source, context, only_unprotected=False):
         return variable in context[KEY_NON_SSA_UNPROTECTED] and source in context[KEY_NON_SSA_UNPROTECTED][variable]
     return variable in context[KEY_NON_SSA] and source in context[KEY_NON_SSA][variable]
 
+
 def is_dependent_ssa(variable, source, context, only_unprotected=False):
     '''
     Args:
@@ -63,10 +64,12 @@ def is_dependent_ssa(variable, source, context, only_unprotected=False):
         return variable in context[KEY_SSA_UNPROTECTED] and source in context[KEY_SSA_UNPROTECTED][variable]
     return variable in context[KEY_SSA] and source in context[KEY_SSA][variable]
 
+
 GENERIC_TAINT = {SolidityVariableComposed('msg.sender'),
                  SolidityVariableComposed('msg.value'),
                  SolidityVariableComposed('msg.data'),
                  SolidityVariableComposed('tx.origin')}
+
 
 def is_tainted(variable, context, only_unprotected=False, ignore_generic_taint=False):
     '''
@@ -86,6 +89,7 @@ def is_tainted(variable, context, only_unprotected=False, ignore_generic_taint=F
     if not ignore_generic_taint:
         taints |= GENERIC_TAINT
     return variable in taints or any(is_dependent(variable, t, context, only_unprotected) for t in taints)
+
 
 def is_tainted_ssa(variable, context, only_unprotected=False, ignore_generic_taint=False):
     '''
@@ -126,7 +130,6 @@ def get_dependencies(variable, context, only_unprotected=False):
 
 
 def _get_dependencies_from_nested(variables, context, only_unprotected=False):
-
     if only_unprotected:
         context = context.context[KEY_NON_SSA]
     else:
@@ -148,7 +151,6 @@ def _get_dependencies_from_nested(variables, context, only_unprotected=False):
             else:
                 print(f'Missing {next}.{variable}')
         next_level = next_next
-
 
     return next_level
 
@@ -214,6 +216,7 @@ def pprint_dependency(context):
             else:
                 print('\t- {}'.format(v))
 
+
 # endregion
 ###################################################################################
 ###################################################################################
@@ -222,12 +225,12 @@ def pprint_dependency(context):
 ###################################################################################
 
 def compute_dependency(slither):
-
     slither.context[KEY_INPUT] = set()
     slither.context[KEY_INPUT_SSA] = set()
 
     for contract in slither.contracts:
         compute_dependency_contract(contract, slither)
+
 
 def compute_dependency_contract(contract, slither):
     if KEY_SSA in contract.context:
@@ -251,16 +254,16 @@ def compute_dependency_contract(contract, slither):
         if function.visibility in ['public', 'external']:
             [slither.context[KEY_INPUT].add(p) for p in function.parameters]
             [slither.context[KEY_INPUT_SSA].add(p) for p in function.parameters_ssa]
-        print('############ after propage')
-        pprint_dependency(function)
-        print('################################################')
-
+        # print('############ after propage')
+        # pprint_dependency(function)
+        # print('################################################')
 
     propagate_contract(contract, KEY_SSA, KEY_NON_SSA)
     propagate_contract(contract, KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED)
 
+
 def propagate_function(contract, function, context_key, context_key_non_ssa):
-    #transitive_close_dependencies(function, context_key, context_key_non_ssa)
+    # transitive_close_dependencies(function, context_key, context_key_non_ssa)
     # Propage data dependency
     data_depencencies = function.context[context_key]
 
@@ -269,6 +272,7 @@ def propagate_function(contract, function, context_key, context_key_non_ssa):
             contract.context[context_key][key] = set(values)
         else:
             contract.context[context_key][key] = contract.context[context_key][key].union(values)
+
 
 def transitive_close_dependencies(context, context_key, context_key_non_ssa):
     # transitive closure
@@ -286,6 +290,7 @@ def transitive_close_dependencies(context, context_key, context_key_non_ssa):
                             changed = True
                             context.context[context_key][key].add(additional_item)
     context.context[context_key_non_ssa] = convert_to_non_ssa(context.context[context_key])
+
 
 def transitive_close_node_dependencies(node, context_key, context_key_non_ssa):
     # transitive closure
@@ -322,6 +327,7 @@ def transitive_close_node_dependencies(node, context_key, context_key_non_ssa):
 
     return updated_dependencies
 
+
 def propagate_contract(contract, context_key, context_key_non_ssa):
     transitive_close_dependencies(contract, context_key, context_key_non_ssa)
 
@@ -333,9 +339,9 @@ def add_dependency_member(function, ir, is_protected):
     if isinstance(ir, PhiMemberMust):
         for key, item in ir.phi_info.items():
             key = (ir.lvalue, key)
-            ssa[key] = set([item])
+            ssa[key] = {item}
             if not is_protected:
-                ssa_unprotected[key] = set([item])
+                ssa_unprotected[key] = {item}
     if isinstance(ir, PhiMemberMay):
         for key, item in ir.phi_info.items():
             key = (ir.lvalue, key)
@@ -348,8 +354,8 @@ def add_dependency_member(function, ir, is_protected):
         if not is_protected:
             ssa_unprotected[key] = {(ir.variable_left, ir.variable_right)}
 
-def add_dependency(function, ir, is_protected):
 
+def add_dependency(function, ir, is_protected):
     ssa = function.context[KEY_SSA]
     ssa_unprotected = function.context[KEY_SSA_UNPROTECTED]
     if isinstance(ir.lvalue, MemberVariable):
@@ -433,7 +439,6 @@ def compute_dependency_node(node, is_protected):
             else:
                 add_dependency(node, ir, is_protected)
 
-
     node.context[KEY_NON_SSA] = convert_to_non_ssa(node.context[KEY_SSA])
     node.context[KEY_NON_SSA_UNPROTECTED] = convert_to_non_ssa(node.context[KEY_SSA_UNPROTECTED])
 
@@ -508,6 +513,7 @@ def compute_dependency_function(function):
 
     # pprint_dependency(function)
 
+
 def convert_variable_to_non_ssa(v):
     if isinstance(v, (LocalIRVariable, StateIRVariable, TemporaryVariableSSA,
                       IndexVariableSSA, TupleVariableSSA, MemberVariableSSA)):
@@ -519,10 +525,12 @@ def convert_variable_to_non_ssa(v):
     assert isinstance(v, (Constant, SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function, Type))
     return v
 
+
 def _get_index(v):
     if isinstance(v, tuple):
         return v[0].index
     return v.index
+
 
 def convert_to_non_ssa(data_depencies):
     # Keep only the last name

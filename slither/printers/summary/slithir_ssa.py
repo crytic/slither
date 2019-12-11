@@ -31,7 +31,7 @@ class PrinterSlithIRSSA(AbstractPrinter):
                         txt += '\t\tIRs:' + '\n'
                         for ir in node.irs_ssa:
                             txt += '\t\t\t{}'.format(ir) + '\n'
-                    pprint_dependency(node)
+                    #pprint_dependency(node)
             for modifier in contract.modifiers:
                 txt += '\tModifier {}'.format(modifier.canonical_name) + '\n'
                 for node in modifier.nodes:
@@ -42,7 +42,7 @@ class PrinterSlithIRSSA(AbstractPrinter):
                         txt += '\t\tIRs:' + '\n'
                         for ir in node.irs_ssa:
                             txt += '\t\t\t{}'.format(ir) + '\n'
-                    pprint_dependency(node)
+                    #pprint_dependency(node)
         self.info(txt)
         res = self.generate_output(txt)
         return res

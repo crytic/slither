@@ -1,11 +1,10 @@
-
 from .phi import Phi
 from slither.utils.colors import green
+
 
 class PhiMemberMay(Phi):
 
     def __init__(self, left_variable, nodes, phi_info):
-
         super(PhiMemberMay, self).__init__(left_variable, nodes)
         self._phi_info = phi_info
 
@@ -26,5 +25,5 @@ class PhiMemberMay(Phi):
         txt = ', '.join(txt)
 
         return green('{}({}) := \u03D5May({})'.format(self.lvalue,
-                                                   self.lvalue.type,
-                                                   txt))
+                                                      self.lvalue.type,
+                                                      txt))
