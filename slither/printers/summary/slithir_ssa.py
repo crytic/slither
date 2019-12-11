@@ -1,7 +1,7 @@
 """
     Module printing summary of the contract
 """
-from slither.analyses.data_dependency.data_dependency import pprint_dependency
+from slither.analyses.data_dependency.data_dependency import pprint_dependency_table
 from slither.printers.abstract_printer import AbstractPrinter
 
 
@@ -31,7 +31,8 @@ class PrinterSlithIRSSA(AbstractPrinter):
                         txt += '\t\tIRs:' + '\n'
                         for ir in node.irs_ssa:
                             txt += '\t\t\t{}'.format(ir) + '\n'
-                    #pprint_dependency(node)
+                    table = pprint_dependency_table(node)
+                    txt += '\n' + str(table) + '\n'
             for modifier in contract.modifiers:
                 txt += '\tModifier {}'.format(modifier.canonical_name) + '\n'
                 for node in modifier.nodes:
@@ -42,7 +43,8 @@ class PrinterSlithIRSSA(AbstractPrinter):
                         txt += '\t\tIRs:' + '\n'
                         for ir in node.irs_ssa:
                             txt += '\t\t\t{}'.format(ir) + '\n'
-                    #pprint_dependency(node)
+                    table = pprint_dependency_table(node)
+                    txt += '\n' + str(table) + '\n'
         self.info(txt)
         res = self.generate_output(txt)
         return res

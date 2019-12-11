@@ -2,6 +2,9 @@
     Compute the data depenency between all the SSA variables
 """
 from collections import defaultdict
+from prettytable import PrettyTable
+
+from slither.core.cfg.node import Node
 from slither.core.declarations import (Contract, Enum, Function,
                                        SolidityFunction, SolidityVariable,
                                        SolidityVariableComposed, Structure)
@@ -12,7 +15,7 @@ from slither.slithir.utils.ssa import last_name
 from slither.slithir.variables import (Constant, LocalIRVariable,
                                        IndexVariable, IndexVariableSSA,
                                        StateIRVariable, MemberVariable, MemberVariableSSA,
-                                       TemporaryVariableSSA, TupleVariableSSA)
+                                       TemporaryVariableSSA, TupleVariableSSA, TemporaryVariable)
 from slither.core.solidity_types.type import Type
 
 
@@ -122,7 +125,7 @@ def get_dependencies(variable, context, only_unprotected=False):
     '''
     if isinstance(variable, list):
         return _get_dependencies_from_nested(variable, context, only_unprotected)
-    assert isinstance(context, (Contract, Function))
+    assert isinstance(context, (Contract, Function, Node))
     assert isinstance(only_unprotected, bool)
     if only_unprotected:
         return context.context[KEY_NON_SSA].get(variable, [])
@@ -148,8 +151,8 @@ def _get_dependencies_from_nested(variables, context, only_unprotected=False):
             #       print(f'First key {next}.{variable}')
             if key in context:
                 next_next += context[key]
-            else:
-                print(f'Missing {next}.{variable}')
+            # else:
+            #     print(f'Missing {next}.{variable}')
         next_level = next_next
 
     return next_level
@@ -213,6 +216,9 @@ class IndirectTaint:
     def item(self):
         return self._item
 
+    def __str__(self):
+        return f'IndirectTaint({self.item})'
+
 
 def _remove_indirect_taint(node, context):
     for k, items in node.context[context].items():
@@ -222,7 +228,7 @@ def _remove_indirect_taint(node, context):
 # endregion
 ###################################################################################
 ###################################################################################
-# region Debug
+# region PrettyPrint
 ###################################################################################
 ###################################################################################
 
@@ -255,6 +261,53 @@ def pprint_dependency(context):
                 print('\t- {}.{}'.format(v[0], v[1]))
             else:
                 print('\t- {}'.format(v))
+
+
+def _convert(d):
+    if isinstance(d, tuple):
+        return '.'.join([x.name for x in d])
+    return d.name
+
+
+def _get(v, c):
+    return list(set([_convert(d) for d in get_dependencies(v, c) if not isinstance(d, (TemporaryVariable,
+                                                                                       IndexVariable, MemberVariable,
+                                                                                       tuple))]))
+
+
+def _add_row(v, c, table):
+    if isinstance(v.type, UserDefinedType) and isinstance(v.type.type, Structure):
+        for elem in v.type.type.elems.values():
+            if isinstance(elem.type, UserDefinedType) and isinstance(elem.type.type, Structure):
+                for elem_nested in elem.type.type.elems.values():
+                    table.add_row([f'{v.name}.{elem}.{elem_nested.name}',
+                                   _get([v, Constant(elem.name), Constant(elem_nested.name)], c)])
+            else:
+                table.add_row([f'{v.name}.{elem}', _get((v, Constant(elem.name)), c)])
+    else:
+        table.add_row([v.name, _get(v, c)])
+
+
+def pprint_dependency_table(context):
+    table = PrettyTable(['Variable', 'Dependencies'])
+
+    if isinstance(context, Contract):
+        for v in context.state_variables:
+            _add_row(v, context, table)
+
+    if isinstance(context, Function):
+        for v in context.contract.state_variables:
+            _add_row(v, context, table)
+        for v in context.local_variables:
+            _add_row(v, context, table)
+
+    if isinstance(context, Node):
+        for v in context.function.contract.state_variables:
+            _add_row(v, context, table)
+        for v in context.function.local_variables:
+            _add_row(v, context, table)
+
+    return table
 
 
 # endregion
@@ -332,9 +385,30 @@ def transitive_close_dependencies(context, context_key, context_key_non_ssa):
     context.context[context_key_non_ssa] = convert_to_non_ssa(context.context[context_key])
 
 
-def _propagate_indirect_taint(node, context):
+def _propagate_indirect_taint_on_member(node, context, father, key, item):
+    """
+     Propagate indirect taint on structure member
+    For example v  = phi(indirect(a), indirect(b))
+    where v, a and b are structure, each member must be updated
+    """
+    updated_dependencies = False
+    members = item.type.type.elems.values()
+    for member in members:
+        key_father = (item, Constant(member.name))
+        key_node = (key, Constant(member.name))
+        if not father.context[context][key_father].issubset(node.context[context][key_node]):
+            node.context[context][key_node] |= father.context[context][key_father]
+            updated_dependencies = True
+    return updated_dependencies
+
+def _propagate_indirect_taint(node, context_key):
     # Convert IndirectTaint
-    for key, items in node.context[context].items():
+    updated_dependencies = False
+
+    # Need to create new set() as its changed during iteration
+    data_depencencies = {k: set([v for v in values]) for k, values in node.context[context_key].items()}
+
+    for key, items in data_depencencies.items():
         new_items = set()
         for item in items:
             if isinstance(item, IndirectTaint):
@@ -342,7 +416,12 @@ def _propagate_indirect_taint(node, context):
         if new_items:
             for item in new_items:
                 for father in node.fathers:
-                    node.context[context][key] |= father.context[context][item]
+                    if isinstance(item.type, UserDefinedType) and isinstance(item.type.type, Structure):
+                        updated_dependencies |= _propagate_indirect_taint_on_member(node, context_key, father, key, item)
+                    elif not father.context[context_key][item].issubset(node.context[context_key][key]):
+                        node.context[context_key][key] |= father.context[context_key][item]
+                        updated_dependencies = True
+    return updated_dependencies
 
 
 def transitive_close_node_dependencies(node, context_key):
@@ -353,7 +432,7 @@ def transitive_close_node_dependencies(node, context_key):
     if context_key not in node.context:
         node.context[context_key] = defaultdict(set)
 
-    _propagate_indirect_taint(node, context_key)
+    updated_dependencies |= _propagate_indirect_taint(node, context_key)
 
     while changed:
         changed = False
@@ -383,7 +462,6 @@ def transitive_close_node_dependencies(node, context_key):
                             updated_dependencies = True
                             node.context[context_key][key].add(additional_item)
 
-
     return updated_dependencies
 
 
@@ -398,15 +476,15 @@ def add_dependency_member(function, ir, is_protected):
     if isinstance(ir, PhiMemberMust):
         for key, item in ir.phi_info.items():
             key = (ir.lvalue, key)
-            ssa[key] = {IndirectTaint(item)}
+            ssa[key] = {item}
             if not is_protected:
-                ssa_unprotected[key] = {IndirectTaint(item)}
+                ssa_unprotected[key] = {item}
     elif isinstance(ir, PhiMemberMay):
         for key, item in ir.phi_info.items():
             key = (ir.lvalue, key)
-            ssa[key] |= {IndirectTaint(item)}
+            ssa[key] |= {item}
             if not is_protected:
-                ssa_unprotected[key] |= {IndirectTaint(item)}
+                ssa_unprotected[key] |= {item}
 
     if isinstance(ir, AccessMember):
         key = ir.lvalue
@@ -451,6 +529,7 @@ def add_dependency(function, ir, is_protected):
     elif isinstance(ir.lvalue.type, UserDefinedType) and isinstance(ir.lvalue.type.type, Structure):
         members = ir.lvalue.type.type.elems.values()
         for member in members:
+            print(member)
             key = (ir.lvalue, Constant(member.name))
             [ssa[key].add((v, Constant(member.name))) for v in read]
             if not is_protected:
@@ -463,7 +542,6 @@ def add_dependency(function, ir, is_protected):
         if not is_protected:
             [ssa_unprotected[key].add(v) for v in read if not isinstance(v, (Constant, MemberVariable))]
             [ssa_unprotected[key].add((v.base, v.member)) for v in read if isinstance(v, MemberVariable)]
-
 
 
 # def compute_dependency_function_old(function):
@@ -507,9 +585,6 @@ def compute_dependency_node(node, is_protected):
             else:
                 add_dependency(node, ir, is_protected)
 
-   # node.context[KEY_NON_SSA] = convert_to_non_ssa(node.context[KEY_SSA])
-   # node.context[KEY_NON_SSA_UNPROTECTED] = convert_to_non_ssa(node.context[KEY_SSA_UNPROTECTED])
-
     for dom in node.dominance_exploration_ordered:
         compute_dependency_node(dom, is_protected)
 
@@ -535,7 +610,7 @@ def compute_dependency_function(function):
             _remove_indirect_taint(node, KEY_SSA)
             node.context[KEY_NON_SSA] = convert_to_non_ssa(node.context[KEY_SSA])
         if transitive_close_node_dependencies(node, KEY_SSA_UNPROTECTED):
-            if not node in nodes:
+            if node not in nodes:
                 nodes.append(node)
         else:
             _remove_indirect_taint(node, KEY_SSA_UNPROTECTED)
@@ -573,17 +648,10 @@ def compute_dependency_function(function):
         non_ssa = defaultdict(set)
         non_ssa_unprotected = defaultdict(set)
 
-    # ssa_last = {k: v for (k, v) in ssa.items() if k in ssa_last_names.values()}
-    # ssa_unprotected_last = {k: v for (k, v) in ssa_unprotected.items() if k in ssa_last_names_unprotected.values()}
-
-    # print(len(ssa))
-    # print(len(ssa_last))
     function.context[KEY_SSA] = ssa
     function.context[KEY_SSA_UNPROTECTED] = ssa_unprotected
     function.context[KEY_NON_SSA] = non_ssa
     function.context[KEY_NON_SSA_UNPROTECTED] = non_ssa_unprotected
-
-    # pprint_dependency(function)
 
 
 def convert_variable_to_non_ssa(v):
@@ -611,6 +679,8 @@ def convert_to_non_ssa(data_depencies):
     for v in data_depencies.keys():
         if isinstance(v, tuple):
             k = (v[0].non_ssa_version, v[1])
+        elif isinstance(v, Constant):
+            k = v
         else:
             k = v.non_ssa_version
         if not k in last_name:
