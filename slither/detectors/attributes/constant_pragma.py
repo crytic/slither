@@ -26,7 +26,7 @@ class ConstantPragma(AbstractDetector):
     def _detect(self):
         results = []
         pragma = self.slither.pragma_directives
-        versions = [p.version for p in pragma]
+        versions = [p.version for p in pragma if p.is_solidity_version]
         versions = sorted(list(set(versions)))
 
         if len(versions) > 1:
