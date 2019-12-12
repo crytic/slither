@@ -8,7 +8,7 @@ from slither.core.cfg.node import Node
 from slither.core.declarations import (Contract, Enum, Function,
                                        SolidityFunction, SolidityVariable,
                                        SolidityVariableComposed, Structure)
-from slither.core.solidity_types import UserDefinedType
+from slither.core.solidity_types import UserDefinedType, ArrayType
 from slither.slithir.operations import Index, OperationWithLValue, InternalCall, PhiMemberMust, PhiMemberMay, \
     AccessMember, Phi
 from slither.slithir.utils.ssa import last_name
@@ -282,6 +282,8 @@ def _add_row(v, c, table):
                 for elem_nested in elem.type.type.elems.values():
                     table.add_row([f'{v.name}.{elem}.{elem_nested.name}',
                                    _get([v, Constant(elem.name), Constant(elem_nested.name)], c)])
+            elif isinstance(elem.type, UserDefinedType) and isinstance(elem.type.type, ArrayType):
+                print(elem)
             else:
                 table.add_row([f'{v.name}.{elem}', _get((v, Constant(elem.name)), c)])
     else:
@@ -479,6 +481,7 @@ def add_dependency_member(function, ir, is_protected):
             ssa[key] = {item}
             if not is_protected:
                 ssa_unprotected[key] = {item}
+
     elif isinstance(ir, PhiMemberMay):
         for key, item in ir.phi_info.items():
             key = (ir.lvalue, key)
@@ -529,7 +532,6 @@ def add_dependency(function, ir, is_protected):
     elif isinstance(ir.lvalue.type, UserDefinedType) and isinstance(ir.lvalue.type.type, Structure):
         members = ir.lvalue.type.type.elems.values()
         for member in members:
-            print(member)
             key = (ir.lvalue, Constant(member.name))
             [ssa[key].add((v, Constant(member.name))) for v in read]
             if not is_protected:

@@ -5,16 +5,17 @@ from slither.core.declarations import Function
 class IndexVariable(ReferenceVariable):
     COUNTER = 0
 
-    def __init__(self, node, index=None):
+    def __init__(self, node, base, offset, index=None):
         super(IndexVariable, self).__init__()
         if index is None:
             self._index = IndexVariable.COUNTER
             IndexVariable.COUNTER += 1
         else:
             self._index = index
-        self._points_to = None
         self._node = node
 
+        self._base = base
+        self._offset = offset
 
 
     @property
@@ -24,6 +25,22 @@ class IndexVariable(ReferenceVariable):
     @index.setter
     def index(self, idx):
         self._index = idx
+
+    @property
+    def offset(self):
+        return self._offset
+
+    @offset.setter
+    def offset(self, offset):
+        self._offset = offset
+
+    @property
+    def base(self):
+        return self._base
+
+    @base.setter
+    def base(self, base):
+        self._base = base
 
     @property
     def name(self):

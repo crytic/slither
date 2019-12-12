@@ -19,7 +19,7 @@ from slither.slithir.operations import (Assignment, Balance, Binary, Condition,
                                         Push, Return, Send, SolidityCall,
                                         Transfer, TypeConversion, Unary,
                                         Unpack, PhiMemberMust, PhiScalar, UpdateMember, UpdateMemberDependency,
-                                        PhiMemberMay)
+                                        PhiMemberMay, UpdateIndex)
 from slither.slithir.variables import (Constant, LocalIRVariable,
                                        IndexVariable, IndexVariableSSA, MemberVariable, MemberVariableSSA,
                                        StateIRVariable, TemporaryVariable,
@@ -114,7 +114,7 @@ def add_ssa_ir(function, all_state_variables_instances):
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
-    add_phi_origins(function.entry_point, init_definition, dict(), dict())
+    add_phi_origins(function.entry_point, init_definition, dict(), dict(), dict())
 
     for node in function.nodes:
         for (variable, nodes) in node.phi_origins_local_variables.values():
@@ -364,8 +364,17 @@ def create_new_var(var, instances, instances_temporary):
         new_var.set_type(var.type)
         new_var.base = get(new_var.base, instances, instances_temporary)
         instances_temporary.member_variables[new_var.index] = new_var
+    elif isinstance(var, IndexVariableSSA):
+        new_var = IndexVariableSSA(var)
+        new_var.generate_ssa_phi_info()
+        new_var.index_ssa = var.index_ssa + 1
+        if var.points_to:
+            new_var.points_to = get(var.points_to, instances, instances_temporary)
+        new_var.set_type(var.type)
+        new_var.base = get(new_var.base, instances, instances_temporary)
+        instances_temporary.index_variables[new_var.index] = new_var
     else:
-        raise Exception(f'Unknown {var} type {type(var)}')
+        raise SlithIRError(f'Unknown {var} type {type(var)}')
     return new_var
 
 
@@ -389,11 +398,27 @@ def create_phi_member(base, member, new_vals, node, instances, instances_tempora
     new_var = create_new_var(base, instances, instances_temporary)
 
     phi_info = base.ssa_phi_info
-    # if keep_previous:
-    #     phi_info[str(member)] += new_vals
-    # else:
-    #     phi_info[str(member)] = new_vals
     phi_info[str(member)] = new_vals
+
+    if keep_previous:
+        phi = PhiMemberMay(new_var, {node}, dict(phi_info))
+    else:
+        phi = PhiMemberMust(new_var, {node}, dict(phi_info))
+
+    phi.rvalues = [base]
+    update_refers_to(phi)
+    node.add_ssa_ir(phi)
+    print(phi)
+
+    return new_var
+
+
+def create_phi_index(base, offset, new_vals, node, instances, instances_temporary, keep_previous=False):
+    # TODO: merge with create_phi_member
+    print(base)
+    new_var = create_new_var(base, instances, instances_temporary)
+    phi_info = base.ssa_phi_info
+    phi_info[offset] = new_vals
 
     if keep_previous:
         phi = PhiMemberMay(new_var, {node}, dict(phi_info))
@@ -402,7 +427,7 @@ def create_phi_member(base, member, new_vals, node, instances, instances_tempora
     phi.rvalues = [base]
     update_refers_to(phi)
     node.add_ssa_ir(phi)
-
+    print(phi)
     return new_var
 
 
@@ -425,11 +450,17 @@ def update_test(new_ir, node, instances, instances_temporary):
                 to_update.points_to = new_var
 
     # Add phi nodes for UpdateMember operation
-    if isinstance(new_ir, UpdateMember):
+    if isinstance(new_ir, (UpdateMember, UpdateIndex)):
         # We save new_var, so we know what is the latest member value
         # If the base is a MemberVariableSSa
-        new_var = create_phi_member(new_ir.base, new_ir.member, new_ir.new_value,
-                                    node, instances, instances_temporary)
+        if isinstance(new_ir, UpdateMember):
+            left = new_ir.member
+            new_var = create_phi_member(new_ir.base, left, new_ir.new_value,
+                                        node, instances, instances_temporary)
+        else:
+            left = new_ir.offset
+            new_var = create_phi_index(new_ir.base, left, new_ir.new_value,
+                                       node, instances, instances_temporary)
 
         if isinstance(new_ir.base, LocalIRVariable):
             if new_ir.base.is_storage:
@@ -438,18 +469,24 @@ def update_test(new_ir, node, instances, instances_temporary):
                     if isinstance(refers_to, MemberVariable):
                         new_var = create_phi_member(refers_to.base, refers_to.member, new_var_, node,
                                                     instances, instances_temporary, keep_previous=True)
+                    elif isinstance(refers_to, IndexVariable):
+                        new_var = create_phi_index(refers_to.base, refers_to.offset, new_var_, node,
+                                                   instances, instances_temporary, keep_previous=True)
                     else:
-                        new_var = create_phi_member(refers_to, new_ir.member, new_ir.new_value, node,
+                        new_var = create_phi_member(refers_to, left, new_ir.new_value, node,
                                                     instances, instances_temporary, keep_previous=True)
 
         base = new_ir.base
-        while isinstance(base, MemberVariableSSA):
-            create_phi_member(base.base, base.member, new_var, node, instances, instances_temporary)
-            new_var = base
-            base = base.base
+        while isinstance(base, (MemberVariableSSA, IndexVariableSSA)):
+            if isinstance(base, IndexVariableSSA):
+                create_phi_index(base.base, base.offset, new_var, node, instances, instances_temporary)
+            else:
+                create_phi_member(base.base, base.member, new_var, node, instances, instances_temporary)
+            new_var = get(base, instances, instances_temporary)
+            base = get(base.base, instances, instances_temporary)
 
     # Update phi rvalues and refers_to
-    if isinstance(new_ir, (Phi)) and not new_ir.rvalues:
+    if isinstance(new_ir, Phi) and not new_ir.rvalues:
         variables = [last_name(dst, new_ir.lvalue, instances.init_local_variables) for dst in new_ir.nodes]
         new_ir.rvalues = variables
     if isinstance(new_ir, (Phi, PhiCallback)):
@@ -621,7 +658,8 @@ def fix_phi_rvalues_and_storage_ref(node, instances):
         fix_phi_rvalues_and_storage_ref(succ, new_instances)
 
 
-def add_phi_origins(node, local_variables_definition, state_variables_definition, member_variables_definition):
+def add_phi_origins(node, local_variables_definition, state_variables_definition, member_variables_definition,
+                    index_variables_definitions):
     # Add new key to local_variables_definition
     # The key is the variable_name 
     # The value is (variable_instance, the node where its written)
@@ -633,8 +671,12 @@ def add_phi_origins(node, local_variables_definition, state_variables_definition
                                       **{v.canonical_name: (v, node) for v in node.state_variables_written})
 
     member_variables_definition = dict(member_variables_definition,
-                                       **{v.name: (v, node) for v in [(ir.base) for ir
+                                       **{v.name: (v, node) for v in [ir.base for ir
                                                                       in node.irs if isinstance(ir, UpdateMember)]})
+
+    index_variables_definitions = dict(index_variables_definitions,
+                                       **{v.name: (v, node) for v in [ir.base for ir
+                                                                      in node.irs if isinstance(ir, UpdateIndex)]})
 
     # For unini variable declaration
     if node.variable_declaration and \
@@ -651,11 +693,14 @@ def add_phi_origins(node, local_variables_definition, state_variables_definition
                 phi_node.add_phi_origin_state_variable(variable, n)
             for _, (variable, n) in member_variables_definition.items():
                 phi_node.add_phi_origin_member_variable(variable, n)
+            for _, (variable, n) in index_variables_definitions.items():
+                phi_node.add_phi_origin_member_variable(variable, n)
 
     if not node.dominator_successors:
         return
     for succ in node.dominator_successors:
-        add_phi_origins(succ, local_variables_definition, state_variables_definition, member_variables_definition)
+        add_phi_origins(succ, local_variables_definition, state_variables_definition, member_variables_definition,
+                        index_variables_definitions)
 
 
 # endregion
@@ -685,6 +730,8 @@ def get(variable, instances, instances_temporary):
             if variable.points_to:
                 new_variable.points_to = get(variable.points_to, instances, instances_temporary)
             new_variable.set_type(variable.type)
+            new_variable.base = get(variable.base, instances, instances_temporary)
+            new_variable.offset = get(variable.offset, instances, instances_temporary)
             instances_temporary.index_variables[variable.index] = new_variable
         return instances_temporary.index_variables[variable.index]
     elif isinstance(variable, MemberVariable):
@@ -847,6 +894,11 @@ def copy_ir(ir, instances, instances_temporary):
         member = ir.member
         new_value = get_variable(ir, lambda x: x.new_value, instances, instances_temporary)
         return UpdateMemberDependency(base, member, new_value, lvalue)
+    elif isinstance(ir, UpdateIndex):
+        base = get_variable(ir, lambda x: x.base, instances, instances_temporary)
+        offset = get_variable(ir, lambda x: x.offset, instances, instances_temporary)
+        new_value = get_variable(ir, lambda x: x.new_value, instances, instances_temporary)
+        return UpdateIndex(base, offset, new_value)
     elif isinstance(ir, NewArray):
         depth = ir.depth
         array_type = ir.array_type

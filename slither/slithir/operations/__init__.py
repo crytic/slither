@@ -36,3 +36,4 @@ from .nop import Nop
 from .update_member import UpdateMember
 from .update_member_dependency import UpdateMemberDependency
 from .phi_member_may import PhiMemberMay
+from .update_index import UpdateIndex

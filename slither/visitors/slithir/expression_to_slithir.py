@@ -6,7 +6,7 @@ from slither.core.expressions import (AssignmentOperationType,
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
                                         Index, InitArray, InternalCall, AccessMember,
                                         NewArray, NewContract, UpdateMember,
-                                        TypeConversion, Unary, Unpack, Return, UpdateMemberDependency)
+                                        TypeConversion, Unary, Unpack, Return, UpdateMemberDependency, UpdateIndex)
 from slither.slithir.tmp_operations.argument import Argument
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -35,7 +35,7 @@ def set_val(expression, val):
     expression.context[key] = val
 
 
-def convert_assignement_member(left, right, t, return_type):
+def convert_assignement_member(left, right, t):
     operations = []
 
     if t == AssignmentOperationType.ASSIGN:
@@ -49,9 +49,25 @@ def convert_assignement_member(left, right, t, return_type):
     return operations, left
 
 
+def convert_assignement_index(left, right, t):
+    operations = []
+
+    if t == AssignmentOperationType.ASSIGN:
+        operations.append(UpdateIndex(left.base, left.member, right))
+
+    elif t == AssignmentOperationType.ASSIGN_ADDITION:
+        val = TemporaryVariable(left.node)
+        operations.append(Binary(val, left, right, BinaryType.ADDITION))
+        operations.append(UpdateIndex(left.base, left.member, val))
+
+    return operations, left
+
+
 def convert_assignment(left, right, t, return_type):
     if isinstance(left, MemberVariable):
-        return convert_assignement_member(left, right, t, return_type)
+        return convert_assignement_member(left, right, t)
+    if isinstance(left, IndexVariable):
+        return convert_assignement_index(left, right, t)
 
     if t == AssignmentOperationType.ASSIGN:
         return [Assignment(left, right, return_type)], left
@@ -190,7 +206,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def _post_index_access(self, expression):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
-        val = IndexVariable(self._node)
+        val = IndexVariable(self._node, left, right)
         # access to anonymous array
         # such as [0,1][x]
         if isinstance(left, list):

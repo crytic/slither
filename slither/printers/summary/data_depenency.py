@@ -2,14 +2,8 @@
     Module printing summary of the contract
 """
 
-from prettytable import PrettyTable
-
-from slither.core.declarations import Structure
-from slither.core.solidity_types import UserDefinedType
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.analyses.data_dependency.data_dependency import pprint_dependency_table
-from slither.slithir.variables import TemporaryVariable, IndexVariable, Constant, MemberVariable
-
 
 
 

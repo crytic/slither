@@ -7,15 +7,15 @@ from slither.slithir.variables.constant import Constant
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.enum import Enum
 
-class UpdateMember(Operation):
+class UpdateIndex(Operation):
 
-    def __init__(self, base, member, new_val):
-        assert is_valid_rvalue(base) or isinstance(base, (Contract, Enum))
+    def __init__(self, base, offset, new_val):
+        assert is_valid_rvalue(base)
         assert is_valid_rvalue(new_val)
-        assert isinstance(member, Constant)
-        super(UpdateMember, self).__init__()
+        assert is_valid_rvalue(offset)
+        super(UpdateIndex, self).__init__()
         self._base = base
-        self._member = member
+        self._offset = offset
         self._new_val = new_val
 
     @property
@@ -27,12 +27,12 @@ class UpdateMember(Operation):
         return self._base
 
     @property
-    def member(self):
-        return self._member
+    def offset(self):
+        return self._offset
 
     @property
     def new_value(self):
         return self._new_val
 
     def __str__(self):
-        return 'Update({}, {}, {})'.format(self.base, self.member, self.new_value)
+        return 'Update({}, {}, {})'.format(self.base, self.offset, self.new_value)
