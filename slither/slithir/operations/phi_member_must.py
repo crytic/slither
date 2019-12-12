@@ -12,6 +12,5 @@ class PhiMemberMust(PhiMemberMay):
             txt = [f'{key} :-> {item}']
         txt = ', '.join(txt)
 
-        return green('{}({}) := \u03D5Must({})'.format(self.lvalue,
-                                                       self.lvalue.type,
-                                                       txt))
+        return green(f'{self.lvalue}({self.lvalue.type}) := \u03D5Must({self.base}:{txt})')
+

@@ -871,7 +871,7 @@ class Node(SourceMapping, ChildFunction):
                                                                          (StateIRVariable,
                                                                           LocalIRVariable))]
                 for var in ir.read:
-                    if isinstance(var, ((IndexVariable, MemberVariable))):
+                    if isinstance(var, (IndexVariable, MemberVariable)):
                         origin = var.points_to_origin
                         if isinstance(origin, (StateIRVariable, LocalIRVariable)):
                             self._ssa_vars_read.append(origin)

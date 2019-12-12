@@ -4,13 +4,18 @@ from slither.utils.colors import green
 
 class PhiMemberMay(Phi):
 
-    def __init__(self, left_variable, nodes, phi_info):
+    def __init__(self, left_variable, base, nodes, phi_info):
         super(PhiMemberMay, self).__init__(left_variable, nodes)
         self._phi_info = phi_info
+        self._base = base
 
     @property
     def phi_info(self):
         return self._phi_info
+
+    @property
+    def base(self):
+        return self._base
 
     @property
     def read(self):
@@ -24,6 +29,4 @@ class PhiMemberMay(Phi):
             txt = [f'{key} :-> {item}']
         txt = ', '.join(txt)
 
-        return green('{}({}) := \u03D5May({})'.format(self.lvalue,
-                                                      self.lvalue.type,
-                                                      txt))
+        return green(f'{self.lvalue}({self.lvalue.type}) := \u03D5May({self.base}:{txt})')

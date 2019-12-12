@@ -43,7 +43,7 @@ class MemberVariable(ReferenceVariable):
 
     @property
     def name(self):
-        return 'MEMBER{}'.format(self.index)
+        return 'MEMBER_{}'.format(self.index)
 
     def __str__(self):
         return self.name

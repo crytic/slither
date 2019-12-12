@@ -401,33 +401,30 @@ def create_phi_member(base, member, new_vals, node, instances, instances_tempora
     phi_info[str(member)] = new_vals
 
     if keep_previous:
-        phi = PhiMemberMay(new_var, {node}, dict(phi_info))
+        phi = PhiMemberMay(new_var, base, {node}, dict(phi_info))
     else:
-        phi = PhiMemberMust(new_var, {node}, dict(phi_info))
+        phi = PhiMemberMust(new_var, base, {node}, dict(phi_info))
 
     phi.rvalues = [base]
     update_refers_to(phi)
     node.add_ssa_ir(phi)
-    print(phi)
 
     return new_var
 
 
 def create_phi_index(base, offset, new_vals, node, instances, instances_temporary, keep_previous=False):
     # TODO: merge with create_phi_member
-    print(base)
     new_var = create_new_var(base, instances, instances_temporary)
     phi_info = base.ssa_phi_info
     phi_info[offset] = new_vals
 
     if keep_previous:
-        phi = PhiMemberMay(new_var, {node}, dict(phi_info))
+        phi = PhiMemberMay(new_var, base, {node}, dict(phi_info))
     else:
-        phi = PhiMemberMust(new_var, {node}, dict(phi_info))
+        phi = PhiMemberMust(new_var,  base, {node}, dict(phi_info))
     phi.rvalues = [base]
     update_refers_to(phi)
     node.add_ssa_ir(phi)
-    print(phi)
     return new_var
 
 
@@ -480,9 +477,10 @@ def update_test(new_ir, node, instances, instances_temporary):
         while isinstance(base, (MemberVariableSSA, IndexVariableSSA)):
             if isinstance(base, IndexVariableSSA):
                 create_phi_index(base.base, base.offset, new_var, node, instances, instances_temporary)
+                new_var = get(base.base, instances, instances_temporary)
             else:
                 create_phi_member(base.base, base.member, new_var, node, instances, instances_temporary)
-            new_var = get(base, instances, instances_temporary)
+                new_var = get(base, instances, instances_temporary)
             base = get(base.base, instances, instances_temporary)
 
     # Update phi rvalues and refers_to

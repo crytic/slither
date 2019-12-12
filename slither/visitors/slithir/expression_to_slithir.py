@@ -53,7 +53,7 @@ def convert_assignement_index(left, right, t):
     operations = []
 
     if t == AssignmentOperationType.ASSIGN:
-        operations.append(UpdateIndex(left.base, left.member, right))
+        operations.append(UpdateIndex(left.base, left.offset, right))
 
     elif t == AssignmentOperationType.ASSIGN_ADDITION:
         val = TemporaryVariable(left.node)
