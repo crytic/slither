@@ -120,6 +120,9 @@ def _convert_to_id(d):
         else:
             return f'{str(d)} ({d.source_mapping_str})'
 
+    if isinstance(d, Pragma):
+        return f'{d} ({d.source_mapping_str})'
+
     if hasattr(d, 'canonical_name'):
         return f'{d.canonical_name}'
 
