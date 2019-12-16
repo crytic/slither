@@ -324,8 +324,8 @@ def _get_offsets(v, context):
 
     ret = []
     for k, values in context.items():
-        if isinstance(k, tuple):
-             print(f'K[0]: {k[0]} == {v} ({k[0] == v}')
+        #if isinstance(k, tuple):
+        #     print(f'K[0]: {k[0]} == {v} ({k[0] == v}')
         if isinstance(k, tuple) and k[0] == v:
             ret.append((k[1], values))
 
@@ -333,8 +333,8 @@ def _get_offsets(v, context):
 
 
 def _add_row_rec(v, c, key, left_side, table):
-    print(f'v: {v} ({type(v.type)})')
-    print(f'key: {key}')
+    #print(f'v: {v} ({type(v.type)})')
+    #print(f'key: {key}')
     if isinstance(v.type, UserDefinedType) and isinstance(v.type.type, Structure):
         for elem in v.type.type.elems.values():
             deps = []
@@ -349,13 +349,13 @@ def _add_row_rec(v, c, key, left_side, table):
             if deps:
                 table.add_row([f'{key}.{elem}', str(deps)])
     elif isinstance(v.type, (ArrayType, MappingType)):
-        print()
+     #   print()
         for (offset, values) in _get_offsets(v, c.context[KEY_SSA]):
             # print(offset)
             # print(values)
             vals = []
             for value in values:
-                print(f'values: {value}')
+      #          print(f'values: {value}')
                 if isinstance(value, tuple):
                     #if value[1] == TOP:
                         print(value[0])
@@ -568,14 +568,38 @@ def _propagate_phi_taint(node, context_key):
 
     for ir in node.irs_ssa:
         if isinstance(ir, PhiMemberMust):
+            print(ir)
+            print(ir.base)
+            print(_get_offsets(ir.base, taint))
             for (offset, values) in _get_offsets(ir.base, taint):
                 if offset in ir.phi_info:
-                     print(f' offset {offset}')
+                     #print(f' offset {offset}')
                      continue
                 key = (ir.lvalue, offset)
                 if not set(values).issubset(taint[key]):
                     taint[key] |= values
                     updated_dependencies = True
+
+        if isinstance(ir, Index):
+            # Update index information
+            # If the index is from a nested object
+            # Need to update all the index of the new element
+            # to point to the previous ones
+            # Example:
+            #         mapp[0][0] = a;
+            #         mapp[0][1] = b;
+            # mapp[0][1] will create index_x_0 -> mappX[0]
+            # All the offsets of index_x_0 must points to the mappX[0] offsets
+            for t in node.context[context_key][ir.lvalue]:
+                if isinstance(t, IndexVariableSSA):
+                    key = (ir.variable_left, ir.variable_right)
+                    for k in taint[key]:
+                        for (offset, values) in _get_offsets(k, taint):
+                            key = (ir.lvalue, offset)
+                            if not set(values).issubset(taint[key]):
+                                taint[key] |= values
+                                updated_dependencies = True
+            #for (offset, values) in _get_offsets(ir.base, taint):
 
     return updated_dependencies
 
