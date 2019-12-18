@@ -58,7 +58,7 @@ def convert_assignement_index(left, right, t):
     elif t == AssignmentOperationType.ASSIGN_ADDITION:
         val = TemporaryVariable(left.node)
         operations.append(Binary(val, left, right, BinaryType.ADDITION))
-        operations.append(UpdateIndex(left.base, left.member, val))
+        operations.append(UpdateIndex(left.base, left.offset, val))
 
     return operations, left
 

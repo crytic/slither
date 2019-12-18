@@ -378,10 +378,19 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
     @property
     def nodes_ordered_dominators(self):
+        # TODO: does not work properly; most likely due to modifier call
+        # This will not work for modifier call that lead to multiple nodes
+        # from slither.core.cfg.node import NodeType
         if self._nodes_ordered_dominators is None:
             self._nodes_ordered_dominators = []
             if self.entry_point:
                 self._compute_nodes_ordered_dominators(self.entry_point)
+
+            for node in self.nodes:
+                #if node.type == NodeType.OTHER_ENTRYPOINT:
+                if not node in self._nodes_ordered_dominators:
+                    self._compute_nodes_ordered_dominators(node)
+
         return self._nodes_ordered_dominators
 
     def _compute_nodes_ordered_dominators(self, node):

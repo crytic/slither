@@ -10,8 +10,7 @@ from slither.core.declarations import (Contract, Enum, Function,
                                        SolidityVariableComposed, Structure)
 from slither.core.solidity_types import UserDefinedType, ArrayType, MappingType
 from slither.slithir.operations import Index, OperationWithLValue, InternalCall, PhiMemberMust, PhiMemberMay, \
-    AccessMember, Phi
-from slither.slithir.utils.ssa import last_name
+    AccessMember, Phi, Balance
 from slither.slithir.variables import (Constant, LocalIRVariable,
                                        IndexVariable, IndexVariableSSA,
                                        StateIRVariable, MemberVariable, MemberVariableSSA,
@@ -158,6 +157,7 @@ def _get_dependencies_from_nested(variables, context, only_unprotected=False):
 
     return next_level
 
+
 def get_dependencies_ssa(variable, context, only_unprotected=False):
     '''
     Args:
@@ -174,6 +174,7 @@ def get_dependencies_ssa(variable, context, only_unprotected=False):
     if only_unprotected:
         return context.context[KEY_SSA].get(variable, [])
     return context.context[KEY_SSA_UNPROTECTED].get(variable, [])
+
 
 def _get_dependencies_from_nested_ssa(variables, context, only_unprotected=False):
     if only_unprotected:
@@ -226,6 +227,7 @@ KEY_INPUT = "DATA_DEPENDENCY_INPUT"
 KEY_INPUT_SSA = "DATA_DEPENDENCY_INPUT_SSA"
 
 TOP = '*'
+
 
 # endregion
 ###################################################################################
@@ -319,12 +321,13 @@ def _get(v, c):
                                                                                        IndexVariable, MemberVariable,
                                                                                        tuple))]))
 
+
 def _get_offsets(v, context):
-    #assert isinstance(v.type, (ArrayType, MappingType))
+    # assert isinstance(v.type, (ArrayType, MappingType))
 
     ret = []
     for k, values in context.items():
-        #if isinstance(k, tuple):
+        # if isinstance(k, tuple):
         #     print(f'K[0]: {k[0]} == {v} ({k[0] == v}')
         if isinstance(k, tuple) and k[0] == v:
             ret.append((k[1], values))
@@ -333,8 +336,8 @@ def _get_offsets(v, context):
 
 
 def _add_row_rec(v, c, key, left_side, table):
-    #print(f'v: {v} ({type(v.type)})')
-    #print(f'key: {key}')
+    # print(f'v: {v} ({type(v.type)})')
+    # print(f'key: {key}')
     if isinstance(v.type, UserDefinedType) and isinstance(v.type.type, Structure):
         for elem in v.type.type.elems.values():
             deps = []
@@ -349,18 +352,18 @@ def _add_row_rec(v, c, key, left_side, table):
             if deps:
                 table.add_row([f'{key}.{elem}', str(deps)])
     elif isinstance(v.type, (ArrayType, MappingType)):
-     #   print()
+        #   print()
         for (offset, values) in _get_offsets(v, c.context[KEY_SSA]):
             # print(offset)
             # print(values)
             vals = []
             for value in values:
-      #          print(f'values: {value}')
+                #          print(f'values: {value}')
                 if isinstance(value, tuple):
-                    #if value[1] == TOP:
-                        print(value[0])
-                        continue
-                #print(f'value type: {type(value.type)}')
+                    # if value[1] == TOP:
+                    print(value[0])
+                    continue
+                # print(f'value type: {type(value.type)}')
                 if (isinstance(value.type, UserDefinedType) and isinstance(value.type.type, Structure) or
                         isinstance(value.type, (ArrayType, MappingType))):
                     if offset == TOP:
@@ -377,6 +380,8 @@ def _add_row_rec(v, c, key, left_side, table):
 
 def _add_row(v, c, table):
     _add_row_rec(v, c, v, v, table)
+
+
 # def _add_row(v, c, table):
 #     context = c.context[KEY_NON_SSA]
 #
@@ -391,6 +396,7 @@ def _convert_string(v):
         return str([_convert_string(vv) for vv in v])
     return str(v)
 
+
 def _add_rows(c, table):
     context = c.context[KEY_SSA]
 
@@ -400,6 +406,7 @@ def _add_rows(c, table):
             table.add_row([str([[str(kk) for kk in k]]), values])
         else:
             table.add_row([str(k), values])
+
 
 def _add_row_old(v, c, table):
     if isinstance(v.type, UserDefinedType) and isinstance(v.type.type, Structure):
@@ -437,11 +444,11 @@ def pprint_dependency_table(context):
 
     if isinstance(context, Node):
         _add_rows(context, table)
-        table.add_row(['####','####'])
+        table.add_row(['####', '####'])
         state_variables_ssa = set()
-        #for node in context.function.nodes:
+        # for node in context.function.nodes:
         #    state_variables_ssa |= set(node.ssa_state_variables_written)
-        #for v in state_variables_ssa:
+        # for v in state_variables_ssa:
         for v in context.ssa_state_variables_written:
             _add_row(v, context, table)
 
@@ -473,14 +480,20 @@ def compute_dependency_contract(contract, slither):
     for function in contract.all_functions_called:
         compute_dependency_function(function)
 
-        # print(f'\n\n\n\n\n\nFunction done')
-        # pprint_dependency(function)
+        print(f'\n\n\n\n\n\nFunction done')
+        pprint_dependency(function)
 
-        propagate_function(contract, function, KEY_SSA, KEY_NON_SSA)
+        propagate_function(contract,
+                           function,
+                           KEY_SSA,
+                           KEY_NON_SSA)
+
         propagate_function(contract,
                            function,
                            KEY_SSA_UNPROTECTED,
                            KEY_NON_SSA_UNPROTECTED)
+
+        pprint_dependency(function)
 
         if function.visibility in ['public', 'external']:
             [slither.context[KEY_INPUT].add(p) for p in function.parameters]
@@ -499,11 +512,11 @@ def propagate_function(contract, function, context_key, context_key_non_ssa):
     data_depencencies = function.context[context_key]
 
     for (key, values) in data_depencencies.items():
-        if not key in contract.context[context_key]:
-            contract.context[context_key][key] = set(values)
-        else:
-            contract.context[context_key][key] = contract.context[context_key][key].union(values)
+        #print(f'key: {key}')
+        contract.context[context_key][key] |= set(values)
 
+
+#    contract.context[context_key_non_ssa] |= convert_to_non_ssa(data_depencencies)
 
 def transitive_close_dependencies(context, context_key, context_key_non_ssa):
     # transitive closure
@@ -539,6 +552,7 @@ def _propagate_indirect_taint_on_member(node, context, father, key, item):
             updated_dependencies = True
     return updated_dependencies
 
+
 def _propagate_indirect_taint(node, context_key):
     # Convert IndirectTaint
     updated_dependencies = False
@@ -555,11 +569,13 @@ def _propagate_indirect_taint(node, context_key):
             for item in new_items:
                 for father in node.fathers:
                     if isinstance(item.type, UserDefinedType) and isinstance(item.type.type, Structure):
-                        updated_dependencies |= _propagate_indirect_taint_on_member(node, context_key, father, key, item)
+                        updated_dependencies |= _propagate_indirect_taint_on_member(node, context_key, father, key,
+                                                                                    item)
                     elif not father.context[context_key][item].issubset(node.context[context_key][key]):
                         node.context[context_key][key] |= father.context[context_key][item]
                         updated_dependencies = True
     return updated_dependencies
+
 
 def _propagate_phi_taint(node, context_key):
     updated_dependencies = False
@@ -568,17 +584,29 @@ def _propagate_phi_taint(node, context_key):
 
     for ir in node.irs_ssa:
         if isinstance(ir, PhiMemberMust):
-            print(ir)
-            print(ir.base)
-            print(_get_offsets(ir.base, taint))
             for (offset, values) in _get_offsets(ir.base, taint):
                 if offset in ir.phi_info:
-                     #print(f' offset {offset}')
-                     continue
+                    # print(f' offset {offset}')
+                    continue
                 key = (ir.lvalue, offset)
                 if not set(values).issubset(taint[key]):
                     taint[key] |= values
                     updated_dependencies = True
+
+            # If the key of the Phi is not a Constant, must update all
+            # the other elements
+            # Example
+            #         mapp[0][0] = a;
+            #         mapp[0][b] = b;
+            # mapp[0][0] might be 'b'
+            for key, item in ir.phi_info.items():
+                if isinstance(key, Constant):
+                    continue
+                for (offset, values) in _get_offsets(ir.lvalue, taint):
+                    key = (ir.lvalue, offset)
+                    if item not in taint[key]:
+                        taint[key] |= {item}
+                        updated_dependencies = True
 
         if isinstance(ir, Index):
             # Update index information
@@ -599,7 +627,7 @@ def _propagate_phi_taint(node, context_key):
                             if not set(values).issubset(taint[key]):
                                 taint[key] |= values
                                 updated_dependencies = True
-            #for (offset, values) in _get_offsets(ir.base, taint):
+            # for (offset, values) in _get_offsets(ir.base, taint):
 
     return updated_dependencies
 
@@ -695,16 +723,22 @@ def add_dependency_member(function, ir, is_protected):
             ssa_unprotected[key] = {(ir.variable_left, ir.variable_right)}
 
     elif isinstance(ir, Index):
-        #key = (ir.lvalue, ir.variable_right)
+        # key = (ir.lvalue, ir.variable_right)
         key = ir.lvalue
         ssa[key] = {(ir.variable_left, ir.variable_right)}
         if not is_protected:
             ssa_unprotected[key] = {(ir.variable_left, ir.variable_right)}
 
+
 def add_dependency(function, ir, is_protected):
     ssa = function.context[KEY_SSA]
     ssa_unprotected = function.context[KEY_SSA_UNPROTECTED]
-    if isinstance(ir.lvalue, MemberVariable):
+
+    print('ADd taint ###################################')
+    print(ir)
+    if isinstance(ir, Balance):
+        key = ir.lvalue
+    elif isinstance(ir.lvalue, MemberVariable):
         key = (ir.lvalue.base, ir.lvalue.member)
     elif isinstance(ir.lvalue, IndexVariable):
         key = (ir.lvalue.base, ir.lvalue.offset)
@@ -730,9 +764,12 @@ def add_dependency(function, ir, is_protected):
     # Otherwise it creates an implicite dependecy from m to m
     if isinstance(ir, Phi):
         for v in read:
-            ssa[key] |= {IndirectTaint(v)}
-            if not is_protected:
-                ssa_unprotected[key] |= {IndirectTaint(v)}
+            if isinstance(v, (IndexVariable, MemberVariable)):
+                ssa[key] |= {IndirectTaint(v)}
+                if not is_protected:
+                    ssa_unprotected[key] |= {IndirectTaint(v)}
+            else:
+                ssa[key] |= {v}
 
     # Update for Structure variables
     # Iterate over each member field
@@ -745,8 +782,8 @@ def add_dependency(function, ir, is_protected):
                 [ssa_unprotected[key].add((v, Constant(member.name))) for v in read]
     # Normal taint
     else:
-        [ssa[key].add(v) for v in read if not isinstance(v, (Constant, MemberVariable, IndexVariable))]
-        [ssa[key].add((v.base, v.member)) for v in read if isinstance(v, MemberVariable)]
+        [ssa[key].add(v) for v in read if (not isinstance(v, (Constant, MemberVariable, IndexVariable)))]
+        [ssa[key].add((v.base, v.member)) for v in read if (isinstance(v, MemberVariable))]
         [ssa[key].add((v.base, v.offset)) for v in read if isinstance(v, IndexVariable)]
 
         if not is_protected:
@@ -783,6 +820,8 @@ def add_dependency(function, ir, is_protected):
 #     function.context[KEY_NON_SSA_UNPROTECTED] = convert_to_non_ssa(function.context[KEY_SSA_UNPROTECTED])
 
 def compute_dependency_node(node, is_protected):
+    if not node:
+        return
     if KEY_SSA in node.context:
         return
 
@@ -812,8 +851,10 @@ def compute_dependency_function(function):
     compute_dependency_node(function.entry_point, is_protected)
 
     nodes = function.nodes_ordered_dominators
+
     while nodes:
         node = nodes[0]
+
         nodes = nodes[1:]
         if transitive_close_node_dependencies(node, KEY_SSA):
             nodes.append(node)
@@ -850,7 +891,7 @@ def compute_dependency_function(function):
 
             for key, items in convert_to_non_ssa(other_context[KEY_SSA]).items():
                 non_ssa[key] = non_ssa[key].union(items)
-            for key, items in convert_to_non_ssa(other_context[KEY_SSA_UNPROTECTED]):
+            for key, items in convert_to_non_ssa(other_context[KEY_SSA_UNPROTECTED]).items():
                 non_ssa_unprotected[key] = non_ssa_unprotected[key].union(items)
 
     else:
@@ -872,7 +913,10 @@ def convert_variable_to_non_ssa(v):
     if isinstance(v, tuple) and len(v) == 2:
         base = v[0]
         member = v[1]
-        return (base.non_ssa_version, member)
+        if isinstance(base, SolidityVariable):
+            return (base, member)
+        else:
+            return (base.non_ssa_version, member)
     assert isinstance(v, (Constant, SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function, Type))
     return v
 
@@ -889,12 +933,15 @@ def convert_to_non_ssa(data_depencies):
     last_name = dict()
     for v in data_depencies.keys():
         if isinstance(v, tuple):
-            k = (v[0].non_ssa_version, v[1])
+            if isinstance(v[0], SolidityVariable):
+                k = (v[0], v[1])
+            else:
+                k = (v[0].non_ssa_version, v[1])
         elif isinstance(v, Constant):
             k = v
         else:
             k = v.non_ssa_version
-        if not k in last_name:
+        if k not in last_name:
             last_name[k] = v
         elif _get_index(last_name[k]) < _get_index(v):
             last_name[k] = v
@@ -902,12 +949,9 @@ def convert_to_non_ssa(data_depencies):
     data_last = {k: v for (k, v) in data_depencies.items() if k in last_name.values()}
 
     # Need to create new set() as its changed during iteration
-    ret = dict()
+    ret = defaultdict(set)
     for (k, values) in data_last.items():
         var = convert_variable_to_non_ssa(k)
-        if var not in ret:
-            ret[var] = set()
-        ret[var] = ret[var].union(set([convert_variable_to_non_ssa(v) for v in
-                                       values]))
+        ret[var] |= set([convert_variable_to_non_ssa(v) for v in values])
 
     return ret

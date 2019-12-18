@@ -38,6 +38,7 @@ from slither.slithir.exceptions import SlithIRError
 
 logger = logging.getLogger('ConvertToIR')
 
+
 def convert_expression(expression, node):
     # handle standlone expression
     # such as return true;
@@ -54,7 +55,6 @@ def convert_expression(expression, node):
         cond.set_expression(expression)
         result = [cond]
         return result
-
 
     visitor = ExpressionToSlithIR(expression, node)
     result = visitor.result()
@@ -90,12 +90,14 @@ def is_value(ins):
                 return True
     return False
 
+
 def is_gas(ins):
     if isinstance(ins, TmpCall):
         if isinstance(ins.ori, AccessMember):
             if ins.ori.variable_right == 'gas':
                 return True
     return False
+
 
 def get_sig(ir, name):
     '''
@@ -112,6 +114,7 @@ def get_sig(ir, name):
     argss = convert_arguments(ir.arguments)
     return [sig.format(name, ','.join(args)) for args in argss]
 
+
 def get_canonical_names(ir, function_name, contract_name):
     '''
         Return a list of potential signature
@@ -126,6 +129,7 @@ def get_canonical_names(ir, function_name, contract_name):
     # list of list of arguments
     argss = convert_arguments(ir.arguments)
     return [sig.format(f'{contract_name}.{function_name}', ','.join(args)) for args in argss]
+
 
 def convert_arguments(arguments):
     argss = [[]]
@@ -154,13 +158,13 @@ def convert_arguments(arguments):
                 args.append(type_arg)
     return argss
 
+
 def is_temporary(ins):
     return isinstance(ins, (Argument,
                             TmpNewElementaryType,
                             TmpNewContract,
                             TmpNewArray,
                             TmpNewStructure))
-
 
 
 # endregion
@@ -200,17 +204,17 @@ def integrate_value_gas(result):
             ins = result[idx]
             # value can be shadowed, so we check that the prev ins
             # is an Argument
-            if is_value(ins) and isinstance(result[idx-1], Argument):
+            if is_value(ins) and isinstance(result[idx - 1], Argument):
                 was_changed = True
-                result[idx-1].set_type(ArgumentType.VALUE)
-                result[idx-1].call_id = ins.ori.variable_left.name
+                result[idx - 1].set_type(ArgumentType.VALUE)
+                result[idx - 1].call_id = ins.ori.variable_left.name
                 calls.append(ins.ori.variable_left)
                 to_remove.append(ins)
                 variable_to_replace[ins.lvalue.name] = ins.ori.variable_left
-            elif is_gas(ins) and isinstance(result[idx-1], Argument):
+            elif is_gas(ins) and isinstance(result[idx - 1], Argument):
                 was_changed = True
-                result[idx-1].set_type(ArgumentType.GAS)
-                result[idx-1].call_id = ins.ori.variable_left.name
+                result[idx - 1].set_type(ArgumentType.GAS)
+                result[idx - 1].call_id = ins.ori.variable_left.name
                 calls.append(ins.ori.variable_left)
                 to_remove.append(ins)
                 variable_to_replace[ins.lvalue.name] = ins.ori.variable_left
@@ -237,9 +241,10 @@ def integrate_value_gas(result):
     calls_d = {}
     for call in calls:
         calls_d[str(call)] = idx
-        idx = idx+1
+        idx = idx + 1
 
     return result
+
 
 # endregion
 ###################################################################################
@@ -261,6 +266,8 @@ def propagate_type_and_convert_call(result, node):
     # use of while len() as result can be modified during the iteration
     while idx < len(result):
         ins = result[idx]
+
+        #print(ins)
 
         if isinstance(ins, TmpCall):
             new_ins = extract_tmp_call(ins, node.function.contract)
@@ -302,7 +309,7 @@ def propagate_type_and_convert_call(result, node):
                     new_ins[1].set_node(ins.node)
                     del result[idx]
                     result.insert(idx, new_ins[0])
-                    result.insert(idx+1, new_ins[1])
+                    result.insert(idx + 1, new_ins[1])
                     idx = idx + 1
                 elif len(new_ins) == 3:
                     new_ins[0].set_node(ins.node)
@@ -310,8 +317,8 @@ def propagate_type_and_convert_call(result, node):
                     new_ins[2].set_node(ins.node)
                     del result[idx]
                     result.insert(idx, new_ins[0])
-                    result.insert(idx+1, new_ins[1])
-                    result.insert(idx+2, new_ins[2])
+                    result.insert(idx + 1, new_ins[1])
+                    result.insert(idx + 2, new_ins[2])
                     idx = idx + 2
                 else:
                     # Pop conversion
@@ -333,8 +340,9 @@ def propagate_type_and_convert_call(result, node):
             else:
                 new_ins.set_node(ins.node)
                 result[idx] = new_ins
-        idx = idx +1
+        idx = idx + 1
     return result
+
 
 def _convert_type_contract(ir, slither):
     assert isinstance(ir.variable_left.type, TypeInformation)
@@ -453,7 +461,7 @@ def propagate_types(ir, node):
                 if return_type:
                     if len(return_type) == 1:
                         ir.lvalue.set_type(return_type[0])
-                    elif len(return_type)>1:
+                    elif len(return_type) > 1:
                         ir.lvalue.set_type(return_type)
                 else:
                     ir.lvalue = None
@@ -473,12 +481,14 @@ def propagate_types(ir, node):
                 assert False
             elif isinstance(ir, AccessMember):
                 # TODO we should convert the reference to a temporary if the member is a length or a balance
-                if ir.variable_right == 'length' and not isinstance(ir.variable_left, Contract) and isinstance(ir.variable_left.type, (ElementaryType, ArrayType)):
+                if ir.variable_right == 'length' and not isinstance(ir.variable_left, Contract) and isinstance(
+                        ir.variable_left.type, (ElementaryType, ArrayType)):
                     length = Length(ir.variable_left, ir.lvalue)
                     length.set_expression(ir.expression)
                     length.lvalue.points_to = ir.variable_left
                     return length
-                if ir.variable_right == 'balance'and not isinstance(ir.variable_left, Contract)  and isinstance(ir.variable_left.type, ElementaryType):
+                if ir.variable_right == 'balance' and not isinstance(ir.variable_left, Contract) and isinstance(
+                        ir.variable_left.type, ElementaryType):
                     b = Balance(ir.variable_left, ir.lvalue)
                     b.set_expression(ir.expression)
                     return b
@@ -489,7 +499,8 @@ def propagate_types(ir, node):
                     assignment.set_expression(ir.expression)
                     assignment.lvalue.set_type(ElementaryType('bytes4'))
                     return assignment
-                if isinstance(ir.variable_left, TemporaryVariable) and isinstance(ir.variable_left.type, TypeInformation):
+                if isinstance(ir.variable_left, TemporaryVariable) and isinstance(ir.variable_left.type,
+                                                                                  TypeInformation):
                     return _convert_type_contract(ir, node.function.slither)
                 left = ir.variable_left
                 t = None
@@ -518,9 +529,10 @@ def propagate_types(ir, node):
                             # if there are multiple functions with the same name
                             f = next((f for f in type_t.functions if f.name == ir.variable_right), None)
                             if f:
+                                return  # TODO find out why it is keeping incorrect Access here
                                 ir.lvalue.set_type(f)
                             else:
-                                # Allow propgation for variable access through contract's nale
+                                # Allow propgation for variable access through contract's name
                                 # like Base_contract.my_variable
                                 v = next((v for v in type_t.state_variables if v.name == ir.variable_right), None)
                                 if v:
@@ -545,7 +557,7 @@ def propagate_types(ir, node):
                 return_type = ir.function.return_type
                 if len(return_type) == 1:
                     ir.lvalue.set_type(return_type[0])
-                elif len(return_type)>1:
+                elif len(return_type) > 1:
                     ir.lvalue.set_type(return_type)
             elif isinstance(ir, TypeConversion):
                 ir.lvalue.set_type(ir.type)
@@ -556,13 +568,15 @@ def propagate_types(ir, node):
                 idx = ir.index
                 t = types[idx]
                 ir.lvalue.set_type(t)
-            #elif isinstance(ir, UpdateMember):
+            # elif isinstance(ir, UpdateMember):
             #    ir.lvalue.set_type(ir.base.type)
-            elif isinstance(ir, (Argument, TmpCall, TmpNewArray, TmpNewContract, TmpNewStructure, TmpNewElementaryType)):
+            elif isinstance(ir,
+                            (Argument, TmpCall, TmpNewArray, TmpNewContract, TmpNewStructure, TmpNewElementaryType)):
                 # temporary operation; they will be removed
                 pass
             else:
                 raise SlithIRError('Not handling {} during type propgation'.format(type(ir)))
+
 
 def extract_tmp_call(ins, contract):
     assert isinstance(ins, TmpCall)
@@ -576,7 +590,8 @@ def extract_tmp_call(ins, contract):
         # If there is a call on an inherited contract, it is an internal call or an event
         if ins.ori.variable_left in contract.inheritance + [contract]:
             if str(ins.ori.variable_right) in [f.name for f in contract.functions]:
-                internalcall = InternalCall((ins.ori.variable_right, ins.ori.variable_left.name), ins.nbr_arguments, ins.lvalue, ins.type_call)
+                internalcall = InternalCall((ins.ori.variable_right, ins.ori.variable_left.name), ins.nbr_arguments,
+                                            ins.lvalue, ins.type_call)
                 internalcall.set_expression(ins.expression)
                 internalcall.call_id = ins.call_id
                 return internalcall
@@ -592,11 +607,13 @@ def extract_tmp_call(ins, contract):
                 op.set_expression(ins.expression)
                 op.call_id = ins.call_id
                 return op
-            libcall = LibraryCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
+            libcall = LibraryCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue,
+                                  ins.type_call)
             libcall.set_expression(ins.expression)
             libcall.call_id = ins.call_id
             return libcall
-        msgcall = HighLevelCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call)
+        msgcall = HighLevelCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue,
+                                ins.type_call)
         msgcall.call_id = ins.call_id
         msgcall.set_expression(ins.expression)
         return msgcall
@@ -655,8 +672,8 @@ def extract_tmp_call(ins, contract):
         internalcall.set_expression(ins.expression)
         return internalcall
 
-
     raise Exception('Not extracted {} {}'.format(type(ins.called), ins))
+
 
 # endregion
 ###################################################################################
@@ -672,6 +689,7 @@ def can_be_low_level(ir):
                                 'delegatecall',
                                 'callcode',
                                 'staticcall']
+
 
 def convert_to_low_level(ir):
     """
@@ -699,10 +717,10 @@ def convert_to_low_level(ir):
                               'callcode',
                               'staticcall']:
         new_ir = LowLevelCall(ir.destination,
-                          ir.function_name,
-                          ir.nbr_arguments,
-                          ir.lvalue,
-                          ir.type_call)
+                              ir.function_name,
+                              ir.nbr_arguments,
+                              ir.lvalue,
+                              ir.type_call)
         new_ir.call_gas = ir.call_gas
         new_ir.call_value = ir.call_value
         new_ir.arguments = ir.arguments
@@ -713,11 +731,12 @@ def convert_to_low_level(ir):
 
 
 def can_be_solidity_func(ir):
-    return  ir.destination.name == 'abi' and ir.function_name in ['encode',
-                                                                  'encodePacked',
-                                                                  'encodeWithSelector',
-                                                                  'encodeWithSignature',
-                                                                  'decode']
+    return ir.destination.name == 'abi' and ir.function_name in ['encode',
+                                                                 'encodePacked',
+                                                                 'encodeWithSelector',
+                                                                 'encodeWithSignature',
+                                                                 'decode']
+
 
 def convert_to_solidity_func(ir):
     """
@@ -734,6 +753,7 @@ def convert_to_solidity_func(ir):
     else:
         new_ir.lvalue.set_type(call.return_type)
     return new_ir
+
 
 def convert_to_push(ir, node):
     """
@@ -840,6 +860,7 @@ def convert_to_pop(ir, node):
 
     return ret
 
+
 def look_for_library(contract, ir, node, using_for, t):
     for destination in using_for[t]:
         lib_contract = contract.slither.get_contract_from_name(str(destination))
@@ -857,6 +878,7 @@ def look_for_library(contract, ir, node, using_for, t):
                 new_ir.set_node(ir.node)
                 return new_ir
     return None
+
 
 def convert_to_library(ir, node, using_for):
     # We use contract_declarer, because Solidity resolve the library
@@ -877,6 +899,7 @@ def convert_to_library(ir, node, using_for):
 
     return None
 
+
 def get_type(t):
     """
         Convert a type to a str
@@ -886,6 +909,7 @@ def get_type(t):
         if isinstance(t.type, Contract):
             return 'address'
     return str(t)
+
 
 def convert_type_library_call(ir, lib_contract):
     sigs = get_sig(ir, ir.function_name)
@@ -923,6 +947,7 @@ def convert_type_library_call(ir, lib_contract):
     else:
         ir.lvalue = None
     return ir
+
 
 def convert_type_of_high_and_internal_level_call(ir, contract):
     func = None
@@ -993,6 +1018,7 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
 
     return None
 
+
 # endregion
 ###################################################################################
 ###################################################################################
@@ -1009,6 +1035,7 @@ def find_references_origin(irs):
         if isinstance(ir, (Index, AccessMember)):
             ir.lvalue.points_to = ir.variable_left
 
+
 # endregion
 ###################################################################################
 ###################################################################################
@@ -1024,6 +1051,7 @@ def remove_temporary(result):
                                                             TmpNewStructure))]
 
     return result
+
 
 def remove_unused(result):
     removed = True
@@ -1050,12 +1078,13 @@ def remove_unused(result):
 
         for ins in result:
             if isinstance(ins, AccessMember):
-                if not ins.lvalue.name in to_keep and ins != last_elem:
+                if ins.lvalue.name not in to_keep and ins != last_elem:
                     to_remove.append(ins)
                     removed = True
 
-        result = [i for i in result if not i in to_remove]
+        result = [i for i in result if i not in to_remove]
     return result
+
 
 # endregion
 ###################################################################################
@@ -1129,8 +1158,6 @@ def convert_constant_types(irs):
                                     was_changed = True
 
 
-
-
 # endregion
 ###################################################################################
 ###################################################################################
@@ -1150,6 +1177,4 @@ def apply_ir_heuristics(irs, node):
     find_references_origin(irs)
     convert_constant_types(irs)
 
-
     return irs
-
