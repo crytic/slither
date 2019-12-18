@@ -282,13 +282,9 @@ def generate_ssa_irs(node, instances, visited):
 def last_name(n, var, init_vars):
     candidates = []
     # Todo optimize by creating a variables_ssa_written attribute
-    print(n)
-    print(var)
-    print(n.irs_ssa)
     if var.name in init_vars:
         candidates.append(init_vars[var.name])
     for ir_ssa in n.irs_ssa:
-        print(ir_ssa)
         if isinstance(ir_ssa, OperationWithLValue):
             lvalue = ir_ssa.lvalue
             while isinstance(lvalue, (IndexVariable, MemberVariable)):

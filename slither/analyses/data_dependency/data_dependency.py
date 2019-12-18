@@ -113,29 +113,30 @@ def is_tainted_ssa(variable, context, only_unprotected=False, ignore_generic_tai
     return variable in taints or any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
 
 
-def get_dependencies(variable, context, only_unprotected=False):
+def get_dependencies(variable, context, only_unprotected=False, is_ssa=False):
     '''
     Args:
         variable
         context (Contract|Function)
         only_unprotected (bool): True only unprotected function are considered
+        is_ssa (bool)
     Returns:
         list(Variable)
     '''
     if isinstance(variable, tuple):
-        return _get_dependencies_from_nested(variable, context, only_unprotected)
+        return _get_dependencies_from_nested(variable, context, only_unprotected, is_ssa)
     assert isinstance(context, (Contract, Function, Node))
     assert isinstance(only_unprotected, bool)
     if only_unprotected:
-        return context.context[KEY_NON_SSA].get(variable, [])
-    return context.context[KEY_NON_SSA_UNPROTECTED].get(variable, [])
+        return context.context[KEY_SSA if is_ssa else KEY_NON_SSA].get(variable, [])
+    return context.context[KEY_SSA_UNPROTECTED if is_ssa else KEY_NON_SSA_UNPROTECTED].get(variable, [])
 
 
-def _get_dependencies_from_nested(variables, context, only_unprotected=False):
+def _get_dependencies_from_nested(variables, context, only_unprotected=False, is_ssa=False):
     if only_unprotected:
-        context = context.context[KEY_NON_SSA]
+        context = context.context[KEY_SSA if is_ssa else KEY_NON_SSA]
     else:
-        context = context.context[KEY_NON_SSA_UNPROTECTED]
+        context = context.context[KEY_SSA_UNPROTECTED if is_ssa else KEY_NON_SSA_UNPROTECTED]
 
     # print(f'Try {[str(x) for x in variables]}')
     next_level = [variables[0]]
@@ -335,25 +336,26 @@ def _get_offsets(v, context):
     return ret
 
 
-def _add_row_rec(v, c, key, left_side, table):
+def _add_row_rec(v, c, key, table, is_ssa):
     # print(f'v: {v} ({type(v.type)})')
     # print(f'key: {key}')
+
     if isinstance(v.type, UserDefinedType) and isinstance(v.type.type, Structure):
         for elem in v.type.type.elems.values():
             deps = []
             # print(f'Test {(str(v), str(elem))}')
-            for dep in get_dependencies((v, elem), c):
+            for dep in get_dependencies((v, elem), c, is_ssa):
                 # print(f"### dep: {dep}")
                 if (isinstance(elem.type, UserDefinedType) and isinstance(elem.type.type, Structure) or
                         isinstance(elem.type, (ArrayType, MappingType))):
-                    _add_row_rec(dep, c, f'{key}.{elem}', dep, table)
+                    _add_row_rec(dep, c, f'{key}.{elem}', table, is_ssa)
                 else:
                     deps.append(str(dep))
             if deps:
                 table.add_row([f'{key}.{elem}', str(deps)])
     elif isinstance(v.type, (ArrayType, MappingType)):
         #   print()
-        for (offset, values) in _get_offsets(v, c.context[KEY_SSA]):
+        for (offset, values) in _get_offsets(v, c.context[KEY_SSA if is_ssa else KEY_NON_SSA]):
             # print(offset)
             # print(values)
             vals = []
@@ -361,15 +363,15 @@ def _add_row_rec(v, c, key, left_side, table):
                 #          print(f'values: {value}')
                 if isinstance(value, tuple):
                     # if value[1] == TOP:
-                    print(value[0])
+                    #print(value[0])
                     continue
                 # print(f'value type: {type(value.type)}')
                 if (isinstance(value.type, UserDefinedType) and isinstance(value.type.type, Structure) or
                         isinstance(value.type, (ArrayType, MappingType))):
                     if offset == TOP:
-                        _add_row_rec(value, c, f'{key}', value, table)
+                        _add_row_rec(value, c, f'{key}', table, is_ssa)
                     else:
-                        _add_row_rec(value, c, f'{key}[{offset}]', value, table)
+                        _add_row_rec(value, c, f'{key}[{offset}]', table, is_ssa)
                 else:
                     vals.append(str(value))
             if vals:
@@ -378,8 +380,8 @@ def _add_row_rec(v, c, key, left_side, table):
         table.add_row([v.name, _get(v, c)])
 
 
-def _add_row(v, c, table):
-    _add_row_rec(v, c, v, v, table)
+def _add_row(v, c, table, is_ssa):
+    _add_row_rec(v, c, v, table, is_ssa=is_ssa)
 
 
 # def _add_row(v, c, table):
@@ -407,6 +409,16 @@ def _add_rows(c, table):
         else:
             table.add_row([str(k), values])
 
+    table.add_row(['####', '####'])
+
+    context = c.context[KEY_NON_SSA]
+
+    for k, values in context.items():
+        values = str([_convert_string(v) for v in values])
+        if isinstance(k, tuple):
+            table.add_row([str([[str(kk) for kk in k]]), values])
+        else:
+            table.add_row([str(k), values])
 
 def _add_row_old(v, c, table):
     if isinstance(v.type, UserDefinedType) and isinstance(v.type.type, Structure):
@@ -434,13 +446,16 @@ def pprint_dependency_table(context):
 
     if isinstance(context, Contract):
         for v in context.state_variables:
-            _add_row(v, context, table)
+            _add_row(v, context, table, False)
 
     if isinstance(context, Function):
+        #_add_rows(context, table)
+        #table.add_row(['####', '####'])
         for v in context.contract.state_variables:
-            _add_row(v, context, table)
+            print(v)
+            _add_row(v, context, table, False)
         for v in context.local_variables:
-            _add_row(v, context, table)
+            _add_row(v, context, table, False)
 
     if isinstance(context, Node):
         _add_rows(context, table)
@@ -450,7 +465,7 @@ def pprint_dependency_table(context):
         #    state_variables_ssa |= set(node.ssa_state_variables_written)
         # for v in state_variables_ssa:
         for v in context.ssa_state_variables_written:
-            _add_row(v, context, table)
+            _add_row(v, context, table, True)
 
     return table
 
@@ -480,8 +495,8 @@ def compute_dependency_contract(contract, slither):
     for function in contract.all_functions_called:
         compute_dependency_function(function)
 
-        print(f'\n\n\n\n\n\nFunction done')
-        pprint_dependency(function)
+        #print(f'\n\n\n\n\n\nFunction done')
+        #pprint_dependency(function)
 
         propagate_function(contract,
                            function,
@@ -493,7 +508,7 @@ def compute_dependency_contract(contract, slither):
                            KEY_SSA_UNPROTECTED,
                            KEY_NON_SSA_UNPROTECTED)
 
-        pprint_dependency(function)
+        #pprint_dependency(function)
 
         if function.visibility in ['public', 'external']:
             [slither.context[KEY_INPUT].add(p) for p in function.parameters]
@@ -734,8 +749,7 @@ def add_dependency(function, ir, is_protected):
     ssa = function.context[KEY_SSA]
     ssa_unprotected = function.context[KEY_SSA_UNPROTECTED]
 
-    print('ADd taint ###################################')
-    print(ir)
+    # TODO: fix Balance support
     if isinstance(ir, Balance):
         key = ir.lvalue
     elif isinstance(ir.lvalue, MemberVariable):
