@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+  pull_request:
+  schedule:
+    # run CI every day even if no PRs/merges occur
+    - cron:  '0 12 * * *'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        type: ["4", "5", "cli", "dapp", "data_dependency", "embark", "erc", "etherlime", "etherscan", "find_paths", "kspec", "printers", "simil", "slither_config", "truffle", "upgradability"]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.6
+    - name: Install dependencies
+      run: |
+        pip install .
+        # Used by travis_test.sh
+        pip install deepdiff
+
+        sudo wget -O /usr/bin/solc-0.4.25 https://github.com/ethereum/solidity/releases/download/v0.4.25/solc-static-linux
+        sudo chmod +x /usr/bin/solc-0.4.25
+        sudo wget -O /usr/bin/solc-0.5.1 https://github.com/ethereum/solidity/releases/download/v0.5.1/solc-static-linux
+        sudo chmod +x /usr/bin/solc-0.5.1
+        sudo wget -O /usr/bin/solc-0.5.0 https://github.com/ethereum/solidity/releases/download/v0.5.0/solc-static-linux
+        sudo chmod +x /usr/bin/solc-0.5.0
+        sudo cp /usr/bin/solc-0.5.1 /usr/bin/solc
+    - name: Run Tests
+      env:
+        TEST_TYPE: ${{ matrix.type }}
+      run: |
+        bash scripts/travis_test_${TEST_TYPE}.sh
