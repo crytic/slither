@@ -1,0 +1,83 @@
+{
+  "success": true,
+  "error": null,
+  "results": {
+    "detectors": [
+      {
+        "elements": [
+          {
+            "type": "pragma",
+            "name": "^0.4.23",
+            "source_mapping": {
+              "start": 63,
+              "length": 24,
+              "filename_used": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
+              "filename_relative": "tests/solc_version_incorrect.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
+              "filename_short": "tests/solc_version_incorrect.sol",
+              "is_dependency": false,
+              "lines": [
+                2
+              ],
+              "starting_column": 1,
+              "ending_column": 25
+            },
+            "type_specific_fields": {
+              "directive": [
+                "solidity",
+                "^",
+                "0.4",
+                ".23"
+              ]
+            }
+          }
+        ],
+        "description": "Pragma version^0.4.23 (tests/solc_version_incorrect.sol#2) allows old versions\n",
+        "markdown": "Pragma version[^0.4.23](tests/solc_version_incorrect.sol#L2) allows old versions\n",
+        "id": "10a41e5fb84308a2a6123319b07b40eb1922f1a430a42ddf29e669fe4a929f32",
+        "check": "solc-version",
+        "impact": "Informational",
+        "confidence": "High"
+      },
+      {
+        "elements": [
+          {
+            "type": "pragma",
+            "name": ">=0.4.0<0.6.0",
+            "source_mapping": {
+              "start": 89,
+              "length": 31,
+              "filename_used": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
+              "filename_relative": "tests/solc_version_incorrect.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/solc_version_incorrect.sol",
+              "filename_short": "tests/solc_version_incorrect.sol",
+              "is_dependency": false,
+              "lines": [
+                3
+              ],
+              "starting_column": 1,
+              "ending_column": 32
+            },
+            "type_specific_fields": {
+              "directive": [
+                "solidity",
+                ">=",
+                "0.4",
+                ".0",
+                "<",
+                "0.6",
+                ".0"
+              ]
+            }
+          }
+        ],
+        "description": "Pragma version>=0.4.0<0.6.0 (tests/solc_version_incorrect.sol#3) allows old versions\n",
+        "markdown": "Pragma version[>=0.4.0<0.6.0](tests/solc_version_incorrect.sol#L3) allows old versions\n",
+        "id": "59afb064cee0498173127c1e2d23bd60852c1bc4de3d3c673026b3d2faa04134",
+        "check": "solc-version",
+        "impact": "Informational",
+        "confidence": "High"
+      }
+    ]
+  }
+}
