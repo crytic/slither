@@ -70,7 +70,7 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
             version_right = versions[1]
             # Only allow two elements if the second one is
             # <0.5.0 or <0.6.0
-            if version_right not in [('<', '', '0', '5', '0'), ('<', '', '0', '6', '0')]:
+            if version_right not in [('<', '', '0', '5', '0'), ('<', '', '0', '6', '0'), ('<', '', '0', '7', '0')]:
                 return self.COMPLEX_PRAGMA_TXT
             return self._check_version(version_left)
         else:
