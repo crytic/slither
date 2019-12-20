@@ -12,11 +12,11 @@ class ConstantFunctionsAsm(AbstractDetector):
     """
 
     ARGUMENT = 'constant-function-asm'  # run the detector with slither.py --ARGUMENT
-    HELP = 'Constant functions changing the state'  # help information
+    HELP = 'Constant functions using assembly code'  # help information
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#constant-functions-changing-the-state'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#constant-functions-using-assembly-code'
 
     WIKI_TITLE = 'Constant functions using assembly code'
     WIKI_DESCRIPTION = '''
