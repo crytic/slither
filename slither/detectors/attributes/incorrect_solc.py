@@ -22,7 +22,7 @@ class IncorrectSolc(AbstractDetector):
     """
 
     ARGUMENT = 'solc-version'
-    HELP = 'Incorrect Solidity version (< 0.4.24 or complex pragma)'
+    HELP = 'Incorrect Solidity version'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
@@ -33,13 +33,13 @@ class IncorrectSolc(AbstractDetector):
 Solc frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks.
 We recommend avoiding complex pragma statement.'''
     WIKI_RECOMMENDATION = '''
-Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for testing the compilation, and a trusted version for deploying.'''
+Use Solidity 0.4.25 or 0.5.11. Consider using the latest version of Solidity for testing the compilation, and a trusted version for deploying.'''
 
     COMPLEX_PRAGMA_TXT = "is too complex"
     OLD_VERSION_TXT = "allows old versions"
     LESS_THAN_TXT = "uses lesser than"
 
-    TOO_RECENT_VERSION_TXT = "necessitates versions too recent to be trusted. Consider deploying with 0.5.3"
+    TOO_RECENT_VERSION_TXT = "necessitates versions too recent to be trusted. Consider deploying with 0.5.11"
     BUGGY_VERSION_TXT = "is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)"
 
     # Indicates the allowed versions. Must be formatted in increasing order.
