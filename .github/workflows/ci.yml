@@ -24,7 +24,7 @@ jobs:
         python-version: 3.6
     - name: Install dependencies
       run: |
-        pip install .
+        python setup.py install
         # Used by travis_test.sh
         pip install deepdiff
 
