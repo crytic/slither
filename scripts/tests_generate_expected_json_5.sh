@@ -21,13 +21,13 @@ generate_expected_json(){
 }
 
 #generate_expected_json tests/void-cst.sol "void-cst"
-#generate_expected_json tests/solc_version_incorrect_05.ast.json "solc-version"
+generate_expected_json tests/solc_version_incorrect_05.ast.json "solc-version"
 #generate_expected_json tests/uninitialized-0.5.1.sol "uninitialized-state"
 #generate_expected_json tests/backdoor.sol "backdoor"
 #generate_expected_json tests/backdoor.sol "suicidal"
 #generate_expected_json tests/old_solc.sol.json "solc-version"
 #generate_expected_json tests/reentrancy-0.5.1.sol "reentrancy-eth"
-generate_expected_json tests/reentrancy-0.5.1-events.sol "reentrancy-events"
+#generate_expected_json tests/reentrancy-0.5.1-events.sol "reentrancy-events"
 #generate_expected_json tests/tx_origin-0.5.1.sol "tx-origin"
 #generate_expected_json tests/locked_ether-0.5.1.sol "locked-ether"
 #generate_expected_json tests/arbitrary_send-0.5.1.sol "arbitrary-send"
