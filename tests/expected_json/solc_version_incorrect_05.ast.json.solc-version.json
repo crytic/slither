@@ -63,9 +63,9 @@
             }
           }
         ],
-        "description": "Pragma version0.5.7 (None) necessitates versions too recent to be trusted. Consider deploying with 0.5.3\n",
-        "markdown": "Pragma version[0.5.7](None) necessitates versions too recent to be trusted. Consider deploying with 0.5.3\n",
-        "id": "5889f3ae12e005170e40681552a9752c2900f44ce9ab0e6d721dc78f89ae05fa",
+        "description": "Pragma version0.5.7 (None) allows old versions\n",
+        "markdown": "Pragma version[0.5.7](None) allows old versions\n",
+        "id": "2f41c9056f63c98f6e65b932086eee9310c55c7a5017a7b78dd55f24df0abc9c",
         "check": "solc-version",
         "impact": "Informational",
         "confidence": "High"
