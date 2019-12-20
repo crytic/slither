@@ -15,13 +15,14 @@ from slither.formatters.attributes.incorrect_solc import format
 
 PATTERN = re.compile('(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)')
 
+
 class IncorrectSolc(AbstractDetector):
     """
     Check if an old version of solc is used
     """
 
     ARGUMENT = 'solc-version'
-    HELP = 'Incorrect Solidity version (< 0.4.24 or complex pragma)'
+    HELP = 'Incorrect Solidity version'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
@@ -32,28 +33,31 @@ class IncorrectSolc(AbstractDetector):
 Solc frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks.
 We recommend avoiding complex pragma statement.'''
     WIKI_RECOMMENDATION = '''
-Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for testing the compilation, and a trusted version for deploying.'''
+Use Solidity 0.4.25 or 0.5.11. Consider using the latest version of Solidity for testing the compilation, and a trusted version for deploying.'''
 
     COMPLEX_PRAGMA_TXT = "is too complex"
     OLD_VERSION_TXT = "allows old versions"
     LESS_THAN_TXT = "uses lesser than"
 
-    TOO_RECENT_VERSION_TXT = "necessitates versions too recent to be trusted. Consider deploying with 0.5.3"
+    TOO_RECENT_VERSION_TXT = "necessitates versions too recent to be trusted. Consider deploying with 0.5.11"
     BUGGY_VERSION_TXT = "is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)"
 
     # Indicates the allowed versions. Must be formatted in increasing order.
-    ALLOWED_VERSIONS = ["0.4.25", "0.4.26", "0.5.3"]
-    
+    ALLOWED_VERSIONS = ["0.4.25", "0.4.26", "0.5.11"]
+
     # Indicates the versions that should not be used.
-    BUGGY_VERSIONS = ["0.4.22", "0.5.5", "0.5.6", "^0.4.22", "^0.5.5", "^0.5.6"]
+    BUGGY_VERSIONS = ["0.4.22", "^0.4.22",
+                      "0.5.5", "^0.5.5",
+                      "0.5.6", "^0.5.6",
+                      "0.5.14", "^0.5.14"]
 
     def _check_version(self, version):
         op = version[0]
-        if op and not op in ['>', '>=', '^']:
+        if op and op not in ['>', '>=', '^']:
             return self.LESS_THAN_TXT
         version_number = '.'.join(version[2:])
         if version_number not in self.ALLOWED_VERSIONS:
-            if list(map(int, version[2:])) > list(map(int, self.ALLOWED_VERSIONS[-1].split('.'))) :
+            if list(map(int, version[2:])) > list(map(int, self.ALLOWED_VERSIONS[-1].split('.'))):
                 return self.TOO_RECENT_VERSION_TXT
             return self.OLD_VERSION_TXT
         return None
@@ -75,6 +79,7 @@ Use Solidity 0.4.25 or 0.5.3. Consider using the latest version of Solidity for 
             return self._check_version(version_left)
         else:
             return self.COMPLEX_PRAGMA_TXT
+
     def _detect(self):
         """
         Detects pragma statements that allow for outdated solc versions.
