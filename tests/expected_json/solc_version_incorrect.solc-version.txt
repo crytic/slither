@@ -1,0 +1,6 @@
+[92m
+Pragma version^0.4.23 (tests/solc_version_incorrect.sol#2) allows old versions
+Pragma version>=0.4.0<0.6.0 (tests/solc_version_incorrect.sol#3) allows old versions
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity[0m
+tests/solc_version_incorrect.sol analyzed (1 contracts with 1 detectors), 2 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m
