@@ -2,6 +2,7 @@ import sys
 from slither import Slither
 from slither.analyses.data_dependency.data_dependency import is_dependent, is_tainted, pprint_dependency
 from slither.core.declarations.solidity_variables import SolidityVariableComposed
+from slither.slithir.variables import Constant
 
 if len(sys.argv) != 2:
     print('Usage: python data_dependency.py file.sol')
@@ -26,25 +27,34 @@ assert is_tainted(destination, contract)
 contract = slither.get_contract_from_name('Reference')
 
 destination = contract.get_state_variable_from_name('destination')
+destination_val = (destination, Constant('val'))
 source = contract.get_state_variable_from_name('source')
+source_val = (source, Constant('val'))
 
+print()
 print('Reference contract')
-print('{} is dependent of {}: {}'.format(source, destination, is_dependent(source, destination, contract)))
+print('{}.val is dependent of {}: {}'.format(source, destination, is_dependent(source, destination_val, contract)))
 assert not is_dependent(source, destination, contract)
-print('{} is dependent of {}: {}'.format(destination, source, is_dependent(destination, source, contract)))
-assert is_dependent(destination, source, contract)
-print('{} is tainted {}'.format(source, is_tainted(source, contract)))
+print('{}.val is dependent of {}: {}'.format(destination, source, is_dependent(destination_val, source_val, contract)))
+assert is_dependent(destination_val, source_val, contract)
+print('{}.val is tainted {}'.format(source, is_tainted(source_val, contract)))
 assert not is_tainted(source, contract)
-print('{} is tainted {}'.format(destination, is_tainted(destination, contract)))
-assert is_tainted(destination, contract)
+print('{}.val is tainted {}'.format(destination, is_tainted(destination_val, contract)))
+assert is_tainted(destination_val, contract)
 
 destination_indirect_1 = contract.get_state_variable_from_name('destination_indirect_1')
-print('{} is tainted {}'.format(destination_indirect_1, is_tainted(destination_indirect_1, contract)))
-assert is_tainted(destination_indirect_1, contract)
-destination_indirect_2 = contract.get_state_variable_from_name('destination_indirect_2')
-print('{} is tainted {}'.format(destination_indirect_2, is_tainted(destination_indirect_2, contract)))
-assert is_tainted(destination_indirect_2, contract)
+destination_indirect_1_val = (destination_indirect_1, Constant('val'))
 
+print('{} is tainted {}'.format(destination_indirect_1, is_tainted(destination_indirect_1_val, contract)))
+assert is_tainted(destination_indirect_1_val, contract)
+
+destination_indirect_2 = contract.get_state_variable_from_name('destination_indirect_2')
+destination_indirect_2_val = (destination_indirect_2, Constant('val'))
+
+print('{} is tainted {}'.format(destination_indirect_2, is_tainted(destination_indirect_2_val, contract)))
+assert is_tainted(destination_indirect_2_val, contract)
+
+print()
 print('SolidityVar contract')
 
 contract = slither.get_contract_from_name('SolidityVar')
@@ -57,7 +67,7 @@ assert is_dependent(addr_1, msgsender, contract)
 print('{} is dependent of {}: {}'.format(addr_2, msgsender, is_dependent(addr_2, msgsender, contract)))
 assert not is_dependent(addr_2, msgsender, contract)
 
-
+print()
 print('Intermediate contract')
 contract = slither.get_contract_from_name('Intermediate')
 destination = contract.get_state_variable_from_name('destination')
@@ -66,6 +76,7 @@ source = contract.get_state_variable_from_name('source')
 print('{} is dependent of {}: {}'.format(destination, source, is_dependent(destination, source, contract)))
 assert is_dependent(destination, source, contract)
 
+print()
 print('Base Derived contract')
 contract = slither.get_contract_from_name('Base')
 contract_derived = slither.get_contract_from_name('Derived')
@@ -77,6 +88,7 @@ assert not is_dependent(destination, source, contract)
 print('{} is dependent of {}: {} (derived)'.format(destination, source, is_dependent(destination, source, contract_derived)))
 assert is_dependent(destination, source, contract_derived)
 
+print()
 print('PropagateThroughArguments contract')
 contract = slither.get_contract_from_name('PropagateThroughArguments')
 var_tainted = contract.get_state_variable_from_name('var_tainted')
