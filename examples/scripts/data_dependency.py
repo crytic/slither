@@ -105,3 +105,23 @@ print('{} is tainted: {}'.format(var_tainted, is_tainted(var_tainted, contract))
 assert is_tainted(var_tainted, contract)
 print('{} is tainted: {}'.format(var_not_tainted, is_tainted(var_not_tainted, contract)))
 assert not is_tainted(var_not_tainted, contract)
+
+
+print()
+print('Nested')
+
+contract = slither.get_contract_from_name('Nested')
+n = contract.get_state_variable_from_name('n')
+n_l_st_val1 = (n, Constant('l'), Constant('st'), Constant('val1'))
+n_m_st_val2 = (n, Constant('m'), Constant('st'), Constant('val2'))
+state_b = contract.get_state_variable_from_name('state_b')
+
+txt = f'{".".join([str(x) for x in n_l_st_val1])} is dependent of {".".join([str(x) for x in n_m_st_val2])}:'
+txt += f' {is_dependent(n_l_st_val1, n_m_st_val2, contract)}'
+print(txt)
+assert not is_dependent(n_l_st_val1, n_m_st_val2, contract)
+
+txt = f'{".".join([str(x) for x in n_m_st_val2])} is dependent of {".".join([str(x) for x in n_l_st_val1])}:'
+txt += f' {is_dependent(n_m_st_val2, n_l_st_val1, contract)}'
+print(txt)
+assert is_dependent(n_m_st_val2, n_l_st_val1, contract)

@@ -479,11 +479,11 @@ def update_test(new_ir, node, instances, instances_temporary):
         base = new_ir.base
         while isinstance(base, (MemberVariableSSA, IndexVariableSSA)):
             if isinstance(base, IndexVariableSSA):
-                create_phi_index(base.base, base.offset, new_var, node, instances, instances_temporary)
-                new_var = get(base.base, instances, instances_temporary)
+                new_var = create_phi_index(base.base, base.offset, new_var, node, instances, instances_temporary)
+                #new_var = get(base.base, instances, instances_temporary)
             else:
-                create_phi_member(base.base, base.member, new_var, node, instances, instances_temporary)
-                new_var = get(base, instances, instances_temporary)
+                new_var = create_phi_member(base.base, base.member, new_var, node, instances, instances_temporary)
+                #new_var = get(base.base, instances, instances_temporary)
             base = get(base.base, instances, instances_temporary)
 
     # Update phi rvalues and refers_to
@@ -494,73 +494,73 @@ def update_test(new_ir, node, instances, instances_temporary):
         update_refers_to(new_ir)
 
 
-def update_(new_ir, node, instances, instances_temporary):
-    if isinstance(new_ir, OperationWithLValue):
-        lvalue = new_ir.lvalue
+# def update_(new_ir, node, instances, instances_temporary):
+#     if isinstance(new_ir, OperationWithLValue):
+#         lvalue = new_ir.lvalue
+#
+#         if isinstance(lvalue, (LocalIRVariable, StateIRVariable)):
+#             if isinstance(lvalue, LocalIRVariable):
+#                 new_var = LocalIRVariable(lvalue)
+#                 new_var.index = instances.all_local_variables[lvalue.name].index + 1
+#                 instances.all_local_variables[lvalue.name] = new_var
+#                 instances.local_variables[lvalue.name] = new_var
+#             else:
+#                 new_var = StateIRVariable(lvalue)
+#                 new_var.index = instances.all_state_variables[lvalue.canonical_name].index + 1
+#                 instances.all_state_variables[lvalue.canonical_name] = new_var
+#                 instances.state_variables[lvalue.canonical_name] = new_var
+#
+#             if isinstance(lvalue, MemberVariable):
+#                 member = lvalue.member
+#                 phi_operation = PhiMemberMust(new_var, {node}, member)
+#                 phi_operation.rvalues = [lvalue]
+#                 node.add_ssa_ir(phi_operation)
+#             elif isinstance(lvalue, IndexVariable):
+#                 phi_operation = Phi(new_var, {node})
+#                 phi_operation.rvalues = [lvalue]
+#                 node.add_ssa_ir(phi_operation)
+#
+#             if not isinstance(new_ir.lvalue, (IndexVariable, MemberVariable)):
+#                 new_ir.lvalue = new_var
+#             else:
+#                 to_update = new_ir.lvalue
+#                 while isinstance(to_update.points_to, (IndexVariable, MemberVariable)):
+#                     to_update = to_update.points_to
+#                 to_update.points_to = new_var
 
-        if isinstance(lvalue, (LocalIRVariable, StateIRVariable)):
-            if isinstance(lvalue, LocalIRVariable):
-                new_var = LocalIRVariable(lvalue)
-                new_var.index = instances.all_local_variables[lvalue.name].index + 1
-                instances.all_local_variables[lvalue.name] = new_var
-                instances.local_variables[lvalue.name] = new_var
-            else:
-                new_var = StateIRVariable(lvalue)
-                new_var.index = instances.all_state_variables[lvalue.canonical_name].index + 1
-                instances.all_state_variables[lvalue.canonical_name] = new_var
-                instances.state_variables[lvalue.canonical_name] = new_var
 
-            if isinstance(lvalue, MemberVariable):
-                member = lvalue.member
-                phi_operation = PhiMemberMust(new_var, {node}, member)
-                phi_operation.rvalues = [lvalue]
-                node.add_ssa_ir(phi_operation)
-            elif isinstance(lvalue, IndexVariable):
-                phi_operation = Phi(new_var, {node})
-                phi_operation.rvalues = [lvalue]
-                node.add_ssa_ir(phi_operation)
-
-            if not isinstance(new_ir.lvalue, (IndexVariable, MemberVariable)):
-                new_ir.lvalue = new_var
-            else:
-                to_update = new_ir.lvalue
-                while isinstance(to_update.points_to, (IndexVariable, MemberVariable)):
-                    to_update = to_update.points_to
-                to_update.points_to = new_var
-
-
-def update_lvalue_member_variables(new_ir, node, instances):
-    if isinstance(new_ir, OperationWithLValue):
-        lvalue = new_ir.lvalue
-        if isinstance(new_ir, (Assignment, Binary)):
-
-            while isinstance(lvalue, MemberVariable):
-                member = lvalue.member
-                lvalue = lvalue.points_to
-
-                if isinstance(lvalue, (LocalIRVariable, StateIRVariable)):
-                    if isinstance(lvalue, LocalIRVariable):
-                        new_var = LocalIRVariable(lvalue)
-                        new_var.index = instances.all_local_variables[lvalue.name].index + 1
-                        instances.all_local_variables[lvalue.name] = new_var
-                        instances.local_variables[lvalue.name] = new_var
-                    else:
-                        new_var = StateIRVariable(lvalue)
-                        new_var.index = instances.all_state_variables[lvalue.canonical_name].index + 1
-                        instances.all_state_variables[lvalue.canonical_name] = new_var
-                        instances.state_variables[lvalue.canonical_name] = new_var
-
-                    phi_operation = PhiMemberMust(new_var, {node}, member)
-                    phi_operation.rvalues = [lvalue]
-                    node.add_ssa_ir(phi_operation)
-
-                    if not isinstance(new_ir.lvalue, (IndexVariable, MemberVariable)):
-                        new_ir.lvalue = new_var
-                    else:
-                        to_update = new_ir.lvalue
-                        while isinstance(to_update.points_to, (IndexVariable, MemberVariable)):
-                            to_update = to_update.points_to
-                        to_update.points_to = new_var
+# def update_lvalue_member_variables(new_ir, node, instances):
+#     if isinstance(new_ir, OperationWithLValue):
+#         lvalue = new_ir.lvalue
+#         if isinstance(new_ir, (Assignment, Binary)):
+#
+#             while isinstance(lvalue, MemberVariable):
+#                 member = lvalue.member
+#                 lvalue = lvalue.points_to
+#
+#                 if isinstance(lvalue, (LocalIRVariable, StateIRVariable)):
+#                     if isinstance(lvalue, LocalIRVariable):
+#                         new_var = LocalIRVariable(lvalue)
+#                         new_var.index = instances.all_local_variables[lvalue.name].index + 1
+#                         instances.all_local_variables[lvalue.name] = new_var
+#                         instances.local_variables[lvalue.name] = new_var
+#                     else:
+#                         new_var = StateIRVariable(lvalue)
+#                         new_var.index = instances.all_state_variables[lvalue.canonical_name].index + 1
+#                         instances.all_state_variables[lvalue.canonical_name] = new_var
+#                         instances.state_variables[lvalue.canonical_name] = new_var
+#
+#                     phi_operation = PhiMemberMust(new_var, {node}, member)
+#                     phi_operation.rvalues = [lvalue]
+#                     node.add_ssa_ir(phi_operation)
+#
+#                     if not isinstance(new_ir.lvalue, (IndexVariable, MemberVariable)):
+#                         new_ir.lvalue = new_var
+#                     else:
+#                         to_update = new_ir.lvalue
+#                         while isinstance(to_update.points_to, (IndexVariable, MemberVariable)):
+#                             to_update = to_update.points_to
+#                         to_update.points_to = new_var
 
 
 def update_lvalue_index_variables(new_ir, node, instances):
