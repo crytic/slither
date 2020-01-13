@@ -24,39 +24,25 @@ from slither.core.solidity_types.type import Type
 ###################################################################################
 ###################################################################################
 
-class Test:
-    def __init__(self):
-        self._test = {
-            ("n2", "m", "st") : {("m3", "st")}
-        }
-    @property
-    def accesses(self):
-        return self._test
-
 def _to_tuple(l, n):
     return tuple(list(l) + [n])
 
+
 def _convert_elem(elem, accesses):
-    print(f'In convert elem {_convert_string(elem)}')
     if isinstance(elem, (tuple, list)) and len(elem) > 3:
         next_level = [elem[0:2]]
         sts = elem[2:]
-        st = None
         for st in sts:
-            print(f'st: {st}')
             level = set([n for n in next_level])
             next_level = set()
             for l in level:
                 k = _to_tuple(l, st)
-                print(f'access: {_convert_string(k)}')
                 next_level |= accesses[k]
         return [tuple(list(n)) for n in next_level]
-    if isinstance(elem, (tuple, list)) and len(elem) == 2:
-        print('Size two')
-        print(_convert_string(elem))
     return [elem]
 
-#_convert_elem(('n2','m','st','val1'), Test())
+
+# _convert_elem(('n2','m','st','val1'), Test())
 
 def is_dependent(variable, source, context, only_unprotected=False):
     '''
@@ -77,14 +63,9 @@ def is_dependent(variable, source, context, only_unprotected=False):
     if only_unprotected:
         variable = _convert_elem(variable, context[KEY_NON_SSA_UNPROTECTED])
         return source in context[KEY_NON_SSA_UNPROTECTED].get(variable)
-    print('ici')
-    print(_convert_string(variable))
-    print(_convert_string(source))
     sources = _convert_elem(source, context[KEY_ACCESS_NON_SSA])
-    print(f'Deps: {[_convert_string(v) for v in context[KEY_NON_SSA].get(variable)]}')
     for source in sources:
-        print(f'Test source {_convert_string(source)}')
-        variables =_convert_elem(variable, context[KEY_ACCESS_NON_SSA])
+        variables = _convert_elem(variable, context[KEY_ACCESS_NON_SSA])
         for var in variables:
             if source in context[KEY_NON_SSA].get(var):
                 return True
@@ -109,14 +90,14 @@ def is_dependent_ssa(variable, source, context, only_unprotected=False):
         return True
     if only_unprotected:
         return source in context[KEY_SSA_UNPROTECTED].get(variable)
-    print(_convert_string(source))
     sources = _convert_elem(source, context[KEY_ACCESS_SSA])
-    print(_convert_string(source))
     for source in sources:
-        print(source)
-        if source in context[KEY_SSA].get(variable):
-            return True
+        variables = _convert_elem(variable, context[KEY_ACCESS_SSA])
+        for var in variables:
+            if source in context[KEY_ACCESS_SSA].get(var):
+                return True
     return False
+
 
 GENERIC_TAINT = {SolidityVariableComposed('msg.sender'),
                  SolidityVariableComposed('msg.value'),
@@ -276,27 +257,7 @@ def _get(v, c):
                                                                                        IndexVariable, MemberVariable,
                                                                                        tuple))]))
 
-
-def _get_offsets(v, context):
-    # assert isinstance(v.type, (ArrayType, MappingType))
-
-    ret = []
-    for k, values in context.items():
-        # if isinstance(k, tuple):
-        #     print(f'K[0]: {k[0]} == {v} ({k[0] == v}')
-        if isinstance(k, tuple) and k[0] == v:
-            ret.append((k[1], values))
-
-    return ret
-
-
 def _add_row_rec(v, c, key, table, is_ssa):
-    # print(f'v: {v} ({type(v.type)})')
-    # print(f'key: {key}')
-
-    if isinstance(v, tuple):
-        print(f'-->{_convert_string(v)}')
-        return
 
     if isinstance(v.type, UserDefinedType) and isinstance(v.type.type, Structure):
         for elem in v.type.type.elems.values():
@@ -364,7 +325,6 @@ def pprint_dependency_table(context):
                 [[_convert_string(x) for x in key] if isinstance(key, (tuple, list, set)) else _convert_string(key),
                  [_convert_string(x) for x in elems] if isinstance(elems, (tuple, list, set)) else _convert_string(
                      elems), '####'])
-
 
         table.add_row(['####', '####', '####'])
         for key, elems in context.context[KEY_SSA].items():
@@ -881,10 +841,10 @@ def convert_to_non_ssa(data_dependencies):
     # Need to create new set() as its changed during iteration
     ret = defaultdict(set)
     for (k, values) in data_dependencies.items():
-        #if isinstance(k, tuple) and len(k) > 2:
+        # if isinstance(k, tuple) and len(k) > 2:
         #    continue
         var = convert_variable_to_non_ssa(k)
         ret[var] |= set([convert_variable_to_non_ssa(v) for v in values])
-        #ret[var] |= set([convert_variable_to_non_ssa(v) for v in values if not (isinstance(v, tuple) and len(v) > 2)])
+        # ret[var] |= set([convert_variable_to_non_ssa(v) for v in values if not (isinstance(v, tuple) and len(v) > 2)])
 
     return Taint(ret)
