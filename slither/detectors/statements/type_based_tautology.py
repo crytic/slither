@@ -17,7 +17,7 @@ class TypeBasedTautology(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither-private/wiki/Vulnerabilities-Description#tautology-or-contradiction'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#tautology-or-contradiction'
 
     WIKI_TITLE = 'Tautology or contradiction'
     WIKI_DESCRIPTION = '''Detects expressions that are tautologies or contradictions.'''

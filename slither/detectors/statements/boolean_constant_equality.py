@@ -17,7 +17,7 @@ class BooleanEquality(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/trailofbits/slither-private/wiki/Vulnerabilities-Description#boolean-equality'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#boolean-equality'
 
     WIKI_TITLE = 'Boolean Equality'
     WIKI_DESCRIPTION = '''Detects the comparison to boolean constant.'''
