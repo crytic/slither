@@ -40,5 +40,9 @@ from .statements.too_many_digits import TooManyDigits
 from .operations.unchecked_low_level_return_values import UncheckedLowLevel
 from .operations.unchecked_send_return_value import UncheckedSend
 from .operations.void_constructor import VoidConstructor
+from .statements.type_based_tautology import TypeBasedTautology
+from .statements.boolean_constant_equality import BooleanEquality
+from .statements.boolean_constant_misuse import BooleanConstantMisuse
+from .statements.divide_before_multiply import DivideBeforeMultiply
 #
 #
