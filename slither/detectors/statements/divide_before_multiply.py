@@ -54,7 +54,7 @@ class DivideBeforeMultiply(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/trailofbits/slither-private/wiki/Vulnerabilities-Description#divide-before-multiply'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#divide-before-multiply'
 
     WIKI_TITLE = 'Divide before multiply'
     WIKI_DESCRIPTION = '''Solidity only supports integers, so division will often truncate; performing a multiply before a divison can sometimes avoid loss of precision.'''
