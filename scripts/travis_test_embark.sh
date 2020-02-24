@@ -9,9 +9,8 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | b
 source ~/.nvm/nvm.sh
 nvm install 10.17.0
 nvm use 10.17.0
-npm --version
 
-npm install -g embark
+npm install -g embark@4.2.0
 embark demo
 cd embark_demo
 npm install
