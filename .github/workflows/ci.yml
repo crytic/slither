@@ -38,5 +38,6 @@ jobs:
     - name: Run Tests
       env:
         TEST_TYPE: ${{ matrix.type }}
+        GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
       run: |
         bash scripts/travis_test_${TEST_TYPE}.sh
