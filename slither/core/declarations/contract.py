@@ -42,6 +42,7 @@ class Contract(ChildSlither, SourceMapping):
         self._kind = None
 
         self._signatures = None
+        self._signatures_declared = None
 
         self._is_upgradeable = None
         self._is_upgradeable_proxy = None
@@ -292,13 +293,27 @@ class Contract(ChildSlither, SourceMapping):
         Return the signatures of all the public/eterxnal functions/state variables
         :return: list(string) the signatures of all the functions that can be called
         """
-        if self._signatures == None:
+        if self._signatures is None:
             sigs = [v.full_name for v in self.state_variables if v.visibility in ['public',
                                                                                   'external']]
 
             sigs += set([f.full_name for f in self.functions if f.visibility in ['public', 'external']])
             self._signatures = list(set(sigs))
         return self._signatures
+
+    @property
+    def functions_signatures_declared(self):
+        """
+        Return the signatures of the public/eterxnal functions/state variables that are declared by this contract
+        :return: list(string) the signatures of all the functions that can be called and are declared by this contract
+        """
+        if self._signatures_declared is None:
+            sigs = [v.full_name for v in self.state_variables_declared if v.visibility in ['public',
+                                                                                           'external']]
+
+            sigs += set([f.full_name for f in self.functions_declared if f.visibility in ['public', 'external']])
+            self._signatures_declared = list(set(sigs))
+        return self._signatures_declared
 
     @property
     def functions(self):
