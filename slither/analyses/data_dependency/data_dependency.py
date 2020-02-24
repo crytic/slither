@@ -114,8 +114,8 @@ def get_dependencies(variable, context, only_unprotected=False):
     assert isinstance(context, (Contract, Function))
     assert isinstance(only_unprotected, bool)
     if only_unprotected:
-        return context.context[KEY_NON_SSA].get(variable, [])
-    return context.context[KEY_NON_SSA_UNPROTECTED].get(variable, [])
+        return context.context[KEY_NON_SSA_UNPROTECTED].get(variable, [])
+    return context.context[KEY_NON_SSA].get(variable, [])
 
 # endregion
 ###################################################################################
