@@ -928,7 +928,6 @@ class FunctionSolc(Function):
                 else:
                     latest_entry_point = self.entry_point
                 insert_node(latest_entry_point, node)
-                node = latest_entry_point
                 self._explicit_base_constructor_calls.append(ModifierStatements(modifier=m,
                                                                                 entry_point=latest_entry_point,
                                                                                 nodes=[latest_entry_point, node]))
