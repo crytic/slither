@@ -905,6 +905,11 @@ class FunctionSolc(Function):
     def _parse_modifier(self, modifier):
         m = parse_expression(modifier, self)
         self._expression_modifiers.append(m)
+
+        # Do not parse modifier nodes for interfaces
+        if not self._is_implemented:
+            return
+
         for m in ExportValues(m).result():
             if isinstance(m, Function):
                 node = self._new_node(NodeType.EXPRESSION, modifier['src'])
