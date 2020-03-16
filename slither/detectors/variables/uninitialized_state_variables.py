@@ -11,6 +11,7 @@
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import InternalCall, LibraryCall
+from slither.slithir.variables import ReferenceVariable
 
 
 class UninitializedStateVarsDetection(AbstractDetector):
@@ -56,7 +57,12 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
                         if ir.function:
                             for param in ir.function.parameters:
                                 if param.location == 'storage':
-                                    ret.append(ir.arguments[idx])
+                                    # If its a storage variable, add either the variable
+                                    # Or the variable it points to if its a reference
+                                    if isinstance(ir.arguments[idx], ReferenceVariable):
+                                        ret.append(ir.arguments[idx].points_to_origin)
+                                    else:
+                                        ret.append(ir.arguments[idx])
                                 idx = idx + 1
 
         return ret
