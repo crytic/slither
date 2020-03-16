@@ -1357,13 +1357,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         for node in self.nodes:
             node.slithir_generation()
 
-        for modifier_statement in self.modifiers_statements:
-            for node in modifier_statement.nodes:
-                node.slithir_generation()
-
-        for modifier_statement in self.explicit_base_constructor_calls_statements:
-            for node in modifier_statement.nodes:
-                node.slithir_generation()
 
         self._analyze_read_write()
         self._analyze_calls()
