@@ -1,9 +1,10 @@
 """
 Module detecting misuse of Boolean constants
 """
-
+from slither.core.cfg.node import NodeType
+from slither.core.solidity_types import ElementaryType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Assignment, Call, Return, InitArray, Binary, BinaryType
+from slither.slithir.operations import Assignment, Call, Return, InitArray, Binary, BinaryType, Condition
 from slither.slithir.variables import Constant
 
 
@@ -60,6 +61,15 @@ Boolean constants in code have only a few legitimate uses.  Other uses (in compl
 
             # Loop for every node in this function, looking for boolean constants
             for node in function.nodes:
+
+                # Do not report "while(true)"
+                if node.type == NodeType.IFLOOP:
+                    if node.irs:
+                        if len(node.irs) == 1:
+                            ir = node.irs[0]
+                            if isinstance(ir, Condition) and ir.value == Constant('True', ElementaryType('bool')):
+                                continue
+
                 for ir in node.irs:
                     if isinstance(ir, (Assignment, Call, Return, InitArray)):
                         # It's ok to use a bare boolean constant in these contexts
