@@ -1,12 +1,13 @@
-[92m
-## Run initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialization-checks)[0m
-[93mInitializable contract not found, the contract does not follow a standard initalization schema.[0m
-[92m
-## Run variable initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks)[0m
-[92mNo error found[0m
-[92m
-## Run variables ordering checks between ContractV1 and ContractV2... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
-[93mVariable only in ContractV1: destination (tests/check-upgradeability/contractV1.sol#2)[0m
-[92m
-## Run variable constants conformance check... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks)[0m
-[91mContractV1.destination (tests/check-upgradeability/contractV1.sol#2) was not constant but ContractV2.destination is (tests/check-upgradeability/contract_v2_constant.sol#2)[0m
+INFO:Slither:[92m
+Initializable contract not found, the contract does not follow a standard initalization schema.
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing[0m
+INFO:Slither:[91m
+ContractV1.destination (tests/check-upgradeability/contractV1.sol#2) was not constant but ContractV2.destination (tests/check-upgradeability/contract_v2_constant.sol#2) is.
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-that-should-not-be-constant[0m
+INFO:Slither:[93m
+Variable missing in ContractV2 (tests/check-upgradeability/contract_v2_constant.sol#1-3): ContractV1.destination (tests/check-upgradeability/contractV1.sol#2)
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#missing-variables[0m
+INFO:Slither:[92m
+Initializable contract not found, the contract does not follow a standard initalization schema.
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing[0m
+INFO:Slither:4 findings, 18 detectors run
