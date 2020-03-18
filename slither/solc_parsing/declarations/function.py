@@ -2,7 +2,7 @@
 """
 import logging
 
-from slither.core.cfg.node import NodeType, link_nodes, recheable
+from slither.core.cfg.node import NodeType, link_nodes, insert_node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function, ModifierStatements, FunctionType
 
@@ -220,12 +220,7 @@ class FunctionSolc(Function):
         for node in self.nodes:
             node.analyze_expressions(self)
 
-        if self._filter_ternary():
-            for modifier_statement in self.modifiers_statements:
-                modifier_statement.nodes = recheable(modifier_statement.entry_point)
-
-            for modifier_statement in self.explicit_base_constructor_calls_statements:
-                modifier_statement.nodes = recheable(modifier_statement.entry_point)
+        self._filter_ternary()
 
         self._remove_alone_endif()
 
@@ -910,23 +905,37 @@ class FunctionSolc(Function):
     def _parse_modifier(self, modifier):
         m = parse_expression(modifier, self)
         self._expression_modifiers.append(m)
+
+        # Do not parse modifier nodes for interfaces
+        if not self._is_implemented:
+            return
+
         for m in ExportValues(m).result():
             if isinstance(m, Function):
-                entry_point = self._new_node(NodeType.OTHER_ENTRYPOINT, modifier['src'])
                 node = self._new_node(NodeType.EXPRESSION, modifier['src'])
                 node.add_unparsed_expression(modifier)
-                link_nodes(entry_point, node)
+                # The latest entry point is the entry point, or the latest modifier call
+                if self._modifiers:
+                    latest_entry_point = self._modifiers[-1].nodes[-1]
+                else:
+                    latest_entry_point = self.entry_point
+                insert_node(latest_entry_point, node)
                 self._modifiers.append(ModifierStatements(modifier=m,
-                                                          entry_point=entry_point,
-                                                          nodes=[entry_point, node]))
+                                                          entry_point=latest_entry_point,
+                                                          nodes=[latest_entry_point, node]))
+
             elif isinstance(m, Contract):
-                entry_point = self._new_node(NodeType.OTHER_ENTRYPOINT, modifier['src'])
                 node = self._new_node(NodeType.EXPRESSION, modifier['src'])
                 node.add_unparsed_expression(modifier)
-                link_nodes(entry_point, node)
+                # The latest entry point is the entry point, or the latest constructor call
+                if self._explicit_base_constructor_calls:
+                    latest_entry_point = self._explicit_base_constructor_calls[-1].nodes[-1]
+                else:
+                    latest_entry_point = self.entry_point
+                insert_node(latest_entry_point, node)
                 self._explicit_base_constructor_calls.append(ModifierStatements(modifier=m,
-                                                                                entry_point=entry_point,
-                                                                                nodes=[entry_point, node]))
+                                                                                entry_point=latest_entry_point,
+                                                                                nodes=[latest_entry_point, node]))
 
     # endregion
     ###################################################################################

@@ -33,10 +33,6 @@ class PrinterSlithIR(AbstractPrinter):
                         txt += '\t\tIRs:\n'
                         for ir in node.irs:
                             txt += '\t\t\t{}\n'.format(ir)
-                for modifier_statement in function.modifiers_statements:
-                    txt += f'\t\tModifier Call {modifier_statement.entry_point.expression}\n'
-                for modifier_statement in function.explicit_base_constructor_calls_statements:
-                    txt += f'\t\tConstructor Call {modifier_statement.entry_point.expression}\n'
             for modifier in contract.modifiers:
                 txt += '\tModifier {}\n'.format(modifier.canonical_name)
                 for node in modifier.nodes:

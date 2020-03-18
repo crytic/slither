@@ -17,7 +17,7 @@ from slither.slithir.operations import (Assignment, Balance, Binary, Condition,
                                         OperationWithLValue, Phi, PhiCallback,
                                         Push, Return, Send, SolidityCall,
                                         Transfer, TypeConversion, Unary,
-                                        Unpack)
+                                        Unpack, Nop)
 from slither.slithir.variables import (Constant, LocalIRVariable,
                                        ReferenceVariable, ReferenceVariableSSA,
                                        StateIRVariable, TemporaryVariable,
@@ -620,6 +620,8 @@ def copy_ir(ir, *instances):
         new_ir = NewStructure(structure, lvalue)
         new_ir.arguments = get_arguments(ir, *instances)
         return new_ir
+    elif isinstance(ir, Nop):
+        return Nop()
     elif isinstance(ir, Push):
         array = get_variable(ir, lambda x: x.array, *instances)
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
