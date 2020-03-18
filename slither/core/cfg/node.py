@@ -63,7 +63,7 @@ class NodeType:
     PLACEHOLDER = 0x40
 
     # Node not related to the CFG
-    # Use for state variable declaration, or modifier calls
+    # Use for state variable declaration
     OTHER_ENTRYPOINT = 0x50
 
 
@@ -110,6 +110,15 @@ class NodeType:
 def link_nodes(n1, n2):
     n1.add_son(n2)
     n2.add_father(n1)
+
+def insert_node(origin, node_inserted):
+    sons = origin.sons
+    link_nodes(origin, node_inserted)
+    for son in sons:
+        son.remove_father(origin)
+        origin.remove_son(son)
+
+        link_nodes(node_inserted, son)
 
 def recheable(node):
     '''

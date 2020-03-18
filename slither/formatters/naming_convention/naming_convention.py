@@ -392,16 +392,6 @@ def _explore_variables_declaration(slither, variables, result, target, convert, 
 
 
 
-def _explore_modifiers_calls(slither, function, result, target, convert):
-    for modifier in function.modifiers_statements:
-        for node in modifier.nodes:
-            if node.irs:
-                _explore_irs(slither, node.irs, result, target, convert)
-    for modifier in function.explicit_base_constructor_calls_statements:
-        for node in modifier.nodes:
-            if node.irs:
-                _explore_irs(slither, node.irs, result, target, convert)
-
 def _explore_structures_declaration(slither, structures, result, target, convert):
     for st in structures:
         # Explore the variable declared within the structure (VariableStructure)
@@ -514,7 +504,6 @@ def _explore_irs(slither, irs, result, target, convert):
 def _explore_functions(slither, functions, result, target, convert):
     for function in functions:
         _explore_variables_declaration(slither, function.variables, result, target, convert, True)
-        _explore_modifiers_calls(slither, function, result, target, convert)
         _explore_irs(slither, function.all_slithir_operations(), result, target, convert)
 
         if isinstance(target, Function) and function.canonical_name == target.canonical_name:
