@@ -182,6 +182,7 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
                          all_local_variables_instances)
 
         new_ir.set_expression(ir.expression)
+        new_ir.set_node(ir.node)
 
         update_lvalue(new_ir,
                       node,
