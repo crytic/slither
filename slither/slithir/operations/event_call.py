@@ -1,6 +1,6 @@
 
 from slither.slithir.operations.call import Call
-from slither.core.variables.variable import Variable
+
 
 class EventCall(Call):
     def __init__(self, name):

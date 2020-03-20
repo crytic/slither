@@ -5,9 +5,10 @@ from slither.slithir.exceptions import SlithIRError
 
 logger = logging.getLogger("BinaryOperationIR")
 
+
 class UnaryType:
-    BANG =              0 # ! 
-    TILD =              1 # ~ 
+    BANG = 0  # !
+    TILD = 1  # ~
 
     @staticmethod
     def get_type(operation_type, isprefix):
@@ -26,6 +27,7 @@ class UnaryType:
             return '~'
 
         raise SlithIRError('str: Unknown operation type {}'.format(operation_type))
+
 
 class Unary(OperationWithLValue):
 

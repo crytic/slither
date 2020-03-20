@@ -1,6 +1,7 @@
 import re
-import os
+
 from slither.core.context.context import Context
+
 
 class SourceMapping(Context):
 
