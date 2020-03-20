@@ -4,7 +4,7 @@
     as the TemporaryVariable are in SSA form in both version
 '''
 from .temporary import TemporaryVariable
-from .variable import SlithIRVariable
+
 
 class TemporaryVariableSSA(TemporaryVariable):
 
@@ -12,7 +12,6 @@ class TemporaryVariableSSA(TemporaryVariable):
         super(TemporaryVariableSSA, self).__init__(temporary.node, temporary.index)
 
         self._non_ssa_version = temporary
-
 
     @property
     def non_ssa_version(self):

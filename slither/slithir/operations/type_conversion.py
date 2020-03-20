@@ -1,9 +1,7 @@
-from slither.slithir.operations.lvalue import OperationWithLValue
-
-from slither.core.variables.variable import Variable
-
 from slither.core.solidity_types.type import Type
+from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
+
 
 class TypeConversion(OperationWithLValue):
 

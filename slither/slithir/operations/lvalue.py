@@ -1,5 +1,6 @@
 from slither.slithir.operations.operation import Operation
 
+
 class OperationWithLValue(Operation):
     '''
         Operation with a lvalue

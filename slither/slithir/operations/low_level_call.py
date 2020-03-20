@@ -5,6 +5,7 @@ from slither.core.declarations.solidity_variables import SolidityVariable
 
 from slither.slithir.variables.constant import Constant
 
+
 class LowLevelCall(Call, OperationWithLValue):
     """
         High level message call
@@ -19,7 +20,7 @@ class LowLevelCall(Call, OperationWithLValue):
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
         self._lvalue = result
-        self._callid = None # only used if gas/value != 0
+        self._callid = None  # only used if gas/value != 0
 
         self._call_value = None
         self._call_gas = None
@@ -102,4 +103,3 @@ class LowLevelCall(Call, OperationWithLValue):
                           [str(x) for x in arguments],
                           value,
                           gas)
-

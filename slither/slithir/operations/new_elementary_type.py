@@ -4,6 +4,7 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 
+
 class NewElementaryType(Call, OperationWithLValue):
 
     def __init__(self, new_type, lvalue):
