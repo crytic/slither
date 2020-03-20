@@ -1,13 +1,15 @@
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.core.declarations.contract import Contract
 
+
 class LibraryCall(HighLevelCall):
     """
         High level message call
     """
+
     # Development function, to be removed once the code is stable
     def _check_destination(self, destination):
-        assert isinstance(destination, (Contract))
+        assert isinstance(destination, Contract)
 
     def can_reenter(self, callstack=None):
         '''
@@ -40,6 +42,3 @@ class LibraryCall(HighLevelCall):
                           self.function_name,
                           [str(x) for x in arguments],
                           gas)
-
-
-

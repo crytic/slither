@@ -1,11 +1,14 @@
 from slither.slithir.operations.operation import Operation
 
 from slither.slithir.utils.utils import is_valid_rvalue
+
+
 class Condition(Operation):
     """
        Condition
        Only present as last operation in conditional node
     """
+
     def __init__(self, value):
         assert is_valid_rvalue(value)
         super(Condition, self).__init__()

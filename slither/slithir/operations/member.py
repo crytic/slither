@@ -1,13 +1,10 @@
-from slither.core.expressions.expression import Expression
-from slither.core.expressions.expression_typed import ExpressionTyped
-from slither.core.solidity_types.type import Type
-from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
-from slither.slithir.variables.reference import ReferenceVariable
-from slither.slithir.variables.constant import Constant
-
-from slither.core.declarations.contract import Contract
+from slither.core.declarations import Contract
 from slither.core.declarations.enum import Enum
+from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.utils.utils import is_valid_rvalue
+from slither.slithir.variables.constant import Constant
+from slither.slithir.variables.reference import ReferenceVariable
+
 
 class Member(OperationWithLValue):
 

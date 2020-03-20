@@ -1,6 +1,5 @@
-from slither.core.declarations.contract import Contract
 from slither.slithir.operations import Call, OperationWithLValue
-from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
+from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
 
 
@@ -13,8 +12,9 @@ class NewContract(Call, OperationWithLValue):
         self._contract_name = contract_name
         # todo create analyze to add the contract instance
         self._lvalue = lvalue
-        self._callid = None # only used if gas/value != 0
+        self._callid = None  # only used if gas/value != 0
         self._call_value = None
+
     @property
     def call_value(self):
         return self._call_value
