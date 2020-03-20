@@ -1,36 +1,29 @@
-import logging
 import argparse
+import inspect
+import json
+import logging
 import sys
-from collections import defaultdict
+
+from crytic_compile import cryticparser
 
 from slither import Slither
-from crytic_compile import cryticparser
 from slither.exceptions import SlitherException
 from slither.utils.colors import red
 from slither.utils.output import output_to_json
-
-from .compare_variables_order import compare_variables_order
-from .compare_function_ids import compare_function_ids
-from .check_initialization import check_initialization
-from .check_variable_initialization import check_variable_initialization
-from .constant_checks import constant_conformance_check
+from .checks import all_checks
+from .checks.abstract_checks import AbstractCheck
+from .utils.command_line import output_detectors_json, output_wiki, output_detectors, output_to_markdown
+from ...utils.command_line import output_detectors_json
 
 logging.basicConfig()
-logger = logging.getLogger("Slither-check-upgradeability")
+logger = logging.getLogger("Slither")
 logger.setLevel(logging.INFO)
 
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-formatter = logging.Formatter('%(message)s')
-logger.addHandler(ch)
-logger.handlers[0].setFormatter(formatter)
-logger.propagate = False
 
 def parse_args():
-
-    parser = argparse.ArgumentParser(description='Slither Upgradeability Checks. For usage information see https://github.com/crytic/slither/wiki/Upgradeability-Checks.',
-                                     usage="slither-check-upgradeability contract.sol ContractName")
-
+    parser = argparse.ArgumentParser(
+        description='Slither Upgradeability Checks. For usage information see https://github.com/crytic/slither/wiki/Upgradeability-Checks.',
+        usage="slither-check-upgradeability contract.sol ContractName")
 
     parser.add_argument('contract.sol', help='Codebase to analyze')
     parser.add_argument('ContractName', help='Contract name (logic contract)')
@@ -45,7 +38,34 @@ def parse_args():
                         help='Export the results as a JSON file ("--json -" to export to stdout)',
                         action='store',
                         default=False)
-    
+
+    parser.add_argument('--list-detectors',
+                        help='List available detectors',
+                        action=ListDetectors,
+                        nargs=0,
+                        default=False)
+
+    parser.add_argument('--markdown-root',
+                        help='URL for markdown generation',
+                        action='store',
+                        default="")
+
+    parser.add_argument('--wiki-detectors',
+                        help=argparse.SUPPRESS,
+                        action=OutputWiki,
+                        default=False)
+
+    parser.add_argument('--list-detectors-json',
+                        help=argparse.SUPPRESS,
+                        action=ListDetectorsJson,
+                        nargs=0,
+                        default=False)
+
+    parser.add_argument('--markdown',
+                        help=argparse.SUPPRESS,
+                        action=OutputMarkdown,
+                        default=False)
+
     cryticparser.init(parser)
 
     if len(sys.argv) == 1:
@@ -57,49 +77,67 @@ def parse_args():
 
 ###################################################################################
 ###################################################################################
-# region
+# region checks
 ###################################################################################
 ###################################################################################
 
-def _checks_on_contract(contract, json_results):
-    """
-
-    :param contract:
-    :param json_results:
-    :return:
-    """
-    json_results['check-initialization'][contract.name] = check_initialization(contract)
-    json_results['variable-initialization'][contract.name] = check_variable_initialization(contract)
+def _get_checks():
+    detectors = [getattr(all_checks, name) for name in dir(all_checks)]
+    detectors = [c for c in detectors if inspect.isclass(c) and issubclass(c, AbstractCheck)]
+    return detectors
 
 
-def _checks_on_contract_update(contract_v1, contract_v2, json_results):
-    """
-
-    :param contract_v1:
-    :param contract_v2:
-    :param json_results:
-    :return:
-    """
-
-    ret = compare_variables_order(contract_v1, contract_v2)
-    json_results['compare-variables-order-implementation'][contract_v1.name][contract_v2.name] = ret
-
-    json_results['constant_conformance'][contract_v1.name][contract_v2.name] = constant_conformance_check(contract_v1,
-                                                                                                          contract_v2)
+class ListDetectors(argparse.Action):
+    def __call__(self, parser, *args, **kwargs):
+        checks = _get_checks()
+        output_detectors(checks)
+        parser.exit()
 
 
-def _checks_on_contract_and_proxy(contract, proxy, json_results, missing_variable_check=True):
-    """
+class ListDetectorsJson(argparse.Action):
+    def __call__(self, parser, *args, **kwargs):
+        checks = _get_checks()
+        detector_types_json = output_detectors_json(checks)
+        print(json.dumps(detector_types_json))
+        parser.exit()
 
-    :param contract:
-    :param proxy:
-    :param json_results:
-    :return:
-    """
-    json_results['compare-function-ids'][contract.name] = compare_function_ids(contract, proxy)
-    json_results['compare-variables-order-proxy'][contract.name] = compare_variables_order(contract,
-                                                                                           proxy,
-                                                                                           missing_variable_check)
+
+class OutputMarkdown(argparse.Action):
+    def __call__(self, parser, args, values, option_string=None):
+        checks = _get_checks()
+        output_to_markdown(checks, values)
+        parser.exit()
+
+
+class OutputWiki(argparse.Action):
+    def __call__(self, parser, args, values, option_string=None):
+        checks = _get_checks()
+        output_wiki(checks, values)
+        parser.exit()
+
+
+def _run_checks(detectors):
+    results = [d.check() for d in detectors]
+    results = [r for r in results if r]
+    results = [item for sublist in results for item in sublist]  # flatten
+    return results
+
+
+def _checks_on_contract(detectors, contract):
+    detectors = [d(logger, contract) for d in detectors if (not d.REQUIRE_PROXY and
+                                                            not d.REQUIRE_CONTRACT_V2)]
+    return _run_checks(detectors), len(detectors)
+
+
+def _checks_on_contract_update(detectors, contract_v1, contract_v2):
+    detectors = [d(logger, contract_v1, contract_v2=contract_v2) for d in detectors if d.REQUIRE_CONTRACT_V2]
+    return _run_checks(detectors), len(detectors)
+
+
+def _checks_on_contract_and_proxy(detectors, contract, proxy):
+    detectors = [d(logger, contract, proxy=proxy) for d in detectors if d.REQUIRE_PROXY]
+    return _run_checks(detectors), len(detectors)
+
 
 # endregion
 ###################################################################################
@@ -111,20 +149,16 @@ def _checks_on_contract_and_proxy(contract, proxy, json_results, missing_variabl
 
 def main():
     json_results = {
-        'check-initialization': defaultdict(dict),
-        'variable-initialization': defaultdict(dict),
-        'compare-function-ids': defaultdict(dict),
-        'compare-variables-order-implementation': defaultdict(dict),
-        'compare-variables-order-proxy': defaultdict(dict),
-        'constant_conformance': defaultdict(dict),
         'proxy-present': False,
-        'contract_v2-present': False
+        'contract_v2-present': False,
+        'detectors': []
     }
 
     args = parse_args()
 
     v1_filename = vars(args)['contract.sol']
-
+    number_detectors_run = 0
+    detectors = _get_checks()
     try:
         v1 = Slither(v1_filename, **vars(args))
 
@@ -135,10 +169,12 @@ def main():
             info = 'Contract {} not found in {}'.format(v1_name, v1.filename)
             logger.error(red(info))
             if args.json:
-                output_to_json(args.json, str(info), {"upgradeability-check": json_results})
+                output_to_json(args.json, str(info), json_results)
             return
 
-        _checks_on_contract(v1_contract, json_results)
+        detectors_results, number_detectors = _checks_on_contract(detectors, v1_contract)
+        json_results['detectors'] += detectors_results
+        number_detectors_run += number_detectors
 
         # Analyze Proxy
         proxy_contract = None
@@ -153,11 +189,13 @@ def main():
                 info = 'Proxy {} not found in {}'.format(args.proxy_name, proxy.filename)
                 logger.error(red(info))
                 if args.json:
-                    output_to_json(args.json, str(info), {"upgradeability-check": json_results})
+                    output_to_json(args.json, str(info), json_results)
                 return
             json_results['proxy-present'] = True
-            _checks_on_contract_and_proxy(v1_contract, proxy_contract, json_results)
 
+            detectors_results, number_detectors = _checks_on_contract_and_proxy(detectors, v1_contract, proxy_contract)
+            json_results['detectors'] += detectors_results
+            number_detectors_run += number_detectors
         # Analyze new version
         if args.new_contract_name:
             if args.new_contract_filename:
@@ -170,25 +208,34 @@ def main():
                 info = 'New logic contract {} not found in {}'.format(args.new_contract_name, v2.filename)
                 logger.error(red(info))
                 if args.json:
-                    output_to_json(args.json, str(info), {"upgradeability-check": json_results})
+                    output_to_json(args.json, str(info), json_results)
                 return
             json_results['contract_v2-present'] = True
 
             if proxy_contract:
-                _checks_on_contract_and_proxy(v2_contract,
-                                              proxy_contract,
-                                              json_results,
-                                              missing_variable_check=False)
+                detectors_results, _ = _checks_on_contract_and_proxy(detectors,
+                                                                     v2_contract,
+                                                                     proxy_contract)
 
-            _checks_on_contract_update(v1_contract, v2_contract, json_results)
+                json_results['detectors'] += detectors_results
 
+            detectors_results, number_detectors = _checks_on_contract_update(detectors, v1_contract, v2_contract)
+            json_results['detectors'] += detectors_results
+            number_detectors_run += number_detectors
+
+            # If there is a V2, we run the contract-only check on the V2
+            detectors_results, _ = _checks_on_contract(detectors, v2_contract)
+            json_results['detectors'] += detectors_results
+            number_detectors_run += number_detectors
+
+        logger.info(f'{len(json_results["detectors"])} findings, {number_detectors_run} detectors run')
         if args.json:
-            output_to_json(args.json, None, {"upgradeability-check": json_results})
+            output_to_json(args.json, None, json_results)
 
     except SlitherException as e:
         logger.error(str(e))
         if args.json:
-            output_to_json(args.json, str(e), {"upgradeability-check": json_results})
+            output_to_json(args.json, str(e), json_results)
         return
 
 # endregion
