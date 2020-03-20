@@ -13,8 +13,6 @@ from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.import_directive import Import
 from slither.analyses.data_dependency.data_dependency import compute_dependency
 
-from slither.utils.colors import red
-from .exceptions import ParsingNameReuse, ParsingContractNotFound
 
 class SlitherSolc(Slither):
 
@@ -26,7 +24,6 @@ class SlitherSolc(Slither):
         self._analyzed = False
 
         self._is_compact_ast = False
-
 
     ###################################################################################
     ###################################################################################
@@ -126,7 +123,6 @@ class SlitherSolc(Slither):
                 import_directive.set_offset(contract_data['src'], self)
                 self._import_directives.append(import_directive)
 
-
     def _parse_source_unit(self, data, filename):
         if data[self.get_key()] != 'SourceUnit':
             return -1  # handle solc prior 0.3.6
@@ -175,7 +171,7 @@ class SlitherSolc(Slither):
 
     def _analyze_contracts(self):
         if not self._contractsNotParsed:
-            logger.info(f'No contract were found in {self.filename}, check the correct compilation') 
+            logger.info(f'No contract were found in {self.filename}, check the correct compilation')
         if self._analyzed:
             raise Exception('Contract analysis can be run only once!')
 
@@ -184,50 +180,56 @@ class SlitherSolc(Slither):
         for contract in self._contractsNotParsed:
             if contract.name in self._contracts:
                 if contract.id != self._contracts[contract.name].id:
-                    info = 'Slither does not handle projects with contract names re-use'
-                    info += '\n{} is defined in:'.format(contract.name)
-                    info += '\n- {}\n- {}'.format(contract.source_mapping_str,
-                                               self._contracts[contract.name].source_mapping_str)
-                    raise ParsingNameReuse(info)
+                    self._contract_name_collisions[contract.name].append(contract.source_mapping_str)
+                    self._contract_name_collisions[contract.name].append(
+                        self._contracts[contract.name].source_mapping_str)
             else:
                 self._contracts_by_id[contract.id] = contract
                 self._contracts[contract.name] = contract
 
-        # Update of the inheritance 
+        # Update of the inheritance
         for contract in self._contractsNotParsed:
             # remove the first elem in linearizedBaseContracts as it is the contract itself
             ancestors = []
             fathers = []
             father_constructors = []
-            try:
-                # Resolve linearized base contracts.
-                for i in contract.linearizedBaseContracts[1:]:
-                    if i in contract.remapping:
-                        ancestors.append(self.get_contract_from_name(contract.remapping[i]))
-                    else:
-                        ancestors.append(self._contracts_by_id[i])
+            # try:
+            # Resolve linearized base contracts.
+            missing_inheritance = False
 
-                # Resolve immediate base contracts
-                for i in contract.baseContracts:
-                    if i in contract.remapping:
-                        fathers.append(self.get_contract_from_name(contract.remapping[i]))
-                    else:
-                        fathers.append(self._contracts_by_id[i])
+            for i in contract.linearizedBaseContracts[1:]:
+                if i in contract.remapping:
+                    ancestors.append(self.get_contract_from_name(contract.remapping[i]))
+                elif i in self._contracts_by_id:
+                    ancestors.append(self._contracts_by_id[i])
+                else:
+                    missing_inheritance = True
 
-                # Resolve immediate base constructor calls
-                for i in contract.baseConstructorContractsCalled:
-                    if i in contract.remapping:
-                        father_constructors.append(self.get_contract_from_name(contract.remapping[i]))
-                    else:
-                        father_constructors.append(self._contracts_by_id[i])
+            # Resolve immediate base contracts
+            for i in contract.baseContracts:
+                if i in contract.remapping:
+                    fathers.append(self.get_contract_from_name(contract.remapping[i]))
+                elif i in self._contracts_by_id:
+                    fathers.append(self._contracts_by_id[i])
+                else:
+                    missing_inheritance = True
 
-            except KeyError as e:
-                txt = f'A contract was not found (id {e}), it is likely that your codebase contains muliple contracts with the same name. '
-                txt += 'Truffle does not handle this case during compilation. '
-                txt += 'Please read https://github.com/trailofbits/slither/wiki#keyerror-or-nonetype-error, '
-                txt += 'and update your code to remove the duplicate'
-                raise ParsingContractNotFound(txt)
+            # Resolve immediate base constructor calls
+            for i in contract.baseConstructorContractsCalled:
+                if i in contract.remapping:
+                    father_constructors.append(self.get_contract_from_name(contract.remapping[i]))
+                elif i in self._contracts_by_id:
+                    father_constructors.append(self._contracts_by_id[i])
+                else:
+                    missing_inheritance = True
+
             contract.setInheritance(ancestors, fathers, father_constructors)
+
+            if missing_inheritance:
+                self._contract_with_missing_inheritance.add(contract)
+                contract.log_incorrect_parsing()
+                contract.set_is_analyzed(True)
+                contract.delete_content()
 
         contracts_to_be_analyzed = self.contracts
 
@@ -256,7 +258,6 @@ class SlitherSolc(Slither):
         self._convert_to_slithir()
 
         compute_dependency(self)
-
 
     def _analyze_all_enums(self, contracts_to_be_analyzed):
         while contracts_to_be_analyzed:
@@ -369,8 +370,6 @@ class SlitherSolc(Slither):
 
         contract.analyze_content_modifiers()
         contract.analyze_content_functions()
-
-
 
         contract.set_is_analyzed(True)
 
