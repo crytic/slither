@@ -1,5 +1,5 @@
-
 from slither.slithir.operations.operation import Operation
+
 
 class Call(Operation):
 

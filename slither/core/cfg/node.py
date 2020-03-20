@@ -647,6 +647,7 @@ class Node(SourceMapping, ChildFunction):
         '''
             Use to place phi operation
         '''
+        ir.set_node(self)
         self._irs_ssa.append(ir)
 
     def slithir_generation(self):

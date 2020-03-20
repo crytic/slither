@@ -5,6 +5,7 @@ from slither.slithir.utils.utils import is_valid_lvalue
 
 from slither.core.declarations.structure import Structure
 
+
 class NewStructure(Call, OperationWithLValue):
 
     def __init__(self, structure, lvalue):
@@ -22,7 +23,7 @@ class NewStructure(Call, OperationWithLValue):
     @property
     def structure(self):
         return self._structure
-    
+
     @property
     def structure_name(self):
         return self.structure.name
