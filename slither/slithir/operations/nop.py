@@ -1,5 +1,6 @@
 from .operation import Operation
 
+
 class Nop(Operation):
 
     @property

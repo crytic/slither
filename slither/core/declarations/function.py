@@ -107,6 +107,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
         self._expressions = None
         self._slithir_operations = None
+        self._slithir_ssa_operations = None
 
         self._all_expressions = None
         self._all_slithir_operations = None
@@ -693,6 +694,17 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             operations = [item for sublist in operations for item in sublist if item]
             self._slithir_operations = operations
         return self._slithir_operations
+
+    @property
+    def slithir_ssa_operations(self):
+        """
+            list(Operation): List of the slithir operations (SSA)
+        """
+        if self._slithir_ssa_operations is None:
+            operations = [n.irs_ssa for n in self.nodes]
+            operations = [item for sublist in operations for item in sublist if item]
+            self._slithir_ssa_operations = operations
+        return self._slithir_ssa_operations
 
     # endregion
     ###################################################################################

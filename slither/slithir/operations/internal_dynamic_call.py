@@ -1,4 +1,3 @@
-from slither.core.declarations.function import Function
 from slither.core.solidity_types import FunctionType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
