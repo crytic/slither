@@ -1,6 +1,6 @@
-
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
+
 
 class Phi(OperationWithLValue):
 
@@ -32,5 +32,6 @@ class Phi(OperationWithLValue):
     @property
     def nodes(self):
         return self._nodes
+
     def __str__(self):
         return '{}({}) := \u03D5({})'.format(self.lvalue, self.lvalue.type, [str(v) for v in self._rvalues])

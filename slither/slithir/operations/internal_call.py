@@ -2,7 +2,7 @@ from slither.core.declarations import Modifier
 from slither.core.declarations.function import Function
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.variables import Constant
+
 
 class InternalCall(Call, OperationWithLValue):
 
@@ -15,7 +15,7 @@ class InternalCall(Call, OperationWithLValue):
         else:
             self._function = None
             self._function_name, self._contract_name = function
-        #self._contract = contract
+        # self._contract = contract
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
         self._lvalue = result
@@ -71,4 +71,3 @@ class InternalCall(Call, OperationWithLValue):
         return txt.format(lvalue,
                           self.function.canonical_name,
                           ','.join(args))
-

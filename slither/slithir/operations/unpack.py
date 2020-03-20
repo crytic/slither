@@ -1,8 +1,7 @@
-import logging
 from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.tuple import TupleVariable
 
-from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 
 class Unpack(OperationWithLValue):
 
