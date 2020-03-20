@@ -31,9 +31,7 @@ class Send(Call, OperationWithLValue):
     def destination(self):
         return self._destination
 
-
     def __str__(self):
         value = 'value:{}'.format(self.call_value)
-        return str(self.lvalue) +' = SEND dest:{} {}'.format(self.destination, value)
-#       
-
+        return str(self.lvalue) + ' = SEND dest:{} {}'.format(self.destination, value)
+#

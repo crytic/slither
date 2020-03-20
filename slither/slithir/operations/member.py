@@ -1,3 +1,4 @@
+from slither.core.declarations import Contract
 from slither.core.declarations.enum import Enum
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_rvalue

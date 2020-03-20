@@ -7,6 +7,8 @@ class InitArray(OperationWithLValue):
     def __init__(self, init_values, lvalue):
         # init_values can be an array of n dimension
         # reduce was removed in py3
+        super().__init__()
+
         def reduce(xs):
             result = True
             for i in xs:
