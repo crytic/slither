@@ -1,4 +1,4 @@
 [91m
-Uninitialized.func().st_bug (tests/uninitialized_storage_pointer.sol#10) is a storage variable never initialiazed
+Uninitialized.func().st_bug (tests/uninitialized_storage_pointer.sol#10) is a storage variable never initialized
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-storage-variables[0m
 tests/uninitialized_storage_pointer.sol analyzed (1 contracts with 1 detectors), 1 result(s) found

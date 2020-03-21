@@ -1,4 +1,4 @@
 [93m
-Uninitialized.func().uint_not_init (tests/uninitialized_local_variable.sol#4) is a local variable never initialiazed
+Uninitialized.func().uint_not_init (tests/uninitialized_local_variable.sol#4) is a local variable never initialized
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-local-variables[0m
 tests/uninitialized_local_variable.sol analyzed (1 contracts with 1 detectors), 1 result(s) found
