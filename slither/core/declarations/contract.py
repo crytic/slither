@@ -50,6 +50,8 @@ class Contract(ChildSlither, SourceMapping):
 
         self._initial_state_variables = [] # ssa
 
+        self._is_incorrectly_parsed = False
+
     ###################################################################################
     ###################################################################################
     # region General's properties
@@ -873,6 +875,21 @@ class Contract(ChildSlither, SourceMapping):
                                     self._is_upgradeable_proxy = True
                                     return self._is_upgradeable_proxy
         return self._is_upgradeable_proxy
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Internals
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def is_incorrectly_constructed(self):
+        """
+        Return true if there was an internal Slither's issue when analyzing the contract
+        :return:
+        """
+        return self._is_incorrectly_parsed
 
     # endregion
     ###################################################################################
