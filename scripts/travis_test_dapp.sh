@@ -20,7 +20,7 @@ dapp init
 
 slither .
 
-if [ $? -eq 23 ]
+if [ $? -eq 21 ]
 then
     exit 0
 fi
