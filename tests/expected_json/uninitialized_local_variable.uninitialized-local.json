@@ -77,8 +77,8 @@
             }
           }
         ],
-        "description": "Uninitialized.func().uint_not_init (tests/uninitialized_local_variable.sol#4) is a local variable never initialiazed\n",
-        "markdown": "[Uninitialized.func().uint_not_init](tests/uninitialized_local_variable.sol#L4) is a local variable never initialiazed\n",
+        "description": "Uninitialized.func().uint_not_init (tests/uninitialized_local_variable.sol#4) is a local variable never initialized\n",
+        "markdown": "[Uninitialized.func().uint_not_init](tests/uninitialized_local_variable.sol#L4) is a local variable never initialized\n",
         "id": "8cb0b6b473ffecf3c2284584eb0012c742d36709f75c7516c3ba9748f3c27a98",
         "check": "uninitialized-local",
         "impact": "Medium",
