@@ -10,6 +10,7 @@ from crytic_compile import CryticCompile, InvalidCompilation
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
+from .solc_parsing.exceptions import VariableNotFound
 from .solc_parsing.slitherSolc import SlitherSolc
 from .exceptions import SlitherError
 
@@ -83,6 +84,7 @@ class Slither(SlitherSolc):
         self._triage_mode = triage_mode
 
         self._analyze_contracts()
+
 
     def _init_from_raw_json(self, filename):
         if not os.path.isfile(filename):
