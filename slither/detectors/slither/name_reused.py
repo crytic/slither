@@ -5,6 +5,12 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 
 
 def _find_missing_inheritance(slither):
+    """
+    Filter contracts with missing inheritance to return only the "most base" contracts
+    in the inheritance tree.
+    :param slither:
+    :return:
+    """
     missings = slither.contracts_with_missing_inheritance
 
     ret = []
@@ -28,8 +34,13 @@ class NameReused(AbstractDetector):
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#name-reused'
 
     WIKI_TITLE = 'Name reused'
-    WIKI_DESCRIPTION = 'todo'
-    WIKI_EXPLOIT_SCENARIO = 'todo'
+    WIKI_DESCRIPTION = '''If a codebase has two contracts with the similar name, the compilation artifacts
+will not contain one of the contract with the dupplicate name.'''
+    WIKI_EXPLOIT_SCENARIO = '''
+Bob's truffle codebase has two contracts named `ERC20`.
+When `truffle compile` runs, only one of the two contract will generate artifacts in `build/contracts`.
+As a result, the second contract cannot be analyzed.
+'''
     WIKI_RECOMMENDATION = 'Rename the contract.'
 
     def _detect(self):
@@ -37,6 +48,7 @@ class NameReused(AbstractDetector):
 
         names_reused = self.slither.contract_name_collisions
 
+        # First show the contracts that we know are missing
         incorrectly_constructed = [contract for contract in self.contracts
                                    if contract.is_incorrectly_constructed]
 
@@ -60,16 +72,21 @@ class NameReused(AbstractDetector):
             res = self.generate_result(info)
             results.append(res)
 
+        # Then show the contracts for which one of the father was not found
+        # Here we are not able to know
         most_base_with_missing_inheritance = _find_missing_inheritance(self.slither)
 
         for b in most_base_with_missing_inheritance:
-            info = [b, ' inherits from a contract for which the name is reused.\n',
-                    'Slither could not determine the contract, but it is either:\n']
-            for inheritance in b.immediate_inheritance:
-                info += ['\t-', inheritance, '\n']
-            info += [b, ' and all the contracts inheriting from it are not correctly analyzed:\n']
-            for derived in b.derived_contracts:
-                info += ['\t-', derived, '\n']
+            info = [b, ' inherits from a contract for which the name is reused.\n']
+            if b.inheritance:
+                info += ['\t- Slither could not determine which contract has a duplicate name, but it is NOT:\n']
+                for inheritance in b.inheritance:
+                    info += ['\t\t-', inheritance, '\n']
+                info += ['\t- Check the inheritance tree to find which contract is missing from this list.\n']
+            if b.derived_contracts:
+                info += [f'\t- This issue impacts the contracts inheriting from {b.name}:\n']
+                for derived in b.derived_contracts:
+                    info += ['\t\t-', derived, '\n']
             res = self.generate_result(info)
             results.append(res)
         return results
