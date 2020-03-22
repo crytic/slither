@@ -672,6 +672,14 @@ def extract_tmp_call(ins, contract):
         # Called a base constructor, where there is no constructor
         if ins.called.constructor is None:
             return Nop()
+        # Case where:
+        # contract A{ constructor(uint) }
+        # contract B is A {}
+        # contract C is B{ constructor() A(10) B() {}
+        # C calls B(), which does not exist
+        # Ideally we should compare here for the parameters types too
+        if len(ins.called.constructor.parameters) != ins.nbr_arguments:
+            return Nop()
         internalcall = InternalCall(ins.called.constructor, ins.nbr_arguments, ins.lvalue,
                                     ins.type_call)
         internalcall.call_id = ins.call_id
