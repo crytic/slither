@@ -54,8 +54,9 @@ class FunctionType(Enum):
     NORMAL = 0
     CONSTRUCTOR = 1
     FALLBACK = 2
-    CONSTRUCTOR_VARIABLES = 3 # Fake function to hold variable declaration statements
-    CONSTRUCTOR_CONSTANT_VARIABLES = 4  # Fake function to hold variable declaration statements
+    RECEIVE = 3
+    CONSTRUCTOR_VARIABLES = 10 # Fake function to hold variable declaration statements
+    CONSTRUCTOR_CONSTANT_VARIABLES = 11  # Fake function to hold variable declaration statements
 
 class Function(ChildContract, ChildInheritance, SourceMapping):
     """
@@ -156,6 +157,8 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             return 'constructor'
         elif self._function_type == FunctionType.FALLBACK:
             return 'fallback'
+        elif self._function_type == FunctionType.RECEIVE:
+            return 'receive'
         elif self._function_type == FunctionType.CONSTRUCTOR_VARIABLES:
             return 'slitherConstructorVariables'
         elif self._function_type == FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES:

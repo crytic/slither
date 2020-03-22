@@ -56,6 +56,8 @@ class FunctionSolc(Function):
         # which is only possible with solc > 0.5
         self._variables_renamed = {}
 
+        self._analyze_type()
+
     ###################################################################################
     ###################################################################################
     # region AST format
@@ -113,6 +115,31 @@ class FunctionSolc(Function):
     ###################################################################################
     ###################################################################################
 
+    def _analyze_type(self):
+        """
+        Analyz the type of the function
+        Myst be called in the constructor as the name might change according to the function's type
+        For example both the fallback and the receiver will have an empty name
+        :return:
+        """
+        if self.is_compact_ast:
+            attributes = self._functionNotParsed
+        else:
+            attributes = self._functionNotParsed['attributes']
+
+        if self._name == '':
+            self._function_type = FunctionType.FALLBACK
+            # 0.6.x introduced the receiver function
+            # It has also an empty name, so we need to check the kind attribute
+            if 'kind' in attributes:
+                if attributes['kind'] == 'receive':
+                    self._function_type = FunctionType.RECEIVE
+        else:
+            self._function_type = FunctionType.NORMAL
+
+        if self._name == self.contract_declarer.name:
+            self._function_type = FunctionType.CONSTRUCTOR
+
     def _analyze_attributes(self):
         if self.is_compact_ast:
             attributes = self._functionNotParsed
@@ -132,14 +159,6 @@ class FunctionSolc(Function):
 
         if 'constant' in attributes:
             self._view = attributes['constant']
-
-        if self._name == '':
-            self._function_type = FunctionType.FALLBACK
-        else:
-            self._function_type = FunctionType.NORMAL
-
-        if self._name == self.contract_declarer.name:
-            self._function_type = FunctionType.CONSTRUCTOR
 
         if 'isConstructor' in attributes and attributes['isConstructor']:
             self._function_type = FunctionType.CONSTRUCTOR
