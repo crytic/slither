@@ -56,6 +56,8 @@ class FunctionSolc(Function):
         # which is only possible with solc > 0.5
         self._variables_renamed = {}
 
+        self._analyze_type()
+
     ###################################################################################
     ###################################################################################
     # region AST format
@@ -113,6 +115,31 @@ class FunctionSolc(Function):
     ###################################################################################
     ###################################################################################
 
+    def _analyze_type(self):
+        """
+        Analyz the type of the function
+        Myst be called in the constructor as the name might change according to the function's type
+        For example both the fallback and the receiver will have an empty name
+        :return:
+        """
+        if self.is_compact_ast:
+            attributes = self._functionNotParsed
+        else:
+            attributes = self._functionNotParsed['attributes']
+
+        if self._name == '':
+            self._function_type = FunctionType.FALLBACK
+            # 0.6.x introduced the receiver function
+            # It has also an empty name, so we need to check the kind attribute
+            if 'kind' in attributes:
+                if attributes['kind'] == 'receive':
+                    self._function_type = FunctionType.RECEIVE
+        else:
+            self._function_type = FunctionType.NORMAL
+
+        if self._name == self.contract_declarer.name:
+            self._function_type = FunctionType.CONSTRUCTOR
+
     def _analyze_attributes(self):
         if self.is_compact_ast:
             attributes = self._functionNotParsed
@@ -132,14 +159,6 @@ class FunctionSolc(Function):
 
         if 'constant' in attributes:
             self._view = attributes['constant']
-
-        if self._name == '':
-            self._function_type = FunctionType.FALLBACK
-        else:
-            self._function_type = FunctionType.NORMAL
-
-        if self._name == self.contract_declarer.name:
-            self._function_type = FunctionType.CONSTRUCTOR
 
         if 'isConstructor' in attributes and attributes['isConstructor']:
             self._function_type = FunctionType.CONSTRUCTOR
@@ -475,6 +494,39 @@ class FunctionSolc(Function):
         link_nodes(node_condition, node_endDoWhile)
         return node_endDoWhile
 
+    def _parse_try_catch(self, statement, node):
+        externalCall = statement.get('externalCall', None)
+
+        if externalCall is None:
+            raise ParsingError('Try/Catch not correctly parsed by Slither %s' % statement)
+
+        new_node = self._new_node(NodeType.TRY, statement['src'])
+        new_node.add_unparsed_expression(externalCall)
+        link_nodes(node, new_node)
+        node = new_node
+
+        for clause in statement.get('clauses', []):
+            self._parse_catch(clause, node)
+        return node
+
+    def _parse_catch(self, statement, node):
+        block = statement.get('block', None)
+        if block is None:
+            raise ParsingError('Catch not correctly parsed by Slither %s' % statement)
+        try_node = self._new_node(NodeType.CATCH, statement['src'])
+        link_nodes(node, try_node)
+
+        if self.is_compact_ast:
+            params = statement['parameters']
+        else:
+            params = statement[self.get_children('children')]
+
+        for param in params.get('parameters', []):
+            assert param[self.get_key()] == 'VariableDeclaration'
+            self._add_param(param)
+
+        return self._parse_statement(block, try_node)
+
     def _parse_variable_definition(self, statement, node):
         try:
             local_var = LocalVariableSolc(statement)
@@ -734,8 +786,12 @@ class FunctionSolc(Function):
             new_node.add_unparsed_expression(expression)
             link_nodes(node, new_node)
             node = new_node
+        elif name == 'TryStatement':
+            node = self._parse_try_catch(statement, node)
+        # elif name == 'TryCatchClause':
+        #     self._parse_catch(statement, node)
         else:
-            raise ParsingError('Statement not parsed %s'%name)
+            raise ParsingError('Statement not parsed %s' % name)
 
         return node
 
@@ -846,6 +902,35 @@ class FunctionSolc(Function):
         node.set_sons([start_node])
         start_node.add_father(node)
 
+    def _fix_try(self, node):
+        end_node = next((son for son in node.sons if son.type != NodeType.CATCH), None)
+        if end_node:
+            for son in node.sons:
+                if son.type == NodeType.CATCH:
+                    self._fix_catch(son, end_node)
+
+    def _fix_catch(self, node, end_node):
+        if not node.sons:
+            link_nodes(node, end_node)
+        else:
+            for son in node.sons:
+                self._fix_catch(son, end_node)
+
+    def _add_param(self, param):
+        local_var = LocalVariableSolc(param)
+
+        local_var.set_function(self)
+        local_var.set_offset(param['src'], self.contract.slither)
+        local_var.analyze(self)
+
+        # see https://solidity.readthedocs.io/en/v0.4.24/types.html?highlight=storage%20location#data-location
+        if local_var.location == 'default':
+            local_var.set_location('memory')
+
+        self._add_local_variable(local_var)
+        return local_var
+
+
     def _parse_params(self, params):
         assert params[self.get_key()] == 'ParameterList'
 
@@ -859,19 +944,9 @@ class FunctionSolc(Function):
 
         for param in params:
             assert param[self.get_key()] == 'VariableDeclaration'
-
-            local_var = LocalVariableSolc(param)
-
-            local_var.set_function(self)
-            local_var.set_offset(param['src'], self.contract.slither)
-            local_var.analyze(self)
-
-            # see https://solidity.readthedocs.io/en/v0.4.24/types.html?highlight=storage%20location#data-location
-            if local_var.location == 'default':
-                local_var.set_location('memory')
-
-            self._add_local_variable(local_var)
+            local_var = self._add_param(param)
             self._parameters.append(local_var)
+
 
     def _parse_returns(self, returns):
 
@@ -887,18 +962,7 @@ class FunctionSolc(Function):
 
         for ret in returns:
             assert ret[self.get_key()] == 'VariableDeclaration'
-
-            local_var = LocalVariableSolc(ret)
-
-            local_var.set_function(self)
-            local_var.set_offset(ret['src'], self.contract.slither)
-            local_var.analyze(self)
-
-            # see https://solidity.readthedocs.io/en/v0.4.24/types.html?highlight=storage%20location#data-location
-            if local_var.location == 'default':
-                local_var.set_location('memory')
-
-            self._add_local_variable(local_var)
+            local_var = self._add_param(ret)
             self._returns.append(local_var)
 
 
@@ -954,6 +1018,8 @@ class FunctionSolc(Function):
                 self._fix_break_node(node)
             if node.type in [NodeType.CONTINUE]:
                 self._fix_continue_node(node)
+            if node.type in [NodeType.TRY]:
+                self._fix_try(node)
 
     def _remove_alone_endif(self):
         """

@@ -62,6 +62,9 @@ class NodeType:
     # Only modifier node
     PLACEHOLDER = 0x40
 
+    TRY = 0x41
+    CATCH = 0x42
+
     # Node not related to the CFG
     # Use for state variable declaration
     OTHER_ENTRYPOINT = 0x50
@@ -69,33 +72,37 @@ class NodeType:
 
 #    @staticmethod
     def str(t):
-        if t == 0x0:
+        if t == NodeType.ENTRYPOINT:
             return 'ENTRY_POINT'
-        if t == 0x10:
+        if t == NodeType.EXPRESSION:
             return 'EXPRESSION'
-        if t == 0x11:
+        if t == NodeType.RETURN:
             return 'RETURN'
-        if t == 0x12:
+        if t == NodeType.IF:
             return 'IF'
-        if t == 0x13:
+        if t == NodeType.VARIABLE:
             return 'NEW VARIABLE'
-        if t == 0x14:
+        if t == NodeType.ASSEMBLY:
             return 'INLINE ASM'
-        if t == 0x15:
+        if t == NodeType.IFLOOP:
             return 'IF_LOOP'
-        if t == 0x20:
+        if t == NodeType.THROW:
             return 'THROW'
-        if t == 0x31:
+        if t == NodeType.BREAK:
             return 'BREAK'
-        if t == 0x32:
+        if t == NodeType.CONTINUE:
             return 'CONTINUE'
-        if t == 0x40:
+        if t == NodeType.PLACEHOLDER:
             return '_'
-        if t == 0x50:
+        if t == NodeType.TRY:
+            return 'TRY'
+        if t == NodeType.CATCH:
+            return 'CATCH'
+        if t == NodeType.ENDIF:
             return 'END_IF'
-        if t == 0x51:
+        if t == NodeType.STARTLOOP:
             return 'BEGIN_LOOP'
-        if t == 0x52:
+        if t == NodeType.ENDLOOP:
             return 'END_LOOP'
         return 'Unknown type {}'.format(hex(t))
 
