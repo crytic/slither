@@ -238,7 +238,7 @@ def compute_dependency_contract(contract, slither):
     contract.context[KEY_SSA] = dict()
     contract.context[KEY_SSA_UNPROTECTED] = dict()
 
-    for function in contract.all_functions_called:
+    for function in contract.functions + contract.modifiers:
         compute_dependency_function(function)
 
         propagate_function(contract, function, KEY_SSA, KEY_NON_SSA)
