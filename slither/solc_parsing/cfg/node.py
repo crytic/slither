@@ -65,5 +65,4 @@ class NodeSolc(Node):
             self._expression_calls = pp.result()
             self._external_calls_as_expressions = [c for c in self.calls_as_expression if not isinstance(c.called, Identifier)]
             self._internal_calls_as_expressions = [c for c in self.calls_as_expression if isinstance(c.called, Identifier)]
-            
 
