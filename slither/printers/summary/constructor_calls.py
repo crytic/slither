@@ -20,11 +20,9 @@ class ConstructorPrinter(AbstractPrinter):
 
     def output(self, _filename):
         info = ''
-        for contract in self.contracts:
+        for contract in self.slither.contracts_derived:
             stack_name = []
             stack_definition = []
-            info += "\n\nContact Name: " + contract.name + '\n'
-            info += "	Constructor Call Sequence: " + '\n'
             cst = contract.constructors_declared
             if cst:
                 stack_name.append(contract.name)
@@ -34,16 +32,20 @@ class ConstructorPrinter(AbstractPrinter):
                 if cst:
                     stack_name.append(inherited_contract.name)
                     stack_definition.append(self._get_soruce_code(cst))
+
             if len(stack_name) > 0:
-                info += " " + ' '.join(stack_name[len(stack_name) - 1]) + '\n'
-                count = len(stack_name) - 2
-                while count >= 0:
-                    info += "-->" + ' '.join(stack_name[count]) + '\n'
-                    count = count - 1
-                info += "\n Constructor Definitions:" + '\n'
+
+                info += '\n########' + "#" * len(contract.name) + "########\n"
+                info += "####### " + contract.name + " #######\n"
+                info += '########' + "#" * len(contract.name) + "########\n\n"
+                info += "## Constructor Call Sequence" + '\n'
+
+                for name in stack_name[::-1]:
+                    info += "\t- " + name + '\n'
+                info += "\n## Constructor Definitions" + '\n'
                 count = len(stack_definition) - 1
                 while count >= 0:
-                    info += "\n Contract name:" + str(stack_name[count]) + '\n'
+                    info += "\n### " + stack_name[count] + '\n'
                     info += "\n" + str(stack_definition[count]) + '\n'
                     count = count - 1
 
