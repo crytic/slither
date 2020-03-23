@@ -58,7 +58,7 @@ class DivideBeforeMultiply(AbstractDetector):
 
     WIKI_TITLE = 'Divide before multiply'
     WIKI_DESCRIPTION = '''Solidity only supports integers, so division will often truncate; performing a multiply before a divison can sometimes avoid loss of precision.'''
-    WIKI_DESCRIPTION = '''Solidity integeer division will might truncate. As a result, performing a multiply before a divison might lead to loss of precision.'''
+    WIKI_DESCRIPTION = '''Solidity integer division might truncate. As a result, performing a multiply before a divison might lead to loss of precision.'''
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract A {
