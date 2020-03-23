@@ -81,14 +81,12 @@ def output_to_markdown(detector_classes, filter_wiki):
     idx = 1
     for (argument, help_info, impact, proxy, v2) in detectors_list:
         print('{} | `{}` | {} | {} | {} | {}'.format(idx,
-                                                argument,
-                                                help_info,
-                                                classification_txt[impact],
-                                                'X' if proxy else '',
-                                                'X' if v2 else ''))
+                                                     argument,
+                                                     help_info,
+                                                     classification_txt[impact],
+                                                     'X' if proxy else '',
+                                                     'X' if v2 else ''))
         idx = idx + 1
-
-
 
 
 def output_detectors_json(detector_classes):
@@ -120,7 +118,7 @@ def output_detectors_json(detector_classes):
                       'impact': classification_txt[impact],
                       'wiki_url': wiki_url,
                       'description': description,
-                      'exploit_scenario':exploit,
-                      'recommendation':recommendation})
+                      'exploit_scenario': exploit,
+                      'recommendation': recommendation})
         idx = idx + 1
     return table

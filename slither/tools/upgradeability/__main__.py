@@ -13,7 +13,6 @@ from slither.utils.output import output_to_json
 from .checks import all_checks
 from .checks.abstract_checks import AbstractCheck
 from .utils.command_line import output_detectors_json, output_wiki, output_detectors, output_to_markdown
-from ...utils.command_line import output_detectors_json
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
