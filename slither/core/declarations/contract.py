@@ -863,7 +863,7 @@ class Contract(ChildSlither, SourceMapping):
             self._is_upgradeable_proxy = False
             for f in self.functions:
                 if f.is_fallback:
-                    for node in f.nodes:
+                    for node in f.all_nodes():
                         for ir in node.irs:
                             if isinstance(ir, LowLevelCall) and ir.function_name == 'delegatecall':
                                 self._is_upgradeable_proxy = True
