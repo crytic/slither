@@ -34,16 +34,19 @@ Bob calls `delegate` and delegates the execution to its malicious contract. As a
         for node in function.nodes:
             for ir in node.irs:
                 if isinstance(ir, LowLevelCall) and ir.function_name in ['delegatecall', 'callcode']:
-                    if is_tainted(ir.destination, function.contract):
+                    if is_tainted(ir.destination,
+                                  function.contract):
                         ret.append(node)
         return ret
 
     def _detect(self):
         results = []
 
-        for contract in self.slither.contracts:
+        for contract in self.slither.contracts_derived:
             for f in contract.functions:
-                if f.contract_declarer != contract:
+                # If its an upgradeable proxy, do not report protected function
+                # As functions to upgrades the destination lead to too many FPs
+                if contract.is_upgradeable_proxy and f.is_protected():
                     continue
                 nodes = self.controlled_delegatecall(f)
                 if nodes:

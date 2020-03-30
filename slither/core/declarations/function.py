@@ -121,6 +121,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._all_solidity_variables_read = None
         self._all_state_variables_written = None
         self._all_slithir_variables = None
+        self._all_nodes = None
         self._all_conditional_state_variables_read = None
         self._all_conditional_state_variables_read_with_loop = None
         self._all_conditional_solidity_variables_read = None
@@ -832,6 +833,13 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             self._all_slithir_variables = self._explore_functions(
                 lambda x: x.slithir_variable)
         return self._all_slithir_variables
+
+    def all_nodes(self):
+        """ recursive version of nodes
+        """
+        if self._all_nodes is None:
+            self._all_nodes = self._explore_functions(lambda x: x.nodes)
+        return self._all_nodes
 
     def all_expressions(self):
         """ recursive version of variables_read
