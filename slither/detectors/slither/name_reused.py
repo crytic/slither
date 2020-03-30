@@ -79,10 +79,12 @@ As a result, the second contract cannot be analyzed.
         for b in most_base_with_missing_inheritance:
             info = [b, ' inherits from a contract for which the name is reused.\n']
             if b.inheritance:
-                info += ['\t- Slither could not determine which contract has a duplicate name, but it is NOT:\n']
+                info += ['\t- Slither could not determine which contract has a duplicate name:\n']
                 for inheritance in b.inheritance:
                     info += ['\t\t-', inheritance, '\n']
-                info += ['\t- Check the inheritance tree to find which contract is missing from this list.\n']
+                info += ['\t- Check if:\n']
+                info += ['\t\t- A inherited contract is missing from this list,\n']
+                info += ['\t\t- The contract are imported from the correct files.\n']
             if b.derived_contracts:
                 info += [f'\t- This issue impacts the contracts inheriting from {b.name}:\n']
                 for derived in b.derived_contracts:

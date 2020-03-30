@@ -273,7 +273,8 @@ class ContractSolc04(Contract):
     ###################################################################################
     ###################################################################################
 
-    def log_incorrect_parsing(self):
+    def log_incorrect_parsing(self, error):
+        logger.error(error)
         self._is_incorrectly_parsed = True
 
     def analyze_content_modifiers(self):
@@ -281,8 +282,7 @@ class ContractSolc04(Contract):
             for modifier in self.modifiers:
                 modifier.analyze_content()
         except (VariableNotFound, KeyError) as e:
-            logger.error(e)
-            self.log_incorrect_parsing()
+            self.log_incorrect_parsing(f'Missing modifier {e}')
         return
 
     def analyze_content_functions(self):
@@ -290,8 +290,7 @@ class ContractSolc04(Contract):
             for function in self.functions:
                 function.analyze_content()
         except (VariableNotFound, KeyError) as e:
-            logger.error(e)
-            self.log_incorrect_parsing()
+            self.log_incorrect_parsing(f'Missing function {e}')
         return
 
     def analyze_params_modifiers(self):
@@ -303,8 +302,7 @@ class ContractSolc04(Contract):
             Cls = ModifierSolc
             self._modifiers = self._analyze_params_elements(elements_no_params, getter, getter_available, Cls)
         except (VariableNotFound, KeyError) as e:
-            logger.error(e)
-            self.log_incorrect_parsing()
+            self.log_incorrect_parsing(f'Missing params {e}')
         self._modifiers_no_params = []
 
         return
@@ -317,8 +315,7 @@ class ContractSolc04(Contract):
             Cls = FunctionSolc
             self._functions = self._analyze_params_elements(elements_no_params, getter, getter_available, Cls)
         except (VariableNotFound, KeyError) as e:
-            logger.error(e)
-            self.log_incorrect_parsing()
+            self.log_incorrect_parsing(f'Missing params {e}')
         self._functions_no_params = []
         return
 
@@ -369,8 +366,7 @@ class ContractSolc04(Contract):
                     element.is_shadowed = True
                     accessible_elements[element.full_name].shadows = True
         except (VariableNotFound, KeyError) as e:
-            logger.error(e)
-            self.log_incorrect_parsing()
+            self.log_incorrect_parsing(f'Missing params {e}')
         return all_elements
 
     def analyze_constant_state_variables(self):
@@ -458,8 +454,7 @@ class ContractSolc04(Contract):
                 var.analyze(self)
             return
         except (VariableNotFound, KeyError) as e:
-            logger.error(e)
-            self.log_incorrect_parsing()
+            self.log_incorrect_parsing(f'Missing state variable {e}')
 
     def analyze_using_for(self):
         try:
@@ -491,8 +486,7 @@ class ContractSolc04(Contract):
                     self._using_for[old].append(new)
             self._usingForNotParsed = []
         except (VariableNotFound, KeyError) as e:
-            logger.error(e)
-            self.log_incorrect_parsing()
+            self.log_incorrect_parsing(f'Missing using for {e}')
 
     def analyze_enums(self):
         try:
@@ -505,8 +499,7 @@ class ContractSolc04(Contract):
                 self._analyze_enum(enum)
             self._enumsNotParsed = None
         except (VariableNotFound, KeyError) as e:
-            logger.error(e)
-            self.log_incorrect_parsing()
+            self.log_incorrect_parsing(f'Missing enum {e}')
 
     def _analyze_enum(self, enum):
         # Enum can be parsed in one pass
@@ -540,8 +533,7 @@ class ContractSolc04(Contract):
             for struct in self.structures:
                 self._analyze_struct(struct)
         except (VariableNotFound, KeyError) as e:
-            logger.error(e)
-            self.log_incorrect_parsing()
+            self.log_incorrect_parsing(f'Missing struct {e}')
 
     def analyze_events(self):
         try:
@@ -555,8 +547,7 @@ class ContractSolc04(Contract):
                 event.set_offset(event_to_parse['src'], self.slither)
                 self._events[event.full_name] = event
         except (VariableNotFound, KeyError) as e:
-            logger.error(e)
-            self.log_incorrect_parsing()
+            self.log_incorrect_parsing(f'Missing event {e}')
 
         self._eventsNotParsed = None
 
