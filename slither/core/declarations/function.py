@@ -1383,7 +1383,8 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         compute_dominators(self.nodes)
         compute_dominance_frontier(self.nodes)
         transform_slithir_vars_to_ssa(self)
-        add_ssa_ir(self, all_ssa_state_variables_instances)
+        if not self.contract.is_incorrectly_constructed:
+            add_ssa_ir(self, all_ssa_state_variables_instances)
 
     def update_read_write_using_ssa(self):
         for node in self.nodes:
