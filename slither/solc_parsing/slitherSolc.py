@@ -227,7 +227,7 @@ class SlitherSolc(Slither):
 
             if missing_inheritance:
                 self._contract_with_missing_inheritance.add(contract)
-                contract.log_incorrect_parsing()
+                contract.log_incorrect_parsing(f'Missing inheritance {contract}')
                 contract.set_is_analyzed(True)
                 contract.delete_content()
 
