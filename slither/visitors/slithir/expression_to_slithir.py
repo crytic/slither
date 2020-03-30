@@ -150,6 +150,14 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
             message_call = TmpCall(called, len(args), val, expression.type_call)
             message_call.set_expression(expression)
+            # Gas/value are only accessible here if the syntax {gas: , value: }
+            # Is used over .gas().value()
+            if expression.call_gas:
+                call_gas = get(expression.call_gas)
+                message_call.call_gas = call_gas
+            if expression.call_value:
+                call_value = get(expression.call_value)
+                message_call.call_value = call_value
             self._result.append(message_call)
             set_val(expression, val)
 
