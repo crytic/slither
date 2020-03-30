@@ -36,7 +36,8 @@ Only report reentrancy that are based on `transfer` or `send`.'''
 
     WIKI_RECOMMENDATION = 'Apply the [check-effects-interactions pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy).'
 
-    def _can_callback(self, irs):
+    @staticmethod
+    def _can_callback(irs):
         """
         Same as Reentrancy, but also consider Send and Transfer
 
@@ -51,18 +52,18 @@ Only report reentrancy that are based on `transfer` or `send`.'''
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
                     # dead code
-                    if not self.KEY in node.context:
+                    if self.KEY not in node.context:
                         continue
-                    if node.context[self.KEY]['calls']:
-                        if not any(n != node for n in node.context[self.KEY]['calls']):
+                    if node.context[self.KEY].calls:
+                        if not any(n != node for n in node.context[self.KEY].calls):
                             continue
 
                         # calls are ordered
                         finding_key = (node.function,
-                                       tuple(sorted(list(node.context[self.KEY]['calls']), key=lambda x: x.node_id)),
-                                       tuple(sorted(list(node.context[self.KEY]['send_eth']), key=lambda x: x.node_id)))
-                        finding_vars = [(v, node) for v in node.context[self.KEY]['written']]
-                        finding_vars += [(e, e.node) for e in node.context[self.KEY]['events']]
+                                       tuple(sorted(list(node.context[self.KEY].calls), key=lambda x: x.node_id)),
+                                       tuple(sorted(list(node.context[self.KEY].send_eth), key=lambda x: x.node_id)))
+                        finding_vars = [(v, node) for v in node.context[self.KEY].written]
+                        finding_vars += [(e, e.node) for e in node.context[self.KEY].events]
                         if finding_vars:
                             if finding_key not in result:
                                 result[finding_key] = set()

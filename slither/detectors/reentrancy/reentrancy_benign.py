@@ -46,21 +46,21 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                     # dead code
                     if not self.KEY in node.context:
                         continue
-                    if node.context[self.KEY]['calls']:
-                        if not any(n!=node for n in node.context[self.KEY]['calls']):
+                    if node.context[self.KEY].calls:
+                        if not any(n!=node for n in node.context[self.KEY].calls):
                             continue
                         read_then_written = []
-                        for c in node.context[self.KEY]['calls']:
-                            read_then_written += [v for v in node.context[self.KEY]['written']
-                                                 if v in node.context[self.KEY]['read_prior_calls'][c]]
-                        not_read_then_written = [(v, node) for v in node.context[self.KEY]['written']
+                        for c in node.context[self.KEY].calls:
+                            read_then_written += [v for v in node.context[self.KEY].written
+                                                 if v in node.context[self.KEY].reads_prior_calls[c]]
+                        not_read_then_written = [(v, node) for v in node.context[self.KEY].written
                                                  if v not in read_then_written]
                         if not_read_then_written:
 
                             # calls are ordered
                             finding_key = (node.function,
-                                           tuple(sorted(list(node.context[self.KEY]['calls']), key=lambda x:x.node_id)),
-                                           tuple(sorted(list(node.context[self.KEY]['send_eth']), key=lambda x:x.node_id)))
+                                           tuple(sorted(list(node.context[self.KEY].calls), key=lambda x:x.node_id)),
+                                           tuple(sorted(list(node.context[self.KEY].send_eth), key=lambda x:x.node_id)))
                             finding_vars = not_read_then_written
                             if finding_key not in result:
                                 result[finding_key] = []
