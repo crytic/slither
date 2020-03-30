@@ -2,8 +2,7 @@ import logging
 
 from slither.core.cfg.node import NodeType
 from slither.core.declarations import (Contract, Enum, Function,
-                                       SolidityFunction, SolidityVariable,
-                                       SolidityVariableComposed, Structure)
+                                       SolidityFunction, SolidityVariable, Structure)
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
