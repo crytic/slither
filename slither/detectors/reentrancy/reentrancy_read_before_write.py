@@ -46,19 +46,19 @@ Do not report reentrancies that involve ethers (see `reentrancy-eth`)'''
                     # dead code
                     if not self.KEY in node.context:
                         continue
-                    if node.context[self.KEY]['calls'] and not node.context[self.KEY]['send_eth']:
+                    if node.context[self.KEY].calls and not node.context[self.KEY].send_eth:
                         read_then_written = []
-                        for c in node.context[self.KEY]['calls']:
+                        for c in node.context[self.KEY].calls:
                             if c == node:
                                 continue
-                            read_then_written += [(v, node) for v in node.context[self.KEY]['written']
-                                                  if v in node.context[self.KEY]['read_prior_calls'][c]]
+                            read_then_written += [(v, node) for v in node.context[self.KEY].written
+                                                  if v in node.context[self.KEY].reads_prior_calls[c]]
 
                         # We found a potential re-entrancy bug
                         if read_then_written:
                             # calls are ordered
                             finding_key = (node.function,
-                                           tuple(sorted(list(node.context[self.KEY]['calls']), key=lambda x:x.node_id)))
+                                           tuple(sorted(list(node.context[self.KEY].calls), key=lambda x:x.node_id)))
                             finding_vars = read_then_written
                             if finding_key not in result:
                                 result[finding_key] = []

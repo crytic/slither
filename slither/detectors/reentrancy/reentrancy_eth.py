@@ -47,21 +47,21 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                     # dead code
                     if not self.KEY in node.context:
                         continue
-                    if node.context[self.KEY]['calls'] and node.context[self.KEY]['send_eth']:
-                        if not any(n!=node for n in node.context[self.KEY]['send_eth']):
+                    if node.context[self.KEY].calls and node.context[self.KEY].send_eth:
+                        if not any(n!=node for n in node.context[self.KEY].send_eth):
                             continue
                         read_then_written = []
-                        for c in node.context[self.KEY]['calls']:
+                        for c in node.context[self.KEY].calls:
                             if c == node:
                                 continue
-                            read_then_written += [(v, node) for v in node.context[self.KEY]['written']
-                                                 if v in node.context[self.KEY]['read_prior_calls'][c]]
+                            read_then_written += [(v, node) for v in node.context[self.KEY].written
+                                                 if v in node.context[self.KEY].reads_prior_calls[c]]
 
                         if read_then_written:
                             # calls are ordered
                             finding_key = (node.function,
-                                           tuple(sorted(list(node.context[self.KEY]['calls']), key=lambda x:x.node_id)),
-                                           tuple(sorted(list(node.context[self.KEY]['send_eth']), key=lambda x:x.node_id)))
+                                           tuple(sorted(list(node.context[self.KEY].calls), key=lambda x:x.node_id)),
+                                           tuple(sorted(list(node.context[self.KEY].send_eth), key=lambda x:x.node_id)))
                             finding_vars = read_then_written
                             if finding_key not in result:
                                 result[finding_key] = []
