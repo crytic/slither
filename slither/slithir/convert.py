@@ -620,7 +620,13 @@ def extract_tmp_call(ins, contract):
         msgcall = HighLevelCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue,
                                 ins.type_call)
         msgcall.call_id = ins.call_id
+
+        if ins.call_gas:
+            msgcall.call_gas = ins.call_gas
+        if ins.call_value:
+            msgcall.call_value = ins.call_value
         msgcall.set_expression(ins.expression)
+
         return msgcall
 
     if isinstance(ins.ori, TmpCall):

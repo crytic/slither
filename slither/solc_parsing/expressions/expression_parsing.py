@@ -48,7 +48,7 @@ logger = logging.getLogger("ExpressionParsing")
 
 def get_pointer_name(variable):
     curr_type = variable.type
-    while(isinstance(curr_type, (ArrayType, MappingType))):
+    while (isinstance(curr_type, (ArrayType, MappingType))):
         if isinstance(curr_type, ArrayType):
             curr_type = curr_type.type
         else:
@@ -61,7 +61,6 @@ def get_pointer_name(variable):
 
 
 def find_variable(var_name, caller_context, referenced_declaration=None, is_super=False):
-
     # variable are looked from the contract declarer
     # functions can be shadowed, but are looked from the contract instance, rather than the contract declarer
     # the difference between function and variable come from the fact that an internal call, or an variable access
@@ -102,7 +101,7 @@ def find_variable(var_name, caller_context, referenced_declaration=None, is_supe
         # function test(function(uint) internal returns(bool) t) interna{
         # Will have a local variable t which will match the signature
         # t(uint256)
-        func_variables_ptr = {get_pointer_name(f) : f for f in function.variables}
+        func_variables_ptr = {get_pointer_name(f): f for f in function.variables}
         if var_name and var_name in func_variables_ptr:
             return func_variables_ptr[var_name]
 
@@ -112,14 +111,15 @@ def find_variable(var_name, caller_context, referenced_declaration=None, is_supe
         return contract_variables[var_name]
 
     # A state variable can be a pointer
-    conc_variables_ptr = {get_pointer_name(f) : f for f in contract_declarer.variables}
+    conc_variables_ptr = {get_pointer_name(f): f for f in contract_declarer.variables}
     if var_name and var_name in conc_variables_ptr:
         return conc_variables_ptr[var_name]
 
     if is_super:
         getter_available = lambda f: f.functions_declared
-        d = {f.canonical_name:f for f in contract.functions}
-        functions = {f.full_name:f for f in contract_declarer.available_elements_from_inheritances(d, getter_available).values()}
+        d = {f.canonical_name: f for f in contract.functions}
+        functions = {f.full_name: f for f in
+                     contract_declarer.available_elements_from_inheritances(d, getter_available).values()}
     else:
         functions = contract.available_functions_as_dict()
     if var_name in functions:
@@ -128,7 +128,8 @@ def find_variable(var_name, caller_context, referenced_declaration=None, is_supe
     if is_super:
         getter_available = lambda m: m.modifiers_declared
         d = {m.canonical_name: m for m in contract.modifiers}
-        modifiers = {m.full_name: m for m in contract_declarer.available_elements_from_inheritances(d, getter_available).values()}
+        modifiers = {m.full_name: m for m in
+                     contract_declarer.available_elements_from_inheritances(d, getter_available).values()}
     else:
         modifiers = contract.available_modifiers_as_dict()
     if var_name in modifiers:
@@ -178,6 +179,7 @@ def find_variable(var_name, caller_context, referenced_declaration=None, is_supe
 
     raise VariableNotFound('Variable not found: {} (context {})'.format(var_name, caller_context))
 
+
 # endregion
 ###################################################################################
 ###################################################################################
@@ -211,13 +213,14 @@ def filter_name(value):
         max_idx = len(value)
         while counter:
             assert idx < max_idx
-            idx = idx +1
+            idx = idx + 1
             if value[idx] == '(':
                 counter += 1
             elif value[idx] == ')':
                 counter -= 1
-        value = value[:idx+1]
+        value = value[:idx + 1]
     return value
+
 
 # endregion
 
@@ -242,9 +245,7 @@ def parse_call(expression, caller_context):
     if type_conversion:
         type_call = parse_type(UnknownType(type_return), caller_context)
 
-
         if caller_context.is_compact_ast:
-            type_info = expression['expression']
             assert len(expression['arguments']) == 1
             expression_to_parse = expression['arguments'][0]
         else:
@@ -264,8 +265,25 @@ def parse_call(expression, caller_context):
         t.set_offset(src, caller_context.slither)
         return t
 
+    call_gas = None
+    call_value = None
     if caller_context.is_compact_ast:
         called = parse_expression(expression['expression'], caller_context)
+
+        # If the next expression is a FunctionCallOptions
+        # We can here the gas/value information
+        # This is only available if the syntax is {gas: , value: }
+        # For the .gas().value(), the member are considered as function call
+        # And converted later to the correct info (convert.py)
+        if expression['expression'][caller_context.get_key()] == 'FunctionCallOptions':
+            call_with_options = expression['expression']
+            for idx, name in enumerate(call_with_options.get('names', [])):
+                option = parse_expression(call_with_options['options'][idx], caller_context)
+                if name == 'value':
+                    call_value = option
+                if name == 'gas':
+                    call_gas = option
+
         arguments = []
         if expression['arguments']:
             arguments = [parse_expression(a, caller_context) for a in expression['arguments']]
@@ -275,17 +293,21 @@ def parse_call(expression, caller_context):
         arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
     if isinstance(called, SuperCallExpression):
-        sp =  SuperCallExpression(called, arguments, type_return)
+        sp = SuperCallExpression(called, arguments, type_return)
         sp.set_offset(expression['src'], caller_context.slither)
         return sp
     call_expression = CallExpression(called, arguments, type_return)
     call_expression.set_offset(src, caller_context.slither)
+
+    # Only available if the syntax {gas:, value:} was used
+    call_expression.call_gas = call_gas
+    call_expression.call_value = call_value
     return call_expression
+
 
 def parse_super_name(expression, is_compact_ast):
     if is_compact_ast:
         assert expression['nodeType'] == 'MemberAccess'
-        attributes = expression
         base_name = expression['memberName']
         arguments = expression['typeDescriptions']['typeString']
     else:
@@ -302,7 +324,8 @@ def parse_super_name(expression, is_compact_ast):
     if ' ' in arguments:
         arguments = arguments[:arguments.find(' ')]
 
-    return base_name+arguments
+    return base_name + arguments
+
 
 def _parse_elementary_type_name_expression(expression, is_compact_ast, caller_context):
     # nop exression
@@ -317,6 +340,7 @@ def _parse_elementary_type_name_expression(expression, is_compact_ast, caller_co
     e = ElementaryTypeNameExpression(t)
     e.set_offset(expression['src'], caller_context.slither)
     return e
+
 
 def parse_expression(expression, caller_context):
     """
@@ -387,8 +411,14 @@ def parse_expression(expression, caller_context):
         binary_op.set_offset(src, caller_context.slither)
         return binary_op
 
-    elif name == 'FunctionCall':
+    elif name in 'FunctionCall':
         return parse_call(expression, caller_context)
+
+    elif name == 'FunctionCallOptions':
+        # call/gas info are handled in parse_call
+        called = parse_expression(expression['expression'], caller_context)
+        assert isinstance(called, MemberAccess)
+        return called
 
     elif name == 'TupleExpression':
         """
@@ -405,7 +435,7 @@ def parse_expression(expression, caller_context):
         if is_compact_ast:
             expressions = [parse_expression(e, caller_context) if e else None for e in expression['components']]
         else:
-            if 'children' not in expression :
+            if 'children' not in expression:
                 attributes = expression['attributes']
                 components = attributes['components']
                 expressions = [parse_expression(c, caller_context) if c else None for c in components]
@@ -476,7 +506,7 @@ def parse_expression(expression, caller_context):
                 if 'subdenomination' in expression and expression['subdenomination']:
                     subdenomination = expression['subdenomination']
             elif not value and value != "":
-                value = '0x'+expression['hexValue']
+                value = '0x' + expression['hexValue']
             type = expression['typeDescriptions']['typeString']
 
             # Length declaration for array was None until solc 0.5.5
@@ -492,7 +522,7 @@ def parse_expression(expression, caller_context):
                 # for literal declared as hex
                 # see https://solidity.readthedocs.io/en/v0.4.25/types.html?highlight=hex#hexadecimal-literals
                 assert 'hexvalue' in expression['attributes']
-                value = '0x'+expression['attributes']['hexvalue']
+                value = '0x' + expression['attributes']['hexvalue']
             type = expression['attributes']['type']
 
         if type is None:
@@ -523,13 +553,13 @@ def parse_expression(expression, caller_context):
         else:
             value = expression['attributes']['value']
             if 'type' in expression['attributes']:
-               t = expression['attributes']['type']
+                t = expression['attributes']['type']
 
         if t:
             found = re.findall('[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)', t)
             assert len(found) <= 1
             if found:
-                value = value+'('+found[0]+')'
+                value = value + '(' + found[0] + ')'
                 value = filter_name(value)
 
         if 'referencedDeclaration' in expression:
@@ -670,5 +700,4 @@ def parse_expression(expression, caller_context):
         call.set_offset(src, caller_context.slither)
         return call
 
-    raise ParsingError('Expression not parsed %s'%name)
-
+    raise ParsingError('Expression not parsed %s' % name)

@@ -19,6 +19,24 @@ class TmpCall(OperationWithLValue):
         self._lvalue = result
         self._ori = None # 
         self._callid = None
+        self._gas = None
+        self._value = None
+
+    @property
+    def call_value(self):
+        return self._value
+
+    @call_value.setter
+    def call_value(self, v):
+        self._value = v
+
+    @property
+    def call_gas(self):
+        return self._gas
+
+    @call_gas.setter
+    def call_gas(self, gas):
+        self._gas = gas
 
     @property
     def call_id(self):
@@ -35,10 +53,6 @@ class TmpCall(OperationWithLValue):
     @property
     def called(self):
         return self._called
-
-    @property
-    def read(self):
-        return [self.called]
 
     @called.setter
     def called(self, c):
