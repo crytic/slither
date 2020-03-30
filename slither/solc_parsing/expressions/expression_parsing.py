@@ -312,8 +312,10 @@ def _parse_elementary_type_name_expression(expression, is_compact_ast, caller_co
     else:
         assert 'children' not in expression
         value = expression['attributes']['value']
-    t = parse_type(UnknownType(value), caller_context)
-
+    if isinstance(value, dict):
+        t = parse_type(value, caller_context)
+    else:
+        t = parse_type(UnknownType(value), caller_context)
     e = ElementaryTypeNameExpression(t)
     e.set_offset(expression['src'], caller_context.slither)
     return e
