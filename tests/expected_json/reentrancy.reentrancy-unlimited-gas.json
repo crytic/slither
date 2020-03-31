@@ -398,9 +398,9 @@
             }
           }
         ],
-        "description": "Reentrancy in Reentrancy.withdrawBalance_fixed_2() (tests/reentrancy.sol#33-40):\n\tExternal calls:\n\t- msg.sender.transfer(userBalance[msg.sender]) (tests/reentrancy.sol#38)\n\tState variables written after the call(s):\n\t- Reentrancy.userBalance (tests/reentrancy.sol#4) in userBalance[msg.sender] = 0 (tests/reentrancy.sol#39)\n",
-        "markdown": "Reentrancy in [Reentrancy.withdrawBalance_fixed_2()](tests/reentrancy.sol#L33-L40):\n\tExternal calls:\n\t- [msg.sender.transfer(userBalance[msg.sender])](tests/reentrancy.sol#L38)\n\tState variables written after the call(s):\n\t- [Reentrancy.userBalance](tests/reentrancy.sol#L4) in [userBalance[msg.sender] = 0](tests/reentrancy.sol#L39)\n",
-        "id": "ff12b17dedf35fcd1f5b1286653a53430009f3689c46c06c1aba1f2d4b17d713",
+        "description": "Reentrancy in Reentrancy.withdrawBalance_fixed_2() (tests/reentrancy.sol#33-40):\n\tExternal calls:\n\t- msg.sender.transfer(userBalance[msg.sender]) (tests/reentrancy.sol#38)\n\tState variables written after the call(s):\n\t- userBalance[msg.sender] = 0 (tests/reentrancy.sol#39)\n",
+        "markdown": "Reentrancy in [Reentrancy.withdrawBalance_fixed_2()](tests/reentrancy.sol#L33-L40):\n\tExternal calls:\n\t- [msg.sender.transfer(userBalance[msg.sender])](tests/reentrancy.sol#L38)\n\tState variables written after the call(s):\n\t- [userBalance[msg.sender] = 0](tests/reentrancy.sol#L39)\n",
+        "id": "638cb8a1404e47854e9e03720ee9c612cca4cadc64974f9c42f122994540a17f",
         "check": "reentrancy-unlimited-gas",
         "impact": "Informational",
         "confidence": "Medium"
