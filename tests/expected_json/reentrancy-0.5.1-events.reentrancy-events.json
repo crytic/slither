@@ -137,6 +137,84 @@
             "additional_fields": {
               "underlying_type": "external_calls"
             }
+          },
+          {
+            "type": "node",
+            "name": "E()",
+            "source_mapping": {
+              "start": 135,
+              "length": 8,
+              "filename_used": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+              "filename_relative": "tests/reentrancy-0.5.1-events.sol",
+              "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+              "filename_short": "tests/reentrancy-0.5.1-events.sol",
+              "is_dependency": false,
+              "lines": [
+                16
+              ],
+              "starting_column": 9,
+              "ending_column": 17
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "bug",
+                "source_mapping": {
+                  "start": 86,
+                  "length": 68,
+                  "filename_used": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+                  "filename_relative": "tests/reentrancy-0.5.1-events.sol",
+                  "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+                  "filename_short": "tests/reentrancy-0.5.1-events.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    14,
+                    15,
+                    16,
+                    17
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "Test",
+                    "source_mapping": {
+                      "start": 51,
+                      "length": 193,
+                      "filename_used": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+                      "filename_relative": "tests/reentrancy-0.5.1-events.sol",
+                      "filename_absolute": "/home/travis/build/crytic/slither/tests/reentrancy-0.5.1-events.sol",
+                      "filename_short": "tests/reentrancy-0.5.1-events.sol",
+                      "is_dependency": false,
+                      "lines": [
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24
+                      ],
+                      "starting_column": 1,
+                      "ending_column": 2
+                    }
+                  },
+                  "signature": "bug(C)"
+                }
+              }
+            },
+            "additional_fields": {
+              "underlying_type": "event"
+            }
           }
         ],
         "description": "Reentrancy in Test.bug(C) (tests/reentrancy-0.5.1-events.sol#14-17):\n\tExternal calls:\n\t- c.f() (tests/reentrancy-0.5.1-events.sol#15)\n\tEvent emitted after the call(s):\n\t- E() (tests/reentrancy-0.5.1-events.sol#16)\n",

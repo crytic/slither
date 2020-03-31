@@ -4,19 +4,20 @@
     Based on heuristics, it may lead to FP and FN
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
-from typing import Set, Dict
+from collections import defaultdict
+from typing import Set, Dict, Union
 
 from slither.core.cfg.node import NodeType, Node
 from slither.core.declarations import Function
 from slither.core.expressions import UnaryOperation, UnaryOperationType
 from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import AbstractDetector
-from slither.slithir.operations import Call, EventCall, Operation
+from slither.slithir.operations import Call, EventCall
 
 
 def union_dict(d1, d2):
     d3 = {k: d1.get(k, set()) | d2.get(k, set()) for k in set(list(d1.keys()) + list(d2.keys()))}
-    return d3
+    return defaultdict(set, d3)
 
 
 def dict_are_equal(d1, d2):
@@ -25,24 +26,35 @@ def dict_are_equal(d1, d2):
     return all(set(d1[k]) == set(d2[k]) for k in d1.keys())
 
 
+def is_subset(new_info: Dict[Union[Variable, Node], Set[Node]], old_info: Dict[Union[Variable, Node], Set[Node]]):
+    for k in new_info.keys():
+        if k not in old_info:
+            return False
+        if not new_info[k].issubset(old_info[k]):
+            return False
+    return True
+
+
+def to_hashable(d: Dict[Node, Set[Node]]):
+    list_tuple = list(tuple((k, tuple(sorted(values, key=lambda x: x.node_id)))) for k, values in d.items())
+    return tuple(sorted(list_tuple, key=lambda x: x[0].node_id))
 
 class AbstractState:
-    KEY = 'REENTRANCY'
 
     def __init__(self):
         # send_eth returns the list of calls sending value
         # calls returns the list of calls that can callback
         # read returns the variable read
         # read_prior_calls returns the variable read prior a call
-        self._send_eth: Set[Call] = set()
-        self._calls: Set[Call] = set()
-        self._reads: Set[Variable] = set()
-        self._reads_prior_calls: Dict[Node, Set[Variable]] = dict()
-        self._events: Set[EventCall] = set()
-        self._written: Set[Variable] = set()
+        self._send_eth: Dict[Node, Set[Node]] = defaultdict(set)
+        self._calls: Dict[Node, Set[Node]] = defaultdict(set)
+        self._reads: Dict[Variable, Set[Node]] = defaultdict(set)
+        self._reads_prior_calls: Dict[Node, Set[Variable]] = defaultdict(set)
+        self._events: Dict[EventCall, Set[Node]] = defaultdict(set)
+        self._written: Dict[Variable, Set[Node]] = defaultdict(set)
 
     @property
-    def send_eth(self) -> Set[Call]:
+    def send_eth(self) -> Dict[Node, Set[Node]]:
         """
         Return the list of calls sending value
         :return:
@@ -50,7 +62,7 @@ class AbstractState:
         return self._send_eth
 
     @property
-    def calls(self) -> Set[Call]:
+    def calls(self) -> Dict[Node, Set[Node]]:
         """
         Return the list of calls that can callback
         :return:
@@ -58,7 +70,7 @@ class AbstractState:
         return self._calls
 
     @property
-    def reads(self) -> Set[Variable]:
+    def reads(self) -> Dict[Variable, Set[Node]]:
         """
         Return of variables that are read
         :return:
@@ -66,7 +78,7 @@ class AbstractState:
         return self._reads
 
     @property
-    def written(self) -> Set[Variable]:
+    def written(self) -> Dict[Variable, Set[Node]]:
         """
         Return of variables that are written
         :return:
@@ -82,68 +94,79 @@ class AbstractState:
         return self._reads_prior_calls
 
     @property
-    def events(self) -> Set[EventCall]:
+    def events(self) -> Dict[EventCall, Set[Node]]:
         """
         Return the list of events
         :return:
         """
         return self._events
 
-    def merge_fathers(self, node, skip_father):
+    def merge_fathers(self, node, skip_father, detector):
         for father in node.fathers:
-            if self.KEY in father.context:
-                self._send_eth |= set([s for s in father.context[self.KEY].send_eth if s != skip_father])
-                self._calls |= set([c for c in father.context[self.KEY].calls if c != skip_father])
-                self._reads |= set(father.context[self.KEY].reads)
+            if detector.KEY in father.context:
+                self._send_eth = union_dict(self._send_eth,
+                                            {key: values for key, values in father.context[detector.KEY].send_eth.items() if
+                                             key != skip_father})
+                self._calls = union_dict(self._calls,
+                                         {key: values for key, values in father.context[detector.KEY].calls.items() if
+                                          key != skip_father})
+                self._reads = union_dict(self._reads, father.context[detector.KEY].reads)
                 self._reads_prior_calls = union_dict(self.reads_prior_calls,
-                                                     father.context[self.KEY].reads_prior_calls)
+                                                     father.context[detector.KEY].reads_prior_calls)
 
     def analyze_node(self, node, detector):
-        state_vars_read = set(node.state_variables_read)
+        state_vars_read: Dict[Variable, Set[Node]] = defaultdict(set,
+                                                                 {v: {node} for v in node.state_variables_read})
 
         # All the state variables written
-        state_vars_written = set(node.state_variables_written)
+        state_vars_written: Dict[Variable, Set[Node]] = defaultdict(set,
+                                                                    {v: {node} for v in node.state_variables_written})
         slithir_operations = []
         # Add the state variables written in internal calls
         for internal_call in node.internal_calls:
             # Filter to Function, as internal_call can be a solidity call
             if isinstance(internal_call, Function):
-                state_vars_written |= set(internal_call.all_state_variables_written())
-                state_vars_read |= set(internal_call.all_state_variables_read())
+                for internal_node in internal_call.all_nodes():
+                    for read in internal_node.state_variables_read:
+                        state_vars_read[read].add(internal_node)
+                    for write in internal_node.state_variables_written:
+                        state_vars_written[write].add(internal_node)
                 slithir_operations += internal_call.all_slithir_operations()
 
         contains_call = False
 
-        self._written = set(state_vars_written)
-        if detector._can_callback(node.irs + slithir_operations):
-            self._calls |= {node}
-            self._reads_prior_calls[node] = set(self._reads_prior_calls.get(node, set()) |
-                                                node.context[self.KEY].reads |
-                                                state_vars_read)
-            contains_call = True
-        if detector._can_send_eth(node.irs + slithir_operations):
-            self._send_eth |= {node}
+        self._written = state_vars_written
+        for ir in node.irs + slithir_operations:
+            if detector.can_callback(ir):
+                self._calls[node] |= {ir.node}
+                self._reads_prior_calls[node] = set(self._reads_prior_calls.get(node, set()) |
+                                                    set(node.context[detector.KEY].reads.keys()) |
+                                                    set(state_vars_read.keys()))
+                contains_call = True
 
-        self._reads |= state_vars_read
+            if detector.can_send_eth(ir):
+                self._send_eth[node] |= {ir.node}
 
-        self._events = set([ir for ir in node.irs if isinstance(ir, EventCall)])
+            if isinstance(ir, EventCall):
+                self._events[ir] |= {ir.node, node}
+
+        self._reads = union_dict(self._reads, state_vars_read)
+
 
         return contains_call
 
     def add(self, fathers):
-        self._send_eth |= fathers.send_eth
-        self._calls |= fathers.calls
-        self._reads |= fathers.reads
+        self._send_eth = union_dict(self._send_eth, fathers.send_eth)
+        self._calls = union_dict(self._calls, fathers.calls)
+        self._reads = union_dict(self._reads, fathers.reads)
         self._reads_prior_calls = union_dict(self._reads_prior_calls, fathers.reads_prior_calls)
 
-def does_not_bring_new_info(new_info: AbstractState, old_info: AbstractState) -> bool:
-    if new_info.calls.issubset(old_info.calls):
-        if new_info.send_eth.issubset(old_info.send_eth):
-            if new_info.reads.issubset(old_info.reads):
-                if dict_are_equal(new_info.reads_prior_calls,
-                                  old_info.reads_prior_calls):
-                    return True
-    return False
+    def does_not_bring_new_info(self, new_info):
+        if is_subset(new_info.calls, self.calls):
+            if is_subset(new_info.send_eth, self.send_eth):
+                if is_subset(new_info.reads, self.reads):
+                    if dict_are_equal(new_info.reads_prior_calls, self.reads_prior_calls):
+                        return True
 
 
 class Reentrancy(AbstractDetector):
@@ -153,7 +176,7 @@ class Reentrancy(AbstractDetector):
     # allowing inherited classes to define different behaviors
     # For example reentrancy_no_gas consider Send and Transfer as reentrant functions
     @staticmethod
-    def _can_callback(irs):
+    def can_callback(ir):
         """
             Detect if the node contains a call that can
             be used to re-entrance
@@ -164,20 +187,14 @@ class Reentrancy(AbstractDetector):
 
 
         """
-        for ir in irs:
-            if isinstance(ir, Call) and ir.can_reenter():
-                return True
-        return False
+        return isinstance(ir, Call) and ir.can_reenter()
 
     @staticmethod
-    def _can_send_eth(irs):
+    def can_send_eth(ir):
         """
             Detect if the node can send eth
         """
-        for ir in irs:
-            if isinstance(ir, Call) and ir.can_send_eth():
-                return True
-        return False
+        return isinstance(ir, Call) and ir.can_send_eth()
 
     def _filter_if(self, node):
         """
@@ -208,39 +225,15 @@ class Reentrancy(AbstractDetector):
 
         visited = visited + [node]
 
-        # First we add the external calls executed in previous nodes
-        # send_eth returns the list of calls sending value
-        # calls returns the list of calls that can callback
-        # read returns the variable read
-        # read_prior_calls returns the variable read prior a call
-        fathers_context = AbstractState() #{'send_eth': set(), 'calls': set(), 'read': set(), 'read_prior_calls': {}}
-
-        fathers_context.merge_fathers(node, skip_father)
-        # for father in node.fathers:
-        #     if self.KEY in father.context:
-        #         fathers_context['send_eth'] |= set(
-        #             [s for s in father.context[self.KEY]['send_eth'] if s != skip_father])
-        #         fathers_context['calls'] |= set([c for c in father.context[self.KEY]['calls'] if c != skip_father])
-        #         fathers_context['read'] |= set(father.context[self.KEY]['read'])
-        #         fathers_context['read_prior_calls'] = union_dict(fathers_context['read_prior_calls'],
-        #                                                          father.context[self.KEY]['read_prior_calls'])
+        fathers_context = AbstractState()
+        fathers_context.merge_fathers(node, skip_father, self)
 
         # Exclude path that dont bring further information
         if node in self.visited_all_paths:
-            if does_not_bring_new_info(fathers_context, self.visited_all_paths[node]):
+            if self.visited_all_paths[node].does_not_bring_new_info(fathers_context):
                 return
-        # if node in self.visited_all_paths:
-        #     if fathers_context['calls'].issubset(self.visited_all_paths[node]['calls']):
-        #         if fathers_context['send_eth'].issubset(self.visited_all_paths[node]['send_eth']):
-        #             if fathers_context['read'].issubset(self.visited_all_paths[node]['read']):
-        #                 if dict_are_equal(self.visited_all_paths[node]['read_prior_calls'],
-        #                                   fathers_context['read_prior_calls']):
-        #                     return
         else:
             self.visited_all_paths[node] = AbstractState()
-            # self.visited_all_paths[node] = {'send_eth': set(), 'calls': set(), 'read': set(),
-            #                                 'read_prior_calls': {}, 'events': set()}
-
 
         self.visited_all_paths[node].add(fathers_context)
 
@@ -248,34 +241,6 @@ class Reentrancy(AbstractDetector):
 
         contains_call = fathers_context.analyze_node(node, self)
         node.context[self.KEY] = fathers_context
-
-        # state_vars_read = set(node.state_variables_read)
-        #
-        # # All the state variables written
-        # state_vars_written = set(node.state_variables_written)
-        # slithir_operations = []
-        # # Add the state variables written in internal calls
-        # for internal_call in node.internal_calls:
-        #     # Filter to Function, as internal_call can be a solidity call
-        #     if isinstance(internal_call, Function):
-        #         state_vars_written |= set(internal_call.all_state_variables_written())
-        #         state_vars_read |= set(internal_call.all_state_variables_read())
-        #         slithir_operations += internal_call.all_slithir_operations()
-        #
-        # contains_call = False
-        # node.context[self.KEY]['written'] = set(state_vars_written)
-        # if _can_callback(node.irs + slithir_operations):
-        #     node.context[self.KEY]['calls'] |= {node}
-        #     node.context[self.KEY]['read_prior_calls'][node] = set(
-        #         node.context[self.KEY]['read_prior_calls'].get(node, set()) | node.context[self.KEY][
-        #             'read'] | state_vars_read)
-        #     contains_call = True
-        # if _can_send_eth(node.irs + slithir_operations):
-        #     node.context[self.KEY]['send_eth'] |= {node}
-        #
-        # node.context[self.KEY]['read'] |= state_vars_read
-        #
-        # node.context[self.KEY]['events'] = set([ir for ir in node.irs if isinstance(ir, EventCall)])
 
         sons = node.sons
         if contains_call and node.type in [NodeType.IF, NodeType.IFLOOP]:

@@ -3,11 +3,12 @@ Reentrancy in Reentrancy.withdrawBalance() (tests/reentrancy-0.5.1.sol#14-22):
 	External calls:
 	- (ret,mem) = msg.sender.call.value(userBalance[msg.sender])() (tests/reentrancy-0.5.1.sol#17)
 	State variables written after the call(s):
-	- Reentrancy.userBalance (tests/reentrancy-0.5.1.sol#4) in userBalance[msg.sender] = 0 (tests/reentrancy-0.5.1.sol#21)
+	- userBalance[msg.sender] = 0 (tests/reentrancy-0.5.1.sol#21)
 Reentrancy in Reentrancy.withdrawBalance_fixed_3() (tests/reentrancy-0.5.1.sol#44-53):
 	External calls:
 	- (ret,mem) = msg.sender.call.value(amount)() (tests/reentrancy-0.5.1.sol#49)
 	State variables written after the call(s):
-	- Reentrancy.userBalance (tests/reentrancy-0.5.1.sol#4) in userBalance[msg.sender] = amount (tests/reentrancy-0.5.1.sol#51)
+	- userBalance[msg.sender] = amount (tests/reentrancy-0.5.1.sol#51)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities[0m
 tests/reentrancy-0.5.1.sol analyzed (1 contracts with 1 detectors), 2 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

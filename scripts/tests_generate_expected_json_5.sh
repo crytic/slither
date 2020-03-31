@@ -21,7 +21,7 @@ generate_expected_json(){
 }
 
 #generate_expected_json tests/void-cst.sol "void-cst"
-generate_expected_json tests/solc_version_incorrect_05.ast.json "solc-version"
+#generate_expected_json tests/solc_version_incorrect_05.ast.json "solc-version"
 #generate_expected_json tests/uninitialized-0.5.1.sol "uninitialized-state"
 #generate_expected_json tests/backdoor.sol "backdoor"
 #generate_expected_json tests/backdoor.sol "suicidal"
