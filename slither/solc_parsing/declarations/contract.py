@@ -560,7 +560,13 @@ class ContractSolc04(Contract):
 
     def convert_expression_to_slithir(self):
         for func in self.functions + self.modifiers:
-            func.generate_slithir_and_analyze()
+            try:
+                func.generate_slithir_and_analyze()
+            except AttributeError:
+                # This can happens for example if there is a call to an interface
+                # And the interface is redefined due to contract's name reuse
+                # But the available version misses some functions
+                self.log_incorrect_parsing(f'Impossible to generate IR for {self.name}.{func.name}')
 
         all_ssa_state_variables_instances = dict()
 
