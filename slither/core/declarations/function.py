@@ -1065,7 +1065,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                     content += '{}->{};\n'.format(node.node_id, son.node_id)
 
             content += "}\n"
-        return content
+            f.write(content)
 
     def dominator_tree_to_dot(self, filename):
         """
