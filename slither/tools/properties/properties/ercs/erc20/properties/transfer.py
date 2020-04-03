@@ -48,7 +48,7 @@ ERC20_Transferable = [
              caller=PropertyCaller.ANY),
 
     Property(name='crytic_revert_transfer_to_zero_ERC20PropertiesTransferable()',
-             description='No one should be able to send tokens to the address 0x0.',
+             description='No one should be able to send tokens to the address 0x0 (transfer).',
              content='''
 \t\tif (this.balanceOf(msg.sender) == 0){
 \t\t\trevert();
@@ -61,7 +61,7 @@ ERC20_Transferable = [
              caller=PropertyCaller.ALL),
 
     Property(name='crytic_revert_transferFrom_to_zero_ERC20PropertiesTransferable()',
-             description='No one should be able to send tokens to the address 0x0.',
+             description='No one should be able to send tokens to the address 0x0 (transferFrom).',
              content='''
 \t\tuint balance = this.balanceOf(msg.sender);
 \t\treturn transferFrom(msg.sender, address(0x0), this.balanceOf(msg.sender));''',
@@ -140,7 +140,7 @@ ERC20_Transferable = [
 \t\tif (balance == (2 ** 256 - 1))
 \t\t\treturn true;
 \t\tbool transfer_other = transfer(crytic_user, balance+1);
-\t\treturn true;''',
+\t\treturn transfer_other;''',
              type=PropertyType.HIGH_SEVERITY,
              return_type=PropertyReturn.FAIL_OR_THROW,
              is_unit_test=True,
