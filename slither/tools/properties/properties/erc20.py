@@ -28,9 +28,11 @@ ERC20_PROPERTIES = {
     "Transferable": PropertyDescription(ERC20_Transferable, 'Test the correct tokens transfer'),
     "Pausable": PropertyDescription(ERC20_Pausable, 'Test the pausable functionality'),
     "NotMintable": PropertyDescription(ERC20_NotMintable, 'Test that no one can mint tokens'),
-    "NotMintableNotBurnable": PropertyDescription(ERC20_NotMintableNotBurnable, 'Test that no one can mint or burn tokens'),
+    "NotMintableNotBurnable": PropertyDescription(ERC20_NotMintableNotBurnable,
+                                                  'Test that no one can mint or burn tokens'),
     "NotBurnable": PropertyDescription(ERC20_NotBurnable, 'Test that no one can burn tokens'),
-    "Burnable": PropertyDescription(ERC20_NotBurnable, 'Test the burn of tokens. Require the "burn(address) returns()" function')
+    "Burnable": PropertyDescription(ERC20_NotBurnable,
+                                    'Test the burn of tokens. Require the "burn(address) returns()" function')
 }
 
 
@@ -146,15 +148,15 @@ def _check_compatibility(contract):
 
     transfer_from = contract.get_function_from_signature('transferFrom(address,address,uint256)')
     if transfer_from.visibility != 'public':
-        if errors :
+        if errors:
             errors += '\n'
         errors += f'slither-prop requires {transfer_from.canonical_name} to be public. Please change the visibility'
 
     approve = contract.get_function_from_signature('approve(address,uint256)')
     if approve.visibility != 'public':
-        if errors :
+        if errors:
             errors += '\n'
-        errors = f'slither-prop requires {approve.canonical_name} to be public. Please change the visibility'
+        errors += f'slither-prop requires {approve.canonical_name} to be public. Please change the visibility'
 
     return errors
 
