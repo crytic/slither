@@ -269,6 +269,15 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         return self._function_type == FunctionType.FALLBACK
 
+    @property
+    def is_receive(self):
+        """
+            Determine if the function is the receive function for the contract
+        Returns
+            (bool)
+        """
+        return self._function_type == FunctionType.RECEIVE
+
     # endregion
     ###################################################################################
     ###################################################################################
