@@ -56,8 +56,9 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
         return
 
     # Check if the contract is an ERC20 contract and if the functions have the correct visibility
-    if not _check_compatibility(contract):
-        # Error reported by _check_compatibility
+    errors = _check_compatibility(contract)
+    if errors:
+        logger.error(red(errors))
         return
 
     properties = ERC20_PROPERTIES.get(type_property, None)
@@ -133,29 +134,29 @@ def _platform_to_output_dir(platform: AbstractPlatform) -> Path:
 
 
 def _check_compatibility(contract):
+    errors = ''
     if not contract.is_erc20():
-        logger.error(red(f'{contract} is not ERC20 compliant. Consider checking the contract with slither-check-erc'))
-        return False
+        errors = f'{contract} is not ERC20 compliant. Consider checking the contract with slither-check-erc'
+        return errors
 
     transfer = contract.get_function_from_signature('transfer(address,uint256)')
 
     if transfer.visibility != 'public':
-        logger.error(red(f'slither-prop requires {transfer.canonical_name} to be public. Please change the visibility'))
-        return False
+        errors = f'slither-prop requires {transfer.canonical_name} to be public. Please change the visibility'
 
     transfer_from = contract.get_function_from_signature('transferFrom(address,address,uint256)')
     if transfer_from.visibility != 'public':
-        txt = f'slither-prop requires {transfer_from.canonical_name} to be public. Please change the visibility'
-        logger.error(red(txt))
-        return False
+        if errors :
+            errors += '\n'
+        errors += f'slither-prop requires {transfer_from.canonical_name} to be public. Please change the visibility'
 
     approve = contract.get_function_from_signature('approve(address,uint256)')
     if approve.visibility != 'public':
-        txt = f'slither-prop requires {approve.canonical_name} to be public. Please change the visibility'
-        logger.error(red(txt))
-        return False
+        if errors :
+            errors += '\n'
+        errors = f'slither-prop requires {approve.canonical_name} to be public. Please change the visibility'
 
-    return True
+    return errors
 
 
 def _get_properties(contract, properties: List[Property]) -> Tuple[str, List[Property]]:

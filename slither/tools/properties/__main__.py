@@ -62,16 +62,16 @@ def parse_args():
                         nargs=0,
                         default=False)
 
-    parser.add_argument('--owner-address',
+    parser.add_argument('--address-owner',
                         help=f'Owner address. Default {OWNER_ADDRESS}',
                         default=None)
 
-    parser.add_argument('--user-address',
+    parser.add_argument('--address-user',
                         help=f'Owner address. Default {USER_ADDRESS}',
                         default=None)
 
-    parser.add_argument('--attacker-address',
-                        help=f'Owner address. Default {ATTACKER_ADDRESS}',
+    parser.add_argument('--address-attacker',
+                        help=f'Attacker address. Default {ATTACKER_ADDRESS}',
                         default=None)
 
     # Add default arguments from crytic-compile
@@ -95,7 +95,7 @@ def main():
         logger.error(f'{args.contract} not found')
         return
 
-    addresses = Addresses()
+    addresses = Addresses(args.address_owner, args.address_user, args.address_attacker)
 
     generate_erc20(contract, args.scenario, addresses)
 

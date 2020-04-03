@@ -12,8 +12,8 @@ logger = logging.getLogger("Slither")
 def generate_solidity_properties(contract: Contract, type_property: str, solidity_properties: str,
                                  output_dir: Path) -> Path:
 
-    solidity_import = f'import "{output_dir}/interfaces.sol";\n'
-    solidity_import += f'import "{contract.source_mapping["filename_relative"]}";'
+    solidity_import = f'import "./interfaces.sol";\n'
+    solidity_import += f'import "../{contract.source_mapping["filename_short"]}";'
 
     test_contract_name = f'Properties{contract.name}{type_property}'
 
@@ -35,7 +35,7 @@ def generate_test_contract(contract: Contract,
     properties_name = f'Properties{contract.name}{type_property}'
 
     content = ''
-    content += f'import "{Path(output_dir, property_file)}";\n'
+    content += f'import "./{property_file}";\n'
     content += f"contract {test_contract_name} is {properties_name} {{\n"
     content += '\tconstructor() public{\n'
     content += '\t\t// Existing addresses:\n'

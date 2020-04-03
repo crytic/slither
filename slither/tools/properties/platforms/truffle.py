@@ -24,6 +24,46 @@ def _extract_caller(p: PropertyCaller):
     return ['user']
 
 
+def _helpers():
+    """
+    Generate two functions:
+    - catchRevertThrowReturnFalse: check if the call revert/throw or return false
+    - catchRevertThrow: check if the call revert/throw
+    :return:
+    """
+    return '''
+    async function catchRevertThrowReturnFalse(promise) {
+    try {
+        const ret = await promise;
+        assert.equal(balance.valueOf(), false, "Expected revert/throw/or return false");
+    } catch (error) {
+        // Not considered: 'out of gas', 'invalid JUMP'
+        if (!error.message.includes("revert")){
+            if (!error.message.includes("invalid opcode")){
+                assert(false, "Expected revert/throw/or return false");
+            }
+        }
+        return;
+    }
+};
+
+async function catchRevertThrow(promise) {
+    try {
+        await promise;
+    } catch (error) {
+        // Not considered: 'out of gas', 'invalid JUMP'
+        if (!error.message.includes("revert")){
+            if (!error.message.includes("invalid opcode")){
+                assert(false, "Expected revert/throw/or return false");
+            }
+        }
+        return;
+    }
+    assert(false, "Expected revert/throw/or return false");
+};
+'''
+
+
 def generate_unit_test(test_contract: str, filename: str,
                        unit_tests: List[Property], output_dir: Path,
                        addresses: Addresses, assert_message: str = ''):
@@ -38,24 +78,39 @@ def generate_unit_test(test_contract: str, filename: str,
     :return:
     """
     content = f'{test_contract} = artifacts.require("{test_contract}");\n\n'
+
+    content += _helpers()
+
     content += f'contract("{test_contract}", accounts => {{\n'
 
     content += f'\tlet owner = "{addresses.owner}";\n'
     content += f'\tlet user = "{addresses.user}";\n'
     content += f'\tlet attacker = "{addresses.attacker}";\n'
     for unit_test in unit_tests:
-        if unit_test.return_type != PropertyReturn.SUCCESS:
-            continue
         content += f'\tit("{unit_test.description}", async () => {{\n'
         content += f'\t\tlet instance = await {test_contract}.deployed();\n'
+        callers = _extract_caller(unit_test.caller)
         if unit_test.return_type == PropertyReturn.SUCCESS:
-            callers = _extract_caller(unit_test.caller)
             for caller in callers:
                 content += f'\t\tlet test_{caller} = await instance.{unit_test.name[:-2]}.call({{from: {caller}}});\n'
                 if assert_message:
                     content += f'\t\tassert.equal(test_{caller}, true, "{assert_message}");\n'
                 else:
                     content += f'\t\tassert.equal(test_{caller}, true);\n'
+        elif unit_test.return_type == PropertyReturn.FAIL:
+            for caller in callers:
+                content += f'\t\tlet test_{caller} = await instance.{unit_test.name[:-2]}.call({{from: {caller}}});\n'
+                if assert_message:
+                    content += f'\t\tassert.equal(test_{caller}, false, "{assert_message}");\n'
+                else:
+                    content += f'\t\tassert.equal(test_{caller}, false);\n'
+        elif unit_test.return_type == PropertyReturn.FAIL_OR_THROW:
+            for caller in callers:
+                content += f'\t\tawait catchRevertThrowReturnFalse(instance.{unit_test.name[:-2]}.call({{from: {caller}}}));\n'
+        elif unit_test.return_type == PropertyReturn.THROW:
+            callers = _extract_caller(unit_test.caller)
+            for caller in callers:
+                content += f'\t\tawait catchRevertThrow(instance.{unit_test.name[:-2]}.call({{from: {caller}}}));\n'
         content += '\t});\n'
 
     content += '});\n'
