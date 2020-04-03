@@ -64,6 +64,10 @@ ERC20_Transferable = [
              description='No one should be able to send tokens to the address 0x0 (transferFrom).',
              content='''
 \t\tuint balance = this.balanceOf(msg.sender);
+\t\tif (balance == 0){
+\t\t\trevert();
+\t\t}
+\t\tapprove(msg.sender, balance);
 \t\treturn transferFrom(msg.sender, address(0x0), this.balanceOf(msg.sender));''',
              type=PropertyType.CODE_QUALITY,
              return_type=PropertyReturn.FAIL_OR_THROW,

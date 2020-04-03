@@ -14,6 +14,7 @@ def generate_echidna_config(output_dir: Path, addresses: Addresses) -> str:
     content = 'prefix: crytic_\n'
     content += f'deployer: "{addresses.owner}"\n'
     content += f'sender: ["{addresses.user}", "{addresses.attacker}"]\n'
+    content += f'psender: "{addresses.user}"\n'
     content += 'coverage: true\n'
     filename = 'echidna_config.yaml'
     write_file(output_dir, filename, content)
