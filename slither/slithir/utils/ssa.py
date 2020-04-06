@@ -1,13 +1,13 @@
 import logging
+from collections import namedtuple
 
-from collections import namedtuple, defaultdict
 from slither.core.cfg.node import NodeType
 from slither.core.declarations import (Contract, Enum, Function,
-                                       SolidityFunction, SolidityVariable,
-                                       SolidityVariableComposed, Structure)
+                                       SolidityFunction, SolidityVariable, Structure)
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (Assignment, Balance, Binary, Condition,
                                         Delete, EventCall, HighLevelCall,
                                         Index, InitArray, InternalCall,
@@ -18,13 +18,13 @@ from slither.slithir.operations import (Assignment, Balance, Binary, Condition,
                                         OperationWithLValue, Phi, PhiCallback,
                                         Push, Return, Send, SolidityCall,
                                         Transfer, TypeConversion, Unary,
+                                        Nop,
                                         Unpack, PhiMemberMust, PhiScalar, UpdateMember, UpdateMemberDependency,
                                         PhiMemberMay, UpdateIndex)
 from slither.slithir.variables import (Constant, LocalIRVariable,
                                        IndexVariable, IndexVariableSSA, MemberVariable, MemberVariableSSA,
                                        StateIRVariable, TemporaryVariable,
                                        TemporaryVariableSSA, TupleVariable, TupleVariableSSA)
-from slither.slithir.exceptions import SlithIRError
 
 logger = logging.getLogger('SSA_Conversion')
 
@@ -222,6 +222,7 @@ def generate_ssa_irs(node, instances, visited):
         new_ir = copy_ir(ir, instances, instances_temporary)
 
         new_ir.set_expression(ir.expression)
+        new_ir.set_node(ir.node)
 
         if new_ir:
 
@@ -925,6 +926,8 @@ def copy_ir(ir, instances, instances_temporary):
         new_ir = NewStructure(structure, lvalue)
         new_ir.arguments = get_arguments(ir, instances, instances_temporary)
         return new_ir
+    elif isinstance(ir, Nop):
+        return Nop()
     elif isinstance(ir, Push):
         array = get_variable(ir, lambda x: x.array, instances, instances_temporary)
         lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)

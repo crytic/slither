@@ -1,10 +1,10 @@
+from slither.core.declarations import Contract
+from slither.core.declarations.enum import Enum
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_rvalue
-from slither.slithir.variables.member_variable import MemberVariable
 from slither.slithir.variables.constant import Constant
+from slither.slithir.variables.member_variable import MemberVariable
 
-from slither.core.declarations.contract import Contract
-from slither.core.declarations.enum import Enum
 
 class AccessMember(OperationWithLValue):
 
@@ -16,6 +16,9 @@ class AccessMember(OperationWithLValue):
         self._variable_left = variable_left
         self._variable_right = variable_right
         self._lvalue = result
+        self._gas = None
+        self._value = None
+
 
     @property
     def read(self):
@@ -28,6 +31,22 @@ class AccessMember(OperationWithLValue):
     @property
     def variable_right(self):
         return self._variable_right
+
+    @property
+    def call_value(self):
+        return self._value
+
+    @call_value.setter
+    def call_value(self, v):
+        self._value = v
+
+    @property
+    def call_gas(self):
+        return self._gas
+
+    @call_gas.setter
+    def call_gas(self, gas):
+        self._gas = gas
 
     def __str__(self):
         return '{}({}) := Access({}, {})'.format(self.lvalue,

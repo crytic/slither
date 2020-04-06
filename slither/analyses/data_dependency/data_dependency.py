@@ -2,6 +2,8 @@
     Compute the data depenency between all the SSA variables
 """
 from collections import defaultdict
+from typing import Union, Set, Dict
+
 from prettytable import PrettyTable
 
 from slither.core.cfg.node import Node
@@ -9,13 +11,14 @@ from slither.core.declarations import (Contract, Enum, Function,
                                        SolidityFunction, SolidityVariable,
                                        SolidityVariableComposed, Structure)
 from slither.core.solidity_types import UserDefinedType, ArrayType, MappingType
+from slither.core.solidity_types.type import Type
+from slither.core.variables.variable import Variable
 from slither.slithir.operations import Index, OperationWithLValue, InternalCall, PhiMemberMust, PhiMemberMay, \
     AccessMember, Phi, Balance
 from slither.slithir.variables import (Constant, LocalIRVariable,
                                        IndexVariable, IndexVariableSSA,
                                        StateIRVariable, MemberVariable, MemberVariableSSA,
                                        TemporaryVariableSSA, TupleVariableSSA, TemporaryVariable)
-from slither.core.solidity_types.type import Type
 
 
 ###################################################################################
@@ -72,6 +75,7 @@ def is_dependent(variable, source, context, only_unprotected=False):
     return False
 
 
+
 def is_dependent_ssa(variable, source, context, only_unprotected=False):
     '''
     Args:
@@ -97,6 +101,7 @@ def is_dependent_ssa(variable, source, context, only_unprotected=False):
             if source in context[KEY_ACCESS_SSA].get(var):
                 return True
     return False
+
 
 
 GENERIC_TAINT = {SolidityVariableComposed('msg.sender'),
@@ -146,37 +151,70 @@ def is_tainted_ssa(variable, context, only_unprotected=False, ignore_generic_tai
     return variable in taints or any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
 
 
-def get_dependencies(variable, context, only_unprotected=False, is_ssa=False):
-    '''
-    Args:
-        variable
-        context (Contract|Function)
-        only_unprotected (bool): True only unprotected function are considered
-        is_ssa (bool)
-    Returns:
-        list(Variable)
-    '''
-    assert isinstance(context, (Contract, Function, Node))
+def get_dependencies(
+        variable: Variable, context: Union[Contract, Function], only_unprotected: bool = False) -> Set[Variable]:
+    """
+    Return the variables for which `variable` depends on.
+
+    :param variable: The target
+    :param context: Either a function (interprocedural) or a contract (inter transactional)
+    :param only_unprotected: True if consider only protected functions
+    :return: set(Variable)
+    """
+    assert isinstance(context, (Contract, Function))
     assert isinstance(only_unprotected, bool)
     if only_unprotected:
-        return context.context[KEY_SSA_UNPROTECTED if is_ssa else KEY_NON_SSA_UNPROTECTED].get(variable)
-    return context.context[KEY_SSA if is_ssa else KEY_NON_SSA].get(variable)
+        return context.context[KEY_NON_SSA_UNPROTECTED].get(variable, set())
+    return context.context[KEY_NON_SSA].get(variable, set())
 
 
-def get_dependencies_ssa(variable, context, only_unprotected=False):
-    '''
-    Args:
-        variable
-        context (Contract|Function)
-        only_unprotected (bool): True only unprotected function are considered
-    Returns:
-        list(Variable)
-    '''
-    assert isinstance(context, (Contract, Function, Node))
+def get_all_dependencies(
+        context: Union[Contract, Function], only_unprotected: bool = False) -> Dict[Variable, Set[Variable]]:
+    """
+    Return the dictionary of dependencies.
+
+    :param context: Either a function (interprocedural) or a contract (inter transactional)
+    :param only_unprotected: True if consider only protected functions
+    :return: Dict(Variable, set(Variable))
+    """
+    assert isinstance(context, (Contract, Function))
     assert isinstance(only_unprotected, bool)
     if only_unprotected:
-        return context.context[KEY_SSA].get(variable)
-    return context.context[KEY_SSA_UNPROTECTED].get(variable)
+        return context.context[KEY_NON_SSA_UNPROTECTED]
+    return context.context[KEY_NON_SSA]
+
+
+def get_dependencies_ssa(
+        variable: Variable, context: Union[Contract, Function], only_unprotected: bool = False) -> Set[Variable]:
+    """
+    Return the variables for which `variable` depends on (SSA version).
+
+    :param variable: The target (must be SSA variable)
+    :param context: Either a function (interprocedural) or a contract (inter transactional)
+    :param only_unprotected: True if consider only protected functions
+    :return: set(Variable)
+    """
+    assert isinstance(context, (Contract, Function))
+    assert isinstance(only_unprotected, bool)
+    if only_unprotected:
+        return context.context[KEY_SSA_UNPROTECTED].get(variable, set())
+    return context.context[KEY_SSA].get(variable, set())
+
+
+def get_all_dependencies_ssa(
+        context: Union[Contract, Function], only_unprotected: bool = False) -> Dict[Variable, Set[Variable]]:
+    """
+    Return the dictionary of dependencies.
+
+    :param context: Either a function (interprocedural) or a contract (inter transactional)
+    :param only_unprotected: True if consider only protected functions
+    :return: Dict(Variable, set(Variable))
+    """
+    assert isinstance(context, (Contract, Function))
+    assert isinstance(only_unprotected, bool)
+    if only_unprotected:
+        return context.context[KEY_SSA_UNPROTECTED]
+    return context.context[KEY_SSA]
 
 
 # endregion
@@ -367,6 +405,7 @@ def pprint_dependency_table(context):
     return table
 
 
+
 # endregion
 ###################################################################################
 ###################################################################################
@@ -465,7 +504,7 @@ def compute_dependency_contract(contract, slither):
     contract.context[KEY_ACCESS_NON_SSA] = defaultdict(set)
     contract.context[KEY_ACCESS_SSA] = defaultdict(set)
 
-    for function in contract.all_functions_called:
+    for function in contract.functions + contract.modifiers:
         compute_dependency_function(function)
 
         propagate_function(contract,
@@ -530,6 +569,7 @@ def _get_taints(key, seen, taints):
 # @staticmethod
 def _new_taint_key(b, key):
     return (b, *key) if isinstance(key, tuple) else (b, key)
+
 
 
 def transitive_close_dependencies(context, context_key, context_key_non_ssa):
@@ -815,6 +855,7 @@ def compute_dependency_function(function):
     function.context[KEY_SSA_UNPROTECTED] = ssa_unprotected
     function.context[KEY_NON_SSA] = non_ssa
     function.context[KEY_NON_SSA_UNPROTECTED] = non_ssa_unprotected
+
 
 
 def convert_variable_to_non_ssa(v):

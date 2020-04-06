@@ -5,6 +5,8 @@ import os
 import logging
 import json
 import re
+from collections import defaultdict
+
 from slither.core.context.context import Context
 from slither.slithir.operations import InternalCall
 from slither.utils.colors import red
@@ -42,6 +44,9 @@ class Slither(Context):
         self._exclude_dependencies = False
 
         self._markdown_root = ""
+
+        self._contract_name_collisions = defaultdict(list)
+        self._contract_with_missing_inheritance = set()
 
     ###################################################################################
     ###################################################################################
@@ -300,4 +305,19 @@ class Slither(Context):
     def generate_patches(self, p):
         self._generate_patches = p
 
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Internals
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def contract_name_collisions(self):
+        return self._contract_name_collisions
+
+    @property
+    def contracts_with_missing_inheritance(self):
+        return self._contract_with_missing_inheritance
     # endregion

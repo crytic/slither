@@ -7,6 +7,7 @@ from slither.core.declarations.function import Function
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
 
+
 class HighLevelCall(Call, OperationWithLValue):
     """
         High level message call
@@ -22,7 +23,7 @@ class HighLevelCall(Call, OperationWithLValue):
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
         self._lvalue = result
-        self._callid = None # only used if gas/value != 0
+        self._callid = None  # only used if gas/value != 0
         self._function_instance = None
 
         self._call_value = None

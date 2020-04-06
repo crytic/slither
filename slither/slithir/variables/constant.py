@@ -30,7 +30,7 @@ class Constant(SlithIRVariable):
                     else:
                         self._val = int(float(val))
             elif type.type == 'bool':
-                self._val = val == 'true'
+                self._val = (val == 'true') | (val == 'True')
             else:
                 self._val = val
         else:

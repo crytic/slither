@@ -1,7 +1,8 @@
+from slither.core.declarations import Modifier
 from slither.core.declarations.function import Function
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.variables import Constant
+
 
 class InternalCall(Call, OperationWithLValue):
 
@@ -14,7 +15,7 @@ class InternalCall(Call, OperationWithLValue):
         else:
             self._function = None
             self._function_name, self._contract_name = function
-        #self._contract = contract
+        # self._contract = contract
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
         self._lvalue = result
@@ -47,6 +48,14 @@ class InternalCall(Call, OperationWithLValue):
     def type_call(self):
         return self._type_call
 
+    @property
+    def is_modifier_call(self):
+        """
+        Check if the destination is a modifier
+        :return: bool
+        """
+        return isinstance(self.function, Modifier)
+
     def __str__(self):
         args = [str(a) for a in self.arguments]
         if not self.lvalue:
@@ -55,8 +64,10 @@ class InternalCall(Call, OperationWithLValue):
             lvalue = '{}({}) = '.format(self.lvalue, ','.join(str(x) for x in self.lvalue.type))
         else:
             lvalue = '{}({}) = '.format(self.lvalue, self.lvalue.type)
-        txt = '{}INTERNAL_CALL, {}({})'
+        if self.is_modifier_call:
+            txt = '{}MODIFIER_CALL, {}({})'
+        else:
+            txt = '{}INTERNAL_CALL, {}({})'
         return txt.format(lvalue,
                           self.function.canonical_name,
                           ','.join(args))
-

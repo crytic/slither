@@ -48,11 +48,13 @@ def convert_expression(expression, node):
         cst = Constant(expression.value, expression.type)
         cond = Condition(cst)
         cond.set_expression(expression)
+        cond.set_node(node)
         result = [cond]
         return result
     if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
         cond = Condition(expression.value)
         cond.set_expression(expression)
+        cond.set_node(node)
         result = [cond]
         return result
 
@@ -66,12 +68,14 @@ def convert_expression(expression, node):
             assert isinstance(result[-1], (OperationWithLValue))
             cond = Condition(result[-1].lvalue)
             cond.set_expression(expression)
+            cond.set_node(node)
             result.append(cond)
         elif node.type == NodeType.RETURN:
             # May return None
             if isinstance(result[-1], (OperationWithLValue)):
                 r = Return(result[-1].lvalue)
                 r.set_expression(expression)
+                r.set_node(node)
                 result.append(r)
 
     return result
@@ -359,6 +363,7 @@ def _convert_type_contract(ir, slither):
                                 Constant(str(bytecode)),
                                 ElementaryType('bytes'))
         assignment.set_expression(ir.expression)
+        assignment.set_node(ir.node)
         assignment.lvalue.set_type(ElementaryType('bytes'))
         return assignment
     if ir.variable_right == 'runtimeCode':
@@ -372,6 +377,7 @@ def _convert_type_contract(ir, slither):
                                 Constant(str(bytecode)),
                                 ElementaryType('bytes'))
         assignment.set_expression(ir.expression)
+        assignment.set_node(ir.node)
         assignment.lvalue.set_type(ElementaryType('bytes'))
         return assignment
     if ir.variable_right == 'name':
@@ -379,6 +385,7 @@ def _convert_type_contract(ir, slither):
                                 Constant(contract.name),
                                 ElementaryType('string'))
         assignment.set_expression(ir.expression)
+        assignment.set_node(ir.node)
         assignment.lvalue.set_type(ElementaryType('string'))
         return assignment
 
@@ -486,17 +493,20 @@ def propagate_types(ir, node):
                     length = Length(ir.variable_left, ir.lvalue)
                     length.set_expression(ir.expression)
                     length.lvalue.points_to = ir.variable_left
+                    length.set_node(ir.node)
                     return length
                 if ir.variable_right == 'balance' and not isinstance(ir.variable_left, Contract) and isinstance(
                         ir.variable_left.type, ElementaryType):
                     b = Balance(ir.variable_left, ir.lvalue)
                     b.set_expression(ir.expression)
+                    b.set_node(ir.node)
                     return b
                 if ir.variable_right == 'selector' and isinstance(ir.variable_left.type, Function):
                     assignment = Assignment(ir.lvalue,
                                             Constant(str(get_function_id(ir.variable_left.type.full_name))),
                                             ElementaryType('bytes4'))
                     assignment.set_expression(ir.expression)
+                    assignment.set_node(ir.node)
                     assignment.lvalue.set_type(ElementaryType('bytes4'))
                     return assignment
                 if isinstance(ir.variable_left, TemporaryVariable) and isinstance(ir.variable_left.type,
@@ -568,8 +578,6 @@ def propagate_types(ir, node):
                 idx = ir.index
                 t = types[idx]
                 ir.lvalue.set_type(t)
-            # elif isinstance(ir, UpdateMember):
-            #    ir.lvalue.set_type(ir.base.type)
             elif isinstance(ir,
                             (Argument, TmpCall, TmpNewArray, TmpNewContract, TmpNewStructure, TmpNewElementaryType)):
                 # temporary operation; they will be removed
@@ -615,11 +623,18 @@ def extract_tmp_call(ins, contract):
         msgcall = HighLevelCall(ins.ori.variable_left, ins.ori.variable_right, ins.nbr_arguments, ins.lvalue,
                                 ins.type_call)
         msgcall.call_id = ins.call_id
+
+        if ins.call_gas:
+            msgcall.call_gas = ins.call_gas
+        if ins.call_value:
+            msgcall.call_value = ins.call_value
         msgcall.set_expression(ins.expression)
+
         return msgcall
 
     if isinstance(ins.ori, TmpCall):
         r = extract_tmp_call(ins.ori, contract)
+        r.set_node(ins.node)
         return r
     if isinstance(ins.called, SolidityVariableComposed):
         if str(ins.called) == 'block.blockhash':
@@ -666,6 +681,14 @@ def extract_tmp_call(ins, contract):
         # Called a base constructor, where there is no constructor
         if ins.called.constructor is None:
             return Nop()
+        # Case where:
+        # contract A{ constructor(uint) }
+        # contract B is A {}
+        # contract C is B{ constructor() A(10) B() {}
+        # C calls B(), which does not exist
+        # Ideally we should compare here for the parameters types too
+        if len(ins.called.constructor.parameters) != ins.nbr_arguments:
+            return Nop()
         internalcall = InternalCall(ins.called.constructor, ins.nbr_arguments, ins.lvalue,
                                     ins.type_call)
         internalcall.call_id = ins.call_id
@@ -704,12 +727,14 @@ def convert_to_low_level(ir):
         prev_ir = ir
         ir = Transfer(ir.destination, ir.arguments[0])
         ir.set_expression(prev_ir.expression)
+        ir.set_node(prev_ir.node)
         return ir
     elif ir.function_name == 'send':
         assert len(ir.arguments) == 1
         prev_ir = ir
         ir = Send(ir.destination, ir.arguments[0], ir.lvalue)
         ir.set_expression(prev_ir.expression)
+        ir.set_node(prev_ir.node)
         ir.lvalue.set_type(ElementaryType('bool'))
         return ir
     elif ir.function_name in ['call',
@@ -726,6 +751,7 @@ def convert_to_low_level(ir):
         new_ir.arguments = ir.arguments
         new_ir.lvalue.set_type(ElementaryType('bool'))
         new_ir.set_expression(ir.expression)
+        new_ir.set_node(ir.node)
         return new_ir
     raise SlithIRError('Incorrect conversion to low level {}'.format(ir))
 
@@ -748,6 +774,7 @@ def convert_to_solidity_func(ir):
     new_ir = SolidityCall(call, ir.nbr_arguments, ir.lvalue, ir.type_call)
     new_ir.arguments = ir.arguments
     new_ir.set_expression(ir.expression)
+    new_ir.set_node(ir.node)
     if isinstance(call.return_type, list) and len(call.return_type) == 1:
         new_ir.lvalue.set_type(call.return_type[0])
     else:
@@ -776,11 +803,13 @@ def convert_to_push(ir, node):
         val = TemporaryVariable(node)
         operation = InitArray(ir.arguments[0], val)
         operation.set_expression(ir.expression)
+        operation.set_node(ir.node)
         ret.append(operation)
 
         prev_ir = ir
         ir = Push(ir.destination, val)
         ir.set_expression(prev_ir.expression)
+        ir.set_node(prev_ir.node)
 
         length = Literal(len(operation.init_values), 'uint256')
         t = operation.init_values[0].type
@@ -792,6 +821,7 @@ def convert_to_push(ir, node):
             length = Length(ir.array, lvalue)
             length.set_expression(ir.expression)
             length.lvalue.points_to = ir.lvalue
+            length.set_node(ir.node)
             ret.append(length)
 
         return ret
@@ -799,6 +829,7 @@ def convert_to_push(ir, node):
     prev_ir = ir
     ir = Push(ir.destination, ir.arguments[0])
     ir.set_expression(prev_ir.expression)
+    ir.set_node(prev_ir.node)
 
     if lvalue:
         ret = []
@@ -807,6 +838,7 @@ def convert_to_push(ir, node):
         length = Length(ir.array, lvalue)
         length.set_expression(ir.expression)
         length.lvalue.points_to = ir.lvalue
+        length.set_node(ir.node)
         ret.append(length)
         return ret
 
@@ -827,6 +859,7 @@ def convert_to_pop(ir, node):
 
     ir_length = Length(arr, length)
     ir_length.set_expression(ir.expression)
+    ir_length.set_node(ir.node)
     ir_length.lvalue.points_to = arr
     ret.append(ir_length)
 
@@ -834,6 +867,7 @@ def convert_to_pop(ir, node):
 
     ir_sub_1 = Binary(val, length, Constant("1", ElementaryType('uint256')), BinaryType.SUBTRACTION)
     ir_sub_1.set_expression(ir.expression)
+    ir_sub_1.set_node(ir.node)
     ret.append(ir_sub_1)
 
     element_to_delete = ReferenceVariable(node)
@@ -841,10 +875,12 @@ def convert_to_pop(ir, node):
     ir_length.lvalue.points_to = arr
     element_to_delete.set_type(ElementaryType('uint256'))
     ir_assign_element_to_delete.set_expression(ir.expression)
+    ir_assign_element_to_delete.set_node(ir.node)
     ret.append(ir_assign_element_to_delete)
 
     ir_delete = Delete(element_to_delete, element_to_delete)
     ir_delete.set_expression(ir.expression)
+    ir_delete.set_node(ir.node)
     ret.append(ir_delete)
 
     length_to_assign = ReferenceVariable(node)
@@ -852,10 +888,12 @@ def convert_to_pop(ir, node):
     ir_length = Length(arr, length_to_assign)
     ir_length.set_expression(ir.expression)
     ir_length.lvalue.points_to = arr
+    ir_length.set_node(ir.node)
     ret.append(ir_length)
 
     ir_assign_length = Assignment(length_to_assign, val, ElementaryType('uint256'))
     ir_assign_length.set_expression(ir.expression)
+    ir_assign_length.set_node(ir.node)
     ret.append(ir_assign_length)
 
     return ret
@@ -871,6 +909,7 @@ def look_for_library(contract, ir, node, using_for, t):
                                    ir.lvalue,
                                    ir.type_call)
             lib_call.set_expression(ir.expression)
+            lib_call.set_node(ir.node)
             lib_call.call_gas = ir.call_gas
             lib_call.arguments = [ir.destination] + ir.arguments
             new_ir = convert_type_library_call(lib_call, lib_contract)
@@ -1089,7 +1128,7 @@ def remove_unused(result):
 # endregion
 ###################################################################################
 ###################################################################################
-# region Constant type conversioh
+# region Constant type conversion
 ###################################################################################
 ###################################################################################
 
@@ -1161,6 +1200,26 @@ def convert_constant_types(irs):
 # endregion
 ###################################################################################
 ###################################################################################
+# region Delete handling
+###################################################################################
+###################################################################################
+
+def convert_delete(irs):
+    """
+    Convert the lvalue of the Delete to point to the variable removed
+    This can only be done after find_references_origin is called
+    :param irs:
+    :return:
+    """
+    for ir in irs:
+        if isinstance(ir, Delete):
+            if isinstance(ir.lvalue, ReferenceVariable):
+                ir.lvalue = ir.lvalue.points_to
+
+
+# endregion
+###################################################################################
+###################################################################################
 # region Heuristics selection
 ###################################################################################
 ###################################################################################
@@ -1176,5 +1235,6 @@ def apply_ir_heuristics(irs, node):
     irs = remove_unused(irs)
     find_references_origin(irs)
     convert_constant_types(irs)
+    convert_delete(irs)
 
     return irs

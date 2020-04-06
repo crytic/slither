@@ -42,12 +42,15 @@ class Contract(ChildSlither, SourceMapping):
         self._kind = None
 
         self._signatures = None
+        self._signatures_declared = None
 
         self._is_upgradeable = None
         self._is_upgradeable_proxy = None
 
 
         self._initial_state_variables = [] # ssa
+
+        self._is_incorrectly_parsed = False
 
     ###################################################################################
     ###################################################################################
@@ -292,13 +295,27 @@ class Contract(ChildSlither, SourceMapping):
         Return the signatures of all the public/eterxnal functions/state variables
         :return: list(string) the signatures of all the functions that can be called
         """
-        if self._signatures == None:
+        if self._signatures is None:
             sigs = [v.full_name for v in self.state_variables if v.visibility in ['public',
                                                                                   'external']]
 
             sigs += set([f.full_name for f in self.functions if f.visibility in ['public', 'external']])
             self._signatures = list(set(sigs))
         return self._signatures
+
+    @property
+    def functions_signatures_declared(self):
+        """
+        Return the signatures of the public/eterxnal functions/state variables that are declared by this contract
+        :return: list(string) the signatures of all the functions that can be called and are declared by this contract
+        """
+        if self._signatures_declared is None:
+            sigs = [v.full_name for v in self.state_variables_declared if v.visibility in ['public',
+                                                                                           'external']]
+
+            sigs += set([f.full_name for f in self.functions_declared if f.visibility in ['public', 'external']])
+            self._signatures_declared = list(set(sigs))
+        return self._signatures_declared
 
     @property
     def functions(self):
@@ -846,7 +863,7 @@ class Contract(ChildSlither, SourceMapping):
             self._is_upgradeable_proxy = False
             for f in self.functions:
                 if f.is_fallback:
-                    for node in f.nodes:
+                    for node in f.all_nodes():
                         for ir in node.irs:
                             if isinstance(ir, LowLevelCall) and ir.function_name == 'delegatecall':
                                 self._is_upgradeable_proxy = True
@@ -858,6 +875,21 @@ class Contract(ChildSlither, SourceMapping):
                                     self._is_upgradeable_proxy = True
                                     return self._is_upgradeable_proxy
         return self._is_upgradeable_proxy
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Internals
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def is_incorrectly_constructed(self):
+        """
+        Return true if there was an internal Slither's issue when analyzing the contract
+        :return:
+        """
+        return self._is_incorrectly_parsed
 
     # endregion
     ###################################################################################

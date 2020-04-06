@@ -1,18 +1,7 @@
-[92m
-## Run initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialization-checks)[0m
-[92mAll the init functions have the initializer modifier[0m
-[91mMissing call to Contract_no_bug.initialize() in Contract_not_called_super_init.initialize()[0m
-[92mNo double call to init functions found[0m
-[92mCheck the deployement script to ensure that these functions are called:
-Contract_not_called_super_init needs to be initialized by initialize()
-[0m
-[92mNo error found[0m
-[92m
-## Run variable initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks)[0m
-[92mNo error found[0m
-[92m
-## Run function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)[0m
-[92mNo error found[0m
-[92m
-## Run variables ordering checks between Contract_not_called_super_init and Proxy... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
-[92mNo error found[0m
+INFO:Slither:[92m
+Contract_not_called_super_init (tests/check-upgradeability/contract_initialization.sol#26-32) needs to be initialized by Contract_not_called_super_init.initialize() (tests/check-upgradeability/contract_initialization.sol#28-30).
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function[0m
+INFO:Slither:[91m
+Missing call to Contract_no_bug.initialize() (tests/check-upgradeability/contract_initialization.sol#13-15) in Contract_not_called_super_init.initialize() (tests/check-upgradeability/contract_initialization.sol#28-30).
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-functions-are-not-called[0m
+INFO:Slither:2 findings, 12 detectors run

@@ -1,7 +1,7 @@
-
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.utils.colors import green
+
 
 class Phi(OperationWithLValue):
 

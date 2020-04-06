@@ -4,6 +4,9 @@
 
 mkdir test_dapp
 cd test_dapp
+# The dapp init process makes a temporary local git repo and needs certain values to be set
+git config --global user.email "ci@trailofbits.com"
+git config --global user.name "CI User"
 
 curl https://nixos.org/nix/install | sh
 . "$HOME/.nix-profile/etc/profile.d/nix.sh"
@@ -17,8 +20,8 @@ dapp init
 
 slither .
 
-if [ $? -eq 22 ]
-then  
+if [ $? -eq 21 ]
+then
     exit 0
 fi
 

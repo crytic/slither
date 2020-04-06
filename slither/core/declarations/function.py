@@ -54,8 +54,9 @@ class FunctionType(Enum):
     NORMAL = 0
     CONSTRUCTOR = 1
     FALLBACK = 2
-    CONSTRUCTOR_VARIABLES = 3 # Fake function to hold variable declaration statements
-    CONSTRUCTOR_CONSTANT_VARIABLES = 4  # Fake function to hold variable declaration statements
+    RECEIVE = 3
+    CONSTRUCTOR_VARIABLES = 10 # Fake function to hold variable declaration statements
+    CONSTRUCTOR_CONSTANT_VARIABLES = 11  # Fake function to hold variable declaration statements
 
 class Function(ChildContract, ChildInheritance, SourceMapping):
     """
@@ -107,6 +108,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
         self._expressions = None
         self._slithir_operations = None
+        self._slithir_ssa_operations = None
 
         self._all_expressions = None
         self._all_slithir_operations = None
@@ -119,6 +121,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._all_solidity_variables_read = None
         self._all_state_variables_written = None
         self._all_slithir_variables = None
+        self._all_nodes = None
         self._all_conditional_state_variables_read = None
         self._all_conditional_state_variables_read_with_loop = None
         self._all_conditional_solidity_variables_read = None
@@ -157,6 +160,8 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             return 'constructor'
         elif self._function_type == FunctionType.FALLBACK:
             return 'fallback'
+        elif self._function_type == FunctionType.RECEIVE:
+            return 'receive'
         elif self._function_type == FunctionType.CONSTRUCTOR_VARIABLES:
             return 'slitherConstructorVariables'
         elif self._function_type == FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES:
@@ -265,6 +270,15 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             (bool)
         """
         return self._function_type == FunctionType.FALLBACK
+
+    @property
+    def is_receive(self):
+        """
+            Determine if the function is the receive function for the contract
+        Returns
+            (bool)
+        """
+        return self._function_type == FunctionType.RECEIVE
 
     # endregion
     ###################################################################################
@@ -723,6 +737,17 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             self._slithir_operations = operations
         return self._slithir_operations
 
+    @property
+    def slithir_ssa_operations(self):
+        """
+            list(Operation): List of the slithir operations (SSA)
+        """
+        if self._slithir_ssa_operations is None:
+            operations = [n.irs_ssa for n in self.nodes]
+            operations = [item for sublist in operations for item in sublist if item]
+            self._slithir_ssa_operations = operations
+        return self._slithir_ssa_operations
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -846,6 +871,13 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             self._all_slithir_variables = self._explore_functions(
                 lambda x: x.slithir_variable)
         return self._all_slithir_variables
+
+    def all_nodes(self):
+        """ recursive version of nodes
+        """
+        if self._all_nodes is None:
+            self._all_nodes = self._explore_functions(lambda x: x.nodes)
+        return self._all_nodes
 
     def all_expressions(self):
         """ recursive version of variables_read
@@ -1386,13 +1418,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         for node in self.nodes:
             node.slithir_generation()
 
-        for modifier_statement in self.modifiers_statements:
-            for node in modifier_statement.nodes:
-                node.slithir_generation()
-
-        for modifier_statement in self.explicit_base_constructor_calls_statements:
-            for node in modifier_statement.nodes:
-                node.slithir_generation()
 
         self._analyze_read_write()
         self._analyze_calls()
@@ -1404,7 +1429,8 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         compute_dominators(self.nodes)
         compute_dominance_frontier(self.nodes)
         transform_slithir_vars_to_ssa(self)
-        add_ssa_ir(self, all_ssa_state_variables_instances)
+        if not self.contract.is_incorrectly_constructed:
+            add_ssa_ir(self, all_ssa_state_variables_instances)
 
     def update_read_write_using_ssa(self):
         for node in self.nodes:

@@ -1,18 +1,7 @@
-[92m
-## Run initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialization-checks)[0m
-[91mContract_lack_to_call_modifier.initialize() does not call the initializer modifier[0m
-[92mNo missing call to an init function found[0m
-[92mNo double call to init functions found[0m
-[92mCheck the deployement script to ensure that these functions are called:
-Contract_lack_to_call_modifier needs to be initialized by initialize()
-[0m
-[92mNo error found[0m
-[92m
-## Run variable initialization checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks)[0m
-[92mNo error found[0m
-[92m
-## Run function ids checks... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-checks)[0m
-[92mNo error found[0m
-[92m
-## Run variables ordering checks between Contract_lack_to_call_modifier and Proxy... (see https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-order-checks)[0m
-[92mNo error found[0m
+INFO:Slither:[92m
+Contract_lack_to_call_modifier (tests/check-upgradeability/contract_initialization.sol#19-24) needs to be initialized by Contract_lack_to_call_modifier.initialize() (tests/check-upgradeability/contract_initialization.sol#21-23).
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function[0m
+INFO:Slither:[91m
+Contract_lack_to_call_modifier.initialize() (tests/check-upgradeability/contract_initialization.sol#21-23) does not call the initializer modifier.
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializer-is-not-called[0m
+INFO:Slither:2 findings, 12 detectors run
