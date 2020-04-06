@@ -27,7 +27,7 @@ class CFG(AbstractPrinter):
                 else:
                     filename = "{}-{}.dot".format(contract.name, function.full_name)
                 info += 'Export {}\n'.format(filename)
-                content = function.slithir_cfg_to_dot(filename)
+                content = function.slithir_cfg_to_dot_str()
                 with open(filename, 'w', encoding='utf8') as f:
                     f.write(content)
                 all_files.append((filename, content))

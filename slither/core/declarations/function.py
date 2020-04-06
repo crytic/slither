@@ -1053,29 +1053,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
             f.write("}\n")
 
-    def slithir_cfg_to_dot(self, filename):
-        """
-            Export the function to a dot file
-        Args:
-            filename (str)
-        """
-        from slither.core.cfg.node import NodeType
-        content = ''
-        with open(filename, 'w', encoding='utf8') as f:
-            content += 'digraph{\n'
-            for node in self.nodes:
-                label = 'Node Type: {} {}\n'.format(NodeType.str(node.type), node.node_id)
-                if node.expression:
-                    label += '\nEXPRESSION:\n{}\n'.format(node.expression)
-                if node.irs:
-                    label += '\nIRs:\n' + '\n'.join([str(ir) for ir in node.irs])
-                content += '{}[label="{}"];\n'.format(node.node_id, label)
-                for son in node.sons:
-                    content += '{}->{};\n'.format(node.node_id, son.node_id)
-
-            content += "}\n"
-        return content
-
     def dominator_tree_to_dot(self, filename):
         """
             Export the dominator tree of the function to a dot file
@@ -1096,6 +1073,38 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                     f.write('{}->{};\n'.format(node.immediate_dominator.node_id, node.node_id))
 
             f.write("}\n")
+
+    def slithir_cfg_to_dot(self, filename):
+        """
+        Export the CFG to a DOT file. The nodes includes the Solidity expressions and the IRs
+        :param filename:
+        :return:
+        """
+        content = self.slithir_cfg_to_dot_str()
+        with open(filename, 'w', encoding='utf8') as f:
+            f.write(content)
+
+    def slithir_cfg_to_dot_str(self) -> str:
+        """
+        Export the CFG to a DOT format. The nodes includes the Solidity expressions and the IRs
+        :return: the DOT content
+        :rtype: str
+        """
+        from slither.core.cfg.node import NodeType
+        content = ''
+        content += 'digraph{\n'
+        for node in self.nodes:
+            label = 'Node Type: {} {}\n'.format(NodeType.str(node.type), node.node_id)
+            if node.expression:
+                label += '\nEXPRESSION:\n{}\n'.format(node.expression)
+            if node.irs:
+                label += '\nIRs:\n' + '\n'.join([str(ir) for ir in node.irs])
+            content += '{}[label="{}"];\n'.format(node.node_id, label)
+            for son in node.sons:
+                content += '{}->{};\n'.format(node.node_id, son.node_id)
+
+        content += "}\n"
+        return content
 
     # endregion
     ###################################################################################
