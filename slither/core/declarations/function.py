@@ -599,7 +599,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
             list(SolidityFunction): List of Soldity calls
         """
-        return list(self._internal_calls)
+        return list(self._solidity_calls)
 
     @property
     def high_level_calls(self):
