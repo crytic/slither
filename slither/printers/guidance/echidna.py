@@ -63,6 +63,8 @@ def _is_constant(f: Function) -> bool:
             return True
     if f.payable:
         return False
+    if not f.is_implemented:
+        return False
     if f.contains_assembly:
         return False
     if f.all_state_variables_written():
@@ -146,8 +148,8 @@ def _extract_constants(slither: Slither) -> Tuple[Dict[str, Dict[str, List]], Di
     ret_cst_used_in_binary: Dict[str, Dict[str, Dict]] = defaultdict(dict)
     for contract in slither.contracts:
         for function in contract.functions_entry_points:
-            all_cst_used = []
-            all_cst_used_in_binary = defaultdict(list)
+            all_cst_used: List = []
+            all_cst_used_in_binary: Dict = defaultdict(list)
 
             context_explored = set()
             context_explored.add(function)
@@ -156,10 +158,13 @@ def _extract_constants(slither: Slither) -> Tuple[Dict[str, Dict[str, List]], Di
                                         all_cst_used_in_binary,
                                         context_explored)
 
+            # Note: use list(set()) instead of set
+            # As this is meant to be serialized in JSON, and JSON does not support set
             if all_cst_used:
-                ret_cst_used[contract.name][function.full_name] = all_cst_used
+                ret_cst_used[contract.name][function.full_name] = list(set(all_cst_used))
             if all_cst_used_in_binary:
-                ret_cst_used_in_binary[contract.name][function.full_name] = all_cst_used_in_binary
+                ret_cst_used_in_binary[contract.name][function.full_name] = {k: list(set(v)) for k, v in
+                                                                             all_cst_used_in_binary.items()}
     return ret_cst_used, ret_cst_used_in_binary
 
 
