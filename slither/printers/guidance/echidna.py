@@ -59,8 +59,10 @@ def _is_constant(f: Function) -> bool:
     :return:
     """
     if f.view or f.pure:
-        if not f.contract.slither.crytic_compile.version.startswith('0.4'):
+        if not f.contract.slither.crytic_compile.compiler_version.version.startswith('0.4'):
             return True
+    if f.payable:
+        return False
     if f.contains_assembly:
         return False
     if f.all_state_variables_written():
@@ -76,7 +78,7 @@ def _is_constant(f: Function) -> bool:
         if isinstance(ir, HighLevelCall):
             if ir.function.view or ir.function.pure:
                 # External call to constant functions are ensured to be constant only for solidity >= 0.5
-                if f.contract.slither.crytic_compile.version.startswith('0.4'):
+                if f.contract.slither.crytic_compile.compiler_version.version.startswith('0.4'):
                     return False
             else:
                 return False
