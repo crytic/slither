@@ -7,13 +7,14 @@ from typing import Dict, List, Set, Tuple
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
-from slither.core.slither_core import Slither
-from slither.core.variables.variable import Variable
-from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction, SolidityVariable
-from slither.slithir.operations import Member, Operation
-from slither.slithir.operations.binary import Binary, BinaryType
+from slither.core.expressions import NewContract
+from slither.core.slither_core import Slither
 from slither.core.variables.state_variable import StateVariable
+from slither.printers.abstract_printer import AbstractPrinter
+from slither.slithir.operations import Member, Operation, SolidityCall, LowLevelCall, HighLevelCall, EventCall, Send, \
+    Transfer, InternalDynamicCall
+from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables import Constant
 
 
@@ -46,10 +47,46 @@ def _extract_solidity_variable_usage(slither: Slither, sol_var: SolidityVariable
     return ret
 
 
+def _is_constant(f: Function) -> bool:
+    """
+    Heuristic:
+    - If view/pure with Solidity >= 0.4 -> Return true
+    - If it contains assembly -> Return false (Slither doesn't analyze asm)
+    - Otherwise check for the rules from
+    https://solidity.readthedocs.io/en/v0.5.0/contracts.html?highlight=pure#view-functions
+    with an exception: internal dynamic call are not correctly handled, so we consider them as non-constant
+    :param f:
+    :return:
+    """
+    if f.view or f.pure:
+        if not f.contract.slither.crytic_compile.version.startswith('0.4'):
+            return True
+    if f.contains_assembly:
+        return False
+    if f.all_state_variables_written():
+        return False
+    for ir in f.all_slithir_operations():
+        if isinstance(ir, InternalDynamicCall):
+            return False
+        if isinstance(ir, (EventCall, NewContract, LowLevelCall, Send, Transfer)):
+            return False
+        if isinstance(ir, SolidityCall) and ir.function in [SolidityFunction('selfdestruct(address)'),
+                                                            SolidityFunction('suicide(address)')]:
+            return False
+        if isinstance(ir, HighLevelCall):
+            if ir.function.view or ir.function.pure:
+                # External call to constant functions are ensured to be constant only for solidity >= 0.5
+                if f.contract.slither.crytic_compile.version.startswith('0.4'):
+                    return False
+            else:
+                return False
+    return True
+
+
 def _extract_constant_functions(slither: Slither) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
     for contract in slither.contracts:
-        cst_functions = [_get_name(f) for f in contract.functions_entry_points if f.view or f.pure]
+        cst_functions = [_get_name(f) for f in contract.functions_entry_points if _is_constant(f)]
         cst_functions += [v.function_name for v in contract.state_variables if v.visibility in ['public']]
         if cst_functions:
             ret[contract.name] = cst_functions
