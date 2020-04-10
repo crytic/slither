@@ -13,7 +13,7 @@ from slither.core.slither_core import Slither
 from slither.core.variables.state_variable import StateVariable
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slithir.operations import Member, Operation, SolidityCall, LowLevelCall, HighLevelCall, EventCall, Send, \
-    Transfer, InternalDynamicCall
+    Transfer, InternalDynamicCall, InternalCall
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables import Constant
 
@@ -79,6 +79,10 @@ def _is_constant(f: Function) -> bool:
                 if f.contract.slither.crytic_compile.version.startswith('0.4'):
                     return False
             else:
+                return False
+        if isinstance(ir, InternalCall):
+            # Storage write are not properly handled by all_state_variables_written
+            if any(parameter.is_storage for parameter in ir.function.parameters):
                 return False
     return True
 
