@@ -191,6 +191,27 @@ def _extract_constants(slither: Slither) -> Tuple[Dict[str, Dict[str, List]], Di
     return ret_cst_used, ret_cst_used_in_binary
 
 
+def _extract_function_relations(slither: Slither) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
+    # contract -> function -> [functions]
+    ret: Dict[str, Dict[str, Dict[str, List[str]]]] = defaultdict(dict)
+    for contract in slither.contracts:
+        ret[contract.name] = defaultdict(dict)
+        written = {function.full_name: function.all_state_variables_written()
+                   for function in contract.functions_entry_points}
+        read = {function.full_name: function.all_state_variables_read()
+                for function in contract.functions_entry_points}
+        for function in contract.functions_entry_points:
+            ret[contract.name][function.full_name] = {"impacts": [],
+                                                      "is_impacted_by": []}
+            for candidate, varsWritten in written.items():
+                if any((r in varsWritten for r in function.all_state_variables_read())):
+                    ret[contract.name][function.full_name]["is_impacted_by"].append(candidate)
+            for candidate, varsRead in read.items():
+                if any((r in varsRead for r in function.all_state_variables_written())):
+                    ret[contract.name][function.full_name]["impacts"].append(candidate)
+    return ret
+
+
 class Echidna(AbstractPrinter):
     ARGUMENT = 'echidna'
     HELP = 'Export Echidna guiding information'
@@ -219,6 +240,11 @@ class Echidna(AbstractPrinter):
         cst_functions = _extract_constant_functions(self.slither)
         (cst_used, cst_used_in_binary) = _extract_constants(self.slither)
 
+        functions_relations = _extract_function_relations(self.slither)
+
+        constructors = {contract.name: contract.constructor.full_name
+                        for contract in self.slither.contracts if contract.constructor}
+
         d = {'payable': payable,
              'timestamp': timestamp,
              'block_number': block_number,
@@ -227,7 +253,9 @@ class Echidna(AbstractPrinter):
              'assert': assert_usage,
              'constant_functions': cst_functions,
              'constants_used': cst_used,
-             'constants_used_in_binary': cst_used_in_binary}
+             'constants_used_in_binary': cst_used_in_binary,
+             'functions_relations': functions_relations,
+             'constructors': constructors}
 
         self.info(json.dumps(d, indent=4))
 
