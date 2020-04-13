@@ -3,7 +3,7 @@
 
 import json
 from collections import defaultdict
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Set, Tuple, Union, NamedTuple
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
@@ -13,7 +13,7 @@ from slither.core.slither_core import Slither
 from slither.core.variables.state_variable import StateVariable
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slithir.operations import Member, Operation, SolidityCall, LowLevelCall, HighLevelCall, EventCall, Send, \
-    Transfer, InternalDynamicCall, InternalCall
+    Transfer, InternalDynamicCall, InternalCall, TypeConversion
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables import Constant
 
@@ -115,21 +115,42 @@ def _extract_assert(slither: Slither) -> Dict[str, List[str]]:
     return ret
 
 
+# Create a named tuple that is serialization in json
+def json_serializable(cls):
+    def as_dict(self):
+        yield {name: value for name, value in zip(
+            self._fields,
+            iter(super(cls, self).__iter__()))}
+
+    cls.__iter__ = as_dict
+    return cls
+
+
+@json_serializable
+class ConstantValue(NamedTuple):
+    value: Union[str, int, bool]
+    type: str
+
+
 def _extract_constants_from_irs(irs: List[Operation],
-                                all_cst_used: List,
-                                all_cst_used_in_binary: Dict,
+                                all_cst_used: List[ConstantValue],
+                                all_cst_used_in_binary: Dict[str, List[ConstantValue]],
                                 context_explored: Set[Node]):
     for ir in irs:
         if isinstance(ir, Binary):
             for r in ir.read:
                 if isinstance(r, Constant):
-                    all_cst_used_in_binary[BinaryType.str(ir.type)].append(r.value)
+                    all_cst_used_in_binary[BinaryType.str(ir.type)].append(ConstantValue(r.value, str(r.type)))
+        if isinstance(ir, TypeConversion):
+            if isinstance(ir.variable, Constant):
+                all_cst_used.append(ConstantValue(ir.variable.value, str(ir.type)))
+                continue
         for r in ir.read:
             # Do not report struct_name in a.struct_name
             if isinstance(ir, Member):
                 continue
             if isinstance(r, Constant):
-                all_cst_used.append(r.value)
+                all_cst_used.append(ConstantValue(r.value, str(r.type)))
             if isinstance(r, StateVariable):
                 if r.node_initialization:
                     if r.node_initialization.irs:
@@ -144,8 +165,10 @@ def _extract_constants_from_irs(irs: List[Operation],
 
 
 def _extract_constants(slither: Slither) -> Tuple[Dict[str, Dict[str, List]], Dict[str, Dict[str, Dict]]]:
-    ret_cst_used: Dict[str, Dict[str, List]] = defaultdict(dict)
-    ret_cst_used_in_binary: Dict[str, Dict[str, Dict]] = defaultdict(dict)
+    # contract -> function -> [ {"value": value, "type": type} ]
+    ret_cst_used: Dict[str, Dict[str, List[ConstantValue]]] = defaultdict(dict)
+    # contract -> function -> binary_operand -> [ {"value": value, "type": type ]
+    ret_cst_used_in_binary: Dict[str, Dict[str, Dict[str, List[ConstantValue]]]] = defaultdict(dict)
     for contract in slither.contracts:
         for function in contract.functions_entry_points:
             all_cst_used: List = []
