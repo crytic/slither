@@ -8,6 +8,7 @@ from slither.utils import output
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 from slither.utils.colors import green, red, yellow
 from slither.utils.standard_libraries import is_standard_library
+from slither.core.cfg.node import NodeType
 
 class PrinterHumanSummary(AbstractPrinter):
     ARGUMENT = 'human-summary'
@@ -159,6 +160,17 @@ class PrinterHumanSummary(AbstractPrinter):
                 total_lines += lines
         return total_lines, total_dep_lines
 
+    def _get_number_of_assembly_lines(self):
+        total_asm_lines = 0
+        for contract in self.contracts:
+            for function in contract.functions:
+                for node in function.nodes:
+                    if node.type == NodeType.ASSEMBLY:
+                            inline_asm = node.inline_asm
+                            if inline_asm:
+                                total_asm_lines += len(inline_asm.splitlines())
+        return total_asm_lines
+
     def _compilation_type(self):
         if self.slither.crytic_compile is None:
             return 'Compilation non standard\n'
@@ -202,6 +214,7 @@ class PrinterHumanSummary(AbstractPrinter):
             },
             'number_lines': 0,
             'number_lines_in_dependencies': 0,
+            'number_lines_assembly': 0,
             'standard_libraries': [],
             'ercs': [],
         }
@@ -213,6 +226,9 @@ class PrinterHumanSummary(AbstractPrinter):
             txt += f'Number of lines: {total_lines} (+ {total_dep_lines} in dependencies)\n'
             results['number_lines'] = total_lines
             results['number_lines__dependencies'] = total_dep_lines
+            total_asm_lines = self._get_number_of_assembly_lines()
+            txt += f"Number of assembly lines: {total_asm_lines}\n"
+            results['number_lines_assembly'] = total_asm_lines
 
         number_contracts, number_contracts_deps = self._number_contracts()
         txt += f'Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies) \n\n'
