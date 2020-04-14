@@ -184,10 +184,10 @@ def _extract_constants(slither: Slither) -> Tuple[Dict[str, Dict[str, List]], Di
             # Note: use list(set()) instead of set
             # As this is meant to be serialized in JSON, and JSON does not support set
             if all_cst_used:
-                ret_cst_used[contract.name][function.full_name] = list(set(all_cst_used))
+                ret_cst_used[contract.name][_get_name(function)] = list(set(all_cst_used))
             if all_cst_used_in_binary:
-                ret_cst_used_in_binary[contract.name][function.full_name] = {k: list(set(v)) for k, v in
-                                                                             all_cst_used_in_binary.items()}
+                ret_cst_used_in_binary[contract.name][_get_name(function)] = {k: list(set(v)) for k, v in
+                                                                              all_cst_used_in_binary.items()}
     return ret_cst_used, ret_cst_used_in_binary
 
 
@@ -196,19 +196,19 @@ def _extract_function_relations(slither: Slither) -> Dict[str, Dict[str, Dict[st
     ret: Dict[str, Dict[str, Dict[str, List[str]]]] = defaultdict(dict)
     for contract in slither.contracts:
         ret[contract.name] = defaultdict(dict)
-        written = {function.full_name: function.all_state_variables_written()
+        written = {_get_name(function): function.all_state_variables_written()
                    for function in contract.functions_entry_points}
-        read = {function.full_name: function.all_state_variables_read()
+        read = {_get_name(function): function.all_state_variables_read()
                 for function in contract.functions_entry_points}
         for function in contract.functions_entry_points:
-            ret[contract.name][function.full_name] = {"impacts": [],
+            ret[contract.name][_get_name(function)] = {"impacts": [],
                                                       "is_impacted_by": []}
             for candidate, varsWritten in written.items():
                 if any((r in varsWritten for r in function.all_state_variables_read())):
-                    ret[contract.name][function.full_name]["is_impacted_by"].append(candidate)
+                    ret[contract.name][_get_name(function)]["is_impacted_by"].append(candidate)
             for candidate, varsRead in read.items():
                 if any((r in varsRead for r in function.all_state_variables_written())):
-                    ret[contract.name][function.full_name]["impacts"].append(candidate)
+                    ret[contract.name][_get_name(function)]["impacts"].append(candidate)
     return ret
 
 
