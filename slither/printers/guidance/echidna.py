@@ -14,7 +14,7 @@ from slither.core.slither_core import Slither
 from slither.core.variables.state_variable import StateVariable
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slithir.operations import Member, Operation, SolidityCall, LowLevelCall, HighLevelCall, EventCall, Send, \
-    Transfer, InternalDynamicCall, InternalCall, TypeConversion
+    Transfer, InternalDynamicCall, InternalCall, TypeConversion, Balance
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables import Constant
 
@@ -224,6 +224,25 @@ def _have_external_calls(slither: Slither) -> Dict[str, List[str]]:
         for function in contract.functions_entry_points:
             if function.all_high_level_calls() or function.all_low_level_calls():
                 ret[contract.name].append(_get_name(function))
+        if contract.name in ret:
+            ret[contract.name] = list(set(ret[contract.name]))
+    return ret
+
+
+def _use_balance(slither: Slither) -> Dict[str, List[str]]:
+    """
+    Detect the functions with external calls
+    :param slither:
+    :return:
+    """
+    ret: Dict[str, List[str]] = defaultdict(list)
+    for contract in slither.contracts:
+        for function in contract.functions_entry_points:
+            for ir in function.all_slithir_operations():
+                if isinstance(ir, Balance):
+                    ret[contract.name].append(_get_name(function))
+        if contract.name in ret:
+            ret[contract.name] = list(set(ret[contract.name]))
     return ret
 
 
@@ -294,6 +313,8 @@ class Echidna(AbstractPrinter):
 
         call_parameters = _call_a_parameter(self.slither)
 
+        use_balance = _use_balance(self.slither)
+
         d = {'payable': payable,
              'timestamp': timestamp,
              'block_number': block_number,
@@ -306,7 +327,8 @@ class Echidna(AbstractPrinter):
              'functions_relations': functions_relations,
              'constructors': constructors,
              'have_external_calls': external_calls,
-             'call_a_parameter': call_parameters}
+             'call_a_parameter': call_parameters,
+             'use_balance': use_balance}
 
         self.info(json.dumps(d, indent=4))
 
