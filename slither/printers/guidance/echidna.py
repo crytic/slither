@@ -5,6 +5,7 @@ import json
 from collections import defaultdict
 from typing import Dict, List, Set, Tuple, Union, NamedTuple
 
+from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction, SolidityVariable
@@ -202,13 +203,57 @@ def _extract_function_relations(slither: Slither) -> Dict[str, Dict[str, Dict[st
                 for function in contract.functions_entry_points}
         for function in contract.functions_entry_points:
             ret[contract.name][_get_name(function)] = {"impacts": [],
-                                                      "is_impacted_by": []}
+                                                       "is_impacted_by": []}
             for candidate, varsWritten in written.items():
                 if any((r in varsWritten for r in function.all_state_variables_read())):
                     ret[contract.name][_get_name(function)]["is_impacted_by"].append(candidate)
             for candidate, varsRead in read.items():
                 if any((r in varsRead for r in function.all_state_variables_written())):
                     ret[contract.name][_get_name(function)]["impacts"].append(candidate)
+    return ret
+
+
+def _have_external_calls(slither: Slither) -> Dict[str, List[str]]:
+    """
+    Detect the functions with external calls
+    :param slither:
+    :return:
+    """
+    ret: Dict[str, List[str]] = defaultdict(list)
+    for contract in slither.contracts:
+        for function in contract.functions_entry_points:
+            if function.all_high_level_calls() or function.all_low_level_calls():
+                ret[contract.name].append(_get_name(function))
+    return ret
+
+
+def _call_a_parameter(slither: Slither) -> Dict[str, List[Dict]]:
+    """
+    Detect the functions with external calls
+    :param slither:
+    :return:
+    """
+    # contract -> [ (function, idx, interface_called) ]
+    ret: Dict[str, List[Dict]] = defaultdict(list)
+    for contract in slither.contracts:
+        for function in contract.functions_entry_points:
+            for ir in function.all_slithir_operations():
+                if isinstance(ir, HighLevelCall):
+                    for idx, parameter in enumerate(function.parameters):
+                        if is_dependent(ir.destination, parameter, function):
+                            ret[contract.name].append({
+                                "function": _get_name(function),
+                                "parameter_idx": idx,
+                                "signature": _get_name(ir.function)
+                            })
+                if isinstance(ir, LowLevelCall):
+                    for idx, parameter in enumerate(function.parameters):
+                        if is_dependent(ir.destination, parameter, function):
+                            ret[contract.name].append({
+                                "function": _get_name(function),
+                                "parameter_idx": idx,
+                                "signature": None
+                            })
     return ret
 
 
@@ -245,6 +290,10 @@ class Echidna(AbstractPrinter):
         constructors = {contract.name: contract.constructor.full_name
                         for contract in self.slither.contracts if contract.constructor}
 
+        external_calls = _have_external_calls(self.slither)
+
+        call_parameters = _call_a_parameter(self.slither)
+
         d = {'payable': payable,
              'timestamp': timestamp,
              'block_number': block_number,
@@ -255,7 +304,9 @@ class Echidna(AbstractPrinter):
              'constants_used': cst_used,
              'constants_used_in_binary': cst_used_in_binary,
              'functions_relations': functions_relations,
-             'constructors': constructors}
+             'constructors': constructors,
+             'have_external_calls': external_calls,
+             'call_a_parameter': call_parameters}
 
         self.info(json.dumps(d, indent=4))
 
