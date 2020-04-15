@@ -511,6 +511,7 @@ class FunctionSolc(Function):
 
     def _parse_catch(self, statement, node):
         block = statement.get('block', None)
+
         if block is None:
             raise ParsingError('Catch not correctly parsed by Slither %s' % statement)
         try_node = self._new_node(NodeType.CATCH, statement['src'])
@@ -521,9 +522,10 @@ class FunctionSolc(Function):
         else:
             params = statement[self.get_children('children')]
 
-        for param in params.get('parameters', []):
-            assert param[self.get_key()] == 'VariableDeclaration'
-            self._add_param(param)
+        if params:
+            for param in params.get('parameters', []):
+                assert param[self.get_key()] == 'VariableDeclaration'
+                self._add_param(param)
 
         return self._parse_statement(block, try_node)
 
