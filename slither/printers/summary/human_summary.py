@@ -10,6 +10,7 @@ from slither.utils.colors import green, red, yellow
 from slither.utils.standard_libraries import is_standard_library
 from slither.core.cfg.node import NodeType
 
+
 class PrinterHumanSummary(AbstractPrinter):
     ARGUMENT = 'human-summary'
     HELP = 'Print a human-readable summary of the contracts'
@@ -30,13 +31,12 @@ class PrinterHumanSummary(AbstractPrinter):
             else:
                 mint_limited = True
         else:
-            mint_limited = None # no minting
+            mint_limited = None  # no minting
 
-        race_condition_mitigated = 'increaseApproval' in functions_name or\
+        race_condition_mitigated = 'increaseApproval' in functions_name or \
                                    'safeIncreaseAllowance' in functions_name
 
         return pause, mint_limited, race_condition_mitigated
-
 
     def get_summary_erc20(self, contract):
         txt = ''
@@ -93,8 +93,6 @@ class PrinterHumanSummary(AbstractPrinter):
         issues_high = [c.detect() for c in checks_high]
         issues_high = [c for c in issues_high if c]
         issues_high = [item for sublist in issues_high for item in sublist]
-
-
 
         return (len(issues_optimization),
                 len(issues_informational),
@@ -163,12 +161,12 @@ class PrinterHumanSummary(AbstractPrinter):
     def _get_number_of_assembly_lines(self):
         total_asm_lines = 0
         for contract in self.contracts:
-            for function in contract.functions:
+            for function in contract.functions_declared:
                 for node in function.nodes:
                     if node.type == NodeType.ASSEMBLY:
-                            inline_asm = node.inline_asm
-                            if inline_asm:
-                                total_asm_lines += len(inline_asm.splitlines())
+                        inline_asm = node.inline_asm
+                        if inline_asm:
+                            total_asm_lines += len(inline_asm.splitlines())
         return total_asm_lines
 
     def _compilation_type(self):
@@ -218,7 +216,6 @@ class PrinterHumanSummary(AbstractPrinter):
             'standard_libraries': [],
             'ercs': [],
         }
-
 
         lines_number = self._lines_number()
         if lines_number:
@@ -288,4 +285,3 @@ class PrinterHumanSummary(AbstractPrinter):
         json = self.generate_output(txt, additional_fields=results)
 
         return json
-
