@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        type: ["4", "5", "cli", "dapp", "data_dependency", "embark", "erc", "etherlime", "etherscan", "find_paths", "kspec", "printers", "simil", "slither_config", "truffle", "upgradability"]
+        type: ["4", "5", "cli", "dapp", "data_dependency", "embark", "erc", "etherlime", "etherscan", "find_paths", "kspec", "printers", "simil", "slither_config", "truffle", "upgradability", "prop"]
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.6
