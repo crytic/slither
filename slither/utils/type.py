@@ -38,6 +38,12 @@ def export_return_type_from_variable(variable):
     :param variable
     :return: Type
     """
+    if isinstance(variable, MappingType):
+        return export_return_type_from_variable(variable.type_to)
+
+    if isinstance(variable, ArrayType):
+        return variable.type
+
     if isinstance(variable.type, MappingType):
         return export_return_type_from_variable(variable.type.type_to)
 
