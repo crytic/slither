@@ -115,7 +115,10 @@ def generate_unit_test(test_contract: str, filename: str,
 
     content += '});\n'
 
-    output_dir = Path(output_dir, 'test', 'crytic')
+    output_dir = Path(output_dir, 'test')
+    output_dir.mkdir(exist_ok=True)
+
+    output_dir = Path(output_dir, 'crytic')
     output_dir.mkdir(exist_ok=True)
 
     write_file(output_dir, filename, content)
@@ -137,6 +140,8 @@ module.exports = function(deployer) {{
 '''
 
     output_dir = Path(output_dir, 'migrations')
+
+    output_dir.mkdir(exist_ok=True)
 
     migration_files = [js_file for js_file in output_dir.iterdir() if js_file.suffix == '.js'
                        and PATTERN_TRUFFLE_MIGRATION.match(js_file.name)]

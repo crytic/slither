@@ -3,6 +3,8 @@ import argparse
 import logging
 import sys
 
+from prettytable import PrettyTable
+
 from slither import Slither
 from crytic_compile import cryticparser
 
@@ -30,10 +32,24 @@ def _all_scenarios():
 
     return txt
 
+def _all_properties():
+    table = PrettyTable(["Num", "Description", "Scenario"])
+    idx = 0
+    for scenario, value in ERC20_PROPERTIES.items():
+        for prop in value.properties:
+            table.add_row([idx, prop.description, scenario])
+            idx = idx + 1
+    return table
 
 class ListScenarios(argparse.Action):
     def __call__(self, parser, *args, **kwargs):
         logger.info(_all_scenarios())
+        parser.exit()
+
+
+class ListProperties(argparse.Action):
+    def __call__(self, parser, *args, **kwargs):
+        logger.info(_all_properties())
         parser.exit()
 
 
@@ -59,6 +75,12 @@ def parse_args():
     parser.add_argument('--list-scenarios',
                         help='List available scenarios',
                         action=ListScenarios,
+                        nargs=0,
+                        default=False)
+
+    parser.add_argument('--list-properties',
+                        help='List available properties',
+                        action=ListProperties,
                         nargs=0,
                         default=False)
 
@@ -92,8 +114,14 @@ def main():
 
     contract = slither.get_contract_from_name(args.contract)
     if not contract:
-        logger.error(f'{args.contract} not found')
-        return
+        if len(slither.contracts) == 1:
+            contract = slither.contracts[0]
+        else:
+            if args.contract is None:
+                logger.error(f'Specify the target: --contract ContractName')
+            else:
+                logger.error(f'{args.contract} not found')
+            return
 
     addresses = Addresses(args.address_owner, args.address_user, args.address_attacker)
 

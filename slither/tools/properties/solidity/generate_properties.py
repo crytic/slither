@@ -46,7 +46,7 @@ def generate_test_contract(contract: Contract,
     content += initialization_recommendation
     content += '\t\t// \n'
     content += '\t\t// \n'
-    content += '\t\t// Update the following if totalSupply and balanceOf are external functions:\n\n'
+    content += '\t\t// Update the following if totalSupply and balanceOf are external functions or state variables:\n\n'
     content += '\t\tinitialTotalSupply = totalSupply();\n'
     content += '\t\tinitialBalance_owner = balanceOf(crytic_owner);\n'
     content += '\t\tinitialBalance_user = balanceOf(crytic_user);\n'
