@@ -29,7 +29,7 @@ def _timestamp(func: Function) -> List[Node]:
                         ret.add(node)
                     if is_dependent(var, SolidityVariable('now'), func.contract):
                         ret.add(node)
-    return list(ret)
+    return sorted(list(ret), key=lambda x: x.node_id)
 
 
 def _detect_dangerous_timestamp(contract: Contract) -> List[Tuple[Function, List[Node]]]:
