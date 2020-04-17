@@ -1111,8 +1111,16 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             if node.irs:
                 label += '\nIRs:\n' + '\n'.join([str(ir) for ir in node.irs])
             content += '{}[label="{}"];\n'.format(node.node_id, label)
-            for son in node.sons:
-                content += '{}->{};\n'.format(node.node_id, son.node_id)
+            if node.type == NodeType.IF:
+                true_node = node.son_true
+                if true_node:
+                    content += '{}->{}[label="True"];\n'.format(node.node_id, true_node.node_id)
+                false_node = node.son_false
+                if false_node:
+                    content += '{}->{}[label="False"];\n'.format(node.node_id, false_node.node_id)
+            else:
+                for son in node.sons:
+                    content += '{}->{};\n'.format(node.node_id, son.node_id)
 
         content += "}\n"
         return content
