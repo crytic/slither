@@ -23,12 +23,13 @@ Patch = namedtuple('PatchExternal', ['index', 'patch_type'])
 class Flattening:
     DEFAULT_EXPORT_PATH = Path('crytic-export/flattening')
 
-    def __init__(self, slither, external_to_public=False, remove_assert=False):
+    def __init__(self, slither, external_to_public=False, remove_assert=False, private_to_internal=False):
         self._source_codes = {}
         self._slither = slither
         self._external_to_public = external_to_public
         self._remove_assert = remove_assert
         self._use_abi_encoder_v2 = False
+        self._private_to_internal = private_to_internal
 
         self._check_abi_encoder_v2()
 
@@ -46,7 +47,6 @@ class Flattening:
         content = self._slither.source_code[src_mapping['filename_absolute']]
         start = src_mapping['start']
         end = src_mapping['start'] + src_mapping['length']
-        first_line = src_mapping['lines'][0]
 
         to_patch = []
         # interface must use external
@@ -73,6 +73,20 @@ class Flattening:
                             calldata_idx = content[calldata_start:calldata_end].find(' calldata ')
                             to_patch.append(Patch(calldata_start + calldata_idx + 1, 'calldata_to_memory'))
 
+        if self._private_to_internal:
+            for variable in contract.state_variables_declared:
+                if variable.visibility == 'private':
+                    print(variable.source_mapping)
+                    attributes_start = variable.source_mapping['start']
+                    attributes_end = attributes_start + variable.source_mapping['length']
+                    attributes = content[attributes_start:attributes_end]
+                    print(attributes)
+                    regex = re.search(r' private ', attributes)
+                    if regex:
+                        to_patch.append(Patch(attributes_start + regex.span()[0] + 1, 'private_to_internal'))
+                    else:
+                        raise SlitherException(f'private keyword not found {v.name} {attributes}')
+
         if self._remove_assert:
             for function in contract.functions_and_modifiers_declared:
                 for node in function.nodes:
@@ -90,6 +104,8 @@ class Flattening:
             index = index - start
             if patch_type == 'public_to_external':
                 content = content[:index] + 'public' + content[index + len('external'):]
+            if patch_type == 'private_to_internal':
+                content = content[:index] + 'internal' + content[index + len('private'):]
             elif patch_type == 'calldata_to_memory':
                 content = content[:index] + 'memory' + content[index + len('calldata'):]
             else:
