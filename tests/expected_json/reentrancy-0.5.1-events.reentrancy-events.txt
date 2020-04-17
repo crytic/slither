@@ -1,5 +1,5 @@
 [92m
-Reentrancy in Test.bug(C) (tests/reentrancy-0.5.1-events.sol#14-17):
+Reentrancy in Test.bug(address) (tests/reentrancy-0.5.1-events.sol#14-17):
 	External calls:
 	- c.f() (tests/reentrancy-0.5.1-events.sol#15)
 	Event emitted after the call(s):

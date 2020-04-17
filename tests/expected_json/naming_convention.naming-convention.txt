@@ -13,3 +13,4 @@ Variable T._myPublicVar (tests/naming_convention.sol#56) is not in mixedCase
 Variable T.l (tests/naming_convention.sol#67) used l, O, I, which should not be used
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions[0m
 tests/naming_convention.sol analyzed (4 contracts with 1 detectors), 12 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

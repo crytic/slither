@@ -2,4 +2,5 @@
 Backdoor function found in C.i_am_a_backdoor() (tests/backdoor.sol#4-6)
 Reference: https://github.com/trailofbits/slither/wiki/Adding-a-new-detector[0m
 tests/backdoor.sol analyzed (1 contracts with 1 detectors), 1 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m
 INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/backdoor.backdoor.json exists already, the overwrite is prevented[0m

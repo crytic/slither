@@ -57,7 +57,7 @@
                   "ending_column": 2
                 }
               },
-              "signature": "bug(C)"
+              "signature": "bug(address)"
             }
           },
           {
@@ -130,7 +130,7 @@
                       "ending_column": 2
                     }
                   },
-                  "signature": "bug(C)"
+                  "signature": "bug(address)"
                 }
               }
             },
@@ -208,7 +208,7 @@
                       "ending_column": 2
                     }
                   },
-                  "signature": "bug(C)"
+                  "signature": "bug(address)"
                 }
               }
             },
@@ -217,9 +217,9 @@
             }
           }
         ],
-        "description": "Reentrancy in Test.bug(C) (tests/reentrancy-0.5.1-events.sol#14-17):\n\tExternal calls:\n\t- c.f() (tests/reentrancy-0.5.1-events.sol#15)\n\tEvent emitted after the call(s):\n\t- E() (tests/reentrancy-0.5.1-events.sol#16)\n",
-        "markdown": "Reentrancy in [Test.bug(C)](tests/reentrancy-0.5.1-events.sol#L14-L17):\n\tExternal calls:\n\t- [c.f()](tests/reentrancy-0.5.1-events.sol#L15)\n\tEvent emitted after the call(s):\n\t- [E()](tests/reentrancy-0.5.1-events.sol#L16)\n",
-        "id": "9654da7d8b8d85c90bc2ee1ddaea365f98f14d9981149b354f8a3d84f98ea576",
+        "description": "Reentrancy in Test.bug(address) (tests/reentrancy-0.5.1-events.sol#14-17):\n\tExternal calls:\n\t- c.f() (tests/reentrancy-0.5.1-events.sol#15)\n\tEvent emitted after the call(s):\n\t- E() (tests/reentrancy-0.5.1-events.sol#16)\n",
+        "markdown": "Reentrancy in [Test.bug(address)](tests/reentrancy-0.5.1-events.sol#L14-L17):\n\tExternal calls:\n\t- [c.f()](tests/reentrancy-0.5.1-events.sol#L15)\n\tEvent emitted after the call(s):\n\t- [E()](tests/reentrancy-0.5.1-events.sol#L16)\n",
+        "id": "379907e63f185d72b3e767e005ba76247024692c633a93d4415c0a0be4ec1d8d",
         "check": "reentrancy-events",
         "impact": "Low",
         "confidence": "Medium"

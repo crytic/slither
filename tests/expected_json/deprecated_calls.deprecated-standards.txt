@@ -17,3 +17,4 @@ Deprecated standard detected globalBlockHash = block.blockhash(0) (tests/depreca
 	- Usage of "block.blockhash()" should be replaced with "blockhash()"
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards[0m
 tests/deprecated_calls.sol analyzed (1 contracts with 1 detectors), 8 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

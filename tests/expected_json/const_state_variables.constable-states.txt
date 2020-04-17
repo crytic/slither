@@ -7,3 +7,4 @@ MyConc.should_be_constant (tests/const_state_variables.sol#42) should be constan
 MyConc.should_be_constant_2 (tests/const_state_variables.sol#43) should be constant
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant[0m
 tests/const_state_variables.sol analyzed (3 contracts with 1 detectors), 6 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

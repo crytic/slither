@@ -10,3 +10,4 @@ Timestamp.bad2() (tests/timestamp.sol#13-15) uses timestamp for comparisons
 	- block.timestamp > 0 (tests/timestamp.sol#14)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp[0m
 tests/timestamp.sol analyzed (1 contracts with 1 detectors), 3 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m
