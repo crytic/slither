@@ -7,3 +7,4 @@ Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function in
 Token (tests/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.allowance(address,address) (tests/incorrect_erc20_interface.sol#9)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-erc20-interface[0m
 tests/incorrect_erc20_interface.sol analyzed (1 contracts with 1 detectors), 6 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

@@ -5,3 +5,4 @@ Contract locking ether found in :
 	But does not have a function to withdraw the ether
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether[0m
 tests/locked_ether-0.5.1.sol analyzed (4 contracts with 1 detectors), 1 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

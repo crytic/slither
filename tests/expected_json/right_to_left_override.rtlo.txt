@@ -3,4 +3,4 @@ tests/right_to_left_override.sol contains a unicode right-to-left-override chara
 	- b'        test1(/*A\xe2\x80\xae/*B*/2 , 1/*\xe2\x80\xad'
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#right-to-left-override-character[0m
 tests/right_to_left_override.sol analyzed (1 contracts with 1 detectors), 1 result(s) found
-INFO:Slither:[93m/home/travis/build/crytic/slither/scripts/../tests/expected_json/right_to_left_override.rtlo.json exists already, the overwrite is prevented[0m
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

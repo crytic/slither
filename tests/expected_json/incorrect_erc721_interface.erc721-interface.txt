@@ -11,3 +11,4 @@ Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function 
 Token (tests/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.isApprovedForAll(address,address) (tests/incorrect_erc721_interface.sol#15)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-erc721-interface[0m
 tests/incorrect_erc721_interface.sol analyzed (2 contracts with 1 detectors), 10 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

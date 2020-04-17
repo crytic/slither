@@ -7,3 +7,4 @@ Test.indirect() (tests/arbitrary_send-0.5.1.sol#19-21) sends eth to arbitrary us
 	- destination.send(address(this).balance) (tests/arbitrary_send-0.5.1.sol#20)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations[0m
 tests/arbitrary_send-0.5.1.sol analyzed (1 contracts with 1 detectors), 2 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m
