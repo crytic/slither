@@ -13,3 +13,4 @@ FurtherExtendedContract.shadowingParent(uint256).v (tests/shadowing_local_variab
 	- ExtendedContractv() (tests/shadowing_local_variable.sol#13) (event)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing[0m
 tests/shadowing_local_variable.sol analyzed (3 contracts with 1 detectors), 5 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

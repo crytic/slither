@@ -13,6 +13,8 @@ from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariableComposed)
 from slither.core.expressions import (Identifier, IndexAccess, MemberAccess,
                                       UnaryOperation)
+from slither.core.solidity_types import UserDefinedType
+from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 
 from slither.core.variables.state_variable import StateVariable
@@ -22,13 +24,13 @@ logger = logging.getLogger("Function")
 
 ReacheableNode = namedtuple('ReacheableNode', ['node', 'ir'])
 
+
 class ModifierStatements:
 
     def __init__(self, modifier, entry_point, nodes):
         self._modifier = modifier
         self._entry_point = entry_point
         self._nodes = nodes
-
 
     @property
     def modifier(self):
@@ -50,13 +52,15 @@ class ModifierStatements:
     def nodes(self, nodes):
         self._nodes = nodes
 
+
 class FunctionType(Enum):
     NORMAL = 0
     CONSTRUCTOR = 1
     FALLBACK = 2
     RECEIVE = 3
-    CONSTRUCTOR_VARIABLES = 10 # Fake function to hold variable declaration statements
+    CONSTRUCTOR_VARIABLES = 10  # Fake function to hold variable declaration statements
     CONSTRUCTOR_CONSTANT_VARIABLES = 11  # Fake function to hold variable declaration statements
+
 
 class Function(ChildContract, ChildInheritance, SourceMapping):
     """
@@ -76,7 +80,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._entry_point = None
         self._nodes = []
         self._variables = {}
-        self._slithir_variables = set() # slithir Temporary and references variables (but not SSA)
+        self._slithir_variables = set()  # slithir Temporary and references variables (but not SSA)
         self._parameters = []
         self._parameters_ssa = []
         self._parameters_src = None
@@ -173,7 +177,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             Return the function signature without the return values
         """
         name, parameters, _ = self.signature
-        return name+'('+','.join(parameters)+')'
+        return name + '(' + ','.join(parameters) + ')'
 
     @property
     def canonical_name(self):
@@ -360,8 +364,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         return self._is_empty
 
-
-
     # endregion
     ###################################################################################
     ###################################################################################
@@ -485,7 +487,8 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                             included.
         """
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
-        return [c.modifier.constructors_declared for c in self._explicit_base_constructor_calls if c.modifier.constructors_declared]
+        return [c.modifier.constructors_declared for c in self._explicit_base_constructor_calls if
+                c.modifier.constructors_declared]
 
     @property
     def explicit_base_constructor_calls_statements(self):
@@ -495,7 +498,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
         return list(self._explicit_base_constructor_calls)
-
 
     # endregion
     ###################################################################################
@@ -628,7 +630,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         return list(self._low_level_calls)
 
-
     @property
     def external_calls_as_expressions(self):
         """
@@ -726,13 +727,22 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     ###################################################################################
     ###################################################################################
 
+    @staticmethod
+    def _convert_type_for_signature(t: Type):
+        from slither.core.declarations.contract import Contract
+        if isinstance(t, UserDefinedType) and isinstance(t.type, Contract):
+            return "address"
+        return str(t)
+
     @property
     def signature(self):
         """
             (str, list(str), list(str)): Function signature as
             (name, list parameters type, list return values type)
         """
-        return self.name, [str(x.type) for x in self.parameters], [str(x.type) for x in self.returns]
+        return (self.name,
+                [self._convert_type_for_signature(x.type) for x in self.parameters],
+                [self._convert_type_for_signature(x.type) for x in self.returns])
 
     @property
     def signature_str(self):
@@ -741,7 +751,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             Return the function signature as a str (contains the return values)
         """
         name, parameters, returnVars = self.signature
-        return name+'('+','.join(parameters)+') returns('+','.join(returnVars)+')'
+        return name + '(' + ','.join(parameters) + ') returns(' + ','.join(returnVars) + ')'
 
     # endregion
     ###################################################################################
@@ -761,7 +771,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         candidates = [c.functions_declared for c in self.contract.inheritance]
         candidates = [candidate for sublist in candidates for candidate in sublist]
         return [f for f in candidates if f.full_name == self.full_name]
-
 
     # endregion
     ###################################################################################
@@ -811,7 +820,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
             values += f_new_values(f)
 
-            to_explore += [c for c in f.internal_calls if\
+            to_explore += [c for c in f.internal_calls if \
                            isinstance(c, Function) and c not in explored and c not in to_explore]
             to_explore += [c for (_, c) in f.library_calls if
                            isinstance(c, Function) and c not in explored and c not in to_explore]
@@ -1059,12 +1068,14 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         Args:
             filename (str)
         """
+
         def description(node):
-            desc ='{}\n'.format(node)
+            desc = '{}\n'.format(node)
             desc += 'id: {}'.format(node.node_id)
             if node.dominance_frontier:
                 desc += '\ndominance frontier: {}'.format([n.node_id for n in node.dominance_frontier])
             return desc
+
         with open(filename, 'w', encoding='utf8') as f:
             f.write('digraph{\n')
             for node in self.nodes:
@@ -1189,7 +1200,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         args_vars = self.all_solidity_variables_used_as_args()
         return SolidityVariableComposed('msg.sender') in conditional_vars + args_vars
 
-
     # endregion
     ###################################################################################
     ###################################################################################
@@ -1220,22 +1230,22 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         write_var = list(set(write_var))
         # Remove dupplicate if they share the same string representation
         write_var = [next(obj) for i, obj in groupby(sorted(write_var, key=lambda x: str(x)), lambda x: str(x))]
-        self._expression_vars_written =  write_var
+        self._expression_vars_written = write_var
 
         write_var = [x.variables_written for x in self.nodes]
         write_var = [x for x in write_var if x]
         write_var = [item for sublist in write_var for item in sublist]
         write_var = list(set(write_var))
         # Remove dupplicate if they share the same string representation
-        write_var = [next(obj) for i, obj in\
-                    groupby(sorted(write_var, key=lambda x: str(x)), lambda x: str(x))]
+        write_var = [next(obj) for i, obj in \
+                     groupby(sorted(write_var, key=lambda x: str(x)), lambda x: str(x))]
         self._vars_written = write_var
 
         read_var = [x.variables_read_as_expression for x in self.nodes]
         read_var = [x for x in read_var if x]
         read_var = [item for sublist in read_var for item in sublist]
         # Remove dupplicate if they share the same string representation
-        read_var = [next(obj) for i, obj in\
+        read_var = [next(obj) for i, obj in \
                     groupby(sorted(read_var, key=lambda x: str(x)), lambda x: str(x))]
         self._expression_vars_read = read_var
 
@@ -1243,15 +1253,15 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         read_var = [x for x in read_var if x]
         read_var = [item for sublist in read_var for item in sublist]
         # Remove dupplicate if they share the same string representation
-        read_var = [next(obj) for i, obj in\
+        read_var = [next(obj) for i, obj in \
                     groupby(sorted(read_var, key=lambda x: str(x)), lambda x: str(x))]
         self._vars_read = read_var
 
-        self._state_vars_written = [x for x in self.variables_written if\
+        self._state_vars_written = [x for x in self.variables_written if \
                                     isinstance(x, StateVariable)]
-        self._state_vars_read = [x for x in self.variables_read if\
-                                    isinstance(x, (StateVariable))]
-        self._solidity_vars_read = [x for x in self.variables_read if\
+        self._state_vars_read = [x for x in self.variables_read if \
+                                 isinstance(x, (StateVariable))]
+        self._solidity_vars_read = [x for x in self.variables_read if \
                                     isinstance(x, (SolidityVariable))]
 
         self._vars_read_or_written = self._vars_written + self._vars_read
@@ -1397,7 +1407,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     def generate_slithir_and_analyze(self):
         for node in self.nodes:
             node.slithir_generation()
-
 
         self._analyze_read_write()
         self._analyze_calls()

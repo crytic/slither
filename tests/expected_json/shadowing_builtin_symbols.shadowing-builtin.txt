@@ -14,3 +14,4 @@ FurtherExtendedContract.abi (tests/shadowing_builtin_symbols.sol#21) (state vari
 Reserved.mutable (tests/shadowing_builtin_symbols.sol#32) (state variable) shadows built-in symbol"
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#builtin-symbol-shadowing[0m
 tests/shadowing_builtin_symbols.sol analyzed (4 contracts with 1 detectors), 13 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m
