@@ -9,3 +9,4 @@ Test2.v (tests/uninitialized-0.5.1.sol#47) is never initialized. It is used in:
 	- Test2.init() (tests/uninitialized-0.5.1.sol#49-51)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-state-variables[0m
 tests/uninitialized-0.5.1.sol analyzed (4 contracts with 1 detectors), 4 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

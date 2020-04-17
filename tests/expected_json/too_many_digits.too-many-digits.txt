@@ -11,3 +11,4 @@ C.h() (tests/too_many_digits.sol#20-24) uses literals with too many digits:
 	- x2 = 100000 (tests/too_many_digits.sol#22)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits[0m
 tests/too_many_digits.sol analyzed (1 contracts with 1 detectors), 5 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m
