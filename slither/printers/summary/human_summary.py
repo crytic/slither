@@ -114,7 +114,7 @@ class PrinterHumanSummary(AbstractPrinter):
         else:
             txt += "Number of high issues: {}\n\n".format(green(issues_high))
 
-        return txt
+        return txt, issues_optimization, issues_informational, issues_low, issues_medium, issues_high
 
     @staticmethod
     def _is_complex_code(contract):
@@ -215,6 +215,7 @@ class PrinterHumanSummary(AbstractPrinter):
             'number_lines_assembly': 0,
             'standard_libraries': [],
             'ercs': [],
+            'number_findings': dict()
         }
 
         lines_number = self._lines_number()
@@ -230,7 +231,15 @@ class PrinterHumanSummary(AbstractPrinter):
         number_contracts, number_contracts_deps = self._number_contracts()
         txt += f'Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies) \n\n'
 
-        txt += self.get_detectors_result()
+        txt, optimization, info, low, medium, high = self.get_detectors_result()
+
+        results['number_findings'] = {
+            'optimization_issues': optimization,
+            'informational_issues': info,
+            'low_issues': low,
+            'medium_issues': medium,
+            'high_issues': high
+        }
 
         libs = self._standard_libraries()
         if libs:
@@ -258,14 +267,8 @@ class PrinterHumanSummary(AbstractPrinter):
 
         results_contract = output.Output('')
         for contract in self.slither.contracts_derived:
-            optimization, info, low, medium, high = self._get_detectors_result()
             contract_d = {'contract_name': contract.name,
                           'is_complex_code': self._is_complex_code(contract),
-                          'optimization_issues': optimization,
-                          'informational_issues': info,
-                          'low_issues': low,
-                          'medium_issues': medium,
-                          'high_issues': high,
                           'is_erc20': contract.is_erc20(),
                           'number_functions': self._number_functions(contract)}
             if contract_d['is_erc20']:
