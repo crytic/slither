@@ -340,7 +340,7 @@ def parse_args(detector_classes, printer_classes):
                             default=defaults_flag_in_config['zip'])
 
     group_misc.add_argument('--zip-type',
-                            help=f'Zip compression type. One of {",".join(ZIP_TYPES_ACCEPTED)}. Default lzma',
+                            help=f'Zip compression type. One of {",".join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma',
                             action='store',
                             default=defaults_flag_in_config['zip_type'])
 
@@ -531,8 +531,8 @@ def main_impl(all_detector_classes, all_printer_classes):
     outputting_json = args.json is not None
     outputting_json_stdout = args.json == '-'
     outputting_zip = args.zip is not None
-    if args.zip_type not in ZIP_TYPES_ACCEPTED:
-        logger.eror(f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED)}')
+    if args.zip_type not in ZIP_TYPES_ACCEPTED.keys():
+        logger.error(f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED.keys())}')
 
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
     # output.
