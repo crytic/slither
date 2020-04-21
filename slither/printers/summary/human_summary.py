@@ -2,6 +2,7 @@
 Module printing summary of the contract
 """
 import logging
+from typing import Tuple, List, Dict
 
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils import output
@@ -63,7 +64,7 @@ class PrinterHumanSummary(AbstractPrinter):
 
         return txt
 
-    def _get_detectors_result(self):
+    def _get_detectors_result(self) -> Tuple[List[Dict],int, int, int, int, int]:
         # disable detectors logger
         logger = logging.getLogger('Detectors')
         logger.setLevel(logging.ERROR)
@@ -94,27 +95,30 @@ class PrinterHumanSummary(AbstractPrinter):
         issues_high = [c for c in issues_high if c]
         issues_high = [item for sublist in issues_high for item in sublist]
 
-        return (len(issues_optimization),
+        all_results = issues_optimization + issues_informational + issues_low + issues_medium +  issues_high
+
+        return (all_results,
+                len(issues_optimization),
                 len(issues_informational),
                 len(issues_low),
                 len(issues_medium),
                 len(issues_high))
 
-    def get_detectors_result(self):
-        issues_optimization, issues_informational, issues_low, issues_medium, issues_high = self._get_detectors_result()
-        txt = "Number of optimization issues: {}\n".format(green(issues_optimization))
-        txt += "Number of informational issues: {}\n".format(green(issues_informational))
-        txt += "Number of low issues: {}\n".format(green(issues_low))
-        if issues_medium > 0:
-            txt += "Number of medium issues: {}\n".format(yellow(issues_medium))
+    def get_detectors_result(self) -> Tuple[str, List[Dict],int, int, int, int, int]:
+        all_results, optimization, informational, low, medium, high = self._get_detectors_result()
+        txt = "Number of optimization issues: {}\n".format(green(optimization))
+        txt += "Number of informational issues: {}\n".format(green(informational))
+        txt += "Number of low issues: {}\n".format(green(low))
+        if medium > 0:
+            txt += "Number of medium issues: {}\n".format(yellow(medium))
         else:
-            txt += "Number of medium issues: {}\n".format(green(issues_medium))
-        if issues_high > 0:
-            txt += "Number of high issues: {}\n".format(red(issues_high))
+            txt += "Number of medium issues: {}\n".format(green(medium))
+        if high > 0:
+            txt += "Number of high issues: {}\n".format(red(high))
         else:
-            txt += "Number of high issues: {}\n\n".format(green(issues_high))
+            txt += "Number of high issues: {}\n\n".format(green(high))
 
-        return txt
+        return txt, all_results, optimization, informational, low, medium, high
 
     @staticmethod
     def _is_complex_code(contract):
@@ -215,6 +219,8 @@ class PrinterHumanSummary(AbstractPrinter):
             'number_lines_assembly': 0,
             'standard_libraries': [],
             'ercs': [],
+            'number_findings': dict(),
+            'detectors': []
         }
 
         lines_number = self._lines_number()
@@ -230,7 +236,16 @@ class PrinterHumanSummary(AbstractPrinter):
         number_contracts, number_contracts_deps = self._number_contracts()
         txt += f'Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies) \n\n'
 
-        txt += self.get_detectors_result()
+        txt, detectors_results, optimization, info, low, medium, high = self.get_detectors_result()
+
+        results['number_findings'] = {
+            'optimization_issues': optimization,
+            'informational_issues': info,
+            'low_issues': low,
+            'medium_issues': medium,
+            'high_issues': high
+        }
+        results['detectors'] = detectors_results
 
         libs = self._standard_libraries()
         if libs:
@@ -258,14 +273,8 @@ class PrinterHumanSummary(AbstractPrinter):
 
         results_contract = output.Output('')
         for contract in self.slither.contracts_derived:
-            optimization, info, low, medium, high = self._get_detectors_result()
             contract_d = {'contract_name': contract.name,
                           'is_complex_code': self._is_complex_code(contract),
-                          'optimization_issues': optimization,
-                          'informational_issues': info,
-                          'low_issues': low,
-                          'medium_issues': medium,
-                          'high_issues': high,
                           'is_erc20': contract.is_erc20(),
                           'number_functions': self._number_functions(contract)}
             if contract_d['is_erc20']:
