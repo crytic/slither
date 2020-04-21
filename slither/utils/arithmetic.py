@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from slither.exceptions import SlitherException
 
 
@@ -5,9 +7,9 @@ def convert_subdenomination(value, sub):
 
     # to allow 0.1 ether conversion
     if value[0:2] == "0x":
-        value = float(int(value, 16))
+        value = Decimal(int(value, 16))
     else:
-        value = float(value)
+        value = Decimal(value)
     if sub == 'wei':
         return int(value)
     if sub == 'szabo':
