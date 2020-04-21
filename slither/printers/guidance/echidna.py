@@ -12,6 +12,7 @@ from slither.core.declarations.solidity_variables import SolidityVariableCompose
 from slither.core.expressions import NewContract
 from slither.core.slither_core import Slither
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slithir.operations import Member, Operation, SolidityCall, LowLevelCall, HighLevelCall, EventCall, Send, \
     Transfer, InternalDynamicCall, InternalCall, TypeConversion, Balance
@@ -79,7 +80,7 @@ def _is_constant(f: Function) -> bool:
                                                             SolidityFunction('suicide(address)')]:
             return False
         if isinstance(ir, HighLevelCall):
-            if ir.function.view or ir.function.pure:
+            if isinstance(ir.function, Variable) or ir.function.view or ir.function.pure:
                 # External call to constant functions are ensured to be constant only for solidity >= 0.5
                 if f.contract.slither.crytic_compile.compiler_version.version.startswith('0.4'):
                     return False

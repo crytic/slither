@@ -1,3 +1,5 @@
+from typing import Union
+
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
@@ -73,7 +75,7 @@ class HighLevelCall(Call, OperationWithLValue):
         return self._function_name
 
     @property
-    def function(self):
+    def function(self) -> Union[Function, Variable]:
         return self._function_instance
 
     @function.setter
