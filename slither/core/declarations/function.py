@@ -3,8 +3,8 @@
 """
 import logging
 from collections import namedtuple
-from itertools import groupby
 from enum import Enum
+from itertools import groupby
 
 from slither.core.children.child_contract import ChildContract
 from slither.core.children.child_inheritance import ChildInheritance
@@ -16,7 +16,6 @@ from slither.core.expressions import (Identifier, IndexAccess, MemberAccess,
 from slither.core.solidity_types import UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
-
 from slither.core.variables.state_variable import StateVariable
 from slither.utils.utils import unroll
 
@@ -728,11 +727,22 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     ###################################################################################
 
     @staticmethod
-    def _convert_type_for_signature(t: Type):
-        from slither.core.declarations.contract import Contract
+    def _convert_type_for_solidity_signature(t: Type):
+        from slither.core.declarations import Contract
         if isinstance(t, UserDefinedType) and isinstance(t.type, Contract):
             return "address"
         return str(t)
+
+    @property
+    def solidity_signature(self) -> str:
+        """
+        Return a signature following the Solidity Standard
+        Contract and converted into address
+        :return: the solidity signature
+        """
+        parameters = [self._convert_type_for_solidity_signature(x.type) for x in self.parameters]
+        return self.name + '(' + ','.join(parameters) + ')'
+
 
     @property
     def signature(self):
@@ -741,8 +751,8 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             (name, list parameters type, list return values type)
         """
         return (self.name,
-                [self._convert_type_for_signature(x.type) for x in self.parameters],
-                [self._convert_type_for_signature(x.type) for x in self.returns])
+                [str(x.type) for x in self.parameters],
+                [str(x.type) for x in self.returns])
 
     @property
     def signature_str(self):
