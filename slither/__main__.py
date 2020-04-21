@@ -19,7 +19,7 @@ from slither.detectors.abstract_detector import (AbstractDetector,
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
-from slither.utils.output import output_to_json
+from slither.utils.output import output_to_json, output_to_zip, ZIP_TYPES_ACCEPTED
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, blue, set_colorization_enabled
 from slither.utils.command_line import (output_detectors, output_results_to_markdown,
@@ -31,6 +31,7 @@ from slither.exceptions import SlitherException
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
+
 
 ###################################################################################
 ###################################################################################
@@ -63,7 +64,8 @@ def process_all(target, args, detector_classes, printer_classes):
     results_printers = []
     analyzed_contracts_count = 0
     for compilation in compilations:
-        (slither, current_results_detectors, current_results_printers, current_analyzed_count) = process_single(compilation, args, detector_classes, printer_classes)
+        (slither, current_results_detectors, current_results_printers, current_analyzed_count) = process_single(
+            compilation, args, detector_classes, printer_classes)
         results_detectors.extend(current_results_detectors)
         results_printers.extend(current_results_printers)
         slither_instances.append(slither)
@@ -106,8 +108,6 @@ def process_from_asts(filenames, args, detector_classes, printer_classes):
             all_contracts.append(contract_loaded['ast'])
 
     return process_single(all_contracts, args, detector_classes, printer_classes)
-
-
 
 
 # endregion
@@ -158,6 +158,7 @@ def get_detectors_and_printers():
         printers += list(plugin_printers)
 
     return detectors, printers
+
 
 def choose_detectors(args, all_detector_classes):
     # If detectors are specified, run only these ones
@@ -224,6 +225,7 @@ def choose_printers(args, all_printer_classes):
             raise Exception('Error: {} is not a printer'.format(p))
     return printers_to_run
 
+
 # endregion
 ###################################################################################
 ###################################################################################
@@ -238,8 +240,9 @@ def parse_filter_paths(args):
 
 
 def parse_args(detector_classes, printer_classes):
-    parser = argparse.ArgumentParser(description='Slither. For usage information, see https://github.com/crytic/slither/wiki/Usage',
-                                     usage="slither.py contract.sol [flag]")
+    parser = argparse.ArgumentParser(
+        description='Slither. For usage information, see https://github.com/crytic/slither/wiki/Usage',
+        usage="slither.py contract.sol [flag]")
 
     parser.add_argument('filename',
                         help='contract.sol')
@@ -258,7 +261,7 @@ def parse_args(detector_classes, printer_classes):
     group_detector.add_argument('--detect',
                                 help='Comma-separated list of detectors, defaults to all, '
                                      'available detectors: {}'.format(
-                                         ', '.join(d.ARGUMENT for d in detector_classes)),
+                                    ', '.join(d.ARGUMENT for d in detector_classes)),
                                 action='store',
                                 dest='detectors_to_run',
                                 default=defaults_flag_in_config['detectors_to_run'])
@@ -266,7 +269,7 @@ def parse_args(detector_classes, printer_classes):
     group_printer.add_argument('--print',
                                help='Comma-separated list fo contract information printers, '
                                     'available printers: {}'.format(
-                                        ', '.join(d.ARGUMENT for d in printer_classes)),
+                                   ', '.join(d.ARGUMENT for d in printer_classes)),
                                action='store',
                                dest='printers_to_run',
                                default=defaults_flag_in_config['printers_to_run'])
@@ -325,11 +328,21 @@ def parse_args(detector_classes, printer_classes):
                             default=defaults_flag_in_config['json'])
 
     group_misc.add_argument('--json-types',
-                            help=f'Comma-separated list of result types to output to JSON, defaults to ' +\
-                                 f'{",".join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. ' +\
+                            help=f'Comma-separated list of result types to output to JSON, defaults to ' + \
+                                 f'{",".join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. ' + \
                                  f'Available types: {",".join(output_type for output_type in JSON_OUTPUT_TYPES)}',
                             action='store',
                             default=defaults_flag_in_config['json-types'])
+
+    group_misc.add_argument('--zip',
+                            help='Export the results as a zipped JSON file',
+                            action='store',
+                            default=defaults_flag_in_config['zip'])
+
+    group_misc.add_argument('--zip-type',
+                            help=f'Zip compression type. One of {",".join(ZIP_TYPES_ACCEPTED)}. Default lzma',
+                            action='store',
+                            default=defaults_flag_in_config['zip_type'])
 
     group_misc.add_argument('--markdown-root',
                             help='URL for markdown generation',
@@ -429,11 +442,13 @@ def parse_args(detector_classes, printer_classes):
 
     return args
 
+
 class ListDetectors(argparse.Action):
     def __call__(self, parser, *args, **kwargs):
         detectors, _ = get_detectors_and_printers()
         output_detectors(detectors)
         parser.exit()
+
 
 class ListDetectorsJson(argparse.Action):
     def __call__(self, parser, *args, **kwargs):
@@ -442,17 +457,20 @@ class ListDetectorsJson(argparse.Action):
         print(json.dumps(detector_types_json))
         parser.exit()
 
+
 class ListPrinters(argparse.Action):
     def __call__(self, parser, *args, **kwargs):
         _, printers = get_detectors_and_printers()
         output_printers(printers)
         parser.exit()
 
+
 class OutputMarkdown(argparse.Action):
     def __call__(self, parser, args, values, option_string=None):
         detectors, printers = get_detectors_and_printers()
         output_to_markdown(detectors, printers, values)
         parser.exit()
+
 
 class OutputWiki(argparse.Action):
     def __call__(self, parser, args, values, option_string=None):
@@ -471,7 +489,7 @@ class OutputWiki(argparse.Action):
 
 class FormatterCryticCompile(logging.Formatter):
     def format(self, record):
-        #for i, msg in enumerate(record.msg):
+        # for i, msg in enumerate(record.msg):
         if record.msg.startswith('Compilation warnings/errors on '):
             txt = record.args[1]
             txt = txt.split('\n')
@@ -479,6 +497,7 @@ class FormatterCryticCompile(logging.Formatter):
             txt = '\n'.join(txt)
             record.args = (record.args[0], txt)
         return super().format(record)
+
 
 # endregion
 ###################################################################################
@@ -511,6 +530,9 @@ def main_impl(all_detector_classes, all_printer_classes):
     output_error = None
     outputting_json = args.json is not None
     outputting_json_stdout = args.json == '-'
+    outputting_zip = args.zip is not None
+    if args.zip_type not in ZIP_TYPES_ACCEPTED:
+        logger.eror(f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED)}')
 
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
     # output.
@@ -533,7 +555,7 @@ def main_impl(all_detector_classes, all_printer_classes):
                               ('TypeParsing', default_log),
                               ('SSA_Conversion', default_log),
                               ('Printers', default_log),
-                              #('CryticCompile', default_log)
+                              # ('CryticCompile', default_log)
                               ]:
         l = logging.getLogger(l_name)
         l.setLevel(l_level)
@@ -563,11 +585,15 @@ def main_impl(all_detector_classes, all_printer_classes):
 
             slither_instances = []
             if args.splitted:
-                (slither_instance, results_detectors, results_printers, number_contracts) = process_from_asts(filenames, args, detector_classes, printer_classes)
+                (slither_instance, results_detectors, results_printers, number_contracts) = process_from_asts(filenames,
+                                                                                                              args,
+                                                                                                              detector_classes,
+                                                                                                              printer_classes)
                 slither_instances.append(slither_instance)
             else:
                 for filename in filenames:
-                    (slither_instance, results_detectors_tmp, results_printers_tmp, number_contracts_tmp) = process_single(filename, args, detector_classes, printer_classes)
+                    (slither_instance, results_detectors_tmp, results_printers_tmp,
+                     number_contracts_tmp) = process_single(filename, args, detector_classes, printer_classes)
                     number_contracts += number_contracts_tmp
                     results_detectors += results_detectors_tmp
                     results_printers += results_printers_tmp
@@ -575,10 +601,12 @@ def main_impl(all_detector_classes, all_printer_classes):
 
         # Rely on CryticCompile to discern the underlying type of compilations.
         else:
-            (slither_instances, results_detectors, results_printers, number_contracts) = process_all(filename, args, detector_classes, printer_classes)
+            (slither_instances, results_detectors, results_printers, number_contracts) = process_all(filename, args,
+                                                                                                     detector_classes,
+                                                                                                     printer_classes)
 
         # Determine if we are outputting JSON
-        if outputting_json:
+        if outputting_json or outputting_zip:
             # Add our compilation information to JSON
             if 'compilations' in args.json_types:
                 compilation_results = []
@@ -642,6 +670,9 @@ def main_impl(all_detector_classes, all_printer_classes):
         StandardOutputCapture.disable()
         output_to_json(None if outputting_json_stdout else args.json, output_error, json_results)
 
+    if outputting_zip:
+        output_to_zip(args.zip, output_error, json_results, args.zip_type)
+
     # Exit with the appropriate status code
     if output_error:
         sys.exit(-1)
@@ -652,7 +683,4 @@ def main_impl(all_detector_classes, all_printer_classes):
 if __name__ == '__main__':
     main()
 
-
-
 # endregion
-
