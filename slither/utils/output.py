@@ -56,7 +56,10 @@ def output_to_json(filename, error, results):
 
 
 # https://docs.python.org/3/library/zipfile.html#zipfile-objects
-ZIP_TYPES_ACCEPTED = ['lzma', 'stored', 'deflated', 'bzip2']
+ZIP_TYPES_ACCEPTED = {'lzma': zipfile.ZIP_LZMA,
+                      'stored': zipfile.ZIP_STORED,
+                      'deflated': zipfile.ZIP_DEFLATED,
+                      'bzip2': zipfile.ZIP_BZIP2}
 
 
 def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: str = "lzma"):
@@ -78,19 +81,8 @@ def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: 
     if os.path.isfile(filename):
         logger.info(yellow(f'{filename} exists already, the overwrite is prevented'))
     else:
-        if zip_type == "lzma":
-            with ZipFile(filename, "w", compression=zipfile.ZIP_LZMA) as file_desc:
-                file_desc.writestr("slither_results.json", json.dumps(json_result).encode('utf8'))
-        elif zip_type == 'stored':
-            with ZipFile(filename, "w", compression=zipfile.ZIP_STORED) as file_desc:
-                file_desc.writestr("slither_results.json", json.dumps(json_result).encode('utf8'))
-        elif zip_type == 'deflated':
-            with ZipFile(filename, "w", compression=zipfile.ZIP_DEFLATED) as file_desc:
-                file_desc.writestr("slither_results.json", json.dumps(json_result).encode('utf8'))
-        else:
-            assert zip_type == 'bzip2'
-            with ZipFile(filename, "w", compression=zipfile.ZIP_BZIP2) as file_desc:
-                file_desc.writestr("slither_results.json", json.dumps(json_result).encode('utf8'))
+        with ZipFile(filename, "w", compression=ZIP_TYPES_ACCEPTED.get(zip_type, zipfile.ZIP_LZMA)) as file_desc:
+            file_desc.writestr("slither_results.json", json.dumps(json_result).encode('utf8'))
 
 
 # endregion
