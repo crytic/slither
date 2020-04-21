@@ -13,7 +13,6 @@ logger = logging.getLogger("Slither")
 DEFAULT_JSON_OUTPUT_TYPES = ["detectors", "printers"]
 JSON_OUTPUT_TYPES = ["compilations", "console", "detectors", "printers", "list-detectors", "list-printers"]
 
-
 # Those are the flags shared by the command line and the config file
 defaults_flag_in_config = {
     'detectors_to_run': 'all',
@@ -33,8 +32,11 @@ defaults_flag_in_config = {
     # debug command
     'legacy_ast': False,
     'ignore_return_value': False,
+    'zip': None,
+    'zip_type': 'lzma',
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE
-    }
+}
+
 
 def read_config_file(args):
     if os.path.isfile(args.config_file):
@@ -52,7 +54,6 @@ def read_config_file(args):
 
 
 def output_to_markdown(detector_classes, printer_classes, filter_wiki):
-
     def extract_help(cls):
         if cls.WIKI == '':
             return cls.HELP
@@ -97,6 +98,7 @@ def output_to_markdown(detector_classes, printer_classes, filter_wiki):
         print('{} | `{}` | {}'.format(idx, argument, help_info))
         idx = idx + 1
 
+
 def get_level(l):
     tab = l.count('\t') + 1
     if l.replace('\t', '').startswith(' -'):
@@ -104,6 +106,7 @@ def get_level(l):
     if l.replace('\t', '').startswith('-'):
         tab = tab + 1
     return tab
+
 
 def convert_result_to_markdown(txt):
     # -1 to remove the last \n
@@ -114,13 +117,14 @@ def convert_result_to_markdown(txt):
         next_level = get_level(l)
         prefix = '<li>'
         if next_level < level:
-            prefix = '</ul>'*(level - next_level) + prefix
+            prefix = '</ul>' * (level - next_level) + prefix
         if next_level > level:
-            prefix = '<ul>'*(next_level - level) + prefix
+            prefix = '<ul>' * (next_level - level) + prefix
         level = next_level
         ret.append(prefix + l)
 
     return ''.join(ret)
+
 
 def output_results_to_markdown(all_results):
     checks = defaultdict(list)
@@ -140,12 +144,13 @@ def output_results_to_markdown(all_results):
             result_markdown = convert_result_to_markdown(result)
             print(f'| <ul><li>[ ] TP</li><li>[ ] FP</li><li>[ ] Unknown</li></ul>  | {result_markdown}')
 
-def output_wiki(detector_classes, filter_wiki):
 
+def output_wiki(detector_classes, filter_wiki):
     detectors_list = []
 
     # Sort by impact, confidence, and name
-    detectors_list = sorted(detector_classes, key=lambda element: (element.IMPACT, element.CONFIDENCE, element.ARGUMENT))
+    detectors_list = sorted(detector_classes,
+                            key=lambda element: (element.IMPACT, element.CONFIDENCE, element.ARGUMENT))
 
     for detector in detectors_list:
         argument = detector.ARGUMENT
@@ -174,7 +179,6 @@ def output_wiki(detector_classes, filter_wiki):
             print(exploit_scenario)
         print('\n### Recommendation')
         print(recommendation)
-
 
 
 def output_detectors(detector_classes):
@@ -237,11 +241,12 @@ def output_detectors_json(detector_classes):
                       'impact': classification_txt[impact],
                       'confidence': confidence,
                       'wiki_url': wiki_url,
-                      'description':description,
-                      'exploit_scenario':exploit,
-                      'recommendation':recommendation})
+                      'description': description,
+                      'exploit_scenario': exploit,
+                      'recommendation': recommendation})
         idx = idx + 1
     return table
+
 
 def output_printers(printer_classes):
     printers_list = []
@@ -281,4 +286,3 @@ def output_printers_json(printer_classes):
                       'title': help_info})
         idx = idx + 1
     return table
-
