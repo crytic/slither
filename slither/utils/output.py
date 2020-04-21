@@ -2,7 +2,10 @@ import hashlib
 import os
 import json
 import logging
+import zipfile
 from collections import OrderedDict
+from typing import Optional, Dict
+from zipfile import ZipFile
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import Contract, Function, Enum, Event, Structure, Pragma
@@ -50,6 +53,44 @@ def output_to_json(filename, error, results):
         else:
             with open(filename, 'w', encoding='utf8') as f:
                 json.dump(json_result, f, indent=2)
+
+
+# https://docs.python.org/3/library/zipfile.html#zipfile-objects
+ZIP_TYPES_ACCEPTED = ['lzma', 'stored', 'deflated', 'bzip2']
+
+
+def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: str = "lzma"):
+    """
+    Output the results to a zip
+    The file in the zip is named slither_results.json
+    Note: the json file will not have indentation, as a result the resulting json file will be smaller
+    :param zip_type:
+    :param filename:
+    :param error:
+    :param results:
+    :return:
+    """
+    json_result = {
+        "success": error is None,
+        "error": error,
+        "results": results
+    }
+    if os.path.isfile(filename):
+        logger.info(yellow(f'{filename} exists already, the overwrite is prevented'))
+    else:
+        if zip_type == "lzma":
+            with ZipFile(filename, "w", compression=zipfile.ZIP_LZMA) as file_desc:
+                file_desc.writestr("slither_results.json", json.dumps(json_result).encode('utf8'))
+        elif zip_type == 'stored':
+            with ZipFile(filename, "w", compression=zipfile.ZIP_STORED) as file_desc:
+                file_desc.writestr("slither_results.json", json.dumps(json_result).encode('utf8'))
+        elif zip_type == 'deflated':
+            with ZipFile(filename, "w", compression=zipfile.ZIP_DEFLATED) as file_desc:
+                file_desc.writestr("slither_results.json", json.dumps(json_result).encode('utf8'))
+        else:
+            assert zip_type == 'bzip2'
+            with ZipFile(filename, "w", compression=zipfile.ZIP_BZIP2) as file_desc:
+                file_desc.writestr("slither_results.json", json.dumps(json_result).encode('utf8'))
 
 
 # endregion
@@ -102,6 +143,7 @@ def _convert_to_markdown(d, markdown_root):
 
     raise SlitherError(f'{type(d)} cannot be converted (no name, or canonical_name')
 
+
 def _convert_to_id(d):
     '''
     Id keeps the source mapping of the node, otherwise we risk to consider two different node as the same
@@ -130,6 +172,7 @@ def _convert_to_id(d):
         return f'{d.name}'
 
     raise SlitherError(f'{type(d)} cannot be converted (no name, or canonical_name')
+
 
 # endregion
 ###################################################################################
@@ -201,7 +244,6 @@ class Output:
 
         if additional_fields:
             self._data['additional_fields'] = additional_fields
-
 
     def add(self, add, additional_fields=None):
         if isinstance(add, Variable):
