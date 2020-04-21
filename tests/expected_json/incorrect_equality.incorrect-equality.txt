@@ -1,7 +1,7 @@
 [93m
-ERC20TestBalance.bad0(address) (tests/incorrect_equality.sol#21-23) uses a dangerous strict equality:
+ERC20TestBalance.bad0(ERC20Function) (tests/incorrect_equality.sol#21-23) uses a dangerous strict equality:
 	- require(bool)(erc.balanceOf(address(this)) == 10) (tests/incorrect_equality.sol#22)
-ERC20TestBalance.bad1(address) (tests/incorrect_equality.sol#25-27) uses a dangerous strict equality:
+ERC20TestBalance.bad1(ERC20Variable) (tests/incorrect_equality.sol#25-27) uses a dangerous strict equality:
 	- require(bool)(erc.balanceOf(msg.sender) == 10) (tests/incorrect_equality.sol#26)
 TestContractBalance.bad0() (tests/incorrect_equality.sol#32-35) uses a dangerous strict equality:
 	- require(bool)(address(address(this)).balance == 10000000000000000000) (tests/incorrect_equality.sol#33)

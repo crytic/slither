@@ -70,7 +70,7 @@
                   "ending_column": 2
                 }
               },
-              "signature": "test(address)"
+              "signature": "test(Target)"
             }
           },
           {
@@ -156,15 +156,15 @@
                       "ending_column": 2
                     }
                   },
-                  "signature": "test(address)"
+                  "signature": "test(Target)"
                 }
               }
             }
           }
         ],
-        "description": "User.test(address) (tests/unused_return.sol#17-29) ignores return value by t.f() (tests/unused_return.sol#18)\n",
-        "markdown": "[User.test(address)](tests/unused_return.sol#L17-L29) ignores return value by [t.f()](tests/unused_return.sol#L18)\n",
-        "id": "accd4d71c13bd3ecae16bfa554bf755bf5a8923080e640089970e00ead85d51c",
+        "description": "User.test(Target) (tests/unused_return.sol#17-29) ignores return value by t.f() (tests/unused_return.sol#18)\n",
+        "markdown": "[User.test(Target)](tests/unused_return.sol#L17-L29) ignores return value by [t.f()](tests/unused_return.sol#L18)\n",
+        "id": "69f2810e24dbba754b406ce8b47e37543e9e491c0aa60d4dd2198c960e82b096",
         "check": "unused-return",
         "impact": "Medium",
         "confidence": "Medium"
@@ -236,7 +236,7 @@
                   "ending_column": 2
                 }
               },
-              "signature": "test(address)"
+              "signature": "test(Target)"
             }
           },
           {
@@ -322,15 +322,15 @@
                       "ending_column": 2
                     }
                   },
-                  "signature": "test(address)"
+                  "signature": "test(Target)"
                 }
               }
             }
           }
         ],
-        "description": "User.test(address) (tests/unused_return.sol#17-29) ignores return value by a.add(0) (tests/unused_return.sol#22)\n",
-        "markdown": "[User.test(address)](tests/unused_return.sol#L17-L29) ignores return value by [a.add(0)](tests/unused_return.sol#L22)\n",
-        "id": "78b4f6169d988d70d342626d7bc77ba6e04f9f256a2379949de6f5081d72c752",
+        "description": "User.test(Target) (tests/unused_return.sol#17-29) ignores return value by a.add(0) (tests/unused_return.sol#22)\n",
+        "markdown": "[User.test(Target)](tests/unused_return.sol#L17-L29) ignores return value by [a.add(0)](tests/unused_return.sol#L22)\n",
+        "id": "502f40d2e259e5e0268547489b716077dff7ce3df82fb05eb76ccb5ffa38f72b",
         "check": "unused-return",
         "impact": "Medium",
         "confidence": "Medium"

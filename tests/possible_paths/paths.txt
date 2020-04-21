@@ -4,11 +4,11 @@ Target functions:
 
 The following functions reach the specified targets:
 - A.call()
-- B.call2(address)
+- B.call2(A)
 
 
 The following paths reach the specified targets:
 A.call() -> A.destination()
 
-B.call2(address) -> A.call() -> A.destination()
+B.call2(A) -> A.call() -> A.destination()
 

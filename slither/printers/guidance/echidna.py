@@ -22,7 +22,7 @@ from slither.slithir.variables import Constant
 def _get_name(f: Function) -> str:
     if f.is_fallback or f.is_receive:
         return f'()'
-    return f.full_name
+    return f.solidity_signature
 
 
 def _extract_payable(slither: Slither) -> Dict[str, List[str]]:

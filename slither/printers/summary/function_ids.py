@@ -27,7 +27,7 @@ class FunctionIds(AbstractPrinter):
             table = PrettyTable(['Name', 'ID'])
             for function in contract.functions:
                 if function.visibility in ['public', 'external']:
-                    table.add_row([function.full_name, hex(get_function_id(function.full_name))])
+                    table.add_row([function.solidity_signature, hex(get_function_id(function.solidity_signature))])
             for variable in contract.state_variables:
                 if variable.visibility in ['public']:
                     sig = variable.function_name
