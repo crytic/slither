@@ -2,8 +2,8 @@
     Module printing summary of the contract
 """
 
-from prettytable import PrettyTable
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils.myprettytable import MyPrettyTable
 
 
 class VariableOrder(AbstractPrinter):
@@ -26,7 +26,7 @@ class VariableOrder(AbstractPrinter):
 
         for contract in self.slither.contracts_derived:
             txt += '\n{}:\n'.format(contract.name)
-            table = PrettyTable(['Name', 'Type'])
+            table = MyPrettyTable(['Name', 'Type'])
             for variable in contract.state_variables_ordered:
                 if not variable.is_constant:
                     table.add_row([variable.canonical_name, str(variable.type)])
