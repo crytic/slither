@@ -2,10 +2,10 @@
     Module printing summary of the contract
 """
 
-from prettytable import PrettyTable
 from slither.core.declarations import SolidityFunction
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slithir.operations import SolidityCall
+from slither.utils.myprettytable import MyPrettyTable
 
 require_or_assert = [SolidityFunction("assert(bool)"),
                      SolidityFunction("require(bool)"),
@@ -33,8 +33,8 @@ class RequireOrAssert(AbstractPrinter):
         all_txt = ''
         for contract in self.slither.contracts_derived:
             txt = "\nContract %s"%contract.name
-            table = PrettyTable(["Function",
-                                 "require or assert"])
+            table = MyPrettyTable(["Function",
+                                   "require or assert"])
             for function in contract.functions:
                 require = function.all_slithir_operations()
                 require = [ir for ir in require if isinstance(ir, SolidityCall) and ir.function in require_or_assert]

@@ -13,6 +13,7 @@ from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
+from slither.utils.myprettytable import MyPrettyTable
 
 logger = logging.getLogger("Slither")
 
@@ -22,6 +23,7 @@ logger = logging.getLogger("Slither")
 # region Output
 ###################################################################################
 ###################################################################################
+
 
 def output_to_json(filename, error, results):
     """
@@ -467,11 +469,11 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_pretty_table(self, content, name, additional_fields=None):
+    def add_pretty_table(self, content: MyPrettyTable, name, additional_fields=None):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
-            'content': content,
+            'content': content.to_json(),
             'name': name
         }
         element = _create_base_element('pretty_table',

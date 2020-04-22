@@ -1,6 +1,5 @@
-from prettytable import PrettyTable
-
 from slither.tools.upgradeability.checks.abstract_checks import classification_txt
+from slither.utils.myprettytable import MyPrettyTable
 
 
 def output_wiki(detector_classes, filter_wiki):
@@ -39,12 +38,12 @@ def output_detectors(detector_classes):
         require_proxy = detector.REQUIRE_PROXY
         require_v2 = detector.REQUIRE_CONTRACT_V2
         detectors_list.append((argument, help_info, impact, require_proxy, require_v2))
-    table = PrettyTable(["Num",
-                         "Check",
-                         "What it Detects",
-                         "Impact",
-                         "Proxy",
-                         "Contract V2"])
+    table = MyPrettyTable(["Num",
+                           "Check",
+                           "What it Detects",
+                           "Impact",
+                           "Proxy",
+                           "Contract V2"])
 
     # Sort by impact, confidence, and name
     detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[0]))
