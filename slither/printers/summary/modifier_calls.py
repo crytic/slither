@@ -2,9 +2,9 @@
     Module printing summary of the contract
 """
 
-from prettytable import PrettyTable
 from slither.core.declarations import Function
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils.myprettytable import MyPrettyTable
 
 
 class Modifiers(AbstractPrinter):
@@ -26,8 +26,8 @@ class Modifiers(AbstractPrinter):
 
         for contract in self.slither.contracts_derived:
             txt = "\nContract %s"%contract.name
-            table = PrettyTable(["Function",
-                                 "Modifiers"])
+            table = MyPrettyTable(["Function",
+                                   "Modifiers"])
             for function in contract.functions:
                 modifiers = function.modifiers
                 for call in function.all_internal_calls():

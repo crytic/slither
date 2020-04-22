@@ -1,10 +1,10 @@
 """
     Module printing summary of the contract
 """
-from prettytable import PrettyTable
-
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.function import get_function_id
+from slither.utils.myprettytable import MyPrettyTable
+
 
 class FunctionIds(AbstractPrinter):
 
@@ -24,7 +24,7 @@ class FunctionIds(AbstractPrinter):
         all_tables = []
         for contract in self.slither.contracts_derived:
             txt += '\n{}:\n'.format(contract.name)
-            table = PrettyTable(['Name', 'ID'])
+            table = MyPrettyTable(['Name', 'ID'])
             for function in contract.functions:
                 if function.visibility in ['public', 'external']:
                     table.add_row([function.solidity_signature, hex(get_function_id(function.solidity_signature))])

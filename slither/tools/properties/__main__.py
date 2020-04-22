@@ -1,9 +1,6 @@
-import os
 import argparse
 import logging
 import sys
-
-from prettytable import PrettyTable
 
 from slither import Slither
 from crytic_compile import cryticparser
@@ -11,6 +8,7 @@ from crytic_compile import cryticparser
 from slither.tools.properties.addresses.address import Addresses
 from slither.tools.properties.properties.erc20 import generate_erc20, ERC20_PROPERTIES
 from slither.tools.properties.addresses.address import OWNER_ADDRESS, USER_ADDRESS, ATTACKER_ADDRESS
+from slither.utils.myprettytable import MyPrettyTable
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
@@ -33,7 +31,7 @@ def _all_scenarios():
     return txt
 
 def _all_properties():
-    table = PrettyTable(["Num", "Description", "Scenario"])
+    table = MyPrettyTable(["Num", "Description", "Scenario"])
     idx = 0
     for scenario, value in ERC20_PROPERTIES.items():
         for prop in value.properties:
