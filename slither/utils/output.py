@@ -4,6 +4,8 @@ import json
 import logging
 import zipfile
 from collections import OrderedDict
+from bs4 import BeautifulSoup
+from prettytable import PrettyTable
 from typing import Optional, Dict
 from zipfile import ZipFile
 
@@ -32,6 +34,29 @@ def output_to_json(filename, error, results):
     :param logger: Logger where to log potential info
     :return:
     """
+    if "printers" in results :
+        for i in results['printers'] :
+            for k in i['elements'] :
+                if type(k['name']['content']) == PrettyTable:
+                    table = k['name']['content'].get_html_string()
+                    model = BeautifulSoup(table, features='lxml')
+                    fields = []
+                    table_data = []
+                    for tr in model.table.find_all('tr', recursive=False):
+                        for th in tr.find_all('th', recursive=False):
+                            fields.append(th.text)
+                    for tr in model.table.find_all('tr', recursive=False):
+                        datum = {}
+                        for i, td in enumerate(tr.find_all('td', recursive=False)):
+                            datum[fields[i]] = td.text
+                        if datum:
+                            table_data.append(datum)
+                    k['name'].pop('content', None)
+                    k.pop('source_mapping', None)
+                    k.pop('type', None)
+                    k['name'] = k['name']['name']
+                    k['content'] = table_data
+    
     # Create our encapsulated JSON result.
     json_result = {
         "success": error is None,
