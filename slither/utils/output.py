@@ -37,7 +37,7 @@ def output_to_json(filename, error, results):
     if "printers" in results :
         for i in results['printers'] :
             for k in i['elements'] :
-                if type(k['name']['content']) == PrettyTable:
+                if "content" in k['name'] and type(k['name']['content']) == PrettyTable:
                     table = k['name']['content'].get_html_string()
                     model = BeautifulSoup(table, features='lxml')
                     fields = []
