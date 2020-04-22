@@ -3,20 +3,19 @@
 
 import json
 from collections import defaultdict
-from typing import Dict, List, Set, Tuple, Union, NamedTuple
+from typing import Dict, List, Set, Tuple, NamedTuple
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction, SolidityVariable
 from slither.core.expressions import NewContract
-from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction, SolidityVariable
 from slither.core.slither_core import Slither
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
-from slither.core.variables.state_variable import StateVariable
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.slithir.operations import AccessMember, Operation
+from slither.slithir.operations import AccessMember, Operation, InternalDynamicCall, EventCall, LowLevelCall, Send, \
+    Transfer, HighLevelCall, InternalCall, SolidityCall, Balance, TypeConversion
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables import Constant
 
