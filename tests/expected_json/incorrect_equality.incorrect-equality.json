@@ -61,7 +61,7 @@
                   "ending_column": 2
                 }
               },
-              "signature": "bad0(address)"
+              "signature": "bad0(ERC20Function)"
             }
           },
           {
@@ -138,15 +138,15 @@
                       "ending_column": 2
                     }
                   },
-                  "signature": "bad0(address)"
+                  "signature": "bad0(ERC20Function)"
                 }
               }
             }
           }
         ],
-        "description": "ERC20TestBalance.bad0(address) (tests/incorrect_equality.sol#21-23) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(address(this)) == 10) (tests/incorrect_equality.sol#22)\n",
-        "markdown": "[ERC20TestBalance.bad0(address)](tests/incorrect_equality.sol#L21-L23) uses a dangerous strict equality:\n\t- [require(bool)(erc.balanceOf(address(this)) == 10)](tests/incorrect_equality.sol#L22)\n",
-        "id": "15f4a74f8bfef6d5ccb8053319e212576a8f453ca411bbde81fecac9dd9c7581",
+        "description": "ERC20TestBalance.bad0(ERC20Function) (tests/incorrect_equality.sol#21-23) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(address(this)) == 10) (tests/incorrect_equality.sol#22)\n",
+        "markdown": "[ERC20TestBalance.bad0(ERC20Function)](tests/incorrect_equality.sol#L21-L23) uses a dangerous strict equality:\n\t- [require(bool)(erc.balanceOf(address(this)) == 10)](tests/incorrect_equality.sol#L22)\n",
+        "id": "75aa0ac0f7038b6a92030dee5c4c8f4cc6ab3f491558e18c61b6db5fbbf971e4",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
@@ -209,7 +209,7 @@
                   "ending_column": 2
                 }
               },
-              "signature": "bad1(address)"
+              "signature": "bad1(ERC20Variable)"
             }
           },
           {
@@ -286,15 +286,15 @@
                       "ending_column": 2
                     }
                   },
-                  "signature": "bad1(address)"
+                  "signature": "bad1(ERC20Variable)"
                 }
               }
             }
           }
         ],
-        "description": "ERC20TestBalance.bad1(address) (tests/incorrect_equality.sol#25-27) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(msg.sender) == 10) (tests/incorrect_equality.sol#26)\n",
-        "markdown": "[ERC20TestBalance.bad1(address)](tests/incorrect_equality.sol#L25-L27) uses a dangerous strict equality:\n\t- [require(bool)(erc.balanceOf(msg.sender) == 10)](tests/incorrect_equality.sol#L26)\n",
-        "id": "0f24486a6a14e20f6afccb0450cfcd9580308cef29fe011e05fb6a83aaa24da5",
+        "description": "ERC20TestBalance.bad1(ERC20Variable) (tests/incorrect_equality.sol#25-27) uses a dangerous strict equality:\n\t- require(bool)(erc.balanceOf(msg.sender) == 10) (tests/incorrect_equality.sol#26)\n",
+        "markdown": "[ERC20TestBalance.bad1(ERC20Variable)](tests/incorrect_equality.sol#L25-L27) uses a dangerous strict equality:\n\t- [require(bool)(erc.balanceOf(msg.sender) == 10)](tests/incorrect_equality.sol#L26)\n",
+        "id": "747d47c020b94e00fa06cc310b205306c37fda3811bafde5ee820ff84656127e",
         "check": "incorrect-equality",
         "impact": "Medium",
         "confidence": "High"
