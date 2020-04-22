@@ -3,8 +3,8 @@
 """
 import logging
 from collections import namedtuple
-from itertools import groupby
 from enum import Enum
+from itertools import groupby
 from typing import Dict
 
 from slither.core.children.child_contract import ChildContract
@@ -14,6 +14,8 @@ from slither.core.declarations.solidity_variables import (SolidityFunction,
                                                           SolidityVariableComposed)
 from slither.core.expressions import (Identifier, IndexAccess, MemberAccess,
                                       UnaryOperation)
+from slither.core.solidity_types import UserDefinedType
+from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 
@@ -627,7 +629,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
             list(SolidityFunction): List of Soldity calls
         """
-        return list(self._internal_calls)
+        return list(self._solidity_calls)
 
     @property
     def high_level_calls(self):
@@ -753,13 +755,33 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     ###################################################################################
     ###################################################################################
 
+    @staticmethod
+    def _convert_type_for_solidity_signature(t: Type):
+        from slither.core.declarations import Contract
+        if isinstance(t, UserDefinedType) and isinstance(t.type, Contract):
+            return "address"
+        return str(t)
+
+    @property
+    def solidity_signature(self) -> str:
+        """
+        Return a signature following the Solidity Standard
+        Contract and converted into address
+        :return: the solidity signature
+        """
+        parameters = [self._convert_type_for_solidity_signature(x.type) for x in self.parameters]
+        return self.name + '(' + ','.join(parameters) + ')'
+
+
     @property
     def signature(self):
         """
             (str, list(str), list(str)): Function signature as
             (name, list parameters type, list return values type)
         """
-        return self.name, [str(x.type) for x in self.parameters], [str(x.type) for x in self.returns]
+        return (self.name,
+                [str(x.type) for x in self.parameters],
+                [str(x.type) for x in self.returns])
 
     @property
     def signature_str(self):
@@ -1079,29 +1101,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
             f.write("}\n")
 
-    def slithir_cfg_to_dot(self, filename):
-        """
-            Export the function to a dot file
-        Args:
-            filename (str)
-        """
-        from slither.core.cfg.node import NodeType
-        content = ''
-        with open(filename, 'w', encoding='utf8') as f:
-            content += 'digraph{\n'
-            for node in self.nodes:
-                label = 'Node Type: {} {}\n'.format(NodeType.str(node.type), node.node_id)
-                if node.expression:
-                    label += '\nEXPRESSION:\n{}\n'.format(node.expression)
-                if node.irs:
-                    label += '\nIRs:\n' + '\n'.join([str(ir) for ir in node.irs])
-                content += '{}[label="{}"];\n'.format(node.node_id, label)
-                for son in node.sons:
-                    content += '{}->{};\n'.format(node.node_id, son.node_id)
-
-            content += "}\n"
-        return content
-
     def dominator_tree_to_dot(self, filename):
         """
             Export the dominator tree of the function to a dot file
@@ -1124,6 +1123,46 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                     f.write('{}->{};\n'.format(node.immediate_dominator.node_id, node.node_id))
 
             f.write("}\n")
+
+    def slithir_cfg_to_dot(self, filename):
+        """
+        Export the CFG to a DOT file. The nodes includes the Solidity expressions and the IRs
+        :param filename:
+        :return:
+        """
+        content = self.slithir_cfg_to_dot_str()
+        with open(filename, 'w', encoding='utf8') as f:
+            f.write(content)
+
+    def slithir_cfg_to_dot_str(self) -> str:
+        """
+        Export the CFG to a DOT format. The nodes includes the Solidity expressions and the IRs
+        :return: the DOT content
+        :rtype: str
+        """
+        from slither.core.cfg.node import NodeType
+        content = ''
+        content += 'digraph{\n'
+        for node in self.nodes:
+            label = 'Node Type: {} {}\n'.format(NodeType.str(node.type), node.node_id)
+            if node.expression:
+                label += '\nEXPRESSION:\n{}\n'.format(node.expression)
+            if node.irs:
+                label += '\nIRs:\n' + '\n'.join([str(ir) for ir in node.irs])
+            content += '{}[label="{}"];\n'.format(node.node_id, label)
+            if node.type == NodeType.IF:
+                true_node = node.son_true
+                if true_node:
+                    content += '{}->{}[label="True"];\n'.format(node.node_id, true_node.node_id)
+                false_node = node.son_false
+                if false_node:
+                    content += '{}->{}[label="False"];\n'.format(node.node_id, false_node.node_id)
+            else:
+                for son in node.sons:
+                    content += '{}->{};\n'.format(node.node_id, son.node_id)
+
+        content += "}\n"
+        return content
 
     # endregion
     ###################################################################################

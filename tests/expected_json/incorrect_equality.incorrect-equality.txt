@@ -25,3 +25,4 @@ TestSolidityKeyword.bad2() (tests/incorrect_equality.sol#131-133) uses a dangero
 	- require(bool)(block.number == 0) (tests/incorrect_equality.sol#132)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-strict-equalities[0m
 tests/incorrect_equality.sol analyzed (5 contracts with 1 detectors), 12 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

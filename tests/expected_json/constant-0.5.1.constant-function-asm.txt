@@ -1,0 +1,2 @@
+tests/constant-0.5.1.sol analyzed (1 contracts with 1 detectors), 0 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

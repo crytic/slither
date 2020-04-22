@@ -3,3 +3,4 @@ User.test(Target) (tests/unused_return.sol#17-29) ignores return value by t.f() 
 User.test(Target) (tests/unused_return.sol#17-29) ignores return value by a.add(0) (tests/unused_return.sol#22)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return[0m
 tests/unused_return.sol analyzed (3 contracts with 1 detectors), 2 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

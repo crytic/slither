@@ -3,3 +3,4 @@ Low level call in Sender.send(address) (tests/low_level_calls.sol#5-7):
 	- _receiver.call.value(msg.value).gas(7777)() (tests/low_level_calls.sol#6)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls[0m
 tests/low_level_calls.sol analyzed (2 contracts with 1 detectors), 1 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

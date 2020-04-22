@@ -2,3 +2,4 @@
 MyConc.bad(address) (tests/unchecked_send-0.5.1.sol#2-4) ignores return value by dst.send(msg.value) (tests/unchecked_send-0.5.1.sol#3)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-send[0m
 tests/unchecked_send-0.5.1.sol analyzed (1 contracts with 1 detectors), 1 result(s) found
+[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

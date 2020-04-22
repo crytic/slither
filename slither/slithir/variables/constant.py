@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from .variable import SlithIRVariable
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
 from slither.utils.arithmetic import convert_subdenomination
@@ -23,12 +25,12 @@ class Constant(SlithIRVariable):
                 else:
                     if 'e' in val:
                         base, expo = val.split('e')
-                        self._val = int(float(base)* (10 ** int(expo)))
+                        self._val = int(Decimal(base) * (10 ** int(expo)))
                     elif 'E' in val:
                         base, expo = val.split('E')
-                        self._val = int(float(base) * (10 ** int(expo)))
+                        self._val = int(Decimal(base) * (10 ** int(expo)))
                     else:
-                        self._val = int(float(val))
+                        self._val = int(Decimal(val))
             elif type.type == 'bool':
                 self._val = (val == 'true') | (val == 'True')
             else:
@@ -36,7 +38,7 @@ class Constant(SlithIRVariable):
         else:
             if val.isdigit():
                 self._type = ElementaryType('uint256')
-                self._val = int(val)
+                self._val = int(Decimal(val))
             else:
                 self._type = ElementaryType('string')
                 self._val = val

@@ -1,3 +1,5 @@
+from typing import Union
+
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
@@ -73,7 +75,7 @@ class HighLevelCall(Call, OperationWithLValue):
         return self._function_name
 
     @property
-    def function(self):
+    def function(self) -> Union[Function, Variable]:
         return self._function_instance
 
     @function.setter
@@ -103,7 +105,7 @@ class HighLevelCall(Call, OperationWithLValue):
         :return: bool
         '''
         # If solidity >0.5, STATICCALL is used
-        if self.slither.solc_version and self.slither.solc_version.startswith('0.5.'):
+        if self.slither.solc_version and self.slither.solc_version >= '0.5.0':
             if isinstance(self.function, Function) and (self.function.view or self.function.pure):
                 return False
             if isinstance(self.function, Variable):
