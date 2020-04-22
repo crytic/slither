@@ -1,5 +1,6 @@
 import logging
-from collections import namedtuple
+from collections import namedtuple, defaultdict
+from typing import Dict, List
 
 from slither.core.cfg.node import NodeType, Node
 from slither.core.declarations import (Contract, Enum, Function,
@@ -7,6 +8,7 @@ from slither.core.declarations import (Contract, Enum, Function,
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (Assignment, Balance, Binary, Condition,
                                         Delete, EventCall, HighLevelCall,
@@ -189,7 +191,7 @@ def add_ssa_ir(function, all_state_variables_instances):
                           all_state_variables_instances,
                           init_local_variables_instances)
 
-    generate_ssa_irs(function.entry_point, instances, [])
+    generate_ssa_irs(function.entry_point, instances, [], defaultdict(list))
 
     # We do this at the end
     # Because resolving rvalue of phi operation might require to have generated all the other ssa IRs
@@ -206,7 +208,15 @@ def add_ssa_ir(function, all_state_variables_instances):
             update_rvalues(ir_ssa, instances)
 
 
-def generate_ssa_irs(node, instances, visited):
+def generate_ssa_irs(node, instances, visited, storage_aliases: Dict[LocalIRVariable, List[Variable]]):
+    """
+
+    :param node:
+    :param instances:
+    :param visited:
+    :param storage_aliases:
+    :return:
+    """
     if node in visited:
         return
 
@@ -222,6 +232,13 @@ def generate_ssa_irs(node, instances, visited):
     for ir in node.irs_ssa:
         assert isinstance(ir, Phi)
         update_lvalue(ir, node, instances, instances_temporary)
+
+        # Collect storage aliases
+        # This is a large over approximation
+        # But might be ok as storage aliases usually dont point to so many objects
+        if isinstance(ir.lvalue, LocalIRVariable) and ir.lvalue.is_storage:
+            for alias in storage_aliases[ir.lvalue.non_ssa_version]:
+                ir.lvalue.add_refers_to(alias)
 
     for ir in node.irs:
 
@@ -262,11 +279,15 @@ def generate_ssa_irs(node, instances, visited):
             if isinstance(new_ir, (Assignment, Binary)):
                 if isinstance(new_ir.lvalue, LocalIRVariable):
                     if new_ir.lvalue.is_storage:
-                        # if isinstance(new_ir.rvalue, (IndexVariable, MemberVariable)):
-                        #     refers_to = new_ir.rvalue.points_to_origin
-                        #     new_ir.lvalue.add_refers_to(refers_to)
-                        # else:
+                        # Collect direct storage alias
                         new_ir.lvalue.add_refers_to(new_ir.rvalue)
+                        # Collect indirect alias
+                        # if(cond)
+                        #   ref = ob1
+                        # else
+                        #   ref = ob2
+                        # The add_refers_to will be then fixed on the Phi() operator on ref
+                        storage_aliases[new_ir.lvalue.non_ssa_version].append(new_ir.rvalue)
 
     for dom in node.dominance_exploration_ordered:
         new_instances = Instances(dict(instances.local_variables),
@@ -275,8 +296,7 @@ def generate_ssa_irs(node, instances, visited):
                                   instances.all_state_variables,
                                   instances.init_local_variables)
 
-        generate_ssa_irs(dom, new_instances, visited)
-
+        generate_ssa_irs(dom, new_instances, visited, storage_aliases)
 
 
 # endregion
@@ -392,6 +412,7 @@ def create_new_var(var, instances, instances_temporary):
 def update_lvalue(new_ir, node, instances, instances_temporary):
     _update_lvalue(new_ir, node, instances, instances_temporary)
 
+
 def update_refers_to(new_ir):
     if isinstance(new_ir.lvalue, LocalIRVariable):
         if new_ir.lvalue.is_storage:
@@ -400,7 +421,8 @@ def update_refers_to(new_ir):
             new_ir.lvalue.refers_to = set(l)
 
 
-def create_phi_member(base, member: Constant, new_vals, node: Node, instances, instances_temporary, keep_previous=False):
+def create_phi_member(base, member: Constant, new_vals, node: Node, instances, instances_temporary,
+                      keep_previous=False):
     new_var = create_new_var(base, instances, instances_temporary)
 
     phi_info = base.ssa_phi_info
@@ -427,7 +449,7 @@ def create_phi_index(base, offset, new_vals, node, instances, instances_temporar
     if keep_previous:
         phi = PhiMemberMay(new_var, base, {node}, dict(phi_info))
     else:
-        phi = PhiMemberMust(new_var,  base, {node}, dict(phi_info))
+        phi = PhiMemberMust(new_var, base, {node}, dict(phi_info))
     phi.rvalues = [base]
     update_refers_to(phi)
     node.add_ssa_ir(phi)
@@ -498,6 +520,7 @@ def _update_lvalue(new_ir: Operation, node: Node, instances, instances_temporary
 
     if isinstance(new_ir, (Phi, PhiCallback)):
         update_refers_to(new_ir)
+
 
 def update_rvalues(ir, instances):
     if isinstance(ir, Phi) and not ir.rvalues:

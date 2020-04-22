@@ -874,7 +874,6 @@ class Graph:
                         break
                 else:
                     st = _points_to_structure(pointer)
-                    print(f'St: {st}')
                     if st:
                         if member in st.elems:
                             valid_members.append(member)
