@@ -35,15 +35,29 @@ def set_val(expression, val):
     expression.context[key] = val
 
 
+_assign_to_binary = {
+    AssignmentOperationType.ASSIGN_MULTIPLICATION: BinaryType.MULTIPLICATION,
+    AssignmentOperationType.ASSIGN_DIVISION: BinaryType.DIVISION,
+    AssignmentOperationType.ASSIGN_MODULO: BinaryType.MODULO,
+    AssignmentOperationType.ASSIGN_ADDITION: BinaryType.ADDITION,
+    AssignmentOperationType.ASSIGN_SUBTRACTION: BinaryType.SUBTRACTION,
+    AssignmentOperationType.ASSIGN_LEFT_SHIFT: BinaryType.LEFT_SHIFT,
+    AssignmentOperationType.ASSIGN_RIGHT_SHIFT: BinaryType.RIGHT_SHIFT,
+    AssignmentOperationType.ASSIGN_AND: BinaryType.AND,
+    AssignmentOperationType.ASSIGN_CARET: BinaryType.CARET,
+    AssignmentOperationType.ASSIGN_OR: BinaryType.OR
+}
+
+
 def convert_assignement_member(left, right, t):
     operations = []
 
     if t == AssignmentOperationType.ASSIGN:
         operations.append(UpdateMember(left.base, left.member, right))
 
-    elif t == AssignmentOperationType.ASSIGN_ADDITION:
+    elif t in _assign_to_binary:
         val = TemporaryVariable(left.node)
-        operations.append(Binary(val, left, right, BinaryType.ADDITION))
+        operations.append(Binary(val, left, right, _assign_to_binary[t]))
         operations.append(UpdateMember(left.base, left.member, val))
 
     return operations, left
@@ -55,9 +69,9 @@ def convert_assignement_index(left, right, t):
     if t == AssignmentOperationType.ASSIGN:
         operations.append(UpdateIndex(left.base, left.offset, right))
 
-    elif t == AssignmentOperationType.ASSIGN_ADDITION:
+    elif t in _assign_to_binary:
         val = TemporaryVariable(left.node)
-        operations.append(Binary(val, left, right, BinaryType.ADDITION))
+        operations.append(Binary(val, left, right, _assign_to_binary[t]))
         operations.append(UpdateIndex(left.base, left.offset, val))
 
     return operations, left

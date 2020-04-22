@@ -1,16 +1,19 @@
-from .phi import Phi
+from typing import Dict
+
 from slither.utils.colors import green
+from .phi import Phi
+from ...core.variables.variable import Variable
 
 
 class PhiMemberMay(Phi):
 
-    def __init__(self, left_variable, base, nodes, phi_info):
+    def __init__(self, left_variable, base, nodes, phi_info: Dict[Variable, Variable]):
         super(PhiMemberMay, self).__init__(left_variable, nodes)
         self._phi_info = phi_info
         self._base = base
 
     @property
-    def phi_info(self):
+    def phi_info(self) -> Dict[Variable, Variable]:
         return self._phi_info
 
     @property

@@ -1,5 +1,7 @@
+from slither.core.declarations import Function
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_rvalue
+from slither.slithir.variables import TupleVariable
 from slither.slithir.variables.member_variable import MemberVariable
 from slither.slithir.variables.constant import Constant
 
@@ -11,7 +13,7 @@ class UpdateMemberDependency(OperationWithLValue):
     def __init__(self, base, member, new_val, lvalue):
         assert is_valid_rvalue(base) or isinstance(base, (Contract, Enum))
         assert is_valid_rvalue(lvalue) or isinstance(lvalue, (Contract, Enum))
-        assert is_valid_rvalue(new_val)
+        assert is_valid_rvalue(new_val) or isinstance(new_val, (Function, TupleVariable))
         assert isinstance(member, Constant)
         super(UpdateMemberDependency, self).__init__()
         self._base = base

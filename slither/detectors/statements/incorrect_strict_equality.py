@@ -56,9 +56,8 @@ contract Crowdsale{
                 for ir in node.irs_ssa:
                     if isinstance(ir, Balance):
                         # TODO: fix Balance support
-                        taints.append((ir.value, 'balance'))
+                        taints.append(ir.lvalue)
                     if isinstance(ir, HighLevelCall):
-                        # print(ir.function.full_name)
                         if isinstance(ir.function, Function) and \
                                 ir.function.full_name == 'balanceOf(address)':
                             taints.append(ir.lvalue)

@@ -6,8 +6,10 @@ import logging
 import json
 import re
 from collections import defaultdict
+from typing import Optional
 
 from slither.core.context.context import Context
+from slither.core.declarations import Contract
 from slither.slithir.operations import InternalCall
 from slither.utils.colors import red
 
@@ -130,7 +132,7 @@ class Slither(Context):
         """list(dict(str: Contract): List of contracts as dict: name -> Contract."""
         return self._contracts
 
-    def get_contract_from_name(self, contract_name):
+    def get_contract_from_name(self, contract_name) -> Optional[Contract]:
         """
             Return a contract from a name
         Args:

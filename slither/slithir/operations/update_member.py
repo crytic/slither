@@ -1,17 +1,17 @@
-from slither.slithir.operations import Operation
-from slither.slithir.operations import OperationWithLValue
-from slither.slithir.utils.utils import is_valid_rvalue
-from slither.slithir.variables.member_variable import MemberVariable
-from slither.slithir.variables.constant import Constant
-
+from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.enum import Enum
+from slither.slithir.operations import Operation
+from slither.slithir.utils.utils import is_valid_rvalue
+from slither.slithir.variables import TupleVariable
+from slither.slithir.variables.constant import Constant
+
 
 class UpdateMember(Operation):
 
     def __init__(self, base, member, new_val):
         assert is_valid_rvalue(base) or isinstance(base, (Contract, Enum))
-        assert is_valid_rvalue(new_val)
+        assert is_valid_rvalue(new_val) or isinstance(new_val, (Function, TupleVariable))
         assert isinstance(member, Constant)
         super(UpdateMember, self).__init__()
         self._base = base

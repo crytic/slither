@@ -1,3 +1,4 @@
+from slither.core.variables.variable import Variable
 from slither.slithir.operations.operation import Operation
 
 
@@ -12,7 +13,7 @@ class OperationWithLValue(Operation):
         self._lvalue = None
 
     @property
-    def lvalue(self):
+    def lvalue(self) -> Variable:
         return self._lvalue
 
     @property

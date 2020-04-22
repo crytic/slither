@@ -31,6 +31,7 @@ from slither.slithir.tmp_operations.tmp_new_elementary_type import \
 from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import (Constant, IndexVariable, MemberVariable,
                                        TemporaryVariable)
+from slither.slithir.variables.reference import ReferenceVariable
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 from slither.utils.function import get_function_id
 from slither.utils.type import export_nested_types_from_variable
@@ -1116,7 +1117,7 @@ def remove_unused(result):
                     to_keep += [str(ins.lvalue)]
 
         for ins in result:
-            if isinstance(ins, AccessMember):
+            if isinstance(ins, (AccessMember, Index)):
                 if ins.lvalue.name not in to_keep and ins != last_elem:
                     to_remove.append(ins)
                     removed = True
@@ -1228,7 +1229,6 @@ def apply_ir_heuristics(irs, node):
     """
         Apply a set of heuristic to improve slithIR
     """
-
     irs = integrate_value_gas(irs)
 
     irs = propagate_type_and_convert_call(irs, node)
