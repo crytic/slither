@@ -1,35 +1,35 @@
 import logging
+from collections import namedtuple, defaultdict
+from typing import Dict, List
 
-from slither.core.cfg.node import NodeType
+from slither.core.cfg.node import NodeType, Node
 from slither.core.declarations import (Contract, Enum, Function,
                                        SolidityFunction, SolidityVariable, Structure)
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.variable import Variable
+from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (Assignment, Balance, Binary, Condition,
                                         Delete, EventCall, HighLevelCall,
                                         Index, InitArray, InternalCall,
                                         InternalDynamicCall, Length,
-                                        LibraryCall, LowLevelCall, Member,
+                                        LibraryCall, LowLevelCall, AccessMember,
                                         NewArray, NewContract,
                                         NewElementaryType, NewStructure,
                                         OperationWithLValue, Phi, PhiCallback,
                                         Push, Return, Send, SolidityCall,
                                         Transfer, TypeConversion, Unary,
-                                        Unpack, Nop)
+                                        Nop,
+                                        Unpack, PhiMemberMust, PhiScalar, UpdateMember, UpdateMemberDependency,
+                                        PhiMemberMay, UpdateIndex, Operation)
 from slither.slithir.variables import (Constant, LocalIRVariable,
-                                       ReferenceVariable, ReferenceVariableSSA,
+                                       IndexVariable, IndexVariableSSA, MemberVariable, MemberVariableSSA,
                                        StateIRVariable, TemporaryVariable,
                                        TemporaryVariableSSA, TupleVariable, TupleVariableSSA)
-from slither.slithir.exceptions import SlithIRError
 
 logger = logging.getLogger('SSA_Conversion')
 
-###################################################################################
-###################################################################################
-# region SlihtIR variables to SSA
-###################################################################################
-###################################################################################
 
 def transform_slithir_vars_to_ssa(function):
     """
@@ -38,24 +38,53 @@ def transform_slithir_vars_to_ssa(function):
     variables = []
     for node in function.nodes:
         for ir in node.irs_ssa:
-            if isinstance(ir, OperationWithLValue) and not ir.lvalue in variables:
+            if isinstance(ir, OperationWithLValue) and ir.lvalue not in variables:
                 variables += [ir.lvalue]
 
     tmp_variables = [v for v in variables if isinstance(v, TemporaryVariable)]
     for idx in range(len(tmp_variables)):
         tmp_variables[idx].index = idx
-    ref_variables = [v for v in variables if isinstance(v, ReferenceVariable)]
-    for idx in range(len(ref_variables)):
-        ref_variables[idx].index = idx
+    index_variables = [v for v in variables if isinstance(v, IndexVariable)]
+    for idx in range(len(index_variables)):
+        index_variables[idx].index = idx
+    member_variables = [v for v in variables if isinstance(v, MemberVariable)]
+    for idx in range(len(member_variables)):
+        member_variables[idx].index = idx
     tuple_variables = [v for v in variables if isinstance(v, TupleVariable)]
     for idx in range(len(tuple_variables)):
         tuple_variables[idx].index = idx
 
+
+###################################################################################
+###################################################################################
+# region Instances
+###################################################################################
+###################################################################################
+
+
+Instances = namedtuple('Instances', ["local_variables",
+                                     "all_local_variables",
+                                     "state_variables",
+                                     "all_state_variables",
+                                     "init_local_variables"])
+
+# instances that live only during the BB, they dont need a fix operators
+InstancesTemporary = namedtuple('InstancesTemporary', ['temporary_variables',
+                                                       'index_variables',
+                                                       'member_variables',
+                                                       'tuple_variables'])
+
+
+# endregion
 ###################################################################################
 ###################################################################################
 # region SSA conversion
 ###################################################################################
 ###################################################################################
+
+def _is_scalar(variable):
+    return variable.is_scalar
+
 
 def add_ssa_ir(function, all_state_variables_instances):
     '''
@@ -72,7 +101,8 @@ def add_ssa_ir(function, all_state_variables_instances):
     for v in function.parameters:
         if v.name:
             init_definition[v.name] = (v, function.entry_point)
-            function.entry_point.add_ssa_ir(Phi(LocalIRVariable(v), set()))
+            new_var = LocalIRVariable(v)
+            function.entry_point.add_ssa_ir(Phi(new_var, set()))
 
     for v in function.returns:
         if v.name:
@@ -86,22 +116,42 @@ def add_ssa_ir(function, all_state_variables_instances):
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
-    add_phi_origins(function.entry_point, init_definition, dict())
-
+    add_phi_origins(function.entry_point, init_definition, dict(), dict(), dict())
 
     for node in function.nodes:
         for (variable, nodes) in node.phi_origins_local_variables.values():
-            if len(nodes)<2:
+            if len(nodes) < 2:
                 continue
             if not is_used_later(node, variable):
                 continue
-            node.add_ssa_ir(Phi(LocalIRVariable(variable), nodes))
+            if _is_scalar(variable):
+                node.add_ssa_ir(PhiScalar(LocalIRVariable(variable), nodes))
+            else:
+                node.add_ssa_ir(Phi(LocalIRVariable(variable), nodes))
         for (variable, nodes) in node.phi_origins_state_variables.values():
-            if len(nodes)<2:
+            if len(nodes) < 2:
                 continue
-            #if not is_used_later(node, variable.name, []):
+            # if not is_used_later(node, variable.name, []):
             #    continue
-            node.add_ssa_ir(Phi(StateIRVariable(variable), nodes))
+            if _is_scalar(variable):
+                node.add_ssa_ir(PhiScalar(StateIRVariable(variable), nodes))
+            else:
+                node.add_ssa_ir(Phi(StateIRVariable(variable), nodes))
+        for (variable, nodes) in node.phi_origin_member_variables.values():
+            if len(nodes) < 2:
+                continue
+            # if not is_used_later(node, variable.name, []):
+            #    continue
+            if isinstance(variable, LocalVariable):
+                cls = LocalIRVariable
+            elif isinstance(variable, StateVariable):
+                cls = StateIRVariable
+            else:
+                raise SlithIRError(f'Unkowwn type for phi origin member {variable} ({type(variable)}')
+            if _is_scalar(variable):
+                node.add_ssa_ir(PhiScalar(cls(variable), nodes))
+            else:
+                node.add_ssa_ir(Phi(cls(variable), nodes))
 
     init_local_variables_instances = dict()
     for v in function.parameters:
@@ -110,7 +160,7 @@ def add_ssa_ir(function, all_state_variables_instances):
             function.add_parameter_ssa(new_var)
             if new_var.is_storage:
                 fake_variable = LocalIRVariable(v)
-                fake_variable.name = 'STORAGE_'+fake_variable.name
+                fake_variable.name = 'STORAGE_' + fake_variable.name
                 fake_variable.set_location('reference_to_storage')
                 new_var.refers_to = {fake_variable}
                 init_local_variables_instances[fake_variable.name] = fake_variable
@@ -122,7 +172,7 @@ def add_ssa_ir(function, all_state_variables_instances):
             function.add_return_ssa(new_var)
             if new_var.is_storage:
                 fake_variable = LocalIRVariable(v)
-                fake_variable.name = 'STORAGE_'+fake_variable.name
+                fake_variable.name = 'STORAGE_' + fake_variable.name
                 fake_variable.set_location('reference_to_storage')
                 new_var.refers_to = {fake_variable}
                 init_local_variables_instances[fake_variable.name] = fake_variable
@@ -132,25 +182,41 @@ def add_ssa_ir(function, all_state_variables_instances):
 
     init_state_variables_instances = dict(all_state_variables_instances)
 
-    initiate_all_local_variables_instances(function.nodes, init_local_variables_instances, all_init_local_variables_instances)
+    initiate_all_local_variables_instances(function.nodes, init_local_variables_instances,
+                                           all_init_local_variables_instances)
 
-    generate_ssa_irs(function.entry_point,
-                     dict(init_local_variables_instances),
-                     all_init_local_variables_instances,
-                     dict(init_state_variables_instances),
-                     all_state_variables_instances,
-                     init_local_variables_instances,
-                     [])
+    instances = Instances(dict(init_local_variables_instances),
+                          all_init_local_variables_instances,
+                          dict(init_state_variables_instances),
+                          all_state_variables_instances,
+                          init_local_variables_instances)
 
-    fix_phi_rvalues_and_storage_ref(function.entry_point,
-                                    dict(init_local_variables_instances),
-                                    all_init_local_variables_instances,
-                                    dict(init_state_variables_instances),
-                                    all_state_variables_instances,
-                                    init_local_variables_instances)
+    generate_ssa_irs(function.entry_point, instances, [], defaultdict(list))
 
-def generate_ssa_irs(node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances, init_local_variables_instances, visited):
+    # We do this at the end
+    # Because resolving rvalue of phi operation might require to have generated all the other ssa IRs
+    # For example
+    #         test[0] = 1;
+    #
+    #         for(uint i = 0; i < 10; i++){
+    #             test[1] = 2;
+    #         }
+    #  The phi on for(uint i = 0; i < 10; i++){
+    # For test_ will require to have generate test_X in the loop body
+    for node in function.nodes:
+        for ir_ssa in node.irs_ssa:
+            update_rvalues(ir_ssa, instances)
 
+
+def generate_ssa_irs(node, instances, visited, storage_aliases: Dict[LocalIRVariable, List[Variable]]):
+    """
+
+    :param node:
+    :param instances:
+    :param visited:
+    :param storage_aliases:
+    :return:
+    """
     if node in visited:
         return
 
@@ -160,81 +226,78 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
     # visited is shared
     visited.append(node)
 
-    for ir in node.irs_ssa:
-        assert isinstance(ir, Phi)
-        update_lvalue(ir, node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances)
-
-
     # these variables are lived only during the liveness of the block
     # They dont need phi function
-    temporary_variables_instances = dict()
-    reference_variables_instances = dict()
-    tuple_variables_instances = dict()
+    instances_temporary = InstancesTemporary(dict(), dict(), dict(), dict())
+    for ir in node.irs_ssa:
+        assert isinstance(ir, Phi)
+        update_lvalue(ir, node, instances, instances_temporary)
+
+        # Collect storage aliases
+        # This is a large over approximation
+        # But might be ok as storage aliases usually dont point to so many objects
+        if isinstance(ir.lvalue, LocalIRVariable) and ir.lvalue.is_storage:
+            for alias in storage_aliases[ir.lvalue.non_ssa_version]:
+                ir.lvalue.add_refers_to(alias)
 
     for ir in node.irs:
-        new_ir = copy_ir(ir,
-                         local_variables_instances,
-                         state_variables_instances,
-                         temporary_variables_instances,
-                         reference_variables_instances,
-                         tuple_variables_instances,
-                         all_local_variables_instances)
+
+        new_ir = copy_ir(ir, instances, instances_temporary)
 
         new_ir.set_expression(ir.expression)
         new_ir.set_node(ir.node)
-
-        update_lvalue(new_ir,
-                      node,
-                      local_variables_instances,
-                      all_local_variables_instances,
-                      state_variables_instances,
-                      all_state_variables_instances)
 
         if new_ir:
 
             node.add_ssa_ir(new_ir)
 
+            update_lvalue(new_ir, node, instances, instances_temporary)
+
             if isinstance(ir, (InternalCall, HighLevelCall, InternalDynamicCall, LowLevelCall)):
                 if isinstance(ir, LibraryCall):
                     continue
-                for variable in all_state_variables_instances.values():
+                for variable in instances.all_state_variables.values():
                     if not is_used_later(node, variable):
                         continue
                     new_var = StateIRVariable(variable)
-                    new_var.index = all_state_variables_instances[variable.canonical_name].index + 1
-                    all_state_variables_instances[variable.canonical_name] = new_var
-                    state_variables_instances[variable.canonical_name] = new_var
-                    phi_ir = PhiCallback(new_var, {node}, new_ir, variable)
+                    new_var.index = instances.all_state_variables[variable.canonical_name].index + 1
+                    instances.all_state_variables[variable.canonical_name] = new_var
+                    instances.state_variables[variable.canonical_name] = new_var
+
+                    storage_idx = []
+                    # Check if one of the argument is the variable, and given as a storage pointer
+                    if isinstance(ir, InternalCall):
+                        for idx, arg in enumerate(ir.arguments):
+                            if arg.name == variable.name:
+                                if ir.function.parameters[idx].is_storage:
+                                    storage_idx.append(idx)
+
+                    phi_ir = PhiCallback(new_var, {node}, new_ir, variable, storage_idx)
                     # rvalues are fixed in solc_parsing.declaration.function
                     node.add_ssa_ir(phi_ir)
 
             if isinstance(new_ir, (Assignment, Binary)):
                 if isinstance(new_ir.lvalue, LocalIRVariable):
                     if new_ir.lvalue.is_storage:
-                        if isinstance(new_ir.rvalue, ReferenceVariable):
-                            refers_to = new_ir.rvalue.points_to_origin
-                            new_ir.lvalue.add_refers_to(refers_to)
-                        else:
-                            new_ir.lvalue.add_refers_to(new_ir.rvalue)
+                        # Collect direct storage alias
+                        new_ir.lvalue.add_refers_to(new_ir.rvalue)
+                        # Collect indirect alias
+                        # if(cond)
+                        #   ref = ob1
+                        # else
+                        #   ref = ob2
+                        # The add_refers_to will be then fixed on the Phi() operator on ref
+                        storage_aliases[new_ir.lvalue.non_ssa_version].append(new_ir.rvalue)
 
+    for dom in node.dominance_exploration_ordered:
+        new_instances = Instances(dict(instances.local_variables),
+                                  instances.all_local_variables,
+                                  dict(instances.state_variables),
+                                  instances.all_state_variables,
+                                  instances.init_local_variables)
 
-    for succ in node.dominator_successors:
-        generate_ssa_irs(succ,
-                         dict(local_variables_instances),
-                         all_local_variables_instances,
-                         dict(state_variables_instances),
-                         all_state_variables_instances,
-                         init_local_variables_instances,
-                         visited)
+        generate_ssa_irs(dom, new_instances, visited, storage_aliases)
 
-    for dominated in node.dominance_frontier:
-        generate_ssa_irs(dominated,
-                         dict(local_variables_instances),
-                         all_local_variables_instances,
-                         dict(state_variables_instances),
-                         all_state_variables_instances,
-                         init_local_variables_instances,
-                         visited)
 
 # endregion
 ###################################################################################
@@ -246,20 +309,25 @@ def generate_ssa_irs(node, local_variables_instances, all_local_variables_instan
 def last_name(n, var, init_vars):
     candidates = []
     # Todo optimize by creating a variables_ssa_written attribute
+    if var.name in init_vars:
+        candidates.append(init_vars[var.name])
     for ir_ssa in n.irs_ssa:
         if isinstance(ir_ssa, OperationWithLValue):
             lvalue = ir_ssa.lvalue
-            while isinstance(lvalue, ReferenceVariable):
-                lvalue = lvalue.points_to
             if lvalue and lvalue.name == var.name:
                 candidates.append(lvalue)
+        if isinstance(ir_ssa, (UpdateIndex, UpdateMember)):
+            if ir_ssa.base.name == var.name:
+                candidates.append(ir_ssa.base)
     if n.variable_declaration and n.variable_declaration.name == var.name:
         candidates.append(LocalIRVariable(n.variable_declaration))
     if n.type == NodeType.ENTRYPOINT:
         if var.name in init_vars:
             candidates.append(init_vars[var.name])
+
     assert candidates
     return max(candidates, key=lambda v: v.index)
+
 
 def is_used_later(initial_node, variable):
     # TODO: does not handle the case where its read and written in the declaration node
@@ -286,6 +354,11 @@ def is_used_later(initial_node, variable):
                 return True
             if any(v.name == variable.name and v.contract == variable.contract for v in node.state_variables_written):
                 return False
+        if isinstance(variable, MemberVariable):
+            if any(v.name == variable.name and v.contract == variable.contract for v in node.state_variables_read):
+                return True
+            if any(v.name == variable.name and v.contract == variable.contract for v in node.state_variables_written):
+                return False
         for son in node.sons:
             if not son in explored:
                 to_explore.add(son)
@@ -300,35 +373,193 @@ def is_used_later(initial_node, variable):
 ###################################################################################
 ###################################################################################
 
-def update_lvalue(new_ir, node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances):
+def create_new_var(var, instances, instances_temporary):
+    if isinstance(var, LocalIRVariable):
+        new_var = LocalIRVariable(var)
+        new_var.generate_ssa_phi_info()
+        new_var.index = instances.all_local_variables[var.name].index + 1
+        instances.all_local_variables[var.name] = new_var
+        instances.local_variables[var.name] = new_var
+    elif isinstance(var, StateIRVariable):
+        new_var = StateIRVariable(var)
+        new_var.generate_ssa_phi_info()
+        new_var.index = instances.all_state_variables[var.canonical_name].index + 1
+        instances.all_state_variables[var.canonical_name] = new_var
+        instances.state_variables[var.canonical_name] = new_var
+    elif isinstance(var, MemberVariableSSA):
+        new_var = MemberVariableSSA(var)
+        new_var.generate_ssa_phi_info()
+        new_var.index_ssa = var.index_ssa + 1
+        if var.points_to:
+            new_var.points_to = get(var.points_to, instances, instances_temporary)
+        new_var.set_type(var.type)
+        new_var.base = get(new_var.base, instances, instances_temporary)
+        instances_temporary.member_variables[new_var.index] = new_var
+    elif isinstance(var, IndexVariableSSA):
+        new_var = IndexVariableSSA(var)
+        new_var.generate_ssa_phi_info()
+        new_var.index_ssa = var.index_ssa + 1
+        if var.points_to:
+            new_var.points_to = get(var.points_to, instances, instances_temporary)
+        new_var.set_type(var.type)
+        new_var.base = get(new_var.base, instances, instances_temporary)
+        instances_temporary.index_variables[new_var.index] = new_var
+    else:
+        raise SlithIRError(f'Unknown {var} type {type(var)}')
+    return new_var
+
+
+def update_lvalue(new_ir, node, instances, instances_temporary):
+    _update_lvalue(new_ir, node, instances, instances_temporary)
+
+
+def update_refers_to(new_ir):
+    if isinstance(new_ir.lvalue, LocalIRVariable):
+        if new_ir.lvalue.is_storage:
+            l = [v.refers_to for v in new_ir.rvalues]
+            l = [item for sublist in l for item in sublist]
+            new_ir.lvalue.refers_to = set(l)
+
+
+def create_phi_member(base, member: Constant, new_vals, node: Node, instances, instances_temporary,
+                      keep_previous=False):
+    new_var = create_new_var(base, instances, instances_temporary)
+
+    phi_info = base.ssa_phi_info
+    phi_info[member] = new_vals
+
+    if keep_previous:
+        phi = PhiMemberMay(new_var, base, {node}, dict(phi_info))
+    else:
+        phi = PhiMemberMust(new_var, base, {node}, dict(phi_info))
+
+    phi.rvalues = [base]
+    update_refers_to(phi)
+    node.add_ssa_ir(phi)
+
+    return new_var
+
+
+def create_phi_index(base, offset, new_vals, node, instances, instances_temporary, keep_previous=False):
+    # TODO: merge with create_phi_member
+    new_var = create_new_var(base, instances, instances_temporary)
+    phi_info = base.ssa_phi_info
+    phi_info[offset] = new_vals
+
+    if keep_previous:
+        phi = PhiMemberMay(new_var, base, {node}, dict(phi_info))
+    else:
+        phi = PhiMemberMust(new_var, base, {node}, dict(phi_info))
+    phi.rvalues = [base]
+    update_refers_to(phi)
+    node.add_ssa_ir(phi)
+    return new_var
+
+
+def _update_lvalue(new_ir: Operation, node: Node, instances, instances_temporary):
+    """
+    # Update lvalue
+    # Main code to create a new SSA var
+    :param new_ir:
+    :param node:
+    :param instances:
+    :param instances_temporary:
+    :return:
+    """
+    if isinstance(new_ir, OperationWithLValue):
+        lvalue = new_ir.lvalue
+
+        if isinstance(lvalue, (LocalIRVariable, StateIRVariable)):
+
+            new_var = create_new_var(lvalue, instances, instances_temporary)
+
+            if not isinstance(new_ir.lvalue, (IndexVariable, MemberVariable)):
+                new_ir.lvalue = new_var
+            else:
+                to_update = new_ir.lvalue
+                while isinstance(to_update.points_to, (IndexVariable, MemberVariable)):
+                    to_update = to_update.points_to
+                to_update.points_to = new_var
+
+    # Add phi nodes for UpdateMember operation
+    if isinstance(new_ir, (UpdateMember, UpdateIndex)):
+        # We save new_var, so we know what is the latest member value
+        # If the base is a MemberVariableSSa
+        if isinstance(new_ir, UpdateMember):
+            left = new_ir.member
+            new_var = create_phi_member(new_ir.base, left, new_ir.new_value,
+                                        node, instances, instances_temporary)
+        else:
+            left = new_ir.offset
+            new_var = create_phi_index(new_ir.base, left, new_ir.new_value,
+                                       node, instances, instances_temporary)
+
+        if isinstance(new_ir.base, LocalIRVariable):
+            if new_ir.base.is_storage:
+                new_var_ = new_var
+                for refers_to in new_ir.base.refers_to:
+                    if isinstance(refers_to, MemberVariable):
+                        new_var = create_phi_member(refers_to.base, refers_to.member, new_var_, node,
+                                                    instances, instances_temporary, keep_previous=True)
+                    elif isinstance(refers_to, IndexVariable):
+                        new_var = create_phi_index(refers_to.base, refers_to.offset, new_var_, node,
+                                                   instances, instances_temporary, keep_previous=True)
+                    else:
+                        new_var = create_phi_member(refers_to, left, new_ir.new_value, node,
+                                                    instances, instances_temporary, keep_previous=True)
+
+        base = new_ir.base
+        while isinstance(base, (MemberVariableSSA, IndexVariableSSA)):
+            if isinstance(base, IndexVariableSSA):
+                new_var = create_phi_index(base.base, base.offset, new_var, node, instances, instances_temporary)
+            else:
+                new_var = create_phi_member(base.base, base.member, new_var, node, instances, instances_temporary)
+            base = get(base.base, instances, instances_temporary)
+
+    # Update phi rvalues and refers_to
+
+    if isinstance(new_ir, (Phi, PhiCallback)):
+        update_refers_to(new_ir)
+
+
+def update_rvalues(ir, instances):
+    if isinstance(ir, Phi) and not ir.rvalues:
+        variables = [last_name(dst, ir.lvalue, instances.init_local_variables) for dst in ir.nodes]
+        ir.rvalues = variables
+
+
+def update_lvalue_index_variables(new_ir, node, instances):
     if isinstance(new_ir, OperationWithLValue):
         lvalue = new_ir.lvalue
         update_through_ref = False
         if isinstance(new_ir, (Assignment, Binary)):
-            if isinstance(lvalue, ReferenceVariable):
+            if isinstance(lvalue, (IndexVariable)):
                 update_through_ref = True
-                while isinstance(lvalue, ReferenceVariable):
+                while isinstance(lvalue, (IndexVariable)):
                     lvalue = lvalue.points_to
         if isinstance(lvalue, (LocalIRVariable, StateIRVariable)):
             if isinstance(lvalue, LocalIRVariable):
                 new_var = LocalIRVariable(lvalue)
-                new_var.index = all_local_variables_instances[lvalue.name].index + 1
-                all_local_variables_instances[lvalue.name] = new_var
-                local_variables_instances[lvalue.name] = new_var
+                new_var.index = instances.all_local_variables[lvalue.name].index + 1
+                instances.all_local_variables[lvalue.name] = new_var
+                instances.local_variables[lvalue.name] = new_var
             else:
                 new_var = StateIRVariable(lvalue)
-                new_var.index = all_state_variables_instances[lvalue.canonical_name].index + 1
-                all_state_variables_instances[lvalue.canonical_name] = new_var
-                state_variables_instances[lvalue.canonical_name] = new_var
+                new_var.index = instances.all_state_variables[lvalue.canonical_name].index + 1
+                instances.all_state_variables[lvalue.canonical_name] = new_var
+                instances.state_variables[lvalue.canonical_name] = new_var
             if update_through_ref:
-                phi_operation = Phi(new_var, {node})
+                if _is_scalar(new_var):
+                    phi_operation = PhiScalar(new_var, {node})
+                else:
+                    phi_operation = Phi(new_var, {node})
                 phi_operation.rvalues = [lvalue]
                 node.add_ssa_ir(phi_operation)
-            if not isinstance(new_ir.lvalue, ReferenceVariable):
+            if not isinstance(new_ir.lvalue, (IndexVariable, MemberVariable)):
                 new_ir.lvalue = new_var
             else:
                 to_update = new_ir.lvalue
-                while isinstance(to_update.points_to, ReferenceVariable):
+                while isinstance(to_update.points_to, (IndexVariable, MemberVariable)):
                     to_update = to_update.points_to
                 to_update.points_to = new_var
 
@@ -350,7 +581,6 @@ def initiate_all_local_variables_instances(nodes, local_variables_instances, all
             all_local_variables_instances[node.variable_declaration.name] = new_var
 
 
-
 # endregion
 ###################################################################################
 ###################################################################################
@@ -358,11 +588,11 @@ def initiate_all_local_variables_instances(nodes, local_variables_instances, all
 ###################################################################################
 ###################################################################################
 
-
-def fix_phi_rvalues_and_storage_ref(node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances, init_local_variables_instances):
+# TODO unused
+def fix_phi_rvalues_and_storage_ref(node, instances):
     for ir in node.irs_ssa:
         if isinstance(ir, (Phi)) and not ir.rvalues:
-            variables = [last_name(dst, ir.lvalue, init_local_variables_instances) for dst in ir.nodes]
+            variables = [last_name(dst, ir.lvalue, instances.init_local_variables) for dst in ir.nodes]
             ir.rvalues = variables
         if isinstance(ir, (Phi, PhiCallback)):
             if isinstance(ir.lvalue, LocalIRVariable):
@@ -372,36 +602,51 @@ def fix_phi_rvalues_and_storage_ref(node, local_variables_instances, all_local_v
                     ir.lvalue.refers_to = set(l)
 
         if isinstance(ir, (Assignment, Binary)):
-            if isinstance(ir.lvalue, ReferenceVariable):
+            if isinstance(ir.lvalue, (IndexVariable, MemberVariable)):
                 origin = ir.lvalue.points_to_origin
 
                 if isinstance(origin, LocalIRVariable):
                     if origin.is_storage:
                         for refers_to in origin.refers_to:
-                            phi_ir = Phi(refers_to, {node})
+                            if _is_scalar(refers_to):
+                                phi_ir = PhiScalar(refers_to, {node})
+                            else:
+                                phi_ir = Phi(refers_to, {node})
                             phi_ir.rvalues = [origin]
                             node.add_ssa_ir(phi_ir)
-                            update_lvalue(phi_ir, node, local_variables_instances, all_local_variables_instances, state_variables_instances, all_state_variables_instances)
+                            update_lvalue(phi_ir, node, instances, InstancesTemporary(dict(), dict(), dict(), dict()))
     for succ in node.dominator_successors:
-        fix_phi_rvalues_and_storage_ref(succ, dict(local_variables_instances), all_local_variables_instances, dict(state_variables_instances), all_state_variables_instances, init_local_variables_instances)
+        new_instances = Instances(dict(instances.local_variables),
+                                  instances.all_local_variables,
+                                  dict(instances.state_variables),
+                                  instances.all_state_variables,
+                                  instances.init_local_variables)
+        fix_phi_rvalues_and_storage_ref(succ, new_instances)
 
 
-
-def add_phi_origins(node, local_variables_definition, state_variables_definition):
-
+def add_phi_origins(node, local_variables_definition, state_variables_definition, member_variables_definition,
+                    index_variables_definitions):
     # Add new key to local_variables_definition
     # The key is the variable_name 
     # The value is (variable_instance, the node where its written)
     # We keep the instance as we want to avoid to add __hash__ on v.name in Variable
     # That might work for this used, but could create collision for other uses
     local_variables_definition = dict(local_variables_definition,
-                                **{v.name: (v, node) for v in node.local_variables_written})
+                                      **{v.name: (v, node) for v in node.local_variables_written})
     state_variables_definition = dict(state_variables_definition,
-                                **{v.canonical_name: (v, node) for v in node.state_variables_written})
+                                      **{v.canonical_name: (v, node) for v in node.state_variables_written})
+
+    member_variables_definition = dict(member_variables_definition,
+                                       **{v.name: (v, node) for v in [ir.base for ir
+                                                                      in node.irs if isinstance(ir, UpdateMember)]})
+
+    index_variables_definitions = dict(index_variables_definitions,
+                                       **{v.name: (v, node) for v in [ir.base for ir
+                                                                      in node.irs if isinstance(ir, UpdateIndex)]})
 
     # For unini variable declaration
-    if node.variable_declaration and\
-       not node.variable_declaration.name in local_variables_definition:
+    if node.variable_declaration and \
+            not node.variable_declaration.name in local_variables_definition:
         local_variables_definition[node.variable_declaration.name] = (node.variable_declaration, node)
 
     # filter length of successors because we have node with one successor
@@ -412,11 +657,16 @@ def add_phi_origins(node, local_variables_definition, state_variables_definition
                 phi_node.add_phi_origin_local_variable(variable, n)
             for _, (variable, n) in state_variables_definition.items():
                 phi_node.add_phi_origin_state_variable(variable, n)
+            for _, (variable, n) in member_variables_definition.items():
+                phi_node.add_phi_origin_member_variable(variable, n)
+            for _, (variable, n) in index_variables_definitions.items():
+                phi_node.add_phi_origin_member_variable(variable, n)
 
     if not node.dominator_successors:
         return
     for succ in node.dominator_successors:
-        add_phi_origins(succ, local_variables_definition, state_variables_definition)
+        add_phi_origins(succ, local_variables_definition, state_variables_definition, member_variables_definition,
+                        index_variables_definitions)
 
 
 # endregion
@@ -426,46 +676,51 @@ def add_phi_origins(node, local_variables_definition, state_variables_definition
 ###################################################################################
 ###################################################################################
 
-def get(variable, local_variables_instances, state_variables_instances, temporary_variables_instances, reference_variables_instances, tuple_variables_instances, all_local_variables_instances):
+def get(variable, instances, instances_temporary):
     # variable can be None
     # for example, on LowLevelCall, ir.lvalue can be none
     if variable is None:
         return None
     if isinstance(variable, LocalVariable):
-        if variable.name in local_variables_instances:
-            return local_variables_instances[variable.name]
+        if variable.name in instances.local_variables:
+            return instances.local_variables[variable.name]
         new_var = LocalIRVariable(variable)
-        local_variables_instances[variable.name] = new_var
-        all_local_variables_instances[variable.name] = new_var
+        instances.local_variables[variable.name] = new_var
+        instances.all_local_variables[variable.name] = new_var
         return new_var
-    if isinstance(variable, StateVariable) and variable.canonical_name in state_variables_instances:
-        return state_variables_instances[variable.canonical_name]
-    elif isinstance(variable, ReferenceVariable):
-        if not variable.index in reference_variables_instances:
-            new_variable = ReferenceVariableSSA(variable)
+    if isinstance(variable, StateVariable) and variable.canonical_name in instances.state_variables:
+        return instances.state_variables[variable.canonical_name]
+    elif isinstance(variable, IndexVariable):
+        if not variable.index in instances_temporary.index_variables:
+            new_variable = IndexVariableSSA(variable)
             if variable.points_to:
-                new_variable.points_to = get(variable.points_to,
-                                             local_variables_instances,
-                                             state_variables_instances,
-                                             temporary_variables_instances,
-                                             reference_variables_instances,
-                                             tuple_variables_instances,
-                                             all_local_variables_instances)
+                new_variable.points_to = get(variable.points_to, instances, instances_temporary)
             new_variable.set_type(variable.type)
-            reference_variables_instances[variable.index] = new_variable
-        return reference_variables_instances[variable.index]
+            new_variable.base = get(variable.base, instances, instances_temporary)
+            new_variable.offset = get(variable.offset, instances, instances_temporary)
+            instances_temporary.index_variables[variable.index] = new_variable
+        return instances_temporary.index_variables[variable.index]
+    elif isinstance(variable, MemberVariable):
+        if not variable.index in instances_temporary.member_variables:
+            new_variable = MemberVariableSSA(variable)
+            if variable.points_to:
+                new_variable.points_to = get(variable.points_to, instances, instances_temporary)
+            new_variable.set_type(variable.type)
+            new_variable.base = get(variable.base, instances, instances_temporary)
+            instances_temporary.member_variables[variable.index] = new_variable
+        return instances_temporary.member_variables[variable.index]
     elif isinstance(variable, TemporaryVariable):
-        if not variable.index in temporary_variables_instances:
+        if not variable.index in instances_temporary.temporary_variables:
             new_variable = TemporaryVariableSSA(variable)
             new_variable.set_type(variable.type)
-            temporary_variables_instances[variable.index] = new_variable
-        return temporary_variables_instances[variable.index]
+            instances_temporary.temporary_variables[variable.index] = new_variable
+        return instances_temporary.temporary_variables[variable.index]
     elif isinstance(variable, TupleVariable):
-        if not variable.index in tuple_variables_instances:
+        if not variable.index in instances_temporary.tuple_variables:
             new_variable = TupleVariableSSA(variable)
             new_variable.set_type(variable.type)
-            tuple_variables_instances[variable.index] = new_variable
-        return tuple_variables_instances[variable.index]
+            instances_temporary.tuple_variables[variable.index] = new_variable
+        return instances_temporary.tuple_variables[variable.index]
     assert isinstance(variable, (Constant,
                                  SolidityVariable,
                                  Contract,
@@ -473,199 +728,213 @@ def get(variable, local_variables_instances, state_variables_instances, temporar
                                  SolidityFunction,
                                  Structure,
                                  Function,
-                                 Type)) # type for abi.decode(.., t)
+                                 Type))  # type for abi.decode(.., t)
     return variable
 
-def get_variable(ir, f, *instances):
+
+def get_variable(ir, f, instances, instances_temporary):
     variable = f(ir)
-    variable = get(variable, *instances)
+    variable = get(variable, instances, instances_temporary)
     return variable
 
-def _get_traversal(values, *instances):
+
+def _get_traversal(values, instances, instances_temporary):
     ret = []
     for v in values:
         if isinstance(v, list):
-            v = _get_traversal(v, *instances)
+            v = _get_traversal(v, instances, instances_temporary)
         else:
-            v = get(v, *instances)
+            v = get(v, instances, instances_temporary)
         ret.append(v)
     return ret
 
-def get_arguments(ir, *instances):
-    return _get_traversal(ir.arguments, *instances)
 
-def get_rec_values(ir, f, *instances):
+def get_arguments(ir, instances, instances_temporary):
+    return _get_traversal(ir.arguments, instances, instances_temporary)
+
+
+def get_rec_values(ir, f, instances, instances_temporary):
     # Use by InitArray and NewArray
     # Potential recursive array(s)
     ori_init_values = f(ir)
 
-    return _get_traversal(ori_init_values, *instances)
+    return _get_traversal(ori_init_values, instances, instances_temporary)
 
-def copy_ir(ir, *instances):
+
+def copy_ir(ir, instances, instances_temporary):
     '''
-    Args:
-        ir (Operation)
-        local_variables_instances(dict(str -> LocalVariable))
-        state_variables_instances(dict(str -> StateVariable))
-        temporary_variables_instances(dict(int -> Variable))
-        reference_variables_instances(dict(int -> Variable))
 
     Note: temporary and reference can be indexed by int, as they dont need phi functions
     '''
     if isinstance(ir, Assignment):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        rvalue = get_variable(ir, lambda x: x.rvalue, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        rvalue = get_variable(ir, lambda x: x.rvalue, instances, instances_temporary)
         variable_return_type = ir.variable_return_type
         return Assignment(lvalue, rvalue, variable_return_type)
     elif isinstance(ir, Balance):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        value = get_variable(ir, lambda x: x.value, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        value = get_variable(ir, lambda x: x.value, instances, instances_temporary)
         return Balance(value, lvalue)
     elif isinstance(ir, Binary):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        variable_left = get_variable(ir, lambda x: x.variable_left, *instances)
-        variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        variable_left = get_variable(ir, lambda x: x.variable_left, instances, instances_temporary)
+        variable_right = get_variable(ir, lambda x: x.variable_right, instances, instances_temporary)
         operation_type = ir.type
         return Binary(lvalue, variable_left, variable_right, operation_type)
     elif isinstance(ir, Condition):
-        val = get_variable(ir, lambda x: x.value, *instances)
+        val = get_variable(ir, lambda x: x.value, instances, instances_temporary)
         return Condition(val)
     elif isinstance(ir, Delete):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        variable = get_variable(ir, lambda x: x.variable, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        variable = get_variable(ir, lambda x: x.variable, instances, instances_temporary)
         return Delete(lvalue, variable)
     elif isinstance(ir, EventCall):
         name = ir.name
         return EventCall(name)
-    elif isinstance(ir, HighLevelCall): # include LibraryCall
-        destination = get_variable(ir, lambda x: x.destination, *instances)
+    elif isinstance(ir, HighLevelCall):  # include LibraryCall
+        destination = get_variable(ir, lambda x: x.destination, instances, instances_temporary)
         function_name = ir.function_name
         nbr_arguments = ir.nbr_arguments
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
         type_call = ir.type_call
         if isinstance(ir, LibraryCall):
             new_ir = LibraryCall(destination, function_name, nbr_arguments, lvalue, type_call)
         else:
             new_ir = HighLevelCall(destination, function_name, nbr_arguments, lvalue, type_call)
         new_ir.call_id = ir.call_id
-        new_ir.call_value = get_variable(ir, lambda x: x.call_value, *instances)
-        new_ir.call_gas = get_variable(ir, lambda x: x.call_gas, *instances)
-        new_ir.arguments = get_arguments(ir, *instances)
+        new_ir.call_value = get_variable(ir, lambda x: x.call_value, instances, instances_temporary)
+        new_ir.call_gas = get_variable(ir, lambda x: x.call_gas, instances, instances_temporary)
+        new_ir.arguments = get_arguments(ir, instances, instances_temporary)
         new_ir.function = ir.function
         return new_ir
     elif isinstance(ir, Index):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        variable_left = get_variable(ir, lambda x: x.variable_left, *instances)
-        variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        variable_left = get_variable(ir, lambda x: x.variable_left, instances, instances_temporary)
+        variable_right = get_variable(ir, lambda x: x.variable_right, instances, instances_temporary)
         index_type = ir.index_type
         return Index(lvalue, variable_left, variable_right, index_type)
     elif isinstance(ir, InitArray):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        init_values = get_rec_values(ir, lambda x: x.init_values, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        init_values = get_rec_values(ir, lambda x: x.init_values, instances, instances_temporary)
         return InitArray(init_values, lvalue)
     elif isinstance(ir, InternalCall):
         function = ir.function
         nbr_arguments = ir.nbr_arguments
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
         type_call = ir.type_call
         new_ir = InternalCall(function, nbr_arguments, lvalue, type_call)
-        new_ir.arguments = get_arguments(ir, *instances)
+        new_ir.arguments = get_arguments(ir, instances, instances_temporary)
         return new_ir
     elif isinstance(ir, InternalDynamicCall):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        function = get_variable(ir, lambda x: x.function, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        function = get_variable(ir, lambda x: x.function, instances, instances_temporary)
         function_type = ir.function_type
         new_ir = InternalDynamicCall(lvalue, function, function_type)
-        new_ir.arguments = get_arguments(ir, *instances)
+        new_ir.arguments = get_arguments(ir, instances, instances_temporary)
         return new_ir
     elif isinstance(ir, LowLevelCall):
-        destination = get_variable(ir, lambda x: x.destination, *instances)
+        destination = get_variable(ir, lambda x: x.destination, instances, instances_temporary)
         function_name = ir.function_name
         nbr_arguments = ir.nbr_arguments
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
         type_call = ir.type_call
         new_ir = LowLevelCall(destination, function_name, nbr_arguments, lvalue, type_call)
         new_ir.call_id = ir.call_id
-        new_ir.call_value = get_variable(ir, lambda x: x.call_value, *instances)
-        new_ir.call_gas = get_variable(ir, lambda x: x.call_gas, *instances)
-        new_ir.arguments = get_arguments(ir, *instances)
+        new_ir.call_value = get_variable(ir, lambda x: x.call_value, instances, instances_temporary)
+        new_ir.call_gas = get_variable(ir, lambda x: x.call_gas, instances, instances_temporary)
+        new_ir.arguments = get_arguments(ir, instances, instances_temporary)
         return new_ir
-    elif isinstance(ir, Member):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        variable_left = get_variable(ir, lambda x: x.variable_left, *instances)
-        variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
-        return Member(variable_left, variable_right, lvalue)
+    elif isinstance(ir, AccessMember):
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        variable_left = get_variable(ir, lambda x: x.variable_left, instances, instances_temporary)
+        variable_right = get_variable(ir, lambda x: x.variable_right, instances, instances_temporary)
+        return AccessMember(variable_left, variable_right, lvalue)
+    elif isinstance(ir, UpdateMember):
+        base = get_variable(ir, lambda x: x.base, instances, instances_temporary)
+        member = ir.member
+        new_value = get_variable(ir, lambda x: x.new_value, instances, instances_temporary)
+        return UpdateMember(base, member, new_value)
+    elif isinstance(ir, UpdateMemberDependency):
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        base = get_variable(ir, lambda x: x.base, instances, instances_temporary)
+        member = ir.member
+        new_value = get_variable(ir, lambda x: x.new_value, instances, instances_temporary)
+        return UpdateMemberDependency(base, member, new_value, lvalue)
+    elif isinstance(ir, UpdateIndex):
+        base = get_variable(ir, lambda x: x.base, instances, instances_temporary)
+        offset = get_variable(ir, lambda x: x.offset, instances, instances_temporary)
+        new_value = get_variable(ir, lambda x: x.new_value, instances, instances_temporary)
+        return UpdateIndex(base, offset, new_value)
     elif isinstance(ir, NewArray):
         depth = ir.depth
         array_type = ir.array_type
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
         new_ir = NewArray(depth, array_type, lvalue)
-        new_ir.arguments = get_rec_values(ir, lambda x: x.arguments, *instances)
+        new_ir.arguments = get_rec_values(ir, lambda x: x.arguments, instances, instances_temporary)
         return new_ir
     elif isinstance(ir, NewElementaryType):
         new_type = ir.type
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
         new_ir = NewElementaryType(new_type, lvalue)
-        new_ir.arguments = get_arguments(ir, *instances)
+        new_ir.arguments = get_arguments(ir, instances, instances_temporary)
         return new_ir
     elif isinstance(ir, NewContract):
         contract_name = ir.contract_name
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
         new_ir = NewContract(contract_name, lvalue)
-        new_ir.arguments = get_arguments(ir, *instances)
+        new_ir.arguments = get_arguments(ir, instances, instances_temporary)
         return new_ir
     elif isinstance(ir, NewStructure):
         structure = ir.structure
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
         new_ir = NewStructure(structure, lvalue)
-        new_ir.arguments = get_arguments(ir, *instances)
+        new_ir.arguments = get_arguments(ir, instances, instances_temporary)
         return new_ir
     elif isinstance(ir, Nop):
         return Nop()
     elif isinstance(ir, Push):
-        array = get_variable(ir, lambda x: x.array, *instances)
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        array = get_variable(ir, lambda x: x.array, instances, instances_temporary)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
         return Push(array, lvalue)
     elif isinstance(ir, Return):
-        values = get_rec_values(ir, lambda x: x.values, *instances)
+        values = get_rec_values(ir, lambda x: x.values, instances, instances_temporary)
         return Return(values)
     elif isinstance(ir, Send):
-        destination = get_variable(ir, lambda x: x.destination, *instances)
-        value = get_variable(ir, lambda x: x.call_value, *instances)
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        destination = get_variable(ir, lambda x: x.destination, instances, instances_temporary)
+        value = get_variable(ir, lambda x: x.call_value, instances, instances_temporary)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
         return Send(destination, value, lvalue)
     elif isinstance(ir, SolidityCall):
         function = ir.function
         nbr_arguments = ir.nbr_arguments
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
         type_call = ir.type_call
         new_ir = SolidityCall(function, nbr_arguments, lvalue, type_call)
-        new_ir.arguments = get_arguments(ir, *instances)
+        new_ir.arguments = get_arguments(ir, instances, instances_temporary)
         return new_ir
     elif isinstance(ir, Transfer):
-        destination = get_variable(ir, lambda x: x.destination, *instances)
-        value = get_variable(ir, lambda x: x.call_value, *instances)
+        destination = get_variable(ir, lambda x: x.destination, instances, instances_temporary)
+        value = get_variable(ir, lambda x: x.call_value, instances, instances_temporary)
         return Transfer(destination, value)
     elif isinstance(ir, TypeConversion):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        variable = get_variable(ir, lambda x: x.variable, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        variable = get_variable(ir, lambda x: x.variable, instances, instances_temporary)
         variable_type = ir.type
         return TypeConversion(lvalue, variable, variable_type)
     elif isinstance(ir, Unary):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        rvalue = get_variable(ir, lambda x: x.rvalue, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        rvalue = get_variable(ir, lambda x: x.rvalue, instances, instances_temporary)
         operation_type = ir.type
         return Unary(lvalue, rvalue, operation_type)
     elif isinstance(ir, Unpack):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        tuple_var = get_variable(ir, lambda x: x.tuple, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        tuple_var = get_variable(ir, lambda x: x.tuple, instances, instances_temporary)
         idx = ir.index
         return Unpack(lvalue, tuple_var, idx)
     elif isinstance(ir, Length):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        value = get_variable(ir, lambda x: x.value, *instances)
+        lvalue = get_variable(ir, lambda x: x.lvalue, instances, instances_temporary)
+        value = get_variable(ir, lambda x: x.value, instances, instances_temporary)
         return Length(value, lvalue)
-
 
     raise SlithIRError('Impossible ir copy on {} ({})'.format(ir, type(ir)))
 

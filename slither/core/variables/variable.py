@@ -18,6 +18,10 @@ class Variable(SourceMapping):
         self._is_constant = False
 
     @property
+    def is_scalar(self):
+        return isinstance(self.type, ElementaryType)
+
+    @property
     def expression(self):
         """
             Expression: Expression of the node (if initialized)

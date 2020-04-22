@@ -55,18 +55,18 @@ contract Crowdsale{
             for node in func.nodes:
                 for ir in node.irs_ssa:
                     if isinstance(ir, Balance):
+                        # TODO: fix Balance support
                         taints.append(ir.lvalue)
                     if isinstance(ir, HighLevelCall):
-                        #print(ir.function.full_name)
-                        if isinstance(ir.function, Function) and\
-                            ir.function.full_name == 'balanceOf(address)':
-                                taints.append(ir.lvalue)
-                        if isinstance(ir.function, StateVariable) and\
-                            isinstance(ir.function.type, MappingType) and\
-                            ir.function.name == 'balanceOf' and\
-                            ir.function.type.type_from == ElementaryType('address') and\
-                            ir.function.type.type_to == ElementaryType('uint256'):
-                                taints.append(ir.lvalue)
+                        if isinstance(ir.function, Function) and \
+                                ir.function.full_name == 'balanceOf(address)':
+                            taints.append(ir.lvalue)
+                        if isinstance(ir.function, StateVariable) and \
+                                isinstance(ir.function.type, MappingType) and \
+                                ir.function.name == 'balanceOf' and \
+                                ir.function.type.type_from == ElementaryType('address') and \
+                                ir.function.type.type_to == ElementaryType('uint256'):
+                            taints.append(ir.lvalue)
                     if isinstance(ir, Assignment):
                         if ir.rvalue in self.sources_taint:
                             taints.append(ir.lvalue)
@@ -108,7 +108,7 @@ contract Crowdsale{
             ret = self.detect_strict_equality(c)
 
             # sort ret to get deterministic results
-            ret = sorted(list(ret.items()), key=lambda x:x[0].name)
+            ret = sorted(list(ret.items()), key=lambda x: x[0].name)
             for f, nodes in ret:
 
                 func_info = [f, " uses a dangerous strict equality:\n"]

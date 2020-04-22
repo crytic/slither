@@ -2,14 +2,10 @@
     Module printing summary of the contract
 """
 
-from prettytable import PrettyTable
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.analyses.data_dependency.data_dependency import get_dependencies
-from slither.slithir.variables import TemporaryVariable, ReferenceVariable
+from slither.analyses.data_dependency.data_dependency import pprint_dependency_table
 
-def _get(v, c):
-    return list(set([d.name for d in get_dependencies(v, c) if not isinstance(d, (TemporaryVariable,
-                                                                               ReferenceVariable))]))
+
 
 class DataDependency(AbstractPrinter):
 
@@ -29,22 +25,18 @@ class DataDependency(AbstractPrinter):
         all_txt = ''
 
         txt = ''
+        #print(pprint_dependency(c))
         for c in self.contracts:
+            #print(pprint_dependency(c))
             txt += "\nContract %s\n"%c.name
-            table = PrettyTable(['Variable', 'Dependencies'])
-            for v in c.state_variables:
-                table.add_row([v.name, _get(v, c)])
+            table = pprint_dependency_table(c)
 
             txt += str(table)
 
             txt += "\n"
             for f in c.functions_and_modifiers_declared:
                 txt += "\nFunction %s\n"%f.full_name
-                table = PrettyTable(['Variable', 'Dependencies'])
-                for v in f.variables:
-                    table.add_row([v.name, _get(v, f)])
-                for v in c.state_variables:
-                    table.add_row([v.canonical_name, _get(v, f)])
+                table = pprint_dependency_table(f)
                 txt += str(table)
             self.info(txt)
 

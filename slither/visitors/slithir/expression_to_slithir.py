@@ -4,17 +4,17 @@ from slither.core.declarations import Function
 from slither.core.expressions import (AssignmentOperationType,
                                       UnaryOperationType)
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
-                                        Index, InitArray, InternalCall, Member,
-                                        NewArray, NewContract,
-                                        TypeConversion, Unary, Unpack, Return)
+                                        Index, InitArray, InternalCall, AccessMember,
+                                        NewArray, NewContract, UpdateMember,
+                                        TypeConversion, Unary, Unpack, Return, UpdateMemberDependency, UpdateIndex)
 from slither.slithir.tmp_operations.argument import Argument
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import \
     TmpNewElementaryType
-from slither.slithir.variables import (Constant, ReferenceVariable,
-                                       TemporaryVariable, TupleVariable)
+from slither.slithir.variables import (Constant, IndexVariable,
+                                       TemporaryVariable, TupleVariable, MemberVariable)
 from slither.visitors.expression.expression import ExpressionVisitor
 
 from slither.slithir.exceptions import SlithIRError
@@ -23,40 +23,91 @@ logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
 
 key = 'expressionToSlithIR'
 
+
 def get(expression):
     val = expression.context[key]
     # we delete the item to reduce memory use
     del expression.context[key]
     return val
 
+
 def set_val(expression, val):
     expression.context[key] = val
 
-def convert_assignment(left, right, t, return_type):
+
+_assign_to_binary = {
+    AssignmentOperationType.ASSIGN_MULTIPLICATION: BinaryType.MULTIPLICATION,
+    AssignmentOperationType.ASSIGN_DIVISION: BinaryType.DIVISION,
+    AssignmentOperationType.ASSIGN_MODULO: BinaryType.MODULO,
+    AssignmentOperationType.ASSIGN_ADDITION: BinaryType.ADDITION,
+    AssignmentOperationType.ASSIGN_SUBTRACTION: BinaryType.SUBTRACTION,
+    AssignmentOperationType.ASSIGN_LEFT_SHIFT: BinaryType.LEFT_SHIFT,
+    AssignmentOperationType.ASSIGN_RIGHT_SHIFT: BinaryType.RIGHT_SHIFT,
+    AssignmentOperationType.ASSIGN_AND: BinaryType.AND,
+    AssignmentOperationType.ASSIGN_CARET: BinaryType.CARET,
+    AssignmentOperationType.ASSIGN_OR: BinaryType.OR
+}
+
+
+def convert_assignement_member(left, right, t):
+    operations = []
+
     if t == AssignmentOperationType.ASSIGN:
-        return Assignment(left, right, return_type)
+        operations.append(UpdateMember(left.base, left.member, right))
+
+    elif t in _assign_to_binary:
+        val = TemporaryVariable(left.node)
+        operations.append(Binary(val, left, right, _assign_to_binary[t]))
+        operations.append(UpdateMember(left.base, left.member, val))
+
+    return operations, left
+
+
+def convert_assignement_index(left, right, t):
+    operations = []
+
+    if t == AssignmentOperationType.ASSIGN:
+        operations.append(UpdateIndex(left.base, left.offset, right))
+
+    elif t in _assign_to_binary:
+        val = TemporaryVariable(left.node)
+        operations.append(Binary(val, left, right, _assign_to_binary[t]))
+        operations.append(UpdateIndex(left.base, left.offset, val))
+
+    return operations, left
+
+
+def convert_assignment(left, right, t, return_type):
+    if isinstance(left, MemberVariable):
+        return convert_assignement_member(left, right, t)
+    if isinstance(left, IndexVariable):
+        return convert_assignement_index(left, right, t)
+
+    if t == AssignmentOperationType.ASSIGN:
+        return [Assignment(left, right, return_type)], left
     elif t == AssignmentOperationType.ASSIGN_OR:
-        return Binary(left, left, right, BinaryType.OR)
+        return [Binary(left, left, right, BinaryType.OR)], left
     elif t == AssignmentOperationType.ASSIGN_CARET:
-        return Binary(left, left, right, BinaryType.CARET)
+        return [Binary(left, left, right, BinaryType.CARET)], left
     elif t == AssignmentOperationType.ASSIGN_AND:
-        return Binary(left, left, right, BinaryType.AND)
+        return [Binary(left, left, right, BinaryType.AND)], left
     elif t == AssignmentOperationType.ASSIGN_LEFT_SHIFT:
-        return Binary(left, left, right, BinaryType.LEFT_SHIFT)
+        return [Binary(left, left, right, BinaryType.LEFT_SHIFT)], left
     elif t == AssignmentOperationType.ASSIGN_RIGHT_SHIFT:
-        return Binary(left, left, right, BinaryType.RIGHT_SHIFT)
+        return [Binary(left, left, right, BinaryType.RIGHT_SHIFT)], left
     elif t == AssignmentOperationType.ASSIGN_ADDITION:
-        return Binary(left, left, right, BinaryType.ADDITION)
+        return [Binary(left, left, right, BinaryType.ADDITION)], left
     elif t == AssignmentOperationType.ASSIGN_SUBTRACTION:
-        return Binary(left, left, right, BinaryType.SUBTRACTION)
+        return [Binary(left, left, right, BinaryType.SUBTRACTION)], left
     elif t == AssignmentOperationType.ASSIGN_MULTIPLICATION:
-        return Binary(left, left, right, BinaryType.MULTIPLICATION)
+        return [Binary(left, left, right, BinaryType.MULTIPLICATION)], left
     elif t == AssignmentOperationType.ASSIGN_DIVISION:
-        return Binary(left, left, right, BinaryType.DIVISION)
+        return [Binary(left, left, right, BinaryType.DIVISION)], left
     elif t == AssignmentOperationType.ASSIGN_MODULO:
-        return Binary(left, left, right, BinaryType.MODULO)
+        return [Binary(left, left, right, BinaryType.MODULO)], left
 
     raise SlithIRError('Missing type during assignment conversion')
+
 
 class ExpressionToSlithIR(ExpressionVisitor):
 
@@ -79,14 +130,16 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def _post_assignement_operation(self, expression):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
-        if isinstance(left, list): # tuple expression:
-            if isinstance(right, list): # unbox assigment
+        if isinstance(left, list):  # tuple expression:
+            if isinstance(right, list):  # unbox assigment
                 assert len(left) == len(right)
                 for idx in range(len(left)):
                     if not left[idx] is None:
-                        operation = convert_assignment(left[idx], right[idx], expression.type, expression.expression_return_type)
-                        operation.set_expression(expression)
-                        self._result.append(operation)
+                        (operations, _) = convert_assignment(left[idx], right[idx], expression.type,
+                                                             expression.expression_return_type)
+                        for operation in operations:
+                            operation.set_expression(expression)
+                            self._result.append(operation)
                 set_val(expression, None)
             else:
                 assert isinstance(right, TupleVariable)
@@ -105,12 +158,14 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
                 set_val(expression, left)
             else:
-                operation = convert_assignment(left, right, expression.type, expression.expression_return_type)
-                operation.set_expression(expression)
-                self._result.append(operation)
+                (operations, value_returned) = convert_assignment(left, right, expression.type,
+                                                                  expression.expression_return_type)
+                for operation in operations:
+                    operation.set_expression(expression)
+                    self._result.append(operation)
                 # Return left to handle
                 # a = b = 1; 
-                set_val(expression, left)
+                set_val(expression, value_returned)
 
     def _post_binary_operation(self, expression):
         left = get(expression.expression_left)
@@ -173,7 +228,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def _post_index_access(self, expression):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
-        val = ReferenceVariable(self._node)
+        val = IndexVariable(self._node, left, right)
         # access to anonymous array
         # such as [0,1][x]
         if isinstance(left, list):
@@ -194,8 +249,13 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
     def _post_member_access(self, expression):
         expr = get(expression.expression)
-        val = ReferenceVariable(self._node)
-        member = Member(expr, Constant(expression.member_name), val)
+        member_name = Constant(expression.member_name)
+        # if str(member_name) in expr.context.get('MEMBERS', dict()):
+        #     val = expr.context['MEMBERS'][str(member_name)]
+        # else:
+        val = MemberVariable(self._node, expr, member_name)
+        #    expr.context['MEMBERS'][str(member_name)] = val
+        member = AccessMember(expr, member_name, val)
         member.set_expression(expression)
         self._result.append(member)
         set_val(expression, val)
@@ -289,4 +349,3 @@ class ExpressionToSlithIR(ExpressionVisitor):
             set_val(expression, lvalue)
         else:
             raise SlithIRError('Unary operation to IR not supported {}'.format(expression))
-

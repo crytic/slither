@@ -5,6 +5,7 @@ import logging
 from collections import namedtuple
 from enum import Enum
 from itertools import groupby
+from typing import Dict
 
 from slither.core.children.child_contract import ChildContract
 from slither.core.children.child_inheritance import ChildInheritance
@@ -16,6 +17,8 @@ from slither.core.expressions import (Identifier, IndexAccess, MemberAccess,
 from slither.core.solidity_types import UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.variables.local_variable import LocalVariable
+
 from slither.core.variables.state_variable import StateVariable
 from slither.utils.utils import unroll
 
@@ -145,6 +148,8 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         # Computed on the fly, can be True of False
         self._can_reenter = None
         self._can_send_eth = None
+
+        self._nodes_ordered_dominators = None
 
     ###################################################################################
     ###################################################################################
@@ -388,6 +393,30 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         if not self._entry_point:
             self._entry_point = node
         self._nodes.append(node)
+
+    @property
+    def nodes_ordered_dominators(self):
+        # TODO: does not work properly; most likely due to modifier call
+        # This will not work for modifier call that lead to multiple nodes
+        # from slither.core.cfg.node import NodeType
+        if self._nodes_ordered_dominators is None:
+            self._nodes_ordered_dominators = []
+            if self.entry_point:
+                self._compute_nodes_ordered_dominators(self.entry_point)
+
+            for node in self.nodes:
+                # if node.type == NodeType.OTHER_ENTRYPOINT:
+                if not node in self._nodes_ordered_dominators:
+                    self._compute_nodes_ordered_dominators(node)
+
+        return self._nodes_ordered_dominators
+
+    def _compute_nodes_ordered_dominators(self, node):
+        if node in self._nodes_ordered_dominators:
+            return
+        self._nodes_ordered_dominators.append(node)
+        for dom in node.dominance_exploration_ordered:
+            self._compute_nodes_ordered_dominators(dom)
 
     # endregion
     ###################################################################################
@@ -1328,8 +1357,8 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     ###################################################################################
     ###################################################################################
 
-    def get_last_ssa_state_variables_instances(self):
-        from slither.slithir.variables import ReferenceVariable
+    def _get_last_ssa_variable_instances(self, target_state: bool, target_local: bool):
+        from slither.slithir.variables import IndexVariable
         from slither.slithir.operations import OperationWithLValue
         from slither.core.cfg.node import NodeType
 
@@ -1339,9 +1368,9 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         # node, values
         to_explore = [(self._entry_point, dict())]
         # node -> values
-        explored = dict()
+        explored: Dict = dict()
         # name -> instances
-        ret = dict()
+        ret: Dict = dict()
 
         while to_explore:
             node, values = to_explore[0]
@@ -1351,9 +1380,11 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                 for ir_ssa in node.irs_ssa:
                     if isinstance(ir_ssa, OperationWithLValue):
                         lvalue = ir_ssa.lvalue
-                        if isinstance(lvalue, ReferenceVariable):
+                        if isinstance(lvalue, IndexVariable):
                             lvalue = lvalue.points_to_origin
-                        if isinstance(lvalue, StateVariable):
+                        if isinstance(lvalue, StateVariable) and target_state:
+                            values[lvalue.canonical_name] = {lvalue}
+                        if isinstance(lvalue, LocalVariable) and target_local:
                             values[lvalue.canonical_name] = {lvalue}
 
             # Check for fixpoint
@@ -1369,7 +1400,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                 explored[node] = values
 
             # Return condition
-            if not node.sons and node.type != NodeType.THROW:
+            if node.will_return:
                 for name, instances in values.items():
                     if name not in ret:
                         ret[name] = set()
@@ -1379,6 +1410,12 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                 to_explore.append((son, dict(values)))
 
         return ret
+
+    def get_last_ssa_state_variables_instances(self):
+        return self._get_last_ssa_variable_instances(target_state=True, target_local=False)
+
+    def get_last_ssa_local_variables_instances(self):
+        return self._get_last_ssa_variable_instances(target_state=False, target_local=True)
 
     @staticmethod
     def _unchange_phi(ir):
@@ -1411,11 +1448,27 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                 if isinstance(ir, PhiCallback):
                     callee_ir = ir.callee_ir
                     if isinstance(callee_ir, InternalCall):
+                        original_rvalues = ir.rvalues
+                        ir.rvalues = []
+                        # If phi callback on a variable that is used as a storage parameter
+                        # We need to point to all the last SSA variable of that parameter
+                        # We iterate because it migth be used multiple time as a storage parameter
+                        for idx in ir.storage_idx:
+                            target = callee_ir.function.parameters_ssa[idx]
+                            last_ssa = callee_ir.function.get_last_ssa_local_variables_instances()
+                            if target.canonical_name in last_ssa:
+                                ir.rvalues += list(last_ssa[target.canonical_name])
+                            else:
+                                ir.rvalues += [target]
+
+                        target = ir.lvalue
                         last_ssa = callee_ir.function.get_last_ssa_state_variables_instances()
-                        if ir.lvalue.canonical_name in last_ssa:
-                            ir.rvalues = list(last_ssa[ir.lvalue.canonical_name])
-                        else:
-                            ir.rvalues = [ir.lvalue]
+                        if target.canonical_name in last_ssa:
+                            ir.rvalues += list(last_ssa[target.canonical_name])
+                        # If the variable was not changed in the internal call
+                        # And was not used as a storage pointer, then it should be the original values
+                        elif not ir.storage_idx:
+                            ir.rvalues = original_rvalues
                     else:
                         additional = last_state_variables_instances[ir.lvalue.canonical_name]
                         ir.rvalues = list(set(additional + ir.rvalues))

@@ -6,7 +6,7 @@ from typing import Optional
 
 from slither.core.children.child_function import ChildFunction
 from slither.core.declarations import Contract
-from slither.core.declarations.solidity_variables import SolidityVariable
+from slither.core.declarations.solidity_variables import SolidityVariable, SolidityFunction
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
@@ -15,11 +15,11 @@ from slither.core.solidity_types import ElementaryType
 from slither.slithir.convert import convert_expression
 from slither.slithir.operations import (Balance, HighLevelCall, Index,
                                         InternalCall, Length, LibraryCall,
-                                        LowLevelCall, Member,
+                                        LowLevelCall, AccessMember,
                                         OperationWithLValue, Phi, PhiCallback,
                                         SolidityCall, Return)
 from slither.slithir.variables import (Constant, LocalIRVariable,
-                                       ReferenceVariable, StateIRVariable,
+                                       IndexVariable, StateIRVariable, MemberVariable,
                                        TemporaryVariable, TupleVariable)
 from slither.all_exceptions import SlitherException
 
@@ -178,6 +178,7 @@ class Node(SourceMapping, ChildFunction):
         # values are list of Node
         self._phi_origins_state_variables = {}
         self._phi_origins_local_variables = {}
+        self._phi_origins_member_variables = {}
 
         self._expression = None
         self._variable_declaration = None
@@ -249,6 +250,15 @@ class Node(SourceMapping, ChildFunction):
     @type.setter
     def type(self, t):
         self._node_type = t
+
+    @property
+    def will_return(self):
+        if not self.sons and self.type != NodeType.THROW:
+            if not SolidityFunction("revert()") in self.solidity_calls:
+                if not SolidityFunction("revert(string)") in self.solidity_calls:
+                    return True
+        return False
+
 
     # endregion
     ###################################################################################
@@ -673,6 +683,9 @@ class Node(SourceMapping, ChildFunction):
         ir.set_node(self)
         self._irs_ssa.append(ir)
 
+
+
+
     def slithir_generation(self):
         if self.expression:
             expression = self.expression
@@ -682,11 +695,11 @@ class Node(SourceMapping, ChildFunction):
 
     @staticmethod
     def _is_non_slithir_var(var):
-        return not isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
+        return not isinstance(var, (Constant, IndexVariable, TemporaryVariable, TupleVariable))
 
     @staticmethod
     def _is_valid_slithir_var(var):
-        return isinstance(var, (ReferenceVariable, TemporaryVariable, TupleVariable))
+        return isinstance(var, (IndexVariable, TemporaryVariable, TupleVariable))
 
     # endregion
     ###################################################################################
@@ -735,6 +748,22 @@ class Node(SourceMapping, ChildFunction):
     def dominance_frontier(self, dom):
         self._dominance_frontier = dom
 
+    @property
+    def dominance_exploration_ordered(self):
+        """
+        Sorted list of all the nodes to explore to follow the dom
+        :return: list(nodes)
+        """
+        # Explore direct dominance
+        to_explore = sorted(list(self.dominator_successors), key=lambda x: x.node_id)
+
+        # Explore dominance frontier
+        # The frontier is the limit where this node dominates
+        # We need to explore it because the sub of the direct dominance
+        # Might not be dominator of their own sub
+        to_explore += sorted(list(self.dominance_frontier), key=lambda x: x.node_id)
+        return to_explore
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -750,6 +779,10 @@ class Node(SourceMapping, ChildFunction):
     def phi_origins_state_variables(self):
         return self._phi_origins_state_variables
 
+    @property
+    def phi_origin_member_variables(self):
+        return self._phi_origins_member_variables
+
     def add_phi_origin_local_variable(self, variable, node):
         if variable.name not in self._phi_origins_local_variables:
             self._phi_origins_local_variables[variable.name] = (variable, set())
@@ -763,6 +796,16 @@ class Node(SourceMapping, ChildFunction):
         (v, nodes) = self._phi_origins_state_variables[variable.canonical_name]
         assert v == variable
         nodes.add(node)
+
+    def add_phi_origin_member_variable(self, variable, node):
+        if variable.name not in self._phi_origins_member_variables:
+            self._phi_origins_member_variables[variable.name] = (variable, set())
+        (v, nodes) = self._phi_origins_member_variables[variable.name]
+        assert v == variable
+        nodes.add(node)
+
+
+
 
     # endregion
     ###################################################################################
@@ -781,25 +824,25 @@ class Node(SourceMapping, ChildFunction):
                 if var and self._is_valid_slithir_var(var):
                     self._slithir_vars.add(var)
 
-            if not isinstance(ir, (Phi, Index, Member)):
+            if not isinstance(ir, (Phi, Index, AccessMember)):
                 self._vars_read += [v for v in ir.read if self._is_non_slithir_var(v)]
                 for var in ir.read:
-                    if isinstance(var, (ReferenceVariable)):
+                    if isinstance(var, (IndexVariable, MemberVariable)):
                         self._vars_read.append(var.points_to_origin)
-            elif isinstance(ir, (Member, Index)):
-                var = ir.variable_left if isinstance(ir, Member) else ir.variable_right
+            elif isinstance(ir, (AccessMember, Index)):
+                var = ir.variable_left if isinstance(ir, AccessMember) else ir.variable_right
                 if self._is_non_slithir_var(var):
                     self._vars_read.append(var)
-                if isinstance(var, (ReferenceVariable)):
+                if isinstance(var, (IndexVariable, MemberVariable)):
                     origin = var.points_to_origin
                     if self._is_non_slithir_var(origin):
                         self._vars_read.append(origin)
 
             if isinstance(ir, OperationWithLValue):
-                if isinstance(ir, (Index, Member, Length, Balance)):
+                if isinstance(ir, (Index, AccessMember, Length, Balance)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
                 var = ir.lvalue
-                if isinstance(var, (ReferenceVariable)):
+                if isinstance(var, (IndexVariable, MemberVariable)):
                     var = var.points_to_origin
                 if var and self._is_non_slithir_var(var):
                     self._vars_written.append(var)
@@ -859,29 +902,29 @@ class Node(SourceMapping, ChildFunction):
         for ir in self.irs_ssa:
             if isinstance(ir, (PhiCallback)):
                 continue
-            if not isinstance(ir, (Phi, Index, Member)):
+            if not isinstance(ir, (Phi, Index, AccessMember)):
                 self._ssa_vars_read += [v for v in ir.read if isinstance(v,
                                                                          (StateIRVariable,
                                                                           LocalIRVariable))]
                 for var in ir.read:
-                    if isinstance(var, (ReferenceVariable)):
+                    if isinstance(var, (IndexVariable, MemberVariable)):
                         origin = var.points_to_origin
                         if isinstance(origin, (StateIRVariable, LocalIRVariable)):
                             self._ssa_vars_read.append(origin)
 
-            elif isinstance(ir, (Member, Index)):
+            elif isinstance(ir, (AccessMember, Index)):
                 if isinstance(ir.variable_right, (StateIRVariable, LocalIRVariable)):
                     self._ssa_vars_read.append(ir.variable_right)
-                if isinstance(ir.variable_right, (ReferenceVariable)):
+                if isinstance(ir.variable_right, (IndexVariable, MemberVariable)):
                     origin = ir.variable_right.points_to_origin
                     if isinstance(origin, (StateIRVariable, LocalIRVariable)):
                         self._ssa_vars_read.append(origin)
 
             if isinstance(ir, OperationWithLValue):
-                if isinstance(ir, (Index, Member, Length, Balance)):
+                if isinstance(ir, (Index, AccessMember, Length, Balance)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
                 var = ir.lvalue
-                if isinstance(var, (ReferenceVariable)):
+                if isinstance(var, (IndexVariable, MemberVariable)):
                     var = var.points_to_origin
                 # Only store non-slithIR variables
                 if var and isinstance(var, (StateIRVariable, LocalIRVariable)):

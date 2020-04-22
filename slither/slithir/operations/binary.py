@@ -4,7 +4,7 @@ from slither.core.solidity_types import ElementaryType
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
-from slither.slithir.variables import ReferenceVariable
+from slither.slithir.variables import IndexVariable
 
 logger = logging.getLogger("BinaryOperationIR")
 
@@ -165,9 +165,9 @@ class Binary(OperationWithLValue):
         return BinaryType.str(self._type)
 
     def __str__(self):
-        if isinstance(self.lvalue, ReferenceVariable):
+        if isinstance(self.lvalue, IndexVariable):
             points = self.lvalue.points_to
-            while isinstance(points, ReferenceVariable):
+            while isinstance(points, IndexVariable):
                 points = points.points_to
             return '{}(-> {}) = {} {} {}'.format(str(self.lvalue),
                                               points,

@@ -1,5 +1,7 @@
 from slither.core.declarations import SolidityVariableComposed
 from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.variables.index_variable import IndexVariable
+
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.slithir.variables.reference import ReferenceVariable
 
@@ -10,7 +12,7 @@ class Index(OperationWithLValue):
         super(Index, self).__init__()
         assert is_valid_lvalue(left_variable) or left_variable == SolidityVariableComposed('msg.data')
         assert is_valid_rvalue(right_variable)
-        assert isinstance(result, ReferenceVariable)
+        assert isinstance(result, IndexVariable)
         self._variables = [left_variable, right_variable]
         self._type = index_type
         self._lvalue = result

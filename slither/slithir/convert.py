@@ -16,12 +16,12 @@ from slither.slithir.operations import (Assignment, Balance, Binary,
                                         EventCall, HighLevelCall, Index,
                                         InitArray, InternalCall,
                                         InternalDynamicCall, Length,
-                                        LibraryCall, LowLevelCall, Member,
+                                        LibraryCall, LowLevelCall, AccessMember,
                                         NewArray, NewContract,
                                         NewElementaryType, NewStructure,
                                         OperationWithLValue, Push, Return,
                                         Send, SolidityCall, Transfer,
-                                        TypeConversion, Unary, Unpack, Nop)
+                                        TypeConversion, Unary, Unpack, Nop, UpdateMember)
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -29,8 +29,9 @@ from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import \
     TmpNewElementaryType
 from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
-from slither.slithir.variables import (Constant, ReferenceVariable,
+from slither.slithir.variables import (Constant, IndexVariable, MemberVariable,
                                        TemporaryVariable)
+from slither.slithir.variables.reference import ReferenceVariable
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 from slither.utils.function import get_function_id
 from slither.utils.type import export_nested_types_from_variable
@@ -89,7 +90,7 @@ def convert_expression(expression, node):
 
 def is_value(ins):
     if isinstance(ins, TmpCall):
-        if isinstance(ins.ori, Member):
+        if isinstance(ins.ori, AccessMember):
             if ins.ori.variable_right == 'value':
                 return True
     return False
@@ -97,7 +98,7 @@ def is_value(ins):
 
 def is_gas(ins):
     if isinstance(ins, TmpCall):
-        if isinstance(ins.ori, Member):
+        if isinstance(ins.ori, AccessMember):
             if ins.ori.variable_right == 'gas':
                 return True
     return False
@@ -270,6 +271,8 @@ def propagate_type_and_convert_call(result, node):
     # use of while len() as result can be modified during the iteration
     while idx < len(result):
         ins = result[idx]
+
+        #print(ins)
 
         if isinstance(ins, TmpCall):
             new_ins = extract_tmp_call(ins, node.function.contract)
@@ -484,7 +487,7 @@ def propagate_types(ir, node):
                 # Call are not yet converted
                 # This should not happen
                 assert False
-            elif isinstance(ir, Member):
+            elif isinstance(ir, AccessMember):
                 # TODO we should convert the reference to a temporary if the member is a length or a balance
                 if ir.variable_right == 'length' and not isinstance(ir.variable_left, Contract) and isinstance(
                         ir.variable_left.type, (ElementaryType, ArrayType)):
@@ -537,9 +540,10 @@ def propagate_types(ir, node):
                             # if there are multiple functions with the same name
                             f = next((f for f in type_t.functions if f.name == ir.variable_right), None)
                             if f:
+                                return  # TODO find out why it is keeping incorrect Access here
                                 ir.lvalue.set_type(f)
                             else:
-                                # Allow propgation for variable access through contract's nale
+                                # Allow propgation for variable access through contract's name
                                 # like Base_contract.my_variable
                                 v = next((v for v in type_t.state_variables if v.name == ir.variable_right), None)
                                 if v:
@@ -591,7 +595,7 @@ def extract_tmp_call(ins, contract):
         call.set_expression(ins.expression)
         call.call_id = ins.call_id
         return call
-    if isinstance(ins.ori, Member):
+    if isinstance(ins.ori, AccessMember):
         # If there is a call on an inherited contract, it is an internal call or an event
         if ins.ori.variable_left in contract.inheritance + [contract]:
             if str(ins.ori.variable_right) in [f.name for f in contract.functions]:
@@ -1068,7 +1072,7 @@ def find_references_origin(irs):
         points to the left variable
     """
     for ir in irs:
-        if isinstance(ir, (Index, Member)):
+        if isinstance(ir, (Index, AccessMember)):
             ir.lvalue.points_to = ir.variable_left
 
 
@@ -1108,17 +1112,17 @@ def remove_unused(result):
         # and reference that are written
         for ins in result:
             to_keep += [str(x) for x in ins.read]
-            if isinstance(ins, OperationWithLValue) and not isinstance(ins, (Index, Member)):
-                if isinstance(ins.lvalue, ReferenceVariable):
+            if isinstance(ins, OperationWithLValue) and not isinstance(ins, (Index, AccessMember)):
+                if isinstance(ins.lvalue, (IndexVariable, MemberVariable)):
                     to_keep += [str(ins.lvalue)]
 
         for ins in result:
-            if isinstance(ins, Member):
-                if not ins.lvalue.name in to_keep and ins != last_elem:
+            if isinstance(ins, (AccessMember, Index)):
+                if ins.lvalue.name not in to_keep and ins != last_elem:
                     to_remove.append(ins)
                     removed = True
 
-        result = [i for i in result if not i in to_remove]
+        result = [i for i in result if i not in to_remove]
     return result
 
 
@@ -1225,7 +1229,6 @@ def apply_ir_heuristics(irs, node):
     """
         Apply a set of heuristic to improve slithIR
     """
-
     irs = integrate_value_gas(irs)
 
     irs = propagate_type_and_convert_call(irs, node)

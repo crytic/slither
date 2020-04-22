@@ -11,7 +11,7 @@
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import InternalCall, LibraryCall
-from slither.slithir.variables import ReferenceVariable
+from slither.slithir.variables.reference import ReferenceVariable
 
 
 class UninitializedStateVarsDetection(AbstractDetector):

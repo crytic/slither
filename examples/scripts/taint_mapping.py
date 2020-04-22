@@ -6,7 +6,7 @@ from slither.core.variables.state_variable import StateVariable
 from slither.slither import Slither
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.index import Index
-from slither.slithir.variables.reference import ReferenceVariable
+from slither.slithir.variables.index_variable import IndexVariable
 from slither.slithir.variables.temporary import TemporaryVariable
 
 
@@ -33,14 +33,14 @@ def visit_node(node, visited):
         if any(var_read in taints for var_read in read):
             taints += [ir.lvalue]
             lvalue = ir.lvalue
-            while  isinstance(lvalue, ReferenceVariable):
+            while  isinstance(lvalue, IndexVariable):
                 taints += [refs[lvalue]]
                 lvalue = refs[lvalue]
 
         print('After {}'.format([str(x) for x in taints]))
         print()
 
-    taints = [v for v in taints if not isinstance(v, (TemporaryVariable, ReferenceVariable))]
+    taints = [v for v in taints if not isinstance(v, (TemporaryVariable, IndexVariable))]
 
     node.function.slither.context[KEY] = list(set(taints))
 

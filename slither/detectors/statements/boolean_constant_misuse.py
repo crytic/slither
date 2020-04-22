@@ -4,7 +4,8 @@ Module detecting misuse of Boolean constants
 from slither.core.cfg.node import NodeType
 from slither.core.solidity_types import ElementaryType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Assignment, Call, Return, InitArray, Binary, BinaryType, Condition
+from slither.slithir.operations import Assignment, Call, Return, InitArray, Binary, BinaryType, Condition, UpdateMember, \
+    UpdateIndex
 from slither.slithir.variables import Constant
 
 
@@ -71,7 +72,7 @@ Boolean constants in code have only a few legitimate uses.  Other uses (in compl
                                 continue
 
                 for ir in node.irs:
-                    if isinstance(ir, (Assignment, Call, Return, InitArray)):
+                    if isinstance(ir, (Assignment, Call, Return, InitArray, UpdateMember, UpdateIndex)):
                         # It's ok to use a bare boolean constant in these contexts
                         continue
                     if isinstance(ir, Binary):

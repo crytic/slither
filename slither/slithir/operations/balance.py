@@ -1,3 +1,8 @@
+"""
+Balance is modeled as a specific operation. It could have been modelized as a structure field,
+but we decide to have it as an operand as an external call can change the balance of a contract, which would
+have increase the SSA complexity
+"""
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue

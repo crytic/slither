@@ -115,3 +115,35 @@ contract PropagateThroughReturnValue {
     return (var_state);
   }
 }
+
+contract Nested{
+
+    struct St{
+        uint val1;
+        uint val2;
+    }
+
+    struct Nested{
+        St st;
+    }
+
+    struct NestedN{
+        Nested m;
+        Nested l;
+    }
+
+    NestedN n;
+
+    uint state_a;
+    uint state_b;
+
+    function f(uint a) public{
+        n.l.st.val1 = a;
+        n.m.st.val2 = n.l.st.val1;
+    }
+
+    function g() public{
+        state_b = n.m.st.val2 + state_a;
+    }
+
+}

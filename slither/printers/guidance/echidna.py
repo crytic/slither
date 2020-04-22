@@ -3,7 +3,7 @@
 
 import json
 from collections import defaultdict
-from typing import Dict, List, Set, Tuple, Union, NamedTuple
+from typing import Dict, List, Set, Tuple, NamedTuple
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
@@ -14,8 +14,8 @@ from slither.core.slither_core import Slither
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.slithir.operations import Member, Operation, SolidityCall, LowLevelCall, HighLevelCall, EventCall, Send, \
-    Transfer, InternalDynamicCall, InternalCall, TypeConversion, Balance
+from slither.slithir.operations import AccessMember, Operation, InternalDynamicCall, EventCall, LowLevelCall, Send, \
+    Transfer, HighLevelCall, InternalCall, SolidityCall, Balance, TypeConversion
 from slither.slithir.operations.binary import Binary, BinaryType
 from slither.slithir.variables import Constant
 
@@ -152,7 +152,7 @@ def _extract_constants_from_irs(irs: List[Operation],
                 continue
         for r in ir.read:
             # Do not report struct_name in a.struct_name
-            if isinstance(ir, Member):
+            if isinstance(ir, AccessMember):
                 continue
             if isinstance(r, Constant):
                 all_cst_used.append(ConstantValue(str(r.value), str(r.type)))
