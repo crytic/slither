@@ -130,7 +130,10 @@ def json_serializable(cls):
 
 @json_serializable
 class ConstantValue(NamedTuple):
-    value: Union[str, int, bool]
+    # Here value should be  Union[str, int, bool]
+    # But the json lib in Echidna does not handle large integer in json
+    # So we convert everything to string
+    value: str
     type: str
 
 
@@ -142,17 +145,17 @@ def _extract_constants_from_irs(irs: List[Operation],
         if isinstance(ir, Binary):
             for r in ir.read:
                 if isinstance(r, Constant):
-                    all_cst_used_in_binary[BinaryType.str(ir.type)].append(ConstantValue(r.value, str(r.type)))
+                    all_cst_used_in_binary[BinaryType.str(ir.type)].append(ConstantValue(str(r.value), str(r.type)))
         if isinstance(ir, TypeConversion):
             if isinstance(ir.variable, Constant):
-                all_cst_used.append(ConstantValue(ir.variable.value, str(ir.type)))
+                all_cst_used.append(ConstantValue(str(ir.variable.value), str(ir.type)))
                 continue
         for r in ir.read:
             # Do not report struct_name in a.struct_name
             if isinstance(ir, Member):
                 continue
             if isinstance(r, Constant):
-                all_cst_used.append(ConstantValue(r.value, str(r.type)))
+                all_cst_used.append(ConstantValue(str(r.value), str(r.type)))
             if isinstance(r, StateVariable):
                 if r.node_initialization:
                     if r.node_initialization.irs:
