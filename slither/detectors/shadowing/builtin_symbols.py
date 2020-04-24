@@ -50,7 +50,7 @@ contract Bug {
     BUILTIN_SYMBOLS = ["assert", "require", "revert", "block", "blockhash",
                        "gasleft", "msg", "now", "tx", "this", "addmod", "mulmod",
                        "keccak256", "sha256", "sha3", "ripemd160", "ecrecover",
-                       "selfdestruct", "suicide", "abi"]
+                       "selfdestruct", "suicide", "abi", "fallback", "receive"]
 
     # https://solidity.readthedocs.io/en/v0.5.2/miscellaneous.html#reserved-keywords
     RESERVED_KEYWORDS = ['abstract', 'after', 'alias', 'apply', 'auto', 'case', 'catch', 'copyof',
@@ -92,6 +92,8 @@ contract Bug {
         # Loop through all functions, modifiers, variables (state and local) to detect any built-in symbol keywords.
         for function in contract.functions_declared:
             if self.is_builtin_symbol(function.name):
+                if function.is_fallback or function.is_receive:
+                    continue
                 result.append((self.SHADOWING_FUNCTION, function))
             result += self.detect_builtin_shadowing_locals(function)
         for modifier in contract.modifiers_declared:
