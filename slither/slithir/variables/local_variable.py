@@ -1,11 +1,10 @@
-
 from .variable import SlithIRVariable
 from .temporary import TemporaryVariable
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.children.child_node import ChildNode
 
-class LocalIRVariable(LocalVariable, SlithIRVariable):
 
+class LocalIRVariable(LocalVariable, SlithIRVariable):
     def __init__(self, local_variable):
         assert isinstance(local_variable, LocalVariable)
 
@@ -72,4 +71,4 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
         #     return '{}_{} (-> {})'.format(self._name,
         #                                      self.index,
         #                                      [v.name for v in self.refers_to])
-        return '{}_{}'.format(self._name, self.index)
+        return "{}_{}".format(self._name, self.index)

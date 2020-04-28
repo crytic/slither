@@ -1,11 +1,10 @@
+from typing import List
 
+from slither.core.expressions.expression import Expression
 from slither.visitors.expression.expression import ExpressionVisitor
 
-from slither.core.expressions.assignment_operation import AssignmentOperationType
+key = "FindCall"
 
-from slither.core.variables.variable import Variable
-
-key = 'FindCall'
 
 def get(expression):
     val = expression.context[key]
@@ -13,12 +12,13 @@ def get(expression):
     del expression.context[key]
     return val
 
+
 def set_val(expression, val):
     expression.context[key] = val
 
-class FindCalls(ExpressionVisitor):
 
-    def result(self):
+class FindCalls(ExpressionVisitor):
+    def result(self) -> List[Expression]:
         if self._result is None:
             self._result = list(set(get(self.expression)))
         return self._result

@@ -9,11 +9,31 @@ from slither.slithir.variables.index_variable import IndexVariable
 from slither.slithir.variables.member_variable import MemberVariable
 from slither.slithir.variables.tuple import TupleVariable
 
+
 def is_valid_rvalue(v):
-    return isinstance(v, (StateVariable, LocalVariable, TemporaryVariable,
-                          Constant, SolidityVariable, IndexVariable, MemberVariable))
+    return isinstance(
+        v,
+        (
+            StateVariable,
+            LocalVariable,
+            TemporaryVariable,
+            Constant,
+            SolidityVariable,
+            IndexVariable,
+            MemberVariable,
+        ),
+    )
+
 
 def is_valid_lvalue(v):
-    return isinstance(v, (StateVariable, LocalVariable, TemporaryVariable,
-                          IndexVariable, MemberVariable, TupleVariable))
-
+    return isinstance(
+        v,
+        (
+            StateVariable,
+            LocalVariable,
+            TemporaryVariable,
+            IndexVariable,
+            MemberVariable,
+            TupleVariable,
+        ),
+    )

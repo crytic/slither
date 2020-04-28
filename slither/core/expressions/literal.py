@@ -1,8 +1,8 @@
 from slither.core.expressions.expression import Expression
 from slither.utils.arithmetic import convert_subdenomination
 
-class Literal(Expression):
 
+class Literal(Expression):
     def __init__(self, value, type, subdenomination=None):
         super(Literal, self).__init__()
         self._value = value

@@ -11,7 +11,7 @@ class Return(Operation):
     """
 
     def __init__(self, values):
-        # Note: Can return None 
+        # Note: Can return None
         # ex: return call()
         # where call() dont return
         if not isinstance(values, list):
@@ -46,4 +46,4 @@ class Return(Operation):
         return self._unroll(self._values)
 
     def __str__(self):
-        return "RETURN {}".format(','.join(['{}'.format(x) for x in self.values]))
+        return "RETURN {}".format(",".join(["{}".format(x) for x in self.values]))

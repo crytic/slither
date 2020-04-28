@@ -6,11 +6,13 @@ from slither.utils.colors import green, yellow
 logger = logging.getLogger("Slither")
 
 
-def write_file(output_dir: Path,
-               filename: str,
-               content: str,
-               allow_overwrite: bool = True,
-               discard_if_exist: bool = False):
+def write_file(
+    output_dir: Path,
+    filename: str,
+    content: str,
+    allow_overwrite: bool = True,
+    discard_if_exist: bool = False,
+):
     """
     Write the content into output_dir/filename
     :param output_dir:
@@ -25,10 +27,10 @@ def write_file(output_dir: Path,
         if discard_if_exist:
             return
         if not allow_overwrite:
-            logger.info(yellow(f'{file_to_write} already exist and will not be overwritten'))
+            logger.info(yellow(f"{file_to_write} already exist and will not be overwritten"))
             return
-        logger.info(yellow(f'Overwrite {file_to_write}'))
+        logger.info(yellow(f"Overwrite {file_to_write}"))
     else:
-        logger.info(green(f'Write {file_to_write}'))
-    with open(file_to_write, 'w') as f:
+        logger.info(green(f"Write {file_to_write}"))
+    with open(file_to_write, "w") as f:
         f.write(content)

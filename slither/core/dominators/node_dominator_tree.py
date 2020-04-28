@@ -1,11 +1,11 @@
-'''
+"""
     Nodes of the dominator tree
-'''
+"""
 
 from slither.core.children.child_function import ChildFunction
 
-class DominatorNode(object):
 
+class DominatorNode(object):
     def __init__(self):
         self._succ = set()
         self._nodes = []
@@ -22,16 +22,13 @@ class DominatorNode(object):
 
     @property
     def sucessors(self):
-        '''
+        """
             Returns:
                 dict(Node)
-        '''
+        """
         return self._succ
 
-class DominatorTree(ChildFunction):
 
+class DominatorTree(ChildFunction):
     def __init__(self, entry_point):
         super(DominatorTree, self).__init__()
-        
-
-        

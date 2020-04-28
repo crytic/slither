@@ -4,7 +4,8 @@ from slither.core.expressions.index_access import IndexAccess
 
 from slither.visitors.expression.right_value import RightValue
 
-key = 'FindPush'
+key = "FindPush"
+
 
 def get(expression):
     val = expression.context[key]
@@ -12,11 +13,12 @@ def get(expression):
     del expression.context[key]
     return val
 
+
 def set_val(expression, val):
     expression.context[key] = val
 
-class FindPush(ExpressionVisitor):
 
+class FindPush(ExpressionVisitor):
     def result(self):
         if self._result is None:
             self._result = list(set(get(self.expression)))
@@ -66,7 +68,7 @@ class FindPush(ExpressionVisitor):
 
     def _post_member_access(self, expression):
         val = []
-        if expression.member_name == 'push':
+        if expression.member_name == "push":
             right = RightValue(expression.expression)
             val = right.result()
         set_val(expression, val)

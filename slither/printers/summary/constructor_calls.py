@@ -6,20 +6,20 @@ from slither.utils import output
 
 
 class ConstructorPrinter(AbstractPrinter):
-    WIKI = 'https://github.com/crytic/slither/wiki/Printer-documentation#constructor-calls'
-    ARGUMENT = 'constructor-calls'
-    HELP = 'Print the constructors executed'
+    WIKI = "https://github.com/crytic/slither/wiki/Printer-documentation#constructor-calls"
+    ARGUMENT = "constructor-calls"
+    HELP = "Print the constructors executed"
 
     def _get_soruce_code(self, cst):
         src_mapping = cst.source_mapping
-        content = self.slither.source_code[src_mapping['filename_absolute']]
-        start = src_mapping['start']
-        end = src_mapping['start'] + src_mapping['length']
-        initial_space = src_mapping['starting_column']
-        return ' ' * initial_space + content[start:end]
+        content = self.slither.source_code[src_mapping["filename_absolute"]]
+        start = src_mapping["start"]
+        end = src_mapping["start"] + src_mapping["length"]
+        initial_space = src_mapping["starting_column"]
+        return " " * initial_space + content[start:end]
 
     def output(self, _filename):
-        info = ''
+        info = ""
         for contract in self.slither.contracts_derived:
             stack_name = []
             stack_definition = []
@@ -35,18 +35,18 @@ class ConstructorPrinter(AbstractPrinter):
 
             if len(stack_name) > 0:
 
-                info += '\n########' + "#" * len(contract.name) + "########\n"
+                info += "\n########" + "#" * len(contract.name) + "########\n"
                 info += "####### " + contract.name + " #######\n"
-                info += '########' + "#" * len(contract.name) + "########\n\n"
-                info += "## Constructor Call Sequence" + '\n'
+                info += "########" + "#" * len(contract.name) + "########\n\n"
+                info += "## Constructor Call Sequence" + "\n"
 
                 for name in stack_name[::-1]:
-                    info += "\t- " + name + '\n'
-                info += "\n## Constructor Definitions" + '\n'
+                    info += "\t- " + name + "\n"
+                info += "\n## Constructor Definitions" + "\n"
                 count = len(stack_definition) - 1
                 while count >= 0:
-                    info += "\n### " + stack_name[count] + '\n'
-                    info += "\n" + str(stack_definition[count]) + '\n'
+                    info += "\n### " + stack_name[count] + "\n"
+                    info += "\n" + str(stack_definition[count]) + "\n"
                     count = count - 1
 
         self.info(info)

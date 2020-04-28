@@ -13,24 +13,23 @@ class UnaryType:
     @staticmethod
     def get_type(operation_type, isprefix):
         if isprefix:
-            if operation_type == '!':
+            if operation_type == "!":
                 return UnaryType.BANG
-            if operation_type == '~':
+            if operation_type == "~":
                 return UnaryType.TILD
-        raise SlithIRError('get_type: Unknown operation type {}'.format(operation_type))
+        raise SlithIRError("get_type: Unknown operation type {}".format(operation_type))
 
     @staticmethod
     def str(operation_type):
         if operation_type == UnaryType.BANG:
-            return '!'
+            return "!"
         if operation_type == UnaryType.TILD:
-            return '~'
+            return "~"
 
-        raise SlithIRError('str: Unknown operation type {}'.format(operation_type))
+        raise SlithIRError("str: Unknown operation type {}".format(operation_type))
 
 
 class Unary(OperationWithLValue):
-
     def __init__(self, result, variable, operation_type):
         assert is_valid_rvalue(variable)
         assert is_valid_lvalue(result)

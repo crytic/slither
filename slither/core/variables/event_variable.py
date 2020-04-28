@@ -1,6 +1,7 @@
 from .variable import Variable
 from slither.core.children.child_event import ChildEvent
 
+
 class EventVariable(ChildEvent, Variable):
     def __init__(self):
         super(EventVariable, self).__init__()
@@ -13,4 +14,3 @@ class EventVariable(ChildEvent, Variable):
         :return: Returns True if the variable is indexed in bloom filter, False otherwise.
         """
         return self._indexed
-

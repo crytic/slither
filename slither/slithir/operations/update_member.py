@@ -8,7 +8,6 @@ from slither.slithir.variables.constant import Constant
 
 
 class UpdateMember(Operation):
-
     def __init__(self, base, member, new_val):
         assert is_valid_rvalue(base) or isinstance(base, (Contract, Enum))
         assert is_valid_rvalue(new_val) or isinstance(new_val, (Function, TupleVariable))
@@ -35,4 +34,4 @@ class UpdateMember(Operation):
         return self._new_val
 
     def __str__(self):
-        return 'Update({}, {}, {})'.format(self.base, self.member, self.new_value)
+        return "Update({}, {}, {})".format(self.base, self.member, self.new_value)

@@ -1,4 +1,3 @@
-
 from slither.visitors.expression.expression import ExpressionVisitor
 
 from slither.core.expressions.assignment_operation import AssignmentOperation
@@ -10,7 +9,8 @@ from slither.core.expressions.member_access import MemberAccess
 from slither.core.expressions.index_access import IndexAccess
 
 
-key = 'WriteVar'
+key = "WriteVar"
+
 
 def get(expression):
     val = expression.context[key]
@@ -18,11 +18,12 @@ def get(expression):
     del expression.context[key]
     return val
 
+
 def set_val(expression, val):
     expression.context[key] = val
 
-class WriteVar(ExpressionVisitor):
 
+class WriteVar(ExpressionVisitor):
     def result(self):
         if self._result is None:
             self._result = list(set(get(self.expression)))
@@ -71,27 +72,28 @@ class WriteVar(ExpressionVisitor):
             set_val(expression, [expression])
         else:
             set_val(expression, [])
-#        if isinstance(expression.value, Variable):
-#            set_val(expression, [expression.value])
-#        else:
-#            set_val(expression, [])
+
+    #        if isinstance(expression.value, Variable):
+    #            set_val(expression, [expression.value])
+    #        else:
+    #            set_val(expression, [])
 
     def _post_index_access(self, expression):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
         val = left + right
         if expression.is_lvalue:
-     #       val += [expression]
+            #       val += [expression]
             val += [expression.expression_left]
-     #       n = expression.expression_left
-            # parse all the a.b[..].c[..]
-      #      while isinstance(n, (IndexAccess, MemberAccess)):
-      #          if isinstance(n, IndexAccess):
-      #              val += [n.expression_left]
-      #              n = n.expression_left
-      #          else:
-      #              val += [n.expression]
-      #              n = n.expression
+        #       n = expression.expression_left
+        # parse all the a.b[..].c[..]
+        #      while isinstance(n, (IndexAccess, MemberAccess)):
+        #          if isinstance(n, IndexAccess):
+        #              val += [n.expression_left]
+        #              n = n.expression_left
+        #          else:
+        #              val += [n.expression]
+        #              n = n.expression
         set_val(expression, val)
 
     def _post_literal(self, expression):

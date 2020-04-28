@@ -1,24 +1,25 @@
 import logging
+from typing import List, Dict, Callable
 
-from slither.core.declarations.contract import Contract
-from slither.core.declarations.function import Function, FunctionType
-from slither.core.declarations.enum import Enum
 from slither.core.cfg.node import Node, NodeType
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.enum import Enum
+from slither.core.declarations.function import Function, FunctionType
 from slither.core.expressions import AssignmentOperation, Identifier, AssignmentOperationType
+from slither.core.variables.variable import Variable
 from slither.slithir.variables import StateIRVariable
 from slither.solc_parsing.declarations.event import EventSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.modifier import ModifierSolc
 from slither.solc_parsing.declarations.structure import StructureSolc
+from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
-from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 
-logger = logging.getLogger("ContractSolcParsing")
+LOGGER = logging.getLogger("ContractSolcParsing")
 
 
 class ContractSolc04(Contract):
-
     def __init__(self, slitherSolc, data):
         # assert slitherSolc.solc_version.startswith('0.4')
         super(ContractSolc04, self).__init__()
@@ -26,30 +27,31 @@ class ContractSolc04(Contract):
         self.set_slither(slitherSolc)
         self._data = data
 
-        self._functionsNotParsed = []
-        self._modifiersNotParsed = []
-        self._functions_no_params = []
-        self._modifiers_no_params = []
-        self._eventsNotParsed = []
-        self._variablesNotParsed = []
-        self._enumsNotParsed = []
-        self._structuresNotParsed = []
-        self._usingForNotParsed = []
+        self._functionsNotParsed: List[Dict] = []
+        self._modifiersNotParsed: List[Dict] = []
+        self._functions_no_params: List[FunctionSolc] = []
+        self._modifiers_no_params: List[ModifierSolc] = []
+        self._eventsNotParsed: List[EventSolc] = []
+        self._variablesNotParsed: List[StateVariableSolc] = []
+        self._enumsNotParsed: List[Dict] = []
+        self._structuresNotParsed: List[StructureSolc] = []
+        self._usingForNotParsed: List[Dict] = []
 
-        self._is_analyzed = False
+        self._is_analyzed: bool = False
 
         # use to remap inheritance id
-        self._remapping = {}
+        self._remapping: Dict[str, str] = {}
+
+        self.baseContracts = []
+        self.baseConstructorContractsCalled = []
 
         # Export info
         if self.is_compact_ast:
-            self._name = self._data['name']
+            self._name = self._data["name"]
         else:
-            self._name = self._data['attributes'][self.get_key()]
+            self._name = self._data["attributes"][self.get_key()]
 
-        self._id = self._data['id']
-
-        self._inheritance = []
+        self._id = self._data["id"]
 
         self._parse_contract_info()
         self._parse_contract_items()
@@ -61,10 +63,10 @@ class ContractSolc04(Contract):
     ###################################################################################
 
     @property
-    def is_analyzed(self):
+    def is_analyzed(self) -> bool:
         return self._is_analyzed
 
-    def set_is_analyzed(self, is_analyzed):
+    def set_is_analyzed(self, is_analyzed: bool):
         self._is_analyzed = is_analyzed
 
     ###################################################################################
@@ -73,20 +75,20 @@ class ContractSolc04(Contract):
     ###################################################################################
     ###################################################################################
 
-    def get_key(self):
+    def get_key(self) -> str:
         return self.slither.get_key()
 
-    def get_children(self, key='nodes'):
+    def get_children(self, key="nodes") -> str:
         if self.is_compact_ast:
             return key
-        return 'children'
+        return "children"
 
     @property
-    def remapping(self):
+    def remapping(self) -> Dict[str, str]:
         return self._remapping
 
     @property
-    def is_compact_ast(self):
+    def is_compact_ast(self) -> bool:
         return self.slither.is_compact_ast
 
     # endregion
@@ -100,117 +102,130 @@ class ContractSolc04(Contract):
         if self.is_compact_ast:
             attributes = self._data
         else:
-            attributes = self._data['attributes']
+            attributes = self._data["attributes"]
 
         self.isInterface = False
-        if 'contractKind' in attributes:
-            if attributes['contractKind'] == 'interface':
+        if "contractKind" in attributes:
+            if attributes["contractKind"] == "interface":
                 self.isInterface = True
-            self._kind = attributes['contractKind']
-        self.linearizedBaseContracts = attributes['linearizedBaseContracts']
-        self.fullyImplemented = attributes['fullyImplemented']
+            self._kind = attributes["contractKind"]
+        self.linearizedBaseContracts = attributes["linearizedBaseContracts"]
+        self.fullyImplemented = attributes["fullyImplemented"]
 
         # Parse base contract information
         self._parse_base_contract_info()
 
         # trufle does some re-mapping of id
-        if 'baseContracts' in self._data:
-            for elem in self._data['baseContracts']:
-                if elem['nodeType'] == 'InheritanceSpecifier':
-                    self._remapping[elem['baseName']['referencedDeclaration']] = elem['baseName']['name']
+        if "baseContracts" in self._data:
+            for elem in self._data["baseContracts"]:
+                if elem["nodeType"] == "InheritanceSpecifier":
+                    self._remapping[elem["baseName"]["referencedDeclaration"]] = elem["baseName"][
+                        "name"
+                    ]
 
     def _parse_base_contract_info(self):
         # Parse base contracts (immediate, non-linearized)
-        self.baseContracts = []
-        self.baseConstructorContractsCalled = []
         if self.is_compact_ast:
             # Parse base contracts + constructors in compact-ast
-            if 'baseContracts' in self._data:
-                for base_contract in self._data['baseContracts']:
-                    if base_contract['nodeType'] != 'InheritanceSpecifier':
+            if "baseContracts" in self._data:
+                for base_contract in self._data["baseContracts"]:
+                    if base_contract["nodeType"] != "InheritanceSpecifier":
                         continue
-                    if 'baseName' not in base_contract or 'referencedDeclaration' not in base_contract['baseName']:
+                    if (
+                        "baseName" not in base_contract
+                        or "referencedDeclaration" not in base_contract["baseName"]
+                    ):
                         continue
 
                     # Obtain our contract reference and add it to our base contract list
-                    referencedDeclaration = base_contract['baseName']['referencedDeclaration']
+                    referencedDeclaration = base_contract["baseName"]["referencedDeclaration"]
                     self.baseContracts.append(referencedDeclaration)
 
                     # If we have defined arguments in our arguments object, this is a constructor invocation.
                     # (note: 'arguments' can be [], which is not the same as None. [] implies a constructor was
                     #  called with no arguments, while None implies no constructor was called).
-                    if 'arguments' in base_contract and base_contract['arguments'] is not None:
+                    if "arguments" in base_contract and base_contract["arguments"] is not None:
                         self.baseConstructorContractsCalled.append(referencedDeclaration)
         else:
             # Parse base contracts + constructors in legacy-ast
-            if 'children' in self._data:
-                for base_contract in self._data['children']:
-                    if base_contract['name'] != 'InheritanceSpecifier':
+            if "children" in self._data:
+                for base_contract in self._data["children"]:
+                    if base_contract["name"] != "InheritanceSpecifier":
                         continue
-                    if 'children' not in base_contract or len(base_contract['children']) == 0:
+                    if "children" not in base_contract or len(base_contract["children"]) == 0:
                         continue
                     # Obtain all items for this base contract specification (base contract, followed by arguments)
-                    base_contract_items = base_contract['children']
-                    if 'name' not in base_contract_items[0] or base_contract_items[0]['name'] != 'UserDefinedTypeName':
+                    base_contract_items = base_contract["children"]
+                    if (
+                        "name" not in base_contract_items[0]
+                        or base_contract_items[0]["name"] != "UserDefinedTypeName"
+                    ):
                         continue
-                    if 'attributes' not in base_contract_items[0] or 'referencedDeclaration' not in \
-                            base_contract_items[0]['attributes']:
+                    if (
+                        "attributes" not in base_contract_items[0]
+                        or "referencedDeclaration" not in base_contract_items[0]["attributes"]
+                    ):
                         continue
 
                     # Obtain our contract reference and add it to our base contract list
-                    referencedDeclaration = base_contract_items[0]['attributes']['referencedDeclaration']
+                    referencedDeclaration = base_contract_items[0]["attributes"][
+                        "referencedDeclaration"
+                    ]
                     self.baseContracts.append(referencedDeclaration)
 
                     # If we have an 'attributes'->'arguments' which is None, this is not a constructor call.
-                    if 'attributes' not in base_contract or 'arguments' not in base_contract['attributes'] or \
-                            base_contract['attributes']['arguments'] is not None:
+                    if (
+                        "attributes" not in base_contract
+                        or "arguments" not in base_contract["attributes"]
+                        or base_contract["attributes"]["arguments"] is not None
+                    ):
                         self.baseConstructorContractsCalled.append(referencedDeclaration)
 
     def _parse_contract_items(self):
         if not self.get_children() in self._data:  # empty contract
             return
         for item in self._data[self.get_children()]:
-            if item[self.get_key()] == 'FunctionDefinition':
+            if item[self.get_key()] == "FunctionDefinition":
                 self._functionsNotParsed.append(item)
-            elif item[self.get_key()] == 'EventDefinition':
+            elif item[self.get_key()] == "EventDefinition":
                 self._eventsNotParsed.append(item)
-            elif item[self.get_key()] == 'InheritanceSpecifier':
+            elif item[self.get_key()] == "InheritanceSpecifier":
                 # we dont need to parse it as it is redundant
                 # with self.linearizedBaseContracts
                 continue
-            elif item[self.get_key()] == 'VariableDeclaration':
+            elif item[self.get_key()] == "VariableDeclaration":
                 self._variablesNotParsed.append(item)
-            elif item[self.get_key()] == 'EnumDefinition':
+            elif item[self.get_key()] == "EnumDefinition":
                 self._enumsNotParsed.append(item)
-            elif item[self.get_key()] == 'ModifierDefinition':
+            elif item[self.get_key()] == "ModifierDefinition":
                 self._modifiersNotParsed.append(item)
-            elif item[self.get_key()] == 'StructDefinition':
+            elif item[self.get_key()] == "StructDefinition":
                 self._structuresNotParsed.append(item)
-            elif item[self.get_key()] == 'UsingForDirective':
+            elif item[self.get_key()] == "UsingForDirective":
                 self._usingForNotParsed.append(item)
             else:
-                raise ParsingError('Unknown contract item: ' + item[self.get_key()])
+                raise ParsingError("Unknown contract item: " + item[self.get_key()])
         return
 
-    def _parse_struct(self, struct):
+    def _parse_struct(self, struct: Dict):
         if self.is_compact_ast:
-            name = struct['name']
+            name = struct["name"]
             attributes = struct
         else:
-            name = struct['attributes'][self.get_key()]
-            attributes = struct['attributes']
-        if 'canonicalName' in attributes:
-            canonicalName = attributes['canonicalName']
+            name = struct["attributes"][self.get_key()]
+            attributes = struct["attributes"]
+        if "canonicalName" in attributes:
+            canonicalName = attributes["canonicalName"]
         else:
-            canonicalName = self.name + '.' + name
+            canonicalName = self.name + "." + name
 
-        if self.get_children('members') in struct:
-            children = struct[self.get_children('members')]
+        if self.get_children("members") in struct:
+            children = struct[self.get_children("members")]
         else:
             children = []  # empty struct
         st = StructureSolc(name, canonicalName, children)
         st.set_contract(self)
-        st.set_offset(struct['src'], self.slither)
+        st.set_offset(struct["src"], self.slither)
         self._structures[name] = st
 
     def parse_structs(self):
@@ -228,32 +243,29 @@ class ContractSolc04(Contract):
 
         for varNotParsed in self._variablesNotParsed:
             var = StateVariableSolc(varNotParsed)
-            var.set_offset(varNotParsed['src'], self.slither)
+            var.set_offset(varNotParsed["src"], self.slither)
             var.set_contract(self)
 
             self._variables[var.name] = var
             self._variables_ordered.append(var)
 
-    def _parse_modifier(self, modifier):
+    def _parse_modifier(self, modifier: Dict):
 
         modif = ModifierSolc(modifier, self, self)
         modif.set_contract(self)
         modif.set_contract_declarer(self)
-        modif.set_offset(modifier['src'], self.slither)
+        modif.set_offset(modifier["src"], self.slither)
         self.slither.add_modifier(modif)
         self._modifiers_no_params.append(modif)
 
     def parse_modifiers(self):
-
         for modifier in self._modifiersNotParsed:
             self._parse_modifier(modifier)
         self._modifiersNotParsed = None
 
-        return
-
-    def _parse_function(self, function):
+    def _parse_function(self, function: Dict):
         func = FunctionSolc(function, self, self)
-        func.set_offset(function['src'], self.slither)
+        func.set_offset(function["src"], self.slither)
         self.slither.add_function(func)
         self._functions_no_params.append(func)
 
@@ -264,8 +276,6 @@ class ContractSolc04(Contract):
 
         self._functionsNotParsed = None
 
-        return
-
     # endregion
     ###################################################################################
     ###################################################################################
@@ -274,7 +284,7 @@ class ContractSolc04(Contract):
     ###################################################################################
 
     def log_incorrect_parsing(self, error):
-        logger.error(error)
+        LOGGER.error(error)
         self._is_incorrectly_parsed = True
 
     def analyze_content_modifiers(self):
@@ -282,30 +292,27 @@ class ContractSolc04(Contract):
             for modifier in self.modifiers:
                 modifier.analyze_content()
         except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f'Missing modifier {e}')
-        return
+            self.log_incorrect_parsing(f"Missing modifier {e}")
 
     def analyze_content_functions(self):
         try:
             for function in self.functions:
                 function.analyze_content()
         except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f'Missing function {e}')
-        return
+            self.log_incorrect_parsing(f"Missing function {e}")
 
     def analyze_params_modifiers(self):
-
         try:
             elements_no_params = self._modifiers_no_params
             getter = lambda f: f.modifiers
             getter_available = lambda f: f.modifiers_declared
             Cls = ModifierSolc
-            self._modifiers = self._analyze_params_elements(elements_no_params, getter, getter_available, Cls)
+            self._modifiers = self._analyze_params_elements(
+                elements_no_params, getter, getter_available, Cls
+            )
         except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f'Missing params {e}')
+            self.log_incorrect_parsing(f"Missing params {e}")
         self._modifiers_no_params = []
-
-        return
 
     def analyze_params_functions(self):
         try:
@@ -313,13 +320,20 @@ class ContractSolc04(Contract):
             getter = lambda f: f.functions
             getter_available = lambda f: f.functions_declared
             Cls = FunctionSolc
-            self._functions = self._analyze_params_elements(elements_no_params, getter, getter_available, Cls)
+            self._functions = self._analyze_params_elements(
+                elements_no_params, getter, getter_available, Cls
+            )
         except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f'Missing params {e}')
+            self.log_incorrect_parsing(f"Missing params {e}")
         self._functions_no_params = []
-        return
 
-    def _analyze_params_elements(self, elements_no_params, getter, getter_available, Cls):
+    def _analyze_params_elements(
+        self,
+        elements_no_params: List[FunctionSolc],
+        getter: Callable[[Contract], List[FunctionSolc]],
+        getter_available: Callable[[Contract], List[FunctionSolc]],
+        Cls: Callable,
+    ):
         """
         Analyze the parameters of the given elements (Function or Modifier).
         The function iterates over the inheritance to create an instance or inherited elements (Function or Modifier)
@@ -335,13 +349,15 @@ class ContractSolc04(Contract):
         try:
             for father in self.inheritance:
                 for element in getter(father):
-                    elem = Cls(element._functionNotParsed, self, element.contract_declarer)
-                    elem.set_offset(element._functionNotParsed['src'], self.slither)
+                    elem = Cls(element.functionNotParsed, self, element.contract_declarer)
+                    elem.set_offset(element.functionNotParsed["src"], self.slither)
                     elem.analyze_params()
                     self.slither.add_function(elem)
                     all_elements[elem.canonical_name] = elem
 
-            accessible_elements = self.available_elements_from_inheritances(all_elements, getter_available)
+            accessible_elements = self.available_elements_from_inheritances(
+                all_elements, getter_available
+            )
 
             # If there is a constructor in the functions
             # We remove the previous constructor
@@ -355,7 +371,9 @@ class ContractSolc04(Contract):
                     has_constructor = True
 
             if has_constructor:
-                _accessible_functions = {k: v for (k, v) in accessible_elements.items() if not v.is_constructor}
+                _accessible_functions = {
+                    k: v for (k, v) in accessible_elements.items() if not v.is_constructor
+                }
 
             for element in elements_no_params:
                 accessible_elements[element.full_name] = element
@@ -366,7 +384,7 @@ class ContractSolc04(Contract):
                     element.is_shadowed = True
                     accessible_elements[element.full_name].shadows = True
         except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f'Missing params {e}')
+            self.log_incorrect_parsing(f"Missing params {e}")
         return all_elements
 
     def analyze_constant_state_variables(self):
@@ -376,20 +394,18 @@ class ContractSolc04(Contract):
                 try:
                     var.analyze(self)
                 except (VariableNotFound, KeyError) as e:
-                    logger.error(e)
+                    LOGGER.error(e)
                     pass
-        return
 
-    def _create_node(self, func, counter, variable):
+    def _create_node(self, func: Function, counter: int, variable: Variable):
         # Function uses to create node for state variable declaration statements
         node = Node(NodeType.OTHER_ENTRYPOINT, counter)
         node.set_offset(variable.source_mapping, self.slither)
         node.set_function(func)
         func.add_node(node)
-        expression = AssignmentOperation(Identifier(variable),
-                                         variable.expression,
-                                         AssignmentOperationType.ASSIGN,
-                                         variable.type)
+        expression = AssignmentOperation(
+            Identifier(variable), variable.expression, AssignmentOperationType.ASSIGN, variable.type
+        )
 
         expression.set_offset(variable.source_mapping, self.slither)
         node.add_expression(expression)
@@ -404,7 +420,7 @@ class ContractSolc04(Contract):
                     constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
                     constructor_variable.set_contract(self)
                     constructor_variable.set_contract_declarer(self)
-                    constructor_variable.set_visibility('internal')
+                    constructor_variable.set_visibility("internal")
                     # For now, source mapping of the constructor variable is the whole contract
                     # Could be improved with a targeted source mapping
                     constructor_variable.set_offset(self.source_mapping, self.slither)
@@ -413,7 +429,7 @@ class ContractSolc04(Contract):
                     prev_node = self._create_node(constructor_variable, 0, variable_candidate)
                     variable_candidate.node_initialization = prev_node
                     counter = 1
-                    for v in self.state_variables[idx + 1:]:
+                    for v in self.state_variables[idx + 1 :]:
                         if v.expression and not v.is_constant:
                             next_node = self._create_node(constructor_variable, counter, v)
                             v.node_initialization = next_node
@@ -426,10 +442,12 @@ class ContractSolc04(Contract):
                 if variable_candidate.expression and variable_candidate.is_constant:
 
                     constructor_variable = Function()
-                    constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES)
+                    constructor_variable.set_function_type(
+                        FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES
+                    )
                     constructor_variable.set_contract(self)
                     constructor_variable.set_contract_declarer(self)
-                    constructor_variable.set_visibility('internal')
+                    constructor_variable.set_visibility("internal")
                     # For now, source mapping of the constructor variable is the whole contract
                     # Could be improved with a targeted source mapping
                     constructor_variable.set_offset(self.source_mapping, self.slither)
@@ -438,7 +456,7 @@ class ContractSolc04(Contract):
                     prev_node = self._create_node(constructor_variable, 0, variable_candidate)
                     variable_candidate.node_initialization = prev_node
                     counter = 1
-                    for v in self.state_variables[idx + 1:]:
+                    for v in self.state_variables[idx + 1 :]:
                         if v.expression and v.is_constant:
                             next_node = self._create_node(constructor_variable, counter, v)
                             v.node_initialization = next_node
@@ -454,7 +472,7 @@ class ContractSolc04(Contract):
                 var.analyze(self)
             return
         except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f'Missing state variable {e}')
+            self.log_incorrect_parsing(f"Missing state variable {e}")
 
     def analyze_using_for(self):
         try:
@@ -463,11 +481,11 @@ class ContractSolc04(Contract):
 
             if self.is_compact_ast:
                 for using_for in self._usingForNotParsed:
-                    lib_name = parse_type(using_for['libraryName'], self)
-                    if 'typeName' in using_for and using_for['typeName']:
-                        type_name = parse_type(using_for['typeName'], self)
+                    lib_name = parse_type(using_for["libraryName"], self)
+                    if "typeName" in using_for and using_for["typeName"]:
+                        type_name = parse_type(using_for["typeName"], self)
                     else:
-                        type_name = '*'
+                        type_name = "*"
                     if not type_name in self._using_for:
                         self.using_for[type_name] = []
                     self._using_for[type_name].append(lib_name)
@@ -480,13 +498,13 @@ class ContractSolc04(Contract):
                         old = parse_type(children[1], self)
                     else:
                         new = parse_type(children[0], self)
-                        old = '*'
+                        old = "*"
                     if not old in self._using_for:
                         self.using_for[old] = []
                     self._using_for[old].append(new)
             self._usingForNotParsed = []
         except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f'Missing using for {e}')
+            self.log_incorrect_parsing(f"Missing using for {e}")
 
     def analyze_enums(self):
         try:
@@ -499,33 +517,33 @@ class ContractSolc04(Contract):
                 self._analyze_enum(enum)
             self._enumsNotParsed = None
         except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f'Missing enum {e}')
+            self.log_incorrect_parsing(f"Missing enum {e}")
 
     def _analyze_enum(self, enum):
         # Enum can be parsed in one pass
         if self.is_compact_ast:
-            name = enum['name']
-            canonicalName = enum['canonicalName']
+            name = enum["name"]
+            canonicalName = enum["canonicalName"]
         else:
-            name = enum['attributes'][self.get_key()]
-            if 'canonicalName' in enum['attributes']:
-                canonicalName = enum['attributes']['canonicalName']
+            name = enum["attributes"][self.get_key()]
+            if "canonicalName" in enum["attributes"]:
+                canonicalName = enum["attributes"]["canonicalName"]
             else:
-                canonicalName = self.name + '.' + name
+                canonicalName = self.name + "." + name
         values = []
-        for child in enum[self.get_children('members')]:
-            assert child[self.get_key()] == 'EnumValue'
+        for child in enum[self.get_children("members")]:
+            assert child[self.get_key()] == "EnumValue"
             if self.is_compact_ast:
-                values.append(child['name'])
+                values.append(child["name"])
             else:
-                values.append(child['attributes'][self.get_key()])
+                values.append(child["attributes"][self.get_key()])
 
         new_enum = Enum(name, canonicalName, values)
         new_enum.set_contract(self)
-        new_enum.set_offset(enum['src'], self.slither)
+        new_enum.set_offset(enum["src"], self.slither)
         self._enums[canonicalName] = new_enum
 
-    def _analyze_struct(self, struct):
+    def _analyze_struct(self, struct: StructureSolc):
         struct.analyze()
 
     def analyze_structs(self):
@@ -533,7 +551,7 @@ class ContractSolc04(Contract):
             for struct in self.structures:
                 self._analyze_struct(struct)
         except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f'Missing struct {e}')
+            self.log_incorrect_parsing(f"Missing struct {e}")
 
     def analyze_events(self):
         try:
@@ -544,10 +562,10 @@ class ContractSolc04(Contract):
                 event = EventSolc(event_to_parse, self)
                 event.analyze(self)
                 event.set_contract(self)
-                event.set_offset(event_to_parse['src'], self.slither)
+                event.set_offset(event_to_parse["src"], self.slither)
                 self._events[event.full_name] = event
         except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f'Missing event {e}')
+            self.log_incorrect_parsing(f"Missing event {e}")
 
         self._eventsNotParsed = None
 
@@ -566,7 +584,7 @@ class ContractSolc04(Contract):
                 # This can happens for example if there is a call to an interface
                 # And the interface is redefined due to contract's name reuse
                 # But the available version misses some functions
-                self.log_incorrect_parsing(f'Impossible to generate IR for {self.name}.{func.name}')
+                self.log_incorrect_parsing(f"Impossible to generate IR for {self.name}.{func.name}")
 
         all_ssa_state_variables_instances = dict()
 

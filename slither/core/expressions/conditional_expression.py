@@ -1,7 +1,7 @@
 from .expression import Expression
 
-class ConditionalExpression(Expression):
 
+class ConditionalExpression(Expression):
     def __init__(self, if_expression, then_expression, else_expression):
         assert isinstance(if_expression, Expression)
         assert isinstance(then_expression, Expression)
@@ -28,5 +28,11 @@ class ConditionalExpression(Expression):
         return self._then_expression
 
     def __str__(self):
-       return 'if ' + str(self._if_expression) + ' then ' + str(self._then_expression) + ' else ' + str(self._else_expression)
-
+        return (
+            "if "
+            + str(self._if_expression)
+            + " then "
+            + str(self._then_expression)
+            + " else "
+            + str(self._else_expression)
+        )

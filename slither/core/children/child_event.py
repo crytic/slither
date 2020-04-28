@@ -1,4 +1,3 @@
-
 class ChildEvent:
     def __init__(self):
         super(ChildEvent, self).__init__()

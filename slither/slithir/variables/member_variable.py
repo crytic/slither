@@ -1,5 +1,6 @@
 from .reference import ReferenceVariable
 
+
 class MemberVariable(ReferenceVariable):
 
     COUNTER = 0
@@ -15,7 +16,6 @@ class MemberVariable(ReferenceVariable):
         self._node = node
         self._member = member
         self._base = base
-
 
     @property
     def index(self):
@@ -43,7 +43,7 @@ class MemberVariable(ReferenceVariable):
 
     @property
     def name(self):
-        return 'MEMBER_{}'.format(self.index)
+        return "MEMBER_{}".format(self.index)
 
     def __str__(self):
         return self.name

@@ -5,89 +5,100 @@ from slither.core.exceptions import SlitherCoreError
 
 logger = logging.getLogger("UnaryOperation")
 
+
 class UnaryOperationType:
-    BANG =              0 # ! 
-    TILD =              1 # ~ 
-    DELETE =            2 # delete
-    PLUSPLUS_PRE =      3 # ++ 
-    MINUSMINUS_PRE =    4 # --
-    PLUSPLUS_POST =     5 # ++
-    MINUSMINUS_POST =   6 # --
-    PLUS_PRE =          7 # for stuff like uint(+1)
-    MINUS_PRE =         8 # for stuff like uint(-1)
+    BANG = 0  # !
+    TILD = 1  # ~
+    DELETE = 2  # delete
+    PLUSPLUS_PRE = 3  # ++
+    MINUSMINUS_PRE = 4  # --
+    PLUSPLUS_POST = 5  # ++
+    MINUSMINUS_POST = 6  # --
+    PLUS_PRE = 7  # for stuff like uint(+1)
+    MINUS_PRE = 8  # for stuff like uint(-1)
 
     @staticmethod
     def get_type(operation_type, isprefix):
         if isprefix:
-            if operation_type == '!':
+            if operation_type == "!":
                 return UnaryOperationType.BANG
-            if operation_type == '~':
+            if operation_type == "~":
                 return UnaryOperationType.TILD
-            if operation_type == 'delete':
+            if operation_type == "delete":
                 return UnaryOperationType.DELETE
-            if operation_type == '++':
+            if operation_type == "++":
                 return UnaryOperationType.PLUSPLUS_PRE
-            if operation_type == '--':
+            if operation_type == "--":
                 return UnaryOperationType.MINUSMINUS_PRE
-            if operation_type == '+':
+            if operation_type == "+":
                 return UnaryOperationType.PLUS_PRE
-            if operation_type == '-':
+            if operation_type == "-":
                 return UnaryOperationType.MINUS_PRE
         else:
-            if operation_type == '++':
+            if operation_type == "++":
                 return UnaryOperationType.PLUSPLUS_POST
-            if operation_type == '--':
+            if operation_type == "--":
                 return UnaryOperationType.MINUSMINUS_POST
-        raise SlitherCoreError('get_type: Unknown operation type {}'.format(operation_type))
+        raise SlitherCoreError("get_type: Unknown operation type {}".format(operation_type))
 
     @staticmethod
     def str(operation_type):
         if operation_type == UnaryOperationType.BANG:
-            return '!'
+            return "!"
         if operation_type == UnaryOperationType.TILD:
-            return '~'
+            return "~"
         if operation_type == UnaryOperationType.DELETE:
-            return 'delete'
+            return "delete"
         if operation_type == UnaryOperationType.PLUS_PRE:
-            return '+'
+            return "+"
         if operation_type == UnaryOperationType.MINUS_PRE:
-            return '-'
+            return "-"
         if operation_type in [UnaryOperationType.PLUSPLUS_PRE, UnaryOperationType.PLUSPLUS_POST]:
-            return '++'
-        if operation_type in [UnaryOperationType.MINUSMINUS_PRE, UnaryOperationType.MINUSMINUS_POST]:
-            return '--'
+            return "++"
+        if operation_type in [
+            UnaryOperationType.MINUSMINUS_PRE,
+            UnaryOperationType.MINUSMINUS_POST,
+        ]:
+            return "--"
 
-        raise SlitherCoreError('str: Unknown operation type {}'.format(operation_type))
+        raise SlitherCoreError("str: Unknown operation type {}".format(operation_type))
 
     @staticmethod
     def is_prefix(operation_type):
-        if operation_type in [UnaryOperationType.BANG,
-                              UnaryOperationType.TILD,
-                              UnaryOperationType.DELETE,
-                              UnaryOperationType.PLUSPLUS_PRE,
-                              UnaryOperationType.MINUSMINUS_PRE,
-                              UnaryOperationType.PLUS_PRE,
-                              UnaryOperationType.MINUS_PRE]:
+        if operation_type in [
+            UnaryOperationType.BANG,
+            UnaryOperationType.TILD,
+            UnaryOperationType.DELETE,
+            UnaryOperationType.PLUSPLUS_PRE,
+            UnaryOperationType.MINUSMINUS_PRE,
+            UnaryOperationType.PLUS_PRE,
+            UnaryOperationType.MINUS_PRE,
+        ]:
             return True
-        elif operation_type in [UnaryOperationType.PLUSPLUS_POST, UnaryOperationType.MINUSMINUS_POST]:
+        elif operation_type in [
+            UnaryOperationType.PLUSPLUS_POST,
+            UnaryOperationType.MINUSMINUS_POST,
+        ]:
             return False
 
-        raise SlitherCoreError('is_prefix: Unknown operation type {}'.format(operation_type))
+        raise SlitherCoreError("is_prefix: Unknown operation type {}".format(operation_type))
+
 
 class UnaryOperation(ExpressionTyped):
-
     def __init__(self, expression, expression_type):
         assert isinstance(expression, Expression)
         super(UnaryOperation, self).__init__()
         self._expression = expression
         self._type = expression_type
-        if expression_type in [UnaryOperationType.DELETE,
-                               UnaryOperationType.PLUSPLUS_PRE,
-                               UnaryOperationType.MINUSMINUS_PRE,
-                               UnaryOperationType.PLUSPLUS_POST,
-                               UnaryOperationType.MINUSMINUS_POST,
-                               UnaryOperationType.PLUS_PRE,
-                               UnaryOperationType.MINUS_PRE]:
+        if expression_type in [
+            UnaryOperationType.DELETE,
+            UnaryOperationType.PLUSPLUS_PRE,
+            UnaryOperationType.MINUSMINUS_PRE,
+            UnaryOperationType.PLUSPLUS_POST,
+            UnaryOperationType.MINUSMINUS_POST,
+            UnaryOperationType.PLUS_PRE,
+            UnaryOperationType.MINUS_PRE,
+        ]:
             expression.set_lvalue()
 
     @property
@@ -108,7 +119,6 @@ class UnaryOperation(ExpressionTyped):
 
     def __str__(self):
         if self.is_prefix:
-            return self.type_str + ' ' + str(self._expression)
+            return self.type_str + " " + str(self._expression)
         else:
-            return str(self._expression) + ' ' + self.type_str
-
+            return str(self._expression) + " " + self.type_str

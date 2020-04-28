@@ -3,7 +3,6 @@ from slither.core.expressions.expression_typed import ExpressionTyped
 
 
 class MemberAccess(ExpressionTyped):
-
     def __init__(self, member_name, member_type, expression):
         # assert isinstance(member_type, Type)
         # TODO member_type is not always a Type
@@ -26,4 +25,4 @@ class MemberAccess(ExpressionTyped):
         return self._type
 
     def __str__(self):
-        return str(self.expression) + '.' + self.member_name
+        return str(self.expression) + "." + self.member_name

@@ -3,8 +3,14 @@
 """
 from slither.core.cfg.node import NodeType
 from slither.core.declarations import SolidityFunction
-from slither.slithir.operations import (Index, AccessMember, OperationWithLValue,
-                                        SolidityCall, Length, Balance)
+from slither.slithir.operations import (
+    Index,
+    AccessMember,
+    OperationWithLValue,
+    SolidityCall,
+    Length,
+    Balance,
+)
 from slither.slithir.variables import IndexVariable
 
 
@@ -19,8 +25,7 @@ def _visit(node, visited, variables_written, variables_to_write):
     for ir in node.irs:
         if isinstance(ir, SolidityCall):
             # TODO convert the revert to a THROW node
-            if ir.function in [SolidityFunction('revert(string)'),
-                               SolidityFunction('revert()')]:
+            if ir.function in [SolidityFunction("revert(string)"), SolidityFunction("revert()")]:
                 return []
 
         if not isinstance(ir, OperationWithLValue):
@@ -32,7 +37,7 @@ def _visit(node, visited, variables_written, variables_to_write):
 
         variables_written = variables_written + [ir.lvalue]
         lvalue = ir.lvalue
-        while  isinstance(lvalue, IndexVariable):
+        while isinstance(lvalue, IndexVariable):
             if lvalue not in refs:
                 break
             variables_written = variables_written + [refs[lvalue]]
@@ -45,6 +50,7 @@ def _visit(node, visited, variables_written, variables_to_write):
     for son in node.sons:
         ret += _visit(son, visited, variables_written, variables_to_write)
     return ret
+
 
 def are_variables_written(function, variables_to_write):
     """

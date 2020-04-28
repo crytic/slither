@@ -8,8 +8,8 @@ from slither.slithir.variables.constant import Constant
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.enum import Enum
 
-class UpdateMemberDependency(OperationWithLValue):
 
+class UpdateMemberDependency(OperationWithLValue):
     def __init__(self, base, member, new_val, lvalue):
         assert is_valid_rvalue(base) or isinstance(base, (Contract, Enum))
         assert is_valid_rvalue(lvalue) or isinstance(lvalue, (Contract, Enum))
@@ -38,8 +38,6 @@ class UpdateMemberDependency(OperationWithLValue):
         return self._new_val
 
     def __str__(self):
-        return '{}({}) := UpdateDependency({}, {}, {})'.format(self.lvalue,
-                                                               self.lvalue.type,
-                                                               self.base,
-                                                               self.member,
-                                                               self.new_value)
+        return "{}({}) := UpdateDependency({}, {}, {})".format(
+            self.lvalue, self.lvalue.type, self.base, self.member, self.new_value
+        )

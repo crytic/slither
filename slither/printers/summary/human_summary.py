@@ -13,10 +13,10 @@ from slither.core.cfg.node import NodeType
 
 
 class PrinterHumanSummary(AbstractPrinter):
-    ARGUMENT = 'human-summary'
-    HELP = 'Print a human-readable summary of the contracts'
+    ARGUMENT = "human-summary"
+    HELP = "Print a human-readable summary of the contracts"
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#human-summary'
+    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#human-summary"
 
     @staticmethod
     def _get_summary_erc20(contract):
@@ -24,49 +24,50 @@ class PrinterHumanSummary(AbstractPrinter):
         functions_name = [f.name for f in contract.functions]
         state_variables = [v.name for v in contract.state_variables]
 
-        pause = 'pause' in functions_name
+        pause = "pause" in functions_name
 
-        if 'mint' in functions_name:
-            if not 'mintingFinished' in state_variables:
+        if "mint" in functions_name:
+            if not "mintingFinished" in state_variables:
                 mint_limited = False
             else:
                 mint_limited = True
         else:
             mint_limited = None  # no minting
 
-        race_condition_mitigated = 'increaseApproval' in functions_name or \
-                                   'safeIncreaseAllowance' in functions_name
+        race_condition_mitigated = (
+            "increaseApproval" in functions_name or "safeIncreaseAllowance" in functions_name
+        )
 
         return pause, mint_limited, race_condition_mitigated
 
     def get_summary_erc20(self, contract):
-        txt = ''
+        txt = ""
 
         pause, mint_limited, race_condition_mitigated = self._get_summary_erc20(contract)
 
         if pause:
-            txt += "\t\t Can be paused? : {}\n".format(yellow('Yes'))
+            txt += "\t\t Can be paused? : {}\n".format(yellow("Yes"))
         else:
-            txt += "\t\t Can be paused? : {}\n".format(green('No'))
+            txt += "\t\t Can be paused? : {}\n".format(green("No"))
 
         if mint_limited is None:
-            txt += "\t\t Minting restriction? : {}\n".format(green('No Minting'))
+            txt += "\t\t Minting restriction? : {}\n".format(green("No Minting"))
         else:
             if mint_limited:
-                txt += "\t\t Minting restriction? : {}\n".format(red('Yes'))
+                txt += "\t\t Minting restriction? : {}\n".format(red("Yes"))
             else:
-                txt += "\t\t Minting restriction? : {}\n".format(yellow('No'))
+                txt += "\t\t Minting restriction? : {}\n".format(yellow("No"))
 
         if race_condition_mitigated:
-            txt += "\t\t ERC20 race condition mitigation: {}\n".format(green('Yes'))
+            txt += "\t\t ERC20 race condition mitigation: {}\n".format(green("Yes"))
         else:
-            txt += "\t\t ERC20 race condition mitigation: {}\n".format(red('No'))
+            txt += "\t\t ERC20 race condition mitigation: {}\n".format(red("No"))
 
         return txt
 
-    def _get_detectors_result(self) -> Tuple[List[Dict],int, int, int, int, int]:
+    def _get_detectors_result(self) -> Tuple[List[Dict], int, int, int, int, int]:
         # disable detectors logger
-        logger = logging.getLogger('Detectors')
+        logger = logging.getLogger("Detectors")
         logger.setLevel(logging.ERROR)
 
         checks_optimization = self.slither.detectors_optimization
@@ -95,16 +96,20 @@ class PrinterHumanSummary(AbstractPrinter):
         issues_high = [c for c in issues_high if c]
         issues_high = [item for sublist in issues_high for item in sublist]
 
-        all_results = issues_optimization + issues_informational + issues_low + issues_medium +  issues_high
+        all_results = (
+            issues_optimization + issues_informational + issues_low + issues_medium + issues_high
+        )
 
-        return (all_results,
-                len(issues_optimization),
-                len(issues_informational),
-                len(issues_low),
-                len(issues_medium),
-                len(issues_high))
+        return (
+            all_results,
+            len(issues_optimization),
+            len(issues_informational),
+            len(issues_low),
+            len(issues_medium),
+            len(issues_high),
+        )
 
-    def get_detectors_result(self) -> Tuple[str, List[Dict],int, int, int, int, int]:
+    def get_detectors_result(self) -> Tuple[str, List[Dict], int, int, int, int, int]:
         all_results, optimization, informational, low, medium, high = self._get_detectors_result()
         txt = "Number of optimization issues: {}\n".format(green(optimization))
         txt += "Number of informational issues: {}\n".format(green(informational))
@@ -138,7 +143,7 @@ class PrinterHumanSummary(AbstractPrinter):
 
         is_complex = self._is_complex_code(contract)
 
-        result = red('Yes') if is_complex else green('No')
+        result = red("Yes") if is_complex else green("No")
 
         return "\tComplex code? {}\n".format(result)
 
@@ -175,8 +180,8 @@ class PrinterHumanSummary(AbstractPrinter):
 
     def _compilation_type(self):
         if self.slither.crytic_compile is None:
-            return 'Compilation non standard\n'
-        return f'Compiled with {self.slither.crytic_compile.type}\n'
+            return "Compilation non standard\n"
+        return f"Compiled with {self.slither.crytic_compile.type}\n"
 
     def _number_contracts(self):
         if self.slither.crytic_compile is None:
@@ -211,85 +216,85 @@ class PrinterHumanSummary(AbstractPrinter):
         txt += self._compilation_type()
 
         results = {
-            'contracts': {
-                "elements": []
-            },
-            'number_lines': 0,
-            'number_lines_in_dependencies': 0,
-            'number_lines_assembly': 0,
-            'standard_libraries': [],
-            'ercs': [],
-            'number_findings': dict(),
-            'detectors': []
+            "contracts": {"elements": []},
+            "number_lines": 0,
+            "number_lines_in_dependencies": 0,
+            "number_lines_assembly": 0,
+            "standard_libraries": [],
+            "ercs": [],
+            "number_findings": dict(),
+            "detectors": [],
         }
 
         lines_number = self._lines_number()
         if lines_number:
             total_lines, total_dep_lines = lines_number
-            txt += f'Number of lines: {total_lines} (+ {total_dep_lines} in dependencies)\n'
-            results['number_lines'] = total_lines
-            results['number_lines__dependencies'] = total_dep_lines
+            txt += f"Number of lines: {total_lines} (+ {total_dep_lines} in dependencies)\n"
+            results["number_lines"] = total_lines
+            results["number_lines__dependencies"] = total_dep_lines
             total_asm_lines = self._get_number_of_assembly_lines()
             txt += f"Number of assembly lines: {total_asm_lines}\n"
-            results['number_lines_assembly'] = total_asm_lines
+            results["number_lines_assembly"] = total_asm_lines
 
         number_contracts, number_contracts_deps = self._number_contracts()
-        txt += f'Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies) \n\n'
+        txt += f"Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies) \n\n"
 
         txt, detectors_results, optimization, info, low, medium, high = self.get_detectors_result()
 
-        results['number_findings'] = {
-            'optimization_issues': optimization,
-            'informational_issues': info,
-            'low_issues': low,
-            'medium_issues': medium,
-            'high_issues': high
+        results["number_findings"] = {
+            "optimization_issues": optimization,
+            "informational_issues": info,
+            "low_issues": low,
+            "medium_issues": medium,
+            "high_issues": high,
         }
-        results['detectors'] = detectors_results
+        results["detectors"] = detectors_results
 
         libs = self._standard_libraries()
         if libs:
             txt += f'\nUse: {", ".join(libs)}\n'
-            results['standard_libraries'] = [str(l) for l in libs]
+            results["standard_libraries"] = [str(l) for l in libs]
 
         ercs = self._ercs()
         if ercs:
             txt += f'ERCs: {", ".join(ercs)}\n'
-            results['ercs'] = [str(e) for e in ercs]
+            results["ercs"] = [str(e) for e in ercs]
 
         for contract in self.slither.contracts_derived:
             txt += "\nContract {}\n".format(contract.name)
             txt += self.is_complex_code(contract)
-            txt += '\tNumber of functions: {}\n'.format(self._number_functions(contract))
+            txt += "\tNumber of functions: {}\n".format(self._number_functions(contract))
             ercs = contract.ercs()
             if ercs:
-                txt += '\tERCs: ' + ','.join(ercs) + '\n'
+                txt += "\tERCs: " + ",".join(ercs) + "\n"
             is_erc20 = contract.is_erc20()
             if is_erc20:
-                txt += '\tERC20 info:\n'
+                txt += "\tERC20 info:\n"
                 txt += self.get_summary_erc20(contract)
 
         self.info(txt)
 
-        results_contract = output.Output('')
+        results_contract = output.Output("")
         for contract in self.slither.contracts_derived:
-            contract_d = {'contract_name': contract.name,
-                          'is_complex_code': self._is_complex_code(contract),
-                          'is_erc20': contract.is_erc20(),
-                          'number_functions': self._number_functions(contract)}
-            if contract_d['is_erc20']:
+            contract_d = {
+                "contract_name": contract.name,
+                "is_complex_code": self._is_complex_code(contract),
+                "is_erc20": contract.is_erc20(),
+                "number_functions": self._number_functions(contract),
+            }
+            if contract_d["is_erc20"]:
                 pause, mint_limited, race_condition_mitigated = self._get_summary_erc20(contract)
-                contract_d['erc20_pause'] = pause
+                contract_d["erc20_pause"] = pause
                 if mint_limited is not None:
-                    contract_d['erc20_can_mint'] = True
-                    contract_d['erc20_mint_limited'] = mint_limited
+                    contract_d["erc20_can_mint"] = True
+                    contract_d["erc20_mint_limited"] = mint_limited
                 else:
-                    contract_d['erc20_can_mint'] = False
-                contract_d['erc20_race_condition_mitigated'] = race_condition_mitigated
+                    contract_d["erc20_can_mint"] = False
+                contract_d["erc20_race_condition_mitigated"] = race_condition_mitigated
 
             results_contract.add_contract(contract, additional_fields=contract_d)
 
-        results['contracts']['elements'] = results_contract.elements
+        results["contracts"]["elements"] = results_contract.elements
 
         json = self.generate_output(txt, additional_fields=results)
 

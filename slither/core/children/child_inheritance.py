@@ -1,6 +1,4 @@
-
 class ChildInheritance:
-
     def __init__(self):
         super(ChildInheritance, self).__init__()
         self._contract_declarer = None

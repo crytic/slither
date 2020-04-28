@@ -17,7 +17,6 @@ class IndexVariable(ReferenceVariable):
         self._base = base
         self._offset = offset
 
-
     @property
     def index(self):
         return self._index
@@ -44,7 +43,7 @@ class IndexVariable(ReferenceVariable):
 
     @property
     def name(self):
-        return 'INDEX_{}'.format(self.index)
+        return "INDEX_{}".format(self.index)
 
     # overide of core.variables.variables
     # reference can have Function has a type

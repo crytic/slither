@@ -8,5 +8,6 @@
 
 from .variable import Variable
 
-class FunctionTypeVariable(Variable): pass
 
+class FunctionTypeVariable(Variable):
+    pass

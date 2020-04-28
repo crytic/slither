@@ -7,8 +7,8 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 
 from slither.core.declarations.structure import Structure
 
-class LocalVariable(ChildFunction, Variable):
 
+class LocalVariable(ChildFunction, Variable):
     def __init__(self):
         super(LocalVariable, self).__init__()
         self._location = None
@@ -18,12 +18,12 @@ class LocalVariable(ChildFunction, Variable):
 
     @property
     def location(self):
-        '''
+        """
             Variable Location
             Can be storage/memory or default
         Returns:
             (str)
-        '''
+        """
         return self._location
 
     @property
@@ -38,12 +38,12 @@ class LocalVariable(ChildFunction, Variable):
         Returns:
             (bool)
         """
-        if self.location == 'memory':
+        if self.location == "memory":
             return False
         # Use by slithIR SSA
-        if self.location == 'reference_to_storage':
+        if self.location == "reference_to_storage":
             return False
-        if self.location == 'storage':
+        if self.location == "storage":
             return True
 
         if isinstance(self.type, (ArrayType, MappingType)):
@@ -56,6 +56,4 @@ class LocalVariable(ChildFunction, Variable):
 
     @property
     def canonical_name(self):
-        return '{}.{}'.format(self.function.canonical_name, self.name)
-
-
+        return "{}.{}".format(self.function.canonical_name, self.name)

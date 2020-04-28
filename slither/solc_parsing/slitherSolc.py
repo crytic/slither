@@ -15,7 +15,6 @@ from slither.analyses.data_dependency.data_dependency import compute_dependency
 
 
 class SlitherSolc(Slither):
-
     def __init__(self, filename):
         super(SlitherSolc, self).__init__()
         self._filename = filename
@@ -33,13 +32,13 @@ class SlitherSolc(Slither):
 
     def get_key(self):
         if self._is_compact_ast:
-            return 'nodeType'
-        return 'name'
+            return "nodeType"
+        return "name"
 
     def get_children(self):
         if self._is_compact_ast:
-            return 'nodes'
-        return 'children'
+            return "nodes"
+        return "children"
 
     @property
     def is_compact_ast(self):
@@ -56,22 +55,24 @@ class SlitherSolc(Slither):
         try:
             data_loaded = json.loads(json_data)
             # Truffle AST
-            if 'ast' in data_loaded:
-                self._parse_contracts_from_loaded_json(data_loaded['ast'], data_loaded['sourcePath'])
+            if "ast" in data_loaded:
+                self._parse_contracts_from_loaded_json(
+                    data_loaded["ast"], data_loaded["sourcePath"]
+                )
                 return True
             # solc AST, where the non-json text was removed
             else:
-                if 'attributes' in data_loaded:
-                    filename = data_loaded['attributes']['absolutePath']
+                if "attributes" in data_loaded:
+                    filename = data_loaded["attributes"]["absolutePath"]
                 else:
-                    filename = data_loaded['absolutePath']
+                    filename = data_loaded["absolutePath"]
                 self._parse_contracts_from_loaded_json(data_loaded, filename)
                 return True
         except ValueError:
 
-            first = json_data.find('{')
+            first = json_data.find("{")
             if first != -1:
-                last = json_data.rfind('}') + 1
+                last = json_data.rfind("}") + 1
                 filename = json_data[0:first]
                 json_data = json_data[first:last]
 
@@ -81,55 +82,59 @@ class SlitherSolc(Slither):
             return False
 
     def _parse_contracts_from_loaded_json(self, data_loaded, filename):
-        if 'nodeType' in data_loaded:
+        if "nodeType" in data_loaded:
             self._is_compact_ast = True
 
-        if 'sourcePaths' in data_loaded:
-            for sourcePath in data_loaded['sourcePaths']:
+        if "sourcePaths" in data_loaded:
+            for sourcePath in data_loaded["sourcePaths"]:
                 if os.path.isfile(sourcePath):
                     self._add_source_code(sourcePath)
 
-        if data_loaded[self.get_key()] == 'root':
-            self._solc_version = '0.3'
-            logger.error('solc <0.4 is not supported')
+        if data_loaded[self.get_key()] == "root":
+            self._solc_version = "0.3"
+            logger.error("solc <0.4 is not supported")
             return
-        elif data_loaded[self.get_key()] == 'SourceUnit':
-            self._solc_version = '0.4'
+        elif data_loaded[self.get_key()] == "SourceUnit":
+            self._solc_version = "0.4"
             self._parse_source_unit(data_loaded, filename)
         else:
-            logger.error('solc version is not supported')
+            logger.error("solc version is not supported")
             return
 
         for contract_data in data_loaded[self.get_children()]:
 
-            assert contract_data[self.get_key()] in ['ContractDefinition', 'PragmaDirective', 'ImportDirective']
-            if contract_data[self.get_key()] == 'ContractDefinition':
+            assert contract_data[self.get_key()] in [
+                "ContractDefinition",
+                "PragmaDirective",
+                "ImportDirective",
+            ]
+            if contract_data[self.get_key()] == "ContractDefinition":
                 contract = ContractSolc04(self, contract_data)
-                if 'src' in contract_data:
-                    contract.set_offset(contract_data['src'], self)
+                if "src" in contract_data:
+                    contract.set_offset(contract_data["src"], self)
                 self._contractsNotParsed.append(contract)
-            elif contract_data[self.get_key()] == 'PragmaDirective':
+            elif contract_data[self.get_key()] == "PragmaDirective":
                 if self._is_compact_ast:
-                    pragma = Pragma(contract_data['literals'])
+                    pragma = Pragma(contract_data["literals"])
                 else:
-                    pragma = Pragma(contract_data['attributes']["literals"])
-                pragma.set_offset(contract_data['src'], self)
+                    pragma = Pragma(contract_data["attributes"]["literals"])
+                pragma.set_offset(contract_data["src"], self)
                 self._pragma_directives.append(pragma)
-            elif contract_data[self.get_key()] == 'ImportDirective':
+            elif contract_data[self.get_key()] == "ImportDirective":
                 if self.is_compact_ast:
                     import_directive = Import(contract_data["absolutePath"])
                 else:
-                    import_directive = Import(contract_data['attributes']["absolutePath"])
-                import_directive.set_offset(contract_data['src'], self)
+                    import_directive = Import(contract_data["attributes"]["absolutePath"])
+                import_directive.set_offset(contract_data["src"], self)
                 self._import_directives.append(import_directive)
 
     def _parse_source_unit(self, data, filename):
-        if data[self.get_key()] != 'SourceUnit':
+        if data[self.get_key()] != "SourceUnit":
             return -1  # handle solc prior 0.3.6
 
         # match any char for filename
         # filename can contain space, /, -, ..
-        name = re.findall('=+ (.+) =+', filename)
+        name = re.findall("=+ (.+) =+", filename)
         if name:
             assert len(name) == 1
             name = name[0]
@@ -137,8 +142,8 @@ class SlitherSolc(Slither):
             name = filename
 
         sourceUnit = -1  # handle old solc, or error
-        if 'src' in data:
-            sourceUnit = re.findall('[0-9]*:[0-9]*:([0-9]*)', data['src'])
+        if "src" in data:
+            sourceUnit = re.findall("[0-9]*:[0-9]*:([0-9]*)", data["src"])
             if len(sourceUnit) == 1:
                 sourceUnit = int(sourceUnit[0])
         if sourceUnit == -1:
@@ -154,7 +159,7 @@ class SlitherSolc(Slither):
         if os.path.isfile(name) and not name in self.source_code:
             self._add_source_code(name)
         else:
-            lib_name = os.path.join('node_modules', name)
+            lib_name = os.path.join("node_modules", name)
             if os.path.isfile(lib_name) and not name in self.source_code:
                 self._add_source_code(lib_name)
 
@@ -171,18 +176,21 @@ class SlitherSolc(Slither):
 
     def _analyze_contracts(self):
         if not self._contractsNotParsed:
-            logger.info(f'No contract were found in {self.filename}, check the correct compilation')
+            logger.info(f"No contract were found in {self.filename}, check the correct compilation")
         if self._analyzed:
-            raise Exception('Contract analysis can be run only once!')
+            raise Exception("Contract analysis can be run only once!")
 
         # First we save all the contracts in a dict
         # the key is the contractid
         for contract in self._contractsNotParsed:
             if contract.name in self._contracts:
                 if contract.id != self._contracts[contract.name].id:
-                    self._contract_name_collisions[contract.name].append(contract.source_mapping_str)
                     self._contract_name_collisions[contract.name].append(
-                        self._contracts[contract.name].source_mapping_str)
+                        contract.source_mapping_str
+                    )
+                    self._contract_name_collisions[contract.name].append(
+                        self._contracts[contract.name].source_mapping_str
+                    )
             else:
                 self._contracts_by_id[contract.id] = contract
                 self._contracts[contract.name] = contract
@@ -227,7 +235,7 @@ class SlitherSolc(Slither):
 
             if missing_inheritance:
                 self._contract_with_missing_inheritance.add(contract)
-                contract.log_incorrect_parsing(f'Missing inheritance {contract}')
+                contract.log_incorrect_parsing(f"Missing inheritance {contract}")
                 contract.set_is_analyzed(True)
                 contract.delete_content()
 
@@ -237,8 +245,10 @@ class SlitherSolc(Slither):
         self._analyze_all_enums(contracts_to_be_analyzed)
         [c.set_is_analyzed(False) for c in self.contracts]
 
-        libraries = [c for c in contracts_to_be_analyzed if c.contract_kind == 'library']
-        contracts_to_be_analyzed = [c for c in contracts_to_be_analyzed if c.contract_kind != 'library']
+        libraries = [c for c in contracts_to_be_analyzed if c.contract_kind == "library"]
+        contracts_to_be_analyzed = [
+            c for c in contracts_to_be_analyzed if c.contract_kind != "library"
+        ]
 
         # We first parse the struct/variables/functions/contract
         self._analyze_first_part(contracts_to_be_analyzed, libraries)

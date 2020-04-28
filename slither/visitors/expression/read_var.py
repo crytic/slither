@@ -1,4 +1,3 @@
-
 from slither.visitors.expression.expression import ExpressionVisitor
 
 from slither.core.expressions.assignment_operation import AssignmentOperationType
@@ -6,7 +5,8 @@ from slither.core.expressions.assignment_operation import AssignmentOperationTyp
 from slither.core.variables.variable import Variable
 from slither.core.declarations.solidity_variables import SolidityVariable
 
-key = 'ReadVar'
+key = "ReadVar"
+
 
 def get(expression):
     val = expression.context[key]
@@ -14,16 +14,16 @@ def get(expression):
     del expression.context[key]
     return val
 
+
 def set_val(expression, val):
     expression.context[key] = val
 
-class ReadVar(ExpressionVisitor):
 
+class ReadVar(ExpressionVisitor):
     def result(self):
         if self._result is None:
             self._result = list(set(get(self.expression)))
         return self._result
-
 
     # overide assignement
     # dont explore if its direct assignement (we explore if its +=, -=, ...)
