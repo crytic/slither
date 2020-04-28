@@ -1,26 +1,24 @@
+from typing import Optional, Dict
+
 from slither.core.cfg.node import Node
 from slither.core.cfg.node import NodeType
+from slither.core.expressions.assignment_operation import (
+    AssignmentOperation,
+    AssignmentOperationType,
+)
+from slither.core.expressions.identifier import Identifier
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
+from slither.visitors.expression.find_calls import FindCalls
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
-from slither.visitors.expression.find_calls import FindCalls
 
-from slither.visitors.expression.export_values import ExportValues
-from slither.core.declarations.solidity_variables import SolidityVariable, SolidityFunction
-from slither.core.declarations.function import Function
-
-from slither.core.variables.state_variable import StateVariable
-
-from slither.core.expressions.identifier import Identifier
-from slither.core.expressions.assignment_operation import AssignmentOperation, AssignmentOperationType
 
 class NodeSolc(Node):
+    def __init__(self, node_type: NodeType, node_id: int):
+        super(NodeSolc, self).__init__(node_type, node_id)
+        self._unparsed_expression: Optional[Dict] = None
 
-    def __init__(self, nodeType, nodeId):
-        super(NodeSolc, self).__init__(nodeType, nodeId)
-        self._unparsed_expression = None
-
-    def add_unparsed_expression(self, expression):
+    def add_unparsed_expression(self, expression: Dict):
         assert self._unparsed_expression is None
         self._unparsed_expression = expression
 
@@ -36,33 +34,27 @@ class NodeSolc(Node):
 
             if self.type == NodeType.VARIABLE:
                 # Update the expression to be an assignement to the variable
-                #print(self.variable_declaration)
-                _expression = AssignmentOperation(Identifier(self.variable_declaration),
-                                                  self.expression,
-                                                  AssignmentOperationType.ASSIGN,
-                                                  self.variable_declaration.type)
+                _expression = AssignmentOperation(
+                    Identifier(self.variable_declaration),
+                    self.expression,
+                    AssignmentOperationType.ASSIGN,
+                    self.variable_declaration.type,
+                )
                 _expression.set_offset(self.expression.source_mapping, self.slither)
                 self._expression = _expression
 
             expression = self.expression
-            pp = ReadVar(expression)
-            self._expression_vars_read = pp.result()
+            read_var = ReadVar(expression)
+            self._expression_vars_read = read_var.result()
 
-#            self._vars_read = [item for sublist in vars_read for item in sublist]
-#            self._state_vars_read = [x for x in self.variables_read if\
-#                                     isinstance(x, (StateVariable))]
-#            self._solidity_vars_read = [x for x in self.variables_read if\
-#                                        isinstance(x, (SolidityVariable))]
+            write_var = WriteVar(expression)
+            self._expression_vars_written = write_var.result()
 
-            pp = WriteVar(expression)
-            self._expression_vars_written = pp.result()
-
-#            self._vars_written = [item for sublist in vars_written for item in sublist]
-#            self._state_vars_written = [x for x in self.variables_written if\
-#                                        isinstance(x, StateVariable)]
-
-            pp = FindCalls(expression)
-            self._expression_calls = pp.result()
-            self._external_calls_as_expressions = [c for c in self.calls_as_expression if not isinstance(c.called, Identifier)]
-            self._internal_calls_as_expressions = [c for c in self.calls_as_expression if isinstance(c.called, Identifier)]
-
+            find_call = FindCalls(expression)
+            self._expression_calls = find_call.result()
+            self._external_calls_as_expressions = [
+                c for c in self.calls_as_expression if not isinstance(c.called, Identifier)
+            ]
+            self._internal_calls_as_expressions = [
+                c for c in self.calls_as_expression if isinstance(c.called, Identifier)
+            ]

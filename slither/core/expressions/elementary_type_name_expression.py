@@ -4,8 +4,8 @@
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.type import Type
 
-class ElementaryTypeNameExpression(Expression):
 
+class ElementaryTypeNameExpression(Expression):
     def __init__(self, t):
         assert isinstance(t, Type)
         super(ElementaryTypeNameExpression, self).__init__()
@@ -17,4 +17,3 @@ class ElementaryTypeNameExpression(Expression):
 
     def __str__(self):
         return str(self._type)
-

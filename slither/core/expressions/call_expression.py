@@ -2,7 +2,6 @@ from slither.core.expressions.expression import Expression
 
 
 class CallExpression(Expression):
-
     def __init__(self, called, arguments, type_call):
         assert isinstance(called, Expression)
         super(CallExpression, self).__init__()
@@ -46,12 +45,12 @@ class CallExpression(Expression):
     def __str__(self):
         txt = str(self._called)
         if self.call_gas or self.call_value:
-            gas = f'gas: {self.call_gas}' if self.call_gas else ''
-            value = f'value: {self.call_value}' if self.call_value else ''
+            gas = f"gas: {self.call_gas}" if self.call_gas else ""
+            value = f"value: {self.call_value}" if self.call_value else ""
             if gas and value:
-                txt += '{' + f'{gas}, {value}' + '}'
+                txt += "{" + f"{gas}, {value}" + "}"
             elif gas:
-                txt += '{' + f'{gas}' + '}'
+                txt += "{" + f"{gas}" + "}"
             else:
-                txt += '{' + f'{value}' + '}'
-        return txt + '(' + ','.join([str(a) for a in self._arguments]) + ')'
+                txt += "{" + f"{value}" + "}"
+        return txt + "(" + ",".join([str(a) for a in self._arguments]) + ")"

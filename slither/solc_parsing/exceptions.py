@@ -1,5 +1,9 @@
 from slither.exceptions import SlitherException
 
-class ParsingError(SlitherException): pass
 
-class VariableNotFound(SlitherException): pass
+class ParsingError(SlitherException):
+    pass
+
+
+class VariableNotFound(SlitherException):
+    pass

@@ -19,8 +19,8 @@ from slither.exceptions import SlitherError
 
 logger = logging.getLogger("ExpressionVisitor")
 
-class ExpressionVisitor:
 
+class ExpressionVisitor:
     def __init__(self, expression):
         # Inherited class must declared their variables prior calling super().__init__
         self._expression = expression
@@ -88,7 +88,7 @@ class ExpressionVisitor:
             pass
 
         else:
-            raise SlitherError('Expression not handled: {}'.format(expression))
+            raise SlitherError("Expression not handled: {}".format(expression))
 
         self._post_visit(expression)
 
@@ -205,7 +205,7 @@ class ExpressionVisitor:
             pass
 
         else:
-            raise SlitherError('Expression not handled: {}'.format(expression))
+            raise SlitherError("Expression not handled: {}".format(expression))
 
     # pre_expression_name
 
@@ -306,7 +306,7 @@ class ExpressionVisitor:
             pass
 
         else:
-            raise SlitherError('Expression not handled: {}'.format(expression))
+            raise SlitherError("Expression not handled: {}".format(expression))
 
     # post_expression_name
 
@@ -354,5 +354,3 @@ class ExpressionVisitor:
 
     def _post_unary_operation(self, expression):
         pass
-
-

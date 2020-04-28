@@ -4,7 +4,6 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 
 
 class SolidityCall(Call, OperationWithLValue):
-
     def __init__(self, function, nbr_arguments, result, type_call):
         assert isinstance(function, SolidityFunction)
         super(SolidityCall, self).__init__()
@@ -31,7 +30,10 @@ class SolidityCall(Call, OperationWithLValue):
 
     def __str__(self):
         args = [str(a) for a in self.arguments]
-        return str(self.lvalue) +' = SOLIDITY_CALL {}({})'.format(self.function.full_name, ','.join(args))
-   #     return str(self.lvalue) +' = INTERNALCALL {} (arg {})'.format(self.function,
-   #                                                                   self.nbr_arguments)
+        return str(self.lvalue) + " = SOLIDITY_CALL {}({})".format(
+            self.function.full_name, ",".join(args)
+        )
 
+
+#     return str(self.lvalue) +' = INTERNALCALL {} (arg {})'.format(self.function,
+#                                                                   self.nbr_arguments)

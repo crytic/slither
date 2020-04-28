@@ -1,6 +1,7 @@
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.type import Type
 
+
 class NewArray(Expression):
 
     # note: dont conserve the size of the array if provided
@@ -19,5 +20,4 @@ class NewArray(Expression):
         return self._depth
 
     def __str__(self):
-        return 'new ' + str(self._array_type) + '[]'* self._depth
-
+        return "new " + str(self._array_type) + "[]" * self._depth

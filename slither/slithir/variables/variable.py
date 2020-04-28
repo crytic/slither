@@ -3,8 +3,8 @@ from slither.core.declarations import Structure
 from slither.core.solidity_types import UserDefinedType
 from slither.core.variables.variable import Variable
 
-class SlithIRVariable(Variable):
 
+class SlithIRVariable(Variable):
     def __init__(self):
         super(SlithIRVariable, self).__init__()
         self._index = 0
@@ -25,8 +25,6 @@ class SlithIRVariable(Variable):
         #     if isinstance(self.type.type, Structure):
         #         for member in self.type.type.elems.keys():
         #             self._ssa_phi_info[member] = [Constant("0")]
-
-
 
     def __str__(self):
         return self.ssa_name

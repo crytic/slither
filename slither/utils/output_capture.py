@@ -7,6 +7,7 @@ class CapturingStringIO(io.StringIO):
     """
     I/O implementation which captures output, and optionally mirrors it to the original I/O stream it replaces.
     """
+
     def __init__(self, original_io=None):
         super(CapturingStringIO, self).__init__()
         self.original_io = original_io
@@ -21,6 +22,7 @@ class StandardOutputCapture:
     """
     Redirects and captures standard output/errors.
     """
+
     original_stdout = None
     original_stderr = None
     original_logger_handlers = None
@@ -35,12 +37,16 @@ class StandardOutputCapture:
         # Redirect stdout
         if StandardOutputCapture.original_stdout is None:
             StandardOutputCapture.original_stdout = sys.stdout
-            sys.stdout = CapturingStringIO(None if block_original else StandardOutputCapture.original_stdout)
+            sys.stdout = CapturingStringIO(
+                None if block_original else StandardOutputCapture.original_stdout
+            )
 
         # Redirect stderr
         if StandardOutputCapture.original_stderr is None:
             StandardOutputCapture.original_stderr = sys.stderr
-            sys.stderr = CapturingStringIO(None if block_original else StandardOutputCapture.original_stderr)
+            sys.stderr = CapturingStringIO(
+                None if block_original else StandardOutputCapture.original_stderr
+            )
 
             # Backup and swap root logger handlers
             root_logger = logging.getLogger()

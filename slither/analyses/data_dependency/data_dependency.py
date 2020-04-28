@@ -7,21 +7,44 @@ from typing import Union, Set, Dict, List, Tuple, ItemsView, Optional
 from prettytable import PrettyTable
 
 from slither.core.cfg.node import Node, NodeType
-from slither.core.declarations import (Contract, Enum, Function,
-                                       SolidityFunction, SolidityVariable,
-                                       SolidityVariableComposed, Structure)
+from slither.core.declarations import (
+    Contract,
+    Enum,
+    Function,
+    SolidityFunction,
+    SolidityVariable,
+    SolidityVariableComposed,
+    Structure,
+)
 from slither.core.solidity_types import UserDefinedType, ArrayType, MappingType
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.structure_variable import StructureVariable
 from slither.core.variables.variable import Variable
-from slither.slithir.operations import Index, OperationWithLValue, InternalCall, PhiMemberMust, PhiMemberMay, \
-    AccessMember, Phi, Balance, Assignment
-from slither.slithir.variables import (Constant, LocalIRVariable,
-                                       IndexVariable, IndexVariableSSA,
-                                       StateIRVariable, MemberVariable, MemberVariableSSA,
-                                       TemporaryVariableSSA, TupleVariableSSA, TemporaryVariable)
+from slither.slithir.operations import (
+    Index,
+    OperationWithLValue,
+    InternalCall,
+    PhiMemberMust,
+    PhiMemberMay,
+    AccessMember,
+    Phi,
+    Balance,
+    Assignment,
+)
+from slither.slithir.variables import (
+    Constant,
+    LocalIRVariable,
+    IndexVariable,
+    IndexVariableSSA,
+    StateIRVariable,
+    MemberVariable,
+    MemberVariableSSA,
+    TemporaryVariableSSA,
+    TupleVariableSSA,
+    TemporaryVariable,
+)
 from slither.slithir.variables.variable import SlithIRVariable
 
 VariableKey = Union[Variable, Tuple[Variable, Constant]]
@@ -34,14 +57,14 @@ Dependencies = Set[VariableKey]
 ###################################################################################
 ###################################################################################
 
-class Access:
 
+class Access:
     def __init__(self, base: Variable, members: Union[List, Tuple]):
         self._base = base
         self._members = members
 
     def __str__(self):
-        return f'{self._base}.' + '.'.join([f'{x}' for x in list(self._members)])
+        return f"{self._base}." + ".".join([f"{x}" for x in list(self._members)])
 
     def to_tuple(self) -> Tuple:
         return (self._base,) + tuple(self._members)
@@ -51,11 +74,13 @@ def _to_tuple(l, n):
     return tuple(list(l) + [n])
 
 
-def is_dependent(variable: Union[Variable, Tuple, Access],
-                 source: Union[Variable, Tuple],
-                 context: Union[Contract, Function, Node],
-                 only_unprotected=False):
-    '''
+def is_dependent(
+    variable: Union[Variable, Tuple, Access],
+    source: Union[Variable, Tuple],
+    context: Union[Contract, Function, Node],
+    only_unprotected=False,
+):
+    """
     Args:
         variable (Variable)
         source (Variable)
@@ -63,7 +88,7 @@ def is_dependent(variable: Union[Variable, Tuple, Access],
         only_unprotected (bool): True only unprotected function are considered
     Returns:
         bool
-    '''
+    """
     assert isinstance(context, (Contract, Function, Node))
     if isinstance(variable, Constant):
         return False
@@ -83,11 +108,13 @@ def is_dependent(variable: Union[Variable, Tuple, Access],
     return graph.is_dependent(variable, source, False)
 
 
-def is_dependent_ssa(variable: Union[Variable, Tuple],
-                     source: Union[Variable, Tuple],
-                     context: Union[Contract, Function, Node],
-                     only_unprotected=False):
-    '''
+def is_dependent_ssa(
+    variable: Union[Variable, Tuple],
+    source: Union[Variable, Tuple],
+    context: Union[Contract, Function, Node],
+    only_unprotected=False,
+):
+    """
     Args:
         variable (Variable)
         taint (Variable)
@@ -95,7 +122,7 @@ def is_dependent_ssa(variable: Union[Variable, Tuple],
         only_unprotected (bool): True only unprotected function are considered
     Returns:
         bool
-    '''
+    """
     assert isinstance(context, (Contract, Function, Node))
     context = context.context
 
@@ -112,23 +139,28 @@ def is_dependent_ssa(variable: Union[Variable, Tuple],
     return graph.is_dependent(variable, source, True)
 
 
-GENERIC_TAINT = {SolidityVariableComposed('msg.sender'),
-                 SolidityVariableComposed('msg.value'),
-                 SolidityVariableComposed('msg.data'),
-                 SolidityVariableComposed('tx.origin')}
+GENERIC_TAINT = {
+    SolidityVariableComposed("msg.sender"),
+    SolidityVariableComposed("msg.value"),
+    SolidityVariableComposed("msg.data"),
+    SolidityVariableComposed("tx.origin"),
+}
 
 
-def is_tainted(variable: Union[Variable, Tuple],
-               context: Union[Contract, Function, Node],
-               only_unprotected=False, ignore_generic_taint=False):
-    '''
+def is_tainted(
+    variable: Union[Variable, Tuple],
+    context: Union[Contract, Function, Node],
+    only_unprotected=False,
+    ignore_generic_taint=False,
+):
+    """
         Args:
         variable
         context (Contract|Function)
         only_unprotected (bool): True only unprotected function are considered
     Returns:
         bool
-    '''
+    """
     assert isinstance(context, (Contract, Function, Node))
     assert isinstance(only_unprotected, bool)
     if isinstance(variable, Constant):
@@ -137,13 +169,18 @@ def is_tainted(variable: Union[Variable, Tuple],
     taints = slither.context[KEY_INPUT]
     if not ignore_generic_taint:
         taints |= GENERIC_TAINT
-    return variable in taints or any(is_dependent(variable, t, context, only_unprotected) for t in taints)
+    return variable in taints or any(
+        is_dependent(variable, t, context, only_unprotected) for t in taints
+    )
 
 
-def is_tainted_ssa(variable: Union[Variable, Tuple],
-                   context: Union[Contract, Function, Node],
-                   only_unprotected=False, ignore_generic_taint=False):
-    '''
+def is_tainted_ssa(
+    variable: Union[Variable, Tuple],
+    context: Union[Contract, Function, Node],
+    only_unprotected=False,
+    ignore_generic_taint=False,
+):
+    """
     Args:
         variable
         context (Contract|Function)
@@ -151,7 +188,7 @@ def is_tainted_ssa(variable: Union[Variable, Tuple],
         ignore_generic_taint:
     Returns:
         bool
-    '''
+    """
     assert isinstance(context, (Contract, Function, Node))
     assert isinstance(only_unprotected, bool)
     if isinstance(variable, Constant):
@@ -160,13 +197,16 @@ def is_tainted_ssa(variable: Union[Variable, Tuple],
     taints = slither.context[KEY_INPUT_SSA]
     if not ignore_generic_taint:
         taints |= GENERIC_TAINT
-    return variable in taints or any(is_dependent_ssa(variable, t, context, only_unprotected) for t in taints)
+    return variable in taints or any(
+        is_dependent_ssa(variable, t, context, only_unprotected) for t in taints
+    )
 
 
 def get_dependencies(
-        variable: Union[Variable, Tuple],
-        context: Union[Contract, Function, Node],
-        only_unprotected: bool = False) -> Set[Variable]:
+    variable: Union[Variable, Tuple],
+    context: Union[Contract, Function, Node],
+    only_unprotected: bool = False,
+) -> Set[Variable]:
     """
     Return the variables for which `variable` depends on.
 
@@ -186,8 +226,8 @@ def get_dependencies(
 
 
 def get_all_dependencies(
-        context: Union[Contract, Function, Node],
-        only_unprotected: bool = False) -> Dict[Variable, Set[Variable]]:
+    context: Union[Contract, Function, Node], only_unprotected: bool = False
+) -> Dict[Variable, Set[Variable]]:
     """
     Return the dictionary of dependencies.
 
@@ -202,9 +242,10 @@ def get_all_dependencies(
 
 
 def get_dependencies_ssa(
-        variable: Union[Variable, Tuple],
-        context: Union[Contract, Function, Node],
-        only_unprotected: bool = False) -> Set[Variable]:
+    variable: Union[Variable, Tuple],
+    context: Union[Contract, Function, Node],
+    only_unprotected: bool = False,
+) -> Set[Variable]:
     """
     Return the variables for which `variable` depends on (SSA version).
 
@@ -222,8 +263,8 @@ def get_dependencies_ssa(
 
 
 def get_all_dependencies_ssa(
-        context: Union[Contract, Function, Node],
-        only_unprotected: bool = False) -> Dict[Variable, Set[Variable]]:
+    context: Union[Contract, Function, Node], only_unprotected: bool = False
+) -> Dict[Variable, Set[Variable]]:
     """
     Return the dictionary of dependencies.
 
@@ -264,40 +305,41 @@ KEY_GRAPH_ONLY_UNPROTECTED = "KEY_GRAPH_DEPENDENCY_UNPROTECTED"
 ###################################################################################
 ###################################################################################
 
+
 def pprint_dependency(context):
-    print('#### SSA ####')
+    print("#### SSA ####")
     context = context.context
     if KEY_SSA not in context:
         return
     for k, values in context[KEY_SSA].items():
         if isinstance(k, tuple):
-            print('{}.{} ({}):'.format(k[0], k[1], id(k)))
+            print("{}.{} ({}):".format(k[0], k[1], id(k)))
         else:
-            print('{} ({}):'.format(k, id(k)))
+            print("{} ({}):".format(k, id(k)))
         for v in values:
             if isinstance(v, tuple):
-                print('\t- {}.{}'.format(v[0], v[1]))
+                print("\t- {}.{}".format(v[0], v[1]))
             else:
-                print('\t- {}'.format(v))
+                print("\t- {}".format(v))
 
-    print('#### NON SSA ####')
+    print("#### NON SSA ####")
     if KEY_NON_SSA not in context:
         return
     for k, values in context[KEY_NON_SSA].items():
         if isinstance(k, tuple):
-            print('{}.{} ({}):'.format(k[0], k[1], id(k)))
+            print("{}.{} ({}):".format(k[0], k[1], id(k)))
         else:
-            print('{} ({}):'.format(k, id(k)))
+            print("{} ({}):".format(k, id(k)))
         for v in values:
             if isinstance(v, tuple):
-                print('\t- {}.{}'.format(v[0], v[1]))
+                print("\t- {}.{}".format(v[0], v[1]))
             else:
-                print('\t- {}'.format(v))
+                print("\t- {}".format(v))
 
 
 def _convert(d):
     if isinstance(d, tuple):
-        return '.'.join([x.name for x in d])
+        return ".".join([x.name for x in d])
     return d.name
 
 
@@ -308,24 +350,34 @@ def _get_dependencies(v, c, is_ssa):
 
 
 def _get(v, c, is_ssa):
-    return list(set([_convert(d) for d in _get_dependencies(v, c, is_ssa) if not isinstance(d, (TemporaryVariable,
-                                                                                                IndexVariable,
-                                                                                                MemberVariable,
-                                                                                                tuple))]))
+    return list(
+        set(
+            [
+                _convert(d)
+                for d in _get_dependencies(v, c, is_ssa)
+                if not isinstance(d, (TemporaryVariable, IndexVariable, MemberVariable, tuple))
+            ]
+        )
+    )
 
 
-def _add_row_rec_structure(v: Variable,
-                           members,
-                           c: Union[Contract, Function, Node],
-                           key: str,
-                           table: PrettyTable,
-                           is_ssa: bool):
+def _add_row_rec_structure(
+    v: Variable,
+    members,
+    c: Union[Contract, Function, Node],
+    key: str,
+    table: PrettyTable,
+    is_ssa: bool,
+):
     for elem in members:
         deps = []
         for dep in _get_dependencies((v, elem.name), c, is_ssa):
-            if (isinstance(elem.type, UserDefinedType) and isinstance(elem.type.type, Structure) or
-                    isinstance(elem.type, (ArrayType, MappingType))):
-                _add_row_rec(dep, c, f'{key}.{elem}', table, is_ssa)
+            if (
+                isinstance(elem.type, UserDefinedType)
+                and isinstance(elem.type.type, Structure)
+                or isinstance(elem.type, (ArrayType, MappingType))
+            ):
+                _add_row_rec(dep, c, f"{key}.{elem}", table, is_ssa)
             else:
                 if isinstance(dep, tuple):
                     deps.append(str((str(dep[0]), str(dep[1]))))
@@ -333,16 +385,16 @@ def _add_row_rec_structure(v: Variable,
                     deps.append(str(dep))
 
         if deps:
-            table.add_row([f'{key}.{elem}',
-                           str(deps),
-                           is_tainted((key, elem), c)])
+            table.add_row([f"{key}.{elem}", str(deps), is_tainted((key, elem), c)])
 
 
-def _add_row_rec(v: Union[Variable, Tuple],
-                 c: Union[Contract, Function, Node],
-                 key: str,
-                 table: PrettyTable,
-                 is_ssa: bool):
+def _add_row_rec(
+    v: Union[Variable, Tuple],
+    c: Union[Contract, Function, Node],
+    key: str,
+    table: PrettyTable,
+    is_ssa: bool,
+):
     if isinstance(v, tuple):
         deps = []
         for dep in _get_dependencies(v, c, is_ssa):
@@ -355,33 +407,17 @@ def _add_row_rec(v: Union[Variable, Tuple],
             else:
                 deps.append(str(dep))
         if deps:
-            table.add_row([f'{key}.{v[0]}.{v[1]}',
-                           str(deps),
-                           is_tainted((key, v), c)])
+            table.add_row([f"{key}.{v[0]}.{v[1]}", str(deps), is_tainted((key, v), c)])
 
     # Structure
     elif _is_structure(v.type):
-        _add_row_rec_structure(
-            v,
-            v.type.type.elems.values(),
-            c,
-            key,
-            table,
-            is_ssa
-        )
+        _add_row_rec_structure(v, v.type.type.elems.values(), c, key, table, is_ssa)
 
     else:
         # Mapping to structure
         st = _points_to_structure(v)
         if st:
-            _add_row_rec_structure(
-                v,
-                st.elems.values(),
-                c,
-                key,
-                table,
-                is_ssa
-            )
+            _add_row_rec_structure(v, st.elems.values(), c, key, table, is_ssa)
         else:
             table.add_row([str(v), _get(v, c, is_ssa), is_tainted(v, c)])
 
@@ -406,7 +442,7 @@ def _add_rows(c, table):
         else:
             table.add_row([str(k), values, is_tainted(k, c)])
 
-    table.add_row(['#####', 'NON SSA', '####'])
+    table.add_row(["#####", "NON SSA", "####"])
 
     context = c.context[KEY_NON_SSA]
 
@@ -434,23 +470,36 @@ def unroll(pointer, base):
 
 
 def pprint_dependency_table(context):
-    table = PrettyTable(['Variable', 'Dependencies', 'Is tainted'])
+    table = PrettyTable(["Variable", "Dependencies", "Is tainted"])
 
     if isinstance(context, Contract):
         for v in context.state_variables:
             unrolled_variables = unroll(v, [v])
             for v in unrolled_variables:
-                table.add_row([_tmp_to_str(tuple(v)),
-                               [_tmp_to_str(x) for x in get_dependencies(tuple(v), context, False)],
-                               False])
+                table.add_row(
+                    [
+                        _tmp_to_str(tuple(v)),
+                        [_tmp_to_str(x) for x in get_dependencies(tuple(v), context, False)],
+                        False,
+                    ]
+                )
 
     if isinstance(context, Function):
-        for v in context.contract.state_variables + context.local_variables + context.parameters + context.returns:
+        for v in (
+            context.contract.state_variables
+            + context.local_variables
+            + context.parameters
+            + context.returns
+        ):
             unrolled_variables = unroll(v, [v])
             for v in unrolled_variables:
-                table.add_row([_tmp_to_str(tuple(v)),
-                               [_tmp_to_str(x) for x in get_dependencies(tuple(v), context, False)],
-                               False])
+                table.add_row(
+                    [
+                        _tmp_to_str(tuple(v)),
+                        [_tmp_to_str(x) for x in get_dependencies(tuple(v), context, False)],
+                        False,
+                    ]
+                )
 
     return table
 
@@ -464,7 +513,6 @@ def pprint_dependency_table(context):
 
 
 class Taint:
-
     def __init__(self, taints=None):
         if taints is None:
             self._taints: Dict[VariableKey, Dependencies] = defaultdict(set)
@@ -500,7 +548,9 @@ class Taint:
                 return set()
             key = key[2:]
             # Return the union of all the set from all the (base, key)
-            return set.union(*[self._get_all_deps(self._new_taint_key(b, key), seen) for b in bases])
+            return set.union(
+                *[self._get_all_deps(self._new_taint_key(b, key), seen) for b in bases]
+            )
         else:
             return self._taints.get(key, set())
 
@@ -530,13 +580,13 @@ class Taint:
 
     def set_dependencies(self, key: VariableKey, value: Dependencies):
         if isinstance(key, tuple) and len(key) > 2:
-            raise Exception(f'Invalid set key {[str(k) for k in key]} ')
+            raise Exception(f"Invalid set key {[str(k) for k in key]} ")
 
         self._taints[key] = value
 
     def union(self, key: VariableKey, value: Dependencies):
         if isinstance(key, tuple) and len(key) > 2:
-            raise Exception(f'Invalid set key {[str(k) for k in key]} ')
+            raise Exception(f"Invalid set key {[str(k) for k in key]} ")
         self._taints[key] |= value
 
     # @property
@@ -574,9 +624,11 @@ def compute_dependency_contract(contract, slither):
         compute_dependency_function(function)
 
         contract.context[KEY_GRAPH].union(function.context[KEY_GRAPH])
-        contract.context[KEY_GRAPH_ONLY_UNPROTECTED].union(function.context[KEY_GRAPH_ONLY_UNPROTECTED])
+        contract.context[KEY_GRAPH_ONLY_UNPROTECTED].union(
+            function.context[KEY_GRAPH_ONLY_UNPROTECTED]
+        )
 
-        if function.visibility in ['public', 'external']:
+        if function.visibility in ["public", "external"]:
             [slither.context[KEY_INPUT].add(p) for p in function.parameters]
             [slither.context[KEY_INPUT_SSA].add(p) for p in function.parameters_ssa]
 
@@ -626,7 +678,9 @@ def transitive_close_dependencies(context, context_key, context_key_non_ssa):
     while changed:
         changed = False
         # Need to create new set() as its changed during iteration
-        data_depencencies = {k: set([v for v in values]) for k, values in context.context[context_key].items()}
+        data_depencencies = {
+            k: set([v for v in values]) for k, values in context.context[context_key].items()
+        }
         for key, items in data_depencencies.items():
             for item in items:
                 additional_items = context.context[context_key].get_dependencies(item)
@@ -654,7 +708,9 @@ def transitive_close_node_dependencies(node, context_key):
     while changed:
         changed = False
         # Need to create new set() as its changed during iteration
-        data_depencencies = {k: set([v for v in values]) for k, values in node.context[context_key].items()}
+        data_depencencies = {
+            k: set([v for v in values]) for k, values in node.context[context_key].items()
+        }
 
         if node.fathers:
             for father in node.fathers:
@@ -709,32 +765,36 @@ def _points_to_structure(variable) -> Optional[Structure]:
 
 def _tmp_to_str(k: VariableKey):
     if isinstance(k, tuple):
-        return '.'.join([_tmp_to_str(x) for x in k])
+        return ".".join([_tmp_to_str(x) for x in k])
     return str(k)
 
 
-Edge = namedtuple('Edge', ['source', 'destination', 'step'])
+Edge = namedtuple("Edge", ["source", "destination", "step"])
 
 
 def _convert_edge_to_non_ssa(edge: Edge):
-    return Edge(convert_variable_to_non_ssa(edge.source),
-                convert_variable_to_non_ssa(edge.destination),
-                convert_variable_to_non_ssa(edge.step) if edge.step else None)
+    return Edge(
+        convert_variable_to_non_ssa(edge.source),
+        convert_variable_to_non_ssa(edge.destination),
+        convert_variable_to_non_ssa(edge.step) if edge.step else None,
+    )
 
 
 class Graph:
-
-    def __init__(self,
-                 edges: Optional[List[Edge]] = None,
-                 nodes: Optional[Dict[VariableKey, List[Edge]]] = None,
-                 edges_non_ssa: Optional[List[Edge]] = None,
-                 nodes_non_ssa: Optional[Dict[VariableKey, List[Edge]]] = None):
+    def __init__(
+        self,
+        edges: Optional[List[Edge]] = None,
+        nodes: Optional[Dict[VariableKey, List[Edge]]] = None,
+        edges_non_ssa: Optional[List[Edge]] = None,
+        nodes_non_ssa: Optional[Dict[VariableKey, List[Edge]]] = None,
+    ):
         self._edges: List[Edge] = [] if edges is None else edges
         self._nodes: Dict[VariableKey, List[Edge]] = defaultdict(list) if nodes is None else nodes
 
         self._edges_non_ssa: List[Edge] = [] if edges_non_ssa is None else edges_non_ssa
         self._nodes_non_ssa: Dict[VariableKey, List[Edge]] = defaultdict(
-            list) if nodes_non_ssa is None else nodes_non_ssa
+            list
+        ) if nodes_non_ssa is None else nodes_non_ssa
 
     @property
     def edges(self) -> List[Edge]:
@@ -757,7 +817,7 @@ class Graph:
             list(self._edges),
             dict(self._nodes),
             list(self._edges_non_ssa),
-            dict(self._nodes_non_ssa)
+            dict(self._nodes_non_ssa),
         )
 
     def union(self, graph: "Graph"):
@@ -774,7 +834,9 @@ class Graph:
 
         for key, edges in self._nodes.items():
             for edge in edges:
-                self._nodes_non_ssa[convert_variable_to_non_ssa(key)].append(_convert_edge_to_non_ssa(edge))
+                self._nodes_non_ssa[convert_variable_to_non_ssa(key)].append(
+                    _convert_edge_to_non_ssa(edge)
+                )
 
     def add_edge(self, src, dst):
         if isinstance(dst, tuple) and isinstance(dst[0], IndexVariable):
@@ -795,8 +857,15 @@ class Graph:
     def is_dependent(self, variable: VariableKey, source: VariableKey, is_ssa: bool) -> bool:
         return self._is_subgraph(variable, source, [], [], set(), is_ssa)
 
-    def _is_subgraph(self, variable, candidate, candidate_to_explore, to_explore: List, explored: Set,
-                     is_ssa: bool) -> bool:
+    def _is_subgraph(
+        self,
+        variable,
+        candidate,
+        candidate_to_explore,
+        to_explore: List,
+        explored: Set,
+        is_ssa: bool,
+    ) -> bool:
         """
         Check if candidate is a subgraph of variable
         :param variable:
@@ -834,23 +903,40 @@ class Graph:
 
         for edge in self._nodes[base] if is_ssa else self._nodes_non_ssa[base]:
             if not edge.step:
-                ret |= self._is_subgraph(edge.destination, candidate, candidate_to_explore, next, explored, is_ssa)
+                ret |= self._is_subgraph(
+                    edge.destination, candidate, candidate_to_explore, next, explored, is_ssa
+                )
             if edge.step and next:
                 if edge.source == base_candidate:
                     if not next_candidate:
                         return True
                     if edge.step == next_candidate[0]:
-                        ret |= self._is_subgraph(edge.destination, candidate, next_candidate[1:], next[1:], explored,
-                                                 is_ssa)
+                        ret |= self._is_subgraph(
+                            edge.destination,
+                            candidate,
+                            next_candidate[1:],
+                            next[1:],
+                            explored,
+                            is_ssa,
+                        )
                 if edge.step == base_candidate and next_candidate:
                     if edge.step == next[0]:
-                        ret |= self._is_subgraph(edge.destination, candidate, next_candidate, next[1:], explored,
-                                                 is_ssa)
+                        ret |= self._is_subgraph(
+                            edge.destination, candidate, next_candidate, next[1:], explored, is_ssa
+                        )
                     else:
-                        ret |= self._is_subgraph(edge.destination, candidate, next_candidate, next, explored, is_ssa)
+                        ret |= self._is_subgraph(
+                            edge.destination, candidate, next_candidate, next, explored, is_ssa
+                        )
                 if edge.step == next[0]:
-                    ret |= self._is_subgraph(edge.destination, candidate, candidate_to_explore, next[1:], explored,
-                                             is_ssa)
+                    ret |= self._is_subgraph(
+                        edge.destination,
+                        candidate,
+                        candidate_to_explore,
+                        next[1:],
+                        explored,
+                        is_ssa,
+                    )
         return ret
 
     def _extract(self, edge: List[VariableKey]):
@@ -858,7 +944,7 @@ class Graph:
         candidates: List[Tuple[VariableKey, List[VariableKey]]] = []
         for idx, e in enumerate(edge):
             if not isinstance(e, (SlithIRVariable, Constant, str)):
-                candidates.append((e, edge[idx + 1:]))
+                candidates.append((e, edge[idx + 1 :]))
         ret = []
         for candidate, potential_members in candidates:
             valid_members = []
@@ -920,7 +1006,9 @@ class Graph:
                 leaves.add(tuple(extracted))
         return leaves
 
-    def _get(self, variable, to_explore: List, explored: Set, is_ssa: bool, edges_steps) -> Tuple[Set, List]:
+    def _get(
+        self, variable, to_explore: List, explored: Set, is_ssa: bool, edges_steps
+    ) -> Tuple[Set, List]:
         """
         Return the leaves
         :param variable:
@@ -945,18 +1033,18 @@ class Graph:
             if not edge.step:
                 if isinstance(edge.source, (LocalVariable, StateVariable)):
                     edges_steps = [edge.source]
-                ret_set, ret_edges = self._get(edge.destination, next, explored, is_ssa, edges_steps)
+                ret_set, ret_edges = self._get(
+                    edge.destination, next, explored, is_ssa, edges_steps
+                )
                 ret |= ret_set
                 edges_steps_ret += ret_edges
             elif edge.step:
                 if next and edge.step == next[0]:
                     if isinstance(edge.source, (LocalVariable, StateVariable)):
                         edges_steps = [edge.source]
-                    ret_set, ret_edges = self._get(edge.destination,
-                                                   next[1:],
-                                                   explored,
-                                                   is_ssa,
-                                                   edges_steps + [edge.step])
+                    ret_set, ret_edges = self._get(
+                        edge.destination, next[1:], explored, is_ssa, edges_steps + [edge.step]
+                    )
                     ret |= ret_set
                     edges_steps_ret += ret_edges
         if ret:
@@ -966,21 +1054,25 @@ class Graph:
         return {variable}, [edges_steps]
 
     def to_dot(self):
-        print(f'digraph SSA{{')
+        print(f"digraph SSA{{")
         for edge in self._edges:
             if edge.step:
-                print(f'\t\t"{_tmp_to_str(edge.source)}" -> "{_tmp_to_str(edge.destination)}" [label="{edge.step}"];')
+                print(
+                    f'\t\t"{_tmp_to_str(edge.source)}" -> "{_tmp_to_str(edge.destination)}" [label="{edge.step}"];'
+                )
             else:
                 print(f'\t\t"{_tmp_to_str(edge.source)}" -> "{_tmp_to_str(edge.destination)}";')
-        print('}')
+        print("}")
 
-        print(f'digraph NONSSA{{')
+        print(f"digraph NONSSA{{")
         for edge in self._edges_non_ssa:
             if edge.step:
-                print(f'\t\t"{_tmp_to_str(edge.source)}" -> "{_tmp_to_str(edge.destination)}" [label="{edge.step}"];')
+                print(
+                    f'\t\t"{_tmp_to_str(edge.source)}" -> "{_tmp_to_str(edge.destination)}" [label="{edge.step}"];'
+                )
             else:
                 print(f'\t\t"{_tmp_to_str(edge.source)}" -> "{_tmp_to_str(edge.destination)}";')
-        print('}')
+        print("}")
 
 
 def _set_dependencies(key: VariableKey, deps: Dependencies, graph: Graph):
@@ -988,11 +1080,13 @@ def _set_dependencies(key: VariableKey, deps: Dependencies, graph: Graph):
         graph.add_edge(key, dep)
 
 
-def _propagate_structure(phi_info: Dict[Variable, Variable],
-                         all_members: List[StructureVariable],
-                         lvalue: Variable,
-                         base: Union[Variable, Tuple[Variable]],
-                         graph: Graph):
+def _propagate_structure(
+    phi_info: Dict[Variable, Variable],
+    all_members: List[StructureVariable],
+    lvalue: Variable,
+    base: Union[Variable, Tuple[Variable]],
+    graph: Graph,
+):
     for key_info, item in phi_info.items():
         # key_info can only be a constant for Structure
         assert isinstance(key_info, Constant)
@@ -1000,7 +1094,9 @@ def _propagate_structure(phi_info: Dict[Variable, Variable],
         _set_dependencies(key, {item}, graph)
 
     # Convert StructureVariable to Constant
-    member_not_updated = [Constant(m.name) for m in all_members if Constant(m.name) not in phi_info.keys()]
+    member_not_updated = [
+        Constant(m.name) for m in all_members if Constant(m.name) not in phi_info.keys()
+    ]
     for member in member_not_updated:
         key = (lvalue, member)
         if isinstance(base, tuple):
@@ -1017,17 +1113,17 @@ def add_dependency(node, ir):
         # For PhiMust on structure:
         # Update all the (member, item) from phi_info -> lvalue.member = item
         # And for the member not updated -> lvalue.member = base.member
-        _propagate_structure(ir.phi_info,
-                             ir.lvalue.type.type.elems.values(),
-                             ir.lvalue,
-                             ir.base,
-                             graph)
+        _propagate_structure(
+            ir.phi_info, ir.lvalue.type.type.elems.values(), ir.lvalue, ir.base, graph
+        )
 
         return
 
     # Mapping / array
     # We dont use _key_info for mapping/array, and merge all the cells together
-    elif isinstance(ir, PhiMemberMust) or (isinstance(ir, PhiMemberMay) and not _is_structure(ir.lvalue.type)):
+    elif isinstance(ir, PhiMemberMust) or (
+        isinstance(ir, PhiMemberMay) and not _is_structure(ir.lvalue.type)
+    ):
         key = ir.lvalue
         # For PhiMust/May on mapping/array:
         # If points to a structure:
@@ -1048,36 +1144,26 @@ def add_dependency(node, ir):
             update_length = False
 
             for key, base in ir.phi_info.items():
-                if key == 'length':
+                if key == "length":
                     update_length = True
                     continue
-                _propagate_structure(dict(),
-                                     members,
-                                     ir.lvalue,
-                                     base,
-                                     graph)
+                _propagate_structure(dict(), members, ir.lvalue, base, graph)
             if update_length:
                 _set_dependencies(ir.lvalue, {ir.base}, graph)
             return
 
         else:
             for item in ir.phi_info.values():
-                _set_dependencies(key,
-                                  {item},
-                                  graph)
+                _set_dependencies(key, {item}, graph)
 
-            _set_dependencies(key,
-                              {ir.base},
-                              graph)
+            _set_dependencies(key, {ir.base}, graph)
             return
 
     elif isinstance(ir, PhiMemberMay):
         key_info: Constant
         for key_info, item in ir.phi_info.items():
             key = (ir.lvalue, key_info)
-            _set_dependencies(key,
-                              {item},
-                              graph)
+            _set_dependencies(key, {item}, graph)
 
         return
 
@@ -1092,17 +1178,11 @@ def add_dependency(node, ir):
             #  Member_0.c = var.member.c
             members = ir.lvalue.type.type.elems.values()
             base: Tuple[Variable, ...] = (ir.variable_left, ir.variable_right)
-            _propagate_structure(dict(),
-                                 members,
-                                 ir.lvalue,
-                                 base,
-                                 graph)
+            _propagate_structure(dict(), members, ir.lvalue, base, graph)
 
         else:
             key = ir.lvalue
-            _set_dependencies(key,
-                              {(ir.variable_left, ir.variable_right)},
-                              graph)
+            _set_dependencies(key, {(ir.variable_left, ir.variable_right)}, graph)
 
         return
 
@@ -1117,19 +1197,15 @@ def add_dependency(node, ir):
         if _is_structure(ir.lvalue.type):
             members = ir.lvalue.type.type.elems.values()
 
-            _propagate_structure(dict(),
-                                 members,
-                                 ir.lvalue,
-                                 ir.variable_left,
-                                 graph)  # keep the previous values, as we merge all the mapping
+            _propagate_structure(
+                dict(), members, ir.lvalue, ir.variable_left, graph
+            )  # keep the previous values, as we merge all the mapping
 
         else:
             # only one write, no need to keep previous values? (unsure)
             key = ir.lvalue
             elem = ir.variable_left
-            _set_dependencies(key,
-                              {elem},
-                              graph)
+            _set_dependencies(key, {elem}, graph)
 
         return
 
@@ -1142,13 +1218,7 @@ def add_dependency(node, ir):
     # --> st2.a == st1.a
     elif isinstance(ir, Assignment) and _is_structure(ir.lvalue.type):
         members = ir.lvalue.type.type.elems.values()
-        _propagate_structure(
-            dict(),
-            members,
-            ir.lvalue,
-            ir.rvalue,
-            graph
-        )
+        _propagate_structure(dict(), members, ir.lvalue, ir.rvalue, graph)
 
         return
 
@@ -1163,7 +1233,7 @@ def add_dependency(node, ir):
     if isinstance(ir, InternalCall):
         read = ir.function.return_values_ssa
     elif isinstance(ir, Balance):
-        read = [(ir.value, Constant('balance'))]
+        read = [(ir.value, Constant("balance"))]
     else:
         read = ir.read
 
@@ -1177,8 +1247,11 @@ def add_dependency(node, ir):
     # m_3 = Phi(m_1, m_2)
     # The deps of m_3 are (a_1, b_1) and not (m1, m2)
     # Otherwise it creates an implicite dependecy from m to m
-    if isinstance(ir, Phi) and isinstance(ir.lvalue.type, UserDefinedType) and isinstance(ir.lvalue.type.type,
-                                                                                          Structure):
+    if (
+        isinstance(ir, Phi)
+        and isinstance(ir.lvalue.type, UserDefinedType)
+        and isinstance(ir.lvalue.type.type, Structure)
+    ):
         members = ir.lvalue.type.type.elems.values()
         for member in members:
             key = (ir.lvalue, Constant(member.name))
@@ -1191,9 +1264,9 @@ def add_dependency(node, ir):
             if not isinstance(v, (Constant, MemberVariable)):
                 graph.add_edge(key, v)
             # TODO fix balance support
-            if isinstance(v, MemberVariable) and v.member not in ['balance']:
+            if isinstance(v, MemberVariable) and v.member not in ["balance"]:
                 graph.add_edge(key, (v.base, v.member))
-            if isinstance(v, MemberVariable) and v.member in ['balance']:
+            if isinstance(v, MemberVariable) and v.member in ["balance"]:
                 graph.add_edge(key, v)
 
 
@@ -1229,8 +1302,17 @@ def compute_dependency_function(function):
 
 
 def convert_variable_to_non_ssa(v):
-    if isinstance(v, (LocalIRVariable, StateIRVariable, TemporaryVariableSSA,
-                      IndexVariableSSA, TupleVariableSSA, MemberVariableSSA)):
+    if isinstance(
+        v,
+        (
+            LocalIRVariable,
+            StateIRVariable,
+            TemporaryVariableSSA,
+            IndexVariableSSA,
+            TupleVariableSSA,
+            MemberVariableSSA,
+        ),
+    ):
         return v.non_ssa_version
     if isinstance(v, tuple) and len(v) >= 2:
         base = v[0]
@@ -1238,7 +1320,9 @@ def convert_variable_to_non_ssa(v):
             return tuple([base] + list(v[1:]))
         else:
             return tuple([base.non_ssa_version] + list(v[1:]))
-    assert isinstance(v, (Constant, SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function, Type))
+    assert isinstance(
+        v, (Constant, SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function, Type)
+    )
     return v
 
 

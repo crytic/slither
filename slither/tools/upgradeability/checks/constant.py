@@ -2,17 +2,17 @@ from slither.tools.upgradeability.checks.abstract_checks import AbstractCheck, C
 
 
 class WereConstant(AbstractCheck):
-    ARGUMENT = 'were-constant'
+    ARGUMENT = "were-constant"
     IMPACT = CheckClassification.HIGH
 
-    HELP = 'Variables that should be constant'
-    WIKI = 'https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-that-should-be-constant'
-    WIKI_TITLE = 'Variables that should be constant'
-    WIKI_DESCRIPTION = '''
+    HELP = "Variables that should be constant"
+    WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-that-should-be-constant"
+    WIKI_TITLE = "Variables that should be constant"
+    WIKI_DESCRIPTION = """
 Detect state variables that should be `constant̀`.
-'''
+"""
 
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
     uint variable1;
@@ -28,11 +28,11 @@ contract ContractV2{
 ```
 Because `variable2` is not anymore a `constant`, the storage location of `variable3` will be different.
 As a result, `ContractV2` will have a corrupted storage layout.
-'''
+"""
 
-    WIKI_RECOMMENDATION = '''
+    WIKI_RECOMMENDATION = """
 Do not remove `constant` from a state variables during an update.
-'''
+"""
 
     REQUIRE_CONTRACT = True
     REQUIRE_CONTRACT_V2 = True
@@ -66,12 +66,13 @@ Do not remove `constant` from a state variables during an update.
                 if state_v1.is_constant:
                     if not state_v2.is_constant:
                         # If v2 has additional non constant variables, we need to skip them
-                        if ((state_v1.name != state_v2.name or state_v1.type != state_v2.type)
-                                and v2_additional_variables > 0):
+                        if (
+                            state_v1.name != state_v2.name or state_v1.type != state_v2.type
+                        ) and v2_additional_variables > 0:
                             v2_additional_variables -= 1
                             idx_v2 += 1
                             continue
-                        info = [state_v1, ' was constant, but ', state_v2, 'is not.\n']
+                        info = [state_v1, " was constant, but ", state_v2, "is not.\n"]
                         json = self.generate_result(info)
                         results.append(json)
 
@@ -80,19 +81,20 @@ Do not remove `constant` from a state variables during an update.
 
         return results
 
+
 class BecameConstant(AbstractCheck):
-    ARGUMENT = 'became-constant'
+    ARGUMENT = "became-constant"
     IMPACT = CheckClassification.HIGH
 
-    HELP = 'Variables that should not be constant'
-    WIKI = 'https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-that-should-not-be-constant'
-    WIKI_TITLE = 'Variables that should not be constant'
+    HELP = "Variables that should not be constant"
+    WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-that-should-not-be-constant"
+    WIKI_TITLE = "Variables that should not be constant"
 
-    WIKI_DESCRIPTION = '''
+    WIKI_DESCRIPTION = """
 Detect state variables that should not be `constant̀`.
-'''
+"""
 
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
     uint variable1;
@@ -108,11 +110,11 @@ contract ContractV2{
 ```
 Because `variable2` is now a `constant`, the storage location of `variable3` will be different.
 As a result, `ContractV2` will have a corrupted storage layout.
-'''
+"""
 
-    WIKI_RECOMMENDATION = '''
+    WIKI_RECOMMENDATION = """
 Do not make an existing state variable `constant`.
-'''
+"""
 
     REQUIRE_CONTRACT = True
     REQUIRE_CONTRACT_V2 = True
@@ -146,13 +148,14 @@ Do not make an existing state variable `constant`.
                 if state_v1.is_constant:
                     if not state_v2.is_constant:
                         # If v2 has additional non constant variables, we need to skip them
-                        if ((state_v1.name != state_v2.name or state_v1.type != state_v2.type)
-                                and v2_additional_variables > 0):
+                        if (
+                            state_v1.name != state_v2.name or state_v1.type != state_v2.type
+                        ) and v2_additional_variables > 0:
                             v2_additional_variables -= 1
                             idx_v2 += 1
                             continue
                 elif state_v2.is_constant:
-                    info = [state_v1, ' was not constant but ', state_v2, ' is.\n']
+                    info = [state_v1, " was not constant but ", state_v2, " is.\n"]
                     json = self.generate_result(info)
                     results.append(json)
 

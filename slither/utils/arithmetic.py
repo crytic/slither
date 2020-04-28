@@ -10,25 +10,25 @@ def convert_subdenomination(value, sub):
         value = Decimal(int(value, 16))
     else:
         value = Decimal(value)
-    if sub == 'wei':
+    if sub == "wei":
         return int(value)
-    if sub == 'szabo':
+    if sub == "szabo":
         return int(value * int(1e12))
-    if sub == 'finney':
+    if sub == "finney":
         return int(value * int(1e15))
-    if sub == 'ether':
+    if sub == "ether":
         return int(value * int(1e18))
-    if sub == 'seconds':
+    if sub == "seconds":
         return int(value)
-    if sub == 'minutes':
+    if sub == "minutes":
         return int(value * 60)
-    if sub == 'hours':
+    if sub == "hours":
         return int(value * 60 * 60)
-    if sub == 'days':
+    if sub == "days":
         return int(value * 60 * 60 * 24)
-    if sub == 'weeks':
+    if sub == "weeks":
         return int(value * 60 * 60 * 24 * 7)
-    if sub == 'years':
+    if sub == "years":
         return int(value * 60 * 60 * 24 * 7 * 365)
 
-    raise SlitherException(f'Subdemonination conversion impossible {value} {sub}')
+    raise SlitherException(f"Subdemonination conversion impossible {value} {sub}")

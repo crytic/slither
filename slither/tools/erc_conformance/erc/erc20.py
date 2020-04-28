@@ -6,21 +6,25 @@ logger = logging.getLogger("Slither-conformance")
 
 
 def approval_race_condition(contract, ret):
-    increaseAllowance = contract.get_function_from_signature('increaseAllowance(address,uint256)')
+    increaseAllowance = contract.get_function_from_signature("increaseAllowance(address,uint256)")
 
     if not increaseAllowance:
-        increaseAllowance = contract.get_function_from_signature('safeIncreaseAllowance(address,uint256)')
+        increaseAllowance = contract.get_function_from_signature(
+            "safeIncreaseAllowance(address,uint256)"
+        )
 
     if increaseAllowance:
-        txt = f'\t[✓] {contract.name} has {increaseAllowance.full_name}'
+        txt = f"\t[✓] {contract.name} has {increaseAllowance.full_name}"
         logger.info(txt)
     else:
-        txt = f'\t[ ] {contract.name} is not protected for the ERC20 approval race condition'
+        txt = f"\t[ ] {contract.name} is not protected for the ERC20 approval race condition"
         logger.info(txt)
 
         lack_of_erc20_race_condition_protection = output.Output(txt)
         lack_of_erc20_race_condition_protection.add(contract)
-        ret["lack_of_erc20_race_condition_protection"].append(lack_of_erc20_race_condition_protection.data)
+        ret["lack_of_erc20_race_condition_protection"].append(
+            lack_of_erc20_race_condition_protection.data
+        )
 
 
 def check_erc20(contract, ret, explored=None):

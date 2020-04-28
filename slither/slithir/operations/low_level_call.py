@@ -56,17 +56,17 @@ class LowLevelCall(Call, OperationWithLValue):
         return self._unroll([x for x in all_read if x])
 
     def can_reenter(self, callstack=None):
-        '''
+        """
         Must be called after slithIR analysis pass
         :return: bool
-        '''
+        """
         return True
 
     def can_send_eth(self):
-        '''
+        """
         Must be called after slithIR analysis pass
         :return: bool
-        '''
+        """
         return self._call_value is not None
 
     @property
@@ -86,20 +86,22 @@ class LowLevelCall(Call, OperationWithLValue):
         return self._type_call
 
     def __str__(self):
-        value = ''
-        gas = ''
+        value = ""
+        gas = ""
         if self.call_value:
-            value = 'value:{}'.format(self.call_value)
+            value = "value:{}".format(self.call_value)
         if self.call_gas:
-            gas = 'gas:{}'.format(self.call_gas)
+            gas = "gas:{}".format(self.call_gas)
         arguments = []
         if self.arguments:
             arguments = self.arguments
-        txt = '{}({}) = LOW_LEVEL_CALL, dest:{}, function:{}, arguments:{} {} {}'
-        return txt.format(self.lvalue,
-                          self.lvalue.type,
-                          self.destination,
-                          self.function_name,
-                          [str(x) for x in arguments],
-                          value,
-                          gas)
+        txt = "{}({}) = LOW_LEVEL_CALL, dest:{}, function:{}, arguments:{} {} {}"
+        return txt.format(
+            self.lvalue,
+            self.lvalue.type,
+            self.destination,
+            self.function_name,
+            [str(x) for x in arguments],
+            value,
+            gas,
+        )

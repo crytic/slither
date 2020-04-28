@@ -7,7 +7,8 @@ from .attributes.incorrect_solc import IncorrectSolc
 from .attributes.locked_ether import LockedEther
 from .functions.arbitrary_send import ArbitrarySend
 from .functions.suicidal import Suicidal
-#from .functions.complex_function import ComplexFunction
+
+# from .functions.complex_function import ComplexFunction
 from .reentrancy.reentrancy_benign import ReentrancyBenign
 from .reentrancy.reentrancy_read_before_write import ReentrancyReadBeforeWritten
 from .reentrancy.reentrancy_eth import ReentrancyEth
@@ -45,5 +46,6 @@ from .statements.boolean_constant_equality import BooleanEquality
 from .statements.boolean_constant_misuse import BooleanConstantMisuse
 from .statements.divide_before_multiply import DivideBeforeMultiply
 from .slither.name_reused import NameReused
+
 #
 #

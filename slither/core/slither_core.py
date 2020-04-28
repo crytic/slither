@@ -16,6 +16,7 @@ from slither.utils.colors import red
 logger = logging.getLogger("Slither")
 logging.basicConfig()
 
+
 class Slither(Context):
     """
     Slither static analyzer
@@ -34,7 +35,7 @@ class Slither(Context):
         self._all_modifiers = set()
         self._all_state_variables = None
 
-        self._previous_results_filename = 'slither.db.json'
+        self._previous_results_filename = "slither.db.json"
         self._results_to_hide = []
         self._previous_results = []
         self._previous_results_ids = set()
@@ -78,7 +79,7 @@ class Slither(Context):
         if self.crytic_compile and path in self.crytic_compile.src_content:
             self.source_code[path] = self.crytic_compile.src_content[path]
         else:
-            with open(path, encoding='utf8', newline='') as f:
+            with open(path, encoding="utf8", newline="") as f:
                 self.source_code[path] = f.read()
 
     @property
@@ -202,7 +203,7 @@ class Slither(Context):
         """
         for c in self.contracts:
             for f in c.functions:
-                f.cfg_to_dot(os.path.join(d, '{}.{}.dot'.format(c.name, f.name)))
+                f.cfg_to_dot(os.path.join(d, "{}.{}.dot".format(c.name, f.name)))
 
     # endregion
     ###################################################################################
@@ -215,40 +216,49 @@ class Slither(Context):
         """
            Strip relative paths of "." and ".."
         """
-        return path.split('..')[-1].strip('.').strip('/')
+        return path.split("..")[-1].strip(".").strip("/")
 
     def valid_result(self, r):
-        '''
+        """
             Check if the result is valid
             A result is invalid if:
                 - All its source paths belong to the source path filtered
                 - Or a similar result was reported and saved during a previous run
                 - The --exclude-dependencies flag is set and results are only related to dependencies
-        '''
-        source_mapping_elements = [elem['source_mapping']['filename_absolute']
-                                   for elem in r['elements'] if 'source_mapping' in elem]
-        source_mapping_elements = map(lambda x: os.path.normpath(x) if x else x, source_mapping_elements)
+        """
+        source_mapping_elements = [
+            elem["source_mapping"]["filename_absolute"]
+            for elem in r["elements"]
+            if "source_mapping" in elem
+        ]
+        source_mapping_elements = map(
+            lambda x: os.path.normpath(x) if x else x, source_mapping_elements
+        )
         matching = False
 
         for path in self._paths_to_filter:
             try:
-                if any(bool(re.search(self.relative_path_format(path), src_mapping))
-                       for src_mapping in source_mapping_elements):
+                if any(
+                    bool(re.search(self.relative_path_format(path), src_mapping))
+                    for src_mapping in source_mapping_elements
+                ):
                     matching = True
                     break
             except re.error:
-                logger.error(f'Incorrect regular expression for --filter-paths {path}.'
-                             '\nSlither supports the Python re format'
-                             ': https://docs.python.org/3/library/re.html')
+                logger.error(
+                    f"Incorrect regular expression for --filter-paths {path}."
+                    "\nSlither supports the Python re format"
+                    ": https://docs.python.org/3/library/re.html"
+                )
 
-        if r['elements'] and matching:
+        if r["elements"] and matching:
             return False
-        if r['elements'] and self._exclude_dependencies:
-            return not all(element['source_mapping']['is_dependency'] for element in r['elements'])
-        if r['id'] in self._previous_results_ids:
+        if r["elements"] and self._exclude_dependencies:
+            return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
+        if r["id"] in self._previous_results_ids:
             return False
         # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
-        return not r['description'] in [pr['description'] for pr in self._previous_results]
+        return not r["description"] in [pr["description"] for pr in self._previous_results]
 
     def load_previous_results(self):
         filename = self._previous_results_filename
@@ -258,16 +268,18 @@ class Slither(Context):
                     self._previous_results = json.load(f)
                     if self._previous_results:
                         for r in self._previous_results:
-                            if 'id' in r:
-                                self._previous_results_ids.add(r['id'])
+                            if "id" in r:
+                                self._previous_results_ids.add(r["id"])
         except json.decoder.JSONDecodeError:
-            logger.error(red('Impossible to decode {}. Consider removing the file'.format(filename)))
+            logger.error(
+                red("Impossible to decode {}. Consider removing the file".format(filename))
+            )
 
     def write_results_to_hide(self):
         if not self._results_to_hide:
             return
         filename = self._previous_results_filename
-        with open(filename, 'w', encoding='utf8') as f:
+        with open(filename, "w", encoding="utf8") as f:
             results = self._results_to_hide + self._previous_results
             json.dump(results, f)
 
@@ -275,10 +287,10 @@ class Slither(Context):
         self._results_to_hide += results
 
     def add_path_to_filter(self, path):
-        '''
+        """
             Add path to filter
             Path are used through direct comparison (no regex)
-        '''
+        """
         self._paths_to_filter.add(path)
 
     # endregion
@@ -307,7 +319,6 @@ class Slither(Context):
     def generate_patches(self, p):
         self._generate_patches = p
 
-
     # endregion
     ###################################################################################
     ###################################################################################
@@ -322,4 +333,5 @@ class Slither(Context):
     @property
     def contracts_with_missing_inheritance(self):
         return self._contract_with_missing_inheritance
+
     # endregion

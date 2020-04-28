@@ -1,15 +1,17 @@
-'''
+"""
     This class is used for the SSA version of slithIR
     It is similar to the non-SSA version of slithIR
     as the ReferenceVariable are in SSA form in both version
-'''
+"""
 from .member_variable import MemberVariable
 from .variable import SlithIRVariable
 
-class MemberVariableSSA(MemberVariable):
 
+class MemberVariableSSA(MemberVariable):
     def __init__(self, reference):
-        super(MemberVariableSSA, self).__init__(reference.node, reference.base, reference.member, reference.index)
+        super(MemberVariableSSA, self).__init__(
+            reference.node, reference.base, reference.member, reference.index
+        )
 
         self._non_ssa_version = reference
         self._index_ssa = 0
@@ -28,4 +30,4 @@ class MemberVariableSSA(MemberVariable):
 
     @property
     def name(self):
-        return 'MEMBER_{}_{}'.format(self.index, self.index_ssa)
+        return "MEMBER_{}_{}".format(self.index, self.index_ssa)

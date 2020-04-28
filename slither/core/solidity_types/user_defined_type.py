@@ -2,7 +2,6 @@ from slither.core.solidity_types.type import Type
 
 
 class UserDefinedType(Type):
-
     def __init__(self, t):
         from slither.core.declarations.structure import Structure
         from slither.core.declarations.enum import Enum
@@ -21,7 +20,7 @@ class UserDefinedType(Type):
         from slither.core.declarations.enum import Enum
 
         if isinstance(self.type, (Enum, Structure)):
-            return str(self.type.contract)+'.'+str(self.type.name)
+            return str(self.type.contract) + "." + str(self.type.name)
         return str(self.type.name)
 
     def __eq__(self, other):
@@ -29,7 +28,5 @@ class UserDefinedType(Type):
             return False
         return self.type == other.type
 
-
     def __hash__(self):
         return hash(str(self))
-

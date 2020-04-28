@@ -1,6 +1,4 @@
-
 class ChildStructure:
-
     def __init__(self):
         super(ChildStructure, self).__init__()
         self._structure = None

@@ -12,7 +12,12 @@ from slither.utils.colors import red
 from slither.utils.output import output_to_json
 from .checks import all_checks
 from .checks.abstract_checks import AbstractCheck
-from .utils.command_line import output_detectors_json, output_wiki, output_detectors, output_to_markdown
+from .utils.command_line import (
+    output_detectors_json,
+    output_wiki,
+    output_detectors,
+    output_to_markdown,
+)
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -21,49 +26,53 @@ logger.setLevel(logging.INFO)
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='Slither Upgradeability Checks. For usage information see https://github.com/crytic/slither/wiki/Upgradeability-Checks.',
-        usage="slither-check-upgradeability contract.sol ContractName")
+        description="Slither Upgradeability Checks. For usage information see https://github.com/crytic/slither/wiki/Upgradeability-Checks.",
+        usage="slither-check-upgradeability contract.sol ContractName",
+    )
 
-    parser.add_argument('contract.sol', help='Codebase to analyze')
-    parser.add_argument('ContractName', help='Contract name (logic contract)')
+    parser.add_argument("contract.sol", help="Codebase to analyze")
+    parser.add_argument("ContractName", help="Contract name (logic contract)")
 
-    parser.add_argument('--proxy-name', help='Proxy name')
-    parser.add_argument('--proxy-filename', help='Proxy filename (if different)')
+    parser.add_argument("--proxy-name", help="Proxy name")
+    parser.add_argument("--proxy-filename", help="Proxy filename (if different)")
 
-    parser.add_argument('--new-contract-name', help='New contract name (if changed)')
-    parser.add_argument('--new-contract-filename', help='New implementation filename (if different)')
+    parser.add_argument("--new-contract-name", help="New contract name (if changed)")
+    parser.add_argument(
+        "--new-contract-filename", help="New implementation filename (if different)"
+    )
 
-    parser.add_argument('--json',
-                        help='Export the results as a JSON file ("--json -" to export to stdout)',
-                        action='store',
-                        default=False)
+    parser.add_argument(
+        "--json",
+        help='Export the results as a JSON file ("--json -" to export to stdout)',
+        action="store",
+        default=False,
+    )
 
-    parser.add_argument('--list-detectors',
-                        help='List available detectors',
-                        action=ListDetectors,
-                        nargs=0,
-                        default=False)
+    parser.add_argument(
+        "--list-detectors",
+        help="List available detectors",
+        action=ListDetectors,
+        nargs=0,
+        default=False,
+    )
 
-    parser.add_argument('--markdown-root',
-                        help='URL for markdown generation',
-                        action='store',
-                        default="")
+    parser.add_argument(
+        "--markdown-root", help="URL for markdown generation", action="store", default=""
+    )
 
-    parser.add_argument('--wiki-detectors',
-                        help=argparse.SUPPRESS,
-                        action=OutputWiki,
-                        default=False)
+    parser.add_argument(
+        "--wiki-detectors", help=argparse.SUPPRESS, action=OutputWiki, default=False
+    )
 
-    parser.add_argument('--list-detectors-json',
-                        help=argparse.SUPPRESS,
-                        action=ListDetectorsJson,
-                        nargs=0,
-                        default=False)
+    parser.add_argument(
+        "--list-detectors-json",
+        help=argparse.SUPPRESS,
+        action=ListDetectorsJson,
+        nargs=0,
+        default=False,
+    )
 
-    parser.add_argument('--markdown',
-                        help=argparse.SUPPRESS,
-                        action=OutputMarkdown,
-                        default=False)
+    parser.add_argument("--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False)
 
     cryticparser.init(parser)
 
@@ -79,6 +88,7 @@ def parse_args():
 # region checks
 ###################################################################################
 ###################################################################################
+
 
 def _get_checks():
     detectors = [getattr(all_checks, name) for name in dir(all_checks)]
@@ -123,13 +133,18 @@ def _run_checks(detectors):
 
 
 def _checks_on_contract(detectors, contract):
-    detectors = [d(logger, contract) for d in detectors if (not d.REQUIRE_PROXY and
-                                                            not d.REQUIRE_CONTRACT_V2)]
+    detectors = [
+        d(logger, contract)
+        for d in detectors
+        if (not d.REQUIRE_PROXY and not d.REQUIRE_CONTRACT_V2)
+    ]
     return _run_checks(detectors), len(detectors)
 
 
 def _checks_on_contract_update(detectors, contract_v1, contract_v2):
-    detectors = [d(logger, contract_v1, contract_v2=contract_v2) for d in detectors if d.REQUIRE_CONTRACT_V2]
+    detectors = [
+        d(logger, contract_v1, contract_v2=contract_v2) for d in detectors if d.REQUIRE_CONTRACT_V2
+    ]
     return _run_checks(detectors), len(detectors)
 
 
@@ -147,15 +162,11 @@ def _checks_on_contract_and_proxy(detectors, contract, proxy):
 
 
 def main():
-    json_results = {
-        'proxy-present': False,
-        'contract_v2-present': False,
-        'detectors': []
-    }
+    json_results = {"proxy-present": False, "contract_v2-present": False, "detectors": []}
 
     args = parse_args()
 
-    v1_filename = vars(args)['contract.sol']
+    v1_filename = vars(args)["contract.sol"]
     number_detectors_run = 0
     detectors = _get_checks()
     try:
@@ -165,14 +176,14 @@ def main():
         v1_name = args.ContractName
         v1_contract = v1.get_contract_from_name(v1_name)
         if v1_contract is None:
-            info = 'Contract {} not found in {}'.format(v1_name, v1.filename)
+            info = "Contract {} not found in {}".format(v1_name, v1.filename)
             logger.error(red(info))
             if args.json:
                 output_to_json(args.json, str(info), json_results)
             return
 
         detectors_results, number_detectors = _checks_on_contract(detectors, v1_contract)
-        json_results['detectors'] += detectors_results
+        json_results["detectors"] += detectors_results
         number_detectors_run += number_detectors
 
         # Analyze Proxy
@@ -185,15 +196,17 @@ def main():
 
             proxy_contract = proxy.get_contract_from_name(args.proxy_name)
             if proxy_contract is None:
-                info = 'Proxy {} not found in {}'.format(args.proxy_name, proxy.filename)
+                info = "Proxy {} not found in {}".format(args.proxy_name, proxy.filename)
                 logger.error(red(info))
                 if args.json:
                     output_to_json(args.json, str(info), json_results)
                 return
-            json_results['proxy-present'] = True
+            json_results["proxy-present"] = True
 
-            detectors_results, number_detectors = _checks_on_contract_and_proxy(detectors, v1_contract, proxy_contract)
-            json_results['detectors'] += detectors_results
+            detectors_results, number_detectors = _checks_on_contract_and_proxy(
+                detectors, v1_contract, proxy_contract
+            )
+            json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
         # Analyze new version
         if args.new_contract_name:
@@ -204,30 +217,36 @@ def main():
 
             v2_contract = v2.get_contract_from_name(args.new_contract_name)
             if v2_contract is None:
-                info = 'New logic contract {} not found in {}'.format(args.new_contract_name, v2.filename)
+                info = "New logic contract {} not found in {}".format(
+                    args.new_contract_name, v2.filename
+                )
                 logger.error(red(info))
                 if args.json:
                     output_to_json(args.json, str(info), json_results)
                 return
-            json_results['contract_v2-present'] = True
+            json_results["contract_v2-present"] = True
 
             if proxy_contract:
-                detectors_results, _ = _checks_on_contract_and_proxy(detectors,
-                                                                     v2_contract,
-                                                                     proxy_contract)
+                detectors_results, _ = _checks_on_contract_and_proxy(
+                    detectors, v2_contract, proxy_contract
+                )
 
-                json_results['detectors'] += detectors_results
+                json_results["detectors"] += detectors_results
 
-            detectors_results, number_detectors = _checks_on_contract_update(detectors, v1_contract, v2_contract)
-            json_results['detectors'] += detectors_results
+            detectors_results, number_detectors = _checks_on_contract_update(
+                detectors, v1_contract, v2_contract
+            )
+            json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
 
             # If there is a V2, we run the contract-only check on the V2
             detectors_results, _ = _checks_on_contract(detectors, v2_contract)
-            json_results['detectors'] += detectors_results
+            json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
 
-        logger.info(f'{len(json_results["detectors"])} findings, {number_detectors_run} detectors run')
+        logger.info(
+            f'{len(json_results["detectors"])} findings, {number_detectors_run} detectors run'
+        )
         if args.json:
             output_to_json(args.json, None, json_results)
 
@@ -236,5 +255,6 @@ def main():
         if args.json:
             output_to_json(args.json, str(e), json_results)
         return
+
 
 # endregion

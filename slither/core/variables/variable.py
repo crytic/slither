@@ -6,8 +6,8 @@ from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.elementary_type import ElementaryType
 
-class Variable(SourceMapping):
 
+class Variable(SourceMapping):
     def __init__(self):
         super(Variable, self).__init__()
         self._name = None
@@ -52,9 +52,9 @@ class Variable(SourceMapping):
 
     @property
     def name(self):
-        '''
+        """
             str: variable name
-        '''
+        """
         return self._name
 
     @name.setter
@@ -71,9 +71,9 @@ class Variable(SourceMapping):
 
     @property
     def visibility(self):
-        '''
+        """
             str: variable visibility
-        '''
+        """
         return self._visibility
 
     def set_type(self, t):
@@ -84,11 +84,12 @@ class Variable(SourceMapping):
 
     @property
     def function_name(self):
-        '''
+        """
         Return the name of the variable as a function signature
         :return:
-        '''
+        """
         from slither.core.solidity_types import ArrayType, MappingType
+
         variable_getter_args = ""
         if type(self.type) is ArrayType:
             length = 0
@@ -96,7 +97,7 @@ class Variable(SourceMapping):
             while type(v.type) is ArrayType:
                 length += 1
                 v = v.type
-            variable_getter_args = ','.join(["uint256"] * length)
+            variable_getter_args = ",".join(["uint256"] * length)
         elif type(self.type) is MappingType:
             variable_getter_args = self.type.type_from
 
@@ -104,5 +105,3 @@ class Variable(SourceMapping):
 
     def __str__(self):
         return self._name
-
-

@@ -7,8 +7,8 @@ from slither.slithir.variables.constant import Constant
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.enum import Enum
 
-class UpdateIndex(Operation):
 
+class UpdateIndex(Operation):
     def __init__(self, base, offset, new_val):
         assert is_valid_rvalue(base)
         assert is_valid_rvalue(new_val)
@@ -35,4 +35,4 @@ class UpdateIndex(Operation):
         return self._new_val
 
     def __str__(self):
-        return 'Update({}, {}, {})'.format(self.base, self.offset, self.new_value)
+        return "Update({}, {}, {})".format(self.base, self.offset, self.new_value)

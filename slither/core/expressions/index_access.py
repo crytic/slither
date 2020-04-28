@@ -3,12 +3,11 @@ from slither.core.solidity_types.type import Type
 
 
 class IndexAccess(ExpressionTyped):
-
     def __init__(self, left_expression, right_expression, index_type):
         super(IndexAccess, self).__init__()
         self._expressions = [left_expression, right_expression]
         # TODO type of undexAccess is not always a Type
-#        assert isinstance(index_type, Type)
+        #        assert isinstance(index_type, Type)
         self._type = index_type
 
     @property
@@ -28,5 +27,4 @@ class IndexAccess(ExpressionTyped):
         return self._type
 
     def __str__(self):
-        return str(self.expression_left) + '[' + str(self.expression_right) + ']'
-
+        return str(self.expression_left) + "[" + str(self.expression_right) + "]"

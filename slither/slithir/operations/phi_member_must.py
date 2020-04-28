@@ -3,14 +3,12 @@ from slither.utils.colors import green
 
 
 class PhiMemberMust(PhiMemberMay):
-
     def __str__(self):
         txt = []
         for key, item in self.phi_info.items():
             # items_txt = [f'{item}' for item in items]
             # txt.append(f'\t\t\t\t\t{key} :-> {items_txt}')
-            txt = [f'{key} :-> {item}']
-        txt = ', '.join(txt)
+            txt = [f"{key} :-> {item}"]
+        txt = ", ".join(txt)
 
-        return green(f'{self.lvalue}({self.lvalue.type}) := \u03D5Must({self.base}:{txt})')
-
+        return green(f"{self.lvalue}({self.lvalue.type}) := \u03D5Must({self.base}:{txt})")

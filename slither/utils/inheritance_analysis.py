@@ -4,6 +4,7 @@ Detects various properties of inheritance in provided contracts.
 
 from collections import defaultdict
 
+
 def detect_c3_function_shadowing(contract):
     """
     Detects and obtains functions which are indirectly shadowed via multiple inheritance by C3 linearization
@@ -13,8 +14,11 @@ def detect_c3_function_shadowing(contract):
     :return: A dict (function winner -> [shadowed functions])
     """
 
-    targets = {f.full_name:f for f in contract.functions_inherited if f.shadows and not f.is_constructor
-               and not f.is_constructor_variables}
+    targets = {
+        f.full_name: f
+        for f in contract.functions_inherited
+        if f.shadows and not f.is_constructor and not f.is_constructor_variables
+    }
 
     collisions = defaultdict(set)
 
@@ -25,6 +29,7 @@ def detect_c3_function_shadowing(contract):
             if targets[candidate.full_name].canonical_name != candidate.canonical_name:
                 collisions[targets[candidate.full_name]].add(candidate)
     return collisions
+
 
 def detect_state_variable_shadowing(contracts):
     """
@@ -38,9 +43,18 @@ def detect_state_variable_shadowing(contracts):
     """
     results = set()
     for contract in contracts:
-        variables_declared = {variable.name: variable for variable in contract.state_variables_declared}
+        variables_declared = {
+            variable.name: variable for variable in contract.state_variables_declared
+        }
         for immediate_base_contract in contract.immediate_inheritance:
             for variable in immediate_base_contract.variables:
                 if variable.name in variables_declared:
-                    results.add((contract, variables_declared[variable.name], immediate_base_contract, variable))
+                    results.add(
+                        (
+                            contract,
+                            variables_declared[variable.name],
+                            immediate_base_contract,
+                            variable,
+                        )
+                    )
     return results

@@ -22,13 +22,15 @@ def _check_signature(erc_function, contract, ret):
         # The check on state variable is needed until we have a better API to handle state variable getters
         state_variable_as_function = contract.get_state_variable_from_name(name)
 
-        if not state_variable_as_function or not state_variable_as_function.visibility in ['public', 'external']:
+        if not state_variable_as_function or not state_variable_as_function.visibility in [
+            "public",
+            "external",
+        ]:
             txt = f'[ ] {sig} is missing {"" if required else "(optional)"}'
             logger.info(txt)
-            missing_func = output.Output(txt, additional_fields={
-                "function": sig,
-                "required": required
-            })
+            missing_func = output.Output(
+                txt, additional_fields={"function": sig, "required": required}
+            )
             missing_func.add(contract)
             ret["missing_function"].append(missing_func.data)
             return
@@ -38,10 +40,9 @@ def _check_signature(erc_function, contract, ret):
         if types != parameters:
             txt = f'[ ] {sig} is missing {"" if required else "(optional)"}'
             logger.info(txt)
-            missing_func = output.Output(txt, additional_fields={
-                "function": sig,
-                "required": required
-            })
+            missing_func = output.Output(
+                txt, additional_fields={"function": sig, "required": required}
+            )
             missing_func.add(contract)
             ret["missing_function"].append(missing_func.data)
             return
@@ -53,45 +54,51 @@ def _check_signature(erc_function, contract, ret):
         function_return_type = function.return_type
         function_view = function.view
 
-    txt = f'[✓] {sig} is present'
+    txt = f"[✓] {sig} is present"
     logger.info(txt)
 
     if function_return_type:
-        function_return_type = ','.join([str(x) for x in function_return_type])
+        function_return_type = ",".join([str(x) for x in function_return_type])
         if function_return_type == return_type:
-            txt = f'\t[✓] {sig} -> () (correct return value)'
+            txt = f"\t[✓] {sig} -> () (correct return value)"
             logger.info(txt)
         else:
-            txt = f'\t[ ] {sig} -> () should return {return_type}'
+            txt = f"\t[ ] {sig} -> () should return {return_type}"
             logger.info(txt)
 
-            incorrect_return = output.Output(txt, additional_fields={
-                "expected_return_type": return_type,
-                "actual_return_type": function_return_type
-            })
+            incorrect_return = output.Output(
+                txt,
+                additional_fields={
+                    "expected_return_type": return_type,
+                    "actual_return_type": function_return_type,
+                },
+            )
             incorrect_return.add(function)
             ret["incorrect_return_type"].append(incorrect_return.data)
 
     elif not return_type:
-        txt = f'\t[✓] {sig} -> () (correct return type)'
+        txt = f"\t[✓] {sig} -> () (correct return type)"
         logger.info(txt)
     else:
-        txt = f'\t[ ] {sig} -> () should return {return_type}'
+        txt = f"\t[ ] {sig} -> () should return {return_type}"
         logger.info(txt)
 
-        incorrect_return = output.Output(txt, additional_fields={
-            "expected_return_type": return_type,
-            "actual_return_type": function_return_type
-        })
+        incorrect_return = output.Output(
+            txt,
+            additional_fields={
+                "expected_return_type": return_type,
+                "actual_return_type": function_return_type,
+            },
+        )
         incorrect_return.add(function)
         ret["incorrect_return_type"].append(incorrect_return.data)
 
     if view:
         if function_view:
-            txt = f'\t[✓] {sig} is view'
+            txt = f"\t[✓] {sig} is view"
             logger.info(txt)
         else:
-            txt = f'\t[ ] {sig} should be view'
+            txt = f"\t[ ] {sig} should be view"
             logger.info(txt)
 
             should_be_view = output.Output(txt)
@@ -103,12 +110,12 @@ def _check_signature(erc_function, contract, ret):
             event_sig = f'{event.name}({",".join(event.parameters)})'
 
             if not function:
-                txt = f'\t[ ] Must emit be view {event_sig}'
+                txt = f"\t[ ] Must emit be view {event_sig}"
                 logger.info(txt)
 
-                missing_event_emmited = output.Output(txt, additional_fields={
-                    "missing_event": event_sig
-                })
+                missing_event_emmited = output.Output(
+                    txt, additional_fields={"missing_event": event_sig}
+                )
                 missing_event_emmited.add(function)
                 ret["missing_event_emmited"].append(missing_event_emmited.data)
 
@@ -121,15 +128,15 @@ def _check_signature(erc_function, contract, ret):
                                 event_found = True
                                 break
                 if event_found:
-                    txt = f'\t[✓] {event_sig} is emitted'
+                    txt = f"\t[✓] {event_sig} is emitted"
                     logger.info(txt)
                 else:
-                    txt = f'\t[ ] Must emit be view {event_sig}'
+                    txt = f"\t[ ] Must emit be view {event_sig}"
                     logger.info(txt)
 
-                    missing_event_emmited = output.Output(txt, additional_fields={
-                        "missing_event": event_sig
-                    })
+                    missing_event_emmited = output.Output(
+                        txt, additional_fields={"missing_event": event_sig}
+                    )
                     missing_event_emmited.add(function)
                     ret["missing_event_emmited"].append(missing_event_emmited.data)
 
@@ -143,31 +150,27 @@ def _check_events(erc_event, contract, ret):
     event = contract.get_event_from_signature(sig)
 
     if not event:
-        txt = f'[ ] {sig} is missing'
+        txt = f"[ ] {sig} is missing"
         logger.info(txt)
 
-        missing_event = output.Output(txt, additional_fields={
-            "event": sig
-        })
+        missing_event = output.Output(txt, additional_fields={"event": sig})
         missing_event.add(contract)
         ret["missing_event"].append(missing_event.data)
         return
 
-    txt = f'[✓] {sig} is present'
+    txt = f"[✓] {sig} is present"
     logger.info(txt)
 
     for i, index in enumerate(indexes):
         if index:
             if event.elems[i].indexed:
-                txt = f'\t[✓] parameter {i} is indexed'
+                txt = f"\t[✓] parameter {i} is indexed"
                 logger.info(txt)
             else:
-                txt = f'\t[ ] parameter {i} should be indexed'
+                txt = f"\t[ ] parameter {i} should be indexed"
                 logger.info(txt)
 
-                missing_event_index = output.Output(txt, additional_fields={
-                    "missing_index": i
-                })
+                missing_event_index = output.Output(txt, additional_fields={"missing_index": i})
                 missing_event_index.add_event(event)
                 ret["missing_event_index"].append(missing_event_index.data)
 
@@ -179,16 +182,16 @@ def generic_erc_checks(contract, erc_functions, erc_events, ret, explored=None):
 
     explored.add(contract)
 
-    logger.info(f'# Check {contract.name}\n')
+    logger.info(f"# Check {contract.name}\n")
 
-    logger.info(f'## Check functions')
+    logger.info(f"## Check functions")
     for erc_function in erc_functions:
         _check_signature(erc_function, contract, ret)
-    logger.info(f'\n## Check events')
+    logger.info(f"\n## Check events")
     for erc_event in erc_events:
         _check_events(erc_event, contract, ret)
 
-    logger.info('\n')
+    logger.info("\n")
 
     for derived_contract in contract.derived_contracts:
         generic_erc_checks(derived_contract, erc_functions, erc_events, ret, explored)

@@ -2,8 +2,8 @@ from .variable import Variable
 from slither.core.children.child_contract import ChildContract
 from slither.utils.type import export_nested_types_from_variable
 
-class StateVariable(ChildContract, Variable):
 
+class StateVariable(ChildContract, Variable):
     def __init__(self):
         super(StateVariable, self).__init__()
         self._node_initialization = None
@@ -15,7 +15,6 @@ class StateVariable(ChildContract, Variable):
         :return:
         """
         return self.contract == contract
-
 
     ###################################################################################
     ###################################################################################
@@ -38,7 +37,7 @@ class StateVariable(ChildContract, Variable):
             :return: str: func_name(type1,type2) returns(type3)
         """
         name, parameters, returnVars = self.signature
-        return name+'('+','.join(parameters)+') returns('+','.join(returnVars)+')'
+        return name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
 
     # endregion
     ###################################################################################
@@ -49,7 +48,7 @@ class StateVariable(ChildContract, Variable):
 
     @property
     def canonical_name(self):
-        return '{}.{}'.format(self.contract.name, self.name)
+        return "{}.{}".format(self.contract.name, self.name)
 
     @property
     def full_name(self):
@@ -59,7 +58,7 @@ class StateVariable(ChildContract, Variable):
             :return: the function signature without the return values
         """
         name, parameters, _ = self.signature
-        return name+'('+','.join(parameters)+')'
+        return name + "(" + ",".join(parameters) + ")"
 
     # endregion
     ###################################################################################
@@ -80,8 +79,6 @@ class StateVariable(ChildContract, Variable):
     def node_initialization(self, node_initialization):
         self._node_initialization = node_initialization
 
-
     # endregion
     ###################################################################################
     ###################################################################################
-

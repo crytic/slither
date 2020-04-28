@@ -6,7 +6,6 @@ from slither.utils.utils import unroll
 
 
 class AbstractOperation(abc.ABC):
-
     @property
     @abc.abstractmethod
     def read(self):
@@ -25,7 +24,6 @@ class AbstractOperation(abc.ABC):
 
 
 class Operation(Context, ChildExpression, ChildNode, AbstractOperation):
-
     @property
     def used(self):
         """
