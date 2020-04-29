@@ -1,3 +1,5 @@
+from typing import List
+
 from slither.core.expressions.expression import Expression
 
 
@@ -8,7 +10,7 @@ class TupleExpression(Expression):
         self._expressions = expressions
 
     @property
-    def expressions(self):
+    def expressions(self) -> List[Expression]:
         return self._expressions
 
     def __str__(self):

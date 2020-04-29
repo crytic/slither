@@ -1,4 +1,6 @@
 import logging
+from enum import Enum
+
 from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.expression import Expression
 from slither.core.exceptions import SlitherCoreError
@@ -6,7 +8,7 @@ from slither.core.exceptions import SlitherCoreError
 logger = logging.getLogger("UnaryOperation")
 
 
-class UnaryOperationType:
+class UnaryOperationType(Enum):
     BANG = 0  # !
     TILD = 1  # ~
     DELETE = 2  # delete
@@ -41,27 +43,26 @@ class UnaryOperationType:
                 return UnaryOperationType.MINUSMINUS_POST
         raise SlitherCoreError("get_type: Unknown operation type {}".format(operation_type))
 
-    @staticmethod
-    def str(operation_type):
-        if operation_type == UnaryOperationType.BANG:
+    def __str__(self):
+        if self == UnaryOperationType.BANG:
             return "!"
-        if operation_type == UnaryOperationType.TILD:
+        if self == UnaryOperationType.TILD:
             return "~"
-        if operation_type == UnaryOperationType.DELETE:
+        if self == UnaryOperationType.DELETE:
             return "delete"
-        if operation_type == UnaryOperationType.PLUS_PRE:
+        if self == UnaryOperationType.PLUS_PRE:
             return "+"
-        if operation_type == UnaryOperationType.MINUS_PRE:
+        if self == UnaryOperationType.MINUS_PRE:
             return "-"
-        if operation_type in [UnaryOperationType.PLUSPLUS_PRE, UnaryOperationType.PLUSPLUS_POST]:
+        if self in [UnaryOperationType.PLUSPLUS_PRE, UnaryOperationType.PLUSPLUS_POST]:
             return "++"
-        if operation_type in [
+        if self in [
             UnaryOperationType.MINUSMINUS_PRE,
             UnaryOperationType.MINUSMINUS_POST,
         ]:
             return "--"
 
-        raise SlitherCoreError("str: Unknown operation type {}".format(operation_type))
+        raise SlitherCoreError("str: Unknown operation type {}".format(self))
 
     @staticmethod
     def is_prefix(operation_type):
@@ -88,8 +89,8 @@ class UnaryOperation(ExpressionTyped):
     def __init__(self, expression, expression_type):
         assert isinstance(expression, Expression)
         super(UnaryOperation, self).__init__()
-        self._expression = expression
-        self._type = expression_type
+        self._expression: Expression = expression
+        self._type: UnaryOperationType = expression_type
         if expression_type in [
             UnaryOperationType.DELETE,
             UnaryOperationType.PLUSPLUS_PRE,
@@ -102,23 +103,19 @@ class UnaryOperation(ExpressionTyped):
             expression.set_lvalue()
 
     @property
-    def expression(self):
+    def expression(self) -> Expression:
         return self._expression
 
     @property
-    def type_str(self):
-        return UnaryOperationType.str(self._type)
-
-    @property
-    def type(self):
+    def type(self) -> UnaryOperationType:
         return self._type
 
     @property
-    def is_prefix(self):
+    def is_prefix(self) -> bool:
         return UnaryOperationType.is_prefix(self._type)
 
     def __str__(self):
         if self.is_prefix:
-            return self.type_str + " " + str(self._expression)
+            return str(self.type) + " " + str(self._expression)
         else:
-            return str(self._expression) + " " + self.type_str
+            return str(self._expression) + " " + str(self.type)

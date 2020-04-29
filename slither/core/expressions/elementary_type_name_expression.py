@@ -12,7 +12,7 @@ class ElementaryTypeNameExpression(Expression):
         self._type = t
 
     @property
-    def type(self):
+    def type(self) -> Type:
         return self._type
 
     def __str__(self):

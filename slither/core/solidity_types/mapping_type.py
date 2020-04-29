@@ -10,11 +10,11 @@ class MappingType(Type):
         self._to = type_to
 
     @property
-    def type_from(self):
+    def type_from(self) -> Type:
         return self._from
 
     @property
-    def type_to(self):
+    def type_to(self) -> Type:
         return self._to
 
     def __str__(self):

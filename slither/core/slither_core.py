@@ -6,10 +6,13 @@ import logging
 import json
 import re
 from collections import defaultdict
-from typing import Optional
+from typing import Optional, Dict, List, Set
+
+from crytic_compile import CryticCompile
 
 from slither.core.context.context import Context
-from slither.core.declarations import Contract
+from slither.core.declarations import Contract, Pragma, Import, Function, Modifier
+from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import InternalCall
 from slither.utils.colors import red
 
@@ -24,24 +27,25 @@ class Slither(Context):
 
     def __init__(self):
         super(Slither, self).__init__()
-        self._contracts = {}
-        self._filename = None
-        self._source_units = {}
-        self._solc_version = None  # '0.3' or '0.4':!
-        self._pragma_directives = []
-        self._import_directives = []
-        self._raw_source_code = {}
-        self._all_functions = set()
-        self._all_modifiers = set()
-        self._all_state_variables = None
+        self._contracts: Dict[str, Contract] = {}
+        self._filename: Optional[str] = None
+        self._source_units: Dict[int, str] = {}
+        self._solc_version: Optional[str] = None  # '0.3' or '0.4':!
+        self._pragma_directives: List[Pragma] = []
+        self._import_directives: List[Import] = []
+        self._raw_source_code: Dict[str, str] = {}
+        self._all_functions: Set[Function] = set()
+        self._all_modifiers: Set[Modifier] = set()
+        # Memoize
+        self._all_state_variables: Optional[Set[StateVariable]] = None
 
-        self._previous_results_filename = "slither.db.json"
-        self._results_to_hide = []
-        self._previous_results = []
-        self._previous_results_ids = set()
-        self._paths_to_filter = set()
+        self._previous_results_filename: str = "slither.db.json"
+        self._results_to_hide: List = []
+        self._previous_results: List = []
+        self._previous_results_ids: Set[str] = set()
+        self._paths_to_filter: Set[str] = set()
 
-        self._crytic_compile = None
+        self._crytic_compile: Optional[CryticCompile] = None
 
         self._generate_patches = False
         self._exclude_dependencies = False
@@ -58,16 +62,16 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def source_code(self):
+    def source_code(self) -> Dict[str, str]:
         """ {filename: source_code (str)}: source code """
         return self._raw_source_code
 
     @property
-    def source_units(self):
+    def source_units(self) -> Dict[int, str]:
         return self._source_units
 
     @property
-    def filename(self):
+    def filename(self) -> Optional[str]:
         """str: Filename."""
         return self._filename
 
@@ -83,7 +87,7 @@ class Slither(Context):
                 self.source_code[path] = f.read()
 
     @property
-    def markdown_root(self):
+    def markdown_root(self) -> str:
         return self._markdown_root
 
     # endregion
@@ -94,19 +98,19 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def solc_version(self):
+    def solc_version(self) -> str:
         """str: Solidity version."""
         if self.crytic_compile:
             return self.crytic_compile.compiler_version.version
         return self._solc_version
 
     @property
-    def pragma_directives(self):
+    def pragma_directives(self) -> List[Pragma]:
         """ list(core.declarations.Pragma): Pragma directives."""
         return self._pragma_directives
 
     @property
-    def import_directives(self):
+    def import_directives(self) -> List[Import]:
         """ list(core.declarations.Import): Import directives"""
         return self._import_directives
 
@@ -118,22 +122,22 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def contracts(self):
+    def contracts(self) -> List[Contract]:
         """list(Contract): List of contracts."""
         return list(self._contracts.values())
 
     @property
-    def contracts_derived(self):
+    def contracts_derived(self) -> List[Contract]:
         """list(Contract): List of contracts that are derived and not inherited."""
         inheritance = (x.inheritance for x in self.contracts)
         inheritance = [item for sublist in inheritance for item in sublist]
         return [c for c in self._contracts.values() if c not in inheritance]
 
-    def contracts_as_dict(self):
+    def contracts_as_dict(self) -> Dict[str, Contract]:
         """list(dict(str: Contract): List of contracts as dict: name -> Contract."""
         return self._contracts
 
-    def get_contract_from_name(self, contract_name) -> Optional[Contract]:
+    def get_contract_from_name(self, contract_name: str) -> Optional[Contract]:
         """
             Return a contract from a name
         Args:
@@ -151,21 +155,21 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def functions(self):
+    def functions(self) -> List[Function]:
         return list(self._all_functions)
 
-    def add_function(self, func):
+    def add_function(self, func: Function):
         self._all_functions.add(func)
 
     @property
-    def modifiers(self):
+    def modifiers(self) -> List[Modifier]:
         return list(self._all_modifiers)
 
-    def add_modifier(self, modif):
+    def add_modifier(self, modif: Modifier):
         self._all_modifiers.add(modif)
 
     @property
-    def functions_and_modifiers(self):
+    def functions_and_modifiers(self) -> List[Function]:
         return self.functions + self.modifiers
 
     def _propagate_function_calls(self):
@@ -183,7 +187,7 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def state_variables(self):
+    def state_variables(self) -> List[StateVariable]:
         if self._all_state_variables is None:
             state_variables = [c.state_variables for c in self.contracts]
             state_variables = [item for sublist in state_variables for item in sublist]
@@ -197,7 +201,7 @@ class Slither(Context):
     ###################################################################################
     ###################################################################################
 
-    def print_functions(self, d):
+    def print_functions(self, d: str):
         """
             Export all the functions to dot files
         """
@@ -212,13 +216,13 @@ class Slither(Context):
     ###################################################################################
     ###################################################################################
 
-    def relative_path_format(self, path):
+    def relative_path_format(self, path: str) -> str:
         """
            Strip relative paths of "." and ".."
         """
         return path.split("..")[-1].strip(".").strip("/")
 
-    def valid_result(self, r):
+    def valid_result(self, r: Dict) -> bool:
         """
             Check if the result is valid
             A result is invalid if:
@@ -283,10 +287,10 @@ class Slither(Context):
             results = self._results_to_hide + self._previous_results
             json.dump(results, f)
 
-    def save_results_to_hide(self, results):
+    def save_results_to_hide(self, results: List[Dict]):
         self._results_to_hide += results
 
-    def add_path_to_filter(self, path):
+    def add_path_to_filter(self, path: str):
         """
             Add path to filter
             Path are used through direct comparison (no regex)
@@ -301,7 +305,7 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def crytic_compile(self):
+    def crytic_compile(self) -> Optional[CryticCompile]:
         return self._crytic_compile
 
     # endregion
@@ -312,11 +316,11 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def generate_patches(self):
+    def generate_patches(self) -> bool:
         return self._generate_patches
 
     @generate_patches.setter
-    def generate_patches(self, p):
+    def generate_patches(self, p: bool):
         self._generate_patches = p
 
     # endregion
@@ -327,11 +331,11 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def contract_name_collisions(self):
+    def contract_name_collisions(self) -> Dict:
         return self._contract_name_collisions
 
     @property
-    def contracts_with_missing_inheritance(self):
+    def contracts_with_missing_inheritance(self) -> Set:
         return self._contract_with_missing_inheritance
 
     # endregion

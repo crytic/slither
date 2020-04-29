@@ -8,7 +8,7 @@ class EventVariable(ChildEvent, Variable):
         self._indexed = False
 
     @property
-    def indexed(self):
+    def indexed(self) -> bool:
         """
         Indicates whether the event variable is indexed in the bloom filter.
         :return: Returns True if the variable is indexed in bloom filter, False otherwise.

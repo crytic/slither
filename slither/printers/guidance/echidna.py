@@ -167,7 +167,7 @@ def _extract_constants_from_irs(
         if isinstance(ir, Binary):
             for r in ir.read:
                 if isinstance(r, Constant):
-                    all_cst_used_in_binary[BinaryType.str(ir.type)].append(
+                    all_cst_used_in_binary[str(ir.type)].append(
                         ConstantValue(str(r.value), str(r.type))
                     )
         if isinstance(ir, TypeConversion):

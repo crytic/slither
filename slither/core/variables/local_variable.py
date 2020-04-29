@@ -1,3 +1,5 @@
+from typing import Optional
+
 from .variable import Variable
 from slither.core.children.child_function import ChildFunction
 from slither.core.solidity_types.user_defined_type import UserDefinedType
@@ -11,13 +13,13 @@ from slither.core.declarations.structure import Structure
 class LocalVariable(ChildFunction, Variable):
     def __init__(self):
         super(LocalVariable, self).__init__()
-        self._location = None
+        self._location: Optional[str] = None
 
-    def set_location(self, loc):
+    def set_location(self, loc: str):
         self._location = loc
 
     @property
-    def location(self):
+    def location(self) -> Optional[str]:
         """
             Variable Location
             Can be storage/memory or default
@@ -27,11 +29,11 @@ class LocalVariable(ChildFunction, Variable):
         return self._location
 
     @property
-    def is_scalar(self):
+    def is_scalar(self) -> bool:
         return isinstance(self.type, ElementaryType) and not self.is_storage
 
     @property
-    def is_storage(self):
+    def is_storage(self) -> bool:
         """
             Return true if the variable is located in storage
             See https://solidity.readthedocs.io/en/v0.4.24/types.html?highlight=storage%20location#data-location
@@ -55,5 +57,5 @@ class LocalVariable(ChildFunction, Variable):
         return False
 
     @property
-    def canonical_name(self):
+    def canonical_name(self) -> str:
         return "{}.{}".format(self.function.canonical_name, self.name)

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from slither.core.variables.local_variable import LocalVariable
 
 
@@ -13,8 +15,8 @@ class LocalVariableInitFromTuple(LocalVariable):
 
     def __init__(self):
         super(LocalVariableInitFromTuple, self).__init__()
-        self._tuple_index = None
+        self._tuple_index: Optional[int] = None
 
     @property
-    def tuple_index(self):
+    def tuple_index(self) -> Optional[int]:
         return self._tuple_index

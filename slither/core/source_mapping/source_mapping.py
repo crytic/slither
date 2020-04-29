@@ -1,5 +1,5 @@
 import re
-from typing import Dict, Union
+from typing import Dict, Union, Optional
 
 from slither.core.context.context import Context
 
@@ -7,10 +7,11 @@ from slither.core.context.context import Context
 class SourceMapping(Context):
     def __init__(self):
         super(SourceMapping, self).__init__()
-        self._source_mapping = None
+        # TODO create a namedtuple for the source mapping rather than a dict
+        self._source_mapping: Optional[Dict] = None
 
     @property
-    def source_mapping(self):
+    def source_mapping(self) -> Optional[Dict]:
         return self._source_mapping
 
     @staticmethod
@@ -54,7 +55,7 @@ class SourceMapping(Context):
             if counter > start + length:
                 break
 
-        return (lines, starting_column, ending_column)
+        return lines, starting_column, ending_column
 
     @staticmethod
     def _convert_source_mapping(offset: str, slither):
@@ -147,11 +148,11 @@ class SourceMapping(Context):
             lines = "#{}{}-{}{}".format(line_descr, lines[0], line_descr, lines[-1])
         return lines
 
-    def source_mapping_to_markdown(self, markdown_root):
+    def source_mapping_to_markdown(self, markdown_root: str) -> str:
         lines = self._get_lines_str(line_descr="L")
         return f'{markdown_root}{self.source_mapping["filename_relative"]}{lines}'
 
     @property
-    def source_mapping_str(self):
+    def source_mapping_str(self) -> str:
         lines = self._get_lines_str()
         return f'{self.source_mapping["filename_short"]}{lines}'

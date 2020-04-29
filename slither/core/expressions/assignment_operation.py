@@ -1,12 +1,18 @@
 import logging
+from enum import Enum
+from typing import Optional, TYPE_CHECKING, List
+
 from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.expression import Expression
 from slither.core.exceptions import SlitherCoreError
 
+if TYPE_CHECKING:
+    from slither.core.solidity_types.type import Type
+
 logger = logging.getLogger("AssignmentOperation")
 
 
-class AssignmentOperationType:
+class AssignmentOperationType(Enum):
     ASSIGN = 0  # =
     ASSIGN_OR = 1  # |=
     ASSIGN_CARET = 2  # ^=
@@ -20,7 +26,7 @@ class AssignmentOperationType:
     ASSIGN_MODULO = 10  # %=
 
     @staticmethod
-    def get_type(operation_type):
+    def get_type(operation_type: "AssignmentOperationType"):
         if operation_type == "=":
             return AssignmentOperationType.ASSIGN
         if operation_type == "|=":
@@ -46,67 +52,67 @@ class AssignmentOperationType:
 
         raise SlitherCoreError("get_type: Unknown operation type {})".format(operation_type))
 
-    @staticmethod
-    def str(operation_type):
-        if operation_type == AssignmentOperationType.ASSIGN:
+    def __str__(self):
+        if self == AssignmentOperationType.ASSIGN:
             return "="
-        if operation_type == AssignmentOperationType.ASSIGN_OR:
+        if self == AssignmentOperationType.ASSIGN_OR:
             return "|="
-        if operation_type == AssignmentOperationType.ASSIGN_CARET:
+        if self == AssignmentOperationType.ASSIGN_CARET:
             return "^="
-        if operation_type == AssignmentOperationType.ASSIGN_AND:
+        if self == AssignmentOperationType.ASSIGN_AND:
             return "&="
-        if operation_type == AssignmentOperationType.ASSIGN_LEFT_SHIFT:
+        if self == AssignmentOperationType.ASSIGN_LEFT_SHIFT:
             return "<<="
-        if operation_type == AssignmentOperationType.ASSIGN_RIGHT_SHIFT:
+        if self == AssignmentOperationType.ASSIGN_RIGHT_SHIFT:
             return ">>="
-        if operation_type == AssignmentOperationType.ASSIGN_ADDITION:
+        if self == AssignmentOperationType.ASSIGN_ADDITION:
             return "+="
-        if operation_type == AssignmentOperationType.ASSIGN_SUBTRACTION:
+        if self == AssignmentOperationType.ASSIGN_SUBTRACTION:
             return "-="
-        if operation_type == AssignmentOperationType.ASSIGN_MULTIPLICATION:
+        if self == AssignmentOperationType.ASSIGN_MULTIPLICATION:
             return "*="
-        if operation_type == AssignmentOperationType.ASSIGN_DIVISION:
+        if self == AssignmentOperationType.ASSIGN_DIVISION:
             return "/="
-        if operation_type == AssignmentOperationType.ASSIGN_MODULO:
+        if self == AssignmentOperationType.ASSIGN_MODULO:
             return "%="
-
-        raise SlitherCoreError("str: Unknown operation type {})".format(operation_type))
+        raise SlitherCoreError("str: Unknown operation type {})".format(self))
 
 
 class AssignmentOperation(ExpressionTyped):
-    def __init__(self, left_expression, right_expression, expression_type, expression_return_type):
+    def __init__(
+        self,
+        left_expression: Expression,
+        right_expression: Expression,
+        expression_type: AssignmentOperationType,
+        expression_return_type: Optional["Type"],
+    ):
         assert isinstance(left_expression, Expression)
         assert isinstance(right_expression, Expression)
         super(AssignmentOperation, self).__init__()
         left_expression.set_lvalue()
         self._expressions = [left_expression, right_expression]
         self._type = expression_type
-        self._expression_return_type = expression_return_type
+        self._expression_return_type: Optional["Type"] = expression_return_type
 
     @property
-    def expressions(self):
+    def expressions(self) -> List[Expression]:
         return self._expressions
 
     @property
-    def expression_return_type(self):
+    def expression_return_type(self) -> Optional["Type"]:
         return self._expression_return_type
 
     @property
-    def expression_left(self):
+    def expression_left(self) -> Expression:
         return self._expressions[0]
 
     @property
-    def expression_right(self):
+    def expression_right(self) -> Expression:
         return self._expressions[1]
 
     @property
-    def type(self):
+    def type(self) -> AssignmentOperationType:
         return self._type
 
-    @property
-    def type_str(self):
-        return AssignmentOperationType.str(self._type)
-
     def __str__(self):
-        return str(self.expression_left) + " " + self.type_str + " " + str(self.expression_right)
+        return str(self.expression_left) + " " + str(self.type) + " " + str(self.expression_right)

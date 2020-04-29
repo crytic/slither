@@ -1,12 +1,16 @@
 import logging
+from enum import Enum
+from typing import List
+
 from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.expression import Expression
 from slither.core.exceptions import SlitherCoreError
 
+
 logger = logging.getLogger("BinaryOperation")
 
 
-class BinaryOperationType:
+class BinaryOperationType(Enum):
     POWER = 0  # **
     MULTIPLICATION = 1  # *
     DIVISION = 2  # /
@@ -28,7 +32,7 @@ class BinaryOperationType:
     OROR = 18  # ||
 
     @staticmethod
-    def get_type(operation_type):
+    def get_type(operation_type: "BinaryOperation"):
         if operation_type == "**":
             return BinaryOperationType.POWER
         if operation_type == "*":
@@ -70,47 +74,46 @@ class BinaryOperationType:
 
         raise SlitherCoreError("get_type: Unknown operation type {})".format(operation_type))
 
-    @staticmethod
-    def str(operation_type):
-        if operation_type == BinaryOperationType.POWER:
+    def __str__(self):
+        if self == BinaryOperationType.POWER:
             return "**"
-        if operation_type == BinaryOperationType.MULTIPLICATION:
+        if self == BinaryOperationType.MULTIPLICATION:
             return "*"
-        if operation_type == BinaryOperationType.DIVISION:
+        if self == BinaryOperationType.DIVISION:
             return "/"
-        if operation_type == BinaryOperationType.MODULO:
+        if self == BinaryOperationType.MODULO:
             return "%"
-        if operation_type == BinaryOperationType.ADDITION:
+        if self == BinaryOperationType.ADDITION:
             return "+"
-        if operation_type == BinaryOperationType.SUBTRACTION:
+        if self == BinaryOperationType.SUBTRACTION:
             return "-"
-        if operation_type == BinaryOperationType.LEFT_SHIFT:
+        if self == BinaryOperationType.LEFT_SHIFT:
             return "<<"
-        if operation_type == BinaryOperationType.RIGHT_SHIFT:
+        if self == BinaryOperationType.RIGHT_SHIFT:
             return ">>"
-        if operation_type == BinaryOperationType.AND:
+        if self == BinaryOperationType.AND:
             return "&"
-        if operation_type == BinaryOperationType.CARET:
+        if self == BinaryOperationType.CARET:
             return "^"
-        if operation_type == BinaryOperationType.OR:
+        if self == BinaryOperationType.OR:
             return "|"
-        if operation_type == BinaryOperationType.LESS:
+        if self == BinaryOperationType.LESS:
             return "<"
-        if operation_type == BinaryOperationType.GREATER:
+        if self == BinaryOperationType.GREATER:
             return ">"
-        if operation_type == BinaryOperationType.LESS_EQUAL:
+        if self == BinaryOperationType.LESS_EQUAL:
             return "<="
-        if operation_type == BinaryOperationType.GREATER_EQUAL:
+        if self == BinaryOperationType.GREATER_EQUAL:
             return ">="
-        if operation_type == BinaryOperationType.EQUAL:
+        if self == BinaryOperationType.EQUAL:
             return "=="
-        if operation_type == BinaryOperationType.NOT_EQUAL:
+        if self == BinaryOperationType.NOT_EQUAL:
             return "!="
-        if operation_type == BinaryOperationType.ANDAND:
+        if self == BinaryOperationType.ANDAND:
             return "&&"
-        if operation_type == BinaryOperationType.OROR:
+        if self == BinaryOperationType.OROR:
             return "||"
-        raise SlitherCoreError("str: Unknown operation type {})".format(operation_type))
+        raise SlitherCoreError("str: Unknown operation type {})".format(self))
 
 
 class BinaryOperation(ExpressionTyped):
@@ -119,27 +122,23 @@ class BinaryOperation(ExpressionTyped):
         assert isinstance(right_expression, Expression)
         super(BinaryOperation, self).__init__()
         self._expressions = [left_expression, right_expression]
-        self._type = expression_type
+        self._type: BinaryOperationType = expression_type
 
     @property
-    def expressions(self):
+    def expressions(self) -> List[Expression]:
         return self._expressions
 
     @property
-    def expression_left(self):
+    def expression_left(self) -> Expression:
         return self._expressions[0]
 
     @property
-    def expression_right(self):
+    def expression_right(self) -> Expression:
         return self._expressions[1]
 
     @property
-    def type(self):
+    def type(self) -> BinaryOperationType:
         return self._type
 
-    @property
-    def type_str(self):
-        return BinaryOperationType.str(self._type)
-
     def __str__(self):
-        return str(self.expression_left) + " " + self.type_str + " " + str(self.expression_right)
+        return str(self.expression_left) + " " + str(self.type) + " " + str(self.expression_right)

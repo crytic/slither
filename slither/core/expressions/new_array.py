@@ -8,15 +8,15 @@ class NewArray(Expression):
     def __init__(self, depth, array_type):
         super(NewArray, self).__init__()
         assert isinstance(array_type, Type)
-        self._depth = depth
-        self._array_type = array_type
+        self._depth: int = depth
+        self._array_type: Type = array_type
 
     @property
-    def array_type(self):
+    def array_type(self) -> Type:
         return self._array_type
 
     @property
-    def depth(self):
+    def depth(self) -> int:
         return self._depth
 
     def __str__(self):

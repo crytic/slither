@@ -1,4 +1,5 @@
 import itertools
+from typing import Optional
 
 from slither.core.solidity_types.type import Type
 
@@ -143,15 +144,15 @@ class ElementaryType(Type):
         self._type = t
 
     @property
-    def type(self):
+    def type(self) -> str:
         return self._type
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.type
 
     @property
-    def size(self):
+    def size(self) -> Optional[int]:
         """
             Return the size in bits
             Return None if the size is not known

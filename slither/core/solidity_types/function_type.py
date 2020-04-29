@@ -1,3 +1,5 @@
+from typing import List
+
 from slither.core.solidity_types.type import Type
 from slither.core.variables.function_type_variable import FunctionTypeVariable
 
@@ -7,19 +9,19 @@ class FunctionType(Type):
         assert all(isinstance(x, FunctionTypeVariable) for x in params)
         assert all(isinstance(x, FunctionTypeVariable) for x in return_values)
         super(FunctionType, self).__init__()
-        self._params = params
-        self._return_values = return_values
+        self._params: List[FunctionTypeVariable] = params
+        self._return_values: List[FunctionTypeVariable] = return_values
 
     @property
-    def params(self):
+    def params(self) -> List[FunctionTypeVariable]:
         return self._params
 
     @property
-    def return_values(self):
+    def return_values(self) -> List[FunctionTypeVariable]:
         return self._return_values
 
     @property
-    def return_type(self):
+    def return_type(self) -> List[Type]:
         return [x.type for x in self.return_values]
 
     def __str__(self):
@@ -32,7 +34,7 @@ class FunctionType(Type):
         return "function({})".format(params)
 
     @property
-    def parameters_signature(self):
+    def parameters_signature(self) -> str:
         """
             Return the parameters signature(without the return statetement)
         """
@@ -42,7 +44,7 @@ class FunctionType(Type):
         return "({})".format(params)
 
     @property
-    def signature(self):
+    def signature(self) -> str:
         """
             Return the signature(with the return statetement if it exists)
         """
