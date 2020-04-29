@@ -1,4 +1,5 @@
 import logging
+from typing import Set
 
 from slither.core.cfg.node import NodeType
 from slither.core.declarations import (Contract, Enum, Function,
@@ -22,6 +23,7 @@ from slither.slithir.variables import (Constant, LocalIRVariable,
                                        StateIRVariable, TemporaryVariable,
                                        TemporaryVariableSSA, TupleVariable, TupleVariableSSA)
 from slither.slithir.exceptions import SlithIRError
+from slither.solc_parsing.cfg.node import NodeSolc
 
 logger = logging.getLogger('SSA_Conversion')
 
@@ -389,6 +391,19 @@ def fix_phi_rvalues_and_storage_ref(node, local_variables_instances, all_local_v
 
 def add_phi_origins(node, local_variables_definition, state_variables_definition):
 
+    # We define a function to return any state variables that are "renamed" in
+    # ENTRY_POINT. Since "rename" operations will be done with Phi nodes, they
+    # won't be counted in node.state_variables_written. But should still be
+    # considered as an existence of the state variable.
+    def get_entry_state_variables(node: NodeSolc) -> Set[StateIRVariable]:
+        if node.type != NodeType.ENTRYPOINT:
+            return set()
+        ret = set()
+        for ir in node.irs_ssa:
+            if isinstance(ir, Phi) and isinstance(ir.lvalue, StateIRVariable):
+                ret.add(ir.lvalue.non_ssa_version)
+        return ret
+
     # Add new key to local_variables_definition
     # The key is the variable_name 
     # The value is (variable_instance, the node where its written)
@@ -397,7 +412,8 @@ def add_phi_origins(node, local_variables_definition, state_variables_definition
     local_variables_definition = dict(local_variables_definition,
                                 **{v.name: (v, node) for v in node.local_variables_written})
     state_variables_definition = dict(state_variables_definition,
-                                **{v.canonical_name: (v, node) for v in node.state_variables_written})
+                                **{v.canonical_name: (v, node) for v in node.state_variables_written +
+                                   list(get_entry_state_variables(node))})
 
     # For unini variable declaration
     if node.variable_declaration and\
