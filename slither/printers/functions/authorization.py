@@ -2,9 +2,9 @@
     Module printing summary of the contract
 """
 
-from prettytable import PrettyTable
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.function import Function
+from slither.utils.myprettytable import MyPrettyTable
 
 
 class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
@@ -41,8 +41,8 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
         txt = ""
         all_tables = []
         for contract in self.contracts:
-            txt += "\nContract %s\n" % contract.name
-            table = PrettyTable(["Function", "State variables written", "Conditions on msg.sender"])
+            txt += "\nContract %s\n"%contract.name
+            table = MyPrettyTable(["Function", "State variables written", "Conditions on msg.sender"])
             for function in contract.functions:
 
                 state_variables_written = [v.name for v in function.all_state_variables_written()]

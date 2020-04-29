@@ -2,8 +2,8 @@
     Module printing summary of the contract
 """
 
-from prettytable import PrettyTable
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils.myprettytable import MyPrettyTable
 
 
 class FunctionSummary(AbstractPrinter):
@@ -37,7 +37,7 @@ class FunctionSummary(AbstractPrinter):
             txt = "\nContract %s" % name
             txt += "\nContract vars: " + str(var)
             txt += "\nInheritance:: " + str(inheritance)
-            table = PrettyTable(
+            table = MyPrettyTable(
                 [
                     "Function",
                     "Visibility",
@@ -49,14 +49,14 @@ class FunctionSummary(AbstractPrinter):
                 ]
             )
             for (
-                _c_name,
-                f_name,
-                visi,
-                modifiers,
-                read,
-                write,
-                internal_calls,
-                external_calls,
+                    _c_name,
+                    f_name,
+                    visi,
+                    modifiers,
+                    read,
+                    write,
+                    internal_calls,
+                    external_calls,
             ) in func_summaries:
                 read = self._convert(read)
                 write = self._convert(write)
@@ -66,18 +66,18 @@ class FunctionSummary(AbstractPrinter):
                     [f_name, visi, modifiers, read, write, internal_calls, external_calls]
                 )
             txt += "\n \n" + str(table)
-            table = PrettyTable(
+            table = MyPrettyTable(
                 ["Modifiers", "Visibility", "Read", "Write", "Internal Calls", "External Calls"]
             )
             for (
-                _c_name,
-                f_name,
-                visi,
-                _,
-                read,
-                write,
-                internal_calls,
-                external_calls,
+                    _c_name,
+                    f_name,
+                    visi,
+                    _,
+                    read,
+                    write,
+                    internal_calls,
+                    external_calls,
             ) in modif_summaries:
                 read = self._convert(read)
                 write = self._convert(write)
