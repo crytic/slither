@@ -2,7 +2,9 @@ import json
 import os
 import logging
 from collections import defaultdict
-from crytic_compile.cryticparser.defaults import DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE
+from crytic_compile.cryticparser.defaults import (
+    DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
+)
 
 from slither.detectors.abstract_detector import classification_txt
 from .colors import yellow, red
@@ -212,11 +214,7 @@ def output_detectors(detector_classes):
         impact = detector.IMPACT
         confidence = classification_txt[detector.CONFIDENCE]
         detectors_list.append((argument, help_info, impact, confidence))
-    table = MyPrettyTable(["Num",
-                           "Check",
-                           "What it Detects",
-                           "Impact",
-                           "Confidence"])
+    table = MyPrettyTable(["Num", "Check", "What it Detects", "Impact", "Confidence"])
 
     # Sort by impact, confidence, and name
     detectors_list = sorted(
@@ -295,9 +293,7 @@ def output_printers(printer_classes):
         argument = printer.ARGUMENT
         help_info = printer.HELP
         printers_list.append((argument, help_info))
-    table = MyPrettyTable(["Num",
-                           "Printer",
-                           "What it Does"])
+    table = MyPrettyTable(["Num", "Printer", "What it Does"])
 
     # Sort by impact, confidence, and name
     printers_list = sorted(printers_list, key=lambda element: (element[0]))

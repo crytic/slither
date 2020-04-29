@@ -6,7 +6,6 @@ from slither.utils.function import get_function_id
 from slither.utils.myprettytable import MyPrettyTable
 
 
-
 class FunctionIds(AbstractPrinter):
 
     ARGUMENT = "function-id"

@@ -46,10 +46,30 @@ contract Bug {
     SHADOWING_EVENT = "event"
 
     # Reserved keywords reference: https://solidity.readthedocs.io/en/v0.5.2/units-and-global-variables.html
-    BUILTIN_SYMBOLS = ["assert", "require", "revert", "block", "blockhash",
-                       "gasleft", "msg", "now", "tx", "this", "addmod", "mulmod",
-                       "keccak256", "sha256", "sha3", "ripemd160", "ecrecover",
-                       "selfdestruct", "suicide", "abi", "fallback", "receive"]
+    BUILTIN_SYMBOLS = [
+        "assert",
+        "require",
+        "revert",
+        "block",
+        "blockhash",
+        "gasleft",
+        "msg",
+        "now",
+        "tx",
+        "this",
+        "addmod",
+        "mulmod",
+        "keccak256",
+        "sha256",
+        "sha3",
+        "ripemd160",
+        "ecrecover",
+        "selfdestruct",
+        "suicide",
+        "abi",
+        "fallback",
+        "receive",
+    ]
 
     # https://solidity.readthedocs.io/en/v0.5.2/miscellaneous.html#reserved-keywords
     RESERVED_KEYWORDS = [

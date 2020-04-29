@@ -449,13 +449,8 @@ class Output:
     def add_pretty_table(self, content: MyPrettyTable, name, additional_fields=None):
         if additional_fields is None:
             additional_fields = {}
-        type_specific_fields = {
-            'content': content.to_json(),
-            'name': name
-        }
-        element = _create_base_element('pretty_table',
-                                       type_specific_fields,
-                                       additional_fields)
+        type_specific_fields = {"content": content.to_json(), "name": name}
+        element = _create_base_element("pretty_table", type_specific_fields, additional_fields)
 
         self._data["elements"].append(element)
 

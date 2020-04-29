@@ -49,14 +49,14 @@ class FunctionSummary(AbstractPrinter):
                 ]
             )
             for (
-                    _c_name,
-                    f_name,
-                    visi,
-                    modifiers,
-                    read,
-                    write,
-                    internal_calls,
-                    external_calls,
+                _c_name,
+                f_name,
+                visi,
+                modifiers,
+                read,
+                write,
+                internal_calls,
+                external_calls,
             ) in func_summaries:
                 read = self._convert(read)
                 write = self._convert(write)
@@ -70,14 +70,14 @@ class FunctionSummary(AbstractPrinter):
                 ["Modifiers", "Visibility", "Read", "Write", "Internal Calls", "External Calls"]
             )
             for (
-                    _c_name,
-                    f_name,
-                    visi,
-                    _,
-                    read,
-                    write,
-                    internal_calls,
-                    external_calls,
+                _c_name,
+                f_name,
+                visi,
+                _,
+                read,
+                write,
+                internal_calls,
+                external_calls,
             ) in modif_summaries:
                 read = self._convert(read)
                 write = self._convert(write)
