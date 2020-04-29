@@ -3,6 +3,7 @@
 """
 
 from slither.printers.abstract_printer import AbstractPrinter
+
 from slither.analyses.data_dependency.data_dependency import pprint_dependency_table
 
 

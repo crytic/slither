@@ -1,4 +1,3 @@
-from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.identifier import Identifier
 
 

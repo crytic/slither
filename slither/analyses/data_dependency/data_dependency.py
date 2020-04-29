@@ -4,7 +4,6 @@
 from collections import defaultdict, namedtuple
 from typing import Union, Set, Dict, List, Tuple, ItemsView, Optional
 
-from prettytable import PrettyTable
 
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import (
@@ -46,6 +45,7 @@ from slither.slithir.variables import (
     TemporaryVariable,
 )
 from slither.slithir.variables.variable import SlithIRVariable
+from slither.utils.myprettytable import MyPrettyTable
 
 VariableKey = Union[Variable, Tuple[Variable, Constant]]
 Dependencies = Set[VariableKey]
@@ -366,7 +366,7 @@ def _add_row_rec_structure(
     members,
     c: Union[Contract, Function, Node],
     key: str,
-    table: PrettyTable,
+    table: MyPrettyTable,
     is_ssa: bool,
 ):
     for elem in members:
@@ -392,7 +392,7 @@ def _add_row_rec(
     v: Union[Variable, Tuple],
     c: Union[Contract, Function, Node],
     key: str,
-    table: PrettyTable,
+    table: MyPrettyTable,
     is_ssa: bool,
 ):
     if isinstance(v, tuple):
@@ -470,7 +470,7 @@ def unroll(pointer, base):
 
 
 def pprint_dependency_table(context):
-    table = PrettyTable(["Variable", "Dependencies", "Is tainted"])
+    table = MyPrettyTable(["Variable", "Dependencies", "Is tainted"])
 
     if isinstance(context, Contract):
         for v in context.state_variables:

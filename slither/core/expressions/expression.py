@@ -7,7 +7,7 @@ class Expression(SourceMapping):
         self._is_lvalue = False
 
     @property
-    def is_lvalue(self):
+    def is_lvalue(self) -> bool:
         return self._is_lvalue
 
     def set_lvalue(self):

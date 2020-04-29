@@ -2,8 +2,8 @@
     Module printing summary of the contract
 """
 
-from prettytable import PrettyTable
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils.myprettytable import MyPrettyTable
 
 
 class FunctionSummary(AbstractPrinter):
@@ -37,7 +37,7 @@ class FunctionSummary(AbstractPrinter):
             txt = "\nContract %s" % name
             txt += "\nContract vars: " + str(var)
             txt += "\nInheritance:: " + str(inheritance)
-            table = PrettyTable(
+            table = MyPrettyTable(
                 [
                     "Function",
                     "Visibility",
@@ -66,7 +66,7 @@ class FunctionSummary(AbstractPrinter):
                     [f_name, visi, modifiers, read, write, internal_calls, external_calls]
                 )
             txt += "\n \n" + str(table)
-            table = PrettyTable(
+            table = MyPrettyTable(
                 ["Modifiers", "Visibility", "Read", "Write", "Internal Calls", "External Calls"]
             )
             for (

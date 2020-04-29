@@ -9,7 +9,7 @@ class NewElementaryType(Expression):
         self._type = new_type
 
     @property
-    def type(self):
+    def type(self) -> ElementaryType:
         return self._type
 
     def __str__(self):

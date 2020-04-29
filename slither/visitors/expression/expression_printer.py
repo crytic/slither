@@ -21,13 +21,13 @@ class ExpressionPrinter(ExpressionVisitor):
     def _post_assignement_operation(self, expression):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
-        val = "{} {} {}".format(left, expression.type_str, right)
+        val = "{} {} {}".format(left, expression.type, right)
         set_val(expression, val)
 
     def _post_binary_operation(self, expression):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
-        val = "{} {} {}".format(left, expression.type_str, right)
+        val = "{} {} {}".format(left, expression.type, right)
         set_val(expression, val)
 
     def _post_call_expression(self, expression):

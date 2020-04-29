@@ -144,7 +144,7 @@ def encode_ir(ir):
     if isinstance(ir, Balance):
         return "balance"
     if isinstance(ir, Binary):
-        return "binary({})".format(ir.type_str)
+        return "binary({})".format(str(ir.type))
     if isinstance(ir, Unary):
         return "unary({})".format(ir.type_str)
     if isinstance(ir, Condition):

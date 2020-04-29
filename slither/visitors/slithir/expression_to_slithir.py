@@ -1,7 +1,11 @@
 import logging
 
 from slither.core.declarations import Function
-from slither.core.expressions import AssignmentOperationType, UnaryOperationType
+from slither.core.expressions import (
+    AssignmentOperationType,
+    UnaryOperationType,
+    BinaryOperationType,
+)
 from slither.slithir.operations import (
     Assignment,
     Binary,
@@ -20,6 +24,7 @@ from slither.slithir.operations import (
     Return,
     UpdateMemberDependency,
     UpdateIndex,
+    UnaryType,
 )
 from slither.slithir.tmp_operations.argument import Argument
 from slither.slithir.tmp_operations.tmp_call import TmpCall
@@ -64,6 +69,29 @@ _assign_to_binary = {
     AssignmentOperationType.ASSIGN_AND: BinaryType.AND,
     AssignmentOperationType.ASSIGN_CARET: BinaryType.CARET,
     AssignmentOperationType.ASSIGN_OR: BinaryType.OR,
+}
+
+
+_binary_to_binary = {
+    BinaryOperationType.POWER: BinaryType.POWER,
+    BinaryOperationType.MULTIPLICATION: BinaryType.MULTIPLICATION,
+    BinaryOperationType.DIVISION: BinaryType.DIVISION,
+    BinaryOperationType.MODULO: BinaryType.MODULO,
+    BinaryOperationType.ADDITION: BinaryType.ADDITION,
+    BinaryOperationType.SUBTRACTION: BinaryType.SUBTRACTION,
+    BinaryOperationType.LEFT_SHIFT: BinaryType.LEFT_SHIFT,
+    BinaryOperationType.RIGHT_SHIFT: BinaryType.RIGHT_SHIFT,
+    BinaryOperationType.AND: BinaryType.AND,
+    BinaryOperationType.CARET: BinaryType.CARET,
+    BinaryOperationType.OR: BinaryType.OR,
+    BinaryOperationType.LESS: BinaryType.LESS,
+    BinaryOperationType.GREATER: BinaryType.GREATER,
+    BinaryOperationType.LESS_EQUAL: BinaryType.LESS_EQUAL,
+    BinaryOperationType.GREATER_EQUAL: BinaryType.GREATER_EQUAL,
+    BinaryOperationType.EQUAL: BinaryType.EQUAL,
+    BinaryOperationType.NOT_EQUAL: BinaryType.NOT_EQUAL,
+    BinaryOperationType.ANDAND: BinaryType.ANDAND,
+    BinaryOperationType.OROR: BinaryType.OROR,
 }
 
 
@@ -195,7 +223,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         right = get(expression.expression_right)
         val = TemporaryVariable(self._node)
 
-        operation = Binary(val, left, right, expression.type)
+        operation = Binary(val, left, right, _binary_to_binary[expression.type])
         operation.set_expression(expression)
         self._result.append(operation)
         set_val(expression, val)
@@ -325,7 +353,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
         value = get(expression.expression)
         if expression.type in [UnaryOperationType.BANG, UnaryOperationType.TILD]:
             lvalue = TemporaryVariable(self._node)
-            operation = Unary(lvalue, value, expression.type)
+            expression_type = (
+                UnaryType.BANG if expression.type == UnaryOperationType.BANG else UnaryType.TILD
+            )
+            operation = Unary(lvalue, value, expression_type)
             operation.set_expression(expression)
             self._result.append(operation)
             set_val(expression, lvalue)

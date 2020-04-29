@@ -67,6 +67,8 @@ contract Bug {
         "selfdestruct",
         "suicide",
         "abi",
+        "fallback",
+        "receive",
     ]
 
     # https://solidity.readthedocs.io/en/v0.5.2/miscellaneous.html#reserved-keywords
@@ -142,6 +144,8 @@ contract Bug {
         # Loop through all functions, modifiers, variables (state and local) to detect any built-in symbol keywords.
         for function in contract.functions_declared:
             if self.is_builtin_symbol(function.name):
+                if function.is_fallback or function.is_receive:
+                    continue
                 result.append((self.SHADOWING_FUNCTION, function))
             result += self.detect_builtin_shadowing_locals(function)
         for modifier in contract.modifiers_declared:

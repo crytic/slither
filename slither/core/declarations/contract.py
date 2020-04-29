@@ -86,8 +86,11 @@ class Contract(ChildSlither, SourceMapping):
         return self._id
 
     @property
-    def contract_kind(self) -> str:
-        assert self._kind
+    def contract_kind(self) -> Optional[str]:
+        """
+        contract_kind can be None if the legacy ast format is used
+        :return:
+        """
         return self._kind
 
     # endregion

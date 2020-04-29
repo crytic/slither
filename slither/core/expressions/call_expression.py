@@ -1,3 +1,5 @@
+from typing import Optional, List
+
 from slither.core.expressions.expression import Expression
 
 
@@ -5,17 +7,17 @@ class CallExpression(Expression):
     def __init__(self, called, arguments, type_call):
         assert isinstance(called, Expression)
         super(CallExpression, self).__init__()
-        self._called = called
-        self._arguments = arguments
-        self._type_call = type_call
+        self._called: Expression = called
+        self._arguments: List[Expression] = arguments
+        self._type_call: str = type_call
         # gas and value are only available if the syntax is {gas: , value: }
         # For the .gas().value(), the member are considered as function call
         # And converted later to the correct info (convert.py)
-        self._gas = None
-        self._value = None
+        self._gas: Optional[Expression] = None
+        self._value: Optional[Expression] = None
 
     @property
-    def call_value(self):
+    def call_value(self) -> Optional[Expression]:
         return self._value
 
     @call_value.setter
@@ -23,7 +25,7 @@ class CallExpression(Expression):
         self._value = v
 
     @property
-    def call_gas(self):
+    def call_gas(self) -> Optional[Expression]:
         return self._gas
 
     @call_gas.setter
@@ -31,15 +33,15 @@ class CallExpression(Expression):
         self._gas = gas
 
     @property
-    def called(self):
+    def called(self) -> Expression:
         return self._called
 
     @property
-    def arguments(self):
+    def arguments(self) -> List[Expression]:
         return self._arguments
 
     @property
-    def type_call(self):
+    def type_call(self) -> str:
         return self._type_call
 
     def __str__(self):
