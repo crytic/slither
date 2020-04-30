@@ -3,6 +3,8 @@ import logging
 from slither.core.declarations import Function
 from slither.core.expressions import (AssignmentOperationType,
                                       UnaryOperationType)
+from slither.core.solidity_types import ArrayType
+from slither.core.solidity_types.type import Type
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
                                         Index, InitArray, InternalCall, Member,
                                         NewArray, NewContract,
@@ -173,6 +175,14 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def _post_index_access(self, expression):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
+        # Left can be a type for abi.decode(var, uint[2])
+        if isinstance(left, Type):
+            # Nested type are not yet supported by abi.decode, so the assumption
+            # Is that the right variable must be a constant
+            assert isinstance(right, Constant)
+            t = ArrayType(left, right.value)
+            set_val(expression, t)
+            return
         val = ReferenceVariable(self._node)
         # access to anonymous array
         # such as [0,1][x]
