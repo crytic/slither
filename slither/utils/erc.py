@@ -1,7 +1,11 @@
 from collections import namedtuple
+from typing import Union, List
+
+ERC = namedtuple("ERC", ["name", "parameters", "return_type", "view", "required", "events"])
+ERC_EVENT = namedtuple("ERC_EVENT", ["name", "parameters", "indexes"])
 
 
-def erc_to_signatures(erc):
+def erc_to_signatures(erc: List[ERC]):
     """
     Return the list of mandatory signatures
     :param erc:
@@ -9,10 +13,6 @@ def erc_to_signatures(erc):
     """
     return [f'{e.name}({",".join(e.parameters)})' for e in erc if e.required]
 
-
-ERC = namedtuple("ERC", ["name", "parameters", "return_type", "view", "required", "events"])
-
-ERC_EVENT = namedtuple("ERC_EVENT", ["name", "parameters", "indexes"])
 
 # Final
 # https://eips.ethereum.org/EIPS/eip-20

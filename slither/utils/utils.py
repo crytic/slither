@@ -1,4 +1,7 @@
-def unroll(l):
+from typing import List
+
+
+def unroll(l: List):
     ret = []
     for x in l:
         if not isinstance(x, list):

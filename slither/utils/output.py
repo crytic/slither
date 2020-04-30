@@ -4,7 +4,7 @@ import json
 import logging
 import zipfile
 from collections import OrderedDict
-from typing import Optional, Dict
+from typing import Optional, Dict, List, Union, Any
 from zipfile import ZipFile
 
 from slither.core.cfg.node import Node
@@ -25,7 +25,7 @@ logger = logging.getLogger("Slither")
 ###################################################################################
 
 
-def output_to_json(filename, error, results):
+def output_to_json(filename: str, error, results: Dict):
     """
 
     :param filename: Filename where the json will be written. If None or "-", write to stdout
@@ -211,16 +211,28 @@ def _create_parent_element(element):
     return None
 
 
+SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node]
+
+
 class Output:
-    def __init__(self, info, additional_fields=None, markdown_root="", standard_format=True):
+    def __init__(
+        self,
+        info_: Union[str, List[Union[str, SupportedOutput]]],
+        additional_fields: Optional[Dict] = None,
+        markdown_root="",
+        standard_format=True,
+    ):
         if additional_fields is None:
             additional_fields = {}
 
         # Allow info to be a string to simplify the API
-        if isinstance(info, str):
-            info = [info]
+        info: List[Union[str, SupportedOutput]]
+        if isinstance(info_, str):
+            info = [info_]
+        else:
+            info = info_
 
-        self._data = OrderedDict()
+        self._data: Dict[str, Any] = OrderedDict()
         self._data["elements"] = []
         self._data["description"] = "".join(_convert_to_description(d) for d in info)
         self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
@@ -237,7 +249,7 @@ class Output:
         if additional_fields:
             self._data["additional_fields"] = additional_fields
 
-    def add(self, add, additional_fields=None):
+    def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None):
         if isinstance(add, Variable):
             self.add_variable(add, additional_fields=additional_fields)
         elif isinstance(add, Contract):
@@ -258,11 +270,11 @@ class Output:
             raise SlitherError(f"Impossible to add {type(add)} to the json")
 
     @property
-    def data(self):
+    def data(self) -> Dict:
         return self._data
 
     @property
-    def elements(self):
+    def elements(self) -> List[Dict]:
         return self._data["elements"]
 
     # endregion
@@ -272,7 +284,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_variable(self, variable, additional_fields=None):
+    def add_variable(self, variable: Variable, additional_fields: Optional[Dict] = None):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(variable)}
@@ -285,7 +297,7 @@ class Output:
         )
         self._data["elements"].append(element)
 
-    def add_variables(self, variables):
+    def add_variables(self, variables: List[Variable]):
         for variable in sorted(variables, key=lambda x: x.name):
             self.add_variable(variable)
 
@@ -296,7 +308,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_contract(self, contract, additional_fields=None):
+    def add_contract(self, contract: Contract, additional_fields: Optional[Dict] = None):
         if additional_fields is None:
             additional_fields = {}
         element = _create_base_element(
@@ -311,7 +323,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_function(self, function, additional_fields=None):
+    def add_function(self, function: Function, additional_fields: Optional[Dict] = None):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -327,7 +339,7 @@ class Output:
         )
         self._data["elements"].append(element)
 
-    def add_functions(self, functions, additional_fields=None):
+    def add_functions(self, functions: List[Function], additional_fields: Optional[Dict] = None):
         if additional_fields is None:
             additional_fields = {}
         for function in sorted(functions, key=lambda x: x.name):
@@ -340,7 +352,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_enum(self, enum, additional_fields=None):
+    def add_enum(self, enum: Enum, additional_fields: Optional[Dict] = None):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(enum)}
@@ -356,7 +368,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_struct(self, struct, additional_fields=None):
+    def add_struct(self, struct: Structure, additional_fields: Optional[Dict] = None):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(struct)}
@@ -372,7 +384,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_event(self, event, additional_fields=None):
+    def add_event(self, event: Event, additional_fields: Optional[Dict] = None):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -392,7 +404,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_node(self, node, additional_fields=None):
+    def add_node(self, node: Node, additional_fields: Optional[Dict] = None):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -404,7 +416,7 @@ class Output:
         )
         self._data["elements"].append(element)
 
-    def add_nodes(self, nodes):
+    def add_nodes(self, nodes: List[Node]):
         for node in sorted(nodes, key=lambda x: x.node_id):
             self.add_node(node)
 
@@ -415,7 +427,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_pragma(self, pragma, additional_fields=None):
+    def add_pragma(self, pragma: Pragma, additional_fields: Optional[Dict] = None):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"directive": pragma.directive}
@@ -431,7 +443,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_file(self, filename, content, additional_fields=None):
+    def add_file(self, filename: str, content: str, additional_fields: Optional[Dict] = None):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"filename": filename, "content": content}
@@ -446,7 +458,9 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_pretty_table(self, content: MyPrettyTable, name, additional_fields=None):
+    def add_pretty_table(
+        self, content: MyPrettyTable, name: str, additional_fields: Optional[Dict] = None
+    ):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"content": content.to_json(), "name": name}
@@ -461,7 +475,9 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_other(self, name, source_mapping, slither, additional_fields=None):
+    def add_other(
+        self, name: str, source_mapping, slither, additional_fields: Optional[Dict] = None
+    ):
         # If this a tuple with (filename, start, end), convert it to a source mapping.
         if additional_fields is None:
             additional_fields = {}
