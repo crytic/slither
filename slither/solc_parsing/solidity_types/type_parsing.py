@@ -1,6 +1,8 @@
 import logging
+from typing import List, TYPE_CHECKING, Union, Dict
 
 from slither.core.solidity_types.elementary_type import ElementaryType, ElementaryTypeName
+from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.mapping_type import MappingType
@@ -16,6 +18,9 @@ from slither.core.expressions.literal import Literal
 from slither.solc_parsing.exceptions import ParsingError
 import re
 
+if TYPE_CHECKING:
+    from slither.core.declarations import Structure, Enum
+
 logger = logging.getLogger("TypeParsing")
 
 
@@ -28,7 +33,13 @@ class UnknownType:
         return self._name
 
 
-def _find_from_type_name(name, contract, contracts, structures, enums):
+def _find_from_type_name(
+    name: str,
+    contract: Contract,
+    contracts: List[Contract],
+    structures: List["Structure"],
+    enums: List["Enum"],
+) -> Type:
     name_elementary = name.split(" ")[0]
     if "[" in name_elementary:
         name_elementary = name_elementary[0 : name_elementary.find("[")]
@@ -134,7 +145,7 @@ def _find_from_type_name(name, contract, contracts, structures, enums):
     return UserDefinedType(var_type)
 
 
-def parse_type(t, caller_context):
+def parse_type(t: Union[Dict, UnknownType], caller_context):
     # local import to avoid circular dependency
     from slither.solc_parsing.expressions.expression_parsing import parse_expression
     from slither.solc_parsing.variables.function_type_variable import FunctionTypeVariableSolc

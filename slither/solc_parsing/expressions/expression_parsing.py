@@ -1,7 +1,8 @@
 import logging
 import re
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING, Optional, Tuple, Union
 
+from slither.core.declarations import Event, Enum, Structure
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function
 from slither.core.declarations.solidity_variables import (
@@ -33,6 +34,7 @@ from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
 from slither.core.expressions.unary_operation import UnaryOperation, UnaryOperationType
 from slither.core.solidity_types import ArrayType, ElementaryType, FunctionType, MappingType
+from slither.core.variables.variable import Variable
 from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 
@@ -49,7 +51,7 @@ logger = logging.getLogger("ExpressionParsing")
 ###################################################################################
 
 
-def get_pointer_name(variable):
+def get_pointer_name(variable: Variable):
     curr_type = variable.type
     while isinstance(curr_type, (ArrayType, MappingType)):
         if isinstance(curr_type, ArrayType):
@@ -63,7 +65,11 @@ def get_pointer_name(variable):
     return None
 
 
-def find_variable(var_name, caller_context, referenced_declaration=None, is_super=False):
+def find_variable(
+    var_name: str, caller_context, referenced_declaration: Optional[int] = None, is_super=False
+) -> Union[
+    Variable, Function, Contract, SolidityVariable, SolidityFunction, Event, Enum, Structure
+]:
     # variable are looked from the contract declarer
     # functions can be shadowed, but are looked from the contract instance, rather than the contract declarer
     # the difference between function and variable come from the fact that an internal call, or an variable access
@@ -199,7 +205,7 @@ def find_variable(var_name, caller_context, referenced_declaration=None, is_supe
 ###################################################################################
 
 
-def filter_name(value):
+def filter_name(value: str) -> str:
     value = value.replace(" memory", "")
     value = value.replace(" storage", "")
     value = value.replace(" external", "")
@@ -243,7 +249,7 @@ def filter_name(value):
 ###################################################################################
 
 
-def parse_call(expression, caller_context):
+def parse_call(expression: Dict, caller_context):
     src = expression["src"]
     if caller_context.is_compact_ast:
         attributes = expression
@@ -320,7 +326,7 @@ def parse_call(expression, caller_context):
     return call_expression
 
 
-def parse_super_name(expression, is_compact_ast):
+def parse_super_name(expression: Dict, is_compact_ast: bool) -> str:
     if is_compact_ast:
         assert expression["nodeType"] == "MemberAccess"
         base_name = expression["memberName"]
@@ -342,7 +348,9 @@ def parse_super_name(expression, is_compact_ast):
     return base_name + arguments
 
 
-def _parse_elementary_type_name_expression(expression, is_compact_ast, caller_context):
+def _parse_elementary_type_name_expression(
+    expression: Dict, is_compact_ast: bool, caller_context
+) -> ElementaryTypeNameExpression:
     # nop exression
     # uint;
     if is_compact_ast:

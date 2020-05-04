@@ -19,10 +19,10 @@ from slither.solc_parsing.variables.state_variable import StateVariableSolc
 LOGGER = logging.getLogger("ContractSolcParsing")
 
 
-class ContractSolc04(Contract):
+class ContractSolc(Contract):
     def __init__(self, slitherSolc, data):
         # assert slitherSolc.solc_version.startswith('0.4')
-        super(ContractSolc04, self).__init__()
+        super(ContractSolc, self).__init__()
 
         self.set_slither(slitherSolc)
         self._data = data

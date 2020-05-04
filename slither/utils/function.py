@@ -1,7 +1,7 @@
 import sha3
 
 
-def get_function_id(sig):
+def get_function_id(sig: str) -> int:
     """'
         Return the function id of the given signature
     Args:

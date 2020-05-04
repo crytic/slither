@@ -2,12 +2,13 @@ import os
 import json
 import re
 import logging
+from typing import List, Dict
 
 logging.basicConfig()
 logger = logging.getLogger("SlitherSolcParsing")
 logger.setLevel(logging.INFO)
 
-from slither.solc_parsing.declarations.contract import ContractSolc04
+from slither.solc_parsing.declarations.contract import ContractSolc
 from slither.core.slither_core import Slither
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.import_directive import Import
@@ -17,9 +18,9 @@ from slither.analyses.data_dependency.data_dependency import compute_dependency
 class SlitherSolc(Slither):
     def __init__(self, filename):
         super(SlitherSolc, self).__init__()
-        self._filename = filename
-        self._contractsNotParsed = []
-        self._contracts_by_id = {}
+        self._filename: str = filename
+        self._contractsNotParsed: List[ContractSolc] = []
+        self._contracts_by_id: Dict[int, ContractSolc] = {}
         self._analyzed = False
 
         self._is_compact_ast = False
@@ -30,18 +31,18 @@ class SlitherSolc(Slither):
     ###################################################################################
     ###################################################################################
 
-    def get_key(self):
+    def get_key(self) -> str:
         if self._is_compact_ast:
             return "nodeType"
         return "name"
 
-    def get_children(self):
+    def get_children(self) -> str:
         if self._is_compact_ast:
             return "nodes"
         return "children"
 
     @property
-    def is_compact_ast(self):
+    def is_compact_ast(self) -> bool:
         return self._is_compact_ast
 
     # endregion
@@ -51,7 +52,7 @@ class SlitherSolc(Slither):
     ###################################################################################
     ###################################################################################
 
-    def _parse_contracts_from_json(self, json_data):
+    def _parse_contracts_from_json(self, json_data: str) -> bool:
         try:
             data_loaded = json.loads(json_data)
             # Truffle AST
@@ -81,7 +82,7 @@ class SlitherSolc(Slither):
                 return True
             return False
 
-    def _parse_contracts_from_loaded_json(self, data_loaded, filename):
+    def _parse_contracts_from_loaded_json(self, data_loaded: Dict, filename: str):
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
 
@@ -109,7 +110,7 @@ class SlitherSolc(Slither):
                 "ImportDirective",
             ]
             if contract_data[self.get_key()] == "ContractDefinition":
-                contract = ContractSolc04(self, contract_data)
+                contract = ContractSolc(self, contract_data)
                 if "src" in contract_data:
                     contract.set_offset(contract_data["src"], self)
                 self._contractsNotParsed.append(contract)
@@ -128,7 +129,7 @@ class SlitherSolc(Slither):
                 import_directive.set_offset(contract_data["src"], self)
                 self._import_directives.append(import_directive)
 
-    def _parse_source_unit(self, data, filename):
+    def _parse_source_unit(self, data: Dict, filename: str):
         if data[self.get_key()] != "SourceUnit":
             return -1  # handle solc prior 0.3.6
 
@@ -171,7 +172,7 @@ class SlitherSolc(Slither):
     ###################################################################################
 
     @property
-    def analyzed(self):
+    def analyzed(self) -> bool:
         return self._analyzed
 
     def _analyze_contracts(self):
@@ -269,7 +270,7 @@ class SlitherSolc(Slither):
 
         compute_dependency(self)
 
-    def _analyze_all_enums(self, contracts_to_be_analyzed):
+    def _analyze_all_enums(self, contracts_to_be_analyzed: List[ContractSolc]):
         while contracts_to_be_analyzed:
             contract = contracts_to_be_analyzed[0]
 
@@ -282,7 +283,9 @@ class SlitherSolc(Slither):
                 contracts_to_be_analyzed += [contract]
         return
 
-    def _analyze_first_part(self, contracts_to_be_analyzed, libraries):
+    def _analyze_first_part(
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+    ):
         for lib in libraries:
             self._parse_struct_var_modifiers_functions(lib)
 
@@ -303,7 +306,9 @@ class SlitherSolc(Slither):
                 contracts_to_be_analyzed += [contract]
         return
 
-    def _analyze_second_part(self, contracts_to_be_analyzed, libraries):
+    def _analyze_second_part(
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+    ):
         for lib in libraries:
             self._analyze_struct_events(lib)
 
@@ -324,7 +329,9 @@ class SlitherSolc(Slither):
                 contracts_to_be_analyzed += [contract]
         return
 
-    def _analyze_third_part(self, contracts_to_be_analyzed, libraries):
+    def _analyze_third_part(
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+    ):
         for lib in libraries:
             self._analyze_variables_modifiers_functions(lib)
 
@@ -345,19 +352,19 @@ class SlitherSolc(Slither):
                 contracts_to_be_analyzed += [contract]
         return
 
-    def _analyze_enums(self, contract):
+    def _analyze_enums(self, contract: ContractSolc):
         # Enum must be analyzed first
         contract.analyze_enums()
         contract.set_is_analyzed(True)
 
-    def _parse_struct_var_modifiers_functions(self, contract):
+    def _parse_struct_var_modifiers_functions(self, contract: ContractSolc):
         contract.parse_structs()  # struct can refer another struct
         contract.parse_state_variables()
         contract.parse_modifiers()
         contract.parse_functions()
         contract.set_is_analyzed(True)
 
-    def _analyze_struct_events(self, contract):
+    def _analyze_struct_events(self, contract: ContractSolc):
 
         contract.analyze_constant_state_variables()
 
@@ -370,7 +377,7 @@ class SlitherSolc(Slither):
 
         contract.set_is_analyzed(True)
 
-    def _analyze_variables_modifiers_functions(self, contract):
+    def _analyze_variables_modifiers_functions(self, contract: ContractSolc):
         # State variables, modifiers and functions can refer to anything
 
         contract.analyze_params_modifiers()

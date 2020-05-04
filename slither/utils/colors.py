@@ -12,14 +12,14 @@ class Colors:
     END = "\033[0m"
 
 
-def colorize(color, txt):
+def colorize(color: Colors, txt: str) -> str:
     if Colors.COLORIZATION_ENABLED:
         return "{}{}{}".format(color, txt, Colors.END)
     else:
         return txt
 
 
-def enable_windows_virtual_terminal_sequences():
+def enable_windows_virtual_terminal_sequences() -> bool:
     """
     Sets the appropriate flags to enable virtual terminal sequences in a Windows command prompt.
     Reference: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
@@ -63,7 +63,7 @@ def enable_windows_virtual_terminal_sequences():
     return True
 
 
-def set_colorization_enabled(enabled):
+def set_colorization_enabled(enabled: bool):
     """
     Sets the enabled state of output colorization.
     :param enabled: Boolean indicating whether output should be colorized.

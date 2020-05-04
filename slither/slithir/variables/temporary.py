@@ -1,6 +1,10 @@
-from .variable import SlithIRVariable
-from slither.core.variables.variable import Variable
+from typing import TYPE_CHECKING
+
 from slither.core.children.child_node import ChildNode
+from slither.core.variables.variable import Variable
+
+if TYPE_CHECKING:
+    from slither.core.cfg.node import Node
 
 
 class TemporaryVariable(ChildNode, Variable):
@@ -14,10 +18,10 @@ class TemporaryVariable(ChildNode, Variable):
             TemporaryVariable.COUNTER += 1
         else:
             self._index = index
-        self._node = node
+        self._node: "Node" = node
 
     @property
-    def index(self):
+    def index(self) -> int:
         return self._index
 
     @index.setter
@@ -25,8 +29,12 @@ class TemporaryVariable(ChildNode, Variable):
         self._index = idx
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "TMP_{}".format(self.index)
+
+    @name.setter
+    def name(self, name):
+        self._name = name
 
     def __str__(self):
         return self.name

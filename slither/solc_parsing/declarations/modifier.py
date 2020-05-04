@@ -1,10 +1,12 @@
 """
     Event module
 """
+from typing import Dict
+
 from slither.core.declarations.modifier import Modifier
 from slither.solc_parsing.declarations.function import FunctionSolc
 
-from slither.core.cfg.node import NodeType
+from slither.core.cfg.node import NodeType, Node
 from slither.core.cfg.node import link_nodes
 
 
@@ -63,7 +65,7 @@ class ModifierSolc(Modifier, FunctionSolc):
         self._analyze_read_write()
         self._analyze_calls()
 
-    def _parse_statement(self, statement, node):
+    def _parse_statement(self, statement: Dict, node: Node):
         name = statement[self.get_key()]
         if name == "PlaceholderStatement":
             placeholder_node = self._new_node(NodeType.PLACEHOLDER, statement["src"])

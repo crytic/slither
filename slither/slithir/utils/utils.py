@@ -1,3 +1,5 @@
+from typing import Union
+
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 
@@ -23,6 +25,9 @@ def is_valid_rvalue(v):
             MemberVariable,
         ),
     )
+
+
+VALID_LVALUE = Union[StateVariable, LocalVariable, TemporaryVariable, IndexVariable, MemberVariable, TupleVariable]
 
 
 def is_valid_lvalue(v):

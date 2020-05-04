@@ -11,7 +11,7 @@ class MyPrettyTable:
     def add_row(self, row):
         self._rows.append(row)
 
-    def to_pretty_table(self):
+    def to_pretty_table(self) -> PrettyTable:
         table = PrettyTable(self._field_names)
         for row in self._rows:
             table.add_row(row)

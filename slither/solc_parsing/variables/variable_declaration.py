@@ -1,4 +1,6 @@
 import logging
+from typing import Dict
+
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 
 from slither.core.variables.variable import Variable
@@ -22,7 +24,7 @@ class MultipleVariablesDeclaration(Exception):
 
 
 class VariableDeclarationSolc(Variable):
-    def __init__(self, var):
+    def __init__(self, var: Dict):
         """
             A variable can be declared through a statement, or directly.
             If it is through a statement, the following children may contain
@@ -66,7 +68,7 @@ class VariableDeclarationSolc(Variable):
                 elif len(var["children"]) > 2:
                     raise MultipleVariablesDeclaration
                 else:
-                    raise ParsingError("Variable declaration without children?" + var)
+                    raise ParsingError("Variable declaration without children?" + str(var))
                 declaration = var["children"][0]
                 self._init_from_declaration(declaration, init)
             elif nodeType == "VariableDeclaration":
@@ -75,28 +77,28 @@ class VariableDeclarationSolc(Variable):
                 raise ParsingError("Incorrect variable declaration type {}".format(nodeType))
 
     @property
-    def initialized(self):
+    def initialized(self) -> bool:
         return self._initialized
 
     @property
-    def uninitialized(self):
+    def uninitialized(self) -> bool:
         return not self._initialized
 
     @property
-    def reference_id(self):
+    def reference_id(self) -> int:
         """
             Return the solc id. It can be compared with the referencedDeclaration attr
             Returns None if it was not parsed (legacy AST)
         """
         return self._reference_id
 
-    def _analyze_variable_attributes(self, attributes):
+    def _analyze_variable_attributes(self, attributes: Dict):
         if "visibility" in attributes:
             self._visibility = attributes["visibility"]
         else:
             self._visibility = "internal"
 
-    def _init_from_declaration(self, var, init):
+    def _init_from_declaration(self, var: Dict, init: bool):
         if self._is_compact_ast:
             attributes = var
             self._typeName = attributes["typeDescriptions"]["typeString"]

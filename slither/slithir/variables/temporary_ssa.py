@@ -13,5 +13,5 @@ class TemporaryVariableSSA(TemporaryVariable):
         self._non_ssa_version = temporary
 
     @property
-    def non_ssa_version(self):
+    def non_ssa_version(self) -> TemporaryVariable:
         return self._non_ssa_version

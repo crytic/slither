@@ -1,9 +1,7 @@
 from slither.core.declarations import SolidityVariableComposed
 from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.variables.index_variable import IndexVariable
-
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
-from slither.slithir.variables.reference import ReferenceVariable
+from slither.slithir.variables.index_variable import IndexVariable
 
 
 class Index(OperationWithLValue):
