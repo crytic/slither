@@ -1,11 +1,12 @@
-from .variable import SlithIRVariable
-from .temporary import TemporaryVariable
+from typing import Union, Set
+
 from slither.core.variables.local_variable import LocalVariable
-from slither.core.children.child_node import ChildNode
+from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.variables.variable import SlithIRVariable
 
 
 class LocalIRVariable(LocalVariable, SlithIRVariable):
-    def __init__(self, local_variable):
+    def __init__(self, local_variable: LocalVariable):
         assert isinstance(local_variable, LocalVariable)
 
         super(LocalIRVariable, self).__init__()
@@ -29,7 +30,7 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
 
         # Additional field
         # points to state variables
-        self._refers_to = set()
+        self._refers_to: Set[Union[SlithIRVariable, TemporaryVariable]] = set()
 
         # keep un-ssa version
         if isinstance(local_variable, LocalIRVariable):
@@ -38,7 +39,7 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
             self._non_ssa_version = local_variable
 
     @property
-    def index(self):
+    def index(self) -> int:
         return self._index
 
     @index.setter
@@ -46,7 +47,7 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
         self._index = idx
 
     @property
-    def refers_to(self):
+    def refers_to(self) -> Set[Union[SlithIRVariable, TemporaryVariable]]:
         if self.is_storage:
             return self._refers_to
         return set()
@@ -56,7 +57,7 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
         self._refers_to = variables
 
     @property
-    def non_ssa_version(self):
+    def non_ssa_version(self) -> Union[LocalVariable]:
         return self._non_ssa_version
 
     def add_refers_to(self, variable):
@@ -66,7 +67,7 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):
         self._refers_to.add(variable)
 
     @property
-    def ssa_name(self):
+    def ssa_name(self) -> str:
         # if self.is_storage:
         #     return '{}_{} (-> {})'.format(self._name,
         #                                      self.index,

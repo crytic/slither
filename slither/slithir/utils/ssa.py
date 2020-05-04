@@ -449,19 +449,16 @@ def is_used_later(initial_node, variable):
 def create_new_var(var, instances, instances_temporary):
     if isinstance(var, LocalIRVariable):
         new_var = LocalIRVariable(var)
-        new_var.generate_ssa_phi_info()
         new_var.index = instances.all_local_variables[var.name].index + 1
         instances.all_local_variables[var.name] = new_var
         instances.local_variables[var.name] = new_var
     elif isinstance(var, StateIRVariable):
         new_var = StateIRVariable(var)
-        new_var.generate_ssa_phi_info()
         new_var.index = instances.all_state_variables[var.canonical_name].index + 1
         instances.all_state_variables[var.canonical_name] = new_var
         instances.state_variables[var.canonical_name] = new_var
     elif isinstance(var, MemberVariableSSA):
         new_var = MemberVariableSSA(var)
-        new_var.generate_ssa_phi_info()
         new_var.index_ssa = var.index_ssa + 1
         if var.points_to:
             new_var.points_to = get(var.points_to, instances, instances_temporary)
@@ -470,7 +467,6 @@ def create_new_var(var, instances, instances_temporary):
         instances_temporary.member_variables[new_var.index] = new_var
     elif isinstance(var, IndexVariableSSA):
         new_var = IndexVariableSSA(var)
-        new_var.generate_ssa_phi_info()
         new_var.index_ssa = var.index_ssa + 1
         if var.points_to:
             new_var.points_to = get(var.points_to, instances, instances_temporary)

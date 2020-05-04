@@ -1,6 +1,11 @@
-from .variable import SlithIRVariable
+from typing import Optional, TYPE_CHECKING
+
 from slither.core.variables.state_variable import StateVariable
-from slither.core.children.child_node import ChildNode
+from slither.slithir.variables.variable import SlithIRVariable
+
+if TYPE_CHECKING:
+    from slither.core.solidity_types.type import Type
+    from slither.core.expressions.expression import Expression
 
 
 class StateIRVariable(StateVariable, SlithIRVariable):
@@ -13,14 +18,14 @@ class StateIRVariable(StateVariable, SlithIRVariable):
         self.set_contract(state_variable.contract)
 
         # initiate Variable
-        self._name = state_variable.name
-        self._initial_expression = state_variable.expression
-        self._type = state_variable.type
-        self._initialized = state_variable.initialized
-        self._visibility = state_variable.visibility
-        self._is_constant = state_variable.is_constant
+        self._name: str = state_variable.name
+        self._initial_expression: Optional["Expression"] = state_variable.expression
+        self._type: Optional["Type"] = state_variable.type
+        self._initialized: Optional[bool] = state_variable.initialized
+        self._visibility: Optional[str] = state_variable.visibility
+        self._is_constant: bool = state_variable.is_constant
 
-        self._index = 0
+        self._index: int = 0
 
         # keep un-ssa version
         if isinstance(state_variable, StateIRVariable):
@@ -29,7 +34,7 @@ class StateIRVariable(StateVariable, SlithIRVariable):
             self._non_ssa_version = state_variable
 
     @property
-    def index(self):
+    def index(self) -> int:
         return self._index
 
     @index.setter
@@ -37,9 +42,9 @@ class StateIRVariable(StateVariable, SlithIRVariable):
         self._index = idx
 
     @property
-    def non_ssa_version(self):
+    def non_ssa_version(self) -> StateVariable:
         return self._non_ssa_version
 
     @property
-    def ssa_name(self):
+    def ssa_name(self) -> str:
         return "{}_{}".format(self._name, self.index)

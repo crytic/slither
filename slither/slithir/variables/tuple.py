@@ -1,8 +1,10 @@
-from .variable import SlithIRVariable
-from slither.core.variables.variable import Variable
-from slither.core.children.child_node import ChildNode
+from typing import TYPE_CHECKING
 
-from slither.core.solidity_types.type import Type
+from slither.core.children.child_node import ChildNode
+from slither.slithir.variables.variable import SlithIRVariable
+
+if TYPE_CHECKING:
+    from slither.core.cfg.node import Node
 
 
 class TupleVariable(ChildNode, SlithIRVariable):
@@ -17,10 +19,10 @@ class TupleVariable(ChildNode, SlithIRVariable):
         else:
             self._index = index
 
-        self._node = node
+        self._node: "Node" = node
 
     @property
-    def index(self):
+    def index(self) -> int:
         return self._index
 
     @index.setter
@@ -28,8 +30,12 @@ class TupleVariable(ChildNode, SlithIRVariable):
         self._index = idx
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "TUPLE_{}".format(self.index)
+
+    @name.setter
+    def name(self, name):
+        self._name = name
 
     def __str__(self):
         return self.name
