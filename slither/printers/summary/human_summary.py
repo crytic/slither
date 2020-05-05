@@ -2,14 +2,20 @@
 Module printing summary of the contract
 """
 import logging
+from pathlib import Path
 from typing import Tuple, List, Dict
 
+from slither.core.declarations import SolidityFunction, Function
+from slither.core.variables.state_variable import StateVariable
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.slithir.operations import LowLevelCall, HighLevelCall, Transfer, Send, SolidityCall
 from slither.utils import output
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 from slither.utils.colors import green, red, yellow
+from slither.utils.myprettytable import MyPrettyTable
 from slither.utils.standard_libraries import is_standard_library
 from slither.core.cfg.node import NodeType
+from slither.utils.tests_pattern import is_test_file
 
 
 class PrinterHumanSummary(AbstractPrinter):
@@ -27,40 +33,36 @@ class PrinterHumanSummary(AbstractPrinter):
         pause = 'pause' in functions_name
 
         if 'mint' in functions_name:
-            if not 'mintingFinished' in state_variables:
-                mint_limited = False
+            if 'mintingFinished' in state_variables:
+                mint_unlimited = False
             else:
-                mint_limited = True
+                mint_unlimited = True
         else:
-            mint_limited = None  # no minting
+            mint_unlimited = None  # no minting
 
         race_condition_mitigated = 'increaseApproval' in functions_name or \
                                    'safeIncreaseAllowance' in functions_name
 
-        return pause, mint_limited, race_condition_mitigated
+        return pause, mint_unlimited, race_condition_mitigated
 
     def get_summary_erc20(self, contract):
         txt = ''
 
-        pause, mint_limited, race_condition_mitigated = self._get_summary_erc20(contract)
+        pause, mint_unlimited, race_condition_mitigated = self._get_summary_erc20(contract)
 
         if pause:
-            txt += "\t\t Can be paused? : {}\n".format(yellow('Yes'))
-        else:
-            txt += "\t\t Can be paused? : {}\n".format(green('No'))
+            txt += yellow("Pausable") + "\n"
 
-        if mint_limited is None:
-            txt += "\t\t Minting restriction? : {}\n".format(green('No Minting'))
+        if mint_unlimited is None:
+            txt += green("No Minting") + "\n"
         else:
-            if mint_limited:
-                txt += "\t\t Minting restriction? : {}\n".format(red('Yes'))
+            if mint_unlimited:
+                txt += red("∞ Minting") + "\n"
             else:
-                txt += "\t\t Minting restriction? : {}\n".format(yellow('No'))
+                txt += yellow("Minting") + "\n"
 
-        if race_condition_mitigated:
-            txt += "\t\t ERC20 race condition mitigation: {}\n".format(green('Yes'))
-        else:
-            txt += "\t\t ERC20 race condition mitigation: {}\n".format(red('No'))
+        if not race_condition_mitigated:
+            txt += red("Approve Race Cond.") + "\n"
 
         return txt
 
@@ -139,8 +141,7 @@ class PrinterHumanSummary(AbstractPrinter):
         is_complex = self._is_complex_code(contract)
 
         result = red('Yes') if is_complex else green('No')
-
-        return "\tComplex code? {}\n".format(result)
+        return result
 
     @staticmethod
     def _number_functions(contract):
@@ -151,6 +152,8 @@ class PrinterHumanSummary(AbstractPrinter):
             return None
         total_dep_lines = 0
         total_lines = 0
+        total_tests_lines = 0
+
         for filename, source_code in self.slither.source_code.items():
             lines = len(source_code.splitlines())
             is_dep = False
@@ -159,8 +162,11 @@ class PrinterHumanSummary(AbstractPrinter):
             if is_dep:
                 total_dep_lines += lines
             else:
-                total_lines += lines
-        return total_lines, total_dep_lines
+                if is_test_file(Path(filename)):
+                    total_tests_lines += lines
+                else:
+                    total_lines += lines
+        return total_lines, total_dep_lines, total_tests_lines
 
     def _get_number_of_assembly_lines(self):
         total_asm_lines = 0
@@ -176,14 +182,14 @@ class PrinterHumanSummary(AbstractPrinter):
     def _compilation_type(self):
         if self.slither.crytic_compile is None:
             return 'Compilation non standard\n'
-        return f'Compiled with {self.slither.crytic_compile.type}\n'
+        return f'Compiled with {str(self.slither.crytic_compile.type)}\n'
 
     def _number_contracts(self):
         if self.slither.crytic_compile is None:
             len(self.slither.contracts), 0
         deps = [c for c in self.slither.contracts if c.is_from_dependency()]
-        contracts = [c for c in self.slither.contracts if not c.is_from_dependency()]
-        return len(contracts), len(deps)
+        tests = [c for c in self.slither.contracts if c.is_test]
+        return len(self.slither.contracts) - len(deps) - len(tests), len(deps), len(tests)
 
     def _standard_libraries(self):
         libraries = []
@@ -199,6 +205,59 @@ class PrinterHumanSummary(AbstractPrinter):
         for contract in self.contracts:
             ercs += contract.ercs()
         return list(set(ercs))
+
+    def _get_features(self, contract):
+
+        has_payable = False
+        can_send_eth = False
+        can_selfdestruct = False
+        has_ecrecover = False
+        can_delegatecall = False
+        has_token_interaction = False
+
+        has_assembly = False
+
+        use_abi_encoder = False
+
+        for pragma in self.slither.pragma_directives:
+            if pragma.source_mapping["filename_absolute"] == contract.source_mapping["filename_absolute"]:
+                if pragma.is_abi_encoder_v2:
+                    use_abi_encoder = True
+
+        for function in contract.functions:
+            if function.payable:
+                has_payable = True
+
+            if function.contains_assembly:
+                has_assembly = True
+
+            for ir in function.slithir_operations:
+                if isinstance(ir, (LowLevelCall, HighLevelCall, Send, Transfer)) and ir.call_value:
+                    can_send_eth = True
+                if isinstance(ir, SolidityCall) and ir.function in [SolidityFunction("suicide(address)"),
+                                                                    SolidityFunction("selfdestruct(address)")]:
+                    can_selfdestruct = True
+                if (isinstance(ir, SolidityCall) and
+                        ir.function  == SolidityFunction("ecrecover(bytes32,uint8,bytes32,bytes32)")):
+                    has_ecrecover = True
+                if isinstance(ir, LowLevelCall) and ir.function_name in ["delegatecall", "callcode"]:
+                    can_delegatecall = True
+                if isinstance(ir, HighLevelCall):
+                    if isinstance(ir.function, (Function, StateVariable)) and ir.function.contract.is_possible_token:
+                        has_token_interaction = True
+
+        return {
+            "Receive ETH": has_payable,
+            "Send ETH": can_send_eth,
+            "Selfdestruct": can_selfdestruct,
+            "Ecrecover": has_ecrecover,
+            "Delegatecall": can_delegatecall,
+            "Tokens interaction": has_token_interaction,
+            "AbiEncoderV2": use_abi_encoder,
+            "Assembly": has_assembly,
+            "Upgradeable": contract.is_upgradeable,
+            "Proxy": contract.is_upgradeable_proxy,
+        }
 
     def output(self, _filename):
         """
@@ -225,16 +284,16 @@ class PrinterHumanSummary(AbstractPrinter):
 
         lines_number = self._lines_number()
         if lines_number:
-            total_lines, total_dep_lines = lines_number
-            txt += f'Number of lines: {total_lines} (+ {total_dep_lines} in dependencies)\n'
+            total_lines, total_dep_lines, total_tests_lines = lines_number
+            txt += f'Number of lines: {total_lines} (+ {total_dep_lines} in dependencies, + {total_tests_lines} in tests)\n'
             results['number_lines'] = total_lines
             results['number_lines__dependencies'] = total_dep_lines
             total_asm_lines = self._get_number_of_assembly_lines()
             txt += f"Number of assembly lines: {total_asm_lines}\n"
             results['number_lines_assembly'] = total_asm_lines
 
-        number_contracts, number_contracts_deps = self._number_contracts()
-        txt += f'Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies) \n\n'
+        number_contracts, number_contracts_deps, number_contracts_tests = self._number_contracts()
+        txt += f'Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies, + {number_contracts_tests} tests) \n\n'
 
         txt_detectors, detectors_results, optimization, info, low, medium, high = self.get_detectors_result()
         txt += txt_detectors
@@ -258,26 +317,36 @@ class PrinterHumanSummary(AbstractPrinter):
             txt += f'ERCs: {", ".join(ercs)}\n'
             results['ercs'] = [str(e) for e in ercs]
 
+        table = MyPrettyTable(["Name", "# functions", "ERCS", "ERC20 info", "Complex code", "Features"])
         for contract in self.slither.contracts_derived:
-            txt += "\nContract {}\n".format(contract.name)
-            txt += self.is_complex_code(contract)
-            txt += '\tNumber of functions: {}\n'.format(self._number_functions(contract))
-            ercs = contract.ercs()
-            if ercs:
-                txt += '\tERCs: ' + ','.join(ercs) + '\n'
-            is_erc20 = contract.is_erc20()
-            if is_erc20:
-                txt += '\tERC20 info:\n'
-                txt += self.get_summary_erc20(contract)
 
-        self.info(txt)
+            if contract.is_from_dependency() or contract.is_test:
+                continue
+
+            is_complex = self.is_complex_code(contract)
+            number_functions = self._number_functions(contract)
+            ercs = ','.join(contract.ercs())
+            is_erc20 = contract.is_erc20()
+            erc20_info = ''
+            if is_erc20:
+                erc20_info += self.get_summary_erc20(contract)
+
+            features = "\n".join([name for name, to_print in self._get_features(contract).items() if to_print])
+
+            table.add_row([contract.name, number_functions, ercs, erc20_info, is_complex, features])
+
+        self.info(txt + '\n' + str(table))
 
         results_contract = output.Output('')
         for contract in self.slither.contracts_derived:
+            if contract.is_test or contract.is_from_dependency():
+                continue
+
             contract_d = {'contract_name': contract.name,
                           'is_complex_code': self._is_complex_code(contract),
                           'is_erc20': contract.is_erc20(),
-                          'number_functions': self._number_functions(contract)}
+                          'number_functions': self._number_functions(contract),
+                          'features': [name for name, to_print in self._get_features(contract).items() if to_print]}
             if contract_d['is_erc20']:
                 pause, mint_limited, race_condition_mitigated = self._get_summary_erc20(contract)
                 contract_d['erc20_pause'] = pause
@@ -287,7 +356,6 @@ class PrinterHumanSummary(AbstractPrinter):
                 else:
                     contract_d['erc20_can_mint'] = False
                 contract_d['erc20_race_condition_mitigated'] = race_condition_mitigated
-
             results_contract.add_contract(contract, additional_fields=contract_d)
 
         results['contracts']['elements'] = results_contract.elements
