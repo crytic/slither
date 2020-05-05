@@ -236,7 +236,8 @@ class PrinterHumanSummary(AbstractPrinter):
         number_contracts, number_contracts_deps = self._number_contracts()
         txt += f'Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies) \n\n'
 
-        txt, detectors_results, optimization, info, low, medium, high = self.get_detectors_result()
+        txt_detectors, detectors_results, optimization, info, low, medium, high = self.get_detectors_result()
+        txt += txt_detectors
 
         results['number_findings'] = {
             'optimization_issues': optimization,
