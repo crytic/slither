@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class StateIRVariable(StateVariable, SlithIRVariable):
-    def __init__(self, state_variable):
+    def __init__(self, state_variable: StateVariable):
         assert isinstance(state_variable, StateVariable)
 
         super(StateVariable, self).__init__()

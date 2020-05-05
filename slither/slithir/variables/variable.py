@@ -1,7 +1,6 @@
-from typing import Dict, TYPE_CHECKING
+from typing import Dict
 
 from slither.core.variables.variable import Variable
-
 
 
 class SlithIRVariable(Variable):

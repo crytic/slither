@@ -1,9 +1,14 @@
+from typing import Optional, TYPE_CHECKING, Union, List
+
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
 from slither.core.declarations.solidity_variables import SolidityVariable
 
 from slither.slithir.variables.constant import Constant
+
+if TYPE_CHECKING:
+    from slither.slithir.utils.utils import VALID_RVALUE, VALID_LVALUE
 
 
 class LowLevelCall(Call, OperationWithLValue):
@@ -15,18 +20,18 @@ class LowLevelCall(Call, OperationWithLValue):
         assert isinstance(destination, (Variable, SolidityVariable))
         assert isinstance(function_name, Constant)
         super(LowLevelCall, self).__init__()
-        self._destination = destination
-        self._function_name = function_name
-        self._nbr_arguments = nbr_arguments
-        self._type_call = type_call
-        self._lvalue = result
-        self._callid = None  # only used if gas/value != 0
+        self._destination: Union[Variable, SolidityVariable] = destination
+        self._function_name: Constant = function_name
+        self._nbr_arguments: int = nbr_arguments
+        self._type_call: str = type_call
+        self._lvalue: Optional["VALID_LVALUE"] = result
+        self._callid: Optional[str] = None  # only used if gas/value != 0
 
-        self._call_value = None
-        self._call_gas = None
+        self._call_value: Optional["VALID_RVALUE"] = None
+        self._call_gas: Optional["VALID_RVALUE"] = None
 
     @property
-    def call_id(self):
+    def call_id(self) -> Optional[str]:
         return self._callid
 
     @call_id.setter
@@ -34,7 +39,7 @@ class LowLevelCall(Call, OperationWithLValue):
         self._callid = c
 
     @property
-    def call_value(self):
+    def call_value(self) -> Optional["VALID_RVALUE"]:
         return self._call_value
 
     @call_value.setter
@@ -42,7 +47,7 @@ class LowLevelCall(Call, OperationWithLValue):
         self._call_value = v
 
     @property
-    def call_gas(self):
+    def call_gas(self) -> Optional["VALID_RVALUE"]:
         return self._call_gas
 
     @call_gas.setter
@@ -50,7 +55,7 @@ class LowLevelCall(Call, OperationWithLValue):
         self._call_gas = v
 
     @property
-    def read(self):
+    def read(self) -> List["VALID_RVALUE"]:
         all_read = [self.destination, self.call_gas, self.call_value] + self.arguments
         # remove None
         return self._unroll([x for x in all_read if x])

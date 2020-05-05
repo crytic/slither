@@ -1,7 +1,7 @@
 """
     Variable module
 """
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, List, Union
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.solidity_types.type import Type
@@ -66,7 +66,7 @@ class Variable(SourceMapping):
         self._name = name
 
     @property
-    def type(self) -> Optional[Type]:
+    def type(self) -> Optional[Union[Type, List[Type]]]:
         return self._type
 
     @property
