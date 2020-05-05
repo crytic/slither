@@ -32,8 +32,8 @@ class PrinterHumanSummary(AbstractPrinter):
 
         pause = "pause" in functions_name
 
-        if 'mint' in functions_name:
-            if 'mintingFinished' in state_variables:
+        if "mint" in functions_name:
+            if "mintingFinished" in state_variables:
                 mint_unlimited = False
             else:
                 mint_unlimited = True
@@ -145,7 +145,7 @@ class PrinterHumanSummary(AbstractPrinter):
 
         is_complex = self._is_complex_code(contract)
 
-        result = red('Yes') if is_complex else green('No')
+        result = red("Yes") if is_complex else green("No")
         return result
 
     @staticmethod
@@ -186,8 +186,8 @@ class PrinterHumanSummary(AbstractPrinter):
 
     def _compilation_type(self):
         if self.slither.crytic_compile is None:
-            return 'Compilation non standard\n'
-        return f'Compiled with {str(self.slither.crytic_compile.type)}\n'
+            return "Compilation non standard\n"
+        return f"Compiled with {str(self.slither.crytic_compile.type)}\n"
 
     def _number_contracts(self):
         if self.slither.crytic_compile is None:
@@ -225,7 +225,10 @@ class PrinterHumanSummary(AbstractPrinter):
         use_abi_encoder = False
 
         for pragma in self.slither.pragma_directives:
-            if pragma.source_mapping["filename_absolute"] == contract.source_mapping["filename_absolute"]:
+            if (
+                pragma.source_mapping["filename_absolute"]
+                == contract.source_mapping["filename_absolute"]
+            ):
                 if pragma.is_abi_encoder_v2:
                     use_abi_encoder = True
 
@@ -239,16 +242,25 @@ class PrinterHumanSummary(AbstractPrinter):
             for ir in function.slithir_operations:
                 if isinstance(ir, (LowLevelCall, HighLevelCall, Send, Transfer)) and ir.call_value:
                     can_send_eth = True
-                if isinstance(ir, SolidityCall) and ir.function in [SolidityFunction("suicide(address)"),
-                                                                    SolidityFunction("selfdestruct(address)")]:
+                if isinstance(ir, SolidityCall) and ir.function in [
+                    SolidityFunction("suicide(address)"),
+                    SolidityFunction("selfdestruct(address)"),
+                ]:
                     can_selfdestruct = True
-                if (isinstance(ir, SolidityCall) and
-                        ir.function  == SolidityFunction("ecrecover(bytes32,uint8,bytes32,bytes32)")):
+                if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
+                    "ecrecover(bytes32,uint8,bytes32,bytes32)"
+                ):
                     has_ecrecover = True
-                if isinstance(ir, LowLevelCall) and ir.function_name in ["delegatecall", "callcode"]:
+                if isinstance(ir, LowLevelCall) and ir.function_name in [
+                    "delegatecall",
+                    "callcode",
+                ]:
                     can_delegatecall = True
                 if isinstance(ir, HighLevelCall):
-                    if isinstance(ir.function, (Function, StateVariable)) and ir.function.contract.is_possible_token:
+                    if (
+                        isinstance(ir.function, (Function, StateVariable))
+                        and ir.function.contract.is_possible_token
+                    ):
                         has_token_interaction = True
 
         return {
@@ -288,17 +300,25 @@ class PrinterHumanSummary(AbstractPrinter):
         lines_number = self._lines_number()
         if lines_number:
             total_lines, total_dep_lines, total_tests_lines = lines_number
-            txt += f'Number of lines: {total_lines} (+ {total_dep_lines} in dependencies, + {total_tests_lines} in tests)\n'
-            results['number_lines'] = total_lines
-            results['number_lines__dependencies'] = total_dep_lines
+            txt += f"Number of lines: {total_lines} (+ {total_dep_lines} in dependencies, + {total_tests_lines} in tests)\n"
+            results["number_lines"] = total_lines
+            results["number_lines__dependencies"] = total_dep_lines
             total_asm_lines = self._get_number_of_assembly_lines()
             txt += f"Number of assembly lines: {total_asm_lines}\n"
             results["number_lines_assembly"] = total_asm_lines
 
         number_contracts, number_contracts_deps, number_contracts_tests = self._number_contracts()
-        txt += f'Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies, + {number_contracts_tests} tests) \n\n'
+        txt += f"Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies, + {number_contracts_tests} tests) \n\n"
 
-        txt_detectors, detectors_results, optimization, info, low, medium, high = self.get_detectors_result()
+        (
+            txt_detectors,
+            detectors_results,
+            optimization,
+            info,
+            low,
+            medium,
+            high,
+        ) = self.get_detectors_result()
         txt += txt_detectors
 
         results["number_findings"] = {
@@ -320,7 +340,9 @@ class PrinterHumanSummary(AbstractPrinter):
             txt += f'ERCs: {", ".join(ercs)}\n'
             results["ercs"] = [str(e) for e in ercs]
 
-        table = MyPrettyTable(["Name", "# functions", "ERCS", "ERC20 info", "Complex code", "Features"])
+        table = MyPrettyTable(
+            ["Name", "# functions", "ERCS", "ERC20 info", "Complex code", "Features"]
+        )
         for contract in self.slither.contracts_derived:
 
             if contract.is_from_dependency() or contract.is_test:
@@ -328,37 +350,43 @@ class PrinterHumanSummary(AbstractPrinter):
 
             is_complex = self.is_complex_code(contract)
             number_functions = self._number_functions(contract)
-            ercs = ','.join(contract.ercs())
+            ercs = ",".join(contract.ercs())
             is_erc20 = contract.is_erc20()
-            erc20_info = ''
+            erc20_info = ""
             if is_erc20:
                 erc20_info += self.get_summary_erc20(contract)
 
-            features = "\n".join([name for name, to_print in self._get_features(contract).items() if to_print])
+            features = "\n".join(
+                [name for name, to_print in self._get_features(contract).items() if to_print]
+            )
 
             table.add_row([contract.name, number_functions, ercs, erc20_info, is_complex, features])
 
-        self.info(txt + '\n' + str(table))
+        self.info(txt + "\n" + str(table))
 
         results_contract = output.Output("")
         for contract in self.slither.contracts_derived:
             if contract.is_test or contract.is_from_dependency():
                 continue
 
-            contract_d = {'contract_name': contract.name,
-                          'is_complex_code': self._is_complex_code(contract),
-                          'is_erc20': contract.is_erc20(),
-                          'number_functions': self._number_functions(contract),
-                          'features': [name for name, to_print in self._get_features(contract).items() if to_print]}
-            if contract_d['is_erc20']:
+            contract_d = {
+                "contract_name": contract.name,
+                "is_complex_code": self._is_complex_code(contract),
+                "is_erc20": contract.is_erc20(),
+                "number_functions": self._number_functions(contract),
+                "features": [
+                    name for name, to_print in self._get_features(contract).items() if to_print
+                ],
+            }
+            if contract_d["is_erc20"]:
                 pause, mint_limited, race_condition_mitigated = self._get_summary_erc20(contract)
                 contract_d["erc20_pause"] = pause
                 if mint_limited is not None:
                     contract_d["erc20_can_mint"] = True
                     contract_d["erc20_mint_limited"] = mint_limited
                 else:
-                    contract_d['erc20_can_mint'] = False
-                contract_d['erc20_race_condition_mitigated'] = race_condition_mitigated
+                    contract_d["erc20_can_mint"] = False
+                contract_d["erc20_race_condition_mitigated"] = race_condition_mitigated
             results_contract.add_contract(contract, additional_fields=contract_d)
 
         results["contracts"]["elements"] = results_contract.elements

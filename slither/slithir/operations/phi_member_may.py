@@ -1,12 +1,22 @@
-from typing import Dict
+from typing import Dict, TYPE_CHECKING, Set
 
 from slither.utils.colors import green
-from .phi import Phi
-from ...core.variables.variable import Variable
+from slither.slithir.operations.phi import Phi
+from slither.core.variables.variable import Variable
+
+if TYPE_CHECKING:
+    from slither.slithir.utils.utils import VALID_RVALUE, VALID_LVALUE
+    from slither.core.cfg.node import Node
 
 
 class PhiMemberMay(Phi):
-    def __init__(self, left_variable, base, nodes, phi_info: Dict[Variable, Variable]):
+    def __init__(
+        self,
+        left_variable: "VALID_LVALUE",
+        base: Variable,
+        nodes: Set["Node"],
+        phi_info: Dict[Variable, Variable],
+    ):
         super(PhiMemberMay, self).__init__(left_variable, nodes)
         self._phi_info = phi_info
         self._base = base
@@ -16,7 +26,7 @@ class PhiMemberMay(Phi):
         return self._phi_info
 
     @property
-    def base(self):
+    def base(self) -> Variable:
         return self._base
 
     @property

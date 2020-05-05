@@ -10,8 +10,8 @@ if TYPE_CHECKING:
     # TODO: Find a better design to enforce that SSA oeprations dont have localVariable/StateVariable
     from slither.core.variables.local_variable import LocalVariable  # For non-ssa operation
     from slither.core.variables.state_variable import StateVariable  # For non-ssa operation
-    from slither.core.declarations import Function, SolidityVariable  # IR Assignement
-    from slither.slithir.variables import TupleVariable  # IR Assignement
+    from slither.core.declarations import Function, SolidityVariable  # IR Assignement, Send
+    from slither.slithir.variables import TupleVariable  # IR Assignement, Return
     from slither.slithir.utils.utils import VALID_RVALUE, VALID_LVALUE
     from slither.core.variables.local_variable import LocalVariable
     from slither.core.variables.state_variable import StateVariable
@@ -23,7 +23,7 @@ OPERATION_READ_TYPE = Union[
     "TupleVariable",
     "StateVariable",
     "LocalVariable",
-    "SolidityVariable"
+    "SolidityVariable",
 ]
 
 

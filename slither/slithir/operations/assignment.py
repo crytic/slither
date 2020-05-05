@@ -16,10 +16,12 @@ ASSIGNEMENT_TYPE = Union["VALID_RVALUE", "VALID_LVALUE", Function, TupleVariable
 
 
 class Assignment(OperationWithLValue):
-    def __init__(self,
-                 left_variable: "VALID_LVALUE",
-                 right_variable: Union["VALID_RVALUE", Function, TupleVariable],
-                 variable_return_type: "Type"):
+    def __init__(
+        self,
+        left_variable: "VALID_LVALUE",
+        right_variable: Union["VALID_RVALUE", Function, TupleVariable],
+        variable_return_type: "Type",
+    ):
         assert is_valid_lvalue(left_variable)
         assert is_valid_rvalue(right_variable) or isinstance(
             right_variable, (Function, TupleVariable)

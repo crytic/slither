@@ -15,7 +15,7 @@ class OperationWithLValue(Operation):
     def __init__(self):
         super(OperationWithLValue, self).__init__()
 
-        self._lvalue = None
+        self._lvalue: Optional["VALID_LVALUE"] = None
 
     # Optional is needed for operations like call
     # When the return value is not assigned

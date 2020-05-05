@@ -1,31 +1,42 @@
+from typing import TYPE_CHECKING, List, Optional
+
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 
+if TYPE_CHECKING:
+    from slither.slithir.utils.utils import VALID_LVALUE, VALID_RVALUE
+
 
 class SolidityCall(Call, OperationWithLValue):
-    def __init__(self, function, nbr_arguments, result, type_call):
+    def __init__(
+        self,
+        function: SolidityFunction,
+        nbr_arguments: int,
+        result: Optional["VALID_LVALUE"],
+        type_call: str,
+    ):
         assert isinstance(function, SolidityFunction)
         super(SolidityCall, self).__init__()
-        self._function = function
-        self._nbr_arguments = nbr_arguments
+        self._function: SolidityFunction = function
+        self._nbr_arguments: int = nbr_arguments
         self._type_call = type_call
         self._lvalue = result
 
     @property
-    def read(self):
+    def read(self) -> List["VALID_RVALUE"]:
         return self._unroll(self.arguments)
 
     @property
-    def function(self):
+    def function(self) -> SolidityFunction:
         return self._function
 
     @property
-    def nbr_arguments(self):
+    def nbr_arguments(self) -> int:
         return self._nbr_arguments
 
     @property
-    def type_call(self):
+    def type_call(self) -> str:
         return self._type_call
 
     def __str__(self):
@@ -33,7 +44,3 @@ class SolidityCall(Call, OperationWithLValue):
         return str(self.lvalue) + " = SOLIDITY_CALL {}({})".format(
             self.function.full_name, ",".join(args)
         )
-
-
-#     return str(self.lvalue) +' = INTERNALCALL {} (arg {})'.format(self.function,
-#                                                                   self.nbr_arguments)

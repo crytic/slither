@@ -10,9 +10,7 @@ RecList = List[Union["RecList", "VALID_LVALUE"]]
 
 
 class InitArray(OperationWithLValue):
-    def __init__(self,
-                 init_values: RecList,
-                 lvalue: Optional["VALID_LVALUE"]):
+    def __init__(self, init_values: RecList, lvalue: Optional["VALID_LVALUE"]):
         # init_values can be an array of n dimension
         # reduce was removed in py3
         super().__init__()

@@ -19,12 +19,14 @@ class HighLevelCall(Call, OperationWithLValue):
         High level message call
     """
 
-    def __init__(self,
-                 destination: Union[Variable, SolidityVariable, Contract],
-                 function_name: Constant,
-                 nbr_arguments: int,
-                 result: Optional["VALID_LVALUE"],
-                 type_call: str):
+    def __init__(
+        self,
+        destination: Union[Variable, SolidityVariable, Contract],
+        function_name: Constant,
+        nbr_arguments: int,
+        result: Optional["VALID_LVALUE"],
+        type_call: str,
+    ):
         """
         destination is a contract only for LibraryCall
 
@@ -115,7 +117,7 @@ class HighLevelCall(Call, OperationWithLValue):
     ###################################################################################
     ###################################################################################
 
-    def can_reenter(self, callstack: Optional[List]=None) -> bool:
+    def can_reenter(self, callstack: Optional[List] = None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view

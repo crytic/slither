@@ -11,20 +11,23 @@ if TYPE_CHECKING:
 
 
 class Index(OperationWithLValue):
-    def __init__(self,
-                 result: IndexVariable,
-                 left_variable: Union["VALID_LVALUE", SolidityVariableComposed],
-                 right_variable: "VALID_RVALUE",
-                 index_type: "Type"):
+    def __init__(
+        self,
+        result: IndexVariable,
+        left_variable: Union["VALID_LVALUE", SolidityVariableComposed],
+        right_variable: "VALID_RVALUE",
+        index_type: "Type",
+    ):
         super(Index, self).__init__()
         assert is_valid_lvalue(left_variable) or left_variable == SolidityVariableComposed(
             "msg.data"
         )
         assert is_valid_rvalue(right_variable)
         assert isinstance(result, IndexVariable)
-        self._variables: List[Union["VALID_LVALUE",
-                                    SolidityVariableComposed,
-                                    "VALID_RVALUE"]] = [left_variable, right_variable]
+        self._variables: List[Union["VALID_LVALUE", SolidityVariableComposed, "VALID_RVALUE"]] = [
+            left_variable,
+            right_variable,
+        ]
         self._type: "Type" = index_type
         self._lvalue: IndexVariable = result
 

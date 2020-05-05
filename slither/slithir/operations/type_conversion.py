@@ -1,10 +1,15 @@
+from typing import TYPE_CHECKING, List
+
 from slither.core.solidity_types.type import Type
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 
+if TYPE_CHECKING:
+    from slither.slithir.utils.utils import VALID_LVALUE, VALID_RVALUE
+
 
 class TypeConversion(OperationWithLValue):
-    def __init__(self, result, variable, variable_type):
+    def __init__(self, result: "VALID_LVALUE", variable: "VALID_RVALUE", variable_type: Type):
         super().__init__()
         assert is_valid_rvalue(variable)
         assert is_valid_lvalue(result)
@@ -15,15 +20,15 @@ class TypeConversion(OperationWithLValue):
         self._lvalue = result
 
     @property
-    def variable(self):
+    def variable(self) -> "VALID_RVALUE":
         return self._variable
 
     @property
-    def type(self):
+    def type(self) -> Type:
         return self._type
 
     @property
-    def read(self):
+    def read(self) -> List["VALID_RVALUE"]:
         return [self.variable]
 
     def __str__(self):

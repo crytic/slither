@@ -11,10 +11,9 @@ if TYPE_CHECKING:
 
 
 class InternalDynamicCall(Call, OperationWithLValue):
-    def __init__(self,
-                 lvalue: Optional["VALID_LVALUE"],
-                 function: Variable,
-                 function_type: FunctionType):
+    def __init__(
+        self, lvalue: Optional["VALID_LVALUE"], function: Variable, function_type: FunctionType
+    ):
         assert isinstance(function_type, FunctionType)
         assert isinstance(function, Variable)
         assert is_valid_lvalue(lvalue) or lvalue is None
@@ -36,7 +35,7 @@ class InternalDynamicCall(Call, OperationWithLValue):
         return self._function
 
     @property
-    def function_type(self)-> FunctionType:
+    def function_type(self) -> FunctionType:
         return self._function_type
 
     @property

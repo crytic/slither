@@ -11,7 +11,9 @@ if TYPE_CHECKING:
 class IndexVariable(ReferenceVariable):
     COUNTER = 0
 
-    def __init__(self, node: "Node", base: "SlithIRVariable", offset: "SlithIRVariable", index=None):
+    def __init__(
+        self, node: "Node", base: "SlithIRVariable", offset: "SlithIRVariable", index=None
+    ):
         super(IndexVariable, self).__init__()
         self._index: int
         if index is None:

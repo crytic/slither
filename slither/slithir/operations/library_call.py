@@ -2,10 +2,11 @@ from typing import Optional, TYPE_CHECKING, List
 
 from slither.slithir.operations.high_level_call import HighLevelCall
 
+from slither.core.declarations.contract import Contract
+
 if TYPE_CHECKING:
     from slither.slithir.utils.utils import VALID_LVALUE
     from slither.slithir.variables import Constant
-    from slither.core.declarations.contract import Contract
 
 
 class LibraryCall(HighLevelCall):
@@ -13,8 +14,14 @@ class LibraryCall(HighLevelCall):
         High level message call
     """
 
-    def __init__(self, destination: "Contract", function_name: "Constant", nbr_arguments: int,
-                 result: Optional["VALID_LVALUE"], type_call: str):
+    def __init__(
+        self,
+        destination: "Contract",
+        function_name: "Constant",
+        nbr_arguments: int,
+        result: Optional["VALID_LVALUE"],
+        type_call: str,
+    ):
         self._destination: "Contract"
         super().__init__(destination, function_name, nbr_arguments, result, type_call)
 
@@ -26,7 +33,7 @@ class LibraryCall(HighLevelCall):
     def destination(self) -> "Contract":
         return self._destination
 
-    def can_reenter(self, callstack: Optional[List]=None):
+    def can_reenter(self, callstack: Optional[List] = None):
         """
         Must be called after slithIR analysis pass
         :return: bool

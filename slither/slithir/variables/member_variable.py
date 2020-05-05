@@ -10,7 +10,9 @@ if TYPE_CHECKING:
 class MemberVariable(ReferenceVariable):
     COUNTER = 0
 
-    def __init__(self, node: "Node", base: "SlithIRVariable", member: str, index: Optional[int] = None):
+    def __init__(
+        self, node: "Node", base: "SlithIRVariable", member: str, index: Optional[int] = None
+    ):
         super(MemberVariable, self).__init__()
         self._index: int
         if index is None:
@@ -21,7 +23,7 @@ class MemberVariable(ReferenceVariable):
 
         self._node: "Node" = node
         self._member: str = member
-        self._base: "SlithIRVariable"= base
+        self._base: "SlithIRVariable" = base
 
     @property
     def index(self) -> int:

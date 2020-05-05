@@ -12,9 +12,14 @@ from slither.core.source_mapping.source_mapping import SourceMapping
 
 
 from slither.core.declarations.function import Function
-from slither.utils.erc import ERC20_signatures, \
-    ERC165_signatures, ERC223_signatures, ERC721_signatures, \
-    ERC1820_signatures, ERC777_signatures
+from slither.utils.erc import (
+    ERC20_signatures,
+    ERC165_signatures,
+    ERC223_signatures,
+    ERC721_signatures,
+    ERC1820_signatures,
+    ERC777_signatures,
+)
 from slither.utils.tests_pattern import is_test_contract
 
 if TYPE_CHECKING:
@@ -865,7 +870,13 @@ class Contract(ChildSlither, SourceMapping):
         Check if the contract follows one of the standard ERC token
         :return:
         """
-        return self.is_erc20() or self.is_erc721() or self.is_erc165() or self.is_erc223() or self.is_erc777()
+        return (
+            self.is_erc20()
+            or self.is_erc721()
+            or self.is_erc165()
+            or self.is_erc223()
+            or self.is_erc777()
+        )
 
     def is_possible_erc20(self) -> bool:
         """
@@ -933,10 +944,10 @@ class Contract(ChildSlither, SourceMapping):
         """
         if self.slither.crytic_compile:
             if self.slither.crytic_compile.platform == PlatformType.TRUFFLE:
-                if self.name == 'Migrations':
-                    paths = Path(self.source_mapping['filename_absolute']).parts
+                if self.name == "Migrations":
+                    paths = Path(self.source_mapping["filename_absolute"]).parts
                     if len(paths) >= 2:
-                        return paths[-2] == 'contracts' and paths[-1] == 'migrations.sol'
+                        return paths[-2] == "contracts" and paths[-1] == "migrations.sol"
         return False
 
     @property

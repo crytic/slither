@@ -10,11 +10,13 @@ if TYPE_CHECKING:
 
 
 class InternalCall(Call, OperationWithLValue):
-    def __init__(self,
-                 function: Optional[Function],
-                 nbr_arguments: int,
-                 result: Optional["VALID_LVALUE"],
-                 type_call: str):
+    def __init__(
+        self,
+        function: Optional[Function],
+        nbr_arguments: int,
+        result: Optional["VALID_LVALUE"],
+        type_call: str,
+    ):
         super(InternalCall, self).__init__()
         self._function = Optional[Function]
         if isinstance(function, Function):

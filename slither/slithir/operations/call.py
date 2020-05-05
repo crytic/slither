@@ -5,7 +5,10 @@ from slither.slithir.operations.operation import Operation
 if TYPE_CHECKING:
     from slither.slithir.utils.utils import VALID_RVALUE
 
-RecList = List[Union["RecList", "VALID_LVALUE"]]
+# Recursive type not handled by mypy
+# https://github.com/python/mypy/issues/731
+# RecList = List[Union["RecList", "VALID_RVALUE"]]
+RecList = List[Union[List, "VALID_RVALUE"]]
 
 
 class Call(Operation):

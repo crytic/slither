@@ -1,10 +1,15 @@
+from typing import Optional, TYPE_CHECKING, List
+
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.operations.call import Call
 from slither.core.solidity_types.type import Type
 
+if TYPE_CHECKING:
+    from slither.slithir.utils.utils import VALID_RVALUE, VALID_RVALUE
+
 
 class NewArray(Call, OperationWithLValue):
-    def __init__(self, depth, array_type, lvalue):
+    def __init__(self, depth: int, array_type: Type, lvalue: Optional["VALID_LVALUE"]):
         super(NewArray, self).__init__()
         assert isinstance(array_type, Type)
         self._depth = depth
@@ -13,11 +18,11 @@ class NewArray(Call, OperationWithLValue):
         self._lvalue = lvalue
 
     @property
-    def array_type(self):
+    def array_type(self) -> Type:
         return self._array_type
 
     @property
-    def read(self):
+    def read(self) -> List["VALID_RVALUE"]:
         return self._unroll(self.arguments)
 
     @property

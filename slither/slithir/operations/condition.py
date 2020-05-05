@@ -7,6 +7,7 @@ from slither.slithir.utils.utils import is_valid_rvalue
 if TYPE_CHECKING:
     from slither.slithir.utils.utils import VALID_RVALUE
 
+
 class Condition(Operation):
     """
        Condition

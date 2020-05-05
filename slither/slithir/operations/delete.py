@@ -14,9 +14,7 @@ class Delete(OperationWithLValue):
         of its operand
     """
 
-    def __init__(self,
-                 lvalue: "VALID_LVALUE",
-                 variable: "VALID_RVALUE"):
+    def __init__(self, lvalue: "VALID_LVALUE", variable: "VALID_RVALUE"):
         assert is_valid_lvalue(variable)
         assert is_valid_rvalue(variable)
         super(Delete, self).__init__()

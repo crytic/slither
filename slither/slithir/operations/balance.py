@@ -14,9 +14,7 @@ if TYPE_CHECKING:
 
 
 class Balance(OperationWithLValue):
-    def __init__(self,
-                 value: "VALID_RVALUE",
-                 lvalue: "VALID_LVALUE"):
+    def __init__(self, value: "VALID_RVALUE", lvalue: "VALID_LVALUE"):
         super().__init__()
         assert is_valid_rvalue(value)
         assert is_valid_lvalue(lvalue)

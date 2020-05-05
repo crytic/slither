@@ -146,7 +146,7 @@ def encode_ir(ir):
     if isinstance(ir, Binary):
         return "binary({})".format(str(ir.type))
     if isinstance(ir, Unary):
-        return "unary({})".format(ir.type_str)
+        return "unary({})".format(str(ir.type))
     if isinstance(ir, Condition):
         return "condition({})".format(encode_ir(ir.value))
     if isinstance(ir, NewStructure):

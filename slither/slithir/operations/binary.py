@@ -91,11 +91,13 @@ class BinaryType(Enum):
 
 
 class Binary(OperationWithLValue):
-    def __init__(self,
-                 result: "VALID_LVALUE",
-                 left_variable: "VALID_RVALUE",
-                 right_variable: "VALID_RVALUE",
-                 operation_type: BinaryType):
+    def __init__(
+        self,
+        result: "VALID_LVALUE",
+        left_variable: "VALID_RVALUE",
+        right_variable: "VALID_RVALUE",
+        operation_type: BinaryType,
+    ):
         assert is_valid_rvalue(left_variable)
         assert is_valid_rvalue(right_variable)
         assert is_valid_lvalue(result)
