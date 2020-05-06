@@ -20,9 +20,9 @@ from slither.core.solidity_types import (
     TypeInformation,
 )
 from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
-from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
-from slither.slithir.variables import TupleVariable
+from slither.core.variables.variable import Variable
+from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
     Assignment,
     Balance,
@@ -55,20 +55,18 @@ from slither.slithir.operations import (
     Unary,
     Unpack,
     Nop,
-    UpdateMember,
 )
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElementaryType
-from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import Constant, IndexVariable, MemberVariable, TemporaryVariable
+from slither.slithir.variables import TupleVariable
 from slither.slithir.variables.reference import ReferenceVariable
-from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 from slither.utils.function import get_function_id
 from slither.utils.type import export_nested_types_from_variable
-from slither.slithir.exceptions import SlithIRError
+from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 
 logger = logging.getLogger("ConvertToIR")
 
@@ -200,7 +198,7 @@ def convert_arguments(arguments):
 
 def is_temporary(ins):
     return isinstance(
-        ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure)
+        ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray)
     )
 
 
@@ -638,7 +636,6 @@ def propagate_types(ir, node):
                     TmpCall,
                     TmpNewArray,
                     TmpNewContract,
-                    TmpNewStructure,
                     TmpNewElementaryType,
                 ),
             ):
@@ -1166,7 +1163,7 @@ def remove_temporary(result):
         ins
         for ins in result
         if not isinstance(
-            ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure)
+            ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray)
         )
     ]
 

@@ -1,5 +1,7 @@
 from typing import Optional, TYPE_CHECKING, List
 
+from slither.core.declarations import Function
+from slither.core.variables.variable import Variable
 from slither.slithir.operations.high_level_call import HighLevelCall
 
 from slither.core.declarations.contract import Contract
@@ -38,12 +40,13 @@ class LibraryCall(HighLevelCall):
         Must be called after slithIR analysis pass
         :return: bool
         """
-        # In case of recursion, return False
-        callstack = [] if callstack is None else callstack
-        if self.function in callstack:
-            return False
-        callstack = callstack + [self.function]
-        return self.function.can_reenter(callstack)
+        # Libraries never use static call
+        # https://solidity.readthedocs.io/en/v0.6.7/contracts.html#view-functions
+        # Yet we can make the assumption that state variable read wont re-enter
+        # As well as view/pure calls
+        # As library code is known at compile time
+        # If someone were to deploys with a malicious library, other issues will be present
+        return super().can_reenter(callstack)
 
     def __str__(self):
         gas = ""

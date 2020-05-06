@@ -88,7 +88,7 @@ class HighLevelCall(Call, OperationWithLValue):
         return [x for x in all_read if x] + [self.destination]
 
     @property
-    def destination(self) -> Union[Variable, SolidityVariable]:
+    def destination(self) -> Union[Variable, SolidityVariable, Contract]:
         return self._destination
 
     @property

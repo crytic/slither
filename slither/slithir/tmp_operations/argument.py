@@ -1,5 +1,10 @@
 from enum import Enum
+from typing import TYPE_CHECKING, Optional, List
+
 from slither.slithir.operations.operation import Operation
+
+if TYPE_CHECKING:
+    from slither.core.variables.variable import Variable
 
 
 class ArgumentType(Enum):
@@ -10,18 +15,19 @@ class ArgumentType(Enum):
 
 
 class Argument(Operation):
-    def __init__(self, argument):
+    def __init__(self,
+                 argument: "Variable"):
         super(Argument, self).__init__()
-        self._argument = argument
+        self._argument: "Variable" = argument
         self._type = ArgumentType.CALL
-        self._callid = None
+        self._callid: Optional[str] = None  # only used if gas/value != 0
 
     @property
-    def argument(self):
+    def argument(self) -> "Variable":
         return self._argument
 
     @property
-    def call_id(self):
+    def call_id(self) -> Optional[str]:
         return self._callid
 
     @call_id.setter
@@ -29,14 +35,14 @@ class Argument(Operation):
         self._callid = c
 
     @property
-    def read(self):
+    def read(self) -> List["Variable"]:
         return [self.argument]
 
-    def set_type(self, t):
+    def set_type(self, t: ArgumentType):
         assert isinstance(t, ArgumentType)
         self._type = t
 
-    def get_type(self):
+    def get_type(self) -> ArgumentType:
         return self._type
 
     def __str__(self):
