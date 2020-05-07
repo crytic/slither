@@ -8,9 +8,7 @@ if TYPE_CHECKING:
 
 
 class TmpNewElementaryType(OperationWithLValue):
-    def __init__(self,
-                 new_type: ElementaryType,
-                 lvalue: Optional["VALID_LVALUE"]):
+    def __init__(self, new_type: ElementaryType, lvalue: Optional["VALID_LVALUE"]):
         assert isinstance(new_type, ElementaryType)
         super(TmpNewElementaryType, self).__init__()
         self._type = new_type

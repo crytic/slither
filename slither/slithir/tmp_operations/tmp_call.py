@@ -15,12 +15,17 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 if TYPE_CHECKING:
     from slither.slithir.utils.utils import VALID_LVALUE, VALID_RVALUE
 
+
 class TmpCall(OperationWithLValue):
-    def __init__(self,
-                 called: Union[Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event],
-                 nbr_arguments: int,
-                 result: Optional["VALID_LVALUE"],
-                 type_call: str):
+    def __init__(
+        self,
+        called: Union[
+            Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event
+        ],
+        nbr_arguments: int,
+        result: Optional["VALID_LVALUE"],
+        type_call: str,
+    ):
         assert isinstance(
             called,
             (Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event),
@@ -55,20 +60,29 @@ class TmpCall(OperationWithLValue):
     def call_id(self) -> Optional[str]:
         return self._callid
 
-    @property
-    def read(self) -> List[Union[Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event]]:
-        return [self.called]
-
     @call_id.setter
     def call_id(self, c):
         self._callid = c
 
     @property
-    def called(self) -> Union[Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event]:
+    def read(
+        self,
+    ) -> List[
+        Union[Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event]
+    ]:
+        return [self.called]
+
+    @property
+    def called(
+        self,
+    ) -> Union[Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event]:
         return self._called
 
     @called.setter
-    def called(self, c):
+    def called(
+        self,
+        c: Union[Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event],
+    ):
         self._called = c
 
     @property

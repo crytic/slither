@@ -8,10 +8,7 @@ if TYPE_CHECKING:
 
 
 class TmpNewArray(OperationWithLValue):
-    def __init__(self,
-                 depth: int,
-                 array_type: Type,
-                 lvalue: Optional["VALID_LVALUE"]):
+    def __init__(self, depth: int, array_type: Type, lvalue: Optional["VALID_LVALUE"]):
         super(TmpNewArray, self).__init__()
         assert isinstance(array_type, Type)
         self._depth = depth

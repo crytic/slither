@@ -1,7 +1,11 @@
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, Optional, List, Union
 
+from slither.core.declarations import SolidityVariable
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations.operation import Operation
+from slither.slithir.variables import TemporaryVariable, Constant, IndexVariable, MemberVariable
 
 if TYPE_CHECKING:
     from slither.core.variables.variable import Variable
@@ -15,15 +19,47 @@ class ArgumentType(Enum):
 
 
 class Argument(Operation):
-    def __init__(self,
-                 argument: "Variable"):
+    def __init__(
+        self,
+        argument: Union[
+            StateVariable,
+            LocalVariable,
+            TemporaryVariable,
+            Constant,
+            SolidityVariable,
+            IndexVariable,
+            MemberVariable,
+        ],
+    ):
         super(Argument, self).__init__()
-        self._argument: "Variable" = argument
+        assert isinstance(
+            argument,
+            (
+                StateVariable,
+                LocalVariable,
+                TemporaryVariable,
+                Constant,
+                SolidityVariable,
+                IndexVariable,
+                MemberVariable,
+            ),
+        )
+        self._argument = argument
         self._type = ArgumentType.CALL
         self._callid: Optional[str] = None  # only used if gas/value != 0
 
     @property
-    def argument(self) -> "Variable":
+    def argument(
+        self,
+    ) -> Union[
+        StateVariable,
+        LocalVariable,
+        TemporaryVariable,
+        Constant,
+        SolidityVariable,
+        IndexVariable,
+        MemberVariable,
+    ]:
         return self._argument
 
     @property
@@ -35,7 +71,19 @@ class Argument(Operation):
         self._callid = c
 
     @property
-    def read(self) -> List["Variable"]:
+    def read(
+        self,
+    ) -> List[
+        Union[
+            StateVariable,
+            LocalVariable,
+            TemporaryVariable,
+            Constant,
+            SolidityVariable,
+            IndexVariable,
+            MemberVariable,
+        ]
+    ]:
         return [self.argument]
 
     def set_type(self, t: ArgumentType):

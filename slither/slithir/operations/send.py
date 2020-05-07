@@ -38,6 +38,14 @@ class Send(Call, OperationWithLValue):
         return [self.destination, self.call_value]
 
     @property
+    def lvalue(self) -> "VALID_LVALUE":
+        return self._lvalue
+
+    @lvalue.setter
+    def lvalue(self, lvalue):
+        self._lvalue = lvalue
+
+    @property
     def destination(self) -> Union[Variable, SolidityVariable]:
         return self._destination
 

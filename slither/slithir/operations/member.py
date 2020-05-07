@@ -24,7 +24,7 @@ class AccessMember(OperationWithLValue):
         super(AccessMember, self).__init__()
         self._variable_left = variable_left
         self._variable_right = variable_right
-        self._lvalue = result
+        self._lvalue: MemberVariable = result
         self._gas: Optional["VALID_RVALUE"] = None
         self._value: Optional["VALID_RVALUE"] = None
 
@@ -55,6 +55,14 @@ class AccessMember(OperationWithLValue):
     @call_gas.setter
     def call_gas(self, gas):
         self._gas = gas
+
+    @property
+    def lvalue(self) -> MemberVariable:
+        return self._lvalue
+
+    @lvalue.setter
+    def lvalue(self, lvalue):
+        self._lvalue = lvalue
 
     def __str__(self):
         return "{}({}) := Access({}, {})".format(

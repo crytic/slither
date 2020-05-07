@@ -1,4 +1,5 @@
 import logging
+from typing import List, TYPE_CHECKING
 
 from slither.core.declarations import Function
 from slither.core.expressions import (
@@ -6,6 +7,7 @@ from slither.core.expressions import (
     UnaryOperationType,
     BinaryOperationType,
 )
+from slither.core.expressions.expression import Expression
 from slither.slithir.operations import (
     Assignment,
     Binary,
@@ -25,6 +27,7 @@ from slither.slithir.operations import (
     UpdateMemberDependency,
     UpdateIndex,
     UnaryType,
+    Operation,
 )
 from slither.slithir.tmp_operations.argument import Argument
 from slither.slithir.tmp_operations.tmp_call import TmpCall
@@ -41,6 +44,9 @@ from slither.slithir.variables import (
 from slither.visitors.expression.expression import ExpressionVisitor
 
 from slither.slithir.exceptions import SlithIRError
+
+if TYPE_CHECKING:
+    from slither.core.cfg.node import Node
 
 logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
 
@@ -156,12 +162,12 @@ def convert_assignment(left, right, t, return_type):
 
 
 class ExpressionToSlithIR(ExpressionVisitor):
-    def __init__(self, expression, node):
+    def __init__(self, expression: Expression, node: "Node"):
         from slither.core.cfg.node import NodeType
 
         self._expression = expression
         self._node = node
-        self._result = []
+        self._result: List[Operation] = []
         self._visit_expression(self.expression)
         if node.type == NodeType.RETURN:
             r = Return(get(self.expression))
@@ -170,7 +176,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         for ir in self._result:
             ir.set_node(node)
 
-    def result(self):
+    def result(self) -> List[Operation]:
         return self._result
 
     def _post_assignement_operation(self, expression):

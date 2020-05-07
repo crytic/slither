@@ -25,5 +25,13 @@ class Length(OperationWithLValue):
     def value(self) -> "VALID_RVALUE":
         return self._value
 
+    @property
+    def lvalue(self) -> "VALID_LVALUE":
+        return self._lvalue
+
+    @lvalue.setter
+    def lvalue(self, lvalue):
+        self._lvalue = lvalue
+
     def __str__(self):
         return "{} -> LENGTH {}".format(self.lvalue, self.value)

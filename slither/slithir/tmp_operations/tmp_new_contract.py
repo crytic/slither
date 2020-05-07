@@ -1,14 +1,13 @@
 from typing import Optional, TYPE_CHECKING
 
 from slither.slithir.operations.lvalue import OperationWithLValue
+
 if TYPE_CHECKING:
     from slither.slithir.utils.utils import VALID_LVALUE
 
 
 class TmpNewContract(OperationWithLValue):
-    def __init__(self,
-                 contract_name: str,
-                 lvalue: Optional["VALID_LVALUE"]):
+    def __init__(self, contract_name: str, lvalue: Optional["VALID_LVALUE"]):
         super(TmpNewContract, self).__init__()
         self._contract_name = contract_name
         self._lvalue = lvalue

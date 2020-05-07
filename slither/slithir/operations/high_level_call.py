@@ -70,7 +70,7 @@ class HighLevelCall(Call, OperationWithLValue):
         return self._call_value
 
     @call_value.setter
-    def call_value(self, v):
+    def call_value(self, v: Optional["VALID_RVALUE"]):
         self._call_value = v
 
     @property
@@ -88,13 +88,14 @@ class HighLevelCall(Call, OperationWithLValue):
         return [x for x in all_read if x] + [self.destination]
 
     @property
-    def destination(self) -> Union[Variable, SolidityVariable, Contract]:
+    def destination(self) -> Union[Variable, SolidityVariable]:
         return self._destination
 
     @property
     def function_name(self) -> Constant:
         return self._function_name
 
+    # TODO: this collude with childNode, need to be changed to another name
     @property
     def function(self) -> Union[Function, Variable]:
         return self._function_instance

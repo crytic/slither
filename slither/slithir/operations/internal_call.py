@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Union, Tuple
 
 from slither.core.declarations import Modifier
 from slither.core.declarations.function import Function
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class InternalCall(Call, OperationWithLValue):
     def __init__(
         self,
-        function: Optional[Function],
+        function: Union[Function, Tuple[str, str]],
         nbr_arguments: int,
         result: Optional["VALID_LVALUE"],
         type_call: str,
@@ -20,7 +20,7 @@ class InternalCall(Call, OperationWithLValue):
         super(InternalCall, self).__init__()
         self._function = Optional[Function]
         if isinstance(function, Function):
-            self._function: Function = function
+            self._function = function
             self._function_name: str = function.name
             self._contract_name: str = function.contract_declarer.name
         else:

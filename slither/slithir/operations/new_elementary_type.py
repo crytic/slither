@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.call import Call
@@ -10,12 +10,12 @@ if TYPE_CHECKING:
 
 
 class NewElementaryType(Call, OperationWithLValue):
-    def __init__(self, new_type: ElementaryType, lvalue: "VALID_LVALUE"):
+    def __init__(self, new_type: ElementaryType, lvalue: Optional["VALID_LVALUE"]):
         assert isinstance(new_type, ElementaryType)
         assert is_valid_lvalue(lvalue)
         super(NewElementaryType, self).__init__()
         self._type: ElementaryType = new_type
-        self._lvalue: "VALID_LVALUE" = lvalue
+        self._lvalue: Optional["VALID_LVALUE"] = lvalue
 
     @property
     def type(self) -> ElementaryType:
