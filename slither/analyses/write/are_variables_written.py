@@ -2,10 +2,11 @@
     Detect if all the given variables are written in all the paths of the function
 """
 from collections import defaultdict
-from typing import Dict, Tuple, Set, List, Optional
+from typing import Dict, Set, List
 
 from slither.core.cfg.node import NodeType, Node
 from slither.core.declarations import SolidityFunction
+from slither.core.variables.variable import Variable
 from slither.slithir.operations import (
     Index,
     AccessMember,
@@ -14,7 +15,9 @@ from slither.slithir.operations import (
     Length,
     Balance,
 )
-from slither.slithir.variables import IndexVariable
+from slither.slithir.variables import IndexVariable, TemporaryVariable
+from slither.slithir.variables.reference import ReferenceVariable
+
 
 class State:
 
