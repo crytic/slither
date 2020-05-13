@@ -73,7 +73,7 @@ from slither.slithir.variables import (
 logger = logging.getLogger("SSA_Conversion")
 
 
-def transform_slithir_vars_to_ssa(function):
+def transform_slithir_vars_to_ssa(function: Function):
     """
         Transform slithIR vars to SSA (TemporaryVariable, ReferenceVariable, TupleVariable)
     """
@@ -130,11 +130,11 @@ InstancesTemporary = namedtuple(
 ###################################################################################
 
 
-def _is_scalar(variable):
+def _is_scalar(variable: Variable) -> bool:
     return variable.is_scalar
 
 
-def add_ssa_ir(function, all_state_variables_instances):
+def add_ssa_ir(function: Function, all_state_variables_instances: Dict[str, StateVariable]):
     """
         Add SSA version of the IR
     Args:
@@ -167,24 +167,26 @@ def add_ssa_ir(function, all_state_variables_instances):
     add_phi_origins(function.entry_point, init_definition, dict(), dict(), dict())
 
     for node in function.nodes:
-        for (variable, nodes) in node.phi_origins_local_variables.values():
+        local_variable: LocalVariable
+        for (local_variable, nodes) in node.phi_origins_local_variables.values():
             if len(nodes) < 2:
                 continue
-            if not is_used_later(node, variable):
+            if not is_used_later(node, local_variable):
                 continue
-            if _is_scalar(variable):
-                node.add_ssa_ir(PhiScalar(LocalIRVariable(variable), nodes))
+            if _is_scalar(local_variable):
+                node.add_ssa_ir(PhiScalar(LocalIRVariable(local_variable), nodes))
             else:
-                node.add_ssa_ir(Phi(LocalIRVariable(variable), nodes))
-        for (variable, nodes) in node.phi_origins_state_variables.values():
+                node.add_ssa_ir(Phi(LocalIRVariable(local_variable), nodes))
+        state_variable: StateVariable
+        for (state_variable, nodes) in node.phi_origins_state_variables.values():
             if len(nodes) < 2:
                 continue
             # if not is_used_later(node, variable.name, []):
             #    continue
-            if _is_scalar(variable):
-                node.add_ssa_ir(PhiScalar(StateIRVariable(variable), nodes))
+            if _is_scalar(state_variable):
+                node.add_ssa_ir(PhiScalar(StateIRVariable(state_variable), nodes))
             else:
-                node.add_ssa_ir(Phi(StateIRVariable(variable), nodes))
+                node.add_ssa_ir(Phi(StateIRVariable(state_variable), nodes))
         for (variable, nodes) in node.phi_origin_member_variables.values():
             if len(nodes) < 2:
                 continue

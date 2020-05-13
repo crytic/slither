@@ -4,6 +4,7 @@ from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 
 from slither.core.declarations.solidity_variables import SolidityVariable
+from slither.core.variables.variable import Variable
 
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.constant import Constant
@@ -23,7 +24,7 @@ VALID_RVALUE = Union[
 ]
 
 
-def is_valid_rvalue(v):
+def is_valid_rvalue(v: Variable) -> bool:
     return isinstance(
         v,
         (
@@ -43,7 +44,7 @@ VALID_LVALUE = Union[
 ]
 
 
-def is_valid_lvalue(v):
+def is_valid_lvalue(v: Variable) -> bool:
     return isinstance(
         v,
         (
