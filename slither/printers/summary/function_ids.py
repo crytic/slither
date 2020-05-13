@@ -24,14 +24,19 @@ class FunctionIds(AbstractPrinter):
         all_tables = []
         for contract in self.slither.contracts_derived:
             txt += '\n{}:\n'.format(contract.name)
-            table = MyPrettyTable(['Name', 'ID'])
+            table = MyPrettyTable(['Solidity Signature', 'ID', 'Return types'])
             for function in contract.functions:
                 if function.visibility in ['public', 'external']:
-                    table.add_row([function.solidity_signature, hex(get_function_id(function.solidity_signature))])
+                    _, _, returns = function.signature
+                    table.add_row([function.solidity_signature,
+                                   hex(get_function_id(function.solidity_signature)),
+                                   ','.join(returns)])
             for variable in contract.state_variables:
                 if variable.visibility in ['public']:
-                    sig = variable.function_name
-                    table.add_row([sig, hex(get_function_id(sig))])
+                    _, _, returns = variable.signature
+                    table.add_row([variable.solidity_signature,
+                                   hex(get_function_id(variable.solidity_signature)),
+                                   ','.join(returns)])
             txt += str(table) + '\n'
             all_tables.append((contract.name, table))
 

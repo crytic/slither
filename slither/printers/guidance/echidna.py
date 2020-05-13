@@ -97,7 +97,7 @@ def _extract_constant_functions(slither: Slither) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
     for contract in slither.contracts:
         cst_functions = [_get_name(f) for f in contract.functions_entry_points if _is_constant(f)]
-        cst_functions += [v.function_name for v in contract.state_variables if v.visibility in ['public']]
+        cst_functions += [v.solidity_signature for v in contract.state_variables if v.visibility in ['public']]
         if cst_functions:
             ret[contract.name] = cst_functions
     return ret

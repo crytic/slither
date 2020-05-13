@@ -17,6 +17,7 @@ from slither.core.solidity_types import UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.state_variable import StateVariable
+from slither.utils.type import convert_type_for_solidity_signature
 from slither.utils.utils import unroll
 
 logger = logging.getLogger("Function")
@@ -726,13 +727,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     ###################################################################################
     ###################################################################################
 
-    @staticmethod
-    def _convert_type_for_solidity_signature(t: Type):
-        from slither.core.declarations import Contract
-        if isinstance(t, UserDefinedType) and isinstance(t.type, Contract):
-            return "address"
-        return str(t)
-
     @property
     def solidity_signature(self) -> str:
         """
@@ -740,7 +734,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         Contract and converted into address
         :return: the solidity signature
         """
-        parameters = [self._convert_type_for_solidity_signature(x.type) for x in self.parameters]
+        parameters = [str(convert_type_for_solidity_signature(x.type)) for x in self.parameters]
         return self.name + '(' + ','.join(parameters) + ')'
 
 

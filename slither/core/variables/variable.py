@@ -1,10 +1,12 @@
 """
     Variable module
 """
+from typing import Tuple, List
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.elementary_type import ElementaryType
+
 
 class Variable(SourceMapping):
 
@@ -78,25 +80,36 @@ class Variable(SourceMapping):
         assert isinstance(t, (Type, list)) or t is None
         self._type = t
 
-    @property
-    def function_name(self):
-        '''
-        Return the name of the variable as a function signature
-        :return:
-        '''
-        from slither.core.solidity_types import ArrayType, MappingType
-        variable_getter_args = ""
-        if type(self.type) is ArrayType:
-            length = 0
-            v = self
-            while type(v.type) is ArrayType:
-                length += 1
-                v = v.type
-            variable_getter_args = ','.join(["uint256"] * length)
-        elif type(self.type) is MappingType:
-            variable_getter_args = self.type.type_from
+    ###################################################################################
+    ###################################################################################
+    # region Signature
+    ###################################################################################
+    ###################################################################################
 
-        return f"{self.name}({variable_getter_args})"
+    @property
+    def signature(self) -> Tuple[str, List[str], List[str]]:
+        """
+            Return the signature of the state variable as a function signature
+            :return: (str, list(str), list(str)), as (name, list parameters type, list return values type)
+        """
+        from slither.utils.type import export_nested_types_from_variable, export_return_type_from_variable
+        return (self.name,
+                [str(x) for x in export_nested_types_from_variable(self)],
+                [str(x) for x in export_return_type_from_variable(self)])
+
+    @property
+    def signature_str(self):
+        """
+            Return the signature of the state variable as a function signature
+            :return: str: func_name(type1,type2) returns(type3)
+        """
+        name, parameters, returnVars = self.signature
+        return name + '(' + ','.join(parameters) + ') returns(' + ','.join(returnVars)  + ')'
+
+    @property
+    def solidity_signature(self):
+        name, parameters, _ = self.signature
+        return f'{name}({",".join(parameters)})'
 
     def __str__(self):
         return self._name
