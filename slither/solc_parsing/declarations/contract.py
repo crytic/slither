@@ -289,7 +289,7 @@ class ContractSolc04(Contract):
         try:
             for function in self.functions:
                 function.analyze_content()
-        except (VariableNotFound, KeyError) as e:
+        except (VariableNotFound, KeyError, ParsingError) as e:
             self.log_incorrect_parsing(f'Missing function {e}')
         return
 
