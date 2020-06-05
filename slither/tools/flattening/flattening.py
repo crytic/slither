@@ -4,6 +4,7 @@ import logging
 from collections import namedtuple
 
 from slither.core.declarations import SolidityFunction
+from slither.core.solidity_types import MappingType, ArrayType
 from slither.exceptions import SlitherException
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.declarations.structure import Structure
@@ -19,6 +20,7 @@ logger = logging.getLogger("Slither-flattening")
 #   - calldata_to_memory: calldata to memory (external-to-public)
 #   - line_removal: remove the line (remove-assert)
 Patch = namedtuple('PatchExternal', ['index', 'patch_type'])
+
 
 class Flattening:
     DEFAULT_EXPORT_PATH = Path('crytic-export/flattening')
@@ -44,7 +46,7 @@ class Flattening:
 
     def _get_source_code(self, contract):
         src_mapping = contract.source_mapping
-        content = self._slither.source_code[src_mapping['filename_absolute']]
+        content = self._slither.source_code[src_mapping['filename_absolute']].encode('utf8')
         start = src_mapping['start']
         end = src_mapping['start'] + src_mapping['length']
 
@@ -112,17 +114,22 @@ class Flattening:
                 assert patch_type == 'line_removal'
                 content = content[:index] + ' // ' + content[index:]
 
-        self._source_codes[contract] = content
+        self._source_codes[contract] = content.decode('utf8')
 
     def _export_from_type(self, t, contract, exported, list_contract):
         if isinstance(t, UserDefinedType):
             if isinstance(t.type, (Enum, Structure)):
-                if t.type.contract != contract and not t.type.contract in exported:
+                if t.type.contract != contract and t.type.contract not in exported:
                     self._export_contract(t.type.contract, exported, list_contract)
             else:
                 assert isinstance(t.type, Contract)
-                if t.type != contract and not t.type in exported:
+                if t.type != contract and t.type not in exported:
                     self._export_contract(t.type, exported, list_contract)
+        elif isinstance(t, MappingType):
+            self._export_from_type(t.type_from, contract, exported, list_contract)
+            self._export_from_type(t.type_to, contract, exported, list_contract)
+        elif isinstance(t, ArrayType):
+            self._export_from_type(t.type, contract, exported, list_contract)
 
     def _export_contract(self, contract, exported, list_contract):
         if contract.name in exported:
@@ -147,6 +154,10 @@ class Flattening:
 
         for v in contract.variables + local_vars:
             self._export_from_type(v.type, contract, exported, list_contract)
+
+        for s in contract.structures:
+            for elem in s.elems.values():
+                self._export_from_type(elem.type, contract, exported, list_contract)
 
         # Find all convert and "new" operation that can lead to use an external contract
         for f in contract.functions_declared:
