@@ -10,13 +10,13 @@ from crytic_compile import cryticparser
 
 from .info     import info
 from .test     import test
-from .train    import train
+from .train    import train, train_function
 from .plot     import plot
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-simil")
 
-modes = ["info", "test", "train", "plot"]
+modes = ["info", "test", "train", "plot", "trainfunction"]
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Code similarity detection tool. For usage, see https://github.com/crytic/slither/wiki/Code-Similarity-detector')
@@ -97,6 +97,8 @@ def main():
         test(args)
     elif mode == "plot":
         plot(args)
+    elif mode == "trainfunction":
+        train_function(args)
     else:
         logger.error('Invalid mode!. It should be one of these: %s' % ", ".join(modes))
         sys.exit(-1)
