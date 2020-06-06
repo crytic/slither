@@ -378,6 +378,19 @@ def _convert_type_contract(ir, slither):
         assignment.set_node(ir.node)
         assignment.lvalue.set_type(ElementaryType('bytes'))
         return assignment
+    if ir.variable_right == 'interfaceId':
+        entry_points = contract.functions_entry_points
+        interfaceId = 0
+        for entry_point in entry_points:
+            interfaceId = interfaceId ^ get_function_id(entry_point.full_name)
+        assignment = Assignment(ir.lvalue,
+                                Constant(str(interfaceId), type=ElementaryType('bytes4')),
+                                ElementaryType('bytes4'))
+        assignment.set_expression(ir.expression)
+        assignment.set_node(ir.node)
+        assignment.lvalue.set_type(ElementaryType('bytes4'))
+        return assignment
+
     if ir.variable_right == 'name':
         assignment = Assignment(ir.lvalue,
                                 Constant(contract.name),
