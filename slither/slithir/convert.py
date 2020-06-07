@@ -668,6 +668,10 @@ def extract_tmp_call(ins, contract):
         op = NewContract(Constant(ins.ori.contract_name), ins.lvalue)
         op.set_expression(ins.expression)
         op.call_id = ins.call_id
+        if ins.call_value:
+            op.call_value = ins.call_value
+        if ins.call_salt:
+            op.call_salt = ins.call_salt
         return op
 
     if isinstance(ins.ori, TmpNewArray):

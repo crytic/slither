@@ -21,6 +21,7 @@ class TmpCall(OperationWithLValue):
         self._callid = None
         self._gas = None
         self._value = None
+        self._salt = None
 
     @property
     def call_value(self):
@@ -37,6 +38,14 @@ class TmpCall(OperationWithLValue):
     @call_gas.setter
     def call_gas(self, gas):
         self._gas = gas
+
+    @property
+    def call_salt(self):
+        return self._salt
+
+    @call_salt.setter
+    def call_salt(self, salt):
+        self._salt = salt
 
     @property
     def call_id(self):
