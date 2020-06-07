@@ -111,6 +111,8 @@ class ExpressionVisitor:
             self._visit_expression(expression.call_value)
         if expression.call_gas:
             self._visit_expression(expression.call_gas)
+        if expression.call_salt:
+            self._visit_expression(expression.call_salt)
 
     def _visit_conditional_expression(self, expression):
         self._visit_expression(expression.if_expression)

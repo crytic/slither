@@ -613,6 +613,8 @@ def copy_ir(ir, *instances):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         new_ir = NewContract(contract_name, lvalue)
         new_ir.arguments = get_arguments(ir, *instances)
+        new_ir.call_value = get_variable(ir, lambda x: x.call_value, *instances)
+        new_ir.call_salt = get_variable(ir, lambda x: x.call_salt, *instances)
         return new_ir
     elif isinstance(ir, NewStructure):
         structure = ir.structure
