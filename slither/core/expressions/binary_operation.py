@@ -31,6 +31,12 @@ class BinaryOperationType(Enum):
     ANDAND = 17  # &&
     OROR = 18  # ||
 
+    DIVISION_SIGNED = 19
+    MODULO_SIGNED = 20
+    LESS_SIGNED = 21
+    GREATER_SIGNED = 22
+    RIGHT_SHIFT_ARITHMETIC = 23
+
     @staticmethod
     def get_type(operation_type: "BinaryOperation"):
         if operation_type == "**":
@@ -71,6 +77,16 @@ class BinaryOperationType(Enum):
             return BinaryOperationType.ANDAND
         if operation_type == "||":
             return BinaryOperationType.OROR
+        if operation_type == "/'":
+            return BinaryOperationType.DIVISION_SIGNED
+        if operation_type == "%'":
+            return BinaryOperationType.MODULO_SIGNED
+        if operation_type == "<'":
+            return BinaryOperationType.LESS_SIGNED
+        if operation_type == ">'":
+            return BinaryOperationType.GREATER_SIGNED
+        if operation_type == ">>'":
+            return BinaryOperationType.RIGHT_SHIFT_ARITHMETIC
 
         raise SlitherCoreError("get_type: Unknown operation type {})".format(operation_type))
 
@@ -113,6 +129,16 @@ class BinaryOperationType(Enum):
             return "&&"
         if self == BinaryOperationType.OROR:
             return "||"
+        if self == BinaryOperationType.DIVISION_SIGNED:
+            return "/'"
+        if self == BinaryOperationType.MODULO_SIGNED:
+            return "%'"
+        if self == BinaryOperationType.LESS_SIGNED:
+            return "<'"
+        if self == BinaryOperationType.GREATER_SIGNED:
+            return ">'"
+        if self == BinaryOperationType.RIGHT_SHIFT_ARITHMETIC:
+            return ">>'"
         raise SlitherCoreError("str: Unknown operation type {})".format(self))
 
 

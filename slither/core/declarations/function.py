@@ -89,6 +89,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
     def __init__(self):
         super(Function, self).__init__()
+        self._scope: List[str] = []
         self._name: Optional[str] = None
         self._view: bool = False
         self._pure: bool = False
@@ -207,7 +208,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             Return the function signature without the return values
         """
         name, parameters, _ = self.signature
-        return name + "(" + ",".join(parameters) + ")"
+        return ".".join(self._scope + [name]) + "(" + ",".join(parameters) + ")"
 
     @property
     def canonical_name(self) -> str:
@@ -216,7 +217,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             Return the function signature without the return values
         """
         name, parameters, _ = self.signature
-        return self.contract_declarer.name + "." + name + "(" + ",".join(parameters) + ")"
+        return ".".join([self.contract_declarer.name] + self._scope + [name]) + "(" + ",".join(parameters) + ")"
 
     @property
     def contains_assembly(self) -> bool:

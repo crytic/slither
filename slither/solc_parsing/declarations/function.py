@@ -18,6 +18,7 @@ from slither.solc_parsing.variables.local_variable_init_from_tuple import (
     LocalVariableInitFromTupleSolc,
 )
 from slither.solc_parsing.variables.variable_declaration import MultipleVariablesDeclaration
+from slither.solc_parsing.yul.parse_yul import convert_yul
 from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
@@ -62,6 +63,8 @@ class FunctionSolc:
         self._functionNotParsed = function_data
         self._params_was_analyzed = False
         self._content_was_analyzed = False
+        self._counter_nodes = 0
+        self._counter_asm_nodes = 0
 
         self._counter_scope_local_variables = 0
         # variable renamed will map the solc id
@@ -311,6 +314,9 @@ class FunctionSolc:
         node_parser = NodeSolc(node)
         self._node_to_nodesolc[node] = node_parser
         return node_parser
+
+    def node_solc(self):
+        return NodeSolc
 
     # endregion
     ###################################################################################
@@ -797,13 +803,23 @@ class FunctionSolc:
         elif name == "Block":
             node = self._parse_block(statement, node)
         elif name == "InlineAssembly":
-            asm_node = self._new_node(NodeType.ASSEMBLY, statement["src"])
-            self._function.contains_assembly = True
-            # Added with solc 0.4.12
-            if "operations" in statement:
-                asm_node.underlying_node.add_inline_asm(statement["operations"])
-            link_underlying_nodes(node, asm_node)
-            node = asm_node
+            # Added with solc 0.6 - the yul code is an AST
+            if 'AST' in statement:
+                self._contains_assembly = True
+                yul_root = self._new_node(NodeType.ASSEMBLY, statement['src'])
+                yul_root.set_yul_root(self)
+                link_underlying_nodes(node, yul_root)
+                self._counter_asm_nodes += 1
+
+                node = convert_yul(yul_root, yul_root, statement['AST'])
+            else:
+                asm_node = self._new_node(NodeType.ASSEMBLY, statement['src'])
+                self._function._contains_assembly = True
+                # Added with solc 0.4.12
+                if 'operations' in statement:
+                    asm_node.underlying_node.add_inline_asm(statement['operations'])
+                link_underlying_nodes(node, asm_node)
+                node = asm_node
         elif name == "DoWhileStatement":
             node = self._parse_dowhile(statement, node)
         # For Continue / Break / Return / Throw

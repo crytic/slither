@@ -20,7 +20,7 @@ class PrinterSlithIR(AbstractPrinter):
 
         txt = ""
         for contract in self.contracts:
-            txt += 'Contract {}'.format(contract.name)
+            txt += 'Contract {}\n'.format(contract.name)
             for function in contract.functions:
                 txt += f'\tFunction {function.canonical_name} {"" if function.is_shadowed else "(*)"}\n'
                 for node in function.nodes:

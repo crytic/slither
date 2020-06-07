@@ -10,6 +10,7 @@ from slither.core.solidity_types import (ArrayType, ElementaryType,
 from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
 from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
+from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.variables import TupleVariable
 from slither.slithir.operations import (Assignment, Balance, Binary,
                                         BinaryType, Call, Condition, Delete,
@@ -509,6 +510,12 @@ def propagate_types(ir, node):
                 if ir.variable_right == 'balance' and not isinstance(ir.variable_left, Contract) and isinstance(
                         ir.variable_left.type, ElementaryType):
                     b = Balance(ir.variable_left, ir.lvalue)
+                    b.set_expression(ir.expression)
+                    b.set_node(ir.node)
+                    return b
+                if ir.variable_right == 'codesize' and not isinstance(ir.variable_left, Contract) and isinstance(
+                        ir.variable_left.type, ElementaryType):
+                    b = CodeSize(ir.variable_left, ir.lvalue)
                     b.set_expression(ir.expression)
                     b.set_node(ir.node)
                     return b
