@@ -2,6 +2,10 @@ import os
 import json
 import re
 import logging
+from typing import Optional, List
+
+from slither.core.declarations import Contract
+from slither.exceptions import SlitherException
 
 logging.basicConfig()
 logger = logging.getLogger("SlitherSolcParsing")
@@ -24,6 +28,8 @@ class SlitherSolc(Slither):
         self._analyzed = False
 
         self._is_compact_ast = False
+
+        self._top_level_contracts_counter = 0
 
     ###################################################################################
     ###################################################################################
@@ -102,7 +108,11 @@ class SlitherSolc(Slither):
 
         for contract_data in data_loaded[self.get_children()]:
 
-            assert contract_data[self.get_key()] in ['ContractDefinition', 'PragmaDirective', 'ImportDirective']
+            assert contract_data[self.get_key()] in ['ContractDefinition',
+                                                     'PragmaDirective',
+                                                     'ImportDirective',
+                                                     'StructDefinition',
+                                                     'EnumDefinition']
             if contract_data[self.get_key()] == 'ContractDefinition':
                 contract = ContractSolc04(self, contract_data)
                 if 'src' in contract_data:
@@ -122,6 +132,30 @@ class SlitherSolc(Slither):
                     import_directive = Import(contract_data['attributes']["absolutePath"])
                 import_directive.set_offset(contract_data['src'], self)
                 self._import_directives.append(import_directive)
+
+            elif contract_data[self.get_key()] in ['StructDefinition', 'EnumDefinition']:
+                # This can only happen for top-level structure and enum
+                # They were introduced with 0.6.5
+                assert self._is_compact_ast # Do not support top level definition for legacy AST
+                fake_contract_data = {
+                    'name': f'SlitherInternalTopLevelContract{self._top_level_contracts_counter}',
+                    'id': -1000, # TODO: determine if collission possible
+                    'linearizedBaseContracts': [],
+                    'fullyImplemented': True,
+                    'contractKind': 'SLitherInternal'
+                }
+                self._top_level_contracts_counter += 1
+                top_level_contract = ContractSolc04(self, fake_contract_data)
+                top_level_contract.is_top_level = True
+                top_level_contract.set_offset(contract_data['src'], self)
+
+                if contract_data[self.get_key()] == 'StructDefinition':
+                    top_level_contract._structuresNotParsed.append(contract_data)  # Todo add proper setters
+                else:
+                    top_level_contract._enumsNotParsed.append(contract_data)  # Todo add proper setters
+
+                self._contractsNotParsed.append(top_level_contract)
+
 
     def _parse_source_unit(self, data, filename):
         if data[self.get_key()] != 'SourceUnit':
@@ -178,6 +212,9 @@ class SlitherSolc(Slither):
         # First we save all the contracts in a dict
         # the key is the contractid
         for contract in self._contractsNotParsed:
+            if contract.name.startswith('SlitherInternalTopLevelContract') and not contract.is_top_level:
+                raise SlitherException("""Your codebase has a contract named 'SlitherInternalTopLevelContract'.
+Please rename it, this name is reserved for Slither's internals""")
             if contract.name in self._contracts:
                 if contract.id != self._contracts[contract.name].id:
                     self._contract_name_collisions[contract.name].append(contract.source_mapping_str)
