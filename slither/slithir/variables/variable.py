@@ -1,14 +1,13 @@
-from typing import Dict, TYPE_CHECKING
+from typing import Dict
 
 from slither.core.variables.variable import Variable
-
 
 
 class SlithIRVariable(Variable):
     def __init__(self):
         super(SlithIRVariable, self).__init__()
         self._index = 0
-        self._ssa_phi_info: Dict["SlithIRVariable", "SlithIRVariable"] = dict() #defaultdict(list)
+        self._ssa_phi_info: Dict["SlithIRVariable", "SlithIRVariable"] = dict()  # defaultdict(list)
 
     @property
     def ssa_name(self) -> str:

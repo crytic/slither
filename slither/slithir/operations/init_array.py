@@ -1,9 +1,16 @@
+from typing import List, Union, TYPE_CHECKING, Optional
+
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_rvalue
 
+if TYPE_CHECKING:
+    from slither.slithir.utils.utils import VALID_RVALUE, VALID_LVALUE
+
+RecList = List[Union["RecList", "VALID_LVALUE"]]
+
 
 class InitArray(OperationWithLValue):
-    def __init__(self, init_values, lvalue):
+    def __init__(self, init_values: RecList, lvalue: Optional["VALID_LVALUE"]):
         # init_values can be an array of n dimension
         # reduce was removed in py3
         super().__init__()
@@ -20,15 +27,15 @@ class InitArray(OperationWithLValue):
             return is_valid_rvalue(elem)
 
         assert check(init_values)
-        self._init_values = init_values
-        self._lvalue = lvalue
+        self._init_values: RecList = init_values
+        self._lvalue: Optional["VALID_LVALUE"] = lvalue
 
     @property
-    def read(self):
+    def read(self) -> List["VALID_RVALUE"]:
         return self._unroll(self.init_values)
 
     @property
-    def init_values(self):
+    def init_values(self) -> RecList:
         return list(self._init_values)
 
     def __str__(self):

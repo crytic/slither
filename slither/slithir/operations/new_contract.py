@@ -1,21 +1,27 @@
+from typing import TYPE_CHECKING, Optional, List
+
 from slither.slithir.operations import Call, OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
 
+if TYPE_CHECKING:
+    from slither.slithir.utils.utils import VALID_LVALUE, VALID_RVALUE
+    from slither.core.declarations import Contract
+
 
 class NewContract(Call, OperationWithLValue):
-    def __init__(self, contract_name, lvalue):
+    def __init__(self, contract_name: Constant, lvalue: "VALID_LVALUE"):
         assert isinstance(contract_name, Constant)
         assert is_valid_lvalue(lvalue)
         super(NewContract, self).__init__()
-        self._contract_name = contract_name
+        self._contract_name: Constant = contract_name
         # todo create analyze to add the contract instance
-        self._lvalue = lvalue
-        self._callid = None  # only used if gas/value != 0
-        self._call_value = None
+        self._lvalue: "VALID_LVALUE" = lvalue
+        self._callid: Optional[str] = None  # only used if gas/value != 0
+        self._call_value: Optional["VALID_RVALUE"] = None
 
     @property
-    def call_value(self):
+    def call_value(self) -> Optional["VALID_RVALUE"]:
         return self._call_value
 
     @call_value.setter
@@ -23,7 +29,7 @@ class NewContract(Call, OperationWithLValue):
         self._call_value = v
 
     @property
-    def call_id(self):
+    def call_id(self) -> Optional[str]:
         return self._callid
 
     @call_id.setter
@@ -31,17 +37,17 @@ class NewContract(Call, OperationWithLValue):
         self._callid = c
 
     @property
-    def contract_name(self):
+    def contract_name(self) -> Constant:
         return self._contract_name
 
     @property
-    def read(self):
+    def read(self) -> List["VALID_RVALUE"]:
         return self._unroll(self.arguments)
 
     @property
-    def contract_created(self):
+    def contract_created(self) -> "Contract":
         contract_name = self.contract_name
-        contract_instance = self.slither.get_contract_from_name(contract_name)
+        contract_instance = self.slither.get_contract_from_name(str(contract_name))
         return contract_instance
 
     ###################################################################################
@@ -50,7 +56,7 @@ class NewContract(Call, OperationWithLValue):
     ###################################################################################
     ###################################################################################
 
-    def can_reenter(self, callstack=None):
+    def can_reenter(self, callstack=None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view
@@ -67,7 +73,7 @@ class NewContract(Call, OperationWithLValue):
         callstack = callstack + [constructor]
         return constructor.can_reenter(callstack)
 
-    def can_send_eth(self):
+    def can_send_eth(self) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool

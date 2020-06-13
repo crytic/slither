@@ -10,7 +10,9 @@ if TYPE_CHECKING:
 
 
 class Constant(SlithIRVariable):
-    def __init__(self, val: str, type: Optional["Type"] = None, subdenomination: Optional[str] = None):
+    def __init__(
+        self, val: str, type: Optional["Type"] = None, subdenomination: Optional[str] = None
+    ):
         super(Constant, self).__init__()
         assert isinstance(val, str)
 

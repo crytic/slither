@@ -1,53 +1,72 @@
-from collections import namedtuple
-from typing import Optional, List
+from typing import List, TYPE_CHECKING, Set, Union
 
+from slither.slithir.operations.phi import Phi
 from slither.slithir.utils.utils import is_valid_lvalue
-from .phi import Phi
+
+if TYPE_CHECKING:
+    from slither.slithir.utils.utils import VALID_LVALUE, VALID_RVALUE
+    from slither.core.cfg.node import Node
+    from slither.slithir.operations import (
+        InternalCall,
+        HighLevelCall,
+        InternalDynamicCall,
+        LowLevelCall,
+    )
+    from ..variables import StateIRVariable
 
 
 class PhiCallback(Phi):
-    def __init__(self, left_variable, nodes, call_ir, rvalue, storage_idx: List[int]):
+    def __init__(
+        self,
+        left_variable: "VALID_LVALUE",
+        nodes: Set["Node"],
+        call_ir: Union["InternalCall", "HighLevelCall", "InternalDynamicCall", "LowLevelCall"],
+        rvalue: "StateIRVariable",
+        storage_idx: List[int],
+    ):
         assert is_valid_lvalue(left_variable)
         assert isinstance(nodes, set)
         super(PhiCallback, self).__init__(left_variable, nodes)
         self._call_ir = call_ir
-        self._rvalues = [rvalue]
+        self._rvalues: List["VALID_RVALUE"] = [rvalue]
         self._rvalue_no_callback = rvalue
-        self._storage_idx = storage_idx
+        self._storage_idx: List[int] = storage_idx
 
     @property
-    def callee_ir(self):
+    def callee_ir(
+        self,
+    ) -> Union["InternalCall", "HighLevelCall", "InternalDynamicCall", "LowLevelCall"]:
         return self._call_ir
 
     @property
-    def read(self):
+    def read(self) -> List["VALID_RVALUE"]:
         return self.rvalues
 
     @property
     def storage_idx(self) -> List[int]:
         """
-        Return the list of idx where the variable is used as as torage parameter in the ir.
+        Return the list of idx where the variable is used as a storage parameter in the ir.
         :return:
         """
         return self._storage_idx
 
     @property
-    def rvalues(self):
+    def rvalues(self) -> List["VALID_RVALUE"]:
         return self._rvalues
 
     @property
-    def rvalue_no_callback(self):
+    def rvalue_no_callback(self) -> "StateIRVariable":
         """
             rvalue if callback are not considered
         """
         return self._rvalue_no_callback
 
     @rvalues.setter
-    def rvalues(self, vals):
+    def rvalues(self, vals: List["VALID_RVALUE"]):
         self._rvalues = vals
 
     @property
-    def nodes(self):
+    def nodes(self) -> Set["Node"]:
         return self._nodes
 
     def __str__(self):

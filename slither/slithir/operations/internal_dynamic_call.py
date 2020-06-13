@@ -1,38 +1,45 @@
+from typing import Optional, TYPE_CHECKING, List, Union
+
 from slither.core.solidity_types import FunctionType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
 
+if TYPE_CHECKING:
+    from slither.slithir.utils.utils import VALID_LVALUE, VALID_RVALUE
+
 
 class InternalDynamicCall(Call, OperationWithLValue):
-    def __init__(self, lvalue, function, function_type):
+    def __init__(
+        self, lvalue: Optional["VALID_LVALUE"], function: Variable, function_type: FunctionType
+    ):
         assert isinstance(function_type, FunctionType)
         assert isinstance(function, Variable)
         assert is_valid_lvalue(lvalue) or lvalue is None
         super(InternalDynamicCall, self).__init__()
-        self._function = function
-        self._function_type = function_type
-        self._lvalue = lvalue
+        self._function: Variable = function
+        self._function_type: FunctionType = function_type
+        self._lvalue: Optional["VALID_LVALUE"] = lvalue
 
-        self._callid = None  # only used if gas/value != 0
-        self._call_value = None
-        self._call_gas = None
+        self._callid: Optional[str] = None  # only used if gas/value != 0
+        self._call_value: Optional["VALID_RVALUE"] = None
+        self._call_gas: Optional["VALID_RVALUE"] = None
 
     @property
-    def read(self):
+    def read(self) -> List[Union["VALID_RVALUE", Variable]]:
         return self._unroll(self.arguments) + [self.function]
 
     @property
-    def function(self):
+    def function(self) -> Variable:
         return self._function
 
     @property
-    def function_type(self):
+    def function_type(self) -> FunctionType:
         return self._function_type
 
     @property
-    def call_value(self):
+    def call_value(self) -> Optional["VALID_RVALUE"]:
         return self._call_value
 
     @call_value.setter
@@ -40,7 +47,7 @@ class InternalDynamicCall(Call, OperationWithLValue):
         self._call_value = v
 
     @property
-    def call_gas(self):
+    def call_gas(self) -> Optional["VALID_RVALUE"]:
         return self._call_gas
 
     @call_gas.setter
@@ -48,7 +55,7 @@ class InternalDynamicCall(Call, OperationWithLValue):
         self._call_gas = v
 
     @property
-    def call_id(self):
+    def call_id(self) -> Optional[str]:
         return self._callid
 
     @call_id.setter

@@ -3,15 +3,17 @@ from typing import TYPE_CHECKING
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.core.declarations import Function
 
-
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
     from slither.slithir.variables.variable import SlithIRVariable
 
+
 class IndexVariable(ReferenceVariable):
     COUNTER = 0
 
-    def __init__(self, node: "Node", base: "SlithIRVariable", offset: "SlithIRVariable", index=None):
+    def __init__(
+        self, node: "Node", base: "SlithIRVariable", offset: "SlithIRVariable", index=None
+    ):
         super(IndexVariable, self).__init__()
         self._index: int
         if index is None:

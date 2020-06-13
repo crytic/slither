@@ -7,7 +7,7 @@ from .temporary import TemporaryVariable
 
 
 class TemporaryVariableSSA(TemporaryVariable):
-    def __init__(self, temporary):
+    def __init__(self, temporary: TemporaryVariable):
         super(TemporaryVariableSSA, self).__init__(temporary.node, temporary.index)
 
         self._non_ssa_version = temporary

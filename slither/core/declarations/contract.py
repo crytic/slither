@@ -2,12 +2,16 @@
     Contract module
 """
 import logging
+from pathlib import Path
+
+from crytic_compile.platform import Type as PlatformType
 from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING
 
 from slither.core.children.child_slither import ChildSlither
 from slither.core.source_mapping.source_mapping import SourceMapping
 
 
+from slither.core.declarations.function import Function
 from slither.utils.erc import (
     ERC20_signatures,
     ERC165_signatures,
@@ -16,7 +20,7 @@ from slither.utils.erc import (
     ERC1820_signatures,
     ERC777_signatures,
 )
-from slither.core.declarations.function import Function
+from slither.utils.tests_pattern import is_test_contract
 
 if TYPE_CHECKING:
     from slither.utils.type_helpers import LibraryCallType, HighLevelCallType
@@ -860,6 +864,20 @@ class Contract(ChildSlither, SourceMapping):
         full_names = self.functions_signatures
         return all((s in full_names for s in ERC777_signatures))
 
+    @property
+    def is_token(self) -> bool:
+        """
+        Check if the contract follows one of the standard ERC token
+        :return:
+        """
+        return (
+            self.is_erc20()
+            or self.is_erc721()
+            or self.is_erc165()
+            or self.is_erc223()
+            or self.is_erc777()
+        )
+
     def is_possible_erc20(self) -> bool:
         """
         Checks if the provided contract could be attempting to implement ERC20 standards.
@@ -891,6 +909,14 @@ class Contract(ChildSlither, SourceMapping):
             or "isApprovedForAll(address,address)" in full_names
         )
 
+    @property
+    def is_possible_token(self) -> bool:
+        """
+        Check if the contract is a potential token (it might not implement all the functions)
+        :return:
+        """
+        return self.is_possible_erc20() or self.is_possible_erc721()
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -902,6 +928,31 @@ class Contract(ChildSlither, SourceMapping):
         if self.slither.crytic_compile is None:
             return False
         return self.slither.crytic_compile.is_dependency(self.source_mapping["filename_absolute"])
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Test
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def is_truffle_migration(self) -> bool:
+        """
+        Return true if the contract is the Migrations contract needed for Truffle
+        :return:
+        """
+        if self.slither.crytic_compile:
+            if self.slither.crytic_compile.platform == PlatformType.TRUFFLE:
+                if self.name == "Migrations":
+                    paths = Path(self.source_mapping["filename_absolute"]).parts
+                    if len(paths) >= 2:
+                        return paths[-2] == "contracts" and paths[-1] == "migrations.sol"
+        return False
+
+    @property
+    def is_test(self) -> bool:
+        return is_test_contract(self) or self.is_truffle_migration
 
     # endregion
     ###################################################################################

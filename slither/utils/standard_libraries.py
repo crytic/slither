@@ -54,7 +54,15 @@ def is_standard_library(contract: "Contract") -> Optional[str]:
 def is_openzepellin(contract: "Contract") -> bool:
     if not contract.is_from_dependency():
         return False
-    return "openzeppelin-solidity" in Path(contract.source_mapping["filename_absolute"]).parts
+    path = Path(contract.source_mapping["filename_absolute"]).parts
+    is_zep = "openzeppelin-solidity" in Path(contract.source_mapping["filename_absolute"]).parts
+    try:
+        is_zep |= path[path.index("@openzeppelin") + 1] == "contracts"
+    except IndexError:
+        pass
+    except ValueError:
+        pass
+    return is_zep
 
 
 def is_zos(contract: "Contract") -> bool:

@@ -12,6 +12,17 @@ from slither.slithir.variables.member_variable import MemberVariable
 from slither.slithir.variables.tuple import TupleVariable
 
 
+VALID_RVALUE = Union[
+    StateVariable,
+    LocalVariable,
+    TemporaryVariable,
+    Constant,
+    SolidityVariable,
+    IndexVariable,
+    MemberVariable,
+]
+
+
 def is_valid_rvalue(v):
     return isinstance(
         v,
@@ -27,7 +38,9 @@ def is_valid_rvalue(v):
     )
 
 
-VALID_LVALUE = Union[StateVariable, LocalVariable, TemporaryVariable, IndexVariable, MemberVariable, TupleVariable]
+VALID_LVALUE = Union[
+    StateVariable, LocalVariable, TemporaryVariable, IndexVariable, MemberVariable, TupleVariable
+]
 
 
 def is_valid_lvalue(v):

@@ -1,5 +1,6 @@
-from typing import Union
+from typing import Union, Type, Optional, TYPE_CHECKING, List
 
+from slither.core.declarations import Contract
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
@@ -9,27 +10,47 @@ from slither.core.declarations.function import Function
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
 
+if TYPE_CHECKING:
+    from slither.slithir.utils.utils import VALID_LVALUE, VALID_RVALUE
+
 
 class HighLevelCall(Call, OperationWithLValue):
     """
         High level message call
     """
 
-    def __init__(self, destination, function_name, nbr_arguments, result, type_call):
+    def __init__(
+        self,
+        destination: Union[Variable, SolidityVariable, Contract],
+        function_name: Constant,
+        nbr_arguments: int,
+        result: Optional["VALID_LVALUE"],
+        type_call: str,
+    ):
+        """
+        destination is a contract only for LibraryCall
+
+        :param destination:
+        :param function_name:
+        :param nbr_arguments:
+        :param result:
+        :param type_call:
+        """
         assert isinstance(function_name, Constant)
         assert is_valid_lvalue(result) or result is None
-        self._check_destination(destination)
         super(HighLevelCall, self).__init__()
-        self._destination = destination
-        self._function_name = function_name
-        self._nbr_arguments = nbr_arguments
-        self._type_call = type_call
-        self._lvalue = result
-        self._callid = None  # only used if gas/value != 0
-        self._function_instance = None
+        # _destination is a contract only for library
+        self._check_destination(destination)
+        self._destination: Union[Variable, SolidityVariable, Contract] = destination
+        self._function_name: Constant = function_name
+        self._nbr_arguments: int = nbr_arguments
+        self._type_call: str = type_call
+        self._lvalue: Optional["VALID_LVALUE"] = result
+        self._callid: Optional[str] = None  # only used if gas/value != 0
+        self._function_instance: Optional[Function, Variable] = None
 
-        self._call_value = None
-        self._call_gas = None
+        self._call_value: Optional["VALID_RVALUE"] = None
+        self._call_gas: Optional["VALID_RVALUE"] = None
 
     # Development function, to be removed once the code is stable
     # It is ovveride by LbraryCall
@@ -37,15 +58,15 @@ class HighLevelCall(Call, OperationWithLValue):
         assert isinstance(destination, (Variable, SolidityVariable))
 
     @property
-    def call_id(self):
+    def call_id(self) -> Optional[str]:
         return self._callid
 
     @call_id.setter
-    def call_id(self, c):
+    def call_id(self, c: str):
         self._callid = c
 
     @property
-    def call_value(self):
+    def call_value(self) -> Optional["VALID_RVALUE"]:
         return self._call_value
 
     @call_value.setter
@@ -53,7 +74,7 @@ class HighLevelCall(Call, OperationWithLValue):
         self._call_value = v
 
     @property
-    def call_gas(self):
+    def call_gas(self) -> Optional["VALID_RVALUE"]:
         return self._call_gas
 
     @call_gas.setter
@@ -61,17 +82,17 @@ class HighLevelCall(Call, OperationWithLValue):
         self._call_gas = v
 
     @property
-    def read(self):
+    def read(self) -> List[Union["VALID_LVALUE", "VALID_RVALUE", "Variable", "SolidityVariable"]]:
         all_read = [self.destination, self.call_gas, self.call_value] + self._unroll(self.arguments)
         # remove None
         return [x for x in all_read if x] + [self.destination]
 
     @property
-    def destination(self):
+    def destination(self) -> Union[Variable, SolidityVariable]:
         return self._destination
 
     @property
-    def function_name(self):
+    def function_name(self) -> Constant:
         return self._function_name
 
     @property
@@ -83,11 +104,11 @@ class HighLevelCall(Call, OperationWithLValue):
         self._function_instance = function
 
     @property
-    def nbr_arguments(self):
+    def nbr_arguments(self) -> int:
         return self._nbr_arguments
 
     @property
-    def type_call(self):
+    def type_call(self) -> str:
         return self._type_call
 
     ###################################################################################
@@ -96,7 +117,7 @@ class HighLevelCall(Call, OperationWithLValue):
     ###################################################################################
     ###################################################################################
 
-    def can_reenter(self, callstack=None):
+    def can_reenter(self, callstack: Optional[List] = None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view
@@ -125,7 +146,7 @@ class HighLevelCall(Call, OperationWithLValue):
                 return True
         return True
 
-    def can_send_eth(self):
+    def can_send_eth(self) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool
@@ -153,7 +174,7 @@ class HighLevelCall(Call, OperationWithLValue):
         txt = "{}HIGH_LEVEL_CALL, dest:{}({}), function:{}, arguments:{} {} {}"
         if not self.lvalue:
             lvalue = ""
-        elif isinstance(self.lvalue.type, (list,)):
+        elif isinstance(self.lvalue.type, list):
             lvalue = "{}({}) = ".format(self.lvalue, ",".join(str(x) for x in self.lvalue.type))
         else:
             lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)

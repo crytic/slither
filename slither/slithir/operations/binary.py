@@ -1,11 +1,15 @@
 import logging
 from enum import Enum
+from typing import TYPE_CHECKING, List
 
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.slithir.variables import IndexVariable
+
+if TYPE_CHECKING:
+    from slither.slithir.utils.utils import VALID_RVALUE, VALID_LVALUE
 
 logger = logging.getLogger("BinaryOperationIR")
 
@@ -87,39 +91,53 @@ class BinaryType(Enum):
 
 
 class Binary(OperationWithLValue):
-    def __init__(self, result, left_variable, right_variable, operation_type):
+    def __init__(
+        self,
+        result: "VALID_LVALUE",
+        left_variable: "VALID_RVALUE",
+        right_variable: "VALID_RVALUE",
+        operation_type: BinaryType,
+    ):
         assert is_valid_rvalue(left_variable)
         assert is_valid_rvalue(right_variable)
         assert is_valid_lvalue(result)
         assert isinstance(operation_type, BinaryType)
         super(Binary, self).__init__()
-        self._variables = [left_variable, right_variable]
+        self._variables: List["VALID_RVALUE"] = [left_variable, right_variable]
         self._type: BinaryType = operation_type
-        self._lvalue = result
+        self._lvalue: "VALID_LVALUE" = result
         if BinaryType.return_bool(operation_type):
             result.set_type(ElementaryType("bool"))
         else:
             result.set_type(left_variable.type)
 
     @property
-    def read(self):
+    def read(self) -> List["VALID_RVALUE"]:
         return [self.variable_left, self.variable_right]
 
     @property
-    def get_variable(self):
+    def get_variable(self) -> List["VALID_RVALUE"]:
         return self._variables
 
     @property
-    def variable_left(self):
+    def variable_left(self) -> "VALID_RVALUE":
         return self._variables[0]
 
     @property
-    def variable_right(self):
+    def variable_right(self) -> "VALID_RVALUE":
         return self._variables[1]
 
     @property
-    def type(self):
+    def type(self) -> BinaryType:
         return self._type
+
+    @property
+    def lvalue(self) -> "VALID_LVALUE":
+        return self._lvalue
+
+    @lvalue.setter
+    def lvalue(self, lvalue):
+        self._lvalue = lvalue
 
     def __str__(self):
         if isinstance(self.lvalue, IndexVariable):
