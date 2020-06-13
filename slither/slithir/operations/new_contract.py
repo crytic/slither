@@ -16,9 +16,10 @@ class NewContract(Call, OperationWithLValue):
         super(NewContract, self).__init__()
         self._contract_name: Constant = contract_name
         # todo create analyze to add the contract instance
-        self._lvalue: Optional["VALID_LVALUE"] = lvalue
-        self._callid: Optional[str] = None  # only used if gas/value != 0
-        self._call_value: Optional["VALID_RVALUE"] = None
+        self._lvalue = lvalue
+        self._callid = None  # only used if gas/value != 0
+        self._call_value = None
+        self._call_salt = None
 
     @property
     def call_value(self) -> Optional["VALID_RVALUE"]:
@@ -35,6 +36,14 @@ class NewContract(Call, OperationWithLValue):
     @call_id.setter
     def call_id(self, c):
         self._callid = c
+
+    @property
+    def call_salt(self):
+        return self._call_salt
+
+    @call_salt.setter
+    def call_salt(self, s):
+        self._call_salt = s
 
     @property
     def contract_name(self) -> Constant:
@@ -84,8 +93,10 @@ class NewContract(Call, OperationWithLValue):
     # endregion
 
     def __str__(self):
-        value = ""
+        options = ""
         if self.call_value:
-            value = "value:{}".format(self.call_value)
+            options = "value:{} ".format(self.call_value)
+        if self.call_salt:
+            options += "salt:{} ".format(self.call_salt)
         args = [str(a) for a in self.arguments]
-        return "{} = new {}({}) {}".format(self.lvalue, self.contract_name, ",".join(args), value)
+        return "{} = new {}({}) {}".format(self.lvalue, self.contract_name, ",".join(args), options)

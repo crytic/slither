@@ -39,6 +39,7 @@ class TmpCall(OperationWithLValue):
         self._callid: Optional[str] = None
         self._gas: Optional["VALID_RVALUE"] = None
         self._value: Optional["VALID_RVALUE"] = None
+        self._salt = None
 
     @property
     def call_value(self) -> Optional["VALID_RVALUE"]:
@@ -55,6 +56,14 @@ class TmpCall(OperationWithLValue):
     @call_gas.setter
     def call_gas(self, gas):
         self._gas = gas
+
+    @property
+    def call_salt(self):
+        return self._salt
+
+    @call_salt.setter
+    def call_salt(self, salt):
+        self._salt = salt
 
     @property
     def call_id(self) -> Optional[str]:

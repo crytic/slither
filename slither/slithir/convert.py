@@ -449,6 +449,21 @@ def _convert_type_contract(ir: AccessMember, slither: Slither):
         assignment.set_node(ir.node)
         assignment.lvalue.set_type(ElementaryType("bytes"))
         return assignment
+    if ir.variable_right == "interfaceId":
+        entry_points = contract.functions_entry_points
+        interfaceId = 0
+        for entry_point in entry_points:
+            interfaceId = interfaceId ^ get_function_id(entry_point.full_name)
+        assignment = Assignment(
+            ir.lvalue,
+            Constant(str(interfaceId), type=ElementaryType("bytes4")),
+            ElementaryType("bytes4"),
+        )
+        assignment.set_expression(ir.expression)
+        assignment.set_node(ir.node)
+        assignment.lvalue.set_type(ElementaryType("bytes4"))
+        return assignment
+
     if ir.variable_right == "name":
         assignment = Assignment(ir.lvalue, Constant(contract.name), ElementaryType("string"))
         assignment.set_expression(ir.expression)
@@ -765,11 +780,15 @@ def extract_tmp_call(ins: TmpCall, contract: Contract) -> Operation:
         n.set_expression(ins.expression)
         return n
 
-    if isinstance(ori, TmpNewContract):
-        new_contract = NewContract(Constant(ori.contract_name), ins.lvalue)
-        new_contract.set_expression(ins.expression)
-        new_contract.call_id = ins.call_id
-        return new_contract
+    if isinstance(ins.ori, TmpNewContract):
+        op = NewContract(Constant(ins.ori.contract_name), ins.lvalue)
+        op.set_expression(ins.expression)
+        op.call_id = ins.call_id
+        if ins.call_value:
+            op.call_value = ins.call_value
+        if ins.call_salt:
+            op.call_salt = ins.call_salt
+        return op
 
     if isinstance(ori, TmpNewArray):
         new_array = NewArray(ori.depth, ori.array_type, ins.lvalue)
@@ -1294,7 +1313,7 @@ def convert_constant_types(irs: List[Operation]):
                                     LocalVariable,
                                     TemporaryVariable,
                                     Constant,
-                                    #SolidityVariable, no need to update SolidityVariable's type
+                                    # SolidityVariable, no need to update SolidityVariable's type
                                     IndexVariable,
                                     MemberVariable,
                                 ),

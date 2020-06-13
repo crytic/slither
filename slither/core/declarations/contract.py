@@ -69,6 +69,8 @@ class Contract(ChildSlither, SourceMapping):
         self._is_upgradeable: Optional[bool] = None
         self._is_upgradeable_proxy: Optional[bool] = None
 
+        self._is_top_level = False
+
         self._initial_state_variables: List["StateVariable"] = []  # ssa
 
         self._is_incorrectly_parsed: bool = False
@@ -1019,6 +1021,19 @@ class Contract(ChildSlither, SourceMapping):
         :return:
         """
         return self._is_incorrectly_parsed
+
+    @property
+    def is_top_level(self) -> bool:
+        """
+        The "TopLevel" contract is used to hold structures and enums defined at the top level
+        ie. structures and enums that are represented outside of any contract
+        :return:
+        """
+        return self._is_top_level
+
+    @is_top_level.setter
+    def is_top_level(self, t: bool):
+        self._is_top_level = t
 
     # endregion
     ###################################################################################

@@ -20,7 +20,6 @@ from slither.slithir.variables.reference import ReferenceVariable
 
 
 class State:
-
     def __init__(self):
         # Map node -> list of variables set
         # Were each variables set represents a configuration of a path
@@ -35,7 +34,9 @@ class State:
         self.nodes: Dict[Node, List[Set[Variable]]] = defaultdict(list)
 
 
-def _visit(node: Node, state: State, variables_written: Set[Variable], variables_to_write: List[Variable]):
+def _visit(
+    node: Node, state: State, variables_written: Set[Variable], variables_to_write: List[Variable]
+):
     """
     Explore all the nodes to look for values not written when the node's function return
     Fixpoint reaches if no new written variables are found
@@ -68,7 +69,9 @@ def _visit(node: Node, state: State, variables_written: Set[Variable], variables
         while isinstance(lvalue, IndexVariable):
             if lvalue not in refs:
                 break
-            if refs[lvalue] and not isinstance(refs[lvalue], (TemporaryVariable, ReferenceVariable)):
+            if refs[lvalue] and not isinstance(
+                refs[lvalue], (TemporaryVariable, ReferenceVariable)
+            ):
                 variables_written.add(refs[lvalue])
             lvalue = refs[lvalue]
 
