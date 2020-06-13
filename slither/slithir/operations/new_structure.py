@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -13,13 +13,13 @@ if TYPE_CHECKING:
 
 
 class NewStructure(Call, OperationWithLValue):
-    def __init__(self, structure: Structure, lvalue: "VALID_LVALUE"):
+    def __init__(self, structure: Structure, lvalue: Optional["VALID_LVALUE"]):
         super(NewStructure, self).__init__()
         assert isinstance(structure, Structure)
         assert is_valid_lvalue(lvalue)
         self._structure: Structure = structure
         # todo create analyze to add the contract instance
-        self._lvalue: "VALID_LVALUE" = lvalue
+        self._lvalue: Optional["VALID_LVALUE"] = lvalue
 
     @property
     def read(self) -> List["VALID_RVALUE"]:

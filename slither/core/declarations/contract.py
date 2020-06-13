@@ -5,9 +5,10 @@ import logging
 from pathlib import Path
 
 from crytic_compile.platform import Type as PlatformType
-from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING
+from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
 
 from slither.core.children.child_slither import ChildSlither
+from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 
 
@@ -58,7 +59,8 @@ class Contract(ChildSlither, SourceMapping):
         self._modifiers: Dict[str, "Modifier"] = {}
         self._functions: Dict[str, "Function"] = {}
 
-        self._using_for: Dict[str, List[str]] = {}
+        # The only str is "*"
+        self._using_for: Dict[Union[str, Type], List[str]] = {}
         self._kind: Optional[str] = None
 
         self._signatures: Optional[List[str]] = None
@@ -195,15 +197,8 @@ class Contract(ChildSlither, SourceMapping):
     ###################################################################################
 
     @property
-    def using_for(self) -> Dict[str, List[str]]:
+    def using_for(self) -> Dict[Union[str, Type], List[str]]:
         return self._using_for
-
-    def reverse_using_for(self, name: str) -> List[str]:
-        """
-            Returns:
-            (list)
-        """
-        return self._using_for[name]
 
     # endregion
     ###################################################################################

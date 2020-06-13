@@ -1,8 +1,8 @@
 # https://solidity.readthedocs.io/en/v0.4.24/units-and-global-variables.html
-from typing import List, Dict
+from typing import List, Dict, Union
 
 from slither.core.context.context import Context
-from slither.core.solidity_types import ElementaryType
+from slither.core.solidity_types import ElementaryType, TypeInformation
 
 SOLIDITY_VARIABLES = {
     "now": "uint256",
@@ -144,7 +144,10 @@ class SolidityFunction:
     def __init__(self, name: str):
         assert name in SOLIDITY_FUNCTIONS
         self._name = name
-        self._return_type = [ElementaryType(x) for x in SOLIDITY_FUNCTIONS[self.name]]
+        # Can be TypeInformation if type(address) is used
+        self._return_type: List[Union[TypeInformation, ElementaryType]] = [
+            ElementaryType(x) for x in SOLIDITY_FUNCTIONS[self.name]
+        ]
 
     @property
     def name(self) -> str:
@@ -155,11 +158,11 @@ class SolidityFunction:
         return self.name
 
     @property
-    def return_type(self) -> List[ElementaryType]:
+    def return_type(self) -> List[Union[TypeInformation, ElementaryType]]:
         return self._return_type
 
     @return_type.setter
-    def return_type(self, r: List[ElementaryType]):
+    def return_type(self, r: List[Union[TypeInformation, ElementaryType]]):
         self._return_type = r
 
     def __str__(self):

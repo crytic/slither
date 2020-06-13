@@ -48,6 +48,14 @@ class Assignment(OperationWithLValue):
     def rvalue(self) -> Union["VALID_RVALUE", Function, TupleVariable]:
         return self._rvalue
 
+    @property
+    def lvalue(self) -> "VALID_LVALUE":
+        return self._lvalue
+
+    @lvalue.setter
+    def lvalue(self, lvalue):
+        self._lvalue = lvalue
+
     def __str__(self):
         lvalue = self.lvalue
         if isinstance(lvalue, IndexVariable):

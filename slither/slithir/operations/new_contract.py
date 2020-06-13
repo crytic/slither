@@ -10,13 +10,13 @@ if TYPE_CHECKING:
 
 
 class NewContract(Call, OperationWithLValue):
-    def __init__(self, contract_name: Constant, lvalue: "VALID_LVALUE"):
+    def __init__(self, contract_name: Constant, lvalue: Optional["VALID_LVALUE"]):
         assert isinstance(contract_name, Constant)
         assert is_valid_lvalue(lvalue)
         super(NewContract, self).__init__()
         self._contract_name: Constant = contract_name
         # todo create analyze to add the contract instance
-        self._lvalue: "VALID_LVALUE" = lvalue
+        self._lvalue: Optional["VALID_LVALUE"] = lvalue
         self._callid: Optional[str] = None  # only used if gas/value != 0
         self._call_value: Optional["VALID_RVALUE"] = None
 
@@ -48,6 +48,7 @@ class NewContract(Call, OperationWithLValue):
     def contract_created(self) -> "Contract":
         contract_name = self.contract_name
         contract_instance = self.slither.get_contract_from_name(str(contract_name))
+        assert contract_instance
         return contract_instance
 
     ###################################################################################

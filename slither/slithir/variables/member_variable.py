@@ -5,13 +5,14 @@ from slither.slithir.variables.reference import ReferenceVariable
 if TYPE_CHECKING:
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.core.cfg.node import Node
+    from slither.slithir.variables import Constant
 
 
 class MemberVariable(ReferenceVariable):
     COUNTER = 0
 
     def __init__(
-        self, node: "Node", base: "SlithIRVariable", member: str, index: Optional[int] = None
+        self, node: "Node", base: "SlithIRVariable", member: "Constant", index: Optional[int] = None
     ):
         super(MemberVariable, self).__init__()
         self._index: int
@@ -22,7 +23,7 @@ class MemberVariable(ReferenceVariable):
             self._index = index
 
         self._node: "Node" = node
-        self._member: str = member
+        self._member: "Constant" = member
         self._base: "SlithIRVariable" = base
 
     @property
@@ -34,7 +35,7 @@ class MemberVariable(ReferenceVariable):
         self._index = idx
 
     @property
-    def member(self) -> str:
+    def member(self) -> "Constant":
         return self._member
 
     @member.setter
