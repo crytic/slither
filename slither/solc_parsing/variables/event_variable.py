@@ -1,10 +1,11 @@
+from typing import Dict
 
 from .variable_declaration import VariableDeclarationSolc
 from slither.core.variables.event_variable import EventVariable
 
-class EventVariableSolc(VariableDeclarationSolc, EventVariable):
 
-    def _analyze_variable_attributes(self, attributes):
+class EventVariableSolc(VariableDeclarationSolc, EventVariable):
+    def _analyze_variable_attributes(self, attributes: Dict):
         """
         Analyze event variable attributes
         :param attributes: The event variable attributes to parse.
@@ -12,8 +13,7 @@ class EventVariableSolc(VariableDeclarationSolc, EventVariable):
         """
 
         # Check for the indexed attribute
-        if 'indexed' in attributes:
-            self._indexed = attributes['indexed']
+        if "indexed" in attributes:
+            self._indexed = attributes["indexed"]
 
         super(EventVariableSolc, self)._analyze_variable_attributes(attributes)
-
