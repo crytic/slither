@@ -54,10 +54,10 @@ class PrinterCallGraph(AbstractPrinter):
         all_contracts = set()
 
         for function in functions:
-            all_contracts.add(function.contract)
+            all_contracts.add(function.contract_declarer)
         for function in functions:
             self._process_function(
-                function.contract,
+                function.contract_declarer,
                 function,
                 contract_functions,
                 contract_calls,

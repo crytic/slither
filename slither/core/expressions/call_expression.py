@@ -15,6 +15,7 @@ class CallExpression(Expression):
         # And converted later to the correct info (convert.py)
         self._gas: Optional[Expression] = None
         self._value: Optional[Expression] = None
+        self._salt: Optional[Expression] = None
 
     @property
     def call_value(self) -> Optional[Expression]:
@@ -33,6 +34,14 @@ class CallExpression(Expression):
         self._gas = gas
 
     @property
+    def call_salt(self):
+        return self._salt
+
+    @call_salt.setter
+    def call_salt(self, salt):
+        self._salt = salt
+
+    @property
     def called(self) -> Expression:
         return self._called
 
@@ -49,10 +58,8 @@ class CallExpression(Expression):
         if self.call_gas or self.call_value:
             gas = f"gas: {self.call_gas}" if self.call_gas else ""
             value = f"value: {self.call_value}" if self.call_value else ""
-            if gas and value:
-                txt += "{" + f"{gas}, {value}" + "}"
-            elif gas:
-                txt += "{" + f"{gas}" + "}"
-            else:
-                txt += "{" + f"{value}" + "}"
+            salt = f"salt: {self.call_salt}" if self.call_salt else ""
+            if gas or value or salt:
+                options = [gas, value, salt]
+                txt += "{" + ",".join([o for o in options if o != ""]) + "}"
         return txt + "(" + ",".join([str(a) for a in self._arguments]) + ")"

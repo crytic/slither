@@ -1,15 +1,18 @@
-from pathlib import Path
-import re
 import logging
+import re
 from collections import namedtuple
+from enum import Enum as PythonEnum
+from pathlib import Path
+from typing import List, Set, Dict, Optional
 
-from slither.core.declarations import SolidityFunction
-from slither.exceptions import SlitherException
-from slither.core.solidity_types.user_defined_type import UserDefinedType
-from slither.core.declarations.structure import Structure
-from slither.core.declarations.enum import Enum
+from slither.core.declarations import SolidityFunction, Enum
 from slither.core.declarations.contract import Contract
+from slither.core.declarations.structure import Structure
+from slither.core.solidity_types import MappingType, ArrayType
+from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.exceptions import SlitherException
 from slither.slithir.operations import NewContract, TypeConversion, SolidityCall
+from slither.tools.flattening.export.export import Export, export_as_json, save_to_zip, save_to_disk
 
 logger = logging.getLogger("Slither-flattening")
 
@@ -21,18 +24,34 @@ logger = logging.getLogger("Slither-flattening")
 Patch = namedtuple("PatchExternal", ["index", "patch_type"])
 
 
-class Flattening:
-    DEFAULT_EXPORT_PATH = Path("crytic-export/flattening")
+class Strategy(PythonEnum):
+    MostDerived = 0
+    OneFile = 1
+    LocalImport = 2
 
+
+STRATEGIES_NAMES = ",".join([i.name for i in Strategy])
+
+DEFAULT_EXPORT_PATH = Path("crytic-export/flattening")
+
+
+class Flattening:
     def __init__(
-        self, slither, external_to_public=False, remove_assert=False, private_to_internal=False
+        self,
+        slither,
+        external_to_public=False,
+        remove_assert=False,
+        private_to_internal=False,
+        export_path: Optional[str] = None,
     ):
-        self._source_codes = {}
+        self._source_codes: Dict[Contract, str] = {}
         self._slither = slither
         self._external_to_public = external_to_public
         self._remove_assert = remove_assert
         self._use_abi_encoder_v2 = False
         self._private_to_internal = private_to_internal
+
+        self._export_path: Path = DEFAULT_EXPORT_PATH if export_path is None else Path(export_path)
 
         self._check_abi_encoder_v2()
 
@@ -40,14 +59,25 @@ class Flattening:
             self._get_source_code(contract)
 
     def _check_abi_encoder_v2(self):
+        """
+        Check if ABIEncoderV2 is required
+        Set _use_abi_encorder_v2
+        :return:
+        """
         for p in self._slither.pragma_directives:
             if "ABIEncoderV2" in str(p.directive):
                 self._use_abi_encoder_v2 = True
                 return
 
-    def _get_source_code(self, contract):
+    def _get_source_code(self, contract: Contract):
+        """
+        Save the source code of the contract in self._source_codes
+        Patch the source code
+        :param contract:
+        :return:
+        """
         src_mapping = contract.source_mapping
-        content = self._slither.source_code[src_mapping["filename_absolute"]]
+        content = self._slither.source_code[src_mapping["filename_absolute"]].encode("utf8")
         start = src_mapping["start"]
         end = src_mapping["start"] + src_mapping["length"]
 
@@ -127,24 +157,43 @@ class Flattening:
                 assert patch_type == "line_removal"
                 content = content[:index] + " // " + content[index:]
 
-        self._source_codes[contract] = content
+        self._source_codes[contract] = content.decode("utf8")
+
+    def _pragmas(self) -> str:
+        """
+        Return the required pragmas
+        :return:
+        """
+        ret = ""
+        if self._slither.solc_version:
+            ret += f"pragma solidity {self._slither.solc_version};\n"
+        if self._use_abi_encoder_v2:
+            ret += "pragma experimental ABIEncoderV2;\n"
+        return ret
 
     def _export_from_type(self, t, contract, exported, list_contract):
         if isinstance(t, UserDefinedType):
             if isinstance(t.type, (Enum, Structure)):
-                if t.type.contract != contract and not t.type.contract in exported:
-                    self._export_contract(t.type.contract, exported, list_contract)
+                if t.type.contract != contract and t.type.contract not in exported:
+                    self._export_list_used_contracts(t.type.contract, exported, list_contract)
             else:
                 assert isinstance(t.type, Contract)
-                if t.type != contract and not t.type in exported:
-                    self._export_contract(t.type, exported, list_contract)
+                if t.type != contract and t.type not in exported:
+                    self._export_list_used_contracts(t.type, exported, list_contract)
+        elif isinstance(t, MappingType):
+            self._export_from_type(t.type_from, contract, exported, list_contract)
+            self._export_from_type(t.type_to, contract, exported, list_contract)
+        elif isinstance(t, ArrayType):
+            self._export_from_type(t.type, contract, exported, list_contract)
 
-    def _export_contract(self, contract, exported, list_contract):
+    def _export_list_used_contracts(
+        self, contract: Contract, exported: Set[str], list_contract: List[Contract]
+    ):
         if contract.name in exported:
             return
         exported.add(contract.name)
         for inherited in contract.inheritance:
-            self._export_contract(inherited, exported, list_contract)
+            self._export_list_used_contracts(inherited, exported, list_contract)
 
         # Find all the external contracts called
         externals = contract.all_library_calls + contract.all_high_level_calls
@@ -153,7 +202,7 @@ class Flattening:
         externals = list(set([e[0] for e in externals if e[0] != contract]))
 
         for inherited in externals:
-            self._export_contract(inherited, exported, list_contract)
+            self._export_list_used_contracts(inherited, exported, list_contract)
 
         # Find all the external contracts use as a base type
         local_vars = []
@@ -163,41 +212,120 @@ class Flattening:
         for v in contract.variables + local_vars:
             self._export_from_type(v.type, contract, exported, list_contract)
 
+        for s in contract.structures:
+            for elem in s.elems.values():
+                self._export_from_type(elem.type, contract, exported, list_contract)
+
         # Find all convert and "new" operation that can lead to use an external contract
         for f in contract.functions_declared:
             for ir in f.slithir_operations:
                 if isinstance(ir, NewContract):
                     if ir.contract_created != contract and not ir.contract_created in exported:
-                        self._export_contract(ir.contract_created, exported, list_contract)
+                        self._export_list_used_contracts(
+                            ir.contract_created, exported, list_contract
+                        )
                 if isinstance(ir, TypeConversion):
                     self._export_from_type(ir.type, contract, exported, list_contract)
-        list_contract.append(self._source_codes[contract])
+        if contract not in list_contract:
+            list_contract.append(contract)
 
-    def _export(self, contract, ret):
-        self._export_contract(contract, set(), ret)
-        path = Path(self.DEFAULT_EXPORT_PATH, f"{contract.name}.sol")
-        logger.info(f"Export {path}")
-        with open(path, "w") as f:
-            if self._slither.solc_version:
-                f.write(f"pragma solidity {self._slither.solc_version};\n")
-            if self._use_abi_encoder_v2:
-                f.write("pragma experimental ABIEncoderV2;\n")
-            f.write("\n".join(ret))
-            f.write("\n")
+    def _export_contract_with_inheritance(self, contract) -> Export:
+        list_contracts: List[Contract] = []  # will contain contract itself
+        self._export_list_used_contracts(contract, set(), list_contracts)
+        path = Path(self._export_path, f"{contract.name}.sol")
 
-    def export(self, target=None):
+        content = ""
+        content += self._pragmas()
 
-        if not self.DEFAULT_EXPORT_PATH.exists():
-            self.DEFAULT_EXPORT_PATH.mkdir(parents=True)
+        for contract in list_contracts:
+            content += self._source_codes[contract]
+            content += "\n"
 
+        return Export(filename=path, content=content)
+
+    def _export_most_derived(self) -> List[Export]:
+        ret: List[Export] = []
+        for contract in self._slither.contracts_derived:
+            ret.append(self._export_contract_with_inheritance(contract))
+        return ret
+
+    def _export_all(self) -> List[Export]:
+        path = Path(self._export_path, f"export.sol")
+
+        content = ""
+        content += self._pragmas()
+
+        contract_seen = set()
+        contract_to_explore = list(self._slither.contracts)
+
+        # We only need the inheritance order here, as solc can compile
+        # a contract that use another contract type (ex: state variable) that he has not seen yet
+        while contract_to_explore:
+            next = contract_to_explore.pop(0)
+
+            if not next.inheritance or all(
+                (father in contract_seen for father in next.inheritance)
+            ):
+                content += "\n"
+                content += self._source_codes[next]
+                content += "\n"
+                contract_seen.add(next)
+            else:
+                contract_to_explore.append(next)
+
+        return [Export(filename=path, content=content)]
+
+    def _export_with_import(self) -> List[Export]:
+        exports: List[Export] = []
+        for contract in self._slither.contracts:
+            list_contracts: List[Contract] = []  # will contain contract itself
+            self._export_list_used_contracts(contract, set(), list_contracts)
+
+            path = Path(self._export_path, f"{contract.name}.sol")
+
+            content = ""
+            content += self._pragmas()
+            for used_contract in list_contracts:
+                if used_contract != contract:
+                    content += f"import './{used_contract.name}.sol';\n"
+            content += "\n"
+            content += self._source_codes[contract]
+            content += "\n"
+            exports.append(Export(filename=path, content=content))
+        return exports
+
+    def export(
+        self,
+        strategy: Strategy,
+        target: Optional[str] = None,
+        json: Optional[str] = None,
+        zip: Optional[str] = None,
+        zip_type: Optional[str] = None,
+    ):
+
+        if not self._export_path.exists():
+            self._export_path.mkdir(parents=True)
+
+        exports: List[Export] = []
         if target is None:
-            for contract in self._slither.contracts_derived:
-                ret = []
-                self._export(contract, ret)
+            if strategy == Strategy.MostDerived:
+                exports = self._export_most_derived()
+            elif strategy == Strategy.OneFile:
+                exports = self._export_all()
+            elif strategy == Strategy.LocalImport:
+                exports = self._export_with_import()
         else:
             contract = self._slither.get_contract_from_name(target)
             if contract is None:
                 logger.error(f"{target} not found")
-            else:
-                ret = []
-                self._export(contract, ret)
+                return
+            exports = [self._export_contract_with_inheritance(contract)]
+
+        if json:
+            export_as_json(exports, json)
+
+        elif zip:
+            save_to_zip(exports, zip, zip_type)
+
+        else:
+            save_to_disk(exports)
