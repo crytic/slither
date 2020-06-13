@@ -40,6 +40,8 @@ from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
+    from slither.solc_parsing.declarations.function import FunctionSolc
+    from slither.solc_parsing.declarations.contract import ContractSolc
 
 logger = logging.getLogger("ExpressionParsing")
 
@@ -50,6 +52,7 @@ logger = logging.getLogger("ExpressionParsing")
 ###################################################################################
 ###################################################################################
 
+CallerContext = Union["ContractSolc", "FunctionSolc"]
 
 def get_pointer_name(variable: Variable):
     curr_type = variable.type
@@ -66,10 +69,12 @@ def get_pointer_name(variable: Variable):
 
 
 def find_variable(
-    var_name: str, caller_context, referenced_declaration: Optional[int] = None, is_super=False
+    var_name: str, caller_context: CallerContext, referenced_declaration: Optional[int] = None, is_super=False
 ) -> Union[
     Variable, Function, Contract, SolidityVariable, SolidityFunction, Event, Enum, Structure
 ]:
+    from slither.solc_parsing.declarations.contract import ContractSolc
+
     # variable are looked from the contract declarer
     # functions can be shadowed, but are looked from the contract instance, rather than the contract declarer
     # the difference between function and variable come from the fact that an internal call, or an variable access
@@ -85,10 +90,10 @@ def find_variable(
     # for events it's unclear what should be the behavior, as they can be shadowed, but there is not impact
     # structure/enums cannot be shadowed
 
-    if isinstance(caller_context, Contract):
+    if isinstance(caller_context, ContractSolc):
         function = None
-        contract = caller_context
-        contract_declarer = caller_context
+        contract = caller_context.underlying_contract
+        contract_declarer = caller_context.underlying_contract
     elif isinstance(caller_context, Function):
         function = caller_context
         contract = function.contract
@@ -115,7 +120,7 @@ def find_variable(
             return func_variables_ptr[var_name]
 
     # variable are looked from the contract declarer
-    contract_variables = contract_declarer.variables_as_dict()
+    contract_variables = contract_declarer.variables_as_dict
     if var_name in contract_variables:
         return contract_variables[var_name]
 
@@ -153,15 +158,15 @@ def find_variable(
         return modifiers[var_name]
 
     # structures are looked on the contract declarer
-    structures = contract.structures_as_dict()
+    structures = contract.structures_as_dict
     if var_name in structures:
         return structures[var_name]
 
-    events = contract.events_as_dict()
+    events = contract.events_as_dict
     if var_name in events:
         return events[var_name]
 
-    enums = contract.enums_as_dict()
+    enums = contract.enums_as_dict
     if var_name in enums:
         return enums[var_name]
 
@@ -171,7 +176,7 @@ def find_variable(
         return enums[var_name]
 
     # Could refer to any enum
-    all_enums = [c.enums_as_dict() for c in contract.slither.contracts]
+    all_enums = [c.enums_as_dict for c in contract.slither.contracts]
     all_enums = {k: v for d in all_enums for k, v in d.items()}
     if var_name in all_enums:
         return all_enums[var_name]
@@ -182,7 +187,7 @@ def find_variable(
     if var_name in SOLIDITY_FUNCTIONS:
         return SolidityFunction(var_name)
 
-    contracts = contract.slither.contracts_as_dict()
+    contracts = contract.slither.contracts_as_dict
     if var_name in contracts:
         return contracts[var_name]
 
@@ -367,7 +372,7 @@ def _parse_elementary_type_name_expression(
     return e
 
 
-def parse_expression(expression: Dict, caller_context) -> "Expression":
+def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expression":
     """
 
     Returns:

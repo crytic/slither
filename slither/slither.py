@@ -1,18 +1,13 @@
 import logging
 import os
-import subprocess
-import sys
-import glob
-import json
-import platform
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
-from .solc_parsing.exceptions import VariableNotFound
-from .solc_parsing.slitherSolc import SlitherSolc
+from .core.slither_core import SlitherCore
 from .exceptions import SlitherError
+from .solc_parsing.slitherSolc import SlitherSolc
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -21,7 +16,7 @@ logger_detector = logging.getLogger("Detectors")
 logger_printer = logging.getLogger("Printers")
 
 
-class Slither(SlitherSolc):
+class Slither(SlitherCore):
     def __init__(self, target, **kwargs):
         """
             Args:
@@ -46,13 +41,15 @@ class Slither(SlitherSolc):
                 embark_overwrite_config (bool): overwrite original config file (default false)
 
         """
+        super().__init__()
+        self._parser: SlitherSolc #  This could be another parser, like SlitherVyper, interface needs to be determined
         # list of files provided (see --splitted option)
         if isinstance(target, list):
             self._init_from_list(target)
         elif isinstance(target, str) and target.endswith(".json"):
             self._init_from_raw_json(target)
         else:
-            super(Slither, self).__init__("")
+            self._parser = SlitherSolc("", self)
             try:
                 if isinstance(target, CryticCompile):
                     crytic_compile = target
@@ -62,8 +59,8 @@ class Slither(SlitherSolc):
             except InvalidCompilation as e:
                 raise SlitherError("Invalid compilation: \n" + str(e))
             for path, ast in crytic_compile.asts.items():
-                self._parse_contracts_from_loaded_json(ast, path)
-                self._add_source_code(path)
+                self._parser.parse_contracts_from_loaded_json(ast, path)
+                self.add_source_code(path)
 
         if kwargs.get("generate_patches", False):
             self.generate_patches = True
@@ -82,7 +79,7 @@ class Slither(SlitherSolc):
         triage_mode = kwargs.get("triage_mode", False)
         self._triage_mode = triage_mode
 
-        self._analyze_contracts()
+        self._parser.analyze_contracts()
 
     def _init_from_raw_json(self, filename):
         if not os.path.isfile(filename):
@@ -96,19 +93,19 @@ class Slither(SlitherSolc):
                 raise SlitherError("Empty AST file: %s", filename)
         contracts_json = stdout.split("\n=")
 
-        super(Slither, self).__init__(filename)
+        self._parser = SlitherSolc(filename, self)
 
         for c in contracts_json:
-            self._parse_contracts_from_json(c)
+            self._parser.parse_contracts_from_json(c)
 
     def _init_from_list(self, contract):
-        super(Slither, self).__init__("")
+        self._parser = SlitherSolc("", self)
         for c in contract:
             if "absolutePath" in c:
                 path = c["absolutePath"]
             else:
                 path = c["attributes"]["absolutePath"]
-            self._parse_contracts_from_loaded_json(c, path)
+            self._parser.parse_contracts_from_loaded_json(c, path)
 
     @property
     def detectors(self):

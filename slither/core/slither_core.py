@@ -20,13 +20,13 @@ logger = logging.getLogger("Slither")
 logging.basicConfig()
 
 
-class Slither(Context):
+class SlitherCore(Context):
     """
     Slither static analyzer
     """
 
     def __init__(self):
-        super(Slither, self).__init__()
+        super(SlitherCore, self).__init__()
         self._contracts: Dict[str, Contract] = {}
         self._filename: Optional[str] = None
         self._source_units: Dict[int, str] = {}
@@ -75,7 +75,11 @@ class Slither(Context):
         """str: Filename."""
         return self._filename
 
-    def _add_source_code(self, path):
+    @filename.setter
+    def filename(self, filename: str):
+        self._filename = filename
+
+    def add_source_code(self, path):
         """
         :param path:
         :return:
@@ -133,6 +137,7 @@ class Slither(Context):
         inheritance = [item for sublist in inheritance for item in sublist]
         return [c for c in self._contracts.values() if c not in inheritance]
 
+    @property
     def contracts_as_dict(self) -> Dict[str, Contract]:
         """list(dict(str: Contract): List of contracts as dict: name -> Contract."""
         return self._contracts
@@ -172,7 +177,7 @@ class Slither(Context):
     def functions_and_modifiers(self) -> List[Function]:
         return self.functions + self.modifiers
 
-    def _propagate_function_calls(self):
+    def propagate_function_calls(self):
         for f in self.functions_and_modifiers:
             for node in f.nodes:
                 for ir in node.irs_ssa:

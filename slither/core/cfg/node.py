@@ -48,7 +48,7 @@ from slither.core.expressions.expression import Expression
 if TYPE_CHECKING:
     from slither.core.declarations import Function
     from slither.slithir.variables.variable import SlithIRVariable
-    from slither.core.slither_core import Slither
+    from slither.core.slither_core import SlitherCore
     from slither.utils.type_helpers import (
         InternalCallType,
         HighLevelCallType,
@@ -222,7 +222,7 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def slither(self) -> "Slither":
+    def slither(self) -> "SlitherCore":
         return self.function.slither
 
     @property

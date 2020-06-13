@@ -24,6 +24,7 @@ from slither.core.source_mapping.source_mapping import SourceMapping
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
+    from slither.solc_parsing.slitherSolc import SlitherSolc
 
 
 LOGGER = logging.getLogger("FunctionSolc")
@@ -35,10 +36,11 @@ class FunctionSolc(Function):
 
     # elems = [(type, name)]
 
-    def __init__(self, function: Dict, contract: Contract, contract_declarer: Contract):
+    def __init__(self, function: Dict, contract: Contract, contract_declarer: Contract, slither_parser: "SlitherSolc"):
         super(FunctionSolc, self).__init__()
         self._contract = contract
         self._contract_declarer = contract_declarer
+        self._slither_parser: "SlitherSolc" = slither_parser
 
         # Only present if compact AST
         self._referenced_declaration: Optional[str] = None
@@ -76,7 +78,7 @@ class FunctionSolc(Function):
     ###################################################################################
 
     def get_key(self) -> str:
-        return self.slither.get_key()
+        return self._slither_parser.get_key()
 
     def get_children(self, key: str) -> str:
         if self.is_compact_ast:
@@ -85,7 +87,7 @@ class FunctionSolc(Function):
 
     @property
     def is_compact_ast(self):
-        return self.slither.is_compact_ast
+        return self._slither_parser.is_compact_ast
 
     @property
     def referenced_declaration(self) -> Optional[str]:

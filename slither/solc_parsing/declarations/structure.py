@@ -14,10 +14,11 @@ class StructureSolc(Structure):
 
     # elems = [(type, name)]
 
-    def __init__(self, name: str, canonicalName: str, elems: List[str]):
+    def __init__(self, name: str, canonicalName: str, elems: List[str], contract_parser: "ContractSolc"):
         super(StructureSolc, self).__init__()
         self._name = name
         self._canonical_name = canonicalName
+        self._contract_parser = contract_parser
 
         self._elemsNotParsed = elems
 
@@ -27,7 +28,7 @@ class StructureSolc(Structure):
             elem.set_structure(self)
             elem.set_offset(elem_to_parse["src"], self.contract.slither)
 
-            elem.analyze(self.contract)
+            elem.analyze(self._contract_parser)
 
             self._elems[elem.name] = elem
             self._elems_ordered.append(elem.name)

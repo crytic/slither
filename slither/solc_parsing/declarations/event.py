@@ -7,7 +7,7 @@ from slither.solc_parsing.variables.event_variable import EventVariableSolc
 from slither.core.declarations.event import Event
 
 if TYPE_CHECKING:
-    from slither.core.declarations import Contract
+    from slither.solc_parsing.declarations.contract import ContractSolc
 
 
 class EventSolc(Event):
@@ -15,9 +15,10 @@ class EventSolc(Event):
     Event class
     """
 
-    def __init__(self, event: Dict, contract: "Contract"):
+    def __init__(self, event: Dict, contract_parser: "ContractSolc"):
         super(EventSolc, self).__init__()
-        self._contract = contract
+        self._contract = contract_parser.underlying_contract
+        self._parser_contract = contract_parser
 
         self._elems = []
         if self.is_compact_ast:
@@ -37,9 +38,9 @@ class EventSolc(Event):
 
     @property
     def is_compact_ast(self) -> bool:
-        return self.contract.is_compact_ast
+        return self._parser_contract.is_compact_ast
 
-    def analyze(self, contract: "Contract"):
+    def analyze(self, contract: "ContractSolc"):
         for elem_to_parse in self._elemsNotParsed:
             elem = EventVariableSolc(elem_to_parse)
             elem.analyze(contract)
