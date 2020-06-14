@@ -156,8 +156,8 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
         contract_parser = caller_context
         is_compact_ast = caller_context.is_compact_ast
     elif isinstance(caller_context, FunctionSolc):
-        contract = caller_context.contract
-        contract_parser = caller_context.contract
+        contract = caller_context.underlying_function.contract
+        contract_parser = caller_context.contract_parser
         is_compact_ast = caller_context.is_compact_ast
     else:
         raise ParsingError(f"Incorrect caller context: {type(caller_context)}")

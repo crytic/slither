@@ -64,7 +64,7 @@
                     27
                   ],
                   "starting_column": 1,
-                  "ending_column": null
+                  "ending_column": 2
                 }
               }
             }
@@ -162,7 +162,7 @@
                         27
                       ],
                       "starting_column": 1,
-                      "ending_column": null
+                      "ending_column": 2
                     }
                   },
                   "signature": "functionWithDeprecatedThrow()"
@@ -263,7 +263,7 @@
                         27
                       ],
                       "starting_column": 1,
-                      "ending_column": null
+                      "ending_column": 2
                     }
                   },
                   "signature": "functionWithDeprecatedThrow()"
@@ -370,7 +370,7 @@
                         27
                       ],
                       "starting_column": 1,
-                      "ending_column": null
+                      "ending_column": 2
                     }
                   },
                   "signature": "functionWithDeprecatedReferences()"
@@ -477,7 +477,7 @@
                         27
                       ],
                       "starting_column": 1,
-                      "ending_column": null
+                      "ending_column": 2
                     }
                   },
                   "signature": "functionWithDeprecatedReferences()"
@@ -584,7 +584,7 @@
                         27
                       ],
                       "starting_column": 1,
-                      "ending_column": null
+                      "ending_column": 2
                     }
                   },
                   "signature": "functionWithDeprecatedReferences()"
@@ -691,7 +691,7 @@
                         27
                       ],
                       "starting_column": 1,
-                      "ending_column": null
+                      "ending_column": 2
                     }
                   },
                   "signature": "functionWithDeprecatedReferences()"
@@ -768,7 +768,7 @@
                     27
                   ],
                   "starting_column": 1,
-                  "ending_column": null
+                  "ending_column": 2
                 },
                 "type_specific_fields": {
                   "parent": {
@@ -812,7 +812,7 @@
                         27
                       ],
                       "starting_column": 1,
-                      "ending_column": null
+                      "ending_column": 2
                     }
                   },
                   "signature": "slitherConstructorVariables()"

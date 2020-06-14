@@ -13,48 +13,52 @@ from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
 
 
-class NodeSolc(Node):
-    def __init__(self, node_type: NodeType, node_id: int):
-        super(NodeSolc, self).__init__(node_type, node_id)
+class NodeSolc:
+    def __init__(self, node: Node):
         self._unparsed_expression: Optional[Dict] = None
+        self._node = node
+
+    @property
+    def underlying_node(self) -> Node:
+        return self._node
 
     def add_unparsed_expression(self, expression: Dict):
         assert self._unparsed_expression is None
         self._unparsed_expression = expression
 
     def analyze_expressions(self, caller_context):
-        if self.type == NodeType.VARIABLE and not self._expression:
-            self._expression = self.variable_declaration.expression
+        if self._node.type == NodeType.VARIABLE and not self._node.expression:
+            self._node.add_expression(self._node.variable_declaration.expression)
         if self._unparsed_expression:
             expression = parse_expression(self._unparsed_expression, caller_context)
-            self._expression = expression
-            self._unparsed_expression = None
+            self._node.add_expression(expression)
+            #self._unparsed_expression = None
 
-        if self.expression:
+        if self._node.expression:
 
-            if self.type == NodeType.VARIABLE:
+            if self._node.type == NodeType.VARIABLE:
                 # Update the expression to be an assignement to the variable
                 _expression = AssignmentOperation(
-                    Identifier(self.variable_declaration),
-                    self.expression,
+                    Identifier(self._node.variable_declaration),
+                    self._node.expression,
                     AssignmentOperationType.ASSIGN,
-                    self.variable_declaration.type,
+                    self._node.variable_declaration.type,
                 )
-                _expression.set_offset(self.expression.source_mapping, self.slither)
-                self._expression = _expression
+                _expression.set_offset(self._node.expression.source_mapping, self._node.slither)
+                self._node.add_expression(_expression, bypass_verif_empty=True)
 
-            expression = self.expression
+            expression = self._node.expression
             read_var = ReadVar(expression)
-            self._expression_vars_read = read_var.result()
+            self._node.variables_read_as_expression = read_var.result()
 
             write_var = WriteVar(expression)
-            self._expression_vars_written = write_var.result()
+            self._node.variables_written_as_expression = write_var.result()
 
             find_call = FindCalls(expression)
-            self._expression_calls = find_call.result()
-            self._external_calls_as_expressions = [
-                c for c in self.calls_as_expression if not isinstance(c.called, Identifier)
+            self._node.calls_as_expression = find_call.result()
+            self._node.external_calls_as_expressions = [
+                c for c in self._node.calls_as_expression if not isinstance(c.called, Identifier)
             ]
-            self._internal_calls_as_expressions = [
-                c for c in self.calls_as_expression if isinstance(c.called, Identifier)
+            self._node.internal_calls_as_expressions = [
+                c for c in self._node.calls_as_expression if isinstance(c.called, Identifier)
             ]

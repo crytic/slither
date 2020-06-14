@@ -11,11 +11,11 @@ logger = logging.getLogger("SlitherSolcParsing")
 logger.setLevel(logging.INFO)
 
 from slither.solc_parsing.declarations.contract import ContractSolc
+from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.core.slither_core import SlitherCore
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.import_directive import Import
 from slither.analyses.data_dependency.data_dependency import compute_dependency
-
 
 class SlitherSolc:
     def __init__(self, filename: str, core: SlitherCore):
@@ -29,9 +29,23 @@ class SlitherSolc:
         self._is_compact_ast = False
         self._core: SlitherCore = core
 
+        self._all_functions_parser: List[FunctionSolc] = []
+
     @property
     def core(self):
         return self._core
+
+    @property
+    def all_functions_parser(self) -> List[FunctionSolc]:
+        return self._all_functions_parser
+
+    def add_functions_parser(self, f: FunctionSolc):
+        self._all_functions_parser.append(f)
+
+    @property
+    def underlying_contract_to_parser(self) -> Dict[Contract, ContractSolc]:
+        return self._underlying_contract_to_parser
+
 
     ###################################################################################
     ###################################################################################
@@ -247,7 +261,7 @@ class SlitherSolc:
                 else:
                     missing_inheritance = True
 
-            contract_parser.underlying_contract.setInheritance(
+            contract_parser.underlying_contract.set_inheritance(
                 ancestors, fathers, father_constructors
             )
 

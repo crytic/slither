@@ -30,14 +30,15 @@ if TYPE_CHECKING:
         HighLevelCallType,
         LibraryCallType,
     )
-    from slither.core.declarations import Contract, Modifier
-    from slither.core.cfg.node import Node
+    from slither.core.declarations import Contract
+    from slither.core.cfg.node import Node, NodeType
     from slither.core.variables.variable import Variable
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.slithir.variables import LocalIRVariable
     from slither.core.expressions.expression import Expression
     from slither.slithir.operations import Operation
     from slither.slither import Slither
+    from slither.core.cfg.node import NodeType
 
 LOGGER = logging.getLogger("Function")
 ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
@@ -64,7 +65,7 @@ class ModifierStatements:
         self._entry_point = entry_point
 
     @property
-    def nodes(self) -> List["Node"]:
+    def nodes(self  ) -> List["Node"]:
         return self._nodes
 
     @nodes.setter
@@ -89,9 +90,9 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     def __init__(self):
         super(Function, self).__init__()
         self._name: Optional[str] = None
-        self._view: Optional[bool] = None
-        self._pure: Optional[bool] = None
-        self._payable: Optional[bool] = None
+        self._view: bool = False
+        self._pure: bool = False
+        self._payable: bool = False
         self._visibility: Optional[str] = None
 
         self._is_implemented: Optional[bool] = None
@@ -124,10 +125,9 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._expression_vars_read: List["Expression"] = []
         self._expression_vars_written: List["Expression"] = []
         self._expression_calls: List["Expression"] = []
-        self._expression_modifiers: List["Expression"] = []
+        #self._expression_modifiers: List["Expression"] = []
         self._modifiers: List[ModifierStatements] = []
         self._explicit_base_constructor_calls: List[ModifierStatements] = []
-        self._payable: bool = False
         self._contains_assembly: bool = False
 
         self._expressions: Optional[List["Expression"]] = None
@@ -171,6 +171,9 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
         self._nodes_ordered_dominators: Optional[List["Node"]] = None
 
+        self._counter_nodes = 0
+
+
     ###################################################################################
     ###################################################################################
     # region General properties
@@ -194,6 +197,10 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             return "slitherConstructorConstantVariables"
         return self._name
 
+    @name.setter
+    def name(self, new_name: str):
+        self._name = new_name
+
     @property
     def full_name(self) -> str:
         """
@@ -215,6 +222,10 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     @property
     def contains_assembly(self) -> bool:
         return self._contains_assembly
+
+    @contains_assembly.setter
+    def contains_assembly(self, c: bool):
+        self._contains_assembly = c
 
     def can_reenter(self, callstack=None) -> bool:
         """
@@ -276,6 +287,14 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._function_type = t
 
     @property
+    def function_type(self) -> Optional[FunctionType]:
+        return self._function_type
+
+    @function_type.setter
+    def function_type(self, t: FunctionType):
+        self._function_type = t
+
+    @property
     def is_constructor(self) -> bool:
         """
             bool: True if the function is the constructor
@@ -325,6 +344,10 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         return self._payable
 
+    @payable.setter
+    def payable(self, p: bool):
+        self._payable = p
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -337,7 +360,12 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
             str: Function visibility
         """
+        assert self._visibility is not None
         return self._visibility
+
+    @visibility.setter
+    def visibility(self, v: str):
+        self._visibility = v
 
     def set_visibility(self, v: str):
         self._visibility = v
@@ -349,12 +377,20 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         return self._view
 
+    @view.setter
+    def view(self, v: bool):
+        self._view = v
+
     @property
     def pure(self) -> bool:
         """
             bool: True if the function is declared as pure
         """
         return self._pure
+
+    @pure.setter
+    def pure(self, p: bool):
+        self._pure = p
 
     @property
     def is_shadowed(self) -> bool:
@@ -386,12 +422,20 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         return self._is_implemented
 
+    @is_implemented.setter
+    def is_implemented(self, is_impl: bool):
+        self._is_implemented = is_impl
+
     @property
     def is_empty(self) -> bool:
         """
             bool: True if the function is empty, None if the function is an interface
         """
         return self._is_empty
+
+    @is_empty.setter
+    def is_empty(self, empty: bool):
+        self._is_empty = empty
 
     # endregion
     ###################################################################################
@@ -413,6 +457,10 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             Node: Entry point of the function
         """
         return self._entry_point
+
+    @entry_point.setter
+    def entry_point(self, node: "Node"):
+        self._entry_point = node
 
     def add_node(self, node: "Node"):
         if not self._entry_point:
@@ -458,6 +506,9 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         return list(self._parameters)
 
+    def add_parameters(self, p: "LocalVariable"):
+        self._parameters.append(p)
+
     @property
     def parameters_ssa(self) -> List["LocalIRVariable"]:
         """
@@ -502,6 +553,9 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         return list(self._returns)
 
+    def add_return(self, r: "LocalVariable"):
+        self._returns.append(r)
+
     @property
     def returns_ssa(self) -> List["LocalIRVariable"]:
         """
@@ -520,11 +574,16 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     ###################################################################################
 
     @property
-    def modifiers(self) -> List["Modifier"]:
+    def modifiers(self) -> List[Union["Contract", "Function"]]:
         """
             list(Modifier): List of the modifiers
+            Can be contract for constructor's calls
+
         """
         return [c.modifier for c in self._modifiers]
+
+    def add_modifier(self, modif: "ModifierStatements"):
+        self._modifiers.append(modif)
 
     @property
     def modifiers_statements(self) -> List[ModifierStatements]:
@@ -557,6 +616,9 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
         return list(self._explicit_base_constructor_calls)
 
+    def add_explicit_base_constructor_calls_statements(self, modif: ModifierStatements):
+        self._explicit_base_constructor_calls.append(modif)
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -579,6 +641,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         return list(set(self.variables) - set(self.returns) - set(self.parameters))
 
+    @property
     def variables_as_dict(self) -> Dict[str, LocalVariable]:
         return self._variables
 
@@ -1432,6 +1495,25 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             item for sublist in external_calls_as_expressions for item in sublist
         ]
         self._external_calls_as_expressions = list(set(external_calls_as_expressions))
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Nodes
+    ###################################################################################
+    ###################################################################################
+
+    def new_node(self, node_type: "NodeType", src: Union[str, Dict]) -> "Node":
+        from slither.core.cfg.node import Node
+        node = Node(node_type, self._counter_nodes)
+        node.set_offset(src, self.slither)
+        self._counter_nodes += 1
+        node.set_function(self)
+        self._nodes.append(node)
+
+        return node
+
+
 
     # endregion
     ###################################################################################

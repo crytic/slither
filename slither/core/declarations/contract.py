@@ -58,7 +58,6 @@ class Contract(ChildSlither, SourceMapping):
         self._functions: Dict[str, "Function"] = {}
         self._linearizedBaseContracts = List[int]
 
-
         self._using_for: Dict[str, List[str]] = {}
         self._kind: Optional[str] = None
         self._is_interface: bool = False
@@ -548,7 +547,7 @@ class Contract(ChildSlither, SourceMapping):
         """
         return list(reversed(self._inheritance))
 
-    def setInheritance(
+    def set_inheritance(
             self,
             inheritance: List["Contract"],
             immediate_inheritance: List["Contract"],
@@ -929,7 +928,7 @@ class Contract(ChildSlither, SourceMapping):
     def is_possible_erc20(self) -> bool:
         """
         Checks if the provided contract could be attempting to implement ERC20 standards.
-        :param contract: The contract to check for token compatibility.
+
         :return: Returns a boolean indicating if the provided contract met the token standard.
         """
         # We do not check for all the functions, as name(), symbol(), might give too many FPs
@@ -943,7 +942,7 @@ class Contract(ChildSlither, SourceMapping):
     def is_possible_erc721(self) -> bool:
         """
         Checks if the provided contract could be attempting to implement ERC721 standards.
-        :param contract: The contract to check for token compatibility.
+
         :return: Returns a boolean indicating if the provided contract met the token standard.
         """
         # We do not check for all the functions, as name(), symbol(), might give too many FPs
@@ -1073,6 +1072,10 @@ class Contract(ChildSlither, SourceMapping):
         """
         return self._is_incorrectly_parsed
 
+    @is_incorrectly_constructed.setter
+    def is_incorrectly_constructed(self, incorrect: bool):
+        self._is_incorrectly_parsed = incorrect
+
     def add_constructor_variables(self):
         if self.state_variables:
             for (idx, variable_candidate) in enumerate(self.state_variables):
@@ -1091,7 +1094,7 @@ class Contract(ChildSlither, SourceMapping):
                     prev_node = self._create_node(constructor_variable, 0, variable_candidate)
                     variable_candidate.node_initialization = prev_node
                     counter = 1
-                    for v in self.state_variables[idx + 1 :]:
+                    for v in self.state_variables[idx + 1:]:
                         if v.expression and not v.is_constant:
                             next_node = self._create_node(constructor_variable, counter, v)
                             v.node_initialization = next_node
@@ -1118,7 +1121,7 @@ class Contract(ChildSlither, SourceMapping):
                     prev_node = self._create_node(constructor_variable, 0, variable_candidate)
                     variable_candidate.node_initialization = prev_node
                     counter = 1
-                    for v in self.state_variables[idx + 1 :]:
+                    for v in self.state_variables[idx + 1:]:
                         if v.expression and v.is_constant:
                             next_node = self._create_node(constructor_variable, counter, v)
                             v.node_initialization = next_node
@@ -1143,6 +1146,7 @@ class Contract(ChildSlither, SourceMapping):
         expression.set_offset(variable.source_mapping, self.slither)
         node.add_expression(expression)
         return node
+
     # endregion
     ###################################################################################
     ###################################################################################

@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Dict, TYPE_CHECKING, Optional, Tuple, Union
+from typing import Dict, TYPE_CHECKING, Optional, Union
 
 from slither.core.declarations import Event, Enum, Structure
 from slither.core.declarations.contract import Contract
@@ -35,8 +35,8 @@ from slither.core.expressions.type_conversion import TypeConversion
 from slither.core.expressions.unary_operation import UnaryOperation, UnaryOperationType
 from slither.core.solidity_types import ArrayType, ElementaryType, FunctionType, MappingType
 from slither.core.variables.variable import Variable
-from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
+from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
@@ -45,7 +45,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("ExpressionParsing")
 
-
 ###################################################################################
 ###################################################################################
 # region Helpers
@@ -53,6 +52,7 @@ logger = logging.getLogger("ExpressionParsing")
 ###################################################################################
 
 CallerContext = Union["ContractSolc", "FunctionSolc"]
+
 
 def get_pointer_name(variable: Variable):
     curr_type = variable.type
@@ -63,17 +63,18 @@ def get_pointer_name(variable: Variable):
             assert isinstance(curr_type, MappingType)
             curr_type = curr_type.type_to
 
-    if isinstance(curr_type, (FunctionType)):
+    if isinstance(curr_type, FunctionType):
         return variable.name + curr_type.parameters_signature
     return None
 
 
 def find_variable(
-    var_name: str, caller_context: CallerContext, referenced_declaration: Optional[int] = None, is_super=False
+        var_name: str, caller_context: CallerContext, referenced_declaration: Optional[int] = None, is_super=False
 ) -> Union[
     Variable, Function, Contract, SolidityVariable, SolidityFunction, Event, Enum, Structure
 ]:
     from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.declarations.function import FunctionSolc
 
     # variable are looked from the contract declarer
     # functions can be shadowed, but are looked from the contract instance, rather than the contract declarer
@@ -91,13 +92,13 @@ def find_variable(
     # structure/enums cannot be shadowed
 
     if isinstance(caller_context, ContractSolc):
-        function = None
+        function: Optional[FunctionSolc] = None
         contract = caller_context.underlying_contract
         contract_declarer = caller_context.underlying_contract
-    elif isinstance(caller_context, Function):
+    elif isinstance(caller_context, FunctionSolc):
         function = caller_context
-        contract = function.contract
-        contract_declarer = function.contract_declarer
+        contract = function.underlying_function.contract
+        contract_declarer = function.underlying_function.contract_declarer
     else:
         raise ParsingError("Incorrect caller context")
 
@@ -107,7 +108,7 @@ def find_variable(
         if referenced_declaration and referenced_declaration in func_variables:
             return func_variables[referenced_declaration]
         # If not found, check for name
-        func_variables = function.variables_as_dict()
+        func_variables = function.underlying_function.variables_as_dict
         if var_name in func_variables:
             return func_variables[var_name]
         # A local variable can be a pointer
@@ -115,7 +116,7 @@ def find_variable(
         # function test(function(uint) internal returns(bool) t) interna{
         # Will have a local variable t which will match the signature
         # t(uint256)
-        func_variables_ptr = {get_pointer_name(f): f for f in function.variables}
+        func_variables_ptr = {get_pointer_name(f): f for f in function.underlying_function.variables}
         if var_name and var_name in func_variables_ptr:
             return func_variables_ptr[var_name]
 
@@ -192,12 +193,15 @@ def find_variable(
         return contracts[var_name]
 
     if referenced_declaration:
-        for contract in contract.slither.contracts:
-            if contract.id == referenced_declaration:
-                return contract
-        for function in contract.slither.functions:
-            if function.referenced_declaration == referenced_declaration:
-                return function
+        # id of the contracts is the referenced declaration
+        # This is not true for the functions, as we dont always have the referenced_declaration
+        # But maybe we could? (TODO)
+        for contract_candidate in contract.slither.contracts:
+            if contract_candidate.id == referenced_declaration:
+                return contract_candidate
+        for function_candidate in caller_context.slither_parser.all_functions_parser:
+            if function_candidate.referenced_declaration == referenced_declaration:
+                return function_candidate.underlying_function
 
     raise VariableNotFound("Variable not found: {} (context {})".format(var_name, caller_context))
 
@@ -344,7 +348,7 @@ def parse_super_name(expression: Dict, is_compact_ast: bool) -> str:
 
     assert arguments.startswith("function ")
     # remove function (...()
-    arguments = arguments[len("function ") :]
+    arguments = arguments[len("function "):]
 
     arguments = filter_name(arguments)
     if " " in arguments:
@@ -354,7 +358,7 @@ def parse_super_name(expression: Dict, is_compact_ast: bool) -> str:
 
 
 def _parse_elementary_type_name_expression(
-    expression: Dict, is_compact_ast: bool, caller_context
+        expression: Dict, is_compact_ast: bool, caller_context
 ) -> ElementaryTypeNameExpression:
     # nop exression
     # uint;
@@ -480,7 +484,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
             if "type" in expression["attributes"]:
                 t = expression["attributes"]["type"]
                 if ",," in t or "(," in t or ",)" in t:
-                    t = t[len("tuple(") : -1]
+                    t = t[len("tuple("): -1]
                     elems = t.split(",")
                     for idx in range(len(elems)):
                         if elems[idx] == "":
@@ -551,8 +555,8 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
             value = expression["attributes"]["value"]
             if value:
                 if (
-                    "subdenomination" in expression["attributes"]
-                    and expression["attributes"]["subdenomination"]
+                        "subdenomination" in expression["attributes"]
+                        and expression["attributes"]["subdenomination"]
                 ):
                     subdenomination = expression["attributes"]["subdenomination"]
             elif value is None:
