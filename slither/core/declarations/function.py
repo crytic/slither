@@ -450,6 +450,10 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         return list(self._nodes)
 
+    @nodes.setter
+    def nodes(self, nodes: List["Node"]):
+        self._nodes = nodes
+
     @property
     def entry_point(self) -> "Node":
         """

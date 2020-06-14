@@ -1047,23 +1047,25 @@ class FunctionSolc:
 
         for m in ExportValues(m).result():
             if isinstance(m, Function):
-                node = self._new_node(NodeType.EXPRESSION, modifier["src"])
-                node.add_unparsed_expression(modifier)
+                node_parser = self._new_node(NodeType.EXPRESSION, modifier["src"])
+                node_parser.add_unparsed_expression(modifier)
                 # The latest entry point is the entry point, or the latest modifier call
                 if self._function.modifiers:
                     latest_entry_point = self._function.modifiers[-1].nodes[-1]
                 else:
                     latest_entry_point = self._function.entry_point
-                insert_node(latest_entry_point, node.underlying_node)
+                insert_node(latest_entry_point, node_parser.underlying_node)
                 self._function.add_modifier(
                     ModifierStatements(
-                        modifier=m, entry_point=latest_entry_point, nodes=[latest_entry_point, node]
+                        modifier=m,
+                        entry_point=latest_entry_point,
+                        nodes=[latest_entry_point, node_parser.underlying_node],
                     )
                 )
 
             elif isinstance(m, Contract):
-                node = self._new_node(NodeType.EXPRESSION, modifier["src"])
-                node.add_unparsed_expression(modifier)
+                node_parser = self._new_node(NodeType.EXPRESSION, modifier["src"])
+                node_parser.add_unparsed_expression(modifier)
                 # The latest entry point is the entry point, or the latest constructor call
                 if self._function.explicit_base_constructor_calls_statements:
                     latest_entry_point = self._function.explicit_base_constructor_calls_statements[
@@ -1071,10 +1073,12 @@ class FunctionSolc:
                     ].nodes[-1]
                 else:
                     latest_entry_point = self._function.entry_point
-                insert_node(latest_entry_point, node.underlying_node)
+                insert_node(latest_entry_point, node_parser.underlying_node)
                 self._function.add_explicit_base_constructor_calls_statements(
                     ModifierStatements(
-                        modifier=m, entry_point=latest_entry_point, nodes=[latest_entry_point, node]
+                        modifier=m,
+                        entry_point=latest_entry_point,
+                        nodes=[latest_entry_point, node_parser.underlying_node],
                     )
                 )
 
@@ -1120,14 +1124,14 @@ class FunctionSolc:
         prev_nodes = []
         while set(prev_nodes) != set(self._node_to_nodesolc.keys()):
             prev_nodes = self._node_to_nodesolc.keys()
-            to_remove = []
+            to_remove: List[Node] = []
             for node in self._node_to_nodesolc.keys():
                 if node.type == NodeType.ENDIF and not node.fathers:
                     for son in node.sons:
                         son.remove_father(node)
                     node.set_sons([])
                     to_remove.append(node)
-            self._nodes = [n for n in self._node_to_nodesolc.keys() if n not in to_remove]
+            self._function.nodes = [n for n in self._function.nodes if n not in to_remove]
 
     # endregion
     ###################################################################################
@@ -1210,6 +1214,6 @@ class FunctionSolc:
         if false_node.type not in [NodeType.THROW, NodeType.RETURN]:
             link_underlying_nodes(false_node, endif_node)
 
-        self._nodes = [n for n in self._nodes if n.node_id != node.node_id]
+        self._function.nodes = [n for n in self._function.nodes if n.node_id != node.node_id]
 
     # endregion
