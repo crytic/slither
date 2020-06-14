@@ -32,7 +32,7 @@ class NodeSolc:
         if self._unparsed_expression:
             expression = parse_expression(self._unparsed_expression, caller_context)
             self._node.add_expression(expression)
-            #self._unparsed_expression = None
+            # self._unparsed_expression = None
 
         if self._node.expression:
 

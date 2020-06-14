@@ -162,7 +162,6 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     else:
         raise ParsingError(f"Incorrect caller context: {type(caller_context)}")
 
-
     if is_compact_ast:
         key = "nodeType"
     else:
@@ -234,18 +233,23 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
         assert params[key] == "ParameterList"
         assert return_values[key] == "ParameterList"
 
-        params_vars = []
-        return_values_vars = []
+        params_vars: List[FunctionTypeVariable] = []
+        return_values_vars: List[FunctionTypeVariable] = []
         for p in params[index]:
-            var = FunctionTypeVariableSolc(p)
+            var = FunctionTypeVariable()
             var.set_offset(p["src"], caller_context.slither)
-            var.analyze(caller_context)
+
+            var_parser = FunctionTypeVariableSolc(var, p)
+            var_parser.analyze(caller_context)
+
             params_vars.append(var)
         for p in return_values[index]:
-            var = FunctionTypeVariableSolc(p)
-
+            var = FunctionTypeVariable()
             var.set_offset(p["src"], caller_context.slither)
-            var.analyze(caller_context)
+
+            var_parser = FunctionTypeVariableSolc(var, p)
+            var_parser.analyze(caller_context)
+
             return_values_vars.append(var)
 
         return FunctionType(params_vars, return_values_vars)

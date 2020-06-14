@@ -69,7 +69,10 @@ def get_pointer_name(variable: Variable):
 
 
 def find_variable(
-        var_name: str, caller_context: CallerContext, referenced_declaration: Optional[int] = None, is_super=False
+    var_name: str,
+    caller_context: CallerContext,
+    referenced_declaration: Optional[int] = None,
+    is_super=False,
 ) -> Union[
     Variable, Function, Contract, SolidityVariable, SolidityFunction, Event, Enum, Structure
 ]:
@@ -106,7 +109,7 @@ def find_variable(
         # We look for variable declared with the referencedDeclaration attr
         func_variables = function.variables_renamed
         if referenced_declaration and referenced_declaration in func_variables:
-            return func_variables[referenced_declaration]
+            return func_variables[referenced_declaration].underlying_variable
         # If not found, check for name
         func_variables = function.underlying_function.variables_as_dict
         if var_name in func_variables:
@@ -116,7 +119,9 @@ def find_variable(
         # function test(function(uint) internal returns(bool) t) interna{
         # Will have a local variable t which will match the signature
         # t(uint256)
-        func_variables_ptr = {get_pointer_name(f): f for f in function.underlying_function.variables}
+        func_variables_ptr = {
+            get_pointer_name(f): f for f in function.underlying_function.variables
+        }
         if var_name and var_name in func_variables_ptr:
             return func_variables_ptr[var_name]
 
@@ -348,7 +353,7 @@ def parse_super_name(expression: Dict, is_compact_ast: bool) -> str:
 
     assert arguments.startswith("function ")
     # remove function (...()
-    arguments = arguments[len("function "):]
+    arguments = arguments[len("function ") :]
 
     arguments = filter_name(arguments)
     if " " in arguments:
@@ -358,7 +363,7 @@ def parse_super_name(expression: Dict, is_compact_ast: bool) -> str:
 
 
 def _parse_elementary_type_name_expression(
-        expression: Dict, is_compact_ast: bool, caller_context
+    expression: Dict, is_compact_ast: bool, caller_context
 ) -> ElementaryTypeNameExpression:
     # nop exression
     # uint;
@@ -484,7 +489,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
             if "type" in expression["attributes"]:
                 t = expression["attributes"]["type"]
                 if ",," in t or "(," in t or ",)" in t:
-                    t = t[len("tuple("): -1]
+                    t = t[len("tuple(") : -1]
                     elems = t.split(",")
                     for idx in range(len(elems)):
                         if elems[idx] == "":
@@ -545,18 +550,18 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
                     subdenomination = expression["subdenomination"]
             elif not value and value != "":
                 value = "0x" + expression["hexValue"]
-            type = expression["typeDescriptions"]["typeString"]
+            type_candidate = expression["typeDescriptions"]["typeString"]
 
             # Length declaration for array was None until solc 0.5.5
-            if type is None:
+            if type_candidate is None:
                 if expression["kind"] == "number":
-                    type = "int_const"
+                    type_candidate = "int_const"
         else:
             value = expression["attributes"]["value"]
             if value:
                 if (
-                        "subdenomination" in expression["attributes"]
-                        and expression["attributes"]["subdenomination"]
+                    "subdenomination" in expression["attributes"]
+                    and expression["attributes"]["subdenomination"]
                 ):
                     subdenomination = expression["attributes"]["subdenomination"]
             elif value is None:
@@ -564,22 +569,22 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
                 # see https://solidity.readthedocs.io/en/v0.4.25/types.html?highlight=hex#hexadecimal-literals
                 assert "hexvalue" in expression["attributes"]
                 value = "0x" + expression["attributes"]["hexvalue"]
-            type = expression["attributes"]["type"]
+            type_candidate = expression["attributes"]["type"]
 
-        if type is None:
+        if type_candidate is None:
             if value.isdecimal():
-                type = ElementaryType("uint256")
+                type_candidate = ElementaryType("uint256")
             else:
-                type = ElementaryType("string")
-        elif type.startswith("int_const "):
-            type = ElementaryType("uint256")
-        elif type.startswith("bool"):
-            type = ElementaryType("bool")
-        elif type.startswith("address"):
-            type = ElementaryType("address")
+                type_candidate = ElementaryType("string")
+        elif type_candidate.startswith("int_const "):
+            type_candidate = ElementaryType("uint256")
+        elif type_candidate.startswith("bool"):
+            type_candidate = ElementaryType("bool")
+        elif type_candidate.startswith("address"):
+            type_candidate = ElementaryType("address")
         else:
-            type = ElementaryType("string")
-        literal = Literal(value, type, subdenomination)
+            type_candidate = ElementaryType("string")
+        literal = Literal(value, type_candidate, subdenomination)
         literal.set_offset(src, caller_context.slither)
         return literal
 

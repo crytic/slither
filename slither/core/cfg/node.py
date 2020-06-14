@@ -798,7 +798,7 @@ class Node(SourceMapping, ChildFunction):
         return self._phi_origins_local_variables
 
     @property
-    def phi_origins_state_variables(self, ) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
+    def phi_origins_state_variables(self) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
         return self._phi_origins_state_variables
 
     @property
@@ -1028,5 +1028,6 @@ def recheable(node: Node) -> Set[Node]:
                 if son not in visited:
                     nodes.append(son)
     return visited
+
 
 # endregion

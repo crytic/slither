@@ -40,12 +40,20 @@ class Variable(SourceMapping):
         """
         return self._initial_expression
 
+    @expression.setter
+    def expression(self, expr: "Expression"):
+        self._initial_expression = expr
+
     @property
     def initialized(self) -> Optional[bool]:
         """
             boolean: True if the variable is initialized at construction
         """
         return self._initialized
+
+    @initialized.setter
+    def initialized(self, is_init: bool):
+        self._initialized = is_init
 
     @property
     def uninitialized(self) -> bool:
@@ -69,9 +77,17 @@ class Variable(SourceMapping):
     def type(self) -> Optional[Union[Type, List[Type]]]:
         return self._type
 
+    @type.setter
+    def type(self, types: Union[Type, List[Type]]):
+        self._type = types
+
     @property
     def is_constant(self) -> bool:
         return self._is_constant
+
+    @is_constant.setter
+    def is_constant(self, is_cst: bool):
+        self._is_constant = is_cst
 
     @property
     def visibility(self) -> Optional[str]:
@@ -79,6 +95,10 @@ class Variable(SourceMapping):
             str: variable visibility
         """
         return self._visibility
+
+    @visibility.setter
+    def visibility(self, v: str):
+        self._visibility = v
 
     def set_type(self, t):
         if isinstance(t, str):

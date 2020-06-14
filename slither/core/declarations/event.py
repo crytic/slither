@@ -2,24 +2,24 @@ from typing import List, Tuple, TYPE_CHECKING
 
 from slither.core.children.child_contract import ChildContract
 from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.variables.event_variable import EventVariable
 
 if TYPE_CHECKING:
     from slither.core.declarations import Contract
-    from slither.solc_parsing.variables.event_variable import EventVariableSolc
 
 
 class Event(ChildContract, SourceMapping):
     def __init__(self):
         super(Event, self).__init__()
         self._name = None
-        self._elems: List[EventVariableSolc] = []
+        self._elems: List[EventVariable] = []
 
     @property
     def name(self) -> str:
         return self._name
 
     @name.setter
-    def name(self, name:str):
+    def name(self, name: str):
         self._name = name
 
     @property
@@ -48,7 +48,7 @@ class Event(ChildContract, SourceMapping):
         return self.contract.name + self.full_name
 
     @property
-    def elems(self) -> List["EventVariableSolc"]:
+    def elems(self) -> List["EventVariable"]:
         return self._elems
 
     def is_declared_by(self, contract: "Contract") -> bool:

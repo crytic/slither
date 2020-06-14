@@ -8,6 +8,8 @@ from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function, ModifierStatements, FunctionType
 
 from slither.core.expressions import AssignmentOperation
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
@@ -42,10 +44,7 @@ class FunctionSolc:
     # elems = [(type, name)]
 
     def __init__(
-            self,
-            function: Function,
-            function_data: Dict,
-            contract_parser: "ContractSolc",
+        self, function: Function, function_data: Dict, contract_parser: "ContractSolc",
     ):
         self._slither_parser: "SlitherSolc" = contract_parser.slither_parser
         self._contract_parser = contract_parser
@@ -80,8 +79,11 @@ class FunctionSolc:
         self.parameters_src = SourceMapping()
         self.returns_src = SourceMapping()
 
-        self._variables_parser: List[LocalVariableSolc] = []
         self._node_to_nodesolc: Dict[Node, NodeSolc] = dict()
+
+        self._local_variables_parser: List[
+            Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
+        ] = []
 
     @property
     def underlying_function(self) -> Function:
@@ -133,25 +135,30 @@ class FunctionSolc:
 
     @property
     def variables_renamed(
-            self,
+        self,
     ) -> Dict[int, Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]]:
         return self._variables_renamed
 
     def _add_local_variable(
-            self, local_var: Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
+        self, local_var_parser: Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
     ):
         # If two local variables have the same name
         # We add a suffix to the new variable
         # This is done to prevent collision during SSA translation
         # Use of while in case of collision
         # In the worst case, the name will be really long
-        if local_var.name:
-            while local_var.name in self._function.variables:
-                local_var.name += "_scope_{}".format(self._counter_scope_local_variables)
+        if local_var_parser.underlying_variable.name:
+            while local_var_parser.underlying_variable.name in self._function.variables:
+                local_var_parser.underlying_variable.name += "_scope_{}".format(
+                    self._counter_scope_local_variables
+                )
                 self._counter_scope_local_variables += 1
-        if local_var.reference_id is not None:
-            self._variables_renamed[local_var.reference_id] = local_var
-        self._function.variables_as_dict[local_var.name] = local_var
+        if local_var_parser.reference_id is not None:
+            self._variables_renamed[local_var_parser.reference_id] = local_var_parser
+        self._function.variables_as_dict[
+            local_var_parser.underlying_variable.name
+        ] = local_var_parser.underlying_variable
+        self._local_variables_parser.append(local_var_parser)
 
     # endregion
     ###################################################################################
@@ -282,8 +289,8 @@ class FunctionSolc:
                 if child[self.get_key()] == "ModifierInvocation":
                     self._parse_modifier(child)
 
-        for local_vars in self._function.variables:
-            local_vars.analyze(self)
+        for local_var_parser in self._local_variables_parser:
+            local_var_parser.analyze(self)
 
         for node_parser in self._node_to_nodesolc.values():
             node_parser.analyze_expressions(self)
@@ -577,11 +584,12 @@ class FunctionSolc:
 
     def _parse_variable_definition(self, statement: Dict, node: NodeSolc) -> NodeSolc:
         try:
-            local_var = LocalVariableSolc(statement)
+            local_var = LocalVariable()
             local_var.set_function(self._function)
             local_var.set_offset(statement["src"], self._function.slither)
 
-            self._add_local_variable(local_var)
+            local_var_parser = LocalVariableSolc(local_var, statement)
+            self._add_local_variable(local_var_parser)
             # local_var.analyze(self)
 
             new_node = self._new_node(NodeType.VARIABLE, statement["src"])
@@ -595,8 +603,8 @@ class FunctionSolc:
                 count = len(variables)
 
                 if (
-                        statement["initialValue"]["nodeType"] == "TupleExpression"
-                        and len(statement["initialValue"]["components"]) == count
+                    statement["initialValue"]["nodeType"] == "TupleExpression"
+                    and len(statement["initialValue"]["components"]) == count
                 ):
                     inits = statement["initialValue"]["components"]
                     i = 0
@@ -752,13 +760,15 @@ class FunctionSolc:
             return new_node
 
     def _parse_variable_definition_init_tuple(
-            self, statement: Dict, index: int, node: NodeSolc
+        self, statement: Dict, index: int, node: NodeSolc
     ) -> NodeSolc:
-        local_var = LocalVariableInitFromTupleSolc(statement, index)
+        local_var = LocalVariableInitFromTuple()
         local_var.set_function(self._function)
         local_var.set_offset(statement["src"], self._function.slither)
 
-        self._add_local_variable(local_var)
+        local_var_parser = LocalVariableInitFromTupleSolc(local_var, statement, index)
+
+        self._add_local_variable(local_var_parser)
 
         new_node = self._new_node(NodeType.VARIABLE, statement["src"])
         new_node.underlying_node.add_variable_declaration(local_var)
@@ -814,8 +824,8 @@ class FunctionSolc:
                     return_node.add_unparsed_expression(statement["expression"])
             else:
                 if (
-                        self.get_children("children") in statement
-                        and statement[self.get_children("children")]
+                    self.get_children("children") in statement
+                    and statement[self.get_children("children")]
                 ):
                     assert len(statement[self.get_children("children")]) == 1
                     expression = statement[self.get_children("children")][0]
@@ -979,19 +989,22 @@ class FunctionSolc:
             for son in node.sons:
                 self._fix_catch(son, end_node)
 
-    def _add_param(self, param: Dict):
-        local_var = LocalVariableSolc(param)
+    def _add_param(self, param: Dict) -> LocalVariableSolc:
 
+        local_var = LocalVariable()
         local_var.set_function(self._function)
         local_var.set_offset(param["src"], self._function.slither)
-        local_var.analyze(self)
+
+        local_var_parser = LocalVariableSolc(local_var, param)
+
+        local_var_parser.analyze(self)
 
         # see https://solidity.readthedocs.io/en/v0.4.24/types.html?highlight=storage%20location#data-location
         if local_var.location == "default":
             local_var.set_location("memory")
 
-        self._add_local_variable(local_var)
-        return local_var
+        self._add_local_variable(local_var_parser)
+        return local_var_parser
 
     def _parse_params(self, params: Dict):
         assert params[self.get_key()] == "ParameterList"
@@ -1006,7 +1019,7 @@ class FunctionSolc:
         for param in params:
             assert param[self.get_key()] == "VariableDeclaration"
             local_var = self._add_param(param)
-            self._function.add_parameters(local_var)
+            self._function.add_parameters(local_var.underlying_variable)
 
     def _parse_returns(self, returns: Dict):
 
@@ -1022,7 +1035,7 @@ class FunctionSolc:
         for ret in returns:
             assert ret[self.get_key()] == "VariableDeclaration"
             local_var = self._add_param(ret)
-            self._function.add_return(local_var)
+            self._function.add_return(local_var.underlying_variable)
 
     def _parse_modifier(self, modifier: Dict):
         m = parse_expression(modifier, self)
@@ -1146,11 +1159,11 @@ class FunctionSolc:
         return updated
 
     def _split_ternary_node(
-            self,
-            node: Node,
-            condition: "Expression",
-            true_expr: "Expression",
-            false_expr: "Expression",
+        self,
+        node: Node,
+        condition: "Expression",
+        true_expr: "Expression",
+        false_expr: "Expression",
     ):
         condition_node = self._new_node(NodeType.IF, node.source_mapping)
         condition_node.underlying_node.add_expression(condition)

@@ -29,7 +29,7 @@ class Structure(ChildContract, SourceMapping):
         return self._name
 
     @name.setter
-    def name(self, new_name:str):
+    def name(self, new_name: str):
         self._name = new_name
 
     @property

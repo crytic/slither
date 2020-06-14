@@ -5,6 +5,7 @@ from slither.core.declarations import Modifier, Structure, Event
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.enum import Enum
 from slither.core.declarations.function import Function
+from slither.core.variables.state_variable import StateVariable
 from slither.solc_parsing.declarations.event import EventSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.modifier import ModifierSolc
@@ -18,6 +19,7 @@ LOGGER = logging.getLogger("ContractSolcParsing")
 if TYPE_CHECKING:
     from slither.solc_parsing.slitherSolc import SlitherSolc
     from slither.core.slither_core import SlitherCore
+
 
 class ContractSolc:
     def __init__(self, slither_parser: "SlitherSolc", contract: Contract, data):
@@ -50,6 +52,8 @@ class ContractSolc:
         self.baseContracts = []
         self.baseConstructorContractsCalled = []
         self._linearized_base_contracts: List[int]
+
+        self._variables_parser: List[StateVariableSolc] = []
 
         # Export info
         if self.is_compact_ast:
@@ -276,9 +280,12 @@ class ContractSolc:
             self._contract.add_variables_ordered(father.state_variables_ordered)
 
         for varNotParsed in self._variablesNotParsed:
-            var = StateVariableSolc(varNotParsed)
+            var = StateVariable()
             var.set_offset(varNotParsed["src"], self._contract.slither)
             var.set_contract(self._contract)
+
+            var_parser = StateVariableSolc(var, varNotParsed)
+            self._variables_parser.append(var_parser)
 
             self._contract.variables_as_dict[var.name] = var
             self._contract.add_variables_ordered([var])
@@ -354,7 +361,12 @@ class ContractSolc:
             Cls = Modifier
             Cls_parser = ModifierSolc
             modifiers = self._analyze_params_elements(
-                elements_no_params, getter, getter_available, Cls, Cls_parser, self._modifiers_parser
+                elements_no_params,
+                getter,
+                getter_available,
+                Cls,
+                Cls_parser,
+                self._modifiers_parser,
             )
             self._contract.set_modifiers(modifiers)
         except (VariableNotFound, KeyError) as e:
@@ -369,7 +381,12 @@ class ContractSolc:
             Cls = Modifier
             Cls_parser = ModifierSolc
             functions = self._analyze_params_elements(
-                elements_no_params, getter, getter_available, Cls, Cls_parser, self._functions_parser
+                elements_no_params,
+                getter,
+                getter_available,
+                Cls,
+                Cls_parser,
+                self._functions_parser,
             )
             self._contract.set_functions(functions)
         except (VariableNotFound, KeyError) as e:
@@ -405,13 +422,11 @@ class ContractSolc:
                     elem = Cls()
                     elem.set_contract(self._contract)
                     elem.set_contract_declarer(element_parser.underlying_function.contract_declarer)
-                    elem.set_offset(element_parser.function_not_parsed["src"], self._contract.slither)
-
-                    elem_parser = Cls_parser(
-                        elem,
-                        element_parser.function_not_parsed,
-                        self,
+                    elem.set_offset(
+                        element_parser.function_not_parsed["src"], self._contract.slither
                     )
+
+                    elem_parser = Cls_parser(elem, element_parser.function_not_parsed, self,)
                     elem_parser.analyze_params()
                     if isinstance(elem, Modifier):
                         self._contract.slither.add_modifier(elem)
@@ -444,8 +459,12 @@ class ContractSolc:
                 }
 
             for element_parser in elements_no_params:
-                accessible_elements[element_parser.underlying_function.full_name] = element_parser.underlying_function
-                all_elements[element_parser.underlying_function.canonical_name] = element_parser.underlying_function
+                accessible_elements[
+                    element_parser.underlying_function.full_name
+                ] = element_parser.underlying_function
+                all_elements[
+                    element_parser.underlying_function.canonical_name
+                ] = element_parser.underlying_function
 
             for element in all_elements.values():
                 if accessible_elements[element.full_name] != all_elements[element.canonical_name]:
@@ -456,19 +475,19 @@ class ContractSolc:
         return all_elements
 
     def analyze_constant_state_variables(self):
-        for var in self._contract.variables:
-            if var.is_constant:
+        for var_parser in self._variables_parser:
+            if var_parser.underlying_variable.is_constant:
                 # cant parse constant expression based on function calls
                 try:
-                    var.analyze(self)
+                    var_parser.analyze(self)
                 except (VariableNotFound, KeyError) as e:
                     LOGGER.error(e)
                     pass
 
     def analyze_state_variables(self):
         try:
-            for var in self._contract.variables:
-                var.analyze(self)
+            for var_parser in self._variables_parser:
+                var_parser.analyze(self)
             return
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing state variable {e}")
@@ -485,7 +504,7 @@ class ContractSolc:
                         type_name = parse_type(using_for["typeName"], self)
                     else:
                         type_name = "*"
-                    if not type_name in self._contract.using_for:
+                    if type_name not in self._contract.using_for:
                         self._contract.using_for[type_name] = []
                     self._contract.using_for[type_name].append(lib_name)
             else:
@@ -498,7 +517,7 @@ class ContractSolc:
                     else:
                         new = parse_type(children[0], self)
                         old = "*"
-                    if not old in self._contract.using_for:
+                    if old not in self._contract.using_for:
                         self._contract.using_for[old] = []
                     self._contract.using_for[old].append(new)
             self._usingForNotParsed = []

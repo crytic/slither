@@ -14,3 +14,7 @@ class EventVariable(ChildEvent, Variable):
         :return: Returns True if the variable is indexed in bloom filter, False otherwise.
         """
         return self._indexed
+
+    @indexed.setter
+    def indexed(self, is_indexed: bool):
+        self._indexed = is_indexed

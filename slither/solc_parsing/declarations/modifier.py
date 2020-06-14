@@ -14,7 +14,6 @@ if TYPE_CHECKING:
 
 
 class ModifierSolc(FunctionSolc):
-
     def __init__(self, modifier: Modifier, function_data: Dict, contract_parser: "ContractSolc"):
         super().__init__(modifier, function_data, contract_parser)
         # _modifier is equal to _function, but keep it here to prevent
@@ -67,8 +66,8 @@ class ModifierSolc(FunctionSolc):
                 self._function.is_implemented = True
                 self._parse_cfg(block)
 
-        for local_vars in self._variables_parser:
-            local_vars.analyze(self)
+        for local_var_parser in self._local_variables_parser:
+            local_var_parser.analyze(self)
 
         for node in self._node_to_nodesolc.values():
             node.analyze_expressions(self)

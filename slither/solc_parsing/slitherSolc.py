@@ -17,6 +17,7 @@ from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.import_directive import Import
 from slither.analyses.data_dependency.data_dependency import compute_dependency
 
+
 class SlitherSolc:
     def __init__(self, filename: str, core: SlitherCore):
         super(SlitherSolc, self).__init__()
@@ -45,7 +46,6 @@ class SlitherSolc:
     @property
     def underlying_contract_to_parser(self) -> Dict[Contract, ContractSolc]:
         return self._underlying_contract_to_parser
-
 
     ###################################################################################
     ###################################################################################

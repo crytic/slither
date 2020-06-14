@@ -489,9 +489,9 @@ class Contract(ChildSlither, SourceMapping):
         return self.functions_declared + self.modifiers_declared  # type: ignore
 
     def available_elements_from_inheritances(
-            self,
-            elements: Dict[str, "Function"],
-            getter_available: Callable[["Contract"], List["Function"]],
+        self,
+        elements: Dict[str, "Function"],
+        getter_available: Callable[["Contract"], List["Function"]],
     ) -> Dict[str, "Function"]:
         """
 
@@ -548,10 +548,10 @@ class Contract(ChildSlither, SourceMapping):
         return list(reversed(self._inheritance))
 
     def set_inheritance(
-            self,
-            inheritance: List["Contract"],
-            immediate_inheritance: List["Contract"],
-            called_base_constructor_contracts: List["Contract"],
+        self,
+        inheritance: List["Contract"],
+        immediate_inheritance: List["Contract"],
+        called_base_constructor_contracts: List["Contract"],
     ):
         self._inheritance = inheritance
         self._immediate_inheritance = immediate_inheritance
@@ -637,7 +637,7 @@ class Contract(ChildSlither, SourceMapping):
         return next((v for v in self.state_variables if v.name == variable_name), None)
 
     def get_state_variable_from_canonical_name(
-            self, canonical_name: str
+        self, canonical_name: str
     ) -> Optional["StateVariable"]:
         """
             Return a state variable from a canonical_name
@@ -798,7 +798,7 @@ class Contract(ChildSlither, SourceMapping):
     ###################################################################################
 
     def get_summary(
-            self, include_shadowed=True
+        self, include_shadowed=True
     ) -> Tuple[str, List[str], List[str], List[str], List[str]]:
         """ Return the function summary
 
@@ -918,11 +918,11 @@ class Contract(ChildSlither, SourceMapping):
         :return:
         """
         return (
-                self.is_erc20()
-                or self.is_erc721()
-                or self.is_erc165()
-                or self.is_erc223()
-                or self.is_erc777()
+            self.is_erc20()
+            or self.is_erc721()
+            or self.is_erc165()
+            or self.is_erc223()
+            or self.is_erc777()
         )
 
     def is_possible_erc20(self) -> bool:
@@ -934,9 +934,9 @@ class Contract(ChildSlither, SourceMapping):
         # We do not check for all the functions, as name(), symbol(), might give too many FPs
         full_names = self.functions_signatures
         return (
-                "transfer(address,uint256)" in full_names
-                or "transferFrom(address,address,uint256)" in full_names
-                or "approve(address,uint256)" in full_names
+            "transfer(address,uint256)" in full_names
+            or "transferFrom(address,address,uint256)" in full_names
+            or "approve(address,uint256)" in full_names
         )
 
     def is_possible_erc721(self) -> bool:
@@ -948,12 +948,12 @@ class Contract(ChildSlither, SourceMapping):
         # We do not check for all the functions, as name(), symbol(), might give too many FPs
         full_names = self.functions_signatures
         return (
-                "ownerOf(uint256)" in full_names
-                or "safeTransferFrom(address,address,uint256,bytes)" in full_names
-                or "safeTransferFrom(address,address,uint256)" in full_names
-                or "setApprovalForAll(address,bool)" in full_names
-                or "getApproved(uint256)" in full_names
-                or "isApprovedForAll(address,address)" in full_names
+            "ownerOf(uint256)" in full_names
+            or "safeTransferFrom(address,address,uint256,bytes)" in full_names
+            or "safeTransferFrom(address,address,uint256)" in full_names
+            or "setApprovalForAll(address,bool)" in full_names
+            or "getApproved(uint256)" in full_names
+            or "isApprovedForAll(address,address)" in full_names
         )
 
     @property
@@ -1094,7 +1094,7 @@ class Contract(ChildSlither, SourceMapping):
                     prev_node = self._create_node(constructor_variable, 0, variable_candidate)
                     variable_candidate.node_initialization = prev_node
                     counter = 1
-                    for v in self.state_variables[idx + 1:]:
+                    for v in self.state_variables[idx + 1 :]:
                         if v.expression and not v.is_constant:
                             next_node = self._create_node(constructor_variable, counter, v)
                             v.node_initialization = next_node
@@ -1121,7 +1121,7 @@ class Contract(ChildSlither, SourceMapping):
                     prev_node = self._create_node(constructor_variable, 0, variable_candidate)
                     variable_candidate.node_initialization = prev_node
                     counter = 1
-                    for v in self.state_variables[idx + 1:]:
+                    for v in self.state_variables[idx + 1 :]:
                         if v.expression and v.is_constant:
                             next_node = self._create_node(constructor_variable, counter, v)
                             v.node_initialization = next_node
@@ -1133,7 +1133,12 @@ class Contract(ChildSlither, SourceMapping):
 
     def _create_node(self, func: Function, counter: int, variable: "Variable"):
         from slither.core.cfg.node import Node, NodeType
-        from slither.core.expressions import AssignmentOperationType, AssignmentOperation, Identifier
+        from slither.core.expressions import (
+            AssignmentOperationType,
+            AssignmentOperation,
+            Identifier,
+        )
+
         # Function uses to create node for state variable declaration statements
         node = Node(NodeType.OTHER_ENTRYPOINT, counter)
         node.set_offset(variable.source_mapping, self.slither)

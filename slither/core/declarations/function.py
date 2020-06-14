@@ -65,7 +65,7 @@ class ModifierStatements:
         self._entry_point = entry_point
 
     @property
-    def nodes(self  ) -> List["Node"]:
+    def nodes(self) -> List["Node"]:
         return self._nodes
 
     @nodes.setter
@@ -125,7 +125,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._expression_vars_read: List["Expression"] = []
         self._expression_vars_written: List["Expression"] = []
         self._expression_calls: List["Expression"] = []
-        #self._expression_modifiers: List["Expression"] = []
+        # self._expression_modifiers: List["Expression"] = []
         self._modifiers: List[ModifierStatements] = []
         self._explicit_base_constructor_calls: List[ModifierStatements] = []
         self._contains_assembly: bool = False
@@ -172,7 +172,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._nodes_ordered_dominators: Optional[List["Node"]] = None
 
         self._counter_nodes = 0
-
 
     ###################################################################################
     ###################################################################################
@@ -1505,6 +1504,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
     def new_node(self, node_type: "NodeType", src: Union[str, Dict]) -> "Node":
         from slither.core.cfg.node import Node
+
         node = Node(node_type, self._counter_nodes)
         node.set_offset(src, self.slither)
         self._counter_nodes += 1
@@ -1512,8 +1512,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._nodes.append(node)
 
         return node
-
-
 
     # endregion
     ###################################################################################

@@ -20,3 +20,7 @@ class LocalVariableInitFromTuple(LocalVariable):
     @property
     def tuple_index(self) -> Optional[int]:
         return self._tuple_index
+
+    @tuple_index.setter
+    def tuple_index(self, idx: int):
+        self._tuple_index = idx
