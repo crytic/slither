@@ -1,7 +1,7 @@
 import logging
 from typing import List, Dict, Callable, TYPE_CHECKING, Union
 
-from slither.core.declarations import Modifier
+from slither.core.declarations import Modifier, Structure, Event
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.enum import Enum
 from slither.core.declarations.function import Function
@@ -253,11 +253,14 @@ class ContractSolc:
             children = struct[self.get_children("members")]
         else:
             children = []  # empty struct
-        st = StructureSolc(name, canonicalName, children, self)
+
+        st = Structure()
         st.set_contract(self._contract)
         st.set_offset(struct["src"], self._contract.slither)
+
+        st_parser = StructureSolc(st, name, canonicalName, children, self)
         self._contract.structures_as_dict[name] = st
-        self._structures_parser.append(st)
+        self._structures_parser.append(st_parser)
 
     def parse_structs(self):
         for father in self._contract.inheritance_reverse:
@@ -555,10 +558,12 @@ class ContractSolc:
                 self._contract.events_as_dict.update(father.events_as_dict)
 
             for event_to_parse in self._eventsNotParsed:
-                event = EventSolc(event_to_parse, self)
-                event.analyze(self)
+                event = Event()
                 event.set_contract(self._contract)
                 event.set_offset(event_to_parse["src"], self._contract.slither)
+
+                event_parser = EventSolc(event, event_to_parse, self)
+                event_parser.analyze(self)
                 self._contract.events_as_dict[event.full_name] = event
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing event {e}")
