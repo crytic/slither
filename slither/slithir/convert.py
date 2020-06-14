@@ -12,7 +12,7 @@ from slither.core.declarations import (
     Structure,
 )
 from slither.core.expressions import Identifier, Literal
-from slither.core.slither_core import Slither
+from slither.core.slither_core import SlitherCore
 from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
@@ -416,7 +416,7 @@ def propagate_type_and_convert_call(result: List[Operation], node: "Node"):
     return result
 
 
-def _convert_type_contract(ir: AccessMember, slither: Slither):
+def _convert_type_contract(ir: AccessMember, slither: SlitherCore):
     # This is already checked by the caller, but mypy cant reason correctly if we dont do it here
     assert isinstance(ir.variable_left, TemporaryVariable)
     variable_left_type = ir.variable_left.type
