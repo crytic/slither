@@ -36,6 +36,8 @@ class SlitherSolc:
 
         self._all_functions_parser: List[FunctionSolc] = []
 
+        self._top_level_contracts_counter = 0
+
     @property
     def core(self):
         return self._core
@@ -51,7 +53,6 @@ class SlitherSolc:
     def underlying_contract_to_parser(self) -> Dict[Contract, ContractSolc]:
         return self._underlying_contract_to_parser
 
-        self._top_level_contracts_counter = 0
 
     ###################################################################################
     ###################################################################################

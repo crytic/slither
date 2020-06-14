@@ -379,8 +379,8 @@ class ContractSolc:
             elements_no_params = self._functions_no_params
             getter = lambda c: c.functions_parser
             getter_available = lambda c: c.functions_declared
-            Cls = Modifier
-            Cls_parser = ModifierSolc
+            Cls = Function
+            Cls_parser = FunctionSolc
             functions = self._analyze_params_elements(
                 elements_no_params,
                 getter,

@@ -1200,8 +1200,9 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     def get_local_variable_from_name(self, variable_name: str) -> Optional[LocalVariable]:
         """
             Return a local variable from a name
+
         Args:
-            varible_name (str): name of the variable
+            variable_name (str): name of the variable
         Returns:
             LocalVariable
         """
@@ -1453,9 +1454,9 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._state_vars_written = [
             x for x in self.variables_written if isinstance(x, StateVariable)
         ]
-        self._state_vars_read = [x for x in self.variables_read if isinstance(x, (StateVariable))]
+        self._state_vars_read = [x for x in self.variables_read if isinstance(x, StateVariable)]
         self._solidity_vars_read = [
-            x for x in self.variables_read if isinstance(x, (SolidityVariable))
+            x for x in self.variables_read if isinstance(x, SolidityVariable)
         ]
 
         self._vars_read_or_written = self._vars_written + self._vars_read
