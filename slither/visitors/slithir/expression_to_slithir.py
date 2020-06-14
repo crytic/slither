@@ -1,4 +1,5 @@
 import logging
+from typing import List, TYPE_CHECKING
 
 from slither.core.declarations import Function
 from slither.core.expressions import (
@@ -6,6 +7,7 @@ from slither.core.expressions import (
     UnaryOperationType,
     BinaryOperationType,
 )
+from slither.core.expressions.expression import Expression
 from slither.slithir.operations import (
     Assignment,
     Binary,
@@ -25,9 +27,12 @@ from slither.slithir.operations import (
     UpdateMemberDependency,
     UpdateIndex,
     UnaryType,
+    Operation,
 )
 from slither.slithir.tmp_operations.argument import Argument
 from slither.slithir.tmp_operations.tmp_call import TmpCall
+from slither.core.solidity_types.type import Type
+from slither.core.solidity_types import ArrayType
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElementaryType
@@ -41,6 +46,9 @@ from slither.slithir.variables import (
 from slither.visitors.expression.expression import ExpressionVisitor
 
 from slither.slithir.exceptions import SlithIRError
+
+if TYPE_CHECKING:
+    from slither.core.cfg.node import Node
 
 logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
 
@@ -156,12 +164,12 @@ def convert_assignment(left, right, t, return_type):
 
 
 class ExpressionToSlithIR(ExpressionVisitor):
-    def __init__(self, expression, node):
+    def __init__(self, expression: Expression, node: "Node"):
         from slither.core.cfg.node import NodeType
 
         self._expression = expression
         self._node = node
-        self._result = []
+        self._result: List[Operation] = []
         self._visit_expression(self.expression)
         if node.type == NodeType.RETURN:
             r = Return(get(self.expression))
@@ -170,7 +178,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         for ir in self._result:
             ir.set_node(node)
 
-    def result(self):
+    def result(self) -> List[Operation]:
         return self._result
 
     def _post_assignement_operation(self, expression):
@@ -264,6 +272,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
             if expression.call_value:
                 call_value = get(expression.call_value)
                 message_call.call_value = call_value
+            if expression.call_salt:
+                call_salt = get(expression.call_salt)
+                message_call.call_salt = call_salt
             self._result.append(message_call)
             set_val(expression, val)
 
@@ -279,6 +290,14 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def _post_index_access(self, expression):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
+        # Left can be a type for abi.decode(var, uint[2])
+        if isinstance(left, Type):
+            # Nested type are not yet supported by abi.decode, so the assumption
+            # Is that the right variable must be a constant
+            assert isinstance(right, Constant)
+            t = ArrayType(left, right.value)
+            set_val(expression, t)
+            return
         val = IndexVariable(self._node, left, right)
         # access to anonymous array
         # such as [0,1][x]
@@ -322,6 +341,13 @@ class ExpressionToSlithIR(ExpressionVisitor):
         val = TemporaryVariable(self._node)
         operation = TmpNewContract(expression.contract_name, val)
         operation.set_expression(expression)
+        if expression.call_value:
+            call_value = get(expression.call_value)
+            operation.call_value = call_value
+        if expression.call_salt:
+            call_salt = get(expression.call_salt)
+            operation.call_salt = call_salt
+
         self._result.append(operation)
         set_val(expression, val)
 

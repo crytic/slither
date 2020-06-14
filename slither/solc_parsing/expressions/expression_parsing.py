@@ -302,9 +302,9 @@ def parse_call(expression: Dict, caller_context):
 
     call_gas = None
     call_value = None
+    call_salt = None
     if caller_context.is_compact_ast:
         called = parse_expression(expression["expression"], caller_context)
-
         # If the next expression is a FunctionCallOptions
         # We can here the gas/value information
         # This is only available if the syntax is {gas: , value: }
@@ -318,7 +318,8 @@ def parse_call(expression: Dict, caller_context):
                     call_value = option
                 if name == "gas":
                     call_gas = option
-
+                if name == "salt":
+                    call_salt = option
         arguments = []
         if expression["arguments"]:
             arguments = [parse_expression(a, caller_context) for a in expression["arguments"]]
@@ -337,6 +338,7 @@ def parse_call(expression: Dict, caller_context):
     # Only available if the syntax {gas:, value:} was used
     call_expression.call_gas = call_gas
     call_expression.call_value = call_value
+    call_expression.call_salt = call_salt
     return call_expression
 
 
@@ -456,7 +458,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
     elif name == "FunctionCallOptions":
         # call/gas info are handled in parse_call
         called = parse_expression(expression["expression"], caller_context)
-        assert isinstance(called, MemberAccess)
+        assert isinstance(called, (MemberAccess, NewContract))
         return called
 
     elif name == "TupleExpression":

@@ -5,9 +5,10 @@ import logging
 from pathlib import Path
 
 from crytic_compile.platform import Type as PlatformType
-from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING
+from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
 
 from slither.core.children.child_slither import ChildSlither
+from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 
 from slither.core.declarations.function import Function, FunctionType
@@ -58,7 +59,8 @@ class Contract(ChildSlither, SourceMapping):
         self._functions: Dict[str, "Function"] = {}
         self._linearizedBaseContracts = List[int]
 
-        self._using_for: Dict[str, List[str]] = {}
+        # The only str is "*"
+        self._using_for: Dict[Union[str, Type], List[str]] = {}
         self._kind: Optional[str] = None
         self._is_interface: bool = False
 
@@ -67,6 +69,8 @@ class Contract(ChildSlither, SourceMapping):
 
         self._is_upgradeable: Optional[bool] = None
         self._is_upgradeable_proxy: Optional[bool] = None
+
+        self._is_top_level = False
 
         self._initial_state_variables: List["StateVariable"] = []  # ssa
 
@@ -220,15 +224,8 @@ class Contract(ChildSlither, SourceMapping):
     ###################################################################################
 
     @property
-    def using_for(self) -> Dict[str, List[str]]:
+    def using_for(self) -> Dict[Union[str, Type], List[str]]:
         return self._using_for
-
-    def reverse_using_for(self, name: str) -> List[str]:
-        """
-            Returns:
-            (list)
-        """
-        return self._using_for[name]
 
     # endregion
     ###################################################################################
@@ -1198,6 +1195,19 @@ class Contract(ChildSlither, SourceMapping):
 
         for func in self.functions + self.modifiers:
             func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
+
+    @property
+    def is_top_level(self) -> bool:
+        """
+        The "TopLevel" contract is used to hold structures and enums defined at the top level
+        ie. structures and enums that are represented outside of any contract
+        :return:
+        """
+        return self._is_top_level
+
+    @is_top_level.setter
+    def is_top_level(self, t: bool):
+        self._is_top_level = t
 
     # endregion
     ###################################################################################

@@ -27,6 +27,7 @@ class SolidityCall(Call, OperationWithLValue):
     def read(self) -> List["VALID_RVALUE"]:
         return self._unroll(self.arguments)
 
+    # TODO: this collude with childNode, need to be changed to another name
     @property
     def function(self) -> SolidityFunction:
         return self._function

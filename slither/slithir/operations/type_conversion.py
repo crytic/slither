@@ -28,6 +28,14 @@ class TypeConversion(OperationWithLValue):
         return self._type
 
     @property
+    def lvalue(self) -> "VALID_LVALUE":
+        return self._lvalue
+
+    @lvalue.setter
+    def lvalue(self, lvalue):
+        self._lvalue = lvalue
+
+    @property
     def read(self) -> List["VALID_RVALUE"]:
         return [self.variable]
 

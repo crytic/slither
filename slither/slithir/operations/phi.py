@@ -20,7 +20,7 @@ class Phi(OperationWithLValue):
         assert isinstance(nodes, set)
         super(Phi, self).__init__()
         self._lvalue = left_variable
-        self._rvalues = []
+        self._rvalues: List["VALID_RVALUE"] = []
         self._nodes: Set["Node"] = nodes
 
     @property
@@ -34,6 +34,14 @@ class Phi(OperationWithLValue):
     @rvalues.setter
     def rvalues(self, vals: List["VALID_RVALUE"]):
         self._rvalues = vals
+
+    @property
+    def lvalue(self) -> "VALID_LVALUE":
+        return self._lvalue
+
+    @lvalue.setter
+    def lvalue(self, lvalue):
+        self._lvalue = lvalue
 
     @property
     def nodes(self) -> Set["Node"]:

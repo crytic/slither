@@ -1,4 +1,5 @@
 import logging
+from typing import TYPE_CHECKING, List, Union, Dict, Optional
 
 from slither.core.declarations import (
     Contract,
@@ -11,6 +12,7 @@ from slither.core.declarations import (
     Structure,
 )
 from slither.core.expressions import Identifier, Literal
+from slither.core.slither_core import Slither
 from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
@@ -20,9 +22,11 @@ from slither.core.solidity_types import (
     TypeInformation,
 )
 from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
-from slither.core.variables.variable import Variable
+from slither.core.solidity_types.type import Type
+from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
-from slither.slithir.variables import TupleVariable
+from slither.core.variables.variable import Variable
+from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
     Assignment,
     Balance,
@@ -55,59 +59,75 @@ from slither.slithir.operations import (
     Unary,
     Unpack,
     Nop,
-    UpdateMember,
+    Operation,
 )
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElementaryType
-from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import Constant, IndexVariable, MemberVariable, TemporaryVariable
+from slither.slithir.variables import TupleVariable
 from slither.slithir.variables.reference import ReferenceVariable
-from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 from slither.utils.function import get_function_id
 from slither.utils.type import export_nested_types_from_variable
-from slither.slithir.exceptions import SlithIRError
+from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
+
+if TYPE_CHECKING:
+    from slither.core.cfg.node import Node
+    from slither.core.expressions.expression import Expression
+    from slither.slithir.utils.utils import VALID_RVALUE
 
 logger = logging.getLogger("ConvertToIR")
 
 
-def convert_expression(expression, node):
+def convert_expression(expression: "Expression", node: "Node") -> List[Operation]:
     # handle standlone expression
     # such as return true;
     from slither.core.cfg.node import NodeType
 
+    result: List[Operation]  # help for mypy
+
     if isinstance(expression, Literal) and node.type in [NodeType.IF, NodeType.IFLOOP]:
-        cst = Constant(expression.value, expression.type)
+        cst = Constant(str(expression.value), expression.type)
         cond = Condition(cst)
         cond.set_expression(expression)
         cond.set_node(node)
         result = [cond]
         return result
     if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
-        cond = Condition(expression.value)
+        value = expression.value
+        assert isinstance(value, (StateVariable, LocalVariable, TemporaryVariable, Constant))
+        cond = Condition(value)
         cond.set_expression(expression)
         cond.set_node(node)
         result = [cond]
         return result
 
     visitor = ExpressionToSlithIR(expression, node)
-    result = visitor.result()
+    result_visitor = visitor.result()
 
-    result = apply_ir_heuristics(result, node)
+    result = apply_ir_heuristics(result_visitor, node)
 
     if result:
         if node.type in [NodeType.IF, NodeType.IFLOOP]:
-            assert isinstance(result[-1], (OperationWithLValue))
-            cond = Condition(result[-1].lvalue)
+            operation = result[-1]
+            assert isinstance(operation, OperationWithLValue)
+            lvalue = operation.lvalue
+            # Cannot be a TupleVariable as this is supposed to return a bool
+            assert isinstance(
+                lvalue,
+                (StateVariable, LocalVariable, TemporaryVariable, IndexVariable, MemberVariable),
+            )
+            cond = Condition(lvalue)
             cond.set_expression(expression)
             cond.set_node(node)
             result.append(cond)
         elif node.type == NodeType.RETURN:
             # May return None
-            if isinstance(result[-1], (OperationWithLValue)):
-                r = Return(result[-1].lvalue)
+            operation = result[-1]
+            if isinstance(operation, OperationWithLValue):
+                r = Return(operation.lvalue)
                 r.set_expression(expression)
                 r.set_node(node)
                 result.append(r)
@@ -122,28 +142,32 @@ def convert_expression(expression, node):
 ###################################################################################
 
 
-def is_value(ins):
+def is_value(ins: Operation) -> bool:
     if isinstance(ins, TmpCall):
-        if isinstance(ins.ori, AccessMember):
-            if ins.ori.variable_right == "value":
+        ori = ins.ori
+        if isinstance(ori, AccessMember):
+            if ori.variable_right == "value":
                 return True
     return False
 
 
-def is_gas(ins):
+def is_gas(ins: Operation) -> bool:
     if isinstance(ins, TmpCall):
-        if isinstance(ins.ori, AccessMember):
-            if ins.ori.variable_right == "gas":
+        ori = ins.ori
+        if isinstance(ori, AccessMember):
+            if ori.variable_right == "gas":
                 return True
     return False
 
 
-def get_sig(ir, name):
+def get_sig(ir: Call, name: str) -> List[str]:
     """
         Return a list of potential signature
         It is a list, as Constant variables can be converted to int256
+
     Args:
         ir (slithIR.operation)
+        name
     Returns:
         list(str)
     """
@@ -154,14 +178,10 @@ def get_sig(ir, name):
     return [sig.format(name, ",".join(args)) for args in argss]
 
 
-def get_canonical_names(ir, function_name, contract_name):
+def get_canonical_names(ir: Call, function_name: str, contract_name: str) -> List[str]:
     """
         Return a list of potential signature
         It is a list, as Constant variables can be converted to int256
-    Args:
-        ir (slithIR.operation)
-    Returns:
-        list(str)
     """
     sig = "{}({})"
 
@@ -170,10 +190,11 @@ def get_canonical_names(ir, function_name, contract_name):
     return [sig.format(f"{contract_name}.{function_name}", ",".join(args)) for args in argss]
 
 
+# TODO: determine types of convert_arguments
 def convert_arguments(arguments):
     argss = [[]]
     for arg in arguments:
-        if isinstance(arg, (list,)):
+        if isinstance(arg, list):
             type_arg = "{}[{}]".format(get_type(arg[0].type), len(arg))
         elif isinstance(arg, Function):
             type_arg = arg.signature_str
@@ -198,10 +219,8 @@ def convert_arguments(arguments):
     return argss
 
 
-def is_temporary(ins):
-    return isinstance(
-        ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure)
-    )
+def is_temporary(ins: Operation) -> bool:
+    return isinstance(ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray))
 
 
 # endregion
@@ -212,7 +231,7 @@ def is_temporary(ins):
 ###################################################################################
 
 
-def integrate_value_gas(result):
+def integrate_value_gas(result: List[Operation]) -> List[Operation]:
     """
         Integrate value and gas temporary arguments to call instruction
     """
@@ -227,7 +246,7 @@ def integrate_value_gas(result):
         # Find all the assignments
         assigments = {}
         for i in result:
-            if isinstance(i, OperationWithLValue):
+            if isinstance(i, OperationWithLValue) and i.lvalue:
                 assigments[i.lvalue.name] = i
             if isinstance(i, TmpCall):
                 if isinstance(i.called, Variable) and i.called.name in assigments:
@@ -235,30 +254,41 @@ def integrate_value_gas(result):
                     i.set_ori(ins_ori)
 
         to_remove = []
-        variable_to_replace = {}
+        variable_to_replace: Dict[str, Union["VALID_RVALUE", Contract, Enum]] = {}
 
         # Replace call to value, gas to an argument of the real call
         for idx in range(len(result)):
             ins = result[idx]
             # value can be shadowed, so we check that the prev ins
             # is an Argument
-            if is_value(ins) and isinstance(result[idx - 1], Argument):
-                was_changed = True
-                result[idx - 1].set_type(ArgumentType.VALUE)
-                result[idx - 1].call_id = ins.ori.variable_left.name
-                calls.append(ins.ori.variable_left)
-                to_remove.append(ins)
-                variable_to_replace[ins.lvalue.name] = ins.ori.variable_left
-            elif is_gas(ins) and isinstance(result[idx - 1], Argument):
-                was_changed = True
-                result[idx - 1].set_type(ArgumentType.GAS)
-                result[idx - 1].call_id = ins.ori.variable_left.name
-                calls.append(ins.ori.variable_left)
-                to_remove.append(ins)
-                variable_to_replace[ins.lvalue.name] = ins.ori.variable_left
+            last_result = result[idx - 1]
+
+            # is_value is_gas check the types, but mypy is lost here
+            def is_value(ins: Operation) -> bool:
+                if isinstance(ins, TmpCall):
+                    ori = ins.ori
+                    if isinstance(ori, AccessMember):
+                        if ori.variable_right == "value":
+                            return True
+                return False
+
+            if isinstance(ins, TmpCall) and isinstance(last_result, Argument):
+                ori = ins.ori
+                if isinstance(ori, AccessMember):
+                    if ori.variable_right in ["value", "gas"]:
+                        was_changed = True
+                        if ori.variable_right == "value":
+                            last_result.set_type(ArgumentType.VALUE)
+                        else:
+                            last_result.set_type(ArgumentType.GAS)
+                        last_result.call_id = ori.variable_left.name
+                        calls.append(ori.variable_left)
+                        to_remove.append(ins)
+                        if ins.lvalue:
+                            variable_to_replace[ins.lvalue.name] = ori.variable_left
 
         # Remove the call to value/gas instruction
-        result = [i for i in result if not i in to_remove]
+        result = [i for i in result if i not in to_remove]
 
         # update the real call
         for ins in result:
@@ -274,10 +304,10 @@ def integrate_value_gas(result):
                     was_changed = True
                     ins.call_id = variable_to_replace[ins.call_id].name
 
-    calls = list(set([str(c) for c in calls]))
+    calls_str = list(set([str(c) for c in calls]))
     idx = 0
     calls_d = {}
-    for call in calls:
+    for call in calls_str:
         calls_d[str(call)] = idx
         idx = idx + 1
 
@@ -292,7 +322,7 @@ def integrate_value_gas(result):
 ###################################################################################
 
 
-def propagate_type_and_convert_call(result, node):
+def propagate_type_and_convert_call(result: List[Operation], node: "Node"):
     """
         Propagate the types variables and convert tmp call to real call operation
     """
@@ -309,31 +339,34 @@ def propagate_type_and_convert_call(result, node):
         # print(ins)
 
         if isinstance(ins, TmpCall):
-            new_ins = extract_tmp_call(ins, node.function.contract)
-            if new_ins:
-                new_ins.set_node(ins.node)
-                ins = new_ins
-                result[idx] = ins
+            new_ins_extracted = extract_tmp_call(ins, node.function.contract)
+            new_ins_extracted.set_node(ins.node)
+            ins = new_ins_extracted
+            result[idx] = ins
 
         if isinstance(ins, Argument):
             if ins.get_type() in [ArgumentType.GAS]:
-                assert not ins.call_id in calls_gas
+                assert ins.call_id not in calls_gas
                 calls_gas[ins.call_id] = ins.argument
             elif ins.get_type() in [ArgumentType.VALUE]:
-                assert not ins.call_id in calls_value
+                assert ins.call_id not in calls_value
                 calls_value[ins.call_id] = ins.argument
             else:
                 assert ins.get_type() == ArgumentType.CALL
                 call_data.append(ins.argument)
 
-        if isinstance(ins, (HighLevelCall, NewContract, InternalDynamicCall)):
+        if isinstance(ins, (HighLevelCall, InternalDynamicCall)):
             if ins.call_id in calls_value:
                 ins.call_value = calls_value[ins.call_id]
             if ins.call_id in calls_gas:
                 ins.call_gas = calls_gas[ins.call_id]
 
+        if isinstance(ins, NewContract):
+            if ins.call_id in calls_value:
+                ins.call_value = calls_value[ins.call_id]
+
         if isinstance(ins, (Call, NewContract, NewStructure)):
-            ins.arguments = call_data
+            ins.arguments = list(call_data)
             call_data = []
 
         if is_temporary(ins):
@@ -383,9 +416,12 @@ def propagate_type_and_convert_call(result, node):
     return result
 
 
-def _convert_type_contract(ir, slither):
-    assert isinstance(ir.variable_left.type, TypeInformation)
-    contract = ir.variable_left.type.type
+def _convert_type_contract(ir: AccessMember, slither: Slither):
+    # This is already checked by the caller, but mypy cant reason correctly if we dont do it here
+    assert isinstance(ir.variable_left, TemporaryVariable)
+    variable_left_type = ir.variable_left.type
+    assert isinstance(variable_left_type, TypeInformation)
+    contract = variable_left_type.type
 
     if ir.variable_right == "creationCode":
         if slither.crytic_compile:
@@ -413,6 +449,21 @@ def _convert_type_contract(ir, slither):
         assignment.set_node(ir.node)
         assignment.lvalue.set_type(ElementaryType("bytes"))
         return assignment
+    if ir.variable_right == "interfaceId":
+        entry_points = contract.functions_entry_points
+        interfaceId = 0
+        for entry_point in entry_points:
+            interfaceId = interfaceId ^ get_function_id(entry_point.full_name)
+        assignment = Assignment(
+            ir.lvalue,
+            Constant(str(interfaceId), type=ElementaryType("bytes4")),
+            ElementaryType("bytes4"),
+        )
+        assignment.set_expression(ir.expression)
+        assignment.set_node(ir.node)
+        assignment.lvalue.set_type(ElementaryType("bytes4"))
+        return assignment
+
     if ir.variable_right == "name":
         assignment = Assignment(ir.lvalue, Constant(contract.name), ElementaryType("string"))
         assignment.set_expression(ir.expression)
@@ -423,10 +474,10 @@ def _convert_type_contract(ir, slither):
     raise SlithIRError(f"type({contract.name}).{ir.variable_right} is unknown")
 
 
-def propagate_types(ir, node):
+def propagate_types(ir: Operation, node: "Node") -> Optional[Operation]:
     # propagate the type
     using_for = node.function.contract.using_for
-    if isinstance(ir, OperationWithLValue):
+    if isinstance(ir, OperationWithLValue) and ir.lvalue:
         # Force assignment in case of missing previous correct type
         if not ir.lvalue.type:
             if isinstance(ir, Assignment):
@@ -446,7 +497,7 @@ def propagate_types(ir, node):
 
                 # Temporary operation (they are removed later)
                 if t is None:
-                    return
+                    return None
 
                 if isinstance(t, ElementaryType) and t.name == "address":
                     if can_be_solidity_func(ir):
@@ -454,7 +505,7 @@ def propagate_types(ir, node):
 
                 # convert library
                 if t in using_for or "*" in using_for:
-                    new_ir = convert_to_library(ir, node, using_for)
+                    new_ir = convert_to_library(ir, using_for)
                     if new_ir:
                         return new_ir
 
@@ -480,6 +531,7 @@ def propagate_types(ir, node):
                 if isinstance(t, ArrayType) or (
                     isinstance(t, ElementaryType) and t.type == "bytes"
                 ):
+                    # TODO: fix push/pop
                     if ir.function_name == "push" and len(ir.arguments) == 1:
                         return convert_to_push(ir, node)
                     if ir.function_name == "pop" and len(ir.arguments) == 0:
@@ -499,6 +551,7 @@ def propagate_types(ir, node):
                 # if its not a tuple, return a singleton
                 if ir.function is None:
                     convert_type_of_high_and_internal_level_call(ir, node.function.contract)
+                assert ir.function
                 return_type = ir.function.return_type
                 if return_type:
                     if len(return_type) == 1:
@@ -525,24 +578,28 @@ def propagate_types(ir, node):
                 # TODO we should convert the reference to a temporary if the member is a length or a balance
                 if (
                     ir.variable_right == "length"
-                    and not isinstance(ir.variable_left, Contract)
+                    and not isinstance(ir.variable_left, (Contract, Enum))
                     and isinstance(ir.variable_left.type, (ElementaryType, ArrayType))
                 ):
-                    length = Length(ir.variable_left, ir.lvalue)
-                    length.set_expression(ir.expression)
-                    length.lvalue.points_to = ir.variable_left
-                    length.set_node(ir.node)
-                    return length
+                    length_ir = Length(ir.variable_left, ir.lvalue)
+                    length_ir.set_expression(ir.expression)
+                    length_ir.lvalue.points_to = ir.variable_left
+                    length_ir.set_node(ir.node)
+                    return length_ir
                 if (
                     ir.variable_right == "balance"
-                    and not isinstance(ir.variable_left, Contract)
+                    and not isinstance(ir.variable_left, (Contract, Enum))
                     and isinstance(ir.variable_left.type, ElementaryType)
                 ):
                     b = Balance(ir.variable_left, ir.lvalue)
                     b.set_expression(ir.expression)
                     b.set_node(ir.node)
                     return b
-                if ir.variable_right == "selector" and isinstance(ir.variable_left.type, Function):
+                if (
+                    ir.variable_right == "selector"
+                    and not isinstance(ir.variable_left, (Contract, Enum))
+                    and isinstance(ir.variable_left.type, Function)
+                ):
                     assignment = Assignment(
                         ir.lvalue,
                         Constant(str(get_function_id(ir.variable_left.type.full_name))),
@@ -559,7 +616,7 @@ def propagate_types(ir, node):
                 left = ir.variable_left
                 t = None
                 if isinstance(left, (Variable, SolidityVariable)):
-                    t = ir.variable_left.type
+                    t = left.type
                 elif isinstance(left, (Contract, Enum, Structure)):
                     t = UserDefinedType(left)
                 # can be None due to temporary operation
@@ -632,71 +689,62 @@ def propagate_types(ir, node):
                 t = types[idx]
                 ir.lvalue.set_type(t)
             elif isinstance(
-                ir,
-                (
-                    Argument,
-                    TmpCall,
-                    TmpNewArray,
-                    TmpNewContract,
-                    TmpNewStructure,
-                    TmpNewElementaryType,
-                ),
+                ir, (Argument, TmpCall, TmpNewArray, TmpNewContract, TmpNewElementaryType,),
             ):
                 # temporary operation; they will be removed
                 pass
             else:
                 raise SlithIRError("Not handling {} during type propgation".format(type(ir)))
 
+    return None
 
-def extract_tmp_call(ins, contract):
+
+def extract_tmp_call(ins: TmpCall, contract: Contract) -> Operation:
     assert isinstance(ins, TmpCall)
 
-    if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
-        call = InternalDynamicCall(ins.lvalue, ins.called, ins.called.type)
-        call.set_expression(ins.expression)
-        call.call_id = ins.call_id
-        return call
-    if isinstance(ins.ori, AccessMember):
+    if isinstance(ins.called, Variable):
+        ins_called_type = ins.called.type
+        if isinstance(ins_called_type, FunctionType):
+            call = InternalDynamicCall(ins.lvalue, ins.called, ins_called_type)
+            call.set_expression(ins.expression)
+            call.call_id = ins.call_id
+            return call
+    ori = ins.ori
+    if isinstance(ori, AccessMember):
         # If there is a call on an inherited contract, it is an internal call or an event
-        if ins.ori.variable_left in contract.inheritance + [contract]:
-            if str(ins.ori.variable_right) in [f.name for f in contract.functions]:
+        if ori.variable_left in contract.inheritance + [contract]:
+            if str(ori.variable_right) in [f.name for f in contract.functions]:
                 internalcall = InternalCall(
-                    (ins.ori.variable_right, ins.ori.variable_left.name),
+                    (ori.variable_right.name, ori.variable_left.name),
                     ins.nbr_arguments,
                     ins.lvalue,
                     ins.type_call,
                 )
                 internalcall.set_expression(ins.expression)
-                internalcall.call_id = ins.call_id
+                # internalcall.call_id = ins.call_id
                 return internalcall
-            if str(ins.ori.variable_right) in [f.name for f in contract.events]:
-                eventcall = EventCall(ins.ori.variable_right)
+            if str(ori.variable_right) in [f.name for f in contract.events]:
+                eventcall = EventCall(ori.variable_right.name)
                 eventcall.set_expression(ins.expression)
-                eventcall.call_id = ins.call_id
+                # eventcall.call_id = ins.call_id
                 return eventcall
-        if isinstance(ins.ori.variable_left, Contract):
-            st = ins.ori.variable_left.get_structure_from_name(ins.ori.variable_right)
+        ori_variable_left = ori.variable_left
+        if isinstance(ori_variable_left, Contract):
+            st = ori_variable_left.get_structure_from_name(ori.variable_right.name)
             if st:
                 op = NewStructure(st, ins.lvalue)
                 op.set_expression(ins.expression)
-                op.call_id = ins.call_id
+                # op.call_id = ins.call_id
                 return op
             libcall = LibraryCall(
-                ins.ori.variable_left,
-                ins.ori.variable_right,
-                ins.nbr_arguments,
-                ins.lvalue,
-                ins.type_call,
+                ori_variable_left, ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call,
             )
             libcall.set_expression(ins.expression)
             libcall.call_id = ins.call_id
             return libcall
+        assert isinstance(ori_variable_left, (Variable, SolidityVariable, Contract))
         msgcall = HighLevelCall(
-            ins.ori.variable_left,
-            ins.ori.variable_right,
-            ins.nbr_arguments,
-            ins.lvalue,
-            ins.type_call,
+            ori_variable_left, ori.variable_right, ins.nbr_arguments, ins.lvalue, ins.type_call,
         )
         msgcall.call_id = ins.call_id
 
@@ -708,8 +756,8 @@ def extract_tmp_call(ins, contract):
 
         return msgcall
 
-    if isinstance(ins.ori, TmpCall):
-        r = extract_tmp_call(ins.ori, contract)
+    if isinstance(ori, TmpCall):
+        r = extract_tmp_call(ori, contract)
         r.set_node(ins.node)
         return r
     if isinstance(ins.called, SolidityVariableComposed):
@@ -727,8 +775,8 @@ def extract_tmp_call(ins, contract):
         s.set_expression(ins.expression)
         return s
 
-    if isinstance(ins.ori, TmpNewElementaryType):
-        n = NewElementaryType(ins.ori.type, ins.lvalue)
+    if isinstance(ori, TmpNewElementaryType):
+        n = NewElementaryType(ori.type, ins.lvalue)
         n.set_expression(ins.expression)
         return n
 
@@ -736,17 +784,21 @@ def extract_tmp_call(ins, contract):
         op = NewContract(Constant(ins.ori.contract_name), ins.lvalue)
         op.set_expression(ins.expression)
         op.call_id = ins.call_id
+        if ins.call_value:
+            op.call_value = ins.call_value
+        if ins.call_salt:
+            op.call_salt = ins.call_salt
         return op
 
-    if isinstance(ins.ori, TmpNewArray):
-        n = NewArray(ins.ori.depth, ins.ori.array_type, ins.lvalue)
-        n.set_expression(ins.expression)
-        return n
+    if isinstance(ori, TmpNewArray):
+        new_array = NewArray(ori.depth, ori.array_type, ins.lvalue)
+        new_array.set_expression(ins.expression)
+        return new_array
 
     if isinstance(ins.called, Structure):
         op = NewStructure(ins.called, ins.lvalue)
         op.set_expression(ins.expression)
-        op.call_id = ins.call_id
+        # op.call_id = ins.call_id
         op.set_expression(ins.expression)
         return op
 
@@ -770,7 +822,7 @@ def extract_tmp_call(ins, contract):
         internalcall = InternalCall(
             ins.called.constructor, ins.nbr_arguments, ins.lvalue, ins.type_call
         )
-        internalcall.call_id = ins.call_id
+        # internalcall.call_id = ins.call_id
         internalcall.set_expression(ins.expression)
         return internalcall
 
@@ -785,7 +837,7 @@ def extract_tmp_call(ins, contract):
 ###################################################################################
 
 
-def can_be_low_level(ir):
+def can_be_low_level(ir: HighLevelCall) -> bool:
     return ir.function_name in [
         "transfer",
         "send",
@@ -796,7 +848,7 @@ def can_be_low_level(ir):
     ]
 
 
-def convert_to_low_level(ir):
+def convert_to_low_level(ir: HighLevelCall) -> Union[LowLevelCall, Transfer, Send]:
     """
         Convert to a transfer/send/or low level call
         The funciton assume to receive a correct IR
@@ -804,21 +856,27 @@ def convert_to_low_level(ir):
 
         Must be called after can_be_low_level
     """
+    new_ir: Union[LowLevelCall, Transfer, Send]
     if ir.function_name == "transfer":
-        assert len(ir.arguments) == 1
+        ir_arguments = ir.arguments
+        assert len(ir_arguments) == 1
         prev_ir = ir
-        ir = Transfer(ir.destination, ir.arguments[0])
-        ir.set_expression(prev_ir.expression)
-        ir.set_node(prev_ir.node)
-        return ir
+        assert isinstance(ir.destination, (Variable, SolidityVariable))
+        new_ir = Transfer(ir.destination, ir_arguments[0])
+        new_ir.set_expression(prev_ir.expression)
+        new_ir.set_node(prev_ir.node)
+        return new_ir
     elif ir.function_name == "send":
-        assert len(ir.arguments) == 1
+        ir_arguments = ir.arguments
+        assert len(ir_arguments) == 1
         prev_ir = ir
-        ir = Send(ir.destination, ir.arguments[0], ir.lvalue)
-        ir.set_expression(prev_ir.expression)
-        ir.set_node(prev_ir.node)
-        ir.lvalue.set_type(ElementaryType("bool"))
-        return ir
+        assert ir.lvalue
+        assert isinstance(ir.destination, (Variable, SolidityVariable))
+        new_ir = Send(ir.destination, ir_arguments[0], ir.lvalue)
+        new_ir.set_expression(prev_ir.expression)
+        new_ir.set_node(prev_ir.node)
+        new_ir.lvalue.set_type(ElementaryType("bool"))
+        return new_ir
     elif ir.function_name in ["call", "delegatecall", "callcode", "staticcall"]:
         new_ir = LowLevelCall(
             ir.destination, ir.function_name, ir.nbr_arguments, ir.lvalue, ir.type_call
@@ -826,14 +884,15 @@ def convert_to_low_level(ir):
         new_ir.call_gas = ir.call_gas
         new_ir.call_value = ir.call_value
         new_ir.arguments = ir.arguments
-        new_ir.lvalue.set_type(ElementaryType("bool"))
+        if new_ir.lvalue:
+            new_ir.lvalue.set_type(ElementaryType("bool"))
         new_ir.set_expression(ir.expression)
         new_ir.set_node(ir.node)
         return new_ir
     raise SlithIRError("Incorrect conversion to low level {}".format(ir))
 
 
-def can_be_solidity_func(ir):
+def can_be_solidity_func(ir: HighLevelCall) -> bool:
     return ir.destination.name == "abi" and ir.function_name in [
         "encode",
         "encodePacked",
@@ -843,7 +902,7 @@ def can_be_solidity_func(ir):
     ]
 
 
-def convert_to_solidity_func(ir):
+def convert_to_solidity_func(ir: HighLevelCall) -> SolidityCall:
     """
     Must be called after can_be_solidity_func
     :param ir:
@@ -854,14 +913,15 @@ def convert_to_solidity_func(ir):
     new_ir.arguments = ir.arguments
     new_ir.set_expression(ir.expression)
     new_ir.set_node(ir.node)
-    if isinstance(call.return_type, list) and len(call.return_type) == 1:
-        new_ir.lvalue.set_type(call.return_type[0])
-    else:
-        new_ir.lvalue.set_type(call.return_type)
+    if new_ir.lvalue:
+        if isinstance(call.return_type, list) and len(call.return_type) == 1:
+            new_ir.lvalue.set_type(call.return_type[0])
+        else:
+            new_ir.lvalue.set_type(call.return_type)
     return new_ir
 
 
-def convert_to_push(ir, node):
+def convert_to_push(ir: HighLevelCall, node: "Node") -> List[Union[Push, InitArray, Length]]:
     """
     Convert a call to a PUSH operaiton
 
@@ -876,8 +936,8 @@ def convert_to_push(ir, node):
     # TODO remove Push Operator, and change this to existing operators
 
     lvalue = ir.lvalue
+    ret: List[Union[Push, InitArray, Length]] = []
     if isinstance(ir.arguments[0], list):
-        ret = []
 
         val = TemporaryVariable(node)
         operation = InitArray(ir.arguments[0], val)
@@ -886,42 +946,41 @@ def convert_to_push(ir, node):
         ret.append(operation)
 
         prev_ir = ir
-        ir = Push(ir.destination, val)
-        ir.set_expression(prev_ir.expression)
-        ir.set_node(prev_ir.node)
+        ir_push = Push(ir.destination, val)
+        ir_push.set_expression(prev_ir.expression)
+        ir_push.set_node(prev_ir.node)
 
-        length = Literal(len(operation.init_values), "uint256")
+        length_literal = Literal(len(operation.init_values), "uint256")
         t = operation.init_values[0].type
-        ir.lvalue.set_type(ArrayType(t, length))
+        ir_push.lvalue.set_type(ArrayType(t, length_literal))
 
-        ret.append(ir)
+        ret.append(ir_push)
 
         if lvalue:
             length = Length(ir.array, lvalue)
             length.set_expression(ir.expression)
-            length.lvalue.points_to = ir.lvalue
+            lvalue.points_to = ir.lvalue
             length.set_node(ir.node)
             ret.append(length)
 
         return ret
 
     prev_ir = ir
-    ir = Push(ir.destination, ir.arguments[0])
-    ir.set_expression(prev_ir.expression)
-    ir.set_node(prev_ir.node)
+    ir_push = Push(ir.destination, ir.arguments[0])
+    ir_push.set_expression(prev_ir.expression)
+    ir_push.set_node(prev_ir.node)
 
     if lvalue:
-        ret = []
-        ret.append(ir)
+        ret.append(ir_push)
 
-        length = Length(ir.array, lvalue)
-        length.set_expression(ir.expression)
-        length.lvalue.points_to = ir.lvalue
+        length = Length(ir_push.array, lvalue)
+        length.set_expression(ir_push.expression)
+        lvalue.points_to = ir.lvalue
         length.set_node(ir.node)
         ret.append(length)
         return ret
 
-    return ir
+    return [ir_push]
 
 
 def convert_to_pop(ir, node):
@@ -978,7 +1037,12 @@ def convert_to_pop(ir, node):
     return ret
 
 
-def look_for_library(contract, ir, node, using_for, t):
+def look_for_library(
+    contract: Contract,
+    ir: HighLevelCall,
+    using_for: Dict[Union[str, Type], List[str]],
+    t: Union[str, Type],
+) -> Optional[LibraryCall]:
     for destination in using_for[t]:
         lib_contract = contract.slither.get_contract_from_name(str(destination))
         if lib_contract:
@@ -996,27 +1060,28 @@ def look_for_library(contract, ir, node, using_for, t):
     return None
 
 
-def convert_to_library(ir, node, using_for):
+def convert_to_library(
+    ir: HighLevelCall, using_for: Dict[Union[str, Type], List[str]]
+) -> Optional[LibraryCall]:
     # We use contract_declarer, because Solidity resolve the library
     # before resolving the inheritance.
     # Though we could use .contract as libraries cannot be shadowed
-    contract = node.function.contract_declarer
+    contract = ir.node.function.contract_declarer
     t = ir.destination.type
-
     if t in using_for:
-        new_ir = look_for_library(contract, ir, node, using_for, t)
+        new_ir = look_for_library(contract, ir, using_for, t)
         if new_ir:
             return new_ir
 
     if "*" in using_for:
-        new_ir = look_for_library(contract, ir, node, using_for, "*")
+        new_ir = look_for_library(contract, ir, using_for, "*")
         if new_ir:
             return new_ir
 
     return None
 
 
-def get_type(t):
+def get_type(t: Type) -> str:
     """
         Convert a type to a str
         If the instance is a Contract, return 'address' instead
@@ -1027,13 +1092,13 @@ def get_type(t):
     return str(t)
 
 
-def convert_type_library_call(ir, lib_contract):
-    sigs = get_sig(ir, ir.function_name)
-    func = None
+def convert_type_library_call(ir: LibraryCall, lib_contract: Contract) -> Optional[LibraryCall]:
+    sigs = get_sig(ir, ir.function_name.name)
+    func: Optional[Union[Variable, Function]] = None
     for sig in sigs:
         func = lib_contract.get_function_from_signature(sig)
         if not func:
-            func = lib_contract.get_state_variable_from_name(ir.function_name)
+            func = lib_contract.get_state_variable_from_name(ir.function_name.name)
         if func:
             # stop to explore if func is found (prevent dupplicate issue)
             break
@@ -1050,6 +1115,7 @@ def convert_type_library_call(ir, lib_contract):
     if not func:
         return None
     ir.function = func
+    t: Optional[Union[List[Type], Type]]
     if isinstance(func, Function):
         t = func.return_type
         # if its not a tuple, return a singleton
@@ -1059,14 +1125,17 @@ def convert_type_library_call(ir, lib_contract):
         # otherwise its a variable (getter)
         t = func.type
     if t:
-        ir.lvalue.set_type(t)
+        if ir.lvalue:
+            ir.lvalue.set_type(t)
     else:
         ir.lvalue = None
     return ir
 
 
-def convert_type_of_high_and_internal_level_call(ir, contract):
-    func = None
+def convert_type_of_high_and_internal_level_call(
+    ir: Union[InternalCall, HighLevelCall], contract: Contract
+):
+    func: Optional[Union[Function, Variable]] = None
     if isinstance(ir, InternalCall):
         sigs = get_canonical_names(ir, ir.function_name, ir.contract_name)
         for sig in sigs:
@@ -1078,14 +1147,14 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
             func = contract.get_state_variable_from_name(ir.function_name)
     else:
         assert isinstance(ir, HighLevelCall)
-        sigs = get_sig(ir, ir.function_name)
+        sigs = get_sig(ir, ir.function_name.name)
         for sig in sigs:
             func = contract.get_function_from_signature(sig)
             if func:
                 # stop to explore if func is found (prevent dupplicate issue)
                 break
         if not func:
-            func = contract.get_state_variable_from_name(ir.function_name)
+            func = contract.get_state_variable_from_name(ir.function_name.name)
     if not func:
         # specific lookup when the compiler does implicit conversion
         # for example
@@ -1096,14 +1165,16 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
                 func = function
                 break
     # lowlelvel lookup needs to be done at last step
-    if not func:
+    if not func and isinstance(ir, HighLevelCall):
         if can_be_low_level(ir):
             return convert_to_low_level(ir)
         if can_be_solidity_func(ir):
             return convert_to_solidity_func(ir)
     if not func:
         logger.error("Function not found {}".format(sig))
+        return None
     ir.function = func
+    return_type: Optional[Union[List[Type], Type]]
     if isinstance(func, Function):
         return_type = func.return_type
         # if its not a tuple; return a singleton
@@ -1118,16 +1189,17 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
         #    mapping ( uint => mapping ( uint => uint)) my_var
         #    mapping(uint => uint)[] test;p
         if isinstance(func.type, (MappingType, ArrayType)):
-            tmp = func.type
+            tmp: Type = func.type
             while isinstance(tmp, (MappingType, ArrayType)):
                 if isinstance(tmp, MappingType):
                     tmp = tmp.type_to
-                else:
+                # Should be "else:", but mypy does keep the correct type's invariant over the loop
+                elif isinstance(tmp, ArrayType):
                     tmp = tmp.type
             return_type = tmp
         else:
             return_type = func.type
-    if return_type:
+    if return_type and ir.lvalue:
         ir.lvalue.set_type(return_type)
     else:
         ir.lvalue = None
@@ -1143,7 +1215,7 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
 ###################################################################################
 
 
-def find_references_origin(irs):
+def find_references_origin(irs: List[Operation]):
     """
         Make lvalue of each Index, Member operation
         points to the left variable
@@ -1161,19 +1233,17 @@ def find_references_origin(irs):
 ###################################################################################
 
 
-def remove_temporary(result):
+def remove_temporary(result: List[Operation]) -> List[Operation]:
     result = [
         ins
         for ins in result
-        if not isinstance(
-            ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure)
-        )
+        if not isinstance(ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray))
     ]
 
     return result
 
 
-def remove_unused(result):
+def remove_unused(result: List[Operation]) -> List[Operation]:
     removed = True
 
     if not result:
@@ -1214,7 +1284,7 @@ def remove_unused(result):
 ###################################################################################
 
 
-def convert_constant_types(irs):
+def convert_constant_types(irs: List[Operation]):
     """
     late conversion of uint -> type for constant (Literal)
     :param irs:
@@ -1226,24 +1296,50 @@ def convert_constant_types(irs):
         was_changed = False
         for ir in irs:
             if isinstance(ir, Assignment):
-                if isinstance(ir.lvalue.type, ElementaryType):
-                    if ir.lvalue.type.type in ElementaryTypeInt:
-                        if isinstance(ir.rvalue, Function):
+                ir_lvalue_type = ir.lvalue.type
+                if isinstance(ir_lvalue_type, ElementaryType):
+                    if ir_lvalue_type.type in ElementaryTypeInt:
+                        ir_rvalue = ir.rvalue
+                        if isinstance(ir_rvalue, Function):
                             continue
-                        elif isinstance(ir.rvalue, TupleVariable):
+                        elif isinstance(ir_rvalue, TupleVariable):
                             # TODO: fix missing Unpack conversion
                             continue
                         else:
-                            if ir.rvalue.type.type != "int256":
-                                ir.rvalue.set_type(ElementaryType("int256"))
-                                was_changed = True
+                            if isinstance(
+                                ir_rvalue,
+                                (
+                                    StateVariable,
+                                    LocalVariable,
+                                    TemporaryVariable,
+                                    Constant,
+                                    # SolidityVariable, no need to update SolidityVariable's type
+                                    IndexVariable,
+                                    MemberVariable,
+                                ),
+                            ):
+                                ir_rvalue_type = ir_rvalue.type
+                                if isinstance(ir_rvalue_type, ElementaryType):
+                                    if ir_rvalue_type.type != "int256":
+                                        was_changed = True
+                                else:
+                                    was_changed = True
+                                ir_rvalue.set_type(ElementaryType("int256"))
+
             if isinstance(ir, Binary):
-                if isinstance(ir.lvalue.type, ElementaryType):
-                    if ir.lvalue.type.type in ElementaryTypeInt:
+                ir_lvalue_type = ir.lvalue.type
+                if isinstance(ir_lvalue_type, ElementaryType):
+                    if ir_lvalue_type.type in ElementaryTypeInt:
                         for r in ir.read:
-                            if r.type.type != "int256":
-                                r.set_type(ElementaryType("int256"))
+                            if isinstance(r, SolidityVariable):
+                                continue
+                            r_type = r.type
+                            if r_type and isinstance(r_type, ElementaryType):
+                                if r_type.type != "int256":
+                                    was_changed = True
+                            else:
                                 was_changed = True
+                            r.set_type(ElementaryType("int256"))
             if isinstance(ir, (HighLevelCall, InternalCall)):
                 func = ir.function
                 if isinstance(func, StateVariable):
@@ -1257,26 +1353,40 @@ def convert_constant_types(irs):
                     t = types[idx]
                     if isinstance(t, ElementaryType):
                         if t.type in ElementaryTypeInt:
-                            if arg.type.type != "int256":
-                                arg.set_type(ElementaryType("int256"))
+                            arg_type = arg.type
+                            if isinstance(arg_type, ElementaryType):
+                                if arg_type.type != "int256":
+                                    was_changed = True
+                            else:
                                 was_changed = True
+                            arg.set_type(ElementaryType("int256"))
             if isinstance(ir, NewStructure):
                 st = ir.structure
                 for idx, arg in enumerate(ir.arguments):
                     e = st.elems_ordered[idx]
-                    if isinstance(e.type, ElementaryType):
-                        if e.type.type in ElementaryTypeInt:
-                            if arg.type.type != "int256":
-                                arg.set_type(ElementaryType("int256"))
-                                was_changed = True
-            if isinstance(ir, InitArray):
-                if isinstance(ir.lvalue.type, ArrayType):
-                    if isinstance(ir.lvalue.type.type, ElementaryType):
-                        if ir.lvalue.type.type.type in ElementaryTypeInt:
-                            for r in ir.read:
-                                if r.type.type != "int256":
-                                    r.set_type(ElementaryType("int256"))
+                    e_type = e.type
+                    if isinstance(e_type, ElementaryType):
+                        if e_type.type in ElementaryTypeInt:
+                            arg_type = arg.type
+                            if isinstance(arg_type, ElementaryType):
+                                if arg_type.type != "int256":
                                     was_changed = True
+                            else:
+                                was_changed = True
+                            arg.set_type(ElementaryType("int256"))
+
+            if isinstance(ir, InitArray):
+                ir_lvalue = ir.lvalue
+                if ir_lvalue:
+                    ir_lvalue_type = ir_lvalue.type
+                    if isinstance(ir_lvalue_type, ArrayType):
+                        ir_lvalue_type_type = ir_lvalue_type.type
+                        if isinstance(ir_lvalue_type_type, ElementaryType):
+                            if ir_lvalue_type_type.type in ElementaryTypeInt:
+                                for r in ir.read:
+                                    if r.type.type != "int256":
+                                        r.set_type(ElementaryType("int256"))
+                                        was_changed = True
 
 
 # endregion
@@ -1287,7 +1397,7 @@ def convert_constant_types(irs):
 ###################################################################################
 
 
-def convert_delete(irs):
+def convert_delete(irs: List[Operation]):
     """
     Convert the lvalue of the Delete to point to the variable removed
     This can only be done after find_references_origin is called
@@ -1308,7 +1418,7 @@ def convert_delete(irs):
 ###################################################################################
 
 
-def apply_ir_heuristics(irs, node):
+def apply_ir_heuristics(irs: List[Operation], node: "Node") -> List[Operation]:
     """
         Apply a set of heuristic to improve slithIR
     """

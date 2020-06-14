@@ -1,10 +1,12 @@
 import logging
+from typing import Any
 
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.conditional_expression import ConditionalExpression
 from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
+from slither.core.expressions.expression import Expression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
 from slither.core.expressions.literal import Literal
@@ -21,22 +23,22 @@ logger = logging.getLogger("ExpressionVisitor")
 
 
 class ExpressionVisitor:
-    def __init__(self, expression):
+    def __init__(self, expression: Expression):
         # Inherited class must declared their variables prior calling super().__init__
         self._expression = expression
-        self._result = None
+        self._result: Any = None
         self._visit_expression(self.expression)
 
     def result(self):
         return self._result
 
     @property
-    def expression(self):
+    def expression(self) -> Expression:
         return self._expression
 
     # visit an expression
     # call pre_visit, visit_expression_name, post_visit
-    def _visit_expression(self, expression):
+    def _visit_expression(self, expression: Expression):
         self._pre_visit(expression)
 
         if isinstance(expression, AssignmentOperation):
@@ -111,6 +113,8 @@ class ExpressionVisitor:
             self._visit_expression(expression.call_value)
         if expression.call_gas:
             self._visit_expression(expression.call_gas)
+        if expression.call_salt:
+            self._visit_expression(expression.call_salt)
 
     def _visit_conditional_expression(self, expression):
         self._visit_expression(expression.if_expression)

@@ -168,8 +168,8 @@ class Node(SourceMapping, ChildFunction):
         # Phi origin
         # key are variable name
         self._phi_origins_state_variables: Dict[str, Tuple[StateVariable, Set["Node"]]] = {}
-        self._phi_origins_local_variables: Dict[str, Tuple[Variable, Set["Node"]]] = {}
-        self._phi_origins_member_variables: Dict[str, Tuple[Variable, Set["Node"]]] = {}
+        self._phi_origins_local_variables: Dict[str, Tuple[LocalVariable, Set["Node"]]] = {}
+        self._phi_origins_member_variables: Dict[str, Tuple[MemberVariable, Set["Node"]]] = {}
 
         self._expression: Optional[Expression] = None
         self._variable_declaration: Optional[LocalVariable] = None
@@ -794,7 +794,7 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def phi_origins_local_variables(self) -> Dict[str, Tuple[Variable, Set["Node"]]]:
+    def phi_origins_local_variables(self) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
         return self._phi_origins_local_variables
 
     @property
@@ -802,10 +802,10 @@ class Node(SourceMapping, ChildFunction):
         return self._phi_origins_state_variables
 
     @property
-    def phi_origin_member_variables(self) -> Dict[str, Tuple[Variable, Set["Node"]]]:
+    def phi_origin_member_variables(self) -> Dict[str, Tuple[MemberVariable, Set["Node"]]]:
         return self._phi_origins_member_variables
 
-    def add_phi_origin_local_variable(self, variable: Variable, node: "Node"):
+    def add_phi_origin_local_variable(self, variable: LocalVariable, node: "Node"):
         if variable.name not in self._phi_origins_local_variables:
             self._phi_origins_local_variables[variable.name] = (variable, set())
         (v, nodes) = self._phi_origins_local_variables[variable.name]
@@ -822,7 +822,7 @@ class Node(SourceMapping, ChildFunction):
         assert v == variable
         nodes.add(node)
 
-    def add_phi_origin_member_variable(self, variable: Variable, node: "Node"):
+    def add_phi_origin_member_variable(self, variable: MemberVariable, node: "Node"):
         if variable.name not in self._phi_origins_member_variables:
             self._phi_origins_member_variables[variable.name] = (variable, set())
         (v, nodes) = self._phi_origins_member_variables[variable.name]

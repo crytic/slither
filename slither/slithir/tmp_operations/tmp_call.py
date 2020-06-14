@@ -1,3 +1,5 @@
+from typing import Union, TYPE_CHECKING, Optional, List
+
 from slither.core.declarations import (
     Event,
     Contract,
@@ -6,11 +8,24 @@ from slither.core.declarations import (
     Structure,
 )
 from slither.core.variables.variable import Variable
+from slither.slithir.operations import Operation
 from slither.slithir.operations.lvalue import OperationWithLValue
 
 
+if TYPE_CHECKING:
+    from slither.slithir.utils.utils import VALID_LVALUE, VALID_RVALUE
+
+
 class TmpCall(OperationWithLValue):
-    def __init__(self, called, nbr_arguments, result, type_call):
+    def __init__(
+        self,
+        called: Union[
+            Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event
+        ],
+        nbr_arguments: int,
+        result: Optional["VALID_LVALUE"],
+        type_call: str,
+    ):
         assert isinstance(
             called,
             (Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event),
@@ -20,13 +35,14 @@ class TmpCall(OperationWithLValue):
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
         self._lvalue = result
-        self._ori = None  #
-        self._callid = None
-        self._gas = None
-        self._value = None
+        self._ori: Optional[Operation] = None  #
+        self._callid: Optional[str] = None
+        self._gas: Optional["VALID_RVALUE"] = None
+        self._value: Optional["VALID_RVALUE"] = None
+        self._salt = None
 
     @property
-    def call_value(self):
+    def call_value(self) -> Optional["VALID_RVALUE"]:
         return self._value
 
     @call_value.setter
@@ -34,7 +50,7 @@ class TmpCall(OperationWithLValue):
         self._value = v
 
     @property
-    def call_gas(self):
+    def call_gas(self) -> Optional["VALID_RVALUE"]:
         return self._gas
 
     @call_gas.setter
@@ -42,38 +58,55 @@ class TmpCall(OperationWithLValue):
         self._gas = gas
 
     @property
-    def call_id(self):
-        return self._callid
+    def call_salt(self):
+        return self._salt
+
+    @call_salt.setter
+    def call_salt(self, salt):
+        self._salt = salt
 
     @property
-    def read(self):
-        return [self.called]
+    def call_id(self) -> Optional[str]:
+        return self._callid
 
     @call_id.setter
     def call_id(self, c):
         self._callid = c
 
     @property
-    def called(self):
+    def read(
+        self,
+    ) -> List[
+        Union[Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event]
+    ]:
+        return [self.called]
+
+    @property
+    def called(
+        self,
+    ) -> Union[Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event]:
         return self._called
 
     @called.setter
-    def called(self, c):
+    def called(
+        self,
+        c: Union[Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event],
+    ):
         self._called = c
 
     @property
-    def nbr_arguments(self):
+    def nbr_arguments(self) -> int:
         return self._nbr_arguments
 
     @property
-    def type_call(self):
+    def type_call(self) -> str:
         return self._type_call
 
     @property
-    def ori(self):
+    def ori(self) -> Operation:
         return self._ori
 
-    def set_ori(self, ori):
+    def set_ori(self, ori: Operation):
         self._ori = ori
 
     def __str__(self):

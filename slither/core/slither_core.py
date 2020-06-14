@@ -6,7 +6,7 @@ import logging
 import json
 import re
 from collections import defaultdict
-from typing import Optional, Dict, List, Set
+from typing import Optional, Dict, List, Set, Union
 
 from crytic_compile import CryticCompile
 
@@ -14,6 +14,7 @@ from slither.core.context.context import Context
 from slither.core.declarations import Contract, Pragma, Import, Function, Modifier
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import InternalCall
+from slither.slithir.variables import Constant
 from slither.utils.colors import red
 
 logger = logging.getLogger("Slither")
@@ -142,7 +143,7 @@ class SlitherCore(Context):
         """list(dict(str: Contract): List of contracts as dict: name -> Contract."""
         return self._contracts
 
-    def get_contract_from_name(self, contract_name: str) -> Optional[Contract]:
+    def get_contract_from_name(self, contract_name: Union[str, Constant]) -> Optional[Contract]:
         """
             Return a contract from a name
         Args:

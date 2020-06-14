@@ -55,5 +55,13 @@ class Unary(OperationWithLValue):
     def type(self) -> UnaryType:
         return self._type
 
+    @property
+    def lvalue(self) -> "VALID_LVALUE":
+        return self._lvalue
+
+    @lvalue.setter
+    def lvalue(self, lvalue):
+        self._lvalue = lvalue
+
     def __str__(self):
         return "{} = {} {} ".format(self.lvalue, self.type, self.rvalue)

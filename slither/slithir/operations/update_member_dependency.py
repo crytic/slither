@@ -43,6 +43,14 @@ class UpdateMemberDependency(OperationWithLValue):
         return self._member
 
     @property
+    def lvalue(self) -> "VALID_LVALUE":
+        return self._lvalue
+
+    @lvalue.setter
+    def lvalue(self, lvalue):
+        self._lvalue = lvalue
+
+    @property
     def new_value(self) -> Union["VALID_RVALUE", Function, TupleVariable]:
         return self._new_val
 

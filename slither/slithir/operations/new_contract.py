@@ -10,15 +10,16 @@ if TYPE_CHECKING:
 
 
 class NewContract(Call, OperationWithLValue):
-    def __init__(self, contract_name: Constant, lvalue: "VALID_LVALUE"):
+    def __init__(self, contract_name: Constant, lvalue: Optional["VALID_LVALUE"]):
         assert isinstance(contract_name, Constant)
         assert is_valid_lvalue(lvalue)
         super(NewContract, self).__init__()
         self._contract_name: Constant = contract_name
         # todo create analyze to add the contract instance
-        self._lvalue: "VALID_LVALUE" = lvalue
-        self._callid: Optional[str] = None  # only used if gas/value != 0
-        self._call_value: Optional["VALID_RVALUE"] = None
+        self._lvalue = lvalue
+        self._callid = None  # only used if gas/value != 0
+        self._call_value = None
+        self._call_salt = None
 
     @property
     def call_value(self) -> Optional["VALID_RVALUE"]:
@@ -37,6 +38,14 @@ class NewContract(Call, OperationWithLValue):
         self._callid = c
 
     @property
+    def call_salt(self):
+        return self._call_salt
+
+    @call_salt.setter
+    def call_salt(self, s):
+        self._call_salt = s
+
+    @property
     def contract_name(self) -> Constant:
         return self._contract_name
 
@@ -48,6 +57,7 @@ class NewContract(Call, OperationWithLValue):
     def contract_created(self) -> "Contract":
         contract_name = self.contract_name
         contract_instance = self.slither.get_contract_from_name(str(contract_name))
+        assert contract_instance
         return contract_instance
 
     ###################################################################################
@@ -83,8 +93,10 @@ class NewContract(Call, OperationWithLValue):
     # endregion
 
     def __str__(self):
-        value = ""
+        options = ""
         if self.call_value:
-            value = "value:{}".format(self.call_value)
+            options = "value:{} ".format(self.call_value)
+        if self.call_salt:
+            options += "salt:{} ".format(self.call_salt)
         args = [str(a) for a in self.arguments]
-        return "{} = new {}({}) {}".format(self.lvalue, self.contract_name, ",".join(args), value)
+        return "{} = new {}({}) {}".format(self.lvalue, self.contract_name, ",".join(args), options)
