@@ -172,6 +172,13 @@ class ElementaryType(Type):
             return int(t[len("bytes") :])
         return None
 
+    @property
+    def storage_size(self):
+        if self._type == 'string' or self._type == 'bytes':
+            return 32, True
+
+        return int(self.size / 8), False
+
     def __str__(self):
         return self._type
 

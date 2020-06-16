@@ -26,6 +26,10 @@ class FunctionType(Type):
     def return_type(self) -> List[Type]:
         return [x.type for x in self.return_values]
 
+    @property
+    def storage_size(self):
+        return 24, False
+
     def __str__(self):
         # Use x.type
         # x.name may be empty
