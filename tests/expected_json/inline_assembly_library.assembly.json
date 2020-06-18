@@ -205,9 +205,9 @@
             }
           }
         ],
-        "description": "VectorSum.sumAsm(uint256[]) (tests/inline_assembly_library.sol#16-22) uses assembly\n\t- INLINE ASM None (tests/inline_assembly_library.sol#18-21)\n",
-        "markdown": "[VectorSum.sumAsm(uint256[])](tests/inline_assembly_library.sol#L16-L22) uses assembly\n\t- [INLINE ASM None](tests/inline_assembly_library.sol#L18-L21)\n",
-        "id": "3ff39c86f26b81703ac5df9ce9d176a0a2c9948abccc76da3768272588588c04",
+        "description": "VectorSum.sumAsm(uint256[]) (tests/inline_assembly_library.sol#16-22) uses assembly\n\t- INLINE ASM (tests/inline_assembly_library.sol#18-21)\n",
+        "markdown": "[VectorSum.sumAsm(uint256[])](tests/inline_assembly_library.sol#L16-L22) uses assembly\n\t- [INLINE ASM](tests/inline_assembly_library.sol#L18-L21)\n",
+        "id": "16a8c992317c2aaf582eae9181ebe0e8fb3a06fdfd33146b6dd3fb79c0827848",
         "check": "assembly",
         "impact": "Informational",
         "confidence": "High"
@@ -464,9 +464,9 @@
             }
           }
         ],
-        "description": "VectorSum.sumPureAsm(uint256[]) (tests/inline_assembly_library.sol#25-47) uses assembly\n\t- INLINE ASM None (tests/inline_assembly_library.sol#26-47)\n",
-        "markdown": "[VectorSum.sumPureAsm(uint256[])](tests/inline_assembly_library.sol#L25-L47) uses assembly\n\t- [INLINE ASM None](tests/inline_assembly_library.sol#L26-L47)\n",
-        "id": "423795860d3892652fcf5005055c4781586100070e0ecdffb7ca1014c3958191",
+        "description": "VectorSum.sumPureAsm(uint256[]) (tests/inline_assembly_library.sol#25-47) uses assembly\n\t- INLINE ASM (tests/inline_assembly_library.sol#26-47)\n",
+        "markdown": "[VectorSum.sumPureAsm(uint256[])](tests/inline_assembly_library.sol#L25-L47) uses assembly\n\t- [INLINE ASM](tests/inline_assembly_library.sol#L26-L47)\n",
+        "id": "ff7093c29957035d9db28e32bf4e530e073a51cf5d481355be56b011508200ce",
         "check": "assembly",
         "impact": "Informational",
         "confidence": "High"
