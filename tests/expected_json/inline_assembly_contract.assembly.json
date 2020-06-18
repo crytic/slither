@@ -177,9 +177,9 @@
             }
           }
         ],
-        "description": "GetCode.at(address) (tests/inline_assembly_contract.sol#6-20) uses assembly\n\t- INLINE ASM None (tests/inline_assembly_contract.sol#7-20)\n",
-        "markdown": "[GetCode.at(address)](tests/inline_assembly_contract.sol#L6-L20) uses assembly\n\t- [INLINE ASM None](tests/inline_assembly_contract.sol#L7-L20)\n",
-        "id": "8f448cbd104ddfcc1c099119fcb367b581476208f7cc3ab5897f4a9b5b4a9080",
+        "description": "GetCode.at(address) (tests/inline_assembly_contract.sol#6-20) uses assembly\n\t- INLINE ASM (tests/inline_assembly_contract.sol#7-20)\n",
+        "markdown": "[GetCode.at(address)](tests/inline_assembly_contract.sol#L6-L20) uses assembly\n\t- [INLINE ASM](tests/inline_assembly_contract.sol#L7-L20)\n",
+        "id": "120ffc7cb84fd731d6bceda1619aad83e9c652035bd108b3b1d98e1191037414",
         "check": "assembly",
         "impact": "Informational",
         "confidence": "High"
