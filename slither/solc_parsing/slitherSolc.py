@@ -6,6 +6,10 @@ from typing import Optional, List
 
 from slither.core.declarations import Contract
 from slither.exceptions import SlitherException
+from typing import Optional, List
+
+from slither.core.declarations import Contract
+from slither.exceptions import SlitherException
 from typing import List, Dict
 
 from slither.core.declarations import Contract
@@ -53,6 +57,8 @@ class SlitherSolc:
     def underlying_contract_to_parser(self) -> Dict[Contract, ContractSolc]:
         return self._underlying_contract_to_parser
 
+
+        self._top_level_contracts_counter = 0
 
     ###################################################################################
     ###################################################################################

@@ -272,9 +272,9 @@
             }
           }
         ],
-        "description": "Deprecated standard detected THROW None (tests/deprecated_calls.sol#9):\n\t- Usage of \"throw\" should be replaced with \"revert()\"\n",
-        "markdown": "Deprecated standard detected [THROW None](tests/deprecated_calls.sol#L9):\n\t- Usage of \"throw\" should be replaced with \"revert()\"\n",
-        "id": "1a3241d58683640c33ae9e1bcd65bafd7472e7b7c9d2ec695f84590a2cef286a",
+        "description": "Deprecated standard detected THROW (tests/deprecated_calls.sol#9):\n\t- Usage of \"throw\" should be replaced with \"revert()\"\n",
+        "markdown": "Deprecated standard detected [THROW](tests/deprecated_calls.sol#L9):\n\t- Usage of \"throw\" should be replaced with \"revert()\"\n",
+        "id": "7706e581277e0b0d8c2f8fbb8afee6a8a47e638fd6a407927716c8cd1bfbad5b",
         "check": "deprecated-standards",
         "impact": "Informational",
         "confidence": "High"

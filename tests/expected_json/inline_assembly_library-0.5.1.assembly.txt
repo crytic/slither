@@ -1,8 +1,8 @@
 [92m
 VectorSum.sumAsm(uint256[]) (tests/inline_assembly_library-0.5.1.sol#16-22) uses assembly
-	- INLINE ASM None (tests/inline_assembly_library-0.5.1.sol#18-21)
+	- INLINE ASM (tests/inline_assembly_library-0.5.1.sol#18-21)
 VectorSum.sumPureAsm(uint256[]) (tests/inline_assembly_library-0.5.1.sol#25-47) uses assembly
-	- INLINE ASM None (tests/inline_assembly_library-0.5.1.sol#26-47)
+	- INLINE ASM (tests/inline_assembly_library-0.5.1.sol#26-47)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage[0m
 tests/inline_assembly_library-0.5.1.sol analyzed (1 contracts with 1 detectors), 2 result(s) found
 [94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m
