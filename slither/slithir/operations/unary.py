@@ -1,4 +1,6 @@
 import logging
+from enum import Enum
+
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.slithir.exceptions import SlithIRError
@@ -6,7 +8,7 @@ from slither.slithir.exceptions import SlithIRError
 logger = logging.getLogger("BinaryOperationIR")
 
 
-class UnaryType:
+class UnaryType(Enum):
     BANG = 0  # !
     TILD = 1  # ~
 
@@ -19,14 +21,13 @@ class UnaryType:
                 return UnaryType.TILD
         raise SlithIRError('get_type: Unknown operation type {}'.format(operation_type))
 
-    @staticmethod
-    def str(operation_type):
-        if operation_type == UnaryType.BANG:
-            return '!'
-        if operation_type == UnaryType.TILD:
-            return '~'
+    def __str__(self):
+        if self == UnaryType.BANG:
+            return "!"
+        if self == UnaryType.TILD:
+            return "~"
 
-        raise SlithIRError('str: Unknown operation type {}'.format(operation_type))
+        raise SlithIRError("str: Unknown operation type {}".format(self))
 
 
 class Unary(OperationWithLValue):
@@ -53,7 +54,7 @@ class Unary(OperationWithLValue):
 
     @property
     def type_str(self):
-        return UnaryType.str(self._type)
+        return str(self._type)
 
     def __str__(self):
         return "{} = {} {} ".format(self.lvalue, self.type_str, self.rvalue)

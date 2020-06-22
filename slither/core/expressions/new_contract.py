@@ -1,17 +1,16 @@
 from .expression import Expression
 
-class NewContract(Expression):
 
+class NewContract(Expression):
     def __init__(self, contract_name):
         super(NewContract, self).__init__()
-        self._contract_name = contract_name
+        self._contract_name: str = contract_name
         self._gas = None
         self._value = None
         self._salt = None
 
-
     @property
-    def contract_name(self):
+    def contract_name(self) -> str:
         return self._contract_name
 
     @property
@@ -30,7 +29,5 @@ class NewContract(Expression):
     def call_salt(self, salt):
         self._salt = salt
 
-
     def __str__(self):
-        return 'new ' + str(self._contract_name)
-
+        return "new " + str(self._contract_name)
