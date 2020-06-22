@@ -8,8 +8,12 @@ ATTACKER_ADDRESS = "0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef"
 
 
 class Addresses:
-
-    def __init__(self, owner: Optional[str] = None, user: Optional[str] = None, attacker: Optional[str] = None):
+    def __init__(
+        self,
+        owner: Optional[str] = None,
+        user: Optional[str] = None,
+        attacker: Optional[str] = None,
+    ):
         self.owner = owner if owner else OWNER_ADDRESS
         self.user = user if user else USER_ADDRESS
         self.attacker = attacker if attacker else ATTACKER_ADDRESS

@@ -5,11 +5,16 @@ from slither.utils.function import get_function_id
 
 def get_signatures(c):
     functions = c.functions
-    functions = [f.full_name for f in functions if f.visibility in ['public', 'external'] and
-                 not f.is_constructor and not f.is_fallback]
+    functions = [
+        f.full_name
+        for f in functions
+        if f.visibility in ["public", "external"] and not f.is_constructor and not f.is_fallback
+    ]
 
     variables = c.state_variables
-    variables = [variable.name + '()' for variable in variables if variable.visibility in ['public']]
+    variables = [
+        variable.name + "()" for variable in variables if variable.visibility in ["public"]
+    ]
     return list(set(functions + variables))
 
 
@@ -21,26 +26,26 @@ def _get_function_or_variable(contract, signature):
 
     for variable in contract.state_variables:
         # Todo: can lead to incorrect variable in case of shadowing
-        if variable.visibility in ['public']:
-            if variable.name + '()' == signature:
+        if variable.visibility in ["public"]:
+            if variable.name + "()" == signature:
                 return variable
 
-    raise SlitherError(f'Function id checks: {signature} not found in {contract.name}')
+    raise SlitherError(f"Function id checks: {signature} not found in {contract.name}")
 
 
 class IDCollision(AbstractCheck):
-    ARGUMENT = 'function-id-collision'
+    ARGUMENT = "function-id-collision"
     IMPACT = CheckClassification.HIGH
 
-    HELP = 'Functions ids collision'
-    WIKI = 'https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-collisions'
-    WIKI_TITLE = 'Functions ids collisions'
+    HELP = "Functions ids collision"
+    WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-collisions"
+    WIKI_TITLE = "Functions ids collisions"
 
-    WIKI_DESCRIPTION = '''
+    WIKI_DESCRIPTION = """
 Detect function id collision between the contract and the proxy.
-'''
+"""
 
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
     function gsf() public {
@@ -56,11 +61,11 @@ contract Proxy{
 ```
 `Proxy.tgeo()` and `Contract.gsf()` have the same function id (0x67e43e43). 
 As a result, `Proxy.tgeo()` will shadow Contract.gsf()`.  
-'''
+"""
 
-    WIKI_RECOMMENDATION = '''
+    WIKI_RECOMMENDATION = """
 Rename the function. Avoid public functions in the proxy.
-'''
+"""
 
     REQUIRE_CONTRACT = True
     REQUIRE_PROXY = True
@@ -77,11 +82,18 @@ Rename the function. Avoid public functions in the proxy.
         for (k, _) in signatures_ids_implem.items():
             if k in signatures_ids_proxy:
                 if signatures_ids_implem[k] != signatures_ids_proxy[k]:
-                    implem_function = _get_function_or_variable(self.contract, signatures_ids_implem[k])
+                    implem_function = _get_function_or_variable(
+                        self.contract, signatures_ids_implem[k]
+                    )
                     proxy_function = _get_function_or_variable(self.proxy, signatures_ids_proxy[k])
 
-                    info = ['Function id collision found: ', implem_function,
-                            ' ', proxy_function, '\n']
+                    info = [
+                        "Function id collision found: ",
+                        implem_function,
+                        " ",
+                        proxy_function,
+                        "\n",
+                    ]
                     json = self.generate_result(info)
                     results.append(json)
 
@@ -89,18 +101,18 @@ Rename the function. Avoid public functions in the proxy.
 
 
 class FunctionShadowing(AbstractCheck):
-    ARGUMENT = 'function-shadowing'
+    ARGUMENT = "function-shadowing"
     IMPACT = CheckClassification.HIGH
 
-    HELP = 'Functions shadowing'
-    WIKI = 'https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-shadowing'
-    WIKI_TITLE = 'Functions shadowing'
+    HELP = "Functions shadowing"
+    WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-shadowing"
+    WIKI_TITLE = "Functions shadowing"
 
-    WIKI_DESCRIPTION = '''
+    WIKI_DESCRIPTION = """
 Detect function shadowing between the contract and the proxy.
-'''
+"""
 
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
     function get() public {
@@ -115,11 +127,11 @@ contract Proxy{
 }
 ```
 `Proxy.get` will shadow any call to `get()`. As a result `get()` is never executed in the logic contract and cannot be updated.
-'''
+"""
 
-    WIKI_RECOMMENDATION = '''
+    WIKI_RECOMMENDATION = """
 Rename the function. Avoid public functions in the proxy.
-'''
+"""
 
     REQUIRE_CONTRACT = True
     REQUIRE_PROXY = True
@@ -136,11 +148,18 @@ Rename the function. Avoid public functions in the proxy.
         for (k, _) in signatures_ids_implem.items():
             if k in signatures_ids_proxy:
                 if signatures_ids_implem[k] == signatures_ids_proxy[k]:
-                    implem_function = _get_function_or_variable(self.contract, signatures_ids_implem[k])
+                    implem_function = _get_function_or_variable(
+                        self.contract, signatures_ids_implem[k]
+                    )
                     proxy_function = _get_function_or_variable(self.proxy, signatures_ids_proxy[k])
 
-                    info = ['Function shadowing found: ', implem_function,
-                            ' ', proxy_function, '\n']
+                    info = [
+                        "Function shadowing found: ",
+                        implem_function,
+                        " ",
+                        proxy_function,
+                        "\n",
+                    ]
                     json = self.generate_result(info)
                     results.append(json)
 
