@@ -11,7 +11,6 @@ class S1(S):
 
 
 class A(abc.ABC):
-
     @property
     @abc.abstractmethod
     def test(self) -> Union[Union[int, Union[Union[S, S1, str]]]]:
@@ -19,7 +18,6 @@ class A(abc.ABC):
 
 
 class B(A):
-
     @property
     def test(self) -> Union[str, S1]:
-        return 't'
+        return "t"

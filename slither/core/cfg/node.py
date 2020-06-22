@@ -48,13 +48,14 @@ from slither.core.expressions.expression import Expression
 if TYPE_CHECKING:
     from slither.core.declarations import Function
     from slither.slithir.variables.variable import SlithIRVariable
-    from slither.core.slither_core import Slither
+    from slither.core.slither_core import SlitherCore
     from slither.utils.type_helpers import (
         InternalCallType,
         HighLevelCallType,
         LibraryCallType,
         LowLevelCallType,
     )
+
 
 ###################################################################################
 ###################################################################################
@@ -222,7 +223,7 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def slither(self) -> "Slither":
+    def slither(self) -> "SlitherCore":
         return self.function.slither
 
     @property
@@ -309,6 +310,10 @@ class Node(SourceMapping, ChildFunction):
     def variables_read_as_expression(self) -> List[Expression]:
         return self._expression_vars_read
 
+    @variables_read_as_expression.setter
+    def variables_read_as_expression(self, exprs: List[Expression]):
+        self._expression_vars_read = exprs
+
     @property
     def slithir_variables(self) -> List["SlithIRVariable"]:
         return list(self._slithir_vars)
@@ -358,6 +363,10 @@ class Node(SourceMapping, ChildFunction):
     @property
     def variables_written_as_expression(self) -> List[Expression]:
         return self._expression_vars_written
+
+    @variables_written_as_expression.setter
+    def variables_written_as_expression(self, exprs: List[Expression]):
+        self._expression_vars_written = exprs
 
     # endregion
     ###################################################################################
@@ -415,6 +424,10 @@ class Node(SourceMapping, ChildFunction):
         """
         return self._external_calls_as_expressions
 
+    @external_calls_as_expressions.setter
+    def external_calls_as_expressions(self, exprs: List[Expression]):
+        self._external_calls_as_expressions = exprs
+
     @property
     def internal_calls_as_expressions(self) -> List[Expression]:
         """
@@ -422,9 +435,17 @@ class Node(SourceMapping, ChildFunction):
         """
         return self._internal_calls_as_expressions
 
+    @internal_calls_as_expressions.setter
+    def internal_calls_as_expressions(self, exprs: List[Expression]):
+        self._internal_calls_as_expressions = exprs
+
     @property
     def calls_as_expression(self) -> List[Expression]:
         return list(self._expression_calls)
+
+    @calls_as_expression.setter
+    def calls_as_expression(self, exprs: List[Expression]):
+        self._expression_calls = exprs
 
     def can_reenter(self, callstack=None) -> bool:
         """
@@ -476,8 +497,8 @@ class Node(SourceMapping, ChildFunction):
         """
         return self._expression
 
-    def add_expression(self, expression: Expression):
-        assert self._expression is None
+    def add_expression(self, expression: Expression, bypass_verif_empty: bool = False):
+        assert self._expression is None or bypass_verif_empty
         self._expression = expression
 
     def add_variable_declaration(self, var: LocalVariable):
@@ -777,7 +798,7 @@ class Node(SourceMapping, ChildFunction):
         return self._phi_origins_local_variables
 
     @property
-    def phi_origins_state_variables(self,) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
+    def phi_origins_state_variables(self) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
         return self._phi_origins_state_variables
 
     @property

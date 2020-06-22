@@ -1,16 +1,29 @@
 """
     Event module
 """
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 
+from slither.core.cfg.node import NodeType
+from slither.core.cfg.node import link_nodes
 from slither.core.declarations.modifier import Modifier
+from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 
-from slither.core.cfg.node import NodeType, Node
-from slither.core.cfg.node import link_nodes
+if TYPE_CHECKING:
+    from slither.solc_parsing.declarations.contract import ContractSolc
 
 
-class ModifierSolc(Modifier, FunctionSolc):
+class ModifierSolc(FunctionSolc):
+    def __init__(self, modifier: Modifier, function_data: Dict, contract_parser: "ContractSolc"):
+        super().__init__(modifier, function_data, contract_parser)
+        # _modifier is equal to _function, but keep it here to prevent
+        # confusion for mypy in underlying_function
+        self._modifier = modifier
+
+    @property
+    def underlying_function(self) -> Modifier:
+        return self._modifier
+
     def analyze_params(self):
         # Can be re-analyzed due to inheritance
         if self._params_was_analyzed:
@@ -39,36 +52,36 @@ class ModifierSolc(Modifier, FunctionSolc):
             body = self._functionNotParsed["body"]
 
             if body and body[self.get_key()] == "Block":
-                self._is_implemented = True
+                self._function.is_implemented = True
                 self._parse_cfg(body)
 
         else:
             children = self._functionNotParsed["children"]
 
-            self._isImplemented = False
+            self._function.is_implemented = False
             if len(children) > 1:
                 assert len(children) == 2
                 block = children[1]
                 assert block["name"] == "Block"
-                self._is_implemented = True
+                self._function.is_implemented = True
                 self._parse_cfg(block)
 
-        for local_vars in self.variables:
-            local_vars.analyze(self)
+        for local_var_parser in self._local_variables_parser:
+            local_var_parser.analyze(self)
 
-        for node in self.nodes:
+        for node in self._node_to_nodesolc.values():
             node.analyze_expressions(self)
 
         self._filter_ternary()
         self._remove_alone_endif()
 
-        self._analyze_read_write()
-        self._analyze_calls()
+        # self._analyze_read_write()
+        # self._analyze_calls()
 
-    def _parse_statement(self, statement: Dict, node: Node):
+    def _parse_statement(self, statement: Dict, node: NodeSolc) -> NodeSolc:
         name = statement[self.get_key()]
         if name == "PlaceholderStatement":
             placeholder_node = self._new_node(NodeType.PLACEHOLDER, statement["src"])
-            link_nodes(node, placeholder_node)
+            link_nodes(node.underlying_node, placeholder_node.underlying_node)
             return placeholder_node
         return super(ModifierSolc, self)._parse_statement(statement, node)

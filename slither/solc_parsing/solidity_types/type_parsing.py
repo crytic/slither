@@ -11,7 +11,6 @@ from slither.core.solidity_types.function_type import FunctionType
 from slither.core.variables.function_type_variable import FunctionTypeVariable
 
 from slither.core.declarations.contract import Contract
-from slither.core.declarations.function import Function
 
 from slither.core.expressions.literal import Literal
 
@@ -149,15 +148,19 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     # local import to avoid circular dependency
     from slither.solc_parsing.expressions.expression_parsing import parse_expression
     from slither.solc_parsing.variables.function_type_variable import FunctionTypeVariableSolc
+    from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.declarations.function import FunctionSolc
 
-    if isinstance(caller_context, Contract):
-        contract = caller_context
-    elif isinstance(caller_context, Function):
-        contract = caller_context.contract
+    if isinstance(caller_context, ContractSolc):
+        contract = caller_context.underlying_contract
+        contract_parser = caller_context
+        is_compact_ast = caller_context.is_compact_ast
+    elif isinstance(caller_context, FunctionSolc):
+        contract = caller_context.underlying_function.contract
+        contract_parser = caller_context.contract_parser
+        is_compact_ast = caller_context.is_compact_ast
     else:
-        raise ParsingError("Incorrect caller context")
-
-    is_compact_ast = caller_context.is_compact_ast
+        raise ParsingError(f"Incorrect caller context: {type(caller_context)}")
 
     if is_compact_ast:
         key = "nodeType"
@@ -193,25 +196,25 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
         if is_compact_ast:
             if t["length"]:
                 length = parse_expression(t["length"], caller_context)
-            array_type = parse_type(t["baseType"], contract)
+            array_type = parse_type(t["baseType"], contract_parser)
         else:
             if len(t["children"]) == 2:
                 length = parse_expression(t["children"][1], caller_context)
             else:
                 assert len(t["children"]) == 1
-            array_type = parse_type(t["children"][0], contract)
+            array_type = parse_type(t["children"][0], contract_parser)
         return ArrayType(array_type, length)
 
     elif t[key] == "Mapping":
 
         if is_compact_ast:
-            mappingFrom = parse_type(t["keyType"], contract)
-            mappingTo = parse_type(t["valueType"], contract)
+            mappingFrom = parse_type(t["keyType"], contract_parser)
+            mappingTo = parse_type(t["valueType"], contract_parser)
         else:
             assert len(t["children"]) == 2
 
-            mappingFrom = parse_type(t["children"][0], contract)
-            mappingTo = parse_type(t["children"][1], contract)
+            mappingFrom = parse_type(t["children"][0], contract_parser)
+            mappingTo = parse_type(t["children"][1], contract_parser)
 
         return MappingType(mappingFrom, mappingTo)
 
@@ -230,18 +233,23 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
         assert params[key] == "ParameterList"
         assert return_values[key] == "ParameterList"
 
-        params_vars = []
-        return_values_vars = []
+        params_vars: List[FunctionTypeVariable] = []
+        return_values_vars: List[FunctionTypeVariable] = []
         for p in params[index]:
-            var = FunctionTypeVariableSolc(p)
+            var = FunctionTypeVariable()
             var.set_offset(p["src"], caller_context.slither)
-            var.analyze(caller_context)
+
+            var_parser = FunctionTypeVariableSolc(var, p)
+            var_parser.analyze(caller_context)
+
             params_vars.append(var)
         for p in return_values[index]:
-            var = FunctionTypeVariableSolc(p)
-
+            var = FunctionTypeVariable()
             var.set_offset(p["src"], caller_context.slither)
-            var.analyze(caller_context)
+
+            var_parser = FunctionTypeVariableSolc(var, p)
+            var_parser.analyze(caller_context)
+
             return_values_vars.append(var)
 
         return FunctionType(params_vars, return_values_vars)

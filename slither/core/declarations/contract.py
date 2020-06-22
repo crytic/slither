@@ -11,8 +11,7 @@ from slither.core.children.child_slither import ChildSlither
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 
-
-from slither.core.declarations.function import Function
+from slither.core.declarations.function import Function, FunctionType
 from slither.utils.erc import (
     ERC20_signatures,
     ERC165_signatures,
@@ -58,10 +57,12 @@ class Contract(ChildSlither, SourceMapping):
         self._variables_ordered: List["StateVariable"] = []  # contain also shadowed variables
         self._modifiers: Dict[str, "Modifier"] = {}
         self._functions: Dict[str, "Function"] = {}
+        self._linearizedBaseContracts = List[int]
 
         # The only str is "*"
         self._using_for: Dict[Union[str, Type], List[str]] = {}
         self._kind: Optional[str] = None
+        self._is_interface: bool = False
 
         self._signatures: Optional[List[str]] = None
         self._signatures_declared: Optional[List[str]] = None
@@ -87,11 +88,20 @@ class Contract(ChildSlither, SourceMapping):
         assert self._name
         return self._name
 
+    @name.setter
+    def name(self, name: str):
+        self._name = name
+
     @property
     def id(self) -> int:
         """Unique id."""
         assert self._id
         return self._id
+
+    @id.setter
+    def id(self, new_id):
+        """Unique id."""
+        self._id = new_id
 
     @property
     def contract_kind(self) -> Optional[str]:
@@ -100,6 +110,18 @@ class Contract(ChildSlither, SourceMapping):
         :return:
         """
         return self._kind
+
+    @contract_kind.setter
+    def contract_kind(self, kind):
+        self._kind = kind
+
+    @property
+    def is_interface(self) -> bool:
+        return self._is_interface
+
+    @is_interface.setter
+    def is_interface(self, is_interface: bool):
+        self._is_interface = is_interface
 
     # endregion
     ###################################################################################
@@ -129,6 +151,7 @@ class Contract(ChildSlither, SourceMapping):
         """
         return [s for s in self.structures if s.contract == self]
 
+    @property
     def structures_as_dict(self) -> Dict[str, "Structure"]:
         return self._structures
 
@@ -157,6 +180,7 @@ class Contract(ChildSlither, SourceMapping):
         """
         return [e for e in self.enums if e.contract == self]
 
+    @property
     def enums_as_dict(self) -> Dict[str, "Enum"]:
         return self._enums
 
@@ -188,6 +212,7 @@ class Contract(ChildSlither, SourceMapping):
         """
         return [e for e in self.events if e.contract == self]
 
+    @property
     def events_as_dict(self) -> Dict[str, "Event"]:
         return self._events
 
@@ -216,6 +241,7 @@ class Contract(ChildSlither, SourceMapping):
         """
         return list(self.state_variables)
 
+    @property
     def variables_as_dict(self) -> Dict[str, "StateVariable"]:
         return self._variables
 
@@ -232,6 +258,9 @@ class Contract(ChildSlither, SourceMapping):
             list(StateVariable): List of the state variables by order of declaration. Contains also shadowed variables
         """
         return list(self._variables_ordered)
+
+    def add_variables_ordered(self, new_vars: List["StateVariable"]):
+        self._variables_ordered += new_vars
 
     @property
     def state_variables_inherited(self) -> List["StateVariable"]:
@@ -368,6 +397,15 @@ class Contract(ChildSlither, SourceMapping):
     def available_functions_as_dict(self) -> Dict[str, "Function"]:
         return {f.full_name: f for f in self._functions.values() if not f.is_shadowed}
 
+    def set_functions(self, functions: Dict[str, "Function"]):
+        """
+        Set the functions
+
+        :param functions:  dict full_name -> function
+        :return:
+        """
+        self._functions = functions
+
     @property
     def functions_inherited(self) -> List["Function"]:
         """
@@ -402,6 +440,15 @@ class Contract(ChildSlither, SourceMapping):
 
     def available_modifiers_as_dict(self) -> Dict[str, "Modifier"]:
         return {m.full_name: m for m in self._modifiers.values() if not m.is_shadowed}
+
+    def set_modifiers(self, modifiers: Dict[str, "Modifier"]):
+        """
+        Set the modifiers
+
+        :param modifiers:  dict full_name -> modifier
+        :return:
+        """
+        self._modifiers = modifiers
 
     @property
     def modifiers_inherited(self) -> List["Modifier"]:
@@ -497,7 +544,7 @@ class Contract(ChildSlither, SourceMapping):
         """
         return list(reversed(self._inheritance))
 
-    def setInheritance(
+    def set_inheritance(
         self,
         inheritance: List["Contract"],
         immediate_inheritance: List["Contract"],
@@ -878,7 +925,7 @@ class Contract(ChildSlither, SourceMapping):
     def is_possible_erc20(self) -> bool:
         """
         Checks if the provided contract could be attempting to implement ERC20 standards.
-        :param contract: The contract to check for token compatibility.
+
         :return: Returns a boolean indicating if the provided contract met the token standard.
         """
         # We do not check for all the functions, as name(), symbol(), might give too many FPs
@@ -892,7 +939,7 @@ class Contract(ChildSlither, SourceMapping):
     def is_possible_erc721(self) -> bool:
         """
         Checks if the provided contract could be attempting to implement ERC721 standards.
-        :param contract: The contract to check for token compatibility.
+
         :return: Returns a boolean indicating if the provided contract met the token standard.
         """
         # We do not check for all the functions, as name(), symbol(), might give too many FPs
@@ -1022,6 +1069,133 @@ class Contract(ChildSlither, SourceMapping):
         """
         return self._is_incorrectly_parsed
 
+    @is_incorrectly_constructed.setter
+    def is_incorrectly_constructed(self, incorrect: bool):
+        self._is_incorrectly_parsed = incorrect
+
+    def add_constructor_variables(self):
+        if self.state_variables:
+            for (idx, variable_candidate) in enumerate(self.state_variables):
+                if variable_candidate.expression and not variable_candidate.is_constant:
+
+                    constructor_variable = Function()
+                    constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
+                    constructor_variable.set_contract(self)
+                    constructor_variable.set_contract_declarer(self)
+                    constructor_variable.set_visibility("internal")
+                    # For now, source mapping of the constructor variable is the whole contract
+                    # Could be improved with a targeted source mapping
+                    constructor_variable.set_offset(self.source_mapping, self.slither)
+                    self._functions[constructor_variable.canonical_name] = constructor_variable
+
+                    prev_node = self._create_node(constructor_variable, 0, variable_candidate)
+                    variable_candidate.node_initialization = prev_node
+                    counter = 1
+                    for v in self.state_variables[idx + 1 :]:
+                        if v.expression and not v.is_constant:
+                            next_node = self._create_node(constructor_variable, counter, v)
+                            v.node_initialization = next_node
+                            prev_node.add_son(next_node)
+                            next_node.add_father(prev_node)
+                            counter += 1
+                    break
+
+            for (idx, variable_candidate) in enumerate(self.state_variables):
+                if variable_candidate.expression and variable_candidate.is_constant:
+
+                    constructor_variable = Function()
+                    constructor_variable.set_function_type(
+                        FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES
+                    )
+                    constructor_variable.set_contract(self)
+                    constructor_variable.set_contract_declarer(self)
+                    constructor_variable.set_visibility("internal")
+                    # For now, source mapping of the constructor variable is the whole contract
+                    # Could be improved with a targeted source mapping
+                    constructor_variable.set_offset(self.source_mapping, self.slither)
+                    self._functions[constructor_variable.canonical_name] = constructor_variable
+
+                    prev_node = self._create_node(constructor_variable, 0, variable_candidate)
+                    variable_candidate.node_initialization = prev_node
+                    counter = 1
+                    for v in self.state_variables[idx + 1 :]:
+                        if v.expression and v.is_constant:
+                            next_node = self._create_node(constructor_variable, counter, v)
+                            v.node_initialization = next_node
+                            prev_node.add_son(next_node)
+                            next_node.add_father(prev_node)
+                            counter += 1
+
+                    break
+
+    def _create_node(self, func: Function, counter: int, variable: "Variable"):
+        from slither.core.cfg.node import Node, NodeType
+        from slither.core.expressions import (
+            AssignmentOperationType,
+            AssignmentOperation,
+            Identifier,
+        )
+
+        # Function uses to create node for state variable declaration statements
+        node = Node(NodeType.OTHER_ENTRYPOINT, counter)
+        node.set_offset(variable.source_mapping, self.slither)
+        node.set_function(func)
+        func.add_node(node)
+        expression = AssignmentOperation(
+            Identifier(variable), variable.expression, AssignmentOperationType.ASSIGN, variable.type
+        )
+
+        expression.set_offset(variable.source_mapping, self.slither)
+        node.add_expression(expression)
+        return node
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region SlithIR
+    ###################################################################################
+    ###################################################################################
+
+    def convert_expression_to_slithir_ssa(self):
+        """
+        Assume generate_slithir_and_analyze was called on all functions
+
+        :return:
+        """
+        from slither.slithir.variables import StateIRVariable
+
+        all_ssa_state_variables_instances = dict()
+
+        for contract in self.inheritance:
+            for v in contract.state_variables_declared:
+                new_var = StateIRVariable(v)
+                all_ssa_state_variables_instances[v.canonical_name] = new_var
+                self._initial_state_variables.append(new_var)
+
+        for v in self.variables:
+            if v.contract == self:
+                new_var = StateIRVariable(v)
+                all_ssa_state_variables_instances[v.canonical_name] = new_var
+                self._initial_state_variables.append(new_var)
+
+        for func in self.functions + self.modifiers:
+            func.generate_slithir_ssa(all_ssa_state_variables_instances)
+
+    def fix_phi(self):
+        last_state_variables_instances = dict()
+        initial_state_variables_instances = dict()
+        for v in self._initial_state_variables:
+            last_state_variables_instances[v.canonical_name] = []
+            initial_state_variables_instances[v.canonical_name] = v
+
+        for func in self.functions + self.modifiers:
+            result = func.get_last_ssa_state_variables_instances()
+            for variable_name, instances in result.items():
+                last_state_variables_instances[variable_name] += instances
+
+        for func in self.functions + self.modifiers:
+            func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
+
     @property
     def is_top_level(self) -> bool:
         """
@@ -1054,5 +1228,8 @@ class Contract(ChildSlither, SourceMapping):
 
     def __str__(self):
         return self.name
+
+    def __hash__(self):
+        return self._id
 
     # endregion

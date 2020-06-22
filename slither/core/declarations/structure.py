@@ -20,13 +20,24 @@ class Structure(ChildContract, SourceMapping):
     def canonical_name(self) -> str:
         return self._canonical_name
 
+    @canonical_name.setter
+    def canonical_name(self, name: str):
+        self._canonical_name = name
+
     @property
     def name(self) -> str:
         return self._name
 
+    @name.setter
+    def name(self, new_name: str):
+        self._name = new_name
+
     @property
     def elems(self) -> Dict[str, "StructureVariable"]:
         return self._elems
+
+    def add_elem_in_order(self, s: str):
+        self._elems_ordered.append(s)
 
     def is_declared_by(self, contract):
         """
