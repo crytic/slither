@@ -16,7 +16,7 @@ from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
     Assignment,
     Index,
-    AccessMember,
+    Member,
     Length,
     Balance,
     Binary,
@@ -42,7 +42,7 @@ from slither.slithir.operations import (
     InitArray,
     InternalCall,
 )
-from slither.slithir.variables import TemporaryVariable, TupleVariable, Constant, IndexVariable
+from slither.slithir.variables import TemporaryVariable, TupleVariable, Constant, ReferenceVariable
 from .cache import load_cache
 
 simil_logger = logging.getLogger("Slither-simil")
@@ -137,7 +137,7 @@ def encode_ir(ir):
         return "({}):=({})".format(encode_ir(ir.lvalue), encode_ir(ir.rvalue))
     if isinstance(ir, Index):
         return "index({})".format(ntype(ir._type))
-    if isinstance(ir, AccessMember):
+    if isinstance(ir, Member):
         return "member"  # .format(ntype(ir._type))
     if isinstance(ir, Length):
         return "length"
@@ -199,7 +199,7 @@ def encode_ir(ir):
         return "solidity_variable{}".format(ir.name)
     if isinstance(ir, TemporaryVariable):
         return "temporary_variable"
-    if isinstance(ir, IndexVariable):
+    if isinstance(ir, ReferenceVariable):
         return "reference({})".format(ntype(ir._type))
     if isinstance(ir, LocalVariable):
         return "local_solc_variable({})".format(ir._location)
