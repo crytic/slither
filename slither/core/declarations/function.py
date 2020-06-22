@@ -1600,9 +1600,8 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         return ir.rvalues[0] == ir.lvalue
 
     def fix_phi(self, last_state_variables_instances, initial_state_variables_instances):
-        from slither.slithir.operations import InternalCall, PhiCallback
-        from slither.slithir.variables import Constant, StateIRVariable
-
+        from slither.slithir.operations import (InternalCall, PhiCallback)
+        from slither.slithir.variables import (Constant, StateIRVariable)
         for node in self.nodes:
             for ir in node.irs_ssa:
                 if node == self.entry_point:
@@ -1622,27 +1621,11 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
                 if isinstance(ir, PhiCallback):
                     callee_ir = ir.callee_ir
                     if isinstance(callee_ir, InternalCall):
-                        original_rvalues = ir.rvalues
-                        ir.rvalues = []
-                        # If phi callback on a variable that is used as a storage parameter
-                        # We need to point to all the last SSA variable of that parameter
-                        # We iterate because it migth be used multiple time as a storage parameter
-                        for idx in ir.storage_idx:
-                            target = callee_ir.function.parameters_ssa[idx]
-                            last_ssa = callee_ir.function.get_last_ssa_local_variables_instances()
-                            if target.canonical_name in last_ssa:
-                                ir.rvalues += list(last_ssa[target.canonical_name])
-                            else:
-                                ir.rvalues += [target]
-
-                        target = ir.lvalue
                         last_ssa = callee_ir.function.get_last_ssa_state_variables_instances()
-                        if target.canonical_name in last_ssa:
-                            ir.rvalues += list(last_ssa[target.canonical_name])
-                        # If the variable was not changed in the internal call
-                        # And was not used as a storage pointer, then it should be the original values
-                        elif not ir.storage_idx:
-                            ir.rvalues = original_rvalues
+                        if ir.lvalue.canonical_name in last_ssa:
+                            ir.rvalues = list(last_ssa[ir.lvalue.canonical_name])
+                        else:
+                            ir.rvalues = [ir.lvalue]
                     else:
                         additional = last_state_variables_instances[ir.lvalue.canonical_name]
                         ir.rvalues = list(set(additional + ir.rvalues))
