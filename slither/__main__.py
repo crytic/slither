@@ -725,7 +725,6 @@ def main_impl(all_detector_classes, all_printer_classes):
         traceback.print_exc()
         logging.error(red("Error:"))
         logging.error(red(output_error))
-        traceback.print_exc()
         logging.error("Please report an issue to https://github.com/crytic/slither/issues")
 
     except Exception:
@@ -733,6 +732,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         logging.error(traceback.print_exc())
         logging.error("Error in %s" % args.filename)
         logging.error(output_error)
+
 
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
     if outputting_json:

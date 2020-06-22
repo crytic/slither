@@ -46,6 +46,14 @@ class NewContract(Call, OperationWithLValue):
         self._call_salt = s
 
     @property
+    def call_salt(self):
+        return self._call_salt
+
+    @call_salt.setter
+    def call_salt(self, s):
+        self._call_salt = s
+
+    @property
     def contract_name(self) -> Constant:
         return self._contract_name
 
