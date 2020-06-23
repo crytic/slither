@@ -9,7 +9,6 @@ from slither.core.expressions.assignment_operation import (
 from slither.core.expressions.identifier import Identifier
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 from slither.visitors.expression.find_calls import FindCalls
-from slither.solc_parsing.yul.parse_yul import parse_yul
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
 
