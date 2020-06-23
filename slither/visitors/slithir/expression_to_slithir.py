@@ -55,6 +55,11 @@ _binary_to_binary = {
     BinaryOperationType.NOT_EQUAL: BinaryType.NOT_EQUAL,
     BinaryOperationType.ANDAND: BinaryType.ANDAND,
     BinaryOperationType.OROR: BinaryType.OROR,
+    BinaryOperationType.DIVISION_SIGNED: BinaryType.DIVISION_SIGNED,
+    BinaryOperationType.MODULO_SIGNED: BinaryType.MODULO_SIGNED,
+    BinaryOperationType.LESS_SIGNED: BinaryType.LESS_SIGNED,
+    BinaryOperationType.GREATER_SIGNED: BinaryType.GREATER_SIGNED,
+    BinaryOperationType.RIGHT_SHIFT_ARITHMETIC: BinaryType.RIGHT_SHIFT_ARITHMETIC,
 }
 
 def convert_assignment(left, right, t, return_type):

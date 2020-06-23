@@ -18,7 +18,7 @@ from slither.solc_parsing.variables.local_variable_init_from_tuple import (
     LocalVariableInitFromTupleSolc,
 )
 from slither.solc_parsing.variables.variable_declaration import MultipleVariablesDeclaration
-from slither.solc_parsing.yul.parse_yul import convert_yul
+from slither.solc_parsing.yul.parse_yul import YulObject
 from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
@@ -63,8 +63,6 @@ class FunctionSolc:
         self._functionNotParsed = function_data
         self._params_was_analyzed = False
         self._content_was_analyzed = False
-        self._counter_nodes = 0
-        self._counter_asm_nodes = 0
 
         self._counter_scope_local_variables = 0
         # variable renamed will map the solc id
@@ -83,6 +81,7 @@ class FunctionSolc:
         self.returns_src = SourceMapping()
 
         self._node_to_nodesolc: Dict[Node, NodeSolc] = dict()
+        self._node_to_yulobject: Dict[Node, YulObject] = dict()
 
         self._local_variables_parser: List[
             Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
@@ -298,6 +297,9 @@ class FunctionSolc:
         for node_parser in self._node_to_nodesolc.values():
             node_parser.analyze_expressions(self)
 
+        for node_parser in self._node_to_yulobject.values():
+            node_parser.analyze_expressions()
+
         self._filter_ternary()
 
         self._remove_alone_endif()
@@ -315,8 +317,11 @@ class FunctionSolc:
         self._node_to_nodesolc[node] = node_parser
         return node_parser
 
-    def node_solc(self):
-        return NodeSolc
+    def _new_yul_object(self, src: Union[str, Dict]) -> YulObject:
+        node = self._function.new_node(NodeType.ASSEMBLY, src)
+        yul_object = YulObject(self._function.contract, node, [self._function.name, f"asm_{len(self._node_to_yulobject)}"], parent_func=self._function)
+        self._node_to_yulobject[node] = yul_object
+        return yul_object
 
     # endregion
     ###################################################################################
@@ -806,12 +811,14 @@ class FunctionSolc:
             # Added with solc 0.6 - the yul code is an AST
             if 'AST' in statement:
                 self._contains_assembly = True
-                yul_root = self._new_node(NodeType.ASSEMBLY, statement['src'])
-                yul_root.set_yul_root(self)
-                link_underlying_nodes(node, yul_root)
-                self._counter_asm_nodes += 1
+                yul_object = self._new_yul_object(statement['src'])
+                entrypoint = yul_object.entrypoint
+                exitpoint = yul_object.convert(statement['AST'])
 
-                node = convert_yul(yul_root, yul_root, statement['AST'])
+                # technically, entrypoint and exitpoint are YulNodes and we should be returning a NodeSolc here
+                # but they both expose an underlying_node so oh well
+                link_underlying_nodes(node, entrypoint)
+                node = exitpoint
             else:
                 asm_node = self._new_node(NodeType.ASSEMBLY, statement['src'])
                 self._function._contains_assembly = True
