@@ -1,37 +1,27 @@
-'''
+"""
     Nodes of the dominator tree
-'''
+"""
+from typing import TYPE_CHECKING, Set, List
 
-from slither.core.children.child_function import ChildFunction
+if TYPE_CHECKING:
+    from slither.core.cfg.node import Node
+
 
 class DominatorNode(object):
-
     def __init__(self):
-        self._succ = set()
-        self._nodes = []
+        self._succ: Set["Node"] = set()
+        self._nodes: List["Node"] = []
 
-    def add_node(self, node):
+    def add_node(self, node: "Node"):
         self._nodes.append(node)
 
-    def add_successor(self, succ):
+    def add_successor(self, succ: "Node"):
         self._succ.add(succ)
 
     @property
-    def cfg_nodes(self):
+    def cfg_nodes(self) -> List["Node"]:
         return self._nodes
 
     @property
-    def sucessors(self):
-        '''
-            Returns:
-                dict(Node)
-        '''
+    def sucessors(self) -> Set["Node"]:
         return self._succ
-
-class DominatorTree(ChildFunction):
-
-    def __init__(self, entry_point):
-        super(DominatorTree, self).__init__()
-        
-
-        

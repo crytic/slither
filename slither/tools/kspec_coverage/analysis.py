@@ -7,25 +7,22 @@ from slither.utils.colors import yellow, green, red
 from slither.utils import output
 
 logging.basicConfig(level=logging.WARNING)
-logger = logging.getLogger('Slither.kspec')
+logger = logging.getLogger("Slither.kspec")
 
 
 def _refactor_type(type):
-    return {
-        'uint': 'uint256',
-        'int': 'int256'
-    }.get(type, type)
+    return {"uint": "uint256", "int": "int256"}.get(type, type)
 
 
 def _get_all_covered_kspec_functions(target):
     # Create a set of our discovered functions which are covered
     covered_functions = set()
 
-    BEHAVIOUR_PATTERN = re.compile('behaviour\s+(\S+)\s+of\s+(\S+)')
-    INTERFACE_PATTERN = re.compile('interface\s+([^\r\n]+)')
+    BEHAVIOUR_PATTERN = re.compile("behaviour\s+(\S+)\s+of\s+(\S+)")
+    INTERFACE_PATTERN = re.compile("interface\s+([^\r\n]+)")
 
     # Read the file contents
-    with open(target, 'r', encoding='utf8') as target_file:
+    with open(target, "r", encoding="utf8") as target_file:
         lines = target_file.readlines()
 
     # Loop for each line, if a line matches our behaviour regex, and the next one matches our interface regex,
@@ -38,10 +35,12 @@ def _get_all_covered_kspec_functions(target):
             match = INTERFACE_PATTERN.match(lines[i + 1])
             if match:
                 function_full_name = match.groups()[0]
-                start, end = function_full_name.index('(') + 1, function_full_name.index(')')
-                function_arguments = function_full_name[start:end].split(',')
-                function_arguments = [_refactor_type(arg.strip().split(' ')[0]) for arg in function_arguments]
-                function_full_name = function_full_name[:start] + ','.join(function_arguments) + ')'
+                start, end = function_full_name.index("(") + 1, function_full_name.index(")")
+                function_arguments = function_full_name[start:end].split(",")
+                function_arguments = [
+                    _refactor_type(arg.strip().split(" ")[0]) for arg in function_arguments
+                ]
+                function_full_name = function_full_name[:start] + ",".join(function_arguments) + ")"
                 covered_functions.add((contract_name, function_full_name))
                 i += 1
         i += 1
@@ -50,14 +49,25 @@ def _get_all_covered_kspec_functions(target):
 
 def _get_slither_functions(slither):
     # Use contract == contract_declarer to avoid dupplicate
-    all_functions_declared = [f for f in slither.functions if (f.contract == f.contract_declarer
-                                                               and f.is_implemented
-                                                               and not f.is_constructor
-                                                               and not f.is_constructor_variables)]
+    all_functions_declared = [
+        f
+        for f in slither.functions
+        if (
+            f.contract == f.contract_declarer
+            and f.is_implemented
+            and not f.is_constructor
+            and not f.is_constructor_variables
+        )
+    ]
     # Use list(set()) because same state variable instances can be shared accross contracts
     # TODO: integrate state variables
-    all_functions_declared += list(set([s for s in slither.state_variables if s.visibility in ['public', 'external']]))
-    slither_functions = {(function.contract.name, function.full_name): function for function in all_functions_declared}
+    all_functions_declared += list(
+        set([s for s in slither.state_variables if s.visibility in ["public", "external"]])
+    )
+    slither_functions = {
+        (function.contract.name, function.full_name): function
+        for function in all_functions_declared
+    }
 
     return slither_functions
 
@@ -110,35 +120,42 @@ def _run_coverage_analysis(args, slither, kspec_functions):
         else:
             kspec_missing.append(slither_func)
 
-    logger.info('## Check for functions coverage')
+    logger.info("## Check for functions coverage")
     json_kspec_present = _generate_output(kspec_present, "[✓]", green, args.json)
-    json_kspec_missing_functions = _generate_output([f for f in kspec_missing if isinstance(f, Function)],
-                                                    "[ ] (Missing function)",
-                                                    red,
-                                                    args.json)
-    json_kspec_missing_variables = _generate_output([f for f in kspec_missing if isinstance(f, Variable)],
-                                                    "[ ] (Missing variable)",
-                                                    yellow,
-                                                    args.json)
-    json_kspec_unresolved = _generate_output_unresolved(kspec_functions_unresolved,
-                                                        "[ ] (Unresolved)",
-                                                        yellow,
-                                                        args.json)
+    json_kspec_missing_functions = _generate_output(
+        [f for f in kspec_missing if isinstance(f, Function)],
+        "[ ] (Missing function)",
+        red,
+        args.json,
+    )
+    json_kspec_missing_variables = _generate_output(
+        [f for f in kspec_missing if isinstance(f, Variable)],
+        "[ ] (Missing variable)",
+        yellow,
+        args.json,
+    )
+    json_kspec_unresolved = _generate_output_unresolved(
+        kspec_functions_unresolved, "[ ] (Unresolved)", yellow, args.json
+    )
 
     # Handle unresolved kspecs
     if args.json:
-        output.output_to_json(args.json, None, {
-            "functions_present": json_kspec_present,
-            "functions_missing": json_kspec_missing_functions,
-            "variables_missing": json_kspec_missing_variables,
-            "functions_unresolved": json_kspec_unresolved
-        })
+        output.output_to_json(
+            args.json,
+            None,
+            {
+                "functions_present": json_kspec_present,
+                "functions_missing": json_kspec_missing_functions,
+                "variables_missing": json_kspec_missing_variables,
+                "functions_unresolved": json_kspec_unresolved,
+            },
+        )
 
 
 def run_analysis(args, slither, kspec):
     # Get all of our kspec'd functions (tuple(contract_name, function_name)).
-    if ',' in kspec:
-        kspecs = kspec.split(',')
+    if "," in kspec:
+        kspecs = kspec.split(",")
         kspec_functions = set()
         for kspec in kspecs:
             kspec_functions |= _get_all_covered_kspec_functions(kspec)

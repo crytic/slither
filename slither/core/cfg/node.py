@@ -1,29 +1,59 @@
 """
     Node module
 """
-import logging
-from typing import Optional
+from enum import Enum
+from typing import Optional, List, Set, Dict, Tuple, Union, TYPE_CHECKING
 
 from slither.core.children.child_function import ChildFunction
-from slither.core.declarations import Contract
-from slither.core.declarations.solidity_variables import SolidityVariable
+from slither.core.declarations.solidity_variables import (
+    SolidityVariable,
+    SolidityFunction,
+)
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.convert import convert_expression
-from slither.slithir.operations import (Balance, HighLevelCall, Index,
-                                        InternalCall, Length, LibraryCall,
-                                        LowLevelCall, Member,
-                                        OperationWithLValue, Phi, PhiCallback,
-                                        SolidityCall, Return)
-from slither.slithir.variables import (Constant, LocalIRVariable,
-                                       ReferenceVariable, StateIRVariable,
-                                       TemporaryVariable, TupleVariable)
+from slither.slithir.operations import (
+    Balance,
+    HighLevelCall,
+    Index,
+    InternalCall,
+    Length,
+    LibraryCall,
+    LowLevelCall,
+    Member,
+    OperationWithLValue,
+    Phi,
+    PhiCallback,
+    SolidityCall,
+    Return,
+    Operation,
+)
+from slither.slithir.variables import (
+    Constant,
+    LocalIRVariable,
+    ReferenceVariable,
+    StateIRVariable,
+    TemporaryVariable,
+    TupleVariable,
+)
 from slither.all_exceptions import SlitherException
+from slither.core.declarations import Contract
 
-logger = logging.getLogger("Node")
+from slither.core.expressions.expression import Expression
+
+if TYPE_CHECKING:
+    from slither.core.declarations import Function
+    from slither.slithir.variables.variable import SlithIRVariable
+    from slither.core.slither_core import SlitherCore
+    from slither.utils.type_helpers import (
+        InternalCallType,
+        HighLevelCallType,
+        LibraryCallType,
+        LowLevelCallType,
+    )
 
 
 ###################################################################################
@@ -32,7 +62,8 @@ logger = logging.getLogger("Node")
 ###################################################################################
 ###################################################################################
 
-class NodeType:
+
+class NodeType(Enum):
     ENTRYPOINT = 0x0  # no expression
 
     # Node with expression
@@ -71,84 +102,44 @@ class NodeType:
     OTHER_ENTRYPOINT = 0x50
 
     #    @staticmethod
-    def str(t):
-        if t == NodeType.ENTRYPOINT:
-            return 'ENTRY_POINT'
-        if t == NodeType.EXPRESSION:
-            return 'EXPRESSION'
-        if t == NodeType.RETURN:
-            return 'RETURN'
-        if t == NodeType.IF:
-            return 'IF'
-        if t == NodeType.VARIABLE:
-            return 'NEW VARIABLE'
-        if t == NodeType.ASSEMBLY:
-            return 'INLINE ASM'
-        if t == NodeType.IFLOOP:
-            return 'IF_LOOP'
-        if t == NodeType.THROW:
-            return 'THROW'
-        if t == NodeType.BREAK:
-            return 'BREAK'
-        if t == NodeType.CONTINUE:
-            return 'CONTINUE'
-        if t == NodeType.PLACEHOLDER:
-            return '_'
-        if t == NodeType.TRY:
-            return 'TRY'
-        if t == NodeType.CATCH:
-            return 'CATCH'
-        if t == NodeType.ENDIF:
-            return 'END_IF'
-        if t == NodeType.STARTLOOP:
-            return 'BEGIN_LOOP'
-        if t == NodeType.ENDLOOP:
-            return 'END_LOOP'
-        return 'Unknown type {}'.format(hex(t))
+    def __str__(self):
+        if self == NodeType.ENTRYPOINT:
+            return "ENTRY_POINT"
+        if self == NodeType.EXPRESSION:
+            return "EXPRESSION"
+        if self == NodeType.RETURN:
+            return "RETURN"
+        if self == NodeType.IF:
+            return "IF"
+        if self == NodeType.VARIABLE:
+            return "NEW VARIABLE"
+        if self == NodeType.ASSEMBLY:
+            return "INLINE ASM"
+        if self == NodeType.IFLOOP:
+            return "IF_LOOP"
+        if self == NodeType.THROW:
+            return "THROW"
+        if self == NodeType.BREAK:
+            return "BREAK"
+        if self == NodeType.CONTINUE:
+            return "CONTINUE"
+        if self == NodeType.PLACEHOLDER:
+            return "_"
+        if self == NodeType.TRY:
+            return "TRY"
+        if self == NodeType.CATCH:
+            return "CATCH"
+        if self == NodeType.ENDIF:
+            return "END_IF"
+        if self == NodeType.STARTLOOP:
+            return "BEGIN_LOOP"
+        if self == NodeType.ENDLOOP:
+            return "END_LOOP"
+        return "Unknown type {}".format(hex(self.value))
 
 
 # endregion
-###################################################################################
-###################################################################################
-# region Utils
-###################################################################################
-###################################################################################
 
-def link_nodes(n1, n2):
-    n1.add_son(n2)
-    n2.add_father(n1)
-
-
-def insert_node(origin, node_inserted):
-    sons = origin.sons
-    link_nodes(origin, node_inserted)
-    for son in sons:
-        son.remove_father(origin)
-        origin.remove_son(son)
-
-        link_nodes(node_inserted, son)
-
-
-def recheable(node):
-    '''
-    Return the set of nodes reacheable from the node
-    :param node:
-    :return: set(Node)
-    '''
-    nodes = node.sons
-    visited = set()
-    while nodes:
-        next = nodes[0]
-        nodes = nodes[1:]
-        if not next in visited:
-            visited.add(next)
-            for son in next.sons:
-                if not son in visited:
-                    nodes.append(son)
-    return visited
-
-
-# endregion
 
 class Node(SourceMapping, ChildFunction):
     """
@@ -156,73 +147,73 @@ class Node(SourceMapping, ChildFunction):
 
     """
 
-    def __init__(self, node_type, node_id):
+    def __init__(self, node_type: NodeType, node_id: int):
         super(Node, self).__init__()
         self._node_type = node_type
 
-        # TODO: rename to explicit CFG 
-        self._sons = []
-        self._fathers = []
+        # TODO: rename to explicit CFG
+        self._sons: List["Node"] = []
+        self._fathers: List["Node"] = []
 
         ## Dominators info
         # Dominators nodes
-        self._dominators = set()
-        self._immediate_dominator = None
+        self._dominators: Set["Node"] = set()
+        self._immediate_dominator: Optional["Node"] = None
         ## Nodes of the dominators tree
         # self._dom_predecessors = set()
-        self._dom_successors = set()
+        self._dom_successors: Set["Node"] = set()
         # Dominance frontier
-        self._dominance_frontier = set()
+        self._dominance_frontier: Set["Node"] = set()
         # Phi origin
         # key are variable name
-        # values are list of Node
-        self._phi_origins_state_variables = {}
-        self._phi_origins_local_variables = {}
+        self._phi_origins_state_variables: Dict[str, Tuple[StateVariable, Set["Node"]]] = {}
+        self._phi_origins_local_variables: Dict[str, Tuple[LocalVariable, Set["Node"]]] = {}
+        #self._phi_origins_member_variables: Dict[str, Tuple[MemberVariable, Set["Node"]]] = {}
 
-        self._expression = None
-        self._variable_declaration = None
-        self._node_id = node_id
+        self._expression: Optional[Expression] = None
+        self._variable_declaration: Optional[LocalVariable] = None
+        self._node_id: int = node_id
 
-        self._vars_written = []
-        self._vars_read = []
+        self._vars_written: List[Variable] = []
+        self._vars_read: List[Variable] = []
 
-        self._ssa_vars_written = []
-        self._ssa_vars_read = []
+        self._ssa_vars_written: List["SlithIRVariable"] = []
+        self._ssa_vars_read: List["SlithIRVariable"] = []
 
-        self._internal_calls = []
-        self._solidity_calls = []
-        self._high_level_calls = []  # contains library calls
-        self._library_calls = []
-        self._low_level_calls = []
-        self._external_calls_as_expressions = []
-        self._internal_calls_as_expressions = []
-        self._irs = []
-        self._irs_ssa = []
+        self._internal_calls: List[Function] = []
+        self._solidity_calls: List[SolidityFunction] = []
+        self._high_level_calls: List["HighLevelCallType"] = []  # contains library calls
+        self._library_calls: List["LibraryCallType"] = []
+        self._low_level_calls: List["LowLevelCallType"] = []
+        self._external_calls_as_expressions: List[Expression] = []
+        self._internal_calls_as_expressions: List[Expression] = []
+        self._irs: List[Operation] = []
+        self._irs_ssa: List[Operation] = []
 
-        self._state_vars_written = []
-        self._state_vars_read = []
-        self._solidity_vars_read = []
+        self._state_vars_written: List[StateVariable] = []
+        self._state_vars_read: List[StateVariable] = []
+        self._solidity_vars_read: List[SolidityVariable] = []
 
-        self._ssa_state_vars_written = []
-        self._ssa_state_vars_read = []
+        self._ssa_state_vars_written: List[StateIRVariable] = []
+        self._ssa_state_vars_read: List[StateIRVariable] = []
 
-        self._local_vars_read = []
-        self._local_vars_written = []
+        self._local_vars_read: List[LocalVariable] = []
+        self._local_vars_written: List[LocalVariable] = []
 
-        self._slithir_vars = set()  # non SSA
+        self._slithir_vars: Set["SlithIRVariable"] = set()  # non SSA
 
-        self._ssa_local_vars_read = []
-        self._ssa_local_vars_written = []
+        self._ssa_local_vars_read: List[LocalIRVariable] = []
+        self._ssa_local_vars_written: List[LocalIRVariable] = []
 
-        self._expression_vars_written = []
-        self._expression_vars_read = []
-        self._expression_calls = []
+        self._expression_vars_written: List[Expression] = []
+        self._expression_vars_read: List[Expression] = []
+        self._expression_calls: List[Expression] = []
 
         # Computed on the fly, can be True of False
-        self._can_reenter = None
-        self._can_send_eth = None
+        self._can_reenter: Optional[bool] = None
+        self._can_send_eth: Optional[bool] = None
 
-        self._asm_source_code = None
+        self._asm_source_code: Optional[Union[str, Dict]] = None
 
     ###################################################################################
     ###################################################################################
@@ -231,24 +222,32 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def slither(self):
+    def slither(self) -> "SlitherCore":
         return self.function.slither
 
     @property
-    def node_id(self):
+    def node_id(self) -> int:
         """Unique node id."""
         return self._node_id
 
     @property
-    def type(self):
+    def type(self) -> NodeType:
         """
             NodeType: type of the node
         """
         return self._node_type
 
     @type.setter
-    def type(self, t):
-        self._node_type = t
+    def type(self, new_type: NodeType):
+        self._node_type = new_type
+
+    @property
+    def will_return(self) -> bool:
+        if not self.sons and self.type != NodeType.THROW:
+            if SolidityFunction("revert()") not in self.solidity_calls:
+                if SolidityFunction("revert(string)") not in self.solidity_calls:
+                    return True
+        return False
 
     # endregion
     ###################################################################################
@@ -258,107 +257,115 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def variables_read(self):
+    def variables_read(self) -> List[Variable]:
         """
             list(Variable): Variables read (local/state/solidity)
         """
         return list(self._vars_read)
 
     @property
-    def state_variables_read(self):
+    def state_variables_read(self) -> List[StateVariable]:
         """
             list(StateVariable): State variables read
         """
         return list(self._state_vars_read)
 
     @property
-    def local_variables_read(self):
+    def local_variables_read(self) -> List[LocalVariable]:
         """
             list(LocalVariable): Local variables read
         """
         return list(self._local_vars_read)
 
     @property
-    def solidity_variables_read(self):
+    def solidity_variables_read(self) -> List[SolidityVariable]:
         """
             list(SolidityVariable): State variables read
         """
         return list(self._solidity_vars_read)
 
     @property
-    def ssa_variables_read(self):
+    def ssa_variables_read(self) -> List["SlithIRVariable"]:
         """
             list(Variable): Variables read (local/state/solidity)
         """
         return list(self._ssa_vars_read)
 
     @property
-    def ssa_state_variables_read(self):
+    def ssa_state_variables_read(self) -> List[StateIRVariable]:
         """
             list(StateVariable): State variables read
         """
         return list(self._ssa_state_vars_read)
 
     @property
-    def ssa_local_variables_read(self):
+    def ssa_local_variables_read(self) -> List[LocalIRVariable]:
         """
             list(LocalVariable): Local variables read
         """
         return list(self._ssa_local_vars_read)
 
     @property
-    def variables_read_as_expression(self):
+    def variables_read_as_expression(self) -> List[Expression]:
         return self._expression_vars_read
 
+    @variables_read_as_expression.setter
+    def variables_read_as_expression(self, exprs: List[Expression]):
+        self._expression_vars_read = exprs
+
     @property
-    def slithir_variables(self):
+    def slithir_variables(self) -> List["SlithIRVariable"]:
         return list(self._slithir_vars)
 
     @property
-    def variables_written(self):
+    def variables_written(self) -> List[Variable]:
         """
             list(Variable): Variables written (local/state/solidity)
         """
         return list(self._vars_written)
 
     @property
-    def state_variables_written(self):
+    def state_variables_written(self) -> List[StateVariable]:
         """
             list(StateVariable): State variables written
         """
         return list(self._state_vars_written)
 
     @property
-    def local_variables_written(self):
+    def local_variables_written(self) -> List[LocalVariable]:
         """
             list(LocalVariable): Local variables written
         """
         return list(self._local_vars_written)
 
     @property
-    def ssa_variables_written(self):
+    def ssa_variables_written(self) -> List["SlithIRVariable"]:
         """
             list(Variable): Variables written (local/state/solidity)
         """
         return list(self._ssa_vars_written)
 
     @property
-    def ssa_state_variables_written(self):
+    def ssa_state_variables_written(self) -> List[StateIRVariable]:
         """
             list(StateVariable): State variables written
         """
         return list(self._ssa_state_vars_written)
 
     @property
-    def ssa_local_variables_written(self):
+    def ssa_local_variables_written(self) -> List[LocalIRVariable]:
         """
             list(LocalVariable): Local variables written
         """
         return list(self._ssa_local_vars_written)
 
     @property
-    def variables_written_as_expression(self):
+    def variables_written_as_expression(self) -> List[Expression]:
         return self._expression_vars_written
+
+    @variables_written_as_expression.setter
+    def variables_written_as_expression(self, exprs: List[Expression]):
+        self._expression_vars_written = exprs
 
     # endregion
     ###################################################################################
@@ -368,21 +375,21 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def internal_calls(self):
+    def internal_calls(self) -> List["InternalCallType"]:
         """
             list(Function or SolidityFunction): List of internal/soldiity function calls
         """
         return list(self._internal_calls)
 
     @property
-    def solidity_calls(self):
+    def solidity_calls(self) -> List[SolidityFunction]:
         """
             list(SolidityFunction): List of Soldity calls
         """
-        return list(self._internal_calls)
+        return list(self._solidity_calls)
 
     @property
-    def high_level_calls(self):
+    def high_level_calls(self) -> List["HighLevelCallType"]:
         """
             list((Contract, Function|Variable)):
             List of high level calls (external calls).
@@ -392,7 +399,7 @@ class Node(SourceMapping, ChildFunction):
         return list(self._high_level_calls)
 
     @property
-    def library_calls(self):
+    def library_calls(self) -> List["LibraryCallType"]:
         """
             list((Contract, Function)):
             Include library calls
@@ -400,7 +407,7 @@ class Node(SourceMapping, ChildFunction):
         return list(self._library_calls)
 
     @property
-    def low_level_calls(self):
+    def low_level_calls(self) -> List["LowLevelCallType"]:
         """
             list((Variable|SolidityVariable, str)): List of low_level call
             A low level call is defined by
@@ -410,25 +417,37 @@ class Node(SourceMapping, ChildFunction):
         return list(self._low_level_calls)
 
     @property
-    def external_calls_as_expressions(self):
+    def external_calls_as_expressions(self) -> List[Expression]:
         """
             list(CallExpression): List of message calls (that creates a transaction)
         """
         return self._external_calls_as_expressions
 
+    @external_calls_as_expressions.setter
+    def external_calls_as_expressions(self, exprs: List[Expression]):
+        self._external_calls_as_expressions = exprs
+
     @property
-    def internal_calls_as_expressions(self):
+    def internal_calls_as_expressions(self) -> List[Expression]:
         """
             list(CallExpression): List of internal calls (that dont create a transaction)
         """
         return self._internal_calls_as_expressions
 
+    @internal_calls_as_expressions.setter
+    def internal_calls_as_expressions(self, exprs: List[Expression]):
+        self._internal_calls_as_expressions = exprs
+
     @property
-    def calls_as_expression(self):
+    def calls_as_expression(self) -> List[Expression]:
         return list(self._expression_calls)
 
-    def can_reenter(self, callstack=None):
-        '''
+    @calls_as_expression.setter
+    def calls_as_expression(self, exprs: List[Expression]):
+        self._expression_calls = exprs
+
+    def can_reenter(self, callstack=None) -> bool:
+        """
         Check if the node can re-enter
         Do not consider CREATE as potential re-enter, but check if the
         destination's constructor can contain a call (recurs. follow nested CREATE)
@@ -437,8 +456,9 @@ class Node(SourceMapping, ChildFunction):
         Do not consider Send/Transfer as there is not enough gas
         :param callstack: used internally to check for recursion
         :return bool:
-        '''
+        """
         from slither.slithir.operations import Call
+
         if self._can_reenter is None:
             self._can_reenter = False
             for ir in self.irs:
@@ -447,18 +467,20 @@ class Node(SourceMapping, ChildFunction):
                     return True
         return self._can_reenter
 
-    def can_send_eth(self):
-        '''
+    def can_send_eth(self) -> bool:
+        """
         Check if the node can send eth
         :return bool:
-        '''
+        """
         from slither.slithir.operations import Call
+
         if self._can_send_eth is None:
+            self._can_send_eth = False
             for ir in self.all_slithir_operations():
                 if isinstance(ir, Call) and ir.can_send_eth():
                     self._can_send_eth = True
                     return True
-        return self._can_reenter
+        return self._can_send_eth
 
     # endregion
     ###################################################################################
@@ -468,17 +490,17 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def expression(self):
+    def expression(self) -> Optional[Expression]:
         """
             Expression: Expression of the node
         """
         return self._expression
 
-    def add_expression(self, expression):
-        assert self._expression is None
+    def add_expression(self, expression: Expression, bypass_verif_empty: bool = False):
+        assert self._expression is None or bypass_verif_empty
         self._expression = expression
 
-    def add_variable_declaration(self, var):
+    def add_variable_declaration(self, var: LocalVariable):
         assert self._variable_declaration is None
         self._variable_declaration = var
         if var.expression:
@@ -486,7 +508,7 @@ class Node(SourceMapping, ChildFunction):
             self._local_vars_written += [var]
 
     @property
-    def variable_declaration(self):
+    def variable_declaration(self) -> Optional[LocalVariable]:
         """
         Returns:
             LocalVariable
@@ -500,15 +522,18 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
     ###################################################################################
 
-    def contains_require_or_assert(self):
+    def contains_require_or_assert(self) -> bool:
         """
             Check if the node has a require or assert call
         Returns:
             bool: True if the node has a require or assert call
         """
-        return any(c.name in ['require(bool)', 'require(bool,string)', 'assert(bool)'] for c in self.internal_calls)
+        return any(
+            c.name in ["require(bool)", "require(bool,string)", "assert(bool)"]
+            for c in self.internal_calls
+        )
 
-    def contains_if(self, include_loop=True):
+    def contains_if(self, include_loop=True) -> bool:
         """
             Check if the node is a IF node
         Returns:
@@ -518,7 +543,7 @@ class Node(SourceMapping, ChildFunction):
             return self.type in [NodeType.IF, NodeType.IFLOOP]
         return self.type == NodeType.IF
 
-    def is_conditional(self, include_loop=True):
+    def is_conditional(self, include_loop=True) -> bool:
         """
             Check if the node is a conditional node
             A conditional node is either a IF or a require/assert or a RETURN bool
@@ -532,7 +557,7 @@ class Node(SourceMapping, ChildFunction):
             if last_ir:
                 if isinstance(last_ir, Return):
                     for r in last_ir.read:
-                        if r.type == ElementaryType('bool'):
+                        if r.type == ElementaryType("bool"):
                             return True
         return False
 
@@ -544,10 +569,10 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def inline_asm(self):
+    def inline_asm(self) -> Optional[Union[str, Dict]]:
         return self._asm_source_code
 
-    def add_inline_asm(self, asm):
+    def add_inline_asm(self, asm: Union[str, Dict]):
         self._asm_source_code = asm
 
     # endregion
@@ -557,7 +582,7 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
     ###################################################################################
 
-    def add_father(self, father):
+    def add_father(self, father: "Node"):
         """ Add a father node
 
         Args:
@@ -565,7 +590,7 @@ class Node(SourceMapping, ChildFunction):
         """
         self._fathers.append(father)
 
-    def set_fathers(self, fathers):
+    def set_fathers(self, fathers: List["Node"]):
         """ Set the father nodes
 
         Args:
@@ -574,7 +599,7 @@ class Node(SourceMapping, ChildFunction):
         self._fathers = fathers
 
     @property
-    def fathers(self):
+    def fathers(self) -> List["Node"]:
         """ Returns the father nodes
 
         Returns:
@@ -582,23 +607,23 @@ class Node(SourceMapping, ChildFunction):
         """
         return list(self._fathers)
 
-    def remove_father(self, father):
+    def remove_father(self, father: "Node"):
         """ Remove the father node. Do nothing if the node is not a father
 
         Args:
-            fathers: list of fathers to add
+            :param father:
         """
         self._fathers = [x for x in self._fathers if x.node_id != father.node_id]
 
-    def remove_son(self, son):
+    def remove_son(self, son: "Node"):
         """ Remove the son node. Do nothing if the node is not a son
 
         Args:
-            fathers: list of fathers to add
+            :param son:
         """
         self._sons = [x for x in self._sons if x.node_id != son.node_id]
 
-    def add_son(self, son):
+    def add_son(self, son: "Node"):
         """ Add a son node
 
         Args:
@@ -606,7 +631,7 @@ class Node(SourceMapping, ChildFunction):
         """
         self._sons.append(son)
 
-    def set_sons(self, sons):
+    def set_sons(self, sons: List["Node"]):
         """ Set the son nodes
 
         Args:
@@ -615,7 +640,7 @@ class Node(SourceMapping, ChildFunction):
         self._sons = sons
 
     @property
-    def sons(self):
+    def sons(self) -> List["Node"]:
         """ Returns the son nodes
 
         Returns:
@@ -627,15 +652,13 @@ class Node(SourceMapping, ChildFunction):
     def son_true(self) -> Optional["Node"]:
         if self.type == NodeType.IF:
             return self._sons[0]
-        else:
-            return None
+        return None
 
     @property
     def son_false(self) -> Optional["Node"]:
         if self.type == NodeType.IF and len(self._sons) >= 1:
             return self._sons[1]
-        else:
-            return None
+        return None
 
     # endregion
     ###################################################################################
@@ -645,7 +668,7 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def irs(self):
+    def irs(self) -> List[Operation]:
         """ Returns the slithIR representation
 
         return
@@ -654,7 +677,7 @@ class Node(SourceMapping, ChildFunction):
         return self._irs
 
     @property
-    def irs_ssa(self):
+    def irs_ssa(self) -> List[Operation]:
         """ Returns the slithIR representation with SSA
 
         return
@@ -666,10 +689,10 @@ class Node(SourceMapping, ChildFunction):
     def irs_ssa(self, irs):
         self._irs_ssa = irs
 
-    def add_ssa_ir(self, ir):
-        '''
+    def add_ssa_ir(self, ir: Operation):
+        """
             Use to place phi operation
-        '''
+        """
         ir.set_node(self)
         self._irs_ssa.append(ir)
 
@@ -680,12 +703,19 @@ class Node(SourceMapping, ChildFunction):
 
         self._find_read_write_call()
 
+    def all_slithir_operations(self) -> List[Operation]:
+        irs = self.irs
+        for ir in irs:
+            if isinstance(ir, InternalCall):
+                irs += ir.function.all_slithir_operations()
+        return irs
+
     @staticmethod
-    def _is_non_slithir_var(var):
+    def _is_non_slithir_var(var: Variable):
         return not isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
 
     @staticmethod
-    def _is_valid_slithir_var(var):
+    def _is_valid_slithir_var(var: Variable):
         return isinstance(var, (ReferenceVariable, TemporaryVariable, TupleVariable))
 
     # endregion
@@ -696,44 +726,64 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def dominators(self):
-        '''
+    def dominators(self) -> Set["Node"]:
+        """
             Returns:
                 set(Node)
-        '''
+        """
         return self._dominators
 
-    @property
-    def immediate_dominator(self):
-        '''
-            Returns:
-                Node or None
-        '''
-        return self._immediate_dominator
+    @dominators.setter
+    def dominators(self, dom: Set["Node"]):
+        self._dominators = dom
 
     @property
-    def dominance_frontier(self):
-        '''
+    def immediate_dominator(self) -> Optional["Node"]:
+        """
+            Returns:
+                Node or None
+        """
+        return self._immediate_dominator
+
+    @immediate_dominator.setter
+    def immediate_dominator(self, idom: "Node"):
+        self._immediate_dominator = idom
+
+    @property
+    def dominance_frontier(self) -> Set["Node"]:
+        """
             Returns:
                 set(Node)
-        '''
+        """
         return self._dominance_frontier
+
+    @dominance_frontier.setter
+    def dominance_frontier(self, doms: Set["Node"]):
+        """
+            Returns:
+                set(Node)
+        """
+        self._dominance_frontier = doms
 
     @property
     def dominator_successors(self):
         return self._dom_successors
 
-    @dominators.setter
-    def dominators(self, dom):
-        self._dominators = dom
+    @property
+    def dominance_exploration_ordered(self) -> List["Node"]:
+        """
+        Sorted list of all the nodes to explore to follow the dom
+        :return: list(nodes)
+        """
+        # Explore direct dominance
+        to_explore = sorted(list(self.dominator_successors), key=lambda x: x.node_id)
 
-    @immediate_dominator.setter
-    def immediate_dominator(self, idom):
-        self._immediate_dominator = idom
-
-    @dominance_frontier.setter
-    def dominance_frontier(self, dom):
-        self._dominance_frontier = dom
+        # Explore dominance frontier
+        # The frontier is the limit where this node dominates
+        # We need to explore it because the sub of the direct dominance
+        # Might not be dominator of their own sub
+        to_explore += sorted(list(self.dominance_frontier), key=lambda x: x.node_id)
+        return to_explore
 
     # endregion
     ###################################################################################
@@ -743,26 +793,40 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def phi_origins_local_variables(self):
+    def phi_origins_local_variables(self) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
         return self._phi_origins_local_variables
 
     @property
-    def phi_origins_state_variables(self):
+    def phi_origins_state_variables(self) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
         return self._phi_origins_state_variables
 
-    def add_phi_origin_local_variable(self, variable, node):
+    # @property
+    # def phi_origin_member_variables(self) -> Dict[str, Tuple[MemberVariable, Set["Node"]]]:
+    #     return self._phi_origins_member_variables
+
+    def add_phi_origin_local_variable(self, variable: LocalVariable, node: "Node"):
         if variable.name not in self._phi_origins_local_variables:
             self._phi_origins_local_variables[variable.name] = (variable, set())
         (v, nodes) = self._phi_origins_local_variables[variable.name]
         assert v == variable
         nodes.add(node)
 
-    def add_phi_origin_state_variable(self, variable, node):
+    def add_phi_origin_state_variable(self, variable: StateVariable, node: "Node"):
         if variable.canonical_name not in self._phi_origins_state_variables:
-            self._phi_origins_state_variables[variable.canonical_name] = (variable, set())
+            self._phi_origins_state_variables[variable.canonical_name] = (
+                variable,
+                set(),
+            )
         (v, nodes) = self._phi_origins_state_variables[variable.canonical_name]
         assert v == variable
         nodes.add(node)
+
+    # def add_phi_origin_member_variable(self, variable: MemberVariable, node: "Node"):
+    #     if variable.name not in self._phi_origins_member_variables:
+    #         self._phi_origins_member_variables[variable.name] = (variable, set())
+    #     (v, nodes) = self._phi_origins_member_variables[variable.name]
+    #     assert v == variable
+    #     nodes.add(node)
 
     # endregion
     ###################################################################################
@@ -784,13 +848,13 @@ class Node(SourceMapping, ChildFunction):
             if not isinstance(ir, (Phi, Index, Member)):
                 self._vars_read += [v for v in ir.read if self._is_non_slithir_var(v)]
                 for var in ir.read:
-                    if isinstance(var, (ReferenceVariable)):
+                    if isinstance(var, ReferenceVariable):
                         self._vars_read.append(var.points_to_origin)
             elif isinstance(ir, (Member, Index)):
                 var = ir.variable_left if isinstance(ir, Member) else ir.variable_right
                 if self._is_non_slithir_var(var):
                     self._vars_read.append(var)
-                if isinstance(var, (ReferenceVariable)):
+                if isinstance(var, ReferenceVariable):
                     origin = var.points_to_origin
                     if self._is_non_slithir_var(origin):
                         self._vars_read.append(origin)
@@ -799,7 +863,7 @@ class Node(SourceMapping, ChildFunction):
                 if isinstance(ir, (Index, Member, Length, Balance)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
                 var = ir.lvalue
-                if isinstance(var, (ReferenceVariable)):
+                if isinstance(var, ReferenceVariable):
                     var = var.points_to_origin
                 if var and self._is_non_slithir_var(var):
                     self._vars_written.append(var)
@@ -816,14 +880,15 @@ class Node(SourceMapping, ChildFunction):
             elif isinstance(ir, HighLevelCall) and not isinstance(ir, LibraryCall):
                 if isinstance(ir.destination.type, Contract):
                     self._high_level_calls.append((ir.destination.type, ir.function))
-                elif ir.destination == SolidityVariable('this'):
+                elif ir.destination == SolidityVariable("this"):
                     self._high_level_calls.append((self.function.contract, ir.function))
                 else:
                     try:
                         self._high_level_calls.append((ir.destination.type.type, ir.function))
                     except AttributeError:
                         raise SlitherException(
-                            f'Function not found on {ir}. Please try compiling with a recent Solidity version.')
+                            f"Function not found on {ir}. Please try compiling with a recent Solidity version."
+                        )
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)
                 self._high_level_calls.append((ir.destination, ir.function))
@@ -843,7 +908,7 @@ class Node(SourceMapping, ChildFunction):
         self._low_level_calls = list(set(self._low_level_calls))
 
     @staticmethod
-    def _convert_ssa(v):
+    def _convert_ssa(v: Variable):
         if isinstance(v, StateIRVariable):
             contract = v.contract
             non_ssa_var = contract.get_state_variable_from_name(v.name)
@@ -857,14 +922,14 @@ class Node(SourceMapping, ChildFunction):
         if not self.expression:
             return
         for ir in self.irs_ssa:
-            if isinstance(ir, (PhiCallback)):
+            if isinstance(ir, PhiCallback):
                 continue
             if not isinstance(ir, (Phi, Index, Member)):
-                self._ssa_vars_read += [v for v in ir.read if isinstance(v,
-                                                                         (StateIRVariable,
-                                                                          LocalIRVariable))]
+                self._ssa_vars_read += [
+                    v for v in ir.read if isinstance(v, (StateIRVariable, LocalIRVariable))
+                ]
                 for var in ir.read:
-                    if isinstance(var, (ReferenceVariable)):
+                    if isinstance(var, ReferenceVariable):
                         origin = var.points_to_origin
                         if isinstance(origin, (StateIRVariable, LocalIRVariable)):
                             self._ssa_vars_read.append(origin)
@@ -872,7 +937,7 @@ class Node(SourceMapping, ChildFunction):
             elif isinstance(ir, (Member, Index)):
                 if isinstance(ir.variable_right, (StateIRVariable, LocalIRVariable)):
                     self._ssa_vars_read.append(ir.variable_right)
-                if isinstance(ir.variable_right, (ReferenceVariable)):
+                if isinstance(ir.variable_right, ReferenceVariable):
                     origin = ir.variable_right.points_to_origin
                     if isinstance(origin, (StateIRVariable, LocalIRVariable)):
                         self._ssa_vars_read.append(origin)
@@ -881,19 +946,23 @@ class Node(SourceMapping, ChildFunction):
                 if isinstance(ir, (Index, Member, Length, Balance)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
                 var = ir.lvalue
-                if isinstance(var, (ReferenceVariable)):
+                if isinstance(var, ReferenceVariable):
                     var = var.points_to_origin
                 # Only store non-slithIR variables
                 if var and isinstance(var, (StateIRVariable, LocalIRVariable)):
-                    if isinstance(ir, (PhiCallback)):
+                    if isinstance(ir, PhiCallback):
                         continue
                     self._ssa_vars_written.append(var)
         self._ssa_vars_read = list(set(self._ssa_vars_read))
         self._ssa_state_vars_read = [v for v in self._ssa_vars_read if isinstance(v, StateVariable)]
         self._ssa_local_vars_read = [v for v in self._ssa_vars_read if isinstance(v, LocalVariable)]
         self._ssa_vars_written = list(set(self._ssa_vars_written))
-        self._ssa_state_vars_written = [v for v in self._ssa_vars_written if isinstance(v, StateVariable)]
-        self._ssa_local_vars_written = [v for v in self._ssa_vars_written if isinstance(v, LocalVariable)]
+        self._ssa_state_vars_written = [
+            v for v in self._ssa_vars_written if isinstance(v, StateVariable)
+        ]
+        self._ssa_local_vars_written = [
+            v for v in self._ssa_vars_written if isinstance(v, LocalVariable)
+        ]
 
         vars_read = [self._convert_ssa(x) for x in self._ssa_vars_read]
         vars_written = [self._convert_ssa(x) for x in self._ssa_vars_written]
@@ -919,7 +988,50 @@ class Node(SourceMapping, ChildFunction):
             additional_info += ' ' + str(self.expression)
         elif self.variable_declaration:
             additional_info += ' ' + str(self.variable_declaration)
-        txt = NodeType.str(self._node_type) + additional_info
+        txt = str(self._node_type) + additional_info
         return txt
 
-    # endregion
+
+# endregion
+###################################################################################
+###################################################################################
+# region Utils
+###################################################################################
+###################################################################################
+
+
+def link_nodes(node1: Node, node2: Node):
+    node1.add_son(node2)
+    node2.add_father(node1)
+
+
+def insert_node(origin: Node, node_inserted: Node):
+    sons = origin.sons
+    link_nodes(origin, node_inserted)
+    for son in sons:
+        son.remove_father(origin)
+        origin.remove_son(son)
+
+        link_nodes(node_inserted, son)
+
+
+def recheable(node: Node) -> Set[Node]:
+    """
+    Return the set of nodes reacheable from the node
+    :param node:
+    :return: set(Node)
+    """
+    nodes = node.sons
+    visited = set()
+    while nodes:
+        next = nodes[0]
+        nodes = nodes[1:]
+        if next not in visited:
+            visited.add(next)
+            for son in next.sons:
+                if son not in visited:
+                    nodes.append(son)
+    return visited
+
+
+# endregion

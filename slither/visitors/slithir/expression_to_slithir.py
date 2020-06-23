@@ -2,7 +2,7 @@ import logging
 
 from slither.core.declarations import Function
 from slither.core.expressions import (AssignmentOperationType,
-                                      UnaryOperationType)
+                                      UnaryOperationType, BinaryOperationType)
 from slither.core.solidity_types import ArrayType
 from slither.core.solidity_types.type import Type
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
@@ -33,6 +33,29 @@ def get(expression):
 
 def set_val(expression, val):
     expression.context[key] = val
+
+
+_binary_to_binary = {
+    BinaryOperationType.POWER: BinaryType.POWER,
+    BinaryOperationType.MULTIPLICATION: BinaryType.MULTIPLICATION,
+    BinaryOperationType.DIVISION: BinaryType.DIVISION,
+    BinaryOperationType.MODULO: BinaryType.MODULO,
+    BinaryOperationType.ADDITION: BinaryType.ADDITION,
+    BinaryOperationType.SUBTRACTION: BinaryType.SUBTRACTION,
+    BinaryOperationType.LEFT_SHIFT: BinaryType.LEFT_SHIFT,
+    BinaryOperationType.RIGHT_SHIFT: BinaryType.RIGHT_SHIFT,
+    BinaryOperationType.AND: BinaryType.AND,
+    BinaryOperationType.CARET: BinaryType.CARET,
+    BinaryOperationType.OR: BinaryType.OR,
+    BinaryOperationType.LESS: BinaryType.LESS,
+    BinaryOperationType.GREATER: BinaryType.GREATER,
+    BinaryOperationType.LESS_EQUAL: BinaryType.LESS_EQUAL,
+    BinaryOperationType.GREATER_EQUAL: BinaryType.GREATER_EQUAL,
+    BinaryOperationType.EQUAL: BinaryType.EQUAL,
+    BinaryOperationType.NOT_EQUAL: BinaryType.NOT_EQUAL,
+    BinaryOperationType.ANDAND: BinaryType.ANDAND,
+    BinaryOperationType.OROR: BinaryType.OROR,
+}
 
 def convert_assignment(left, right, t, return_type):
     if t == AssignmentOperationType.ASSIGN:
@@ -119,7 +142,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         right = get(expression.expression_right)
         val = TemporaryVariable(self._node)
 
-        operation = Binary(val, left, right, expression.type)
+        operation = Binary(val, left, right, _binary_to_binary[expression.type])
         operation.set_expression(expression)
         self._result.append(operation)
         set_val(expression, val)

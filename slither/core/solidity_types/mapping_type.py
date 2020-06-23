@@ -1,7 +1,7 @@
 from slither.core.solidity_types.type import Type
 
-class MappingType(Type):
 
+class MappingType(Type):
     def __init__(self, type_from, type_to):
         assert isinstance(type_from, Type)
         assert isinstance(type_to, Type)
@@ -10,15 +10,15 @@ class MappingType(Type):
         self._to = type_to
 
     @property
-    def type_from(self):
+    def type_from(self) -> Type:
         return self._from
 
     @property
-    def type_to(self):
+    def type_to(self) -> Type:
         return self._to
 
     def __str__(self):
-        return 'mapping({} => {})'.format(str(self._from), str(self._to))
+        return "mapping({} => {})".format(str(self._from), str(self._to))
 
     def __eq__(self, other):
         if not isinstance(other, MappingType):
@@ -27,4 +27,3 @@ class MappingType(Type):
 
     def __hash__(self):
         return hash(str(self))
-

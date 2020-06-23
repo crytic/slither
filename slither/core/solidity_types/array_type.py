@@ -1,20 +1,21 @@
-from slither.core.variables.variable import Variable
-from slither.core.solidity_types.type import Type
-from slither.core.expressions.expression import Expression
+from typing import Optional
+
 from slither.core.expressions import Literal
+from slither.core.expressions.expression import Expression
+from slither.core.solidity_types.type import Type
 from slither.visitors.expression.constants_folding import ConstantFolding
 
-class ArrayType(Type):
 
+class ArrayType(Type):
     def __init__(self, t, length):
         assert isinstance(t, Type)
         if length:
             if isinstance(length, int):
-                length = Literal(length, 'uint256')
+                length = Literal(length, "uint256")
             assert isinstance(length, Expression)
         super(ArrayType, self).__init__()
-        self._type = t
-        self._length = length
+        self._type: Type = t
+        self._length: Optional[Expression] = length
 
         if length:
             if not isinstance(length, Literal):
@@ -25,18 +26,21 @@ class ArrayType(Type):
             self._length_value = None
 
     @property
-    def type(self):
+    def type(self) -> Type:
         return self._type
 
     @property
-    def length(self):
+    def length(self) -> Optional[Expression]:
         return self._length
+
+    @property
+    def lenght_value(self) -> Optional[Literal]:
+        return self._length_value
 
     def __str__(self):
         if self._length:
-            return str(self._type)+'[{}]'.format(str(self._length_value))
-        return str(self._type)+'[]'
-
+            return str(self._type) + "[{}]".format(str(self._length_value))
+        return str(self._type) + "[]"
 
     def __eq__(self, other):
         if not isinstance(other, ArrayType):

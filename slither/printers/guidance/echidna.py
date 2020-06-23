@@ -10,7 +10,7 @@ from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction, SolidityVariable
 from slither.core.expressions import NewContract
-from slither.core.slither_core import Slither
+from slither.core.slither_core import SlitherCore
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
@@ -26,7 +26,7 @@ def _get_name(f: Function) -> str:
     return f.solidity_signature
 
 
-def _extract_payable(slither: Slither) -> Dict[str, List[str]]:
+def _extract_payable(slither: SlitherCore) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
     for contract in slither.contracts:
         payable_functions = [_get_name(f) for f in contract.functions_entry_points if f.payable]
@@ -35,7 +35,7 @@ def _extract_payable(slither: Slither) -> Dict[str, List[str]]:
     return ret
 
 
-def _extract_solidity_variable_usage(slither: Slither, sol_var: SolidityVariable) -> Dict[str, List[str]]:
+def _extract_solidity_variable_usage(slither: SlitherCore, sol_var: SolidityVariable) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
     for contract in slither.contracts:
         functions_using_sol_var = []
@@ -53,7 +53,7 @@ def _is_constant(f: Function) -> bool:
     """
     Heuristic:
     - If view/pure with Solidity >= 0.4 -> Return true
-    - If it contains assembly -> Return false (Slither doesn't analyze asm)
+    - If it contains assembly -> Return false (SlitherCore doesn't analyze asm)
     - Otherwise check for the rules from
     https://solidity.readthedocs.io/en/v0.5.0/contracts.html?highlight=pure#view-functions
     with an exception: internal dynamic call are not correctly handled, so we consider them as non-constant
@@ -93,7 +93,7 @@ def _is_constant(f: Function) -> bool:
     return True
 
 
-def _extract_constant_functions(slither: Slither) -> Dict[str, List[str]]:
+def _extract_constant_functions(slither: SlitherCore) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
     for contract in slither.contracts:
         cst_functions = [_get_name(f) for f in contract.functions_entry_points if _is_constant(f)]
@@ -103,7 +103,7 @@ def _extract_constant_functions(slither: Slither) -> Dict[str, List[str]]:
     return ret
 
 
-def _extract_assert(slither: Slither) -> Dict[str, List[str]]:
+def _extract_assert(slither: SlitherCore) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
     for contract in slither.contracts:
         functions_using_assert = []
@@ -145,7 +145,7 @@ def _extract_constants_from_irs(irs: List[Operation],
         if isinstance(ir, Binary):
             for r in ir.read:
                 if isinstance(r, Constant):
-                    all_cst_used_in_binary[BinaryType.str(ir.type)].append(ConstantValue(str(r.value), str(r.type)))
+                    all_cst_used_in_binary[str(ir.type)].append(ConstantValue(str(r.value), str(r.type)))
         if isinstance(ir, TypeConversion):
             if isinstance(ir.variable, Constant):
                 all_cst_used.append(ConstantValue(str(ir.variable.value), str(ir.type)))
@@ -169,7 +169,7 @@ def _extract_constants_from_irs(irs: List[Operation],
                                                         context_explored)
 
 
-def _extract_constants(slither: Slither) -> Tuple[Dict[str, Dict[str, List]], Dict[str, Dict[str, Dict]]]:
+def _extract_constants(slither: SlitherCore) -> Tuple[Dict[str, Dict[str, List]], Dict[str, Dict[str, Dict]]]:
     # contract -> function -> [ {"value": value, "type": type} ]
     ret_cst_used: Dict[str, Dict[str, List[ConstantValue]]] = defaultdict(dict)
     # contract -> function -> binary_operand -> [ {"value": value, "type": type ]
@@ -196,7 +196,7 @@ def _extract_constants(slither: Slither) -> Tuple[Dict[str, Dict[str, List]], Di
     return ret_cst_used, ret_cst_used_in_binary
 
 
-def _extract_function_relations(slither: Slither) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
+def _extract_function_relations(slither: SlitherCore) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
     # contract -> function -> [functions]
     ret: Dict[str, Dict[str, Dict[str, List[str]]]] = defaultdict(dict)
     for contract in slither.contracts:
@@ -217,7 +217,7 @@ def _extract_function_relations(slither: Slither) -> Dict[str, Dict[str, Dict[st
     return ret
 
 
-def _have_external_calls(slither: Slither) -> Dict[str, List[str]]:
+def _have_external_calls(slither: SlitherCore) -> Dict[str, List[str]]:
     """
     Detect the functions with external calls
     :param slither:
@@ -233,7 +233,7 @@ def _have_external_calls(slither: Slither) -> Dict[str, List[str]]:
     return ret
 
 
-def _use_balance(slither: Slither) -> Dict[str, List[str]]:
+def _use_balance(slither: SlitherCore) -> Dict[str, List[str]]:
     """
     Detect the functions with external calls
     :param slither:
@@ -250,7 +250,7 @@ def _use_balance(slither: Slither) -> Dict[str, List[str]]:
     return ret
 
 
-def _call_a_parameter(slither: Slither) -> Dict[str, List[Dict]]:
+def _call_a_parameter(slither: SlitherCore) -> Dict[str, List[Dict]]:
     """
     Detect the functions with external calls
     :param slither:

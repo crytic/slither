@@ -1,16 +1,17 @@
 import re
+from typing import Dict, Union, Optional
 
 from slither.core.context.context import Context
 
 
 class SourceMapping(Context):
-
     def __init__(self):
         super(SourceMapping, self).__init__()
-        self._source_mapping = None
+        # TODO create a namedtuple for the source mapping rather than a dict
+        self._source_mapping: Optional[Dict] = None
 
     @property
-    def source_mapping(self):
+    def source_mapping(self) -> Optional[Dict]:
         return self._source_mapping
 
     @staticmethod
@@ -21,7 +22,7 @@ class SourceMapping(Context):
 
             Not done in an efficient way
         """
-        source_code = source_code.encode('utf-8')
+        source_code = source_code.encode("utf-8")
         total_length = len(source_code)
         source_code = source_code.splitlines(True)
         counter = 0
@@ -38,7 +39,11 @@ class SourceMapping(Context):
             # Determine our column numbers.
             if starting_column is None and counter + line_length > start:
                 starting_column = (start - counter) + 1
-            if starting_column is not None and ending_column is None and counter + line_length > start + length:
+            if (
+                starting_column is not None
+                and ending_column is None
+                and counter + line_length > start + length
+            ):
                 ending_column = ((start + length) - counter) + 1
 
             # Advance the current position counter, and determine line numbers.
@@ -50,19 +55,19 @@ class SourceMapping(Context):
             if counter > start + length:
                 break
 
-        return (lines, starting_column, ending_column)
+        return lines, starting_column, ending_column
 
     @staticmethod
-    def _convert_source_mapping(offset, slither):
-        '''
+    def _convert_source_mapping(offset: str, slither):
+        """
         Convert a text offset to a real offset
         see https://solidity.readthedocs.io/en/develop/miscellaneous.html#source-mappings
         Returns:
             (dict): {'start':0, 'length':0, 'filename': 'file.sol'}
-        '''
+        """
         sourceUnits = slither.source_units
 
-        position = re.findall('([0-9]*):([0-9]*):([-]?[0-9]*)', offset)
+        position = re.findall("([0-9]*):([0-9]*):([-]?[0-9]*)", offset)
         if len(position) != 1:
             return {}
 
@@ -72,7 +77,7 @@ class SourceMapping(Context):
         f = int(f)
 
         if f not in sourceUnits:
-            return {'start':s, 'length':l}
+            return {"start": s, "length": l}
         filename_used = sourceUnits[f]
         filename_absolute = None
         filename_relative = None
@@ -91,7 +96,10 @@ class SourceMapping(Context):
 
             is_dependency = slither.crytic_compile.is_dependency(filename_absolute)
 
-            if filename_absolute in slither.source_code or filename_absolute in slither.crytic_compile.src_content:
+            if (
+                filename_absolute in slither.source_code
+                or filename_absolute in slither.crytic_compile.src_content
+            ):
                 filename = filename_absolute
             elif filename_relative in slither.source_code:
                 filename = filename_relative
@@ -104,51 +112,47 @@ class SourceMapping(Context):
 
         if slither.crytic_compile and filename in slither.crytic_compile.src_content:
             source_code = slither.crytic_compile.src_content[filename]
-            (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code,
-                                                                                  s,
-                                                                                  l)
+            (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code, s, l)
         elif filename in slither.source_code:
             source_code = slither.source_code[filename]
-            (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code,
-                                                                                  s,
-                                                                                  l)
+            (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code, s, l)
         else:
             (lines, starting_column, ending_column) = ([], None, None)
 
-        return {'start':s,
-                'length':l,
-                'filename_used': filename_used,
-                'filename_relative': filename_relative,
-                'filename_absolute': filename_absolute,
-                'filename_short': filename_short,
-                'is_dependency': is_dependency,
-                'lines' : lines,
-                'starting_column': starting_column,
-                'ending_column': ending_column
-                }
+        return {
+            "start": s,
+            "length": l,
+            "filename_used": filename_used,
+            "filename_relative": filename_relative,
+            "filename_absolute": filename_absolute,
+            "filename_short": filename_short,
+            "is_dependency": is_dependency,
+            "lines": lines,
+            "starting_column": starting_column,
+            "ending_column": ending_column,
+        }
 
-    def set_offset(self, offset, slither):
+    def set_offset(self, offset: Union[Dict, str], slither):
         if isinstance(offset, dict):
             self._source_mapping = offset
         else:
             self._source_mapping = self._convert_source_mapping(offset, slither)
 
     def _get_lines_str(self, line_descr=""):
-        lines = self.source_mapping.get('lines', None)
+        lines = self.source_mapping.get("lines", None)
         if not lines:
-            lines = ''
+            lines = ""
         elif len(lines) == 1:
-            lines = '#{}{}'.format(line_descr, lines[0])
+            lines = "#{}{}".format(line_descr, lines[0])
         else:
-            lines = '#{}{}-{}{}'.format(line_descr, lines[0], line_descr, lines[-1])
+            lines = "#{}{}-{}{}".format(line_descr, lines[0], line_descr, lines[-1])
         return lines
 
-    def source_mapping_to_markdown(self, markdown_root):
+    def source_mapping_to_markdown(self, markdown_root: str) -> str:
         lines = self._get_lines_str(line_descr="L")
         return f'{markdown_root}{self.source_mapping["filename_relative"]}{lines}'
 
     @property
-    def source_mapping_str(self):
+    def source_mapping_str(self) -> str:
         lines = self._get_lines_str()
         return f'{self.source_mapping["filename_short"]}{lines}'
-

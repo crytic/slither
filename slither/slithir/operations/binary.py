@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.exceptions import SlithIRError
@@ -8,26 +9,27 @@ from slither.slithir.variables import ReferenceVariable
 
 logger = logging.getLogger("BinaryOperationIR")
 
-class BinaryType(object):
-    POWER =             0 # **
-    MULTIPLICATION =    1 # *
-    DIVISION =          2 # /
-    MODULO =            3 # %
-    ADDITION =          4 # +
-    SUBTRACTION =      5 # -
-    LEFT_SHIFT =        6 # <<
-    RIGHT_SHIFT =       7 # >>
-    AND =               8 # &
-    CARET =             9 # ^
-    OR =                10 # | 
-    LESS =              11 # <
-    GREATER =           12 # >
-    LESS_EQUAL =        13 # <=
-    GREATER_EQUAL =     14 # >=
-    EQUAL =             15 # ==
-    NOT_EQUAL =         16 # !=
-    ANDAND =            17 # &&
-    OROR =              18 # ||
+
+class BinaryType(Enum):
+    POWER = 0  # **
+    MULTIPLICATION = 1  # *
+    DIVISION = 2  # /
+    MODULO = 3  # %
+    ADDITION = 4  # +
+    SUBTRACTION = 5  # -
+    LEFT_SHIFT = 6  # <<
+    RIGHT_SHIFT = 7  # >>
+    AND = 8  # &
+    CARET = 9  # ^
+    OR = 10  # |
+    LESS = 11  # <
+    GREATER = 12  # >
+    LESS_EQUAL = 13  # <=
+    GREATER_EQUAL = 14  # >=
+    EQUAL = 15  # ==
+    NOT_EQUAL = 16  # !=
+    ANDAND = 17  # &&
+    OROR = 18  # ||
 
     @staticmethod
     def return_bool(operation_type):
@@ -83,47 +85,47 @@ class BinaryType(object):
 
         raise SlithIRError('get_type: Unknown operation type {})'.format(operation_type))
 
-    @staticmethod
-    def str(operation_type):
-        if operation_type == BinaryType.POWER:
-            return '**'
-        if operation_type == BinaryType.MULTIPLICATION:
-            return '*'
-        if operation_type == BinaryType.DIVISION:
-            return '/'
-        if operation_type == BinaryType.MODULO:
-            return '%'
-        if operation_type == BinaryType.ADDITION:
-            return '+'
-        if operation_type == BinaryType.SUBTRACTION:
-            return '-'
-        if operation_type == BinaryType.LEFT_SHIFT:
-            return '<<'
-        if operation_type == BinaryType.RIGHT_SHIFT:
-            return '>>'
-        if operation_type == BinaryType.AND:
-            return '&'
-        if operation_type == BinaryType.CARET:
-            return '^'
-        if operation_type == BinaryType.OR:
-            return '|'
-        if operation_type == BinaryType.LESS:
-            return '<'
-        if operation_type == BinaryType.GREATER:
-            return '>'
-        if operation_type == BinaryType.LESS_EQUAL:
-            return '<='
-        if operation_type == BinaryType.GREATER_EQUAL:
-            return '>='
-        if operation_type == BinaryType.EQUAL:
-            return '=='
-        if operation_type == BinaryType.NOT_EQUAL:
-            return '!='
-        if operation_type == BinaryType.ANDAND:
-            return '&&'
-        if operation_type == BinaryType.OROR:
-            return '||'
-        raise SlithIRError('str: Unknown operation type {})'.format(operation_type))
+    def __str__(self):
+        if self == BinaryType.POWER:
+            return "**"
+        if self == BinaryType.MULTIPLICATION:
+            return "*"
+        if self == BinaryType.DIVISION:
+            return "/"
+        if self == BinaryType.MODULO:
+            return "%"
+        if self == BinaryType.ADDITION:
+            return "+"
+        if self == BinaryType.SUBTRACTION:
+            return "-"
+        if self == BinaryType.LEFT_SHIFT:
+            return "<<"
+        if self == BinaryType.RIGHT_SHIFT:
+            return ">>"
+        if self == BinaryType.AND:
+            return "&"
+        if self == BinaryType.CARET:
+            return "^"
+        if self == BinaryType.OR:
+            return "|"
+        if self == BinaryType.LESS:
+            return "<"
+        if self == BinaryType.GREATER:
+            return ">"
+        if self == BinaryType.LESS_EQUAL:
+            return "<="
+        if self == BinaryType.GREATER_EQUAL:
+            return ">="
+        if self == BinaryType.EQUAL:
+            return "=="
+        if self == BinaryType.NOT_EQUAL:
+            return "!="
+        if self == BinaryType.ANDAND:
+            return "&&"
+        if self == BinaryType.OROR:
+            return "||"
+        raise SlithIRError("str: Unknown operation type {} {})".format(self, type(self)))
+
 
 class Binary(OperationWithLValue):
 
@@ -131,6 +133,7 @@ class Binary(OperationWithLValue):
         assert is_valid_rvalue(left_variable)
         assert is_valid_rvalue(right_variable)
         assert is_valid_lvalue(result)
+        assert isinstance(operation_type, BinaryType)
         super(Binary, self).__init__()
         self._variables = [left_variable, right_variable]
         self._type = operation_type
@@ -143,7 +146,7 @@ class Binary(OperationWithLValue):
     @property
     def read(self):
         return [self.variable_left, self.variable_right]
-    
+
     @property
     def get_variable(self):
         return self._variables
@@ -162,7 +165,7 @@ class Binary(OperationWithLValue):
 
     @property
     def type_str(self):
-        return BinaryType.str(self._type)
+        return str(self._type)
 
     def __str__(self):
         if isinstance(self.lvalue, ReferenceVariable):
@@ -170,10 +173,10 @@ class Binary(OperationWithLValue):
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
             return '{}(-> {}) = {} {} {}'.format(str(self.lvalue),
-                                              points,
-                                              self.variable_left,
-                                              self.type_str,
-                                              self.variable_right)
+                                                 points,
+                                                 self.variable_left,
+                                                 self.type_str,
+                                                 self.variable_right)
         return '{}({}) = {} {} {}'.format(str(self.lvalue),
                                           self.lvalue.type,
                                           self.variable_left,

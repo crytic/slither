@@ -36,4 +36,4 @@ class Property(NamedTuple):
 
 
 def property_to_solidity(p: Property):
-    return f'\tfunction {p.name} public returns(bool){{{p.content}\n\t}}\n'
+    return f"\tfunction {p.name} public returns(bool){{{p.content}\n\t}}\n"

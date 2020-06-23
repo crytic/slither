@@ -1,6 +1,12 @@
 # Function computing the code complexity
+from typing import TYPE_CHECKING, List
 
-def compute_number_edges(function):
+if TYPE_CHECKING:
+    from slither.core.declarations import Function
+    from slither.core.cfg.node import Node
+
+
+def compute_number_edges(function: "Function") -> int:
     """
     Compute the number of edges of the CFG
     Args:
@@ -14,7 +20,7 @@ def compute_number_edges(function):
     return n
 
 
-def compute_strongly_connected_components(function):
+def compute_strongly_connected_components(function: "Function") -> List[List["Node"]]:
     """
         Compute strongly connected components
         Based on Kosaraju algo
@@ -24,8 +30,8 @@ def compute_strongly_connected_components(function):
     Returns:
         list(list(nodes))
     """
-    visited = {n:False for n in function.nodes}
-    assigned = {n:False for n in function.nodes}
+    visited = {n: False for n in function.nodes}
+    assigned = {n: False for n in function.nodes}
     components = []
     l = []
 
@@ -39,7 +45,7 @@ def compute_strongly_connected_components(function):
     for n in function.nodes:
         visit(n)
 
-    def assign(node, root):
+    def assign(node: "Node", root: List["Node"]):
         if not assigned[node]:
             assigned[node] = True
             root.append(node)
@@ -47,14 +53,15 @@ def compute_strongly_connected_components(function):
                 assign(father, root)
 
     for n in l:
-        component = []
+        component: List["Node"] = []
         assign(n, component)
         if component:
             components.append(component)
 
     return components
 
-def compute_cyclomatic_complexity(function):
+
+def compute_cyclomatic_complexity(function: "Function") -> int:
     """
     Compute the cyclomatic complexity of a function
     Args:
