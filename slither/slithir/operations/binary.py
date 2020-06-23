@@ -31,12 +31,6 @@ class BinaryType(Enum):
     ANDAND = 17  # &&
     OROR = 18  # ||
 
-    DIVISION_SIGNED = 19
-    MODULO_SIGNED = 20
-    LESS_SIGNED = 21
-    GREATER_SIGNED = 22
-    RIGHT_SHIFT_ARITHMETIC = 23
-
     @staticmethod
     def return_bool(operation_type):
         return operation_type in [BinaryType.OROR,
@@ -88,16 +82,6 @@ class BinaryType(Enum):
             return BinaryType.ANDAND
         if operation_type == '||':
             return BinaryType.OROR
-        if operation_type == "/'":
-            return BinaryType.DIVISION_SIGNED
-        if operation_type == "%'":
-            return BinaryType.MODULO_SIGNED
-        if operation_type == "<'":
-            return BinaryType.LESS_SIGNED
-        if operation_type == ">'":
-            return BinaryType.GREATER_SIGNED
-        if operation_type == ">>'":
-            return BinaryType.RIGHT_SHIFT_ARITHMETIC
 
         raise SlithIRError('get_type: Unknown operation type {})'.format(operation_type))
 
@@ -140,16 +124,6 @@ class BinaryType(Enum):
             return "&&"
         if self == BinaryType.OROR:
             return "||"
-        if self == BinaryType.DIVISION_SIGNED:
-            return "/'"
-        if self == BinaryType.MODULO_SIGNED:
-            return "%'"
-        if self == BinaryType.LESS_SIGNED:
-            return "<'"
-        if self == BinaryType.GREATER_SIGNED:
-            return ">'"
-        if self == BinaryType.RIGHT_SHIFT_ARITHMETIC:
-            return ">>'"
         raise SlithIRError("str: Unknown operation type {} {})".format(self, type(self)))
 
 

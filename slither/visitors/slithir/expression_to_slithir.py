@@ -55,12 +55,16 @@ _binary_to_binary = {
     BinaryOperationType.NOT_EQUAL: BinaryType.NOT_EQUAL,
     BinaryOperationType.ANDAND: BinaryType.ANDAND,
     BinaryOperationType.OROR: BinaryType.OROR,
-    BinaryOperationType.DIVISION_SIGNED: BinaryType.DIVISION_SIGNED,
-    BinaryOperationType.MODULO_SIGNED: BinaryType.MODULO_SIGNED,
-    BinaryOperationType.LESS_SIGNED: BinaryType.LESS_SIGNED,
-    BinaryOperationType.GREATER_SIGNED: BinaryType.GREATER_SIGNED,
-    BinaryOperationType.RIGHT_SHIFT_ARITHMETIC: BinaryType.RIGHT_SHIFT_ARITHMETIC,
 }
+
+_signed_to_unsigned = {
+    BinaryOperationType.DIVISION_SIGNED: BinaryType.DIVISION,
+    BinaryOperationType.MODULO_SIGNED: BinaryType.MODULO,
+    BinaryOperationType.LESS_SIGNED: BinaryType.LESS,
+    BinaryOperationType.GREATER_SIGNED: BinaryType.GREATER,
+    BinaryOperationType.RIGHT_SHIFT_ARITHMETIC: BinaryType.RIGHT_SHIFT,
+}
+
 
 def convert_assignment(left, right, t, return_type):
     if t == AssignmentOperationType.ASSIGN:
@@ -147,9 +151,29 @@ class ExpressionToSlithIR(ExpressionVisitor):
         right = get(expression.expression_right)
         val = TemporaryVariable(self._node)
 
-        operation = Binary(val, left, right, _binary_to_binary[expression.type])
-        operation.set_expression(expression)
-        self._result.append(operation)
+        if expression.type in _signed_to_unsigned:
+            new_left = TemporaryVariable(self._node)
+            conv_left = TypeConversion(new_left, left, ElementaryType('int256'))
+            conv_left.set_expression(expression)
+            self._result.append(conv_left)
+
+            if expression.type != BinaryOperationType.RIGHT_SHIFT_ARITHMETIC:
+                new_right = TemporaryVariable(self._node)
+                conv_right = TypeConversion(new_right, right, ElementaryType('int256'))
+                conv_right.set_expression(expression)
+                self._result.append(conv_right)
+            else:
+                new_right = right
+
+            operation = Binary(val, new_left, new_right, _signed_to_unsigned[expression.type])
+            operation.set_expression(expression)
+            val.set_type(ElementaryType('uint256')) # overwrite the result from Binary() for now
+            self._result.append(operation)
+        else:
+            operation = Binary(val, left, right, _binary_to_binary[expression.type])
+            operation.set_expression(expression)
+            self._result.append(operation)
+
         set_val(expression, val)
 
     def _post_call_expression(self, expression):
