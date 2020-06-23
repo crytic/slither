@@ -1051,7 +1051,7 @@ class FunctionSolc:
                 node_parser.add_unparsed_expression(modifier)
                 # The latest entry point is the entry point, or the latest modifier call
                 if self._function.modifiers:
-                    latest_entry_point = self._function.modifiers[-1].nodes[-1]
+                    latest_entry_point = self._function.modifiers_statements[-1].nodes[-1]
                 else:
                     latest_entry_point = self._function.entry_point
                 insert_node(latest_entry_point, node_parser.underlying_node)
