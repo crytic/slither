@@ -202,6 +202,14 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._name = new_name
 
     @property
+    def scope(self):
+        return self._scope
+
+    @scope.setter
+    def scope(self, new_scope: List[str]):
+        self._scope = new_scope
+
+    @property
     def full_name(self) -> str:
         """
             str: func_name(type1,type2)
