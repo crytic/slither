@@ -1132,6 +1132,9 @@ class FunctionSolc:
                     node.set_sons([])
                     to_remove.append(node)
             self._function.nodes = [n for n in self._function.nodes if n not in to_remove]
+            for remove in to_remove:
+                if remove in self._node_to_nodesolc:
+                    del self._node_to_nodesolc[remove]
 
     # endregion
     ###################################################################################
@@ -1176,23 +1179,23 @@ class FunctionSolc:
         if node.type == NodeType.VARIABLE:
             condition_node.underlying_node.add_variable_declaration(node.variable_declaration)
 
-        true_node = self._new_node(NodeType.EXPRESSION, node.source_mapping)
+        true_node_parser = self._new_node(NodeType.EXPRESSION, node.source_mapping)
         if node.type == NodeType.VARIABLE:
             assert isinstance(true_expr, AssignmentOperation)
             # true_expr = true_expr.expression_right
         elif node.type == NodeType.RETURN:
-            true_node.type = NodeType.RETURN
-        true_node.underlying_node.add_expression(true_expr)
-        true_node.analyze_expressions(self)
+            true_node_parser.underlying_node.type = NodeType.RETURN
+        true_node_parser.underlying_node.add_expression(true_expr)
+        true_node_parser.analyze_expressions(self)
 
-        false_node = self._new_node(NodeType.EXPRESSION, node.source_mapping)
+        false_node_parser = self._new_node(NodeType.EXPRESSION, node.source_mapping)
         if node.type == NodeType.VARIABLE:
             assert isinstance(false_expr, AssignmentOperation)
         elif node.type == NodeType.RETURN:
-            false_node.type = NodeType.RETURN
+            false_node_parser.underlying_node.type = NodeType.RETURN
             # false_expr = false_expr.expression_right
-        false_node.underlying_node.add_expression(false_expr)
-        false_node.analyze_expressions(self)
+        false_node_parser.underlying_node.add_expression(false_expr)
+        false_node_parser.analyze_expressions(self)
 
         endif_node = self._new_node(NodeType.ENDIF, node.source_mapping)
 
@@ -1206,14 +1209,15 @@ class FunctionSolc:
             son.add_father(endif_node.underlying_node)
             endif_node.underlying_node.add_son(son)
 
-        link_underlying_nodes(condition_node, true_node)
-        link_underlying_nodes(condition_node, false_node)
+        link_underlying_nodes(condition_node, true_node_parser)
+        link_underlying_nodes(condition_node, false_node_parser)
 
-        if true_node.type not in [NodeType.THROW, NodeType.RETURN]:
-            link_underlying_nodes(true_node, endif_node)
-        if false_node.type not in [NodeType.THROW, NodeType.RETURN]:
-            link_underlying_nodes(false_node, endif_node)
+        if true_node_parser.underlying_node.type not in [NodeType.THROW, NodeType.RETURN]:
+            link_underlying_nodes(true_node_parser, endif_node)
+        if false_node_parser.underlying_node.type not in [NodeType.THROW, NodeType.RETURN]:
+            link_underlying_nodes(false_node_parser, endif_node)
 
         self._function.nodes = [n for n in self._function.nodes if n.node_id != node.node_id]
+        del self._node_to_nodesolc[node]
 
     # endregion
