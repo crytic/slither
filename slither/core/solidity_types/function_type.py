@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 from slither.core.solidity_types.type import Type
 from slither.core.variables.function_type_variable import FunctionTypeVariable
@@ -27,7 +27,7 @@ class FunctionType(Type):
         return [x.type for x in self.return_values]
 
     @property
-    def storage_size(self):
+    def storage_size(self) -> Tuple[int, bool]:
         return 24, False
 
     def __str__(self):

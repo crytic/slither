@@ -7,7 +7,7 @@ import json
 import re
 import math
 from collections import defaultdict
-from typing import Optional, Dict, List, Set, Union
+from typing import Optional, Dict, List, Set, Union, Tuple
 
 from crytic_compile import CryticCompile
 
@@ -57,7 +57,7 @@ class SlitherCore(Context):
         self._contract_name_collisions = defaultdict(list)
         self._contract_with_missing_inheritance = set()
 
-        self._storage_layouts = {}
+        self._storage_layouts: Dict[str, Dict[str, Tuple[int, int]]] = {}
 
     ###################################################################################
     ###################################################################################
@@ -380,6 +380,6 @@ class SlitherCore(Context):
                 else:
                     offset += size
 
-    def storage_layout_of(self, contract, var):
+    def storage_layout_of(self, contract, var) -> Tuple[int, int]:
         return self._storage_layouts[contract.name][var.canonical_name]
     # endregion
