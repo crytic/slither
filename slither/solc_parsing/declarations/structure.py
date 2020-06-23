@@ -1,34 +1,47 @@
 """
     Structure module
 """
+from typing import List, TYPE_CHECKING
+
+from slither.core.variables.structure_variable import StructureVariable
 from slither.solc_parsing.variables.structure_variable import StructureVariableSolc
 from slither.core.declarations.structure import Structure
 
-class StructureSolc(Structure):
+if TYPE_CHECKING:
+    from slither.solc_parsing.declarations.contract import ContractSolc
+
+
+class StructureSolc:
     """
     Structure class
     """
+
     # elems = [(type, name)]
 
-
-    def __init__(self, name, canonicalName, elems):
-        super(StructureSolc, self).__init__()
-        self._name = name
-        self._canonical_name = canonicalName
-        self._elems = {}
-        self._elems_ordered = []
+    def __init__(
+        self,
+        st: Structure,
+        name: str,
+        canonicalName: str,
+        elems: List[str],
+        contract_parser: "ContractSolc",
+    ):
+        self._structure = st
+        st.name = name
+        st.canonical_name = canonicalName
+        self._contract_parser = contract_parser
 
         self._elemsNotParsed = elems
 
     def analyze(self):
         for elem_to_parse in self._elemsNotParsed:
-            elem = StructureVariableSolc(elem_to_parse)
-            elem.set_structure(self)
-            elem.set_offset(elem_to_parse['src'], self.contract.slither)
+            elem = StructureVariable()
+            elem.set_structure(self._structure)
+            elem.set_offset(elem_to_parse["src"], self._structure.contract.slither)
 
-            elem.analyze(self.contract)
+            elem_parser = StructureVariableSolc(elem, elem_to_parse)
+            elem_parser.analyze(self._contract_parser)
 
-            self._elems[elem.name] = elem
-            self._elems_ordered.append(elem.name)
+            self._structure.elems[elem.name] = elem
+            self._structure.add_elem_in_order(elem.name)
         self._elemsNotParsed = []
-

@@ -1,11 +1,11 @@
-
 from slither.visitors.expression.expression import ExpressionVisitor
 
 from slither.core.expressions.assignment_operation import AssignmentOperationType
 
 from slither.core.variables.variable import Variable
 
-key = 'ExportValues'
+key = "ExportValues"
+
 
 def get(expression):
     val = expression.context[key]
@@ -13,11 +13,12 @@ def get(expression):
     del expression.context[key]
     return val
 
+
 def set_val(expression, val):
     expression.context[key] = val
 
-class ExportValues(ExpressionVisitor):
 
+class ExportValues(ExpressionVisitor):
     def result(self):
         if self._result is None:
             self._result = list(set(get(self.expression)))

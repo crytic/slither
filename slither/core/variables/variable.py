@@ -1,24 +1,32 @@
 """
     Variable module
 """
+from typing import Optional, TYPE_CHECKING, List, Union
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.elementary_type import ElementaryType
 
-class Variable(SourceMapping):
+if TYPE_CHECKING:
+    from slither.core.expressions.expression import Expression
 
+
+class Variable(SourceMapping):
     def __init__(self):
         super(Variable, self).__init__()
-        self._name = None
-        self._initial_expression = None
-        self._type = None
-        self._initialized = None
-        self._visibility = None
+        self._name: Optional[str] = None
+        self._initial_expression: Optional["Expression"] = None
+        self._type: Optional[Type] = None
+        self._initialized: Optional[bool] = None
+        self._visibility: Optional[str] = None
         self._is_constant = False
 
     @property
-    def expression(self):
+    def is_scalar(self) -> bool:
+        return isinstance(self.type, ElementaryType)
+
+    @property
+    def expression(self) -> Optional["Expression"]:
         """
             Expression: Expression of the node (if initialized)
             Initial expression may be different than the expression of the node
@@ -32,25 +40,33 @@ class Variable(SourceMapping):
         """
         return self._initial_expression
 
+    @expression.setter
+    def expression(self, expr: "Expression"):
+        self._initial_expression = expr
+
     @property
-    def initialized(self):
+    def initialized(self) -> Optional[bool]:
         """
             boolean: True if the variable is initialized at construction
         """
         return self._initialized
 
+    @initialized.setter
+    def initialized(self, is_init: bool):
+        self._initialized = is_init
+
     @property
-    def uninitialized(self):
+    def uninitialized(self) -> bool:
         """
             boolean: True if the variable is not initialized
         """
         return not self._initialized
 
     @property
-    def name(self):
-        '''
+    def name(self) -> str:
+        """
             str: variable name
-        '''
+        """
         return self._name
 
     @name.setter
@@ -58,19 +74,31 @@ class Variable(SourceMapping):
         self._name = name
 
     @property
-    def type(self):
+    def type(self) -> Optional[Union[Type, List[Type]]]:
         return self._type
 
-    @property
-    def is_constant(self):
-        return self._is_constant
+    @type.setter
+    def type(self, types: Union[Type, List[Type]]):
+        self._type = types
 
     @property
-    def visibility(self):
-        '''
+    def is_constant(self) -> bool:
+        return self._is_constant
+
+    @is_constant.setter
+    def is_constant(self, is_cst: bool):
+        self._is_constant = is_cst
+
+    @property
+    def visibility(self) -> Optional[str]:
+        """
             str: variable visibility
-        '''
+        """
         return self._visibility
+
+    @visibility.setter
+    def visibility(self, v: str):
+        self._visibility = v
 
     def set_type(self, t):
         if isinstance(t, str):
@@ -80,25 +108,21 @@ class Variable(SourceMapping):
 
     @property
     def function_name(self):
-        '''
+        """
         Return the name of the variable as a function signature
         :return:
-        '''
+        """
         from slither.core.solidity_types import ArrayType, MappingType
+        from slither.utils.type import export_nested_types_from_variable
+
         variable_getter_args = ""
-        if type(self.type) is ArrayType:
-            length = 0
-            v = self
-            while type(v.type) is ArrayType:
-                length += 1
-                v = v.type
-            variable_getter_args = ','.join(["uint256"] * length)
-        elif type(self.type) is MappingType:
-            variable_getter_args = self.type.type_from
+        return_type = self.type
+        assert return_type
+
+        if isinstance(return_type, (ArrayType, MappingType)):
+            variable_getter_args = ",".join(map(str, export_nested_types_from_variable(self)))
 
         return f"{self.name}({variable_getter_args})"
 
     def __str__(self):
         return self._name
-
-

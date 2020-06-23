@@ -3,11 +3,13 @@ import logging
 from .expression import ExpressionVisitor
 from slither.core.expressions import BinaryOperationType, Literal
 
+
 class NotConstant(Exception):
     pass
 
 
-KEY = 'ConstantFolding'
+KEY = "ConstantFolding"
+
 
 def get_val(expression):
     val = expression.context[KEY]
@@ -15,11 +17,12 @@ def get_val(expression):
     del expression.context[KEY]
     return val
 
+
 def set_val(expression, val):
     expression.context[KEY] = val
 
-class ConstantFolding(ExpressionVisitor):
 
+class ConstantFolding(ExpressionVisitor):
     def __init__(self, expression, type):
         self._type = type
         super(ConstantFolding, self).__init__(expression)
@@ -40,24 +43,24 @@ class ConstantFolding(ExpressionVisitor):
     def _post_binary_operation(self, expression):
         left = get_val(expression.expression_left)
         right = get_val(expression.expression_right)
-        if expression.type  == BinaryOperationType.POWER:
+        if expression.type == BinaryOperationType.POWER:
             set_val(expression, left ** right)
-        elif expression.type  == BinaryOperationType.MULTIPLICATION:
+        elif expression.type == BinaryOperationType.MULTIPLICATION:
             set_val(expression, left * right)
-        elif expression.type  == BinaryOperationType.DIVISION:
+        elif expression.type == BinaryOperationType.DIVISION:
             set_val(expression, left / right)
-        elif expression.type  == BinaryOperationType.MODULO:
+        elif expression.type == BinaryOperationType.MODULO:
             set_val(expression, left % right)
-        elif expression.type  == BinaryOperationType.ADDITION:
+        elif expression.type == BinaryOperationType.ADDITION:
             set_val(expression, left + right)
-        elif expression.type  == BinaryOperationType.SUBTRACTION:
-            if(left-right) <0:
+        elif expression.type == BinaryOperationType.SUBTRACTION:
+            if (left - right) < 0:
                 # Could trigger underflow
                 raise NotConstant
             set_val(expression, left - right)
-        elif expression.type  == BinaryOperationType.LEFT_SHIFT:
+        elif expression.type == BinaryOperationType.LEFT_SHIFT:
             set_val(expression, left << right)
-        elif expression.type  == BinaryOperationType.RIGHT_SHIFT:
+        elif expression.type == BinaryOperationType.RIGHT_SHIFT:
             set_val(expression, left >> right)
         else:
             raise NotConstant
@@ -110,6 +113,3 @@ class ConstantFolding(ExpressionVisitor):
 
     def _post_type_conversion(self, expression):
         raise NotConstant
-
-
-

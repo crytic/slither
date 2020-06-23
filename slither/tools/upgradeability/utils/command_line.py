@@ -4,7 +4,9 @@ from slither.utils.myprettytable import MyPrettyTable
 
 def output_wiki(detector_classes, filter_wiki):
     # Sort by impact, confidence, and name
-    detectors_list = sorted(detector_classes, key=lambda element: (element.IMPACT, element.ARGUMENT))
+    detectors_list = sorted(
+        detector_classes, key=lambda element: (element.IMPACT, element.ARGUMENT)
+    )
 
     for detector in detectors_list:
         if filter_wiki not in detector.WIKI:
@@ -16,16 +18,16 @@ def output_wiki(detector_classes, filter_wiki):
         exploit_scenario = detector.WIKI_EXPLOIT_SCENARIO
         recommendation = detector.WIKI_RECOMMENDATION
 
-        print('\n## {}'.format(title))
-        print('### Configuration')
-        print('* Check: `{}`'.format(argument))
-        print('* Severity: `{}`'.format(impact))
-        print('\n### Description')
+        print("\n## {}".format(title))
+        print("### Configuration")
+        print("* Check: `{}`".format(argument))
+        print("* Severity: `{}`".format(impact))
+        print("\n### Description")
         print(description)
         if exploit_scenario:
-            print('\n### Exploit Scenario:')
+            print("\n### Exploit Scenario:")
             print(exploit_scenario)
-        print('\n### Recommendation')
+        print("\n### Recommendation")
         print(recommendation)
 
 
@@ -38,27 +40,31 @@ def output_detectors(detector_classes):
         require_proxy = detector.REQUIRE_PROXY
         require_v2 = detector.REQUIRE_CONTRACT_V2
         detectors_list.append((argument, help_info, impact, require_proxy, require_v2))
-    table = MyPrettyTable(["Num",
-                           "Check",
-                           "What it Detects",
-                           "Impact",
-                           "Proxy",
-                           "Contract V2"])
+    table = MyPrettyTable(["Num", "Check", "What it Detects", "Impact", "Proxy", "Contract V2"])
 
     # Sort by impact, confidence, and name
     detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[0]))
     idx = 1
     for (argument, help_info, impact, proxy, v2) in detectors_list:
-        table.add_row([idx, argument, help_info, classification_txt[impact], 'X' if proxy else '', 'X' if v2 else ''])
+        table.add_row(
+            [
+                idx,
+                argument,
+                help_info,
+                classification_txt[impact],
+                "X" if proxy else "",
+                "X" if v2 else "",
+            ]
+        )
         idx = idx + 1
     print(table)
 
 
 def output_to_markdown(detector_classes, filter_wiki):
     def extract_help(cls):
-        if cls.WIKI == '':
+        if cls.WIKI == "":
             return cls.HELP
-        return '[{}]({})'.format(cls.HELP, cls.WIKI)
+        return "[{}]({})".format(cls.HELP, cls.WIKI)
 
     detectors_list = []
     for detector in detector_classes:
@@ -73,12 +79,16 @@ def output_to_markdown(detector_classes, filter_wiki):
     detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[0]))
     idx = 1
     for (argument, help_info, impact, proxy, v2) in detectors_list:
-        print('{} | `{}` | {} | {} | {} | {}'.format(idx,
-                                                     argument,
-                                                     help_info,
-                                                     classification_txt[impact],
-                                                     'X' if proxy else '',
-                                                     'X' if v2 else ''))
+        print(
+            "{} | `{}` | {} | {} | {} | {}".format(
+                idx,
+                argument,
+                help_info,
+                classification_txt[impact],
+                "X" if proxy else "",
+                "X" if v2 else "",
+            )
+        )
         idx = idx + 1
 
 
@@ -92,26 +102,42 @@ def output_detectors_json(detector_classes):
         wiki_description = detector.WIKI_DESCRIPTION
         wiki_exploit_scenario = detector.WIKI_EXPLOIT_SCENARIO
         wiki_recommendation = detector.WIKI_RECOMMENDATION
-        detectors_list.append((argument,
-                               help_info,
-                               impact,
-                               wiki_url,
-                               wiki_description,
-                               wiki_exploit_scenario,
-                               wiki_recommendation))
+        detectors_list.append(
+            (
+                argument,
+                help_info,
+                impact,
+                wiki_url,
+                wiki_description,
+                wiki_exploit_scenario,
+                wiki_recommendation,
+            )
+        )
 
     # Sort by impact, confidence, and name
     detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[0]))
     idx = 1
     table = []
-    for (argument, help_info, impact, wiki_url, description, exploit, recommendation) in detectors_list:
-        table.append({'index': idx,
-                      'check': argument,
-                      'title': help_info,
-                      'impact': classification_txt[impact],
-                      'wiki_url': wiki_url,
-                      'description': description,
-                      'exploit_scenario': exploit,
-                      'recommendation': recommendation})
+    for (
+        argument,
+        help_info,
+        impact,
+        wiki_url,
+        description,
+        exploit,
+        recommendation,
+    ) in detectors_list:
+        table.append(
+            {
+                "index": idx,
+                "check": argument,
+                "title": help_info,
+                "impact": classification_txt[impact],
+                "wiki_url": wiki_url,
+                "description": description,
+                "exploit_scenario": exploit,
+                "recommendation": recommendation,
+            }
+        )
         idx = idx + 1
     return table

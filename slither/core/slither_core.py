@@ -6,39 +6,47 @@ import logging
 import json
 import re
 from collections import defaultdict
+from typing import Optional, Dict, List, Set, Union
+
+from crytic_compile import CryticCompile
 
 from slither.core.context.context import Context
+from slither.core.declarations import Contract, Pragma, Import, Function, Modifier
+from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import InternalCall
+from slither.slithir.variables import Constant
 from slither.utils.colors import red
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
 
-class Slither(Context):
+
+class SlitherCore(Context):
     """
     Slither static analyzer
     """
 
     def __init__(self):
-        super(Slither, self).__init__()
-        self._contracts = {}
-        self._filename = None
-        self._source_units = {}
-        self._solc_version = None  # '0.3' or '0.4':!
-        self._pragma_directives = []
-        self._import_directives = []
-        self._raw_source_code = {}
-        self._all_functions = set()
-        self._all_modifiers = set()
-        self._all_state_variables = None
+        super(SlitherCore, self).__init__()
+        self._contracts: Dict[str, Contract] = {}
+        self._filename: Optional[str] = None
+        self._source_units: Dict[int, str] = {}
+        self._solc_version: Optional[str] = None  # '0.3' or '0.4':!
+        self._pragma_directives: List[Pragma] = []
+        self._import_directives: List[Import] = []
+        self._raw_source_code: Dict[str, str] = {}
+        self._all_functions: Set[Function] = set()
+        self._all_modifiers: Set[Modifier] = set()
+        # Memoize
+        self._all_state_variables: Optional[Set[StateVariable]] = None
 
-        self._previous_results_filename = 'slither.db.json'
-        self._results_to_hide = []
-        self._previous_results = []
-        self._previous_results_ids = set()
-        self._paths_to_filter = set()
+        self._previous_results_filename: str = "slither.db.json"
+        self._results_to_hide: List = []
+        self._previous_results: List = []
+        self._previous_results_ids: Set[str] = set()
+        self._paths_to_filter: Set[str] = set()
 
-        self._crytic_compile = None
+        self._crytic_compile: Optional[CryticCompile] = None
 
         self._generate_patches = False
         self._exclude_dependencies = False
@@ -55,20 +63,24 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def source_code(self):
+    def source_code(self) -> Dict[str, str]:
         """ {filename: source_code (str)}: source code """
         return self._raw_source_code
 
     @property
-    def source_units(self):
+    def source_units(self) -> Dict[int, str]:
         return self._source_units
 
     @property
-    def filename(self):
+    def filename(self) -> Optional[str]:
         """str: Filename."""
         return self._filename
 
-    def _add_source_code(self, path):
+    @filename.setter
+    def filename(self, filename: str):
+        self._filename = filename
+
+    def add_source_code(self, path):
         """
         :param path:
         :return:
@@ -76,11 +88,11 @@ class Slither(Context):
         if self.crytic_compile and path in self.crytic_compile.src_content:
             self.source_code[path] = self.crytic_compile.src_content[path]
         else:
-            with open(path, encoding='utf8', newline='') as f:
+            with open(path, encoding="utf8", newline="") as f:
                 self.source_code[path] = f.read()
 
     @property
-    def markdown_root(self):
+    def markdown_root(self) -> str:
         return self._markdown_root
 
     # endregion
@@ -91,19 +103,19 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def solc_version(self):
+    def solc_version(self) -> str:
         """str: Solidity version."""
         if self.crytic_compile:
             return self.crytic_compile.compiler_version.version
         return self._solc_version
 
     @property
-    def pragma_directives(self):
+    def pragma_directives(self) -> List[Pragma]:
         """ list(core.declarations.Pragma): Pragma directives."""
         return self._pragma_directives
 
     @property
-    def import_directives(self):
+    def import_directives(self) -> List[Import]:
         """ list(core.declarations.Import): Import directives"""
         return self._import_directives
 
@@ -115,22 +127,23 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def contracts(self):
+    def contracts(self) -> List[Contract]:
         """list(Contract): List of contracts."""
         return list(self._contracts.values())
 
     @property
-    def contracts_derived(self):
+    def contracts_derived(self) -> List[Contract]:
         """list(Contract): List of contracts that are derived and not inherited."""
         inheritance = (x.inheritance for x in self.contracts)
         inheritance = [item for sublist in inheritance for item in sublist]
         return [c for c in self._contracts.values() if c not in inheritance]
 
-    def contracts_as_dict(self):
+    @property
+    def contracts_as_dict(self) -> Dict[str, Contract]:
         """list(dict(str: Contract): List of contracts as dict: name -> Contract."""
         return self._contracts
 
-    def get_contract_from_name(self, contract_name):
+    def get_contract_from_name(self, contract_name: Union[str, Constant]) -> Optional[Contract]:
         """
             Return a contract from a name
         Args:
@@ -148,24 +161,24 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def functions(self):
+    def functions(self) -> List[Function]:
         return list(self._all_functions)
 
-    def add_function(self, func):
+    def add_function(self, func: Function):
         self._all_functions.add(func)
 
     @property
-    def modifiers(self):
+    def modifiers(self) -> List[Modifier]:
         return list(self._all_modifiers)
 
-    def add_modifier(self, modif):
+    def add_modifier(self, modif: Modifier):
         self._all_modifiers.add(modif)
 
     @property
-    def functions_and_modifiers(self):
+    def functions_and_modifiers(self) -> List[Function]:
         return self.functions + self.modifiers
 
-    def _propagate_function_calls(self):
+    def propagate_function_calls(self):
         for f in self.functions_and_modifiers:
             for node in f.nodes:
                 for ir in node.irs_ssa:
@@ -180,7 +193,7 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def state_variables(self):
+    def state_variables(self) -> List[StateVariable]:
         if self._all_state_variables is None:
             state_variables = [c.state_variables for c in self.contracts]
             state_variables = [item for sublist in state_variables for item in sublist]
@@ -194,13 +207,13 @@ class Slither(Context):
     ###################################################################################
     ###################################################################################
 
-    def print_functions(self, d):
+    def print_functions(self, d: str):
         """
             Export all the functions to dot files
         """
         for c in self.contracts:
             for f in c.functions:
-                f.cfg_to_dot(os.path.join(d, '{}.{}.dot'.format(c.name, f.name)))
+                f.cfg_to_dot(os.path.join(d, "{}.{}.dot".format(c.name, f.name)))
 
     # endregion
     ###################################################################################
@@ -209,44 +222,53 @@ class Slither(Context):
     ###################################################################################
     ###################################################################################
 
-    def relative_path_format(self, path):
+    def relative_path_format(self, path: str) -> str:
         """
            Strip relative paths of "." and ".."
         """
-        return path.split('..')[-1].strip('.').strip('/')
+        return path.split("..")[-1].strip(".").strip("/")
 
-    def valid_result(self, r):
-        '''
+    def valid_result(self, r: Dict) -> bool:
+        """
             Check if the result is valid
             A result is invalid if:
                 - All its source paths belong to the source path filtered
                 - Or a similar result was reported and saved during a previous run
                 - The --exclude-dependencies flag is set and results are only related to dependencies
-        '''
-        source_mapping_elements = [elem['source_mapping']['filename_absolute']
-                                   for elem in r['elements'] if 'source_mapping' in elem]
-        source_mapping_elements = map(lambda x: os.path.normpath(x) if x else x, source_mapping_elements)
+        """
+        source_mapping_elements = [
+            elem["source_mapping"]["filename_absolute"]
+            for elem in r["elements"]
+            if "source_mapping" in elem
+        ]
+        source_mapping_elements = map(
+            lambda x: os.path.normpath(x) if x else x, source_mapping_elements
+        )
         matching = False
 
         for path in self._paths_to_filter:
             try:
-                if any(bool(re.search(self.relative_path_format(path), src_mapping))
-                       for src_mapping in source_mapping_elements):
+                if any(
+                    bool(re.search(self.relative_path_format(path), src_mapping))
+                    for src_mapping in source_mapping_elements
+                ):
                     matching = True
                     break
             except re.error:
-                logger.error(f'Incorrect regular expression for --filter-paths {path}.'
-                             '\nSlither supports the Python re format'
-                             ': https://docs.python.org/3/library/re.html')
+                logger.error(
+                    f"Incorrect regular expression for --filter-paths {path}."
+                    "\nSlither supports the Python re format"
+                    ": https://docs.python.org/3/library/re.html"
+                )
 
-        if r['elements'] and matching:
+        if r["elements"] and matching:
             return False
-        if r['elements'] and self._exclude_dependencies:
-            return not all(element['source_mapping']['is_dependency'] for element in r['elements'])
-        if r['id'] in self._previous_results_ids:
+        if r["elements"] and self._exclude_dependencies:
+            return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
+        if r["id"] in self._previous_results_ids:
             return False
         # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
-        return not r['description'] in [pr['description'] for pr in self._previous_results]
+        return not r["description"] in [pr["description"] for pr in self._previous_results]
 
     def load_previous_results(self):
         filename = self._previous_results_filename
@@ -256,27 +278,29 @@ class Slither(Context):
                     self._previous_results = json.load(f)
                     if self._previous_results:
                         for r in self._previous_results:
-                            if 'id' in r:
-                                self._previous_results_ids.add(r['id'])
+                            if "id" in r:
+                                self._previous_results_ids.add(r["id"])
         except json.decoder.JSONDecodeError:
-            logger.error(red('Impossible to decode {}. Consider removing the file'.format(filename)))
+            logger.error(
+                red("Impossible to decode {}. Consider removing the file".format(filename))
+            )
 
     def write_results_to_hide(self):
         if not self._results_to_hide:
             return
         filename = self._previous_results_filename
-        with open(filename, 'w', encoding='utf8') as f:
+        with open(filename, "w", encoding="utf8") as f:
             results = self._results_to_hide + self._previous_results
             json.dump(results, f)
 
-    def save_results_to_hide(self, results):
+    def save_results_to_hide(self, results: List[Dict]):
         self._results_to_hide += results
 
-    def add_path_to_filter(self, path):
-        '''
+    def add_path_to_filter(self, path: str):
+        """
             Add path to filter
             Path are used through direct comparison (no regex)
-        '''
+        """
         self._paths_to_filter.add(path)
 
     # endregion
@@ -287,7 +311,7 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def crytic_compile(self):
+    def crytic_compile(self) -> Optional[CryticCompile]:
         return self._crytic_compile
 
     # endregion
@@ -298,13 +322,12 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def generate_patches(self):
+    def generate_patches(self) -> bool:
         return self._generate_patches
 
     @generate_patches.setter
-    def generate_patches(self, p):
+    def generate_patches(self, p: bool):
         self._generate_patches = p
-
 
     # endregion
     ###################################################################################
@@ -314,10 +337,11 @@ class Slither(Context):
     ###################################################################################
 
     @property
-    def contract_name_collisions(self):
+    def contract_name_collisions(self) -> Dict:
         return self._contract_name_collisions
 
     @property
-    def contracts_with_missing_inheritance(self):
+    def contracts_with_missing_inheritance(self) -> Set:
         return self._contract_with_missing_inheritance
+
     # endregion

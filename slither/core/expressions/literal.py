@@ -1,24 +1,29 @@
+from typing import Optional, Union, TYPE_CHECKING
+
 from slither.core.expressions.expression import Expression
 from slither.utils.arithmetic import convert_subdenomination
 
-class Literal(Expression):
+if TYPE_CHECKING:
+    from slither.core.solidity_types.type import Type
 
+
+class Literal(Expression):
     def __init__(self, value, type, subdenomination=None):
         super(Literal, self).__init__()
-        self._value = value
+        self._value: Union[int, str] = value
         self._type = type
-        self._subdenomination = subdenomination
+        self._subdenomination: Optional[str] = subdenomination
 
     @property
-    def value(self):
+    def value(self) -> Union[int, str]:
         return self._value
 
     @property
-    def type(self):
+    def type(self) -> "Type":
         return self._type
 
     @property
-    def subdenomination(self):
+    def subdenomination(self) -> Optional[str]:
         return self._subdenomination
 
     def __str__(self):

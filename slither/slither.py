@@ -1,18 +1,13 @@
 import logging
 import os
-import subprocess
-import sys
-import glob
-import json
-import platform
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
-from .solc_parsing.exceptions import VariableNotFound
-from .solc_parsing.slitherSolc import SlitherSolc
+from .core.slither_core import SlitherCore
 from .exceptions import SlitherError
+from .solc_parsing.slitherSolc import SlitherSolc
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -21,10 +16,9 @@ logger_detector = logging.getLogger("Detectors")
 logger_printer = logging.getLogger("Printers")
 
 
-class Slither(SlitherSolc):
-
+class Slither(SlitherCore):
     def __init__(self, target, **kwargs):
-        '''
+        """
             Args:
                 target (str | list(json) | CryticCompile)
             Keyword Args:
@@ -46,14 +40,16 @@ class Slither(SlitherSolc):
                 embark_ignore_compile (bool): do not run embark build (default False)
                 embark_overwrite_config (bool): overwrite original config file (default false)
 
-        '''
+        """
+        super().__init__()
+        self._parser: SlitherSolc  #  This could be another parser, like SlitherVyper, interface needs to be determined
         # list of files provided (see --splitted option)
         if isinstance(target, list):
             self._init_from_list(target)
-        elif isinstance(target, str) and target.endswith('.json'):
+        elif isinstance(target, str) and target.endswith(".json"):
             self._init_from_raw_json(target)
         else:
-            super(Slither, self).__init__('')
+            self._parser = SlitherSolc("", self)
             try:
                 if isinstance(target, CryticCompile):
                     crytic_compile = target
@@ -61,54 +57,55 @@ class Slither(SlitherSolc):
                     crytic_compile = CryticCompile(target, **kwargs)
                 self._crytic_compile = crytic_compile
             except InvalidCompilation as e:
-                raise SlitherError('Invalid compilation: \n'+str(e))
+                raise SlitherError("Invalid compilation: \n" + str(e))
             for path, ast in crytic_compile.asts.items():
-                self._parse_contracts_from_loaded_json(ast, path)
-                self._add_source_code(path)
+                self._parser.parse_contracts_from_loaded_json(ast, path)
+                self.add_source_code(path)
 
-        if kwargs.get('generate_patches', False):
+        if kwargs.get("generate_patches", False):
             self.generate_patches = True
 
-        self._markdown_root = kwargs.get('markdown_root', "")
+        self._markdown_root = kwargs.get("markdown_root", "")
 
         self._detectors = []
         self._printers = []
 
-        filter_paths = kwargs.get('filter_paths', [])
+        filter_paths = kwargs.get("filter_paths", [])
         for p in filter_paths:
             self.add_path_to_filter(p)
 
-        self._exclude_dependencies = kwargs.get('exclude_dependencies', False)
+        self._exclude_dependencies = kwargs.get("exclude_dependencies", False)
 
-        triage_mode = kwargs.get('triage_mode', False)
+        triage_mode = kwargs.get("triage_mode", False)
         self._triage_mode = triage_mode
 
-        self._analyze_contracts()
-
+        self._parser.analyze_contracts()
 
     def _init_from_raw_json(self, filename):
         if not os.path.isfile(filename):
-            raise SlitherError('{} does not exist (are you in the correct directory?)'.format(filename))
-        assert filename.endswith('json')
-        with open(filename, encoding='utf8') as astFile:
+            raise SlitherError(
+                "{} does not exist (are you in the correct directory?)".format(filename)
+            )
+        assert filename.endswith("json")
+        with open(filename, encoding="utf8") as astFile:
             stdout = astFile.read()
             if not stdout:
-                raise SlitherError('Empty AST file: %s', filename)
-        contracts_json = stdout.split('\n=')
+                raise SlitherError("Empty AST file: %s", filename)
+        contracts_json = stdout.split("\n=")
 
-        super(Slither, self).__init__(filename)
+        self._parser = SlitherSolc(filename, self)
 
         for c in contracts_json:
-            self._parse_contracts_from_json(c)
+            self._parser.parse_contracts_from_json(c)
 
     def _init_from_list(self, contract):
-        super(Slither, self).__init__('')
+        self._parser = SlitherSolc("", self)
         for c in contract:
-            if 'absolutePath' in c:
-                path = c['absolutePath']
+            if "absolutePath" in c:
+                path = c["absolutePath"]
             else:
-                path = c['attributes']['absolutePath']
-            self._parse_contracts_from_loaded_json(c, path)
+                path = c["attributes"]["absolutePath"]
+            self._parser.parse_contracts_from_loaded_json(c, path)
 
     @property
     def detectors(self):
@@ -138,7 +135,7 @@ class Slither(SlitherSolc):
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
-        self._check_common_things('detector', detector_class, AbstractDetector, self._detectors)
+        self._check_common_things("detector", detector_class, AbstractDetector, self._detectors)
 
         instance = detector_class(self, logger_detector)
         self._detectors.append(instance)
@@ -147,7 +144,7 @@ class Slither(SlitherSolc):
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
-        self._check_common_things('printer', printer_class, AbstractPrinter, self._printers)
+        self._check_common_things("printer", printer_class, AbstractPrinter, self._printers)
 
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)
@@ -179,19 +176,19 @@ class Slither(SlitherSolc):
             )
 
         if any(type(obj) == cls for obj in instances_list):
-            raise Exception(
-                "You can't register {!r} twice.".format(cls)
-            )
+            raise Exception("You can't register {!r} twice.".format(cls))
 
     def _run_solc(self, filename, solc, disable_solc_warnings, solc_arguments, ast_format):
         if not os.path.isfile(filename):
-            raise SlitherError('{} does not exist (are you in the correct directory?)'.format(filename))
-        assert filename.endswith('json')
-        with open(filename, encoding='utf8') as astFile:
+            raise SlitherError(
+                "{} does not exist (are you in the correct directory?)".format(filename)
+            )
+        assert filename.endswith("json")
+        with open(filename, encoding="utf8") as astFile:
             stdout = astFile.read()
             if not stdout:
-                raise SlitherError('Empty AST file: %s', filename)
-        stdout = stdout.split('\n=')
+                raise SlitherError("Empty AST file: %s", filename)
+        stdout = stdout.split("\n=")
 
         return stdout
 

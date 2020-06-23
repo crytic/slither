@@ -4,22 +4,22 @@ import platform
 
 class Colors:
     COLORIZATION_ENABLED = True
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    MAGENTA = '\033[95m'
-    END = '\033[0m'
+    RED = "\033[91m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    MAGENTA = "\033[95m"
+    END = "\033[0m"
 
 
-def colorize(color, txt):
+def colorize(color: Colors, txt: str) -> str:
     if Colors.COLORIZATION_ENABLED:
-        return '{}{}{}'.format(color, txt, Colors.END)
+        return "{}{}{}".format(color, txt, Colors.END)
     else:
         return txt
 
 
-def enable_windows_virtual_terminal_sequences():
+def enable_windows_virtual_terminal_sequences() -> bool:
     """
     Sets the appropriate flags to enable virtual terminal sequences in a Windows command prompt.
     Reference: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
@@ -51,7 +51,9 @@ def enable_windows_virtual_terminal_sequences():
 
             # If the virtual terminal sequence processing is not yet enabled, we enable it.
             if (current_mode.value & virtual_terminal_flag) == 0:
-                if not kernel32.SetConsoleMode(current_handle, current_mode.value | virtual_terminal_flag):
+                if not kernel32.SetConsoleMode(
+                    current_handle, current_mode.value | virtual_terminal_flag
+                ):
                     return False
     except:
         # Any generic failure (possibly from calling these methods on older Windows builds where they do not exist)
@@ -61,14 +63,14 @@ def enable_windows_virtual_terminal_sequences():
     return True
 
 
-def set_colorization_enabled(enabled):
+def set_colorization_enabled(enabled: bool):
     """
     Sets the enabled state of output colorization.
     :param enabled: Boolean indicating whether output should be colorized.
     :return: None
     """
     # If color is supposed to be enabled and this is windows, we have to enable console virtual terminal sequences:
-    if enabled and platform.system() == 'Windows':
+    if enabled and platform.system() == "Windows":
         Colors.COLORIZATION_ENABLED = enable_windows_virtual_terminal_sequences()
     else:
         # This is not windows so we can enable color immediately.
