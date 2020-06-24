@@ -33,6 +33,8 @@ class FunctionSummary(AbstractPrinter):
         all_txt = ''
 
         for c in self.contracts:
+            if c.is_top_level:
+                continue
             (name, inheritance, var, func_summaries, modif_summaries) = c.get_summary()
             txt = "\nContract %s"%name
             txt += '\nContract vars: '+str(var)

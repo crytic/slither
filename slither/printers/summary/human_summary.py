@@ -187,9 +187,10 @@ class PrinterHumanSummary(AbstractPrinter):
     def _number_contracts(self):
         if self.slither.crytic_compile is None:
             len(self.slither.contracts), 0
-        deps = [c for c in self.slither.contracts if c.is_from_dependency()]
-        tests = [c for c in self.slither.contracts if c.is_test]
-        return len(self.slither.contracts) - len(deps) - len(tests), len(deps), len(tests)
+        contracts = [c for c in self.slither.contracts if not c.is_top_level]
+        deps = [c for c in contracts if c.is_from_dependency()]
+        tests = [c for c in contracts if c.is_test]
+        return len(contracts) - len(deps) - len(tests), len(deps), len(tests)
 
     def _standard_libraries(self):
         libraries = []
