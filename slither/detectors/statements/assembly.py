@@ -30,7 +30,7 @@ class Assembly(AbstractDetector):
         Returns:
             (bool)
         """
-        return node.type == NodeType.ASSEMBLY and len(node.yul_path) == 2
+        return node.type == NodeType.ASSEMBLY
 
     def detect_assembly(self, contract):
         ret = []
