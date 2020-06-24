@@ -71,7 +71,7 @@ def _is_constant(f: Function) -> bool:
     """
     Heuristic:
     - If view/pure with Solidity >= 0.4 -> Return true
-    - If it contains assembly -> Return false (Slither doesn't analyze asm)
+    - If it contains assembly -> Return false (SlitherCore doesn't analyze asm)
     - Otherwise check for the rules from
     https://solidity.readthedocs.io/en/v0.5.0/contracts.html?highlight=pure#view-functions
     with an exception: internal dynamic call are not correctly handled, so we consider them as non-constant
