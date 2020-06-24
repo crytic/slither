@@ -810,7 +810,7 @@ class FunctionSolc:
         elif name == "InlineAssembly":
             # Added with solc 0.6 - the yul code is an AST
             if 'AST' in statement:
-                self._contains_assembly = True
+                self._function.contains_assembly = True
                 yul_object = self._new_yul_object(statement['src'])
                 entrypoint = yul_object.entrypoint
                 exitpoint = yul_object.convert(statement['AST'])
