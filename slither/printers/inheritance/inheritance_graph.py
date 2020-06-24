@@ -166,6 +166,8 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
         content = 'digraph "" {\n'
         for c in self.contracts:
+            if c.is_top_level:
+                continue
             content += self._summary(c) + '\n'
         content += '}'
 

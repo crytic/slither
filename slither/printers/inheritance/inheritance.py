@@ -39,6 +39,8 @@ class PrinterInheritance(AbstractPrinter):
         result = {'child_to_base': {}}
 
         for child in self.contracts:
+            if child.is_top_level:
+                continue
             info += blue(f'\n+ {child.name}\n')
             result['child_to_base'][child.name] = {'immediate': [],
                                                    'not_immediate': []}
@@ -58,6 +60,8 @@ class PrinterInheritance(AbstractPrinter):
 
         result['base_to_child'] = {}
         for base in self.contracts:
+            if base.is_top_level:
+                continue
             info += green(f'\n+ {base.name}') + '\n'
             children = list(self._get_child_contracts(base))
 
