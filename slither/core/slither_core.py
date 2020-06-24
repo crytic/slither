@@ -11,7 +11,7 @@ from typing import Optional, Dict, List, Set, Union
 from crytic_compile import CryticCompile
 
 from slither.core.context.context import Context
-from slither.core.declarations import Contract, Pragma, Import, Function, Modifier
+from slither.core.declarations import Contract, Pragma, Import, Function, Modifier, Structure, Enum
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import InternalCall
 from slither.slithir.variables import Constant
@@ -136,7 +136,7 @@ class SlitherCore(Context):
         """list(Contract): List of contracts that are derived and not inherited."""
         inheritance = (x.inheritance for x in self.contracts)
         inheritance = [item for sublist in inheritance for item in sublist]
-        return [c for c in self._contracts.values() if c not in inheritance]
+        return [c for c in self._contracts.values() if c not in inheritance and not c.is_top_level]
 
     @property
     def contracts_as_dict(self) -> Dict[str, Contract]:
@@ -199,6 +199,24 @@ class SlitherCore(Context):
             state_variables = [item for sublist in state_variables for item in sublist]
             self._all_state_variables = set(state_variables)
         return list(self._all_state_variables)
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Top level
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def top_level_structures(self) -> List[Structure]:
+        top_level_structures = [c.structures for c in self.contracts if c.is_top_level]
+        return [st for sublist in top_level_structures for st in sublist]
+
+
+    @property
+    def top_level_enums(self) -> List[Enum]:
+        top_level_enums = [c.enums for c in self.contracts if c.is_top_level]
+        return [st for sublist in top_level_enums for st in sublist]
 
     # endregion
     ###################################################################################

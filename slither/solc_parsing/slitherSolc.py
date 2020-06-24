@@ -163,15 +163,16 @@ class SlitherSolc:
                 assert self._is_compact_ast  # Do not support top level definition for legacy AST
                 fake_contract_data = {
                     "name": f"SlitherInternalTopLevelContract{self._top_level_contracts_counter}",
-                    "id": -1000,  # TODO: determine if collission possible
+                    "id": -1000 + self._top_level_contracts_counter,  # TODO: determine if collission possible
                     "linearizedBaseContracts": [],
                     "fullyImplemented": True,
                     "contractKind": "SLitherInternal",
                 }
                 self._top_level_contracts_counter += 1
-                top_level_contract = ContractSolc(self, fake_contract_data)
-                top_level_contract.is_top_level = True
-                top_level_contract.set_offset(contract_data["src"], self)
+                contract = Contract()
+                top_level_contract = ContractSolc(self, contract, fake_contract_data)
+                contract.is_top_level = True
+                contract.set_offset(contract_data["src"], self._core)
 
                 if contract_data[self.get_key()] == "StructDefinition":
                     top_level_contract._structuresNotParsed.append(
@@ -182,7 +183,7 @@ class SlitherSolc:
                         contract_data
                     )  # Todo add proper setters
 
-                self._contractsNotParsed.append(top_level_contract)
+                self._underlying_contract_to_parser[contract] = top_level_contract
 
     def _parse_source_unit(self, data: Dict, filename: str):
         if data[self.get_key()] != "SourceUnit":
