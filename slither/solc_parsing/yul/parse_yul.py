@@ -165,9 +165,11 @@ class YulFunction(YulScope):
         func.set_contract(root.contract)
         func.set_contract_declarer(root.contract)
         func.scope = root.id
+        func.is_implemented = True
 
         self._nodes: List[YulNode] = []
         self._entrypoint = self.new_node(NodeType.ASSEMBLY, ast['src'])
+        func.entry_point = self._entrypoint.underlying_node
 
         self.add_yul_local_function(self)
 
