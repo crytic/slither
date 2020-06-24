@@ -165,10 +165,14 @@ class ExpressionToSlithIR(ExpressionVisitor):
             else:
                 new_right = right
 
-            operation = Binary(val, new_left, new_right, _signed_to_unsigned[expression.type])
+            new_final = TemporaryVariable(self._node)
+            operation = Binary(new_final, new_left, new_right, _signed_to_unsigned[expression.type])
             operation.set_expression(expression)
-            val.set_type(ElementaryType('uint256')) # overwrite the result from Binary() for now
             self._result.append(operation)
+
+            conv_final = TypeConversion(val, new_final, ElementaryType('uint256'))
+            conv_final.set_expression(expression)
+            self._result.append(conv_final)
         else:
             operation = Binary(val, left, right, _binary_to_binary[expression.type])
             operation.set_expression(expression)
