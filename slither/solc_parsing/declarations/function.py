@@ -451,7 +451,9 @@ class FunctionSolc:
                 first_type = children[0][self.get_key()]
                 second_type = children[1][self.get_key()]
 
-                if first_type == 'VariableDeclarationStatement':
+                # VariableDefinitionStatement is used by solc 0.4.0-0.4.6
+                # it's changed in 0.4.7 to VariableDeclarationStatement
+                if first_type == 'VariableDefinitionStatement' or first_type == 'VariableDeclarationStatement':
                     # only the pre statement can be a variable declaration
 
                     if len(children) == 2:
