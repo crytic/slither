@@ -187,6 +187,41 @@ def encode_contract(cfilename, **kwargs):
 
     # Init slither
     try:
+        compilation = compile_all(cfilename, **kwargs)
+        assert len(compilation) == 1
+        slither = Slither(compilation[0])
+    except:
+        simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs['solc'])
+        return r
+
+    # Iterate over all the contracts
+    for contract in slither.contracts:
+
+        # Iterate over all the functions
+        for function in contract.functions_declared:
+
+            if function.nodes == [] or function.is_constructor_variables:
+                continue
+
+            x = (cfilename,contract.name,function.name)
+
+            r[x] = []
+
+            # Iterate over the nodes of the function
+            for node in function.nodes:
+                # Print the Solidity expression of the nodes
+                # And the SlithIR operations
+                if node.expression:
+                    for ir in node.irs:
+                        r[x].append(encode_ir(ir))
+    return r
+
+
+def encode_contract_test(cfilename, **kwargs):
+    r = dict()
+
+    # Init slither
+    try:
         # compilation = compile_all(cfilename, **kwargs)
         # assert len(compilation) == 1
         # slither = Slither(compilation[0])
@@ -219,7 +254,6 @@ def encode_contract(cfilename, **kwargs):
                     for ir in node.irs:
                         r[x].append(encode_ir(ir))
     return r
-
 def encode_function(inputfilepath, **kwargs):
 
     with open(inputfilepath, 'rb') as f:
