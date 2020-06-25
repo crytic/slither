@@ -403,151 +403,170 @@ class FunctionSolc:
 
         return node_endWhile
 
-    def _parse_for_compact_ast(self, statement: Dict, node: NodeSolc) -> NodeSolc:
+    def _parse_for_compact_ast(
+        self, statement: Dict
+    ) -> (Optional[Dict], Optional[Dict], Optional[Dict], Dict):
         body = statement["body"]
         init_expression = statement.get("initializationExpression", None)
         condition = statement.get("condition", None)
         loop_expression = statement.get("loopExpression", None)
 
+        return init_expression, condition, loop_expression, body
+
+    def _parse_for_legacy_ast(
+        self, statement: Dict
+    ) -> (Optional[Dict], Optional[Dict], Optional[Dict], Dict):
+        # if we're using an old version of solc (anything below and including 0.4.11) or if the user
+        # explicitly enabled compact ast, we might need to make some best-effort guesses
+        children = statement[self.get_children("children")]
+
+        # there should always be at least one, and never more than 4, children
+        assert 1 <= len(children) <= 4
+
+        # the last element of the children array must be the body, since it's mandatory
+        # however, it might be a single expression
+        body = children[-1]
+
+        if len(children) == 4:
+            # handle the first trivial case - if there are four children we know exactly what they are
+            pre, cond, post = children[0], children[1], children[2]
+        elif len(children) == 1:
+            # handle the second trivial case - if there is only one child we know there are no expressions
+            pre, cond, post = None, None, None
+        else:
+            attributes = statement.get("attributes", None)
+
+            def has_hint(key):
+                return key in attributes and not attributes[key]
+
+            if attributes and any(
+                map(
+                    has_hint,
+                    ["condition", "initializationExpression", "loopExpression"],
+                )
+            ):
+                # if we have attribute hints, rely on those
+
+                if len(children) == 2:
+                    # we're missing two expressions, find the one we have
+                    if not has_hint("initializationExpression"):
+                        pre, cond, post = children[0], None, None
+                    elif not has_hint("condition"):
+                        pre, cond, post = None, children[0], None
+                    else:  # if not has_hint('loopExpression'):
+                        pre, cond, post = None, None, children[0]
+                else:  # len(children) == 3
+                    # we're missing one expression, figure out what it is
+                    if has_hint("initializationExpression"):
+                        pre, cond, post = None, children[0], children[1]
+                    elif has_hint("condition"):
+                        pre, cond, post = children[0], None, children[1]
+                    else:  # if has_hint('loopExpression'):
+                        pre, cond, post = children[0], children[1], None
+            else:
+                # we don't have attribute hints, and it's impossible to be 100% accurate here
+                # let's just try our best
+
+                first_type = children[0][self.get_key()]
+                second_type = children[1][self.get_key()]
+
+                # VariableDefinitionStatement is used by solc 0.4.0-0.4.6
+                # it's changed in 0.4.7 to VariableDeclarationStatement
+                if (
+                    first_type == "VariableDefinitionStatement"
+                    or first_type == "VariableDeclarationStatement"
+                ):
+                    # only the pre statement can be a variable declaration
+
+                    if len(children) == 2:
+                        # only one child apart from body, it must be pre
+                        pre, cond, post = children[0], None, None
+                    else:
+                        # more than one child, figure out which one is the cond
+                        if second_type == "ExpressionStatement":
+                            # only the post can be an expression statement
+                            pre, cond, post = children[0], None, children[1]
+                        else:
+                            # similarly, the post cannot be anything other than an expression statement
+                            pre, cond, post = children[0], children[1], None
+                elif first_type == "ExpressionStatement":
+                    # the first element can either be pre or post
+
+                    if len(children) == 2:
+                        # this is entirely ambiguous, so apply a very dumb heuristic:
+                        # if the statement is closer to the start of the body, it's probably the post
+                        # otherwise, it's probably the pre
+                        # this will work in all cases where the formatting isn't completely borked
+
+                        node_len = int(children[0]["src"].split(":")[1])
+
+                        node_start = int(children[0]["src"].split(":")[0])
+                        node_end = node_start + node_len
+
+                        for_start = int(statement["src"].split(":")[0]) + 3  # trim off the 'for'
+                        body_start = int(body["src"].split(":")[0])
+
+                        dist_start = node_start - for_start
+                        dist_end = body_start - node_end
+                        if dist_start > dist_end:
+                            pre, cond, post = None, None, children[0]
+                        else:
+                            pre, cond, post = children[0], None, None
+                    else:
+                        # more than one child, we must be the pre
+                        pre, cond, post = children[0], children[1], None
+                else:
+                    # the first element must be the cond
+
+                    if len(children) == 2:
+                        pre, cond, post = None, children[0], None
+                    else:
+                        pre, cond, post = None, children[0], children[1]
+
+        return pre, cond, post, body
+
+    def _parse_for(self, statement: Dict, node: NodeSolc) -> NodeSolc:
+        # ForStatement = 'for' '(' (SimpleStatement)? ';' (Expression)? ';' (ExpressionStatement)? ')' Statement
+
+        if self.is_compact_ast:
+            pre, cond, post, body = self._parse_for_compact_ast(statement)
+        else:
+            pre, cond, post, body = self._parse_for_legacy_ast(statement)
+
         node_startLoop = self._new_node(NodeType.STARTLOOP, statement["src"])
         node_endLoop = self._new_node(NodeType.ENDLOOP, statement["src"])
 
-        if init_expression:
-            node_init_expression = self._parse_statement(init_expression, node)
+        if pre:
+            node_init_expression = self._parse_statement(pre, node)
             link_underlying_nodes(node_init_expression, node_startLoop)
         else:
             link_underlying_nodes(node, node_startLoop)
 
-        if condition:
-            node_condition = self._new_node(NodeType.IFLOOP, condition["src"])
-            node_condition.add_unparsed_expression(condition)
+        if cond:
+            node_condition = self._new_node(NodeType.IFLOOP, cond["src"])
+            node_condition.add_unparsed_expression(cond)
             link_underlying_nodes(node_startLoop, node_condition)
 
             node_beforeBody = node_condition
         else:
             node_condition = None
-
             node_beforeBody = node_startLoop
 
         node_body = self._parse_statement(body, node_beforeBody)
 
-        if node_condition:
-            link_underlying_nodes(node_condition, node_endLoop)
-
-        node_LoopExpression = None
-        if loop_expression:
-            node_LoopExpression = self._parse_statement(loop_expression, node_body)
-            link_underlying_nodes(node_LoopExpression, node_beforeBody)
+        if post:
+            node_loopexpression = self._parse_statement(post, node_body)
+            link_underlying_nodes(node_loopexpression, node_beforeBody)
         else:
+            node_loopexpression = None
             link_underlying_nodes(node_body, node_beforeBody)
 
-        if not condition:
-            if not loop_expression:
-                # TODO: fix case where loop has no expression
-                link_underlying_nodes(node_startLoop, node_endLoop)
-            elif node_LoopExpression:
-                link_underlying_nodes(node_LoopExpression, node_endLoop)
-
-        return node_endLoop
-
-    def _parse_for(self, statement: Dict, node: NodeSolc) -> NodeSolc:
-        # ForStatement = 'for' '(' (SimpleStatement)? ';' (Expression)? ';' (ExpressionStatement)? ')' Statement
-
-        # the handling of loop in the legacy ast is too complex
-        # to integrate the comapct ast
-        # its cleaner to do it separately
-        if self.is_compact_ast:
-            return self._parse_for_compact_ast(statement, node)
-
-        hasInitExession = True
-        hasCondition = True
-        hasLoopExpression = True
-
-        # Old solc version do not prevent in the attributes
-        # if the loop has a init value /condition or expression
-        # There is no way to determine that for(a;;) and for(;a;) are different with old solc
-        if "attributes" in statement:
-            attributes = statement["attributes"]
-            if "initializationExpression" in statement:
-                if not statement["initializationExpression"]:
-                    hasInitExession = False
-            elif "initializationExpression" in attributes:
-                if not attributes["initializationExpression"]:
-                    hasInitExession = False
-
-            if "condition" in statement:
-                if not statement["condition"]:
-                    hasCondition = False
-            elif "condition" in attributes:
-                if not attributes["condition"]:
-                    hasCondition = False
-
-            if "loopExpression" in statement:
-                if not statement["loopExpression"]:
-                    hasLoopExpression = False
-            elif "loopExpression" in attributes:
-                if not attributes["loopExpression"]:
-                    hasLoopExpression = False
-
-        node_startLoop = self._new_node(NodeType.STARTLOOP, statement["src"])
-        node_endLoop = self._new_node(NodeType.ENDLOOP, statement["src"])
-
-        children = statement[self.get_children("children")]
-
-        if hasInitExession:
-            if len(children) >= 2:
-                if children[0][self.get_key()] in [
-                    "VariableDefinitionStatement",
-                    "VariableDeclarationStatement",
-                    "ExpressionStatement",
-                ]:
-                    node_initExpression = self._parse_statement(children[0], node)
-                    link_underlying_nodes(node_initExpression, node_startLoop)
-                else:
-                    hasInitExession = False
-            else:
-                hasInitExession = False
-
-        if not hasInitExession:
-            link_underlying_nodes(node, node_startLoop)
-        node_condition = node_startLoop
-
-        if hasCondition:
-            if hasInitExession and len(children) >= 2:
-                candidate = children[1]
-            else:
-                candidate = children[0]
-            if candidate[self.get_key()] not in [
-                "VariableDefinitionStatement",
-                "VariableDeclarationStatement",
-                "ExpressionStatement",
-            ]:
-                expression = candidate
-                node_condition = self._new_node(NodeType.IFLOOP, expression["src"])
-                # expression = parse_expression(candidate, self)
-                node_condition.add_unparsed_expression(expression)
-                link_underlying_nodes(node_startLoop, node_condition)
-                hasCondition = True
-            else:
-                hasCondition = False
-
-        node_statement = self._parse_statement(children[-1], node_condition)
-
-        if hasCondition:
+        if node_condition:
             link_underlying_nodes(node_condition, node_endLoop)
-
-        node_LoopExpression = node_statement
-        if hasLoopExpression:
-            if len(children) > 2:
-                if children[-2][self.get_key()] == "ExpressionStatement":
-                    node_LoopExpression = self._parse_statement(children[-2], node_statement)
-            if not hasCondition:
-                link_underlying_nodes(node_LoopExpression, node_endLoop)
-
-        if not hasCondition and not hasLoopExpression:
-            link_underlying_nodes(node, node_endLoop)
-
-        link_underlying_nodes(node_LoopExpression, node_condition)
+        else:
+            link_underlying_nodes(
+                node_startLoop, node_endLoop
+            )  # this is an infinite loop but we can't break our cfg
 
         return node_endLoop
 
@@ -1151,6 +1170,26 @@ class FunctionSolc:
                 self._fix_continue_node(node)
             if node.type in [NodeType.TRY]:
                 self._fix_try(node)
+
+        # this step needs to happen after all of the break statements are fixed
+        # really, we should be passing some sort of context down so the break statement doesn't
+        # need to be fixed out-of-band in the first place
+        for node in self._node_to_nodesolc.keys():
+            if node.type in [NodeType.STARTLOOP]:
+                # can we prune? only if after pruning, we have at least one son that isn't itself
+                if (
+                    len([son for son in node.sons if son.type != NodeType.ENDLOOP and son != node])
+                    == 0
+                ):
+                    continue
+
+                new_sons = []
+                for son in node.sons:
+                    if son.type != NodeType.ENDLOOP:
+                        new_sons.append(son)
+                        continue
+                    son.remove_father(node)
+                node.set_sons(new_sons)
 
     def _remove_alone_endif(self):
         """

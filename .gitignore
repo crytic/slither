@@ -104,3 +104,6 @@ ENV/
 
 # PyCharm project dir
 .idea/
+
+# Test results
+test_artifacts/
