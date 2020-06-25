@@ -1,9 +1,8 @@
 import logging
 import os
+from crytic_compile import compile_all
 
-import csv
-import json
-import ast
+import pickle
 
 from slither import Slither
 from slither.core.declarations import Structure, Enum, SolidityVariableComposed, SolidityVariable, Function
@@ -188,10 +187,16 @@ def encode_contract(cfilename, **kwargs):
 
     # Init slither
     try:
-        slither = Slither(cfilename, **kwargs)
+        # compilation = compile_all(cfilename, **kwargs)
+        # assert len(compilation) == 1
+        # slither = Slither(compilation[0])
+        slither = Slither(cfilename)
     except:
         simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs['solc'])
         return r
+    
+    # for cfilename in compilation:
+        # slither = Slither(cfilename)
 
     # Iterate over all the contracts
     for contract in slither.contracts:
@@ -215,56 +220,11 @@ def encode_contract(cfilename, **kwargs):
                         r[x].append(encode_ir(ir))
     return r
 
-def csv_to_json(csvfilepath):
-    with open (csvfilepath, 'r') as csvfile:
-        csvdata = []
-        for row in csv.DictReader(csvfile):
-            csvdata.append(row)
-    csvfile.close()
-
-    return ast.literal_eval(json.dumps(csvdata))
-
 def encode_function(inputfilepath, **kwargs):
-    r = dict()
-    jsondata = csv_to_json(inputfilepath)
 
-    for datum in jsondata:
+    with open(inputfilepath, 'rb') as f:
+        data = pickle.load(f)
 
-        for cfilename in eval(datum['func_origin_contract_file_name']):
-            funcname = eval(datum['func'])[eval(datum['func_origin_contract_file_name']).index(cfilename)]
-
-            # Init slither
-            os.chdir(os.getcwd() + os.sep + datum['project_id'])
-            try:
-                slither = Slither(cfilename, **kwargs)
-                os.chdir('..')
-            except:
-                simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs['solc'])
-                os.chdir('..')
-                return r
-
-            # Iterate over all the contracts
-            for contract in slither.contracts:
-
-                # Iterate over all the functions
-                for function in contract.functions_declared:
-
-                    if function.canonical_name == funcname:
-
-                        if function.contract_declarer == contract:
-
-                            if function.nodes == [] or function.is_constructor_variables:
-                                continue
-
-                            x = (cfilename,contract.name,function.name)
-
-                            r[x] = []
-
-                            # Iterate over the nodes of the function
-                            for node in function.nodes:
-                                # Print the Solidity expression of the nodes
-                                # And the SlithIR operations
-                                if node.expression:
-                                    for ir in node.irs:
-                                        r[x].append(encode_ir(ir))
-    return r
+    for datum in data:
+        data[datum] = [encode_ir(elem) for elem in data[datum]]  
+    return data

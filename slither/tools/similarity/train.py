@@ -71,7 +71,7 @@ def train_function(args):
         with open(last_data_train_filename, 'w') as f:
             #for filename in contracts:
                 #cache[filename] = dict()
-            for (cfilename, contract, function), ir in encode_function(dirname, **vars(args)).items():
+            for (project_id, cfilename, contract, function), ir in encode_function(dirname, **vars(args)).items():
                 if ir != []:
                     x = " ".join(ir)
                     f.write(x+"\n")
