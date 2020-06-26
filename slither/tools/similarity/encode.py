@@ -26,7 +26,6 @@ slither_logger.setLevel(logging.CRITICAL)
 def parse_target(target):
     if target is None:
         return None, None
-
     parts = target.split('.')
     if len(parts) == 1:
         return None, parts[0]
@@ -234,15 +233,17 @@ def encode_contract_test(cfilename, **kwargs):
         # slither = Slither(cfilename)
 
     # Iterate over all the contracts
-    for contract in slither.contracts:
+    #for contract in slither.contracts:
+    for function in slither.functions:
 
         # Iterate over all the functions
-        for function in contract.functions_declared:
+        #for function in contract.functions_declared:
 
             if function.nodes == [] or function.is_constructor_variables:
                 continue
 
-            x = (cfilename,contract.name,function.name)
+            #x = (cfilename,contract.name,function.name)
+            x = (cfilename,function.name)
 
             r[x] = []
 
@@ -254,6 +255,7 @@ def encode_contract_test(cfilename, **kwargs):
                     for ir in node.irs:
                         r[x].append(encode_ir(ir))
     return r
+
 def encode_function(inputfilepath, **kwargs):
 
     with open(inputfilepath, 'rb') as f:
