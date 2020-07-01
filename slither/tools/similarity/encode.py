@@ -3,6 +3,7 @@ import os
 from crytic_compile import compile_all
 
 import pickle
+import ast
 
 from slither import Slither
 from slither.core.declarations import Structure, Enum, SolidityVariableComposed, SolidityVariable, Function
@@ -258,8 +259,14 @@ def encode_contract_test(cfilename, **kwargs):
 
 def encode_function(inputfilepath, **kwargs):
 
-    with open(inputfilepath, 'rb') as f:
-        data = pickle.load(f)
+    #with open(inputfilepath, 'rb') as f:
+    #data = pickle.load(f)
+    import csv
+    reader = csv.reader(open('inputfilepath', 'r'))
+    data = {}
+    for row in reader:
+        k, v = row
+        data[ast.literal_eval(k)] = v.strip('][').split(', ')
 
     for datum in data:
         data[datum] = [encode_ir(elem) for elem in data[datum]]  
