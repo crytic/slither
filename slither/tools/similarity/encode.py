@@ -2,8 +2,8 @@ import logging
 import os
 from crytic_compile import compile_all
 
-import pickle
-import ast
+# import pickle
+import csv
 
 from slither import Slither
 from slither.core.declarations import Structure, Enum, SolidityVariableComposed, SolidityVariable, Function
@@ -259,15 +259,13 @@ def encode_contract_test(cfilename, **kwargs):
 
 def encode_function(inputfilepath, **kwargs):
 
+    # Warning! Pickling is incosistent! Slither.Slithir objects might not unpickle.
     #with open(inputfilepath, 'rb') as f:
     #data = pickle.load(f)
-    import csv
-    reader = csv.reader(open('inputfilepath', 'r'))
+    reader = csv.reader(open(inputfilepath, 'r'))
     data = {}
     for row in reader:
         k, v = row
-        data[ast.literal_eval(k)] = v.strip('][').split(', ')
-
-    for datum in data:
-        data[datum] = [encode_ir(elem) for elem in data[datum]]  
+        data[eval(k)] = eval(v)
+     
     return data
