@@ -34,23 +34,42 @@ def test(args):
             if len(irs) == 0:
                 sys.exit(-1)
 
-            y = " ".join(irs[(compilation_unit.target,fname)])
-            
-            fvector = model.get_sentence_vector(y)
-            cache = load_and_encode(infile, model, **vars(args))
-            #save_cache("cache.npz", cache)
+            if (fname != ''):
+                y = " ".join(irs[(compilation_unit.target,fname)])
+                fvector = model.get_sentence_vector(y)
+                cache = load_and_encode(infile, model, **vars(args))
+                #save_cache("cache.npz", cache)
 
-            r = dict()
-            for x,y in cache.items():
-                r[x] = similarity(fvector, y)
 
-            r = sorted(r.items(), key=operator.itemgetter(1), reverse=True)
-            logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s:", len(r), ntop, compilation_unit.target)
-            format_table = "{: <65} {: <20} {: <20} {: <10}"
-            logger.info(format_table.format(*["filename", "contract", "function", "score"]))
-            for x,score in r[:ntop]:
-                score = str(round(score, 3))
-                logger.info(format_table.format(*(list(x)+[score])))
+                r = dict()
+                for x,y in cache.items():
+                    r[x] = similarity(fvector, y)
+
+                r = sorted(r.items(), key=operator.itemgetter(1), reverse=True)
+                logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s:", len(r), ntop, compilation_unit.target)
+                format_table = "{: <65} {: <20} {: <20} {: <10}"
+                logger.info(format_table.format(*["filename", "contract", "function", "score"]))
+                for x,score in r[:ntop]:
+                    score = str(round(score, 3))
+                    logger.info(format_table.format(*(list(x)+[score])))
+            else:
+                for contr_funct, intermediate_r in irs.items():
+                    y = " ".join(irs[(contr_funct)])
+                    print(y)
+                    fvector = model.get_sentence_vector(y)
+                    cache = load_and_encode(infile, model, **vars(args))
+
+                    r = dict()
+                    for x,y in cache.items():
+                        r[x] = similarity(fvector, y)
+
+                    r = sorted(r.items(), key=operator.itemgetter(1), reverse=True)
+                    logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s, function %s:", len(r), ntop, compilation_unit.target, contr_funct[1])
+                    format_table = "{: <65} {: <20} {: <20} {: <10}"
+                    logger.info(format_table.format(*["filename", "contract", "function", "score"]))
+                    for x,score in r[:ntop]:
+                        score = str(round(score, 3))
+                        logger.info(format_table.format(*(list(x)+[score])))
 
     except Exception:
         logger.error('Error in %s' % args.compilation_unit.target)
