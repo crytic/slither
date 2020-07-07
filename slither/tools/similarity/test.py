@@ -30,7 +30,10 @@ def test(args):
         compilation = compile_all(filename)
         for compilation_unit in compilation:
 
-            irs = encode_contract_test(compilation_unit.target, **vars(args))
+            if ('.zip' in filename):
+                irs = encode_contract_test(compilation_unit, **vars(args))
+            else:
+                irs = encode_contract_test(compilation_unit.target, **vars(args))
             if len(irs) == 0:
                 sys.exit(-1)
 
@@ -46,7 +49,7 @@ def test(args):
                     r[x] = similarity(fvector, y)
 
                 r = sorted(r.items(), key=operator.itemgetter(1), reverse=True)
-                logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s:", len(r), ntop, compilation_unit.target)
+                logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s:", len(r), ntop, next(iter(compilation_unit.filenames)).short)
                 format_table = "{: <65} {: <20} {: <20} {: <10}"
                 logger.info(format_table.format(*["filename", "contract", "function", "score"]))
                 for x,score in r[:ntop]:
@@ -55,7 +58,6 @@ def test(args):
             else:
                 for contr_funct, intermediate_r in irs.items():
                     y = " ".join(irs[(contr_funct)])
-                    print(y)
                     fvector = model.get_sentence_vector(y)
                     cache = load_and_encode(infile, model, **vars(args))
 
@@ -64,7 +66,7 @@ def test(args):
                         r[x] = similarity(fvector, y)
 
                     r = sorted(r.items(), key=operator.itemgetter(1), reverse=True)
-                    logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s, function %s:", len(r), ntop, compilation_unit.target, contr_funct[1])
+                    logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s, function %s:", len(r), ntop, next(iter(compilation_unit.filenames)).short, contr_funct[1])
                     format_table = "{: <65} {: <20} {: <20} {: <10}"
                     logger.info(format_table.format(*["filename", "contract", "function", "score"]))
                     for x,score in r[:ntop]:
