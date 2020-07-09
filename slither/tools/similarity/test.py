@@ -22,6 +22,7 @@ def test(args):
         contract, fname = parse_target(args.fname) 
         infile = args.input
         ntop = args.ntop
+        threshold = args.threshold
 
         if filename is None or fname is None or infile is None:
             logger.error('The test mode requires filename, contract, fname and input parameters.')
@@ -29,9 +30,8 @@ def test(args):
         
         compilation = compile_all(filename)
         for compilation_unit in compilation:
-
-            if ('.zip' in filename):
-                irs = encode_contract_test(compilation_unit, **vars(args))
+            if (isinstance(compilation_unit, list)):
+                irs = encode_contract_test(compilation_unit[0], **vars(args))
             else:
                 irs = encode_contract_test(compilation_unit.target, **vars(args))
             if len(irs) == 0:
@@ -48,8 +48,12 @@ def test(args):
                 for x,y in cache.items():
                     r[x] = similarity(fvector, y)
 
+                r = {key: value for (key, value) in r.items() if value > 0.75 }
                 r = sorted(r.items(), key=operator.itemgetter(1), reverse=True)
-                logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s:", len(r), ntop, next(iter(compilation_unit.filenames)).short)
+                if (isinstance(compilation_unit, list)):
+                    logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s:", len(r), ntop, next(iter(compilation_unit[0].filenames)).short)
+                else:
+                    logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s:", len(r), ntop, next(iter(compilation_unit.filenames)).short)
                 format_table = "{: <65} {: <20} {: <20} {: <10}"
                 logger.info(format_table.format(*["filename", "contract", "function", "score"]))
                 for x,score in r[:ntop]:
@@ -65,13 +69,18 @@ def test(args):
                     for x,y in cache.items():
                         r[x] = similarity(fvector, y)
 
+                    r = {key: value for (key, value) in r.items() if value > threshold }
                     r = sorted(r.items(), key=operator.itemgetter(1), reverse=True)
-                    logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s, function %s:", len(r), ntop, next(iter(compilation_unit.filenames)).short, contr_funct[1])
-                    format_table = "{: <65} {: <20} {: <20} {: <10}"
-                    logger.info(format_table.format(*["filename", "contract", "function", "score"]))
-                    for x,score in r[:ntop]:
-                        score = str(round(score, 3))
-                        logger.info(format_table.format(*(list(x)+[score])))
+                    if (len(r) != 0):
+                        if (isinstance(compilation_unit, list)):
+                            logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s, function %s:", len(r), ntop, next(iter(compilation_unit[0].filenames)).short, contr_funct[1])
+                        else:
+                            logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s, function %s:", len(r), ntop, next(iter(compilation_unit.filenames)).short, contr_funct[1])
+                        format_table = "{: <65} {: <20} {: <20} {: <10}"
+                        logger.info(format_table.format(*["filename", "contract", "function", "score"]))
+                        for x,score in r[:ntop]:
+                            score = str(round(score, 3))
+                            logger.info(format_table.format(*(list(x)+[score])))
 
     except Exception:
         logger.error('Error in %s' % args.compilation_unit.target)

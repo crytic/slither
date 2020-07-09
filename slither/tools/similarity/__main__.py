@@ -55,6 +55,14 @@ def parse_args():
                         default=10,
                         help='Number of more similar contracts to show for testing')
 
+    parser.add_argument('--threshold',
+                        action='store',
+                        type=float,
+                        dest='threshold',
+                        default=0.0,
+                        help='Threshold for similarity score')
+
+
     parser.add_argument('--input',
                         action='store',
                         dest='input',
