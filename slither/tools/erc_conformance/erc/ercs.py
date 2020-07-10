@@ -47,6 +47,7 @@ def _check_signature(erc_function, contract, ret):
             return
 
         function_return_type = [export_return_type_from_variable(state_variable_as_function)]
+        function = state_variable_as_function
 
         function_view = True
     else:
