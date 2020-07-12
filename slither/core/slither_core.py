@@ -5,8 +5,9 @@ import os
 import logging
 import json
 import re
+import math
 from collections import defaultdict
-from typing import Optional, Dict, List, Set, Union
+from typing import Optional, Dict, List, Set, Union, Tuple
 
 from crytic_compile import CryticCompile
 
@@ -55,6 +56,8 @@ class SlitherCore(Context):
 
         self._contract_name_collisions = defaultdict(list)
         self._contract_with_missing_inheritance = set()
+
+        self._storage_layouts: Dict[str, Dict[str, Tuple[int, int]]] = {}
 
     ###################################################################################
     ###################################################################################
@@ -362,4 +365,39 @@ class SlitherCore(Context):
     def contracts_with_missing_inheritance(self) -> Set:
         return self._contract_with_missing_inheritance
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Storage Layouts
+    ###################################################################################
+    ###################################################################################
+
+    def compute_storage_layout(self):
+        for contract in self.contracts_derived:
+            self._storage_layouts[contract.name] = {}
+
+            slot = 0
+            offset = 0
+            for var in contract.state_variables_ordered:
+                if var.is_constant:
+                    continue
+
+                size, new_slot = var.type.storage_size
+
+                if new_slot:
+                    if offset > 0:
+                        slot += 1
+                        offset = 0
+                elif size + offset > 32:
+                    slot += 1
+                    offset = 0
+
+                self._storage_layouts[contract.name][var.canonical_name] = (slot, offset)
+                if new_slot:
+                    slot += math.ceil(size / 32)
+                else:
+                    offset += size
+
+    def storage_layout_of(self, contract, var) -> Tuple[int, int]:
+        return self._storage_layouts[contract.name][var.canonical_name]
     # endregion

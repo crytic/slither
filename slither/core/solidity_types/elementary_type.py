@@ -1,5 +1,5 @@
 import itertools
-from typing import Optional
+from typing import Optional, Tuple
 
 from slither.core.solidity_types.type import Type
 
@@ -171,6 +171,13 @@ class ElementaryType(Type):
         if t.startswith("bytes"):
             return int(t[len("bytes") :])
         return None
+
+    @property
+    def storage_size(self) -> Tuple[int, bool]:
+        if self._type == 'string' or self._type == 'bytes':
+            return 32, True
+
+        return int(self.size / 8), False
 
     def __str__(self):
         return self._type

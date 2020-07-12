@@ -345,6 +345,7 @@ Please rename it, this name is reserved for Slither's internals"""
         self._convert_to_slithir()
 
         compute_dependency(self._core)
+        self._core.compute_storage_layout()
 
     def _analyze_all_enums(self, contracts_to_be_analyzed: List[ContractSolc]):
         while contracts_to_be_analyzed:

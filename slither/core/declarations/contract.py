@@ -54,7 +54,7 @@ class Contract(ChildSlither, SourceMapping):
         self._structures: Dict[str, "Structure"] = {}
         self._events: Dict[str, "Event"] = {}
         self._variables: Dict[str, "StateVariable"] = {}
-        self._variables_ordered: List["StateVariable"] = []  # contain also shadowed variables
+        self._variables_ordered: List["StateVariable"] = []
         self._modifiers: Dict[str, "Modifier"] = {}
         self._functions: Dict[str, "Function"] = {}
         self._linearizedBaseContracts = List[int]
@@ -255,7 +255,7 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def state_variables_ordered(self) -> List["StateVariable"]:
         """
-            list(StateVariable): List of the state variables by order of declaration. Contains also shadowed variables
+            list(StateVariable): List of the state variables by order of declaration.
         """
         return list(self._variables_ordered)
 

@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from slither.core.solidity_types.type import Type
 
 
@@ -16,6 +18,10 @@ class MappingType(Type):
     @property
     def type_to(self) -> Type:
         return self._to
+
+    @property
+    def storage_size(self) -> Tuple[int, bool]:
+        return 32, True
 
     def __str__(self):
         return "mapping({} => {})".format(str(self._from), str(self._to))
