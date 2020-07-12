@@ -1282,7 +1282,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             if node.irs:
                 label += "\nIRs:\n" + "\n".join([str(ir) for ir in node.irs])
             content += '{}[label="{}"];\n'.format(node.node_id, label)
-            if node.type == NodeType.IF or node.type == NodeType.IFLOOP:
+            if node.type in [NodeType.IF, NodeType.IFLOOP]:
                 true_node = node.son_true
                 if true_node:
                     content += '{}->{}[label="True"];\n'.format(node.node_id, true_node.node_id)
