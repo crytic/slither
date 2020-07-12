@@ -398,18 +398,24 @@ class FunctionSolc:
             node_condition = self._new_node(NodeType.IFLOOP, condition["src"])
             node_condition.add_unparsed_expression(condition)
             link_underlying_nodes(node_startLoop, node_condition)
-            link_underlying_nodes(node_condition, node_endLoop)
-        else:
-            node_condition = node_startLoop
 
-        node_body = self._parse_statement(body, node_condition)
+            node_beforeBody = node_condition
+        else:
+            node_condition = None
+
+            node_beforeBody = node_startLoop
+
+        node_body = self._parse_statement(body, node_beforeBody)
+
+        if node_condition:
+            link_underlying_nodes(node_condition, node_endLoop)
 
         node_LoopExpression = None
         if loop_expression:
             node_LoopExpression = self._parse_statement(loop_expression, node_body)
-            link_underlying_nodes(node_LoopExpression, node_condition)
+            link_underlying_nodes(node_LoopExpression, node_beforeBody)
         else:
-            link_underlying_nodes(node_body, node_condition)
+            link_underlying_nodes(node_body, node_beforeBody)
 
         if not condition:
             if not loop_expression:
@@ -497,12 +503,14 @@ class FunctionSolc:
                 # expression = parse_expression(candidate, self)
                 node_condition.add_unparsed_expression(expression)
                 link_underlying_nodes(node_startLoop, node_condition)
-                link_underlying_nodes(node_condition, node_endLoop)
                 hasCondition = True
             else:
                 hasCondition = False
 
         node_statement = self._parse_statement(children[-1], node_condition)
+
+        if hasCondition:
+            link_underlying_nodes(node_condition, node_endLoop)
 
         node_LoopExpression = node_statement
         if hasLoopExpression:
