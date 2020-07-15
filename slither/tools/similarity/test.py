@@ -35,13 +35,13 @@ def test(args):
             else:
                 irs = encode_contract_test(compilation_unit.target, **vars(args))
             if len(irs) == 0:
-                sys.exit(-1)
+                continue
+                #sys.exit(-1)
 
             if (fname != ''):
                 y = " ".join(irs[(compilation_unit.target,fname)])
                 fvector = model.get_sentence_vector(y)
                 cache = load_and_encode(infile, model, **vars(args))
-                #save_cache("cache.npz", cache)
 
 
                 r = dict()
@@ -73,14 +73,24 @@ def test(args):
                     r = sorted(r.items(), key=operator.itemgetter(1), reverse=True)
                     if (len(r) != 0):
                         if (isinstance(compilation_unit, list)):
-                            logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s, function %s:", len(r), ntop, next(iter(compilation_unit[0].filenames)).short, contr_funct[1])
+                            #logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s, function %s:", len(r), ntop, next(iter(compilation_unit[0].filenames)).short, contr_funct[1])
+                            scoreList = list()
+                            for x,score in r[:ntop]:
+                                score = str(round(score, 3))
+                                scoreList.append("{}: {}".format('/'.join(e for e in list(x)), score))
+                            print("{}/{}, {}".format(next(iter(compilation_unit[0].filenames)).short, contr_funct[1], ', '.join([e for e in scoreList])))
                         else:
-                            logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s, function %s:", len(r), ntop, next(iter(compilation_unit.filenames)).short, contr_funct[1])
-                        format_table = "{: <65} {: <20} {: <20} {: <10}"
-                        logger.info(format_table.format(*["filename", "contract", "function", "score"]))
-                        for x,score in r[:ntop]:
-                            score = str(round(score, 3))
-                            logger.info(format_table.format(*(list(x)+[score])))
+                            #logger.info("Reviewed %d functions, listing the %d most similar ones for contract %s, function %s:", len(r), ntop, next(iter(compilation_unit.filenames)).short, contr_funct[1])
+                            for x,score in r[:ntop]:
+                                score = str(round(score, 3))
+                                scoreList.append("{}: {}".format('/'.join(e for e in list(x)), score))
+                            print("{}/{}, {}".format(next(iter(compilation_unit.filenames)).short, contr_funct[1], ', '.join([e for e in scoreList])))
+
+                        #format_table = "{: <65} {: <65} {: <30} {: <20} {: <10}"
+                        #logger.info(format_table.format(*["project_id", "filename", "contract", "function", "score"]))
+                        #for x,score in r[:ntop]:
+                            #score = str(round(score, 3))
+                            #logger.info(format_table.format(*(list(x)+[score])))
 
     except Exception:
         logger.error('Error in %s' % args.compilation_unit.target)

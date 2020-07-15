@@ -9,7 +9,7 @@ from .model   import train_unsupervised
 from .encode  import encode_contract, load_contracts, encode_function
 from .cache   import save_cache
 
-logger = logging.getLogger("Slither-simil")
+logger = logging.getLogger("slither-simil")
 
 def train(args):
 

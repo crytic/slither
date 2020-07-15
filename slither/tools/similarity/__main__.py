@@ -3,7 +3,6 @@
 import argparse
 import logging
 import sys
-import traceback
 import operator
 
 from crytic_compile import cryticparser
@@ -16,7 +15,7 @@ from .plot     import plot
 logging.basicConfig()
 logger = logging.getLogger("Slither-simil")
 
-modes = ["info", "test", "train", "plot", "trainfunction"]
+modes = ["info", "test", "train", "plot", "trainf"]
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Code similarity detection tool. For usage, see https://github.com/crytic/slither/wiki/Code-Similarity-detector')
@@ -59,9 +58,8 @@ def parse_args():
                         action='store',
                         type=float,
                         dest='threshold',
-                        default=0.0,
+                        default=float("-inf"),
                         help='Threshold for similarity score')
-
 
     parser.add_argument('--input',
                         action='store',
@@ -105,7 +103,7 @@ def main():
         test(args)
     elif mode == "plot":
         plot(args)
-    elif mode == "trainfunction":
+    elif mode == "trainf":
         train_function(args)
     else:
         logger.error('Invalid mode!. It should be one of these: %s' % ", ".join(modes))

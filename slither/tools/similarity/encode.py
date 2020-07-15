@@ -2,7 +2,6 @@ import logging
 import os
 from crytic_compile import compile_all
 
-# import pickle
 import csv
 
 from slither import Slither
@@ -39,6 +38,11 @@ def load_and_encode(infile, vmodel, ext=None, nsamples=None, **kwargs):
     r = dict()
     if infile.endswith(".npz"):
         r = load_cache(infile, nsamples=nsamples)
+    elif infile.endswith(".csv"):
+        for x, ir in encode_function(infile).items():
+            if ir != []:
+                y = " ".join(ir)
+                r[x] = vmodel.get_sentence_vector(y)
     else: 
         contracts = load_contracts(infile, ext=ext, nsamples=nsamples)
         for contract in contracts:
@@ -46,7 +50,7 @@ def load_and_encode(infile, vmodel, ext=None, nsamples=None, **kwargs):
                 if ir != []:
                     y = " ".join(ir)
                     r[x] = vmodel.get_sentence_vector(y)
-
+    
     return r
 
 def load_contracts(dirname, ext=None, nsamples=None, **kwargs):
@@ -62,6 +66,11 @@ def load_contracts(dirname, ext=None, nsamples=None, **kwargs):
     else:
         # TODO: shuffle
         return r[:nsamples]
+
+def load_contracts_function(dirname, ext=None, nsamples=None, **kwargs):
+    r = encode_function(dirname)
+    return r
+
 
 def ntype(_type):
     if isinstance(_type, ElementaryType):
@@ -192,6 +201,7 @@ def encode_contract(cfilename, **kwargs):
         slither = Slither(compilation[0])
     except:
         simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs['solc'])
+        #pass
         return r
 
     # Iterate over all the contracts
@@ -228,6 +238,7 @@ def encode_contract_test(cfilename, **kwargs):
         slither = Slither(cfilename)
     except:
         simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs['solc'])
+        #continue
         return r
     
     # for cfilename in compilation:
@@ -259,9 +270,6 @@ def encode_contract_test(cfilename, **kwargs):
 
 def encode_function(inputfilepath, **kwargs):
 
-    # Warning! Pickling is incosistent! Slither.Slithir objects might not unpickle.
-    #with open(inputfilepath, 'rb') as f:
-    #data = pickle.load(f)
     reader = csv.reader(open(inputfilepath, 'r'))
     data = {}
     for row in reader:
