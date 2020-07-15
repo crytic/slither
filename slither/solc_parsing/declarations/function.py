@@ -995,7 +995,8 @@ class FunctionSolc:
             link_nodes(node, end_node)
         else:
             for son in node.sons:
-                self._fix_catch(son, end_node)
+                if son != end_node:
+                    self._fix_catch(son, end_node)
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
 
