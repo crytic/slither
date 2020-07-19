@@ -95,9 +95,14 @@ class LowLevelCall(Call, OperationWithLValue):
         arguments = []
         if self.arguments:
             arguments = self.arguments
+        return_type = self.lvalue.type
+
+        if return_type and isinstance(return_type, list):
+            return_type = ','.join(str(x) for x in return_type)
+
         txt = '{}({}) = LOW_LEVEL_CALL, dest:{}, function:{}, arguments:{} {} {}'
         return txt.format(self.lvalue,
-                          self.lvalue.type,
+                          return_type,
                           self.destination,
                           self.function_name,
                           [str(x) for x in arguments],

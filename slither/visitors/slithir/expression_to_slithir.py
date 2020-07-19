@@ -115,14 +115,11 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 set_val(expression, None)
             else:
                 assert isinstance(right, TupleVariable)
-                tuple_types = []
                 for idx in range(len(left)):
                     if not left[idx] is None:
                         operation = Unpack(left[idx], right, idx)
                         operation.set_expression(expression)
-                        tuple_types.append(left[idx].type)
                         self._result.append(operation)
-                right.set_type(tuple_types)
                 set_val(expression, None)
         else:
             # Init of array, like
