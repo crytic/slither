@@ -77,7 +77,7 @@ def parse_args():
     )
 
     group_patching.add_argument(
-        "--pragma-solidity", help="For a given solidity version.", action="store", default=None
+        "--pragma-solidity", help="Set the solidity pragma with a given version.", action="store", default=None
     )
 
     # Add default arguments from crytic-compile
