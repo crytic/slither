@@ -148,11 +148,13 @@ class FunctionSolc:
         # Use of while in case of collision
         # In the worst case, the name will be really long
         if local_var_parser.underlying_variable.name:
-            while local_var_parser.underlying_variable.name in self._function.variables:
+            known_variables = [v.name for v in self._function.variables]
+            while local_var_parser.underlying_variable.name in known_variables:
                 local_var_parser.underlying_variable.name += "_scope_{}".format(
                     self._counter_scope_local_variables
                 )
                 self._counter_scope_local_variables += 1
+                known_variables = [v.name for v in self._function.variables]
         if local_var_parser.reference_id is not None:
             self._variables_renamed[local_var_parser.reference_id] = local_var_parser
         self._function.variables_as_dict[
