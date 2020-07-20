@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from slither.core.declarations import (Contract, Enum, Event, Function,
                                        SolidityFunction, SolidityVariable,
@@ -8,6 +9,7 @@ from slither.core.solidity_types import (ArrayType, ElementaryType,
                                          FunctionType, MappingType,
                                          UserDefinedType, TypeInformation)
 from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
+from slither.core.solidity_types.type import Type
 from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.variables import TupleVariable
@@ -1005,6 +1007,22 @@ def convert_type_library_call(ir, lib_contract):
     return ir
 
 
+def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
+    """
+    Convert structure elements types to a list of types
+    Recursive function
+
+    :param return_type:
+    :return:
+    """
+    if isinstance(return_type, UserDefinedType) and isinstance(return_type.type, Structure):
+        ret = []
+        for v in return_type.type.elems_ordered:
+            ret += _convert_to_structure_to_list(v.type)
+        return ret
+    return [return_type.type]
+
+
 def convert_type_of_high_and_internal_level_call(ir, contract):
     func = None
     if isinstance(ir, InternalCall):
@@ -1068,6 +1086,15 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
         else:
             return_type = func.type
     if return_type:
+
+        # If the return type is a structure, but the lvalue is a tuple
+        # We convert the type of the structure to a list of element
+        # TODO: explore to replace all tuple variables by structures
+        if (isinstance(ir.lvalue, TupleVariable) and
+                isinstance(return_type, UserDefinedType) and
+                isinstance(return_type.type, Structure)):
+            return_type = _convert_to_structure_to_list(return_type)
+
         ir.lvalue.set_type(return_type)
     else:
         ir.lvalue = None
