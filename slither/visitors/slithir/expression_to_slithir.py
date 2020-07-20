@@ -1,9 +1,9 @@
 import logging
 
-from slither.core.declarations import Function
+from slither.core.declarations import Function, SolidityVariable, SolidityVariableComposed
 from slither.core.expressions import (AssignmentOperationType,
                                       UnaryOperationType, BinaryOperationType)
-from slither.core.solidity_types import ArrayType
+from slither.core.solidity_types import ArrayType, ElementaryType
 from slither.core.solidity_types.type import Type
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
                                         Index, InitArray, InternalCall, Member,
@@ -56,6 +56,15 @@ _binary_to_binary = {
     BinaryOperationType.ANDAND: BinaryType.ANDAND,
     BinaryOperationType.OROR: BinaryType.OROR,
 }
+
+_signed_to_unsigned = {
+    BinaryOperationType.DIVISION_SIGNED: BinaryType.DIVISION,
+    BinaryOperationType.MODULO_SIGNED: BinaryType.MODULO,
+    BinaryOperationType.LESS_SIGNED: BinaryType.LESS,
+    BinaryOperationType.GREATER_SIGNED: BinaryType.GREATER,
+    BinaryOperationType.RIGHT_SHIFT_ARITHMETIC: BinaryType.RIGHT_SHIFT,
+}
+
 
 def convert_assignment(left, right, t, return_type):
     if t == AssignmentOperationType.ASSIGN:
@@ -142,9 +151,33 @@ class ExpressionToSlithIR(ExpressionVisitor):
         right = get(expression.expression_right)
         val = TemporaryVariable(self._node)
 
-        operation = Binary(val, left, right, _binary_to_binary[expression.type])
-        operation.set_expression(expression)
-        self._result.append(operation)
+        if expression.type in _signed_to_unsigned:
+            new_left = TemporaryVariable(self._node)
+            conv_left = TypeConversion(new_left, left, ElementaryType('int256'))
+            conv_left.set_expression(expression)
+            self._result.append(conv_left)
+
+            if expression.type != BinaryOperationType.RIGHT_SHIFT_ARITHMETIC:
+                new_right = TemporaryVariable(self._node)
+                conv_right = TypeConversion(new_right, right, ElementaryType('int256'))
+                conv_right.set_expression(expression)
+                self._result.append(conv_right)
+            else:
+                new_right = right
+
+            new_final = TemporaryVariable(self._node)
+            operation = Binary(new_final, new_left, new_right, _signed_to_unsigned[expression.type])
+            operation.set_expression(expression)
+            self._result.append(operation)
+
+            conv_final = TypeConversion(val, new_final, ElementaryType('uint256'))
+            conv_final.set_expression(expression)
+            self._result.append(conv_final)
+        else:
+            operation = Binary(val, left, right, _binary_to_binary[expression.type])
+            operation.set_expression(expression)
+            self._result.append(operation)
+
         set_val(expression, val)
 
     def _post_call_expression(self, expression):
@@ -167,27 +200,63 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(internal_call)
             set_val(expression, val)
         else:
-            # If tuple
-            if expression.type_call.startswith('tuple(') and expression.type_call != 'tuple()':
-                val = TupleVariable(self._node)
-            else:
+            # yul things
+            if called.name == 'caller()':
                 val = TemporaryVariable(self._node)
+                var = Assignment(val, SolidityVariableComposed('msg.sender'), 'uint256')
+                self._result.append(var)
+                set_val(expression, val)
+            elif called.name == 'origin()':
+                val = TemporaryVariable(self._node)
+                var = Assignment(val, SolidityVariableComposed('tx.origin'), 'uint256')
+                self._result.append(var)
+                set_val(expression, val)
+            elif called.name == 'extcodesize(uint256)':
+                val = ReferenceVariable(self._node)
+                var = Member(args[0], Constant('codesize'), val)
+                self._result.append(var)
+                set_val(expression, val)
+            elif called.name == 'selfbalance()':
+                val = TemporaryVariable(self._node)
+                var = TypeConversion(val, SolidityVariable('this'), ElementaryType('address'))
+                self._result.append(var)
 
-            message_call = TmpCall(called, len(args), val, expression.type_call)
-            message_call.set_expression(expression)
-            # Gas/value are only accessible here if the syntax {gas: , value: }
-            # Is used over .gas().value()
-            if expression.call_gas:
-                call_gas = get(expression.call_gas)
-                message_call.call_gas = call_gas
-            if expression.call_value:
-                call_value = get(expression.call_value)
-                message_call.call_value = call_value
-            if expression.call_salt:
-                call_salt = get(expression.call_salt)
-                message_call.call_salt = call_salt
-            self._result.append(message_call)
-            set_val(expression, val)
+                val1 = ReferenceVariable(self._node)
+                var1 = Member(val, Constant('balance'), val1)
+                self._result.append(var1)
+                set_val(expression, val1)
+            elif called.name == 'address()':
+                val = TemporaryVariable(self._node)
+                var = TypeConversion(val, SolidityVariable('this'), ElementaryType('address'))
+                self._result.append(var)
+                set_val(expression, val)
+            elif called.name == 'callvalue()':
+                val = TemporaryVariable(self._node)
+                var = Assignment(val, SolidityVariableComposed('msg.value'), 'uint256')
+                self._result.append(var)
+                set_val(expression, val)
+            else:
+                # If tuple
+                if expression.type_call.startswith('tuple(') and expression.type_call != 'tuple()':
+                    val = TupleVariable(self._node)
+                else:
+                    val = TemporaryVariable(self._node)
+
+                message_call = TmpCall(called, len(args), val, expression.type_call)
+                message_call.set_expression(expression)
+                # Gas/value are only accessible here if the syntax {gas: , value: }
+                # Is used over .gas().value()
+                if expression.call_gas:
+                    call_gas = get(expression.call_gas)
+                    message_call.call_gas = call_gas
+                if expression.call_value:
+                    call_value = get(expression.call_value)
+                    message_call.call_value = call_value
+                if expression.call_salt:
+                    call_salt = get(expression.call_salt)
+                    message_call.call_salt = call_salt
+                self._result.append(message_call)
+                set_val(expression, val)
 
     def _post_conditional_expression(self, expression):
         raise Exception('Ternary operator are not convertible to SlithIR {}'.format(expression))

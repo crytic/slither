@@ -17,6 +17,7 @@ from slither.slithir.operations import (Assignment, Balance, Binary, Condition,
                                         Push, Return, Send, SolidityCall,
                                         Transfer, TypeConversion, Unary,
                                         Unpack, Nop)
+from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.variables import (Constant, LocalIRVariable,
                                        ReferenceVariable, ReferenceVariableSSA,
                                        StateIRVariable, TemporaryVariable,
@@ -527,6 +528,10 @@ def copy_ir(ir, *instances):
         variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
         operation_type = ir.type
         return Binary(lvalue, variable_left, variable_right, operation_type)
+    elif isinstance(ir, CodeSize):
+        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        value = get_variable(ir, lambda x: x.value, *instances)
+        return CodeSize(value, lvalue)
     elif isinstance(ir, Condition):
         val = get_variable(ir, lambda x: x.value, *instances)
         return Condition(val)

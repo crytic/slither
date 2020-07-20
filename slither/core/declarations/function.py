@@ -89,6 +89,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
     def __init__(self):
         super(Function, self).__init__()
+        self._scope: List[str] = []
         self._name: Optional[str] = None
         self._view: bool = False
         self._pure: bool = False
@@ -201,13 +202,27 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._name = new_name
 
     @property
+    def scope(self) -> List[str]:
+        """
+        Return a list of name representing the scope of the function
+        This is used to model nested functions declared in YUL
+
+        :return:
+        """
+        return self._scope
+
+    @scope.setter
+    def scope(self, new_scope: List[str]):
+        self._scope = new_scope
+
+    @property
     def full_name(self) -> str:
         """
             str: func_name(type1,type2)
             Return the function signature without the return values
         """
         name, parameters, _ = self.signature
-        return name + "(" + ",".join(parameters) + ")"
+        return ".".join(self._scope + [name]) + "(" + ",".join(parameters) + ")"
 
     @property
     def canonical_name(self) -> str:
@@ -216,7 +231,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             Return the function signature without the return values
         """
         name, parameters, _ = self.signature
-        return self.contract_declarer.name + "." + name + "(" + ",".join(parameters) + ")"
+        return ".".join([self.contract_declarer.name] + self._scope + [name]) + "(" + ",".join(parameters) + ")"
 
     @property
     def contains_assembly(self) -> bool:
