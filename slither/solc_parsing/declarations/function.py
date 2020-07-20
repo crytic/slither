@@ -18,7 +18,7 @@ from slither.solc_parsing.variables.local_variable_init_from_tuple import (
     LocalVariableInitFromTupleSolc,
 )
 from slither.solc_parsing.variables.variable_declaration import MultipleVariablesDeclaration
-from slither.solc_parsing.yul.parse_yul import YulObject
+from slither.solc_parsing.yul.parse_yul import YulBlock
 from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
@@ -81,7 +81,7 @@ class FunctionSolc:
         self.returns_src = SourceMapping()
 
         self._node_to_nodesolc: Dict[Node, NodeSolc] = dict()
-        self._node_to_yulobject: Dict[Node, YulObject] = dict()
+        self._node_to_yulobject: Dict[Node, YulBlock] = dict()
 
         self._local_variables_parser: List[
             Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
@@ -319,9 +319,9 @@ class FunctionSolc:
         self._node_to_nodesolc[node] = node_parser
         return node_parser
 
-    def _new_yul_object(self, src: Union[str, Dict]) -> YulObject:
+    def _new_yul_block(self, src: Union[str, Dict]) -> YulBlock:
         node = self._function.new_node(NodeType.ASSEMBLY, src)
-        yul_object = YulObject(self._function.contract, node, [self._function.name, f"asm_{len(self._node_to_yulobject)}"], parent_func=self._function)
+        yul_object = YulBlock(self._function.contract, node, [self._function.name, f"asm_{len(self._node_to_yulobject)}"], parent_func=self._function)
         self._node_to_yulobject[node] = yul_object
         return yul_object
 
@@ -821,7 +821,7 @@ class FunctionSolc:
             # Added with solc 0.6 - the yul code is an AST
             if 'AST' in statement:
                 self._function.contains_assembly = True
-                yul_object = self._new_yul_object(statement['src'])
+                yul_object = self._new_yul_block(statement['src'])
                 entrypoint = yul_object.entrypoint
                 exitpoint = yul_object.convert(statement['AST'])
 

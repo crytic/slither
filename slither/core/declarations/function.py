@@ -202,7 +202,13 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         self._name = new_name
 
     @property
-    def scope(self):
+    def scope(self) -> List[str]:
+        """
+        Return a list of name representing the scope of the function
+        This is used to model nested functions declared in YUL
+
+        :return:
+        """
         return self._scope
 
     @scope.setter

@@ -214,7 +214,12 @@ class YulFunction(YulScope):
         return yul_node
 
 
-class YulObject(YulScope):
+class YulBlock(YulScope):
+    """
+    A YulBlock represents a standalone yul component.
+    For example an inline assembly block
+
+    """
     __slots__ = ["_entrypoint", "_parent_func", "_nodes"]
 
     def __init__(self, contract: Contract, entrypoint: Node, id: List[str], **kwargs):

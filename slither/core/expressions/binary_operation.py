@@ -31,6 +31,9 @@ class BinaryOperationType(Enum):
     ANDAND = 17  # &&
     OROR = 18  # ||
 
+    # YUL specific operators
+    # TODO: investigate if we can remove these
+    # Find the types earlier on, and do the conversion
     DIVISION_SIGNED = 19
     MODULO_SIGNED = 20
     LESS_SIGNED = 21
