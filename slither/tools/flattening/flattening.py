@@ -43,6 +43,7 @@ class Flattening:
         remove_assert=False,
         private_to_internal=False,
         export_path: Optional[str] = None,
+        pragma_solidity: Optional[str] = None
     ):
         self._source_codes: Dict[Contract, str] = {}
         self._slither = slither
@@ -50,6 +51,7 @@ class Flattening:
         self._remove_assert = remove_assert
         self._use_abi_encoder_v2 = False
         self._private_to_internal = private_to_internal
+        self._pragma_solidity = pragma_solidity
 
         self._export_path: Path = DEFAULT_EXPORT_PATH if export_path is None else Path(export_path)
 
@@ -165,8 +167,11 @@ class Flattening:
         :return:
         """
         ret = ""
-        if self._slither.solc_version:
+        if self._pragma_solidity:
+            ret += f"pragma solidity {self._pragma_solidity};\n"
+        elif self._slither.solc_version:
             ret += f"pragma solidity {self._slither.solc_version};\n"
+
         if self._use_abi_encoder_v2:
             ret += "pragma experimental ABIEncoderV2;\n"
         return ret

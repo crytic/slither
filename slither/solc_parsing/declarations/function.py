@@ -150,11 +150,13 @@ class FunctionSolc:
         # Use of while in case of collision
         # In the worst case, the name will be really long
         if local_var_parser.underlying_variable.name:
-            while local_var_parser.underlying_variable.name in self._function.variables:
+            known_variables = [v.name for v in self._function.variables]
+            while local_var_parser.underlying_variable.name in known_variables:
                 local_var_parser.underlying_variable.name += "_scope_{}".format(
                     self._counter_scope_local_variables
                 )
                 self._counter_scope_local_variables += 1
+                known_variables = [v.name for v in self._function.variables]
         if local_var_parser.reference_id is not None:
             self._variables_renamed[local_var_parser.reference_id] = local_var_parser
         self._function.variables_as_dict[
@@ -409,18 +411,24 @@ class FunctionSolc:
             node_condition = self._new_node(NodeType.IFLOOP, condition["src"])
             node_condition.add_unparsed_expression(condition)
             link_underlying_nodes(node_startLoop, node_condition)
-            link_underlying_nodes(node_condition, node_endLoop)
-        else:
-            node_condition = node_startLoop
 
-        node_body = self._parse_statement(body, node_condition)
+            node_beforeBody = node_condition
+        else:
+            node_condition = None
+
+            node_beforeBody = node_startLoop
+
+        node_body = self._parse_statement(body, node_beforeBody)
+
+        if node_condition:
+            link_underlying_nodes(node_condition, node_endLoop)
 
         node_LoopExpression = None
         if loop_expression:
             node_LoopExpression = self._parse_statement(loop_expression, node_body)
-            link_underlying_nodes(node_LoopExpression, node_condition)
+            link_underlying_nodes(node_LoopExpression, node_beforeBody)
         else:
-            link_underlying_nodes(node_body, node_condition)
+            link_underlying_nodes(node_body, node_beforeBody)
 
         if not condition:
             if not loop_expression:
@@ -508,12 +516,14 @@ class FunctionSolc:
                 # expression = parse_expression(candidate, self)
                 node_condition.add_unparsed_expression(expression)
                 link_underlying_nodes(node_startLoop, node_condition)
-                link_underlying_nodes(node_condition, node_endLoop)
                 hasCondition = True
             else:
                 hasCondition = False
 
         node_statement = self._parse_statement(children[-1], node_condition)
+
+        if hasCondition:
+            link_underlying_nodes(node_condition, node_endLoop)
 
         node_LoopExpression = node_statement
         if hasLoopExpression:
@@ -1010,7 +1020,8 @@ class FunctionSolc:
             link_nodes(node, end_node)
         else:
             for son in node.sons:
-                self._fix_catch(son, end_node)
+                if son != end_node:
+                    self._fix_catch(son, end_node)
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
 

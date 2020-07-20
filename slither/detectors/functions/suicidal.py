@@ -46,7 +46,7 @@ Bob calls `kill` and destructs the contract.'''
         if func.is_constructor:
             return False
 
-        if func.visibility != 'public':
+        if func.visibility not in ['public', 'external']:
             return False
 
         calls = [c.name for c in func.internal_calls]
@@ -60,7 +60,7 @@ Bob calls `kill` and destructs the contract.'''
 
     def detect_suicidal(self, contract):
         ret = []
-        for f in [f for f in contract.functions if f.contract_declarer == contract]:
+        for f in contract.functions_declared:
             if self.detect_suicidal_func(f):
                 ret.append(f)
         return ret

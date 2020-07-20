@@ -76,6 +76,10 @@ def parse_args():
         "--remove-assert", help="Remove call to assert().", action="store_true"
     )
 
+    group_patching.add_argument(
+        "--pragma-solidity", help="Set the solidity pragma with a given version.", action="store", default=None
+    )
+
     # Add default arguments from crytic-compile
     cryticparser.init(parser)
 
@@ -96,6 +100,7 @@ def main():
         remove_assert=args.remove_assert,
         private_to_internal=args.convert_private,
         export_path=args.dir,
+        pragma_solidity=args.pragma_solidity
     )
 
     try:

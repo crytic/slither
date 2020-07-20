@@ -168,6 +168,11 @@ def find_variable(
     if var_name in structures:
         return structures[var_name]
 
+    structures_top_level = contract.slither.top_level_structures
+    for st in structures_top_level:
+        if st.name == var_name:
+            return st
+
     events = contract.events_as_dict
     if var_name in events:
         return events[var_name]
@@ -175,6 +180,11 @@ def find_variable(
     enums = contract.enums_as_dict
     if var_name in enums:
         return enums[var_name]
+
+    enums_top_level = contract.slither.top_level_enums
+    for enum in enums_top_level:
+        if enum.name == var_name:
+            return enum
 
     # If the enum is refered as its name rather than its canonicalName
     enums = {e.name: e for e in contract.enums}

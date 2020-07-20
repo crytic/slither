@@ -770,7 +770,10 @@ def convert_to_low_level(ir):
         new_ir.call_gas = ir.call_gas
         new_ir.call_value = ir.call_value
         new_ir.arguments = ir.arguments
-        new_ir.lvalue.set_type(ElementaryType('bool'))
+        if ir.slither.solc_version >= "0.5":
+            new_ir.lvalue.set_type([ElementaryType('bool'), ElementaryType('bytes')])
+        else:
+            new_ir.lvalue.set_type(ElementaryType('bool'))
         new_ir.set_expression(ir.expression)
         new_ir.set_node(ir.node)
         return new_ir

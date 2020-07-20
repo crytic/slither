@@ -31,6 +31,8 @@ class DataDependency(AbstractPrinter):
 
         txt = ''
         for c in self.contracts:
+            if c.is_top_level:
+                continue
             txt += "\nContract %s\n"%c.name
             table = MyPrettyTable(['Variable', 'Dependencies'])
             for v in c.state_variables:

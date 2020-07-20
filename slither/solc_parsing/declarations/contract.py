@@ -277,7 +277,8 @@ class ContractSolc:
     def parse_state_variables(self):
         for father in self._contract.inheritance_reverse:
             self._contract.variables_as_dict.update(father.variables_as_dict)
-            self._contract.add_variables_ordered(father.state_variables_ordered)
+            self._contract.add_variables_ordered(
+                [var for var in father.state_variables_ordered if var not in self._contract.state_variables_ordered])
 
         for varNotParsed in self._variablesNotParsed:
             var = StateVariable()
