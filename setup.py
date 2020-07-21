@@ -25,7 +25,8 @@ setup(
             'slither-format = slither.tools.slither_format.__main__:main',
             'slither-check-erc = slither.tools.erc_conformance.__main__:main',
             'slither-check-kspec = slither.tools.kspec_coverage.__main__:main',
-            'slither-prop = slither.tools.properties.__main__:main'
+            'slither-prop = slither.tools.properties.__main__:main',
+            'slither-mutate = slither.tools.mutator.__main__:main'
         ]
     }
 )
