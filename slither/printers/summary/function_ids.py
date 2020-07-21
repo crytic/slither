@@ -27,11 +27,13 @@ class FunctionIds(AbstractPrinter):
             table = MyPrettyTable(['Name', 'ID'])
             for function in contract.functions:
                 if function.visibility in ['public', 'external']:
-                    table.add_row([function.solidity_signature, hex(get_function_id(function.solidity_signature))])
+                    function_id = get_function_id(function.solidity_signature)
+                    table.add_row([function.solidity_signature, f"{function_id:#0{10}x}"])
             for variable in contract.state_variables:
                 if variable.visibility in ['public']:
                     sig = variable.function_name
-                    table.add_row([sig, hex(get_function_id(sig))])
+                    function_id = get_function_id(sig)
+                    table.add_row([sig, f"{function_id:#0{10}x}"])
             txt += str(table) + '\n'
             all_tables.append((contract.name, table))
 
