@@ -631,6 +631,8 @@ class FunctionSolc:
                     i = 0
                     new_node = node
                     for variable in variables:
+                        if variable is None:
+                            continue
                         init = inits[i]
                         src = variable["src"]
                         i = i + 1

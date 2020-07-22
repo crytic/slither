@@ -421,7 +421,6 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
     #    | Expression '?' Expression ':' Expression
     #    | Expression ('=' | '|=' | '^=' | '&=' | '<<=' | '>>=' | '+=' | '-=' | '*=' | '/=' | '%=') Expression
     #    | PrimaryExpression
-
     # The AST naming does not follow the spec
     name = expression[caller_context.get_key()]
     is_compact_ast = caller_context.is_compact_ast
@@ -646,7 +645,12 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         # if abi.decode is used
         # For example, abi.decode(data, ...(uint[]) )
         if right is None:
-            return parse_expression(left, caller_context)
+            ret = parse_expression(left, caller_context)
+            # Nested array are not yet available in abi.decode
+            if isinstance(ret, ElementaryTypeNameExpression):
+                old_type = ret.type
+                ret.type = ArrayType(old_type, None)
+            return ret
 
         left_expression = parse_expression(left, caller_context)
         right_expression = parse_expression(right, caller_context)

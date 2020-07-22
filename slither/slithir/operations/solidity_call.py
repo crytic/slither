@@ -30,8 +30,17 @@ class SolidityCall(Call, OperationWithLValue):
         return self._type_call
 
     def __str__(self):
-        args = [str(a) for a in self.arguments]
-        return str(self.lvalue) +' = SOLIDITY_CALL {}({})'.format(self.function.full_name, ','.join(args))
-   #     return str(self.lvalue) +' = INTERNALCALL {} (arg {})'.format(self.function,
-   #                                                                   self.nbr_arguments)
+        if (self.function == SolidityFunction("abi.decode()") and
+                len(self.arguments) == 2 and
+                isinstance(self.arguments[1], list)):
+            args = str(self.arguments[0]) + '(' + ','.join([str(a) for a in self.arguments[1]]) + ')'
+        else:
+            args = ','.join([str(a) for a in self.arguments])
 
+        lvalue = ''
+        if self.lvalue:
+            if isinstance(self.lvalue.type, (list,)):
+                lvalue = '{}({}) = '.format(self.lvalue, ','.join(str(x) for x in self.lvalue.type))
+            else:
+                lvalue = '{}({}) = '.format(self.lvalue, self.lvalue.type)
+        return lvalue + 'SOLIDITY_CALL {}({})'.format(self.function.full_name, args)

@@ -5,6 +5,7 @@ from slither.core.expressions import (AssignmentOperationType,
                                       UnaryOperationType, BinaryOperationType)
 from slither.core.solidity_types import ArrayType, ElementaryType
 from slither.core.solidity_types.type import Type
+from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.slithir.operations import (Assignment, Binary, BinaryType, Delete,
                                         Index, InitArray, InternalCall, Member,
                                         NewArray, NewContract,
@@ -130,6 +131,14 @@ class ExpressionToSlithIR(ExpressionVisitor):
                         operation.set_expression(expression)
                         self._result.append(operation)
                 set_val(expression, None)
+        # Tuple with only one element. We need to convert the assignment to a Unpack
+        # Ex:
+        # (uint a,,) = g()
+        elif isinstance(left, LocalVariableInitFromTuple) and left.tuple_index:
+            operation = Unpack(left, right, left.tuple_index)
+            operation.set_expression(expression)
+            self._result.append(operation)
+            set_val(expression, None)
         else:
             # Init of array, like
             # uint8[2] var = [1,2];

@@ -803,6 +803,12 @@ def convert_to_solidity_func(ir):
     new_ir.set_node(ir.node)
     if isinstance(call.return_type, list) and len(call.return_type) == 1:
         new_ir.lvalue.set_type(call.return_type[0])
+    elif (isinstance(new_ir.lvalue, TupleVariable) and
+                call == SolidityFunction("abi.decode()") and
+                len(new_ir.arguments) == 2 and
+                isinstance(new_ir.arguments[1], list)):
+        types = [x for x in new_ir.arguments[1]]
+        new_ir.lvalue.set_type(types)
     else:
         new_ir.lvalue.set_type(call.return_type)
     return new_ir
