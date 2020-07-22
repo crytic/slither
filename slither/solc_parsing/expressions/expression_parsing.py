@@ -763,4 +763,13 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         call.set_offset(src, caller_context.slither)
         return call
 
+    elif name == "IndexRangeAccess":
+        # For now, we convert array slices to a direct array access
+        # As a result the generated IR will lose the slices information
+        # As far as I understand, array slice are only used in abi.decode
+        # https://solidity.readthedocs.io/en/v0.6.12/types.html
+        # TODO: Investigate array slices usage and implication for the IR
+        base = parse_expression(expression["baseExpression"], caller_context)
+        return base
+
     raise ParsingError("Expression not parsed %s" % name)
