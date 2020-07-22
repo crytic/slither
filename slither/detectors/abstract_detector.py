@@ -150,7 +150,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
         if results and self.slither.triage_mode:
             while True:
-                indexes = input('Results to hide during next runs: "0,1,..." or "All" (enter to not hide results): '.format(len(results)))
+                indexes = input('Results to hide during next runs: "0,1,...,{}" or "All" (enter to not hide results): '.format(len(results)))
                 if indexes == 'All':
                     self.slither.save_results_to_hide(results)
                     return []
