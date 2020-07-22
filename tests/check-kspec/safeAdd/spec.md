@@ -1,3 +1,4 @@
+# spec
 
 ```act
 behaviour add of SafeAdd
