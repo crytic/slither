@@ -9,14 +9,14 @@ TRAVIS_PATH='/home/travis/build/crytic/slither'
 # test_slither file.sol detectors
 test_slither(){
 
-    expected="$DIR/../tests/expected_json/$(basename $1 .sol).$2.json"
+    expected="$DIR/../tests/expected_json/$(basename "$1" .sol).$2.json"
 
     # run slither detector on input file and save output as json
     slither "$1" --solc-disable-warnings --detect "$2" --json "$DIR/tmp-test.json" --solc solc-0.4.25
     if [ $? -eq 255 ]
     then
         echo "Slither crashed"
-        exit -1
+        exit 255
     fi
 
     if [ ! -f "$DIR/tmp-test.json" ]; then
@@ -44,7 +44,7 @@ test_slither(){
     if [ $? -eq 255 ]
     then
         echo "Slither crashed"
-        exit -1
+        exit 255
     fi
 
     if [ ! -f "$DIR/tmp-test.json" ]; then

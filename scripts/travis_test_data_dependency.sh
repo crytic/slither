@@ -2,9 +2,7 @@
 
 ### Test data dependecy
 
-python ./examples/scripts/data_dependency.py ./examples/scripts/data_dependency.sol
-
-if [ $? -ne 0 ]; then
+if ! python ./examples/scripts/data_dependency.py ./examples/scripts/data_dependency.sol; then
     echo "data dependency failed"
     exit 1
 fi

@@ -1,24 +1,18 @@
 #!/usr/bin/env bash
 
-### Test 
+### Test
 
-slither "tests/*.json" --solc-ast --ignore-return-value
-
-if [ $? -ne 0 ]; then
+if ! slither "tests/*.json" --solc-ast --ignore-return-value; then
     echo "--solc-ast failed"
     exit 1
 fi
 
-slither "tests/*0.5*.sol" --solc-disable-warnings --ignore-return-value
-
-if [ $? -ne 0 ]; then
+if ! slither "tests/*0.5*.sol" --solc-disable-warnings --ignore-return-value; then
     echo "--solc-disable-warnings failed"
     exit 1
 fi
 
-slither "tests/*0.5*.sol" --disable-color --ignore-return-value
-
-if [ $? -ne 0 ]; then
+if ! slither "tests/*0.5*.sol" --disable-color --ignore-return-value; then
     echo "--disable-color failed"
     exit 1
 fi
