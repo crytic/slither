@@ -809,6 +809,10 @@ def convert_to_solidity_func(ir):
                 isinstance(new_ir.arguments[1], list)):
         types = [x for x in new_ir.arguments[1]]
         new_ir.lvalue.set_type(types)
+    # abi.decode where the type to decode is a singleton
+    # abi.decode(a, (uint))
+    elif call == SolidityFunction("abi.decode()") and len(new_ir.arguments) == 2:
+        new_ir.lvalue.set_type(new_ir.arguments[1])
     else:
         new_ir.lvalue.set_type(call.return_type)
     return new_ir
