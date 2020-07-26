@@ -16,8 +16,23 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Lint Code Base
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          pip install .
+          pip install deepdiff numpy
+          pip install pylint
+
+      - name: Lint Python code
+        run: pylint --rcfile .github/linters/.python-lint $(git ls-files '*.py')
+
+      - name: Lint the rest
         uses: docker://github/super-linter:v3
+        if: always()
         env:
           VALIDATE_JAVASCRIPT_ES: true
           VALIDATE_MD: true
