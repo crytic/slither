@@ -1553,7 +1553,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         if self._entry_point is None:
             return dict()
         # node, values
-        to_explore: List[Tuple[Node, Dict]] = [(self._entry_point, dict())]
+        to_explore: List[Tuple["Node", Dict]] = [(self._entry_point, dict())]
         # node -> values
         explored: Dict = dict()
         # name -> instances

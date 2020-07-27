@@ -5,9 +5,7 @@
 # Needed for evm printer
 pip install evm-cfg-builder
 
-slither "tests/*.json" --print all --json -
-
-if [ $? -ne 0 ]; then
+if ! slither "tests/*.json" --print all --json -; then
     echo "Printer tests failed"
     exit 1
 fi

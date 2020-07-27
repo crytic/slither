@@ -31,13 +31,13 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 ## Bugs and Optimizations Detection
 
 Run Slither on a Truffle/Embark/Dapp/Etherlime application:
-```
+```bash
 slither .
 ```
 
 Run Slither on a single file:
-```
-$ slither tests/uninitialized.sol
+```bash
+slither tests/uninitialized.sol
 ```
 
 For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
@@ -136,15 +136,15 @@ Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), 
 
 ### Using Pip
 
-```
-$ pip3 install slither-analyzer
+```bash
+pip3 install slither-analyzer
 ```
 
 ### Using Git
 
 ```bash
-$ git clone https://github.com/crytic/slither.git && cd slither
-$ python3 setup.py install
+git clone https://github.com/crytic/slither.git && cd slither
+python3 setup.py install
 ```
 
 We recommend using an Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation), if you prefer to install Slither via git.
@@ -153,13 +153,13 @@ We recommend using an Python virtual environment, as detailed in the [Developer 
 
 Use the [`eth-security-toolbox`](https://github.com/trailofbits/eth-security-toolbox/) docker image. It includes all of our security tools and every major version of Solidity in a single image. `/home/share` will be mounted to `/share`  in the container.
 
-```
+```bash
 docker pull trailofbits/eth-security-toolbox
 ```
 
 To share a directory in the container:
 
-```
+```bash
 docker run -it -v /home/share:/share trailofbits/eth-security-toolbox
 ```
 

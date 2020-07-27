@@ -10,11 +10,11 @@ generate_expected_json(){
     # generate output filename
     # e.g. file: uninitialized.sol detector: uninitialized-state
     # ---> uninitialized.uninitialized-state.json
-    output_filename="$DIR/../tests/expected_json/$(basename $1 .sol).$2.json"
-    output_filename_txt="$DIR/../tests/expected_json/$(basename $1 .sol).$2.txt"
+    output_filename="$DIR/../tests/expected_json/$(basename "$1" .sol).$2.json"
+    output_filename_txt="$DIR/../tests/expected_json/$(basename "$1" .sol).$2.txt"
 
     # run slither detector on input file and save output as json
-    slither "$1" --solc-disable-warnings --detect "$2" --json "$output_filename" --solc solc-0.5.1 > $output_filename_txt 2>&1 
+    slither "$1" --solc-disable-warnings --detect "$2" --json "$output_filename" --solc solc-0.5.1 > "$output_filename_txt" 2>&1
 
     sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$output_filename" -i
     sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$output_filename_txt" -i
