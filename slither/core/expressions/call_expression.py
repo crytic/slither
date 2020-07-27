@@ -42,14 +42,6 @@ class CallExpression(Expression):
         self._salt = salt
 
     @property
-    def call_salt(self):
-        return self._salt
-
-    @call_salt.setter
-    def call_salt(self, salt):
-        self._salt = salt
-
-    @property
     def called(self) -> Expression:
         return self._called
 

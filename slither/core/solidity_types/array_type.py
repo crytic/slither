@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 from slither.core.expressions import Literal
 from slither.core.expressions.expression import Expression
@@ -36,6 +36,13 @@ class ArrayType(Type):
     @property
     def lenght_value(self) -> Optional[Literal]:
         return self._length_value
+
+    @property
+    def storage_size(self) -> Tuple[int, bool]:
+        if self._length_value:
+            elem_size, _ = self._type.storage_size
+            return elem_size * int(self._length_value.value), True
+        return 32, True
 
     def __str__(self):
         if self._length:

@@ -167,8 +167,8 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     else:
         key = "name"
 
-    structures = contract.structures
-    enums = contract.enums
+    structures = contract.structures + contract.slither.top_level_structures
+    enums = contract.enums + contract.slither.top_level_enums
     contracts = contract.slither.contracts
 
     if isinstance(t, UnknownType):

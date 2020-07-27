@@ -27,8 +27,9 @@ class DataDependency(AbstractPrinter):
         txt = ""
         # print(pprint_dependency(c))
         for c in self.contracts:
-            # print(pprint_dependency(c))
-            txt += "\nContract %s\n" % c.name
+            if c.is_top_level:
+                continue
+            txt += "\nContract %s\n"%c.name
             table = pprint_dependency_table(c)
 
             txt += str(table)

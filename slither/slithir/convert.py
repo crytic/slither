@@ -61,6 +61,7 @@ from slither.slithir.operations import (
     Nop,
     Operation,
 )
+from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -595,6 +596,12 @@ def propagate_types(ir: Operation, node: "Node") -> Optional[Operation]:
                     b.set_expression(ir.expression)
                     b.set_node(ir.node)
                     return b
+                if ir.variable_right == 'codesize' and not isinstance(ir.variable_left, Contract) and isinstance(
+                        ir.variable_left.type, ElementaryType):
+                    b = CodeSize(ir.variable_left, ir.lvalue)
+                    b.set_expression(ir.expression)
+                    b.set_node(ir.node)
+                    return b
                 if (
                     ir.variable_right == "selector"
                     and not isinstance(ir.variable_left, (Contract, Enum))
@@ -884,8 +891,10 @@ def convert_to_low_level(ir: HighLevelCall) -> Union[LowLevelCall, Transfer, Sen
         new_ir.call_gas = ir.call_gas
         new_ir.call_value = ir.call_value
         new_ir.arguments = ir.arguments
-        if new_ir.lvalue:
-            new_ir.lvalue.set_type(ElementaryType("bool"))
+        if ir.slither.solc_version >= "0.5":
+            new_ir.lvalue.set_type([ElementaryType('bool'), ElementaryType('bytes')])
+        elif new_ir.lvalue:
+            new_ir.lvalue.set_type(ElementaryType('bool'))
         new_ir.set_expression(ir.expression)
         new_ir.set_node(ir.node)
         return new_ir
@@ -916,6 +925,16 @@ def convert_to_solidity_func(ir: HighLevelCall) -> SolidityCall:
     if new_ir.lvalue:
         if isinstance(call.return_type, list) and len(call.return_type) == 1:
             new_ir.lvalue.set_type(call.return_type[0])
+        elif (isinstance(new_ir.lvalue, TupleVariable) and
+                    call == SolidityFunction("abi.decode()") and
+                    len(new_ir.arguments) == 2 and
+                    isinstance(new_ir.arguments[1], list)):
+            types = [x for x in new_ir.arguments[1]]
+            new_ir.lvalue.set_type(types)
+        # abi.decode where the type to decode is a singleton
+        # abi.decode(a, (uint))
+        elif call == SolidityFunction("abi.decode()") and len(new_ir.arguments) == 2:
+            new_ir.lvalue.set_type(new_ir.arguments[1])
         else:
             new_ir.lvalue.set_type(call.return_type)
     return new_ir
@@ -1132,6 +1151,22 @@ def convert_type_library_call(ir: LibraryCall, lib_contract: Contract) -> Option
     return ir
 
 
+def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
+    """
+    Convert structure elements types to a list of types
+    Recursive function
+
+    :param return_type:
+    :return:
+    """
+    if isinstance(return_type, UserDefinedType) and isinstance(return_type.type, Structure):
+        ret = []
+        for v in return_type.type.elems_ordered:
+            ret += _convert_to_structure_to_list(v.type)
+        return ret
+    return [return_type.type]
+
+
 def convert_type_of_high_and_internal_level_call(
     ir: Union[InternalCall, HighLevelCall], contract: Contract
 ):
@@ -1200,6 +1235,15 @@ def convert_type_of_high_and_internal_level_call(
         else:
             return_type = func.type
     if return_type and ir.lvalue:
+
+        # If the return type is a structure, but the lvalue is a tuple
+        # We convert the type of the structure to a list of element
+        # TODO: explore to replace all tuple variables by structures
+        if (isinstance(ir.lvalue, TupleVariable) and
+                isinstance(return_type, UserDefinedType) and
+                isinstance(return_type.type, Structure)):
+            return_type = _convert_to_structure_to_list(return_type)
+
         ir.lvalue.set_type(return_type)
     else:
         ir.lvalue = None

@@ -15,6 +15,7 @@ from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
+from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
     Assignment,
@@ -919,6 +920,10 @@ def copy_ir(ir, instances, instances_temporary):
         )
         operation_type = ir.type
         return Binary(lvalue, variable_left, variable_right, operation_type)
+    elif isinstance(ir, CodeSize):
+        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
+        value = get_variable(ir, lambda x: x.value, *instances)
+        return CodeSize(value, lvalue)
     elif isinstance(ir, Condition):
         val = get_variable(ir, lambda x: x.value, instances, instances_temporary)
         return Condition(val)

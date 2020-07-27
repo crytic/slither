@@ -18,6 +18,7 @@ from slither.solc_parsing.variables.local_variable_init_from_tuple import (
     LocalVariableInitFromTupleSolc,
 )
 from slither.solc_parsing.variables.variable_declaration import MultipleVariablesDeclaration
+from slither.solc_parsing.yul.parse_yul import YulBlock
 from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
@@ -80,6 +81,7 @@ class FunctionSolc:
         self.returns_src = SourceMapping()
 
         self._node_to_nodesolc: Dict[Node, NodeSolc] = dict()
+        self._node_to_yulobject: Dict[Node, YulBlock] = dict()
 
         self._local_variables_parser: List[
             Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
@@ -148,11 +150,13 @@ class FunctionSolc:
         # Use of while in case of collision
         # In the worst case, the name will be really long
         if local_var_parser.underlying_variable.name:
-            while local_var_parser.underlying_variable.name in self._function.variables:
+            known_variables = [v.name for v in self._function.variables]
+            while local_var_parser.underlying_variable.name in known_variables:
                 local_var_parser.underlying_variable.name += "_scope_{}".format(
                     self._counter_scope_local_variables
                 )
                 self._counter_scope_local_variables += 1
+                known_variables = [v.name for v in self._function.variables]
         if local_var_parser.reference_id is not None:
             self._variables_renamed[local_var_parser.reference_id] = local_var_parser
         self._function.variables_as_dict[
@@ -295,6 +299,9 @@ class FunctionSolc:
         for node_parser in self._node_to_nodesolc.values():
             node_parser.analyze_expressions(self)
 
+        for node_parser in self._node_to_yulobject.values():
+            node_parser.analyze_expressions()
+
         self._filter_ternary()
 
         self._remove_alone_endif()
@@ -311,6 +318,12 @@ class FunctionSolc:
         node_parser = NodeSolc(node)
         self._node_to_nodesolc[node] = node_parser
         return node_parser
+
+    def _new_yul_block(self, src: Union[str, Dict]) -> YulBlock:
+        node = self._function.new_node(NodeType.ASSEMBLY, src)
+        yul_object = YulBlock(self._function.contract, node, [self._function.name, f"asm_{len(self._node_to_yulobject)}"], parent_func=self._function)
+        self._node_to_yulobject[node] = yul_object
+        return yul_object
 
     # endregion
     ###################################################################################
@@ -398,18 +411,24 @@ class FunctionSolc:
             node_condition = self._new_node(NodeType.IFLOOP, condition["src"])
             node_condition.add_unparsed_expression(condition)
             link_underlying_nodes(node_startLoop, node_condition)
-            link_underlying_nodes(node_condition, node_endLoop)
-        else:
-            node_condition = node_startLoop
 
-        node_body = self._parse_statement(body, node_condition)
+            node_beforeBody = node_condition
+        else:
+            node_condition = None
+
+            node_beforeBody = node_startLoop
+
+        node_body = self._parse_statement(body, node_beforeBody)
+
+        if node_condition:
+            link_underlying_nodes(node_condition, node_endLoop)
 
         node_LoopExpression = None
         if loop_expression:
             node_LoopExpression = self._parse_statement(loop_expression, node_body)
-            link_underlying_nodes(node_LoopExpression, node_condition)
+            link_underlying_nodes(node_LoopExpression, node_beforeBody)
         else:
-            link_underlying_nodes(node_body, node_condition)
+            link_underlying_nodes(node_body, node_beforeBody)
 
         if not condition:
             if not loop_expression:
@@ -497,12 +516,14 @@ class FunctionSolc:
                 # expression = parse_expression(candidate, self)
                 node_condition.add_unparsed_expression(expression)
                 link_underlying_nodes(node_startLoop, node_condition)
-                link_underlying_nodes(node_condition, node_endLoop)
                 hasCondition = True
             else:
                 hasCondition = False
 
         node_statement = self._parse_statement(children[-1], node_condition)
+
+        if hasCondition:
+            link_underlying_nodes(node_condition, node_endLoop)
 
         node_LoopExpression = node_statement
         if hasLoopExpression:
@@ -610,6 +631,8 @@ class FunctionSolc:
                     i = 0
                     new_node = node
                     for variable in variables:
+                        if variable is None:
+                            continue
                         init = inits[i]
                         src = variable["src"]
                         i = i + 1
@@ -797,13 +820,25 @@ class FunctionSolc:
         elif name == "Block":
             node = self._parse_block(statement, node)
         elif name == "InlineAssembly":
-            asm_node = self._new_node(NodeType.ASSEMBLY, statement["src"])
-            self._function.contains_assembly = True
-            # Added with solc 0.4.12
-            if "operations" in statement:
-                asm_node.underlying_node.add_inline_asm(statement["operations"])
-            link_underlying_nodes(node, asm_node)
-            node = asm_node
+            # Added with solc 0.6 - the yul code is an AST
+            if 'AST' in statement:
+                self._function.contains_assembly = True
+                yul_object = self._new_yul_block(statement['src'])
+                entrypoint = yul_object.entrypoint
+                exitpoint = yul_object.convert(statement['AST'])
+
+                # technically, entrypoint and exitpoint are YulNodes and we should be returning a NodeSolc here
+                # but they both expose an underlying_node so oh well
+                link_underlying_nodes(node, entrypoint)
+                node = exitpoint
+            else:
+                asm_node = self._new_node(NodeType.ASSEMBLY, statement['src'])
+                self._function._contains_assembly = True
+                # Added with solc 0.4.12
+                if 'operations' in statement:
+                    asm_node.underlying_node.add_inline_asm(statement['operations'])
+                link_underlying_nodes(node, asm_node)
+                node = asm_node
         elif name == "DoWhileStatement":
             node = self._parse_dowhile(statement, node)
         # For Continue / Break / Return / Throw
@@ -987,7 +1022,8 @@ class FunctionSolc:
             link_nodes(node, end_node)
         else:
             for son in node.sons:
-                self._fix_catch(son, end_node)
+                if son != end_node:
+                    self._fix_catch(son, end_node)
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
 

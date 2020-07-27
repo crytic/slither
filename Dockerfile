@@ -1,10 +1,10 @@
 FROM ubuntu:bionic
 
-LABEL name slither
-LABEL src "https://github.com/trailofbits/slither"
-LABEL creator trailofbits
-LABEL dockerfile_maintenance trailofbits
-LABEL desc "Static Analyzer for Solidity"
+LABEL name=slither
+LABEL src="https://github.com/trailofbits/slither"
+LABEL creator=trailofbits
+LABEL dockerfile_maintenance=trailofbits
+LABEL desc="Static Analyzer for Solidity"
 
 RUN apt update \
   && apt upgrade -y \

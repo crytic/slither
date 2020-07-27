@@ -1,4 +1,4 @@
-## Demo
+# Demo
 
 This directory contains an example of Slither utility.
 
