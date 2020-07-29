@@ -59,6 +59,10 @@ class SlitherCore(Context):
 
         self._storage_layouts: Dict[str, Dict[str, Tuple[int, int]]] = {}
 
+        # If set to true, slither will not catch errors during parsing
+        self._disallow_partial: bool = False
+
+
     ###################################################################################
     ###################################################################################
     # region Source code
@@ -364,6 +368,17 @@ class SlitherCore(Context):
     @property
     def contracts_with_missing_inheritance(self) -> Set:
         return self._contract_with_missing_inheritance
+
+
+    @property
+    def disallow_partial(self) -> bool:
+        """
+        Return true if partial analyses are disallowed
+        For example, codebase with duplicate names will lead to partial analyses
+
+        :return:
+        """
+        return self._disallow_partial
 
     # endregion
     ###################################################################################
