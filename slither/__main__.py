@@ -425,6 +425,12 @@ def parse_args(detector_classes, printer_classes):
                         action='store_true',
                         default=False)
 
+    # Disable the throw/catch on partial analyses
+    parser.add_argument('--disallow-partial',
+                        help=argparse.SUPPRESS,
+                        action="store_true",
+                        default=False)
+
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)

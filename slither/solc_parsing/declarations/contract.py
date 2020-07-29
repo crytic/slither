@@ -337,8 +337,11 @@ class ContractSolc:
     ###################################################################################
 
     def log_incorrect_parsing(self, error):
-        LOGGER.error(error)
-        self._contract.is_incorrectly_parsed = True
+        if self._contract.slither.disallow_partial:
+            raise ParsingError(error)
+        else:
+            LOGGER.error(error)
+            self._contract.is_incorrectly_parsed = True
 
     def analyze_content_modifiers(self):
         try:

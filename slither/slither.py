@@ -43,6 +43,10 @@ class Slither(SlitherCore):
         """
         super().__init__()
         self._parser: SlitherSolc  #  This could be another parser, like SlitherVyper, interface needs to be determined
+
+
+        self._disallow_partial: bool = kwargs.get("disallow_partial", False)
+
         # list of files provided (see --splitted option)
         if isinstance(target, list):
             self._init_from_list(target)
