@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Optional
 
 from slither.core.cfg.node import Node
 from slither.core.cfg.node import NodeType
@@ -8,6 +8,7 @@ from slither.core.expressions.assignment_operation import (
 )
 from slither.core.expressions.identifier import Identifier
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
+from slither.solc_parsing.types.types import Expression
 from slither.visitors.expression.find_calls import FindCalls
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
@@ -15,14 +16,14 @@ from slither.visitors.expression.write_var import WriteVar
 
 class NodeSolc:
     def __init__(self, node: Node):
-        self._unparsed_expression: Optional[Dict] = None
+        self._unparsed_expression: Optional[Expression] = None
         self._node = node
 
     @property
     def underlying_node(self) -> Node:
         return self._node
 
-    def add_unparsed_expression(self, expression: Dict):
+    def add_unparsed_expression(self, expression: Expression):
         assert self._unparsed_expression is None
         self._unparsed_expression = expression
 

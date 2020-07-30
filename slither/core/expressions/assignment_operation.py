@@ -26,7 +26,7 @@ class AssignmentOperationType(Enum):
     ASSIGN_MODULO = 10  # %=
 
     @staticmethod
-    def get_type(operation_type: "AssignmentOperationType"):
+    def get_type(operation_type: str):
         if operation_type == "=":
             return AssignmentOperationType.ASSIGN
         if operation_type == "|=":

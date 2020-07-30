@@ -4,6 +4,7 @@
 from typing import List, TYPE_CHECKING
 
 from slither.core.variables.structure_variable import StructureVariable
+from slither.solc_parsing.types.types import VariableDeclaration
 from slither.solc_parsing.variables.structure_variable import StructureVariableSolc
 from slither.core.declarations.structure import Structure
 
@@ -23,7 +24,7 @@ class StructureSolc:  # pylint: disable=too-few-public-methods
         st: Structure,
         name: str,
         canonicalName: str,
-        elems: List[str],
+        elems: List[VariableDeclaration],
         contract_parser: "ContractSolc",
     ):
         self._structure = st
@@ -37,11 +38,12 @@ class StructureSolc:  # pylint: disable=too-few-public-methods
         for elem_to_parse in self._elemsNotParsed:
             elem = StructureVariable()
             elem.set_structure(self._structure)
-            elem.set_offset(elem_to_parse["src"], self._structure.contract.slither)
+            elem.set_offset(elem_to_parse.src, self._structure.contract.slither)
 
             elem_parser = StructureVariableSolc(elem, elem_to_parse)
             elem_parser.analyze(self._contract_parser)
 
             self._structure.elems[elem.name] = elem
             self._structure.add_elem_in_order(elem.name)
-        self._elemsNotParsed = []
+
+        self._elemsNotParsed.clear()

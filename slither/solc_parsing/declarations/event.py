@@ -1,11 +1,12 @@
 """
     Event module
 """
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, List
 
-from slither.core.variables.event_variable import EventVariable
-from slither.solc_parsing.variables.event_variable import EventVariableSolc
 from slither.core.declarations.event import Event
+from slither.core.variables.event_variable import EventVariable
+from slither.solc_parsing.types.types import EventDefinition, VariableDeclaration
+from slither.solc_parsing.variables.event_variable import EventVariableSolc
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.contract import ContractSolc
@@ -16,37 +17,19 @@ class EventSolc:
     Event class
     """
 
-    def __init__(self, event: Event, event_data: Dict, contract_parser: "ContractSolc"):
-
-        self._event = event
+    def __init__(self, event: Event, event_data: EventDefinition, contract_parser: "ContractSolc"):
+        self._event: Event = event
         event.set_contract(contract_parser.underlying_contract)
-        self._parser_contract = contract_parser
 
-        if self.is_compact_ast:
-            self._event.name = event_data["name"]
-            elems = event_data["parameters"]
-            assert elems["nodeType"] == "ParameterList"
-            self._elemsNotParsed = elems["parameters"]
-        else:
-            self._event.name = event_data["attributes"]["name"]
-            elems = event_data["children"][0]
+        self._parser_contract: "ContractSolc" = contract_parser
 
-            assert elems["name"] == "ParameterList"
-            if "children" in elems:
-                self._elemsNotParsed = elems["children"]
-            else:
-                self._elemsNotParsed = []
-
-    @property
-    def is_compact_ast(self) -> bool:
-        return self._parser_contract.is_compact_ast
+        self._event.name = event_data.name
+        self._elemsNotParsed: List[VariableDeclaration] = event_data.params.params
 
     def analyze(self, contract: "ContractSolc"):
         for elem_to_parse in self._elemsNotParsed:
             elem = EventVariable()
-            # Todo: check if the source offset is always here
-            if "src" in elem_to_parse:
-                elem.set_offset(elem_to_parse["src"], self._parser_contract.slither)
+            elem.set_offset(elem_to_parse.src, self._parser_contract.slither)
             elem_parser = EventVariableSolc(elem, elem_to_parse)
             elem_parser.analyze(contract)
 
