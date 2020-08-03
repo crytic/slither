@@ -127,14 +127,20 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 assert isinstance(right, TupleVariable)
                 for idx in range(len(left)):
                     if not left[idx] is None:
-                        operation = Unpack(left[idx], right, idx)
+                        index = idx
+                        # The following test is probably always true?
+                        if isinstance(left[idx], LocalVariableInitFromTuple) and left[idx].tuple_index is not None:
+                            index = left[idx].tuple_index
+                        operation = Unpack(left[idx], right, index)
                         operation.set_expression(expression)
                         self._result.append(operation)
                 set_val(expression, None)
         # Tuple with only one element. We need to convert the assignment to a Unpack
         # Ex:
         # (uint a,,) = g()
-        elif isinstance(left, LocalVariableInitFromTuple) and left.tuple_index and isinstance(right, TupleVariable):
+        elif (isinstance(left, LocalVariableInitFromTuple) and
+              left.tuple_index is not None and
+              isinstance(right, TupleVariable)):
             operation = Unpack(left, right, left.tuple_index)
             operation.set_expression(expression)
             self._result.append(operation)

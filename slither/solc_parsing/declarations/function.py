@@ -654,7 +654,6 @@ class FunctionSolc:
                     i = 0
                     new_node = node
                     for variable in statement["declarations"]:
-                        i = i + 1
                         if variable:
                             src = variable["src"]
                             # Create a fake statement to be consistent
@@ -668,6 +667,7 @@ class FunctionSolc:
                             new_node = self._parse_variable_definition_init_tuple(
                                 new_statement, i, new_node
                             )
+                        i = i + 1
 
                     var_identifiers = []
                     # craft of the expression doing the assignement
@@ -737,7 +737,6 @@ class FunctionSolc:
                     variables = []
                     for variable in variables_declaration:
                         src = variable["src"]
-                        i = i + 1
                         # Create a fake statement to be consistent
                         new_statement = {
                             self.get_key(): "VariableDefinitionStatement",
@@ -749,6 +748,7 @@ class FunctionSolc:
                         new_node = self._parse_variable_definition_init_tuple(
                             new_statement, i, new_node
                         )
+                        i = i + 1
                     var_identifiers = []
                     # craft of the expression doing the assignement
                     for v in variables:
