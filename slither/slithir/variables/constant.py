@@ -1,9 +1,11 @@
+from functools import total_ordering
 from decimal import Decimal
 
 from .variable import SlithIRVariable
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
 from slither.utils.arithmetic import convert_subdenomination
 
+@total_ordering
 class Constant(SlithIRVariable):
 
     def __init__(self, val, type=None, subdenomination=None):
@@ -71,3 +73,12 @@ class Constant(SlithIRVariable):
 
     def __eq__(self, other):
         return self.value == other
+
+    def __ne__(self, other):
+        return self.value != other
+
+    def __lt__(self, other):
+        return self.value < other
+
+    def __repr__(self):
+        return "%s" % (str(self.value))
