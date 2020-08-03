@@ -134,7 +134,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         # Tuple with only one element. We need to convert the assignment to a Unpack
         # Ex:
         # (uint a,,) = g()
-        elif isinstance(left, LocalVariableInitFromTuple) and left.tuple_index:
+        elif isinstance(left, LocalVariableInitFromTuple) and left.tuple_index and isinstance(right, TupleVariable):
             operation = Unpack(left, right, left.tuple_index)
             operation.set_expression(expression)
             self._result.append(operation)
