@@ -78,7 +78,7 @@ If `d.()` reenters, the `Counter` events will be showed in an incorrect order, w
         for (func, calls, send_eth), events in result_sorted:
             calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
             send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
-            events = sorted(events, key=lambda x: (x.variable.name, x.node.node_id))
+            events = sorted(events, key=lambda x: (str(x.variable.name), x.node.node_id))
 
             info = ['Reentrancy in ', func, ':\n']
             info += ['\tExternal calls:\n']
