@@ -812,7 +812,10 @@ def convert_to_solidity_func(ir):
     # abi.decode where the type to decode is a singleton
     # abi.decode(a, (uint))
     elif call == SolidityFunction("abi.decode()") and len(new_ir.arguments) == 2:
-        new_ir.lvalue.set_type(new_ir.arguments[1])
+        # If the variable is a referenceVariable, we are lost
+        # See https://github.com/crytic/slither/issues/566 for potential solutions
+        if not isinstance(new_ir.arguments[1], ReferenceVariable):
+            new_ir.lvalue.set_type(new_ir.arguments[1])
     else:
         new_ir.lvalue.set_type(call.return_type)
     return new_ir
