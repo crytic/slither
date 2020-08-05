@@ -581,7 +581,7 @@ def propagate_types(ir, node):
             elif isinstance(ir, Send):
                 ir.lvalue.set_type(ElementaryType('bool'))
             elif isinstance(ir, SolidityCall):
-                if ir.function.name == 'type(address)':
+                if ir.function.name in ['type(address)', 'type()']:
                     ir.function.return_type = [TypeInformation(ir.arguments[0])]
                 return_type = ir.function.return_type
                 if len(return_type) == 1:
