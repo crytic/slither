@@ -16,8 +16,8 @@ class UnindexedERC20EventParameters(AbstractDetector):
 
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-erc20-event-parameters'
 
-    WIKI_TITLE = 'Unindexed ERC20 Event Parameters'
-    WIKI_DESCRIPTION = 'Detects that events defined by the ERC20 specification which are meant to have some parameters as `indexed`, are missing the `indexed` keyword.'
+    WIKI_TITLE = 'Unindexed ERC20 event oarameters'
+    WIKI_DESCRIPTION = 'Detects whether events defined by the `ERC20` specification that should have some parameters as `indexed` are missing the `indexed` keyword.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract ERC20Bad {
@@ -28,9 +28,10 @@ contract ERC20Bad {
     // ...
 }
 ```
-In this case, Transfer and Approval events should have the 'indexed' keyword on their two first parameters, as defined by the ERC20 specification. Failure to include these keywords will not include the parameter data in the transaction/block's bloom filter. This may cause external tooling searching for these parameters to overlook them, and fail to index logs from this token contract.'''
+`Transfer` and `Approval` events should have the 'indexed' keyword on their two first parameters, as defined by the `ERC20` specification.
+Failure to include these keywords will exclude the parameter data in the transaction/block's bloom filter, so external tooling searching for these parameters may overlook them and fail to index logs from this token contract.'''
 
-    WIKI_RECOMMENDATION = 'Add the `indexed` keyword to event parameters which should include it, according to the ERC20 specification.'
+    WIKI_RECOMMENDATION = 'Add the `indexed` keyword to event parameters that should include it, according to the `ERC20` specification.'
 
     STANDARD_JSON = False
 

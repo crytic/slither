@@ -19,7 +19,7 @@ class UncheckedSend(UnusedReturnValues):
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-send'
 
     WIKI_TITLE = 'Unchecked Send'
-    WIKI_DESCRIPTION = 'The return value of a send is not checked.'
+    WIKI_DESCRIPTION = 'The return value of a `send` is not checked.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract MyConc{
@@ -28,11 +28,11 @@ contract MyConc{
     }
 }
 ```
-The return value of `send` is not checked. As a result if the send failed, the ether will be locked in the contract.
-If `send` is used to prevent blocking operations, consider logging the failed sent.
+The return value of `send` is not checked, so if the send fails, the Ether will be locked in the contract.
+If `send` is used to prevent blocking operations, consider logging the failed `send`.
     '''
 
-    WIKI_RECOMMENDATION = 'Ensure that the return value of send is checked or logged.'
+    WIKI_RECOMMENDATION = 'Ensure that the return value of `send` is checked or logged.'
 
     _txt_description = "send calls"
 

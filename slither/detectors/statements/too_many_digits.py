@@ -28,11 +28,11 @@ contract MyContract{
 }
 ```
 
-While `1_ether` looks like `1 ether`, it is `10 ether`. As a result, its usage is likely to be incorrect.
+While `1_ether` looks like `1 ether`, it is `10 ether`. As a result, it's likely to be used incorrectly.
 '''
     WIKI_RECOMMENDATION = '''
 Use:
-- [Ether suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#ether-units)
+- [Ether suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#ether-units),
 - [Time suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#time-units), or
 - [The scientific notation](https://solidity.readthedocs.io/en/latest/types.html#rational-and-integer-literals)
 '''

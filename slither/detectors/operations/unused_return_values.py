@@ -30,7 +30,7 @@ contract MyConc{
     }
 }
 ```
-`MyConc` calls `add` of SafeMath, but does not store the result in `a`. As a result, the computation has no effect.'''
+`MyConc` calls `add` of `SafeMath`, but does not store the result in `a`. As a result, the computation has no effect.'''
 
     WIKI_RECOMMENDATION = 'Ensure that all the return values of the function calls are used.'
 

@@ -30,8 +30,8 @@ class IncorrectSolc(AbstractDetector):
 
     WIKI_TITLE = 'Incorrect versions of Solidity'
     WIKI_DESCRIPTION = '''
-Solc frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks.
-We recommend avoiding complex pragma statement.'''
+`solc` frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks.
+We also recommend avoiding complex `pragma` statement.'''
     WIKI_RECOMMENDATION = '''
 Use Solidity 0.4.25 or 0.5.11. Consider using the latest version of Solidity for testing the compilation, and a trusted version for deploying.'''
 

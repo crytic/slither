@@ -22,7 +22,7 @@ class ConstantFunctionsAsm(AbstractDetector):
     WIKI_DESCRIPTION = '''
 Functions declared as `constant`/`pure`/`view` using assembly code.
 
-`constant`/`pure`/`view` was not enforced prior Solidity 0.5.
+`constant`/`pure`/`view` was not enforced prior to Solidity 0.5.
 Starting from Solidity 0.5, a call to a `constant`/`pure`/`view` function uses the `STATICCALL` opcode, which reverts in case of state modification.
 
 As a result, a call to an [incorrectly labeled function may trap a contract compiled with Solidity 0.5](https://solidity.readthedocs.io/en/develop/050-breaking-changes.html#interoperability-with-older-contracts).'''
@@ -37,10 +37,10 @@ contract Constant{
     }
 }
 ```
-`Constant` was deployed with Solidity 0.4.25. Bob writes a smart contract interacting with `Constant` in Solidity 0.5.0. 
+`Constant` was deployed with Solidity 0.4.25. Bob writes a smart contract that interacts with `Constant` in Solidity 0.5.0. 
 All the calls to `get` revert, breaking Bob's smart contract execution.'''
 
-    WIKI_RECOMMENDATION = 'Ensure that the attributes of contracts compiled prior to Solidity 0.5.0 are correct.'
+    WIKI_RECOMMENDATION = 'Ensure the attributes of contracts compiled prior to Solidity 0.5.0 are correct.'
 
     def _detect(self):
         """ Detect the constant function using assembly code
