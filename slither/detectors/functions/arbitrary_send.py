@@ -24,14 +24,14 @@ class ArbitrarySend(AbstractDetector):
     """
 
     ARGUMENT = 'arbitrary-send'
-    HELP = 'Functions that send ether to arbitrary destinations'
+    HELP = 'Functions that send Ether to arbitrary destinations'
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations'
 
-    WIKI_TITLE = 'Functions that send ether to arbitrary destinations'
-    WIKI_DESCRIPTION = 'Unprotected call to a function executing sending ethers to an arbitrary address.'
+    WIKI_TITLE = 'Functions that send Ether to arbitrary destinations'
+    WIKI_DESCRIPTION = 'Unprotected call to a function sending Ether to an arbitrary address.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract ArbitrarySend{
@@ -47,7 +47,7 @@ contract ArbitrarySend{
 ```
 Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract's balance.'''
 
-    WIKI_RECOMMENDATION = 'Ensure that an arbitrary user cannot withdraw unauthorize funds.'
+    WIKI_RECOMMENDATION = 'Ensure that an arbitrary user cannot withdraw unauthorized funds.'
 
     def arbitrary_send(self, func):
         """

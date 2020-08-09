@@ -13,8 +13,8 @@ class RightToLeftOverride(AbstractDetector):
     CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#right-to-left-override-character'
-    WIKI_TITLE = 'Right-To-Left-Override character'
-    WIKI_DESCRIPTION = 'An attacker can manipulate the logic of the contract by using a right-to-left-override character (U+202E)'
+    WIKI_TITLE = 'Right-to-Left-Override character'
+    WIKI_DESCRIPTION = 'An attacker can manipulate the logic of the contract by using a right-to-left-override character (`U+202E)`.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract Token

@@ -15,18 +15,18 @@ class NamingConvention(AbstractDetector):
     """
 
     ARGUMENT = 'naming-convention'
-    HELP = 'Conformance to Solidity naming conventions'
+    HELP = 'Conformity to Solidity naming conventions'
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#conformity-to-solidity-naming-conventions'
 
     WIKI_TITLE = 'Conformance to Solidity naming conventions'
     WIKI_DESCRIPTION = '''
 Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.25/style-guide.html#naming-conventions) that should be followed.
-#### Rules exceptions
-- Allow constant variables name/symbol/decimals to be lowercase (ERC20)
-- Allow `_` at the beginning of the mixed_case match for private variables and unused parameters.'''
+#### Rule exceptions
+- Allow constant variable name/symbol/decimals to be lowercase (`ERC20`).
+- Allow `_` at the beginning of the `mixed_case` match for private variables and unused parameters.'''
 
     WIKI_RECOMMENDATION = 'Follow the Solidity [naming convention](https://solidity.readthedocs.io/en/v0.4.25/style-guide.html#naming-conventions).'
 

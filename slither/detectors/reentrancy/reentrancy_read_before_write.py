@@ -24,8 +24,8 @@ class ReentrancyReadBeforeWritten(Reentrancy):
 
     WIKI_TITLE = 'Reentrancy vulnerabilities'
     WIKI_DESCRIPTION = '''
-Detection of the [re-entrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
-Do not report reentrancies that involve ethers (see `reentrancy-eth`)'''
+Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
+Do not report reentrancies that involve Ether (see `reentrancy-eth`).'''
 
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
@@ -38,7 +38,7 @@ Do not report reentrancies that involve ethers (see `reentrancy-eth`)'''
     }   
 ```
 '''
-    WIKI_RECOMMENDATION = 'Apply the [check-effects-interactions pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy).'
+    WIKI_RECOMMENDATION = 'Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy).'
 
     STANDARD_JSON = False
 

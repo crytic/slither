@@ -20,7 +20,7 @@ class MultipleCallsInLoop(AbstractDetector):
 
 
     WIKI_TITLE = 'Calls inside a loop'
-    WIKI_DESCRIPTION = 'Calls inside a loop might lead to denial of service attack.'
+    WIKI_DESCRIPTION = 'Calls inside a loop might lead to a denial-of-service attack.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract CallsInLoop{
@@ -39,7 +39,7 @@ contract CallsInLoop{
 
 }
 ```
-If one of the destinations has a fallback function which reverts, `bad` will always revert.'''
+If one of the destinations has a fallback function that reverts, `bad` will always revert.'''
 
     WIKI_RECOMMENDATION = 'Favor [pull over push](https://github.com/ethereum/wiki/wiki/Safety#favor-pull-over-push-for-external-calls) strategy for external calls.'
 

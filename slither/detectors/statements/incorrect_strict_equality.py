@@ -33,9 +33,10 @@ contract Crowdsale{
         return this.balance == 100 ether;
     }
 ```
-`Crowdsale` relies on `fund_reached` to know when to stop the sale of tokens. `Crowdsale` reaches 100 ether. Bob sends 0.1 ether. As a result, `fund_reached` is always false and the crowdsale never ends.'''
+`Crowdsale` relies on `fund_reached` to know when to stop the sale of tokens.
+`Crowdsale` reaches 100 Ether. Bob sends 0.1 Ether. As a result, `fund_reached` is always false and the `crowdsale` never ends.'''
 
-    WIKI_RECOMMENDATION = '''Don't use strict equality to determine if an account has enough ethers or tokens.'''
+    WIKI_RECOMMENDATION = '''Don't use strict equality to determine if an account has enough Ether or tokens.'''
 
     sources_taint = [SolidityVariable('now'),
                      SolidityVariableComposed('block.number'),

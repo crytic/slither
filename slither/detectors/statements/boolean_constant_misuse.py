@@ -40,7 +40,8 @@ contract A {
 	}
 }
 ```
-Boolean constants in code have only a few legitimate uses.  Other uses (in complex expressions, as conditionals) indicate either an error or (most likely) the persistence of debugging/development code that is likely faulty.'''
+Boolean constants in code have only a few legitimate uses. 
+Other uses (in complex expressions, as conditionals) indicate either an error or, most likely, the persistence of faulty code.'''
 
     WIKI_RECOMMENDATION = '''Verify and simplify the condition.'''
 

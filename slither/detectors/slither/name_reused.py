@@ -34,11 +34,11 @@ class NameReused(AbstractDetector):
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#name-reused'
 
     WIKI_TITLE = 'Name reused'
-    WIKI_DESCRIPTION = '''If a codebase has two contracts with the similar name, the compilation artifacts
-will not contain one of the contract with the dupplicate name.'''
+    WIKI_DESCRIPTION = '''If a codebase has two contracts the similar names, the compilation artifacts
+will not contain one of the contracts with the duplicate name.'''
     WIKI_EXPLOIT_SCENARIO = '''
-Bob's truffle codebase has two contracts named `ERC20`.
-When `truffle compile` runs, only one of the two contract will generate artifacts in `build/contracts`.
+Bob's `truffle` codebase has two contracts named `ERC20`.
+When `truffle compile` runs, only one of the two contracts will generate artifacts in `build/contracts`.
 As a result, the second contract cannot be analyzed.
 '''
     WIKI_RECOMMENDATION = 'Rename the contract.'

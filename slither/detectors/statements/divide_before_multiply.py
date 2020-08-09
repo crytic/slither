@@ -58,7 +58,7 @@ class DivideBeforeMultiply(AbstractDetector):
 
     WIKI_TITLE = 'Divide before multiply'
     WIKI_DESCRIPTION = '''Solidity only supports integers, so division will often truncate; performing a multiply before a divison can sometimes avoid loss of precision.'''
-    WIKI_DESCRIPTION = '''Solidity integer division might truncate. As a result, performing a multiply before a divison might lead to loss of precision.'''
+    WIKI_DESCRIPTION = '''Solidity integer division might truncate. As a result, performing multiplication before divison might reduce precision.'''
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract A {
@@ -69,9 +69,9 @@ contract A {
 ```
 If `n` is greater than `oldSupply`, `coins` will be zero. For example, with `oldSupply = 5; n = 10, interest = 2`, coins will be zero.  
 If `(oldSupply * interest / n)` was used, `coins` would have been `1`.   
-In general, it's usually a good idea to re-arrange arithmetic to perform multiply before divide, unless the limit of a smaller type makes this dangerous.'''
+In general, it's usually a good idea to re-arrange arithmetic to perform multiplication before division, unless the limit of a smaller type makes this dangerous.'''
 
-    WIKI_RECOMMENDATION = '''Consider ordering multiplication prior division.'''
+    WIKI_RECOMMENDATION = '''Consider ordering multiplication before division.'''
 
     def _explore(self, node, explored, f_results, divisions):
         if node in explored:

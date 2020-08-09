@@ -22,8 +22,8 @@ class DeprecatedStandards(AbstractDetector):
 
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards'
 
-    WIKI_TITLE = 'Deprecated Standards'
-    WIKI_DESCRIPTION = 'Detect the usage of deprecated standards (as defined by SWC-111), excluding only `constant` keyword detection on functions.'
+    WIKI_TITLE = 'Deprecated standards'
+    WIKI_DESCRIPTION = 'Detect the usage of deprecated standards.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract ContractWithDeprecatedReferences {

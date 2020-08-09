@@ -20,8 +20,8 @@ class LockedEther(AbstractDetector):
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether'
 
 
-    WIKI_TITLE = 'Contracts that lock ether'
-    WIKI_DESCRIPTION = 'Contract with a `payable` function, but without a withdraw capacity.'
+    WIKI_TITLE = 'Contracts that lock Ether'
+    WIKI_DESCRIPTION = 'Contract with a `payable` function, but without a withdrawal capacity.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 pragma solidity 0.4.24;
@@ -30,7 +30,7 @@ contract Locked{
     }
 }
 ```
-Every ether sent to `Locked` will be lost.'''
+Every Ether sent to `Locked` will be lost.'''
 
     WIKI_RECOMMENDATION = 'Remove the payable attribute or add a withdraw function.'
 

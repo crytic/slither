@@ -17,7 +17,7 @@ class LocalShadowing(AbstractDetector):
 
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing'
 
-    WIKI_TITLE = 'Local Variable Shadowing'
+    WIKI_TITLE = 'Local variable shadowing'
     WIKI_DESCRIPTION = 'Detection of shadowing using local variables.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
@@ -38,9 +38,9 @@ contract Bug {
     }
 }
 ```
-`sensitive_function.owner` shadows `Bug.owner`. As a result, the use of `owner` inside `sensitive_function` might be incorrect.'''
+`sensitive_function.owner` shadows `Bug.owner`. As a result, the use of `owner` in `sensitive_function` might be incorrect.'''
 
-    WIKI_RECOMMENDATION = 'Rename the local variable so as not to mistakenly overshadow any state variable/function/modifier/event definitions.'
+    WIKI_RECOMMENDATION = 'Rename the local variables that shadow another component.'
 
     OVERSHADOWED_FUNCTION = "function"
     OVERSHADOWED_MODIFIER = "modifier"

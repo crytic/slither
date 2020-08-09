@@ -20,7 +20,7 @@ class UninitializedStorageVars(AbstractDetector):
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-storage-variables'
 
     WIKI_TITLE = 'Uninitialized storage variables'
-    WIKI_DESCRIPTION = 'An uinitialized storage variable will act as a reference to the first state variable, and can override a critical variable.'
+    WIKI_DESCRIPTION = 'An uninitialized storage variable will act as a reference to the first state variable, and can override a critical variable.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract Uninitialized{
@@ -36,10 +36,10 @@ contract Uninitialized{
     }
 }
 ```
-Bob calls `func`. As a result, `owner` is override to 0.
+Bob calls `func`. As a result, `owner` is overridden to `0`.
 '''
 
-    WIKI_RECOMMENDATION = 'Initialize all the storage variables.'
+    WIKI_RECOMMENDATION = 'Initialize all storage variables.'
 
     # node.context[self.key] contains the uninitialized storage variables
     key = "UNINITIALIZEDSTORAGE"

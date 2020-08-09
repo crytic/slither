@@ -21,7 +21,7 @@ class UnusedStateVars(AbstractDetector):
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variables'
 
 
-    WIKI_TITLE = 'Unused state variables'
+    WIKI_TITLE = 'Unused state variable'
     WIKI_DESCRIPTION = 'Unused state variable.'
     WIKI_EXPLOIT_SCENARIO = ''
     WIKI_RECOMMENDATION = 'Remove unused state variables.'

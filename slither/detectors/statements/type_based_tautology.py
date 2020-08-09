@@ -39,11 +39,11 @@ contract A {
 	}
 }
 ```
-`x` is an `uint256`, as a result `x >= 0` will be always true.
-`y` is an `uint8`, as a result `y <512` will be always true.  
+`x` is a `uint256`, so `x >= 0` will be always true.
+`y` is a `uint8`, so `y <512` will be always true.  
 '''
 
-    WIKI_RECOMMENDATION = '''Fix the incorrect comparison by chaning the value type or the comparison.'''
+    WIKI_RECOMMENDATION = '''Fix the incorrect comparison by changing the value type or the comparison.'''
 
     def typeRange(self, t):
         bits = int(t.split("int")[1])

@@ -19,8 +19,8 @@ class BooleanEquality(AbstractDetector):
 
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#boolean-equality'
 
-    WIKI_TITLE = 'Boolean Equality'
-    WIKI_DESCRIPTION = '''Detects the comparison to boolean constant.'''
+    WIKI_TITLE = 'Boolean equality'
+    WIKI_DESCRIPTION = '''Detects the comparison to boolean constants.'''
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
 contract A {
@@ -33,7 +33,7 @@ contract A {
 	}
 }
 ```
-Boolean can be used directly and do not need to be compare to `true` or `false`.'''
+Boolean constants can be used directly and do not need to be compare to `true` or `false`.'''
 
     WIKI_RECOMMENDATION = '''Remove the equality to the boolean constant.'''
 

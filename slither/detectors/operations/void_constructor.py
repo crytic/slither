@@ -12,8 +12,8 @@ class VoidConstructor(AbstractDetector):
 
     WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#void-constructor'
 
-    WIKI_TITLE = 'Void Constructor'
-    WIKI_DESCRIPTION = 'Detect the call to a constructor not implemented'
+    WIKI_TITLE = 'Void constructor'
+    WIKI_DESCRIPTION = 'Detect the call to a constructor that is not implemented'
     WIKI_RECOMMENDATION = 'Remove the constructor call.'
     WIKI_EXPLOIT_SCENARIO = '''
 ```solidity
@@ -22,7 +22,7 @@ contract B is A{
     constructor() public A(){}
 }
 ```
-By reading B's constructor definition, the reader might assume that `A()` initiate the contract, while no code is executed.'''
+When reading `B`'s constructor definition, we might assume that `A()` initiates the contract, but no code is executed.'''
 
 
     def _detect(self):
