@@ -115,11 +115,11 @@ class SlitherSolc:
                     self._core.add_source_code(sourcePath)
 
         if data_loaded[self.get_key()] == "root":
-            self._solc_version = "0.3"
+            self._core._solc_version = "0.3"
             logger.error("solc <0.4 is not supported")
             return
         elif data_loaded[self.get_key()] == "SourceUnit":
-            self._solc_version = "0.4"
+            self._core._solc_version = "0.4"
             self._parse_source_unit(data_loaded, filename)
         else:
             logger.error("solc version is not supported")
