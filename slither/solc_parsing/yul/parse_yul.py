@@ -611,6 +611,10 @@ def parse_yul_identifier(root: YulScope, node: YulNode, ast: Dict) -> Optional[E
         if variable:
             return Identifier(variable)
 
+        variable = root.parent_func.contract.get_state_variable_from_name(name)
+        if variable:
+            return Identifier(variable)
+
     # check yul-scoped variable
     variable = root.get_yul_local_variable_from_name(name)
     if variable:
