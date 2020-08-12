@@ -1040,6 +1040,29 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
         for v in return_type.type.elems_ordered:
             ret += _convert_to_structure_to_list(v.type)
         return ret
+    # Mapping and arrays are not included in external call
+    #
+    # contract A{
+    #
+    #     struct St{
+    #         uint a;
+    #         uint b;
+    #         mapping(uint => uint) map;
+    #         uint[] array;
+    #     }
+    #
+    #     mapping (uint => St) public st;
+    #
+    # }
+    #
+    # contract B{
+    #
+    #     function f(A a) public{
+    #         (uint a, uint b) = a.st(0);
+    #     }
+    # }
+    if isinstance(return_type, (MappingType, ArrayType)):
+        return []
     return [return_type.type]
 
 
