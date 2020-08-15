@@ -17,7 +17,7 @@ cd embark_demo || exit 255
 npm install
 slither . --embark-overwrite-config
 
-if [ $? -eq 3 ]
+if [ $? -eq 4 ]
 then
     exit 0
 fi
