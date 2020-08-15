@@ -33,23 +33,25 @@ class IncorrectSolc(AbstractDetector):
 `solc` frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks.
 We also recommend avoiding complex `pragma` statement.'''
     WIKI_RECOMMENDATION = '''
-Use Solidity 0.4.25 or 0.5.11. Consider using the latest version of Solidity for testing the compilation, and a trusted version for deploying.'''
+Use Solidity 0.5.11 - 0.5.13, 0.5.15-0.5.17, or 0.6.8, 0.6.10-0.6.11.
+Consider using the latest version of Solidity for testing the compilation, and a trusted version for deploying.'''
 
     COMPLEX_PRAGMA_TXT = "is too complex"
     OLD_VERSION_TXT = "allows old versions"
     LESS_THAN_TXT = "uses lesser than"
 
-    TOO_RECENT_VERSION_TXT = "necessitates versions too recent to be trusted. Consider deploying with 0.5.11"
-    BUGGY_VERSION_TXT = "is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)"
+    TOO_RECENT_VERSION_TXT = "necessitates a version too recent to be trusted. Consider deploying with 0.6.11"
+    BUGGY_VERSION_TXT = "is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
 
     # Indicates the allowed versions. Must be formatted in increasing order.
-    ALLOWED_VERSIONS = ["0.4.25", "0.4.26", "0.5.11"]
+    ALLOWED_VERSIONS = ["0.5.11", "0.5.12", "0.5.13", "0.5.15", "0.5.16", "0.5.17", "0.6.8", "0.6.10", "0.6.11"]
 
     # Indicates the versions that should not be used.
     BUGGY_VERSIONS = ["0.4.22", "^0.4.22",
                       "0.5.5", "^0.5.5",
                       "0.5.6", "^0.5.6",
-                      "0.5.14", "^0.5.14"]
+                      "0.5.14", "^0.5.14",
+                      "0.6.9", "^0.6.9"]
 
     def _check_version(self, version):
         op = version[0]
