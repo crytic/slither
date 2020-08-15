@@ -33,8 +33,12 @@ class IncorrectSolc(AbstractDetector):
 `solc` frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks.
 We also recommend avoiding complex `pragma` statement.'''
     WIKI_RECOMMENDATION = '''
-Use Solidity 0.5.11 - 0.5.13, 0.5.15-0.5.17, or 0.6.8, 0.6.10-0.6.11.
-Consider using the latest version of Solidity for testing the compilation, and a trusted version for deploying.'''
+Deploy with any of the following Solidity versions:
+- 0.5.11 - 0.5.13,
+- 0.5.15 - 0.5.17,
+- 0.6.8,
+- 0.6.10 - 0.6.11.
+Consider using the latest version of Solidity for testing the compilation.'''
 
     COMPLEX_PRAGMA_TXT = "is too complex"
     OLD_VERSION_TXT = "allows old versions"
@@ -111,6 +115,17 @@ Consider using the latest version of Solidity for testing the compilation, and a
                 json = self.generate_result(info)
 
                 results.append(json)
+
+        if self.slither.crytic_compile:
+            if self.slither.crytic_compile.compiler_version:
+                if self.slither.crytic_compile.compiler_version.version not in self.ALLOWED_VERSIONS:
+                    info = ["solc-",
+                            self.slither.crytic_compile.compiler_version.version,
+                            " is not recommended for deployement"]
+
+                    json = self.generate_result(info)
+
+                    results.append(json)
 
         return results
 
