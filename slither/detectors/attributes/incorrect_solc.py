@@ -38,7 +38,8 @@ Deploy with any of the following Solidity versions:
 - 0.5.15 - 0.5.17,
 - 0.6.8,
 - 0.6.10 - 0.6.11.
-Consider using the latest version of Solidity for testing the compilation.'''
+Use a simple pragma version that allows any of these versions.
+Consider using the latest version of Solidity for testing.'''
 
     COMPLEX_PRAGMA_TXT = "is too complex"
     OLD_VERSION_TXT = "allows old versions"
@@ -121,7 +122,7 @@ Consider using the latest version of Solidity for testing the compilation.'''
                 if self.slither.crytic_compile.compiler_version.version not in self.ALLOWED_VERSIONS:
                     info = ["solc-",
                             self.slither.crytic_compile.compiler_version.version,
-                            " is not recommended for deployement"]
+                            " is not recommended for deployement\n"]
 
                     json = self.generate_result(info)
 
