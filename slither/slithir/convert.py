@@ -815,7 +815,10 @@ def convert_to_solidity_func(ir):
         # If the variable is a referenceVariable, we are lost
         # See https://github.com/crytic/slither/issues/566 for potential solutions
         if not isinstance(new_ir.arguments[1], ReferenceVariable):
-            new_ir.lvalue.set_type(new_ir.arguments[1])
+            decode_type = new_ir.arguments[1]
+            if isinstance(decode_type, (Structure, Enum, Contract)):
+                decode_type = UserDefinedType(decode_type)
+            new_ir.lvalue.set_type(decode_type)
     else:
         new_ir.lvalue.set_type(call.return_type)
     return new_ir
