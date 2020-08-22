@@ -514,6 +514,9 @@ class FormatterCryticCompile(logging.Formatter):
 
 
 def main():
+    # Codebase with complex domninators can lead to a lot of SSA recursive call
+    sys.setrecursionlimit(1500)
+
     detectors, printers = get_detectors_and_printers()
 
     main_impl(all_detector_classes=detectors, all_printer_classes=printers)
