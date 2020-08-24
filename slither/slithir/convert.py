@@ -10,6 +10,7 @@ from slither.core.solidity_types import (ArrayType, ElementaryType,
                                          UserDefinedType, TypeInformation)
 from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
 from slither.core.solidity_types.type import Type
+from slither.core.variables.function_type_variable import FunctionTypeVariable
 from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations.codesize import CodeSize
@@ -534,7 +535,30 @@ def propagate_types(ir, node):
                     return _convert_type_contract(ir, node.function.slither)
                 left = ir.variable_left
                 t = None
-                if isinstance(left, (Variable, SolidityVariable)):
+                # Handling of this.function_name usage
+                if (left == SolidityVariable("this") and
+                    isinstance(ir.variable_right, Constant) and
+                    str(ir.variable_right) in [x.name for x in ir.function.contract.functions]
+                ):
+                    # Assumption that this.function_name can only compile if
+                    # And the contract does not have two functions starting with function_name
+                    # Otherwise solc raises:
+                    # Error: Member "f" not unique after argument-dependent lookup in contract
+                    targeted_function = next((x for x in ir.function.contract.functions if
+                                              x.name == str(ir.variable_right)))
+                    parameters = []
+                    returns = []
+                    for parameter in targeted_function.parameters:
+                        v = FunctionTypeVariable()
+                        v.name = parameter.name
+                        parameters.append(v)
+                    for return_var in targeted_function.returns:
+                        v = FunctionTypeVariable()
+                        v.name = return_var.name
+                        returns.append(v)
+                    t = FunctionType(parameters, returns)
+                    ir.lvalue.set_type(t)
+                elif isinstance(left, (Variable, SolidityVariable)):
                     t = ir.variable_left.type
                 elif isinstance(left, (Contract, Enum, Structure)):
                     t = UserDefinedType(left)
@@ -967,7 +991,6 @@ def convert_to_library(ir, node, using_for):
     # Though we could use .contract as libraries cannot be shadowed
     contract = node.function.contract_declarer
     t = ir.destination.type
-
     if t in using_for:
         new_ir = look_for_library(contract, ir, node, using_for, t)
         if new_ir:
