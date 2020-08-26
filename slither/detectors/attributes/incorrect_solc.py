@@ -126,11 +126,8 @@ Consider using the latest version of Solidity for testing.'''
 
                     json = self.generate_result(info)
 
-                    # can we find the pragma(s) associated with the version?
-                    # if so, add their source mappings.
-                    for p in pragma:
-                        if p.is_solidity_version and p.version.endswith(info[1]):
-                            json.add_pragma(p)
+                    # TODO: Once crytic-compile adds config file info, add a source mapping element pointing to
+                    #       the line in the config that specifies the problematic version of solc
 
                     results.append(json)
 
