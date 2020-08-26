@@ -126,6 +126,12 @@ Consider using the latest version of Solidity for testing.'''
 
                     json = self.generate_result(info)
 
+                    # can we find the pragma(s) associated with the version?
+                    # if so, add their source mappings.
+                    for p in pragma:
+                        if p.is_solidity_version and p.version.endswith(info[1]):
+                            json.add_pragma(p)
+
                     results.append(json)
 
         return results
