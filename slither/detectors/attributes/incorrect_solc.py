@@ -122,7 +122,7 @@ Consider using the latest version of Solidity for testing.'''
                 if self.slither.crytic_compile.compiler_version.version not in self.ALLOWED_VERSIONS:
                     info = ["solc-",
                             self.slither.crytic_compile.compiler_version.version,
-                            " is not recommended for deployement\n"]
+                            " is not recommended for deployment\n"]
 
                     json = self.generate_result(info)
 
