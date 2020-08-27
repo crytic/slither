@@ -44,16 +44,15 @@ from slither.core.declarations import Contract
 
 from slither.core.expressions.expression import Expression
 
-if TYPE_CHECKING:
-    from slither.core.declarations import Function
-    from slither.slithir.variables.variable import SlithIRVariable
-    from slither.core.slither_core import SlitherCore
-    from slither.utils.type_helpers import (
-        InternalCallType,
-        HighLevelCallType,
-        LibraryCallType,
-        LowLevelCallType,
-    )
+from slither.core.declarations import Function
+from slither.slithir.variables.variable import SlithIRVariable
+from slither.core.slither_core import SlitherCore
+from slither.utils.type_helpers import (
+    InternalCallType,
+    HighLevelCallType,
+    LibraryCallType,
+    LowLevelCallType,
+)
 
 
 ###################################################################################

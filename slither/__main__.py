@@ -146,11 +146,11 @@ def get_detectors_and_printers():
         make_plugin = entry_point.load()
 
         plugin_detectors, plugin_printers = make_plugin()
-
-        if not all(issubclass(d, AbstractDetector) for d in plugin_detectors):
-            raise Exception('Error when loading plugin %s, %r is not a detector' % (entry_point, d))
-
-        if not all(issubclass(p, AbstractPrinter) for p in plugin_printers):
+        for d in plugin_detectors:
+            if not issubclass(d, AbstractDetector):
+                raise Exception('Error when loading plugin %s, %r is not a detector' % (entry_point, d))
+        for p in plugin_printers:
+            if not issubclass(p, AbstractPrinter):
             raise Exception('Error when loading plugin %s, %r is not a printer' % (entry_point, p))
 
         # We convert those to lists in case someone returns a tuple
