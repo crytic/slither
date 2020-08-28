@@ -25,18 +25,16 @@ class Constant(SlithIRVariable):
                 if val.startswith('0x') or val.startswith('0X'):
                     self._val = int(val, 16)
                 else:
-                    if 'e' in val:
-                        base, expo = val.split('e')
-                        expo = int(expo)
+                    if 'e' in val or 'E' in val:
+                        base, expo = val.split('e') if 'e' in val else val.split('E')
+                        base, expo = Decimal(base), int(expo)
                         if expo > 80:
-                            raise ValueError("exponent is too large to fit in any Solidity integer size")
-                        self._val = int(Decimal(base) * (10 ** expo))
-                    elif 'E' in val:
-                        base, expo = val.split('E')
-                        expo = int(expo)
-                        if expo > 80:
-                            raise ValueError("exponent is too large to fit in any Solidity integer size")
-                        self._val = int(Decimal(base) * (10 ** expo)) 
+                            if base != Decimal(0):
+                                raise ValueError("exponent is too large to fit in any Solidity integer size")
+                            else:
+                                self._val = 0
+                        else:
+                            self._val = int(Decimal(base) * (10 ** expo))
                     else:
                         self._val = int(Decimal(val))
             elif type.type == 'bool':
