@@ -34,7 +34,7 @@ class Constant(SlithIRVariable):
                             else:
                                 self._val = 0
                         else:
-                            self._val = int(Decimal(base) * (10 ** expo))
+                            self._val = int(Decimal(base) * Decimal(10 ** expo))
                     else:
                         self._val = int(Decimal(val))
             elif type.type == 'bool':
