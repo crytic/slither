@@ -5,7 +5,6 @@ from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.variable import SlithIRVariable
 
 
-
 class LocalIRVariable(LocalVariable, SlithIRVariable):
     def __init__(self, local_variable: LocalVariable):
         assert isinstance(local_variable, LocalVariable)

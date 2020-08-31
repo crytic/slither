@@ -22,6 +22,7 @@ for elem in d2:
     if "description" in elem:
         del elem["description"]
 
+
 def removes_lines(d):
     if isinstance(d, list):
         for sub in d:
@@ -29,10 +30,11 @@ def removes_lines(d):
         return
     if not isinstance(d, dict):
         return
-    if 'lines' in d:
-        del d['lines']
+    if "lines" in d:
+        del d["lines"]
     for key in d.keys():
         removes_lines(d[key])
+
 
 results = DeepDiff(d1, d2, ignore_order=True, verbose_level=2)
 removes_lines(results)

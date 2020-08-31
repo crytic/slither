@@ -8,9 +8,9 @@ from slither.utils.arithmetic import convert_subdenomination
 from ..exceptions import SlithIRError
 
 
-
 if TYPE_CHECKING:
     from slither.core.solidity_types.type import Type
+
 
 @total_ordering
 class Constant(SlithIRVariable):

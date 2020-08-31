@@ -6,7 +6,6 @@
 from slither.slithir.variables.tuple import TupleVariable
 
 
-
 class TupleVariableSSA(TupleVariable):
     def __init__(self, t):
         super(TupleVariableSSA, self).__init__(t.node, t.index)

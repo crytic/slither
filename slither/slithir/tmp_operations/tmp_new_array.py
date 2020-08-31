@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Optional
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.solidity_types.type import Type
 
+
 class TmpNewArray(OperationWithLValue):
     def __init__(self, depth: int, array_type: Type, lvalue: Optional["VALID_LVALUE"]):
         super(TmpNewArray, self).__init__()

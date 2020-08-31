@@ -223,7 +223,9 @@ def convert_arguments(arguments):
 
 
 def is_temporary(ins: Operation) -> bool:
-    return isinstance(ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure))
+    return isinstance(
+        ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure)
+    )
 
 
 # endregion
@@ -629,9 +631,9 @@ def propagate_types(ir: Operation, node: "Node") -> Optional[Operation]:
                 t = None
                 # Handling of this.function_name usage
                 if (
-                        left == SolidityVariable("this")
-                        and isinstance(ir.variable_right, Constant)
-                        and str(ir.variable_right) in [x.name for x in ir.function.contract.functions]
+                    left == SolidityVariable("this")
+                    and isinstance(ir.variable_right, Constant)
+                    and str(ir.variable_right) in [x.name for x in ir.function.contract.functions]
                 ):
                     # Assumption that this.function_name can only compile if
                     # And the contract does not have two functions starting with function_name
@@ -897,7 +899,6 @@ def can_be_low_level(ir):
     ]
 
 
-
 def convert_to_low_level(ir: HighLevelCall) -> Union[LowLevelCall, Transfer, Send]:
     """
         Convert to a transfer/send/or low level call
@@ -970,10 +971,10 @@ def convert_to_solidity_func(ir: HighLevelCall) -> SolidityCall:
         if isinstance(call.return_type, list) and len(call.return_type) == 1:
             new_ir.lvalue.set_type(call.return_type[0])
         elif (
-                isinstance(new_ir.lvalue, TupleVariable)
-                and call == SolidityFunction("abi.decode()")
-                and len(new_ir.arguments) == 2
-                and isinstance(new_ir.arguments[1], list)
+            isinstance(new_ir.lvalue, TupleVariable)
+            and call == SolidityFunction("abi.decode()")
+            and len(new_ir.arguments) == 2
+            and isinstance(new_ir.arguments[1], list)
         ):
             types = [x for x in new_ir.arguments[1]]
             new_ir.lvalue.set_type(types)
@@ -1241,6 +1242,7 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
         return []
     return [return_type.type]
 
+
 def convert_type_of_high_and_internal_level_call(
     ir: Union[InternalCall, HighLevelCall], contract: Contract
 ):
@@ -1357,7 +1359,9 @@ def remove_temporary(result: List[Operation]) -> List[Operation]:
     result = [
         ins
         for ins in result
-        if not isinstance(ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure))
+        if not isinstance(
+            ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure)
+        )
     ]
 
     return result
