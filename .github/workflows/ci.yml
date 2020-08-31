@@ -1,5 +1,10 @@
 name: CI
 
+defaults:
+  run:
+    # To load bashrc
+    shell: bash -ieo pipefail {0}
+
 on:
   push:
     branches:
