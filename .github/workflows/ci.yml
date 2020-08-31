@@ -15,7 +15,23 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        type: ["4", "5", "cli", "data_dependency", "embark", "erc", "etherlime", "find_paths", "kspec", "printers", "simil", "slither_config", "truffle", "upgradability", "prop"]
+        type: ["detectors_4", 
+               "detectors_5", 
+               "detectors_6", 
+               "detectors_7", 
+               "cli", 
+               "data_dependency", 
+               "embark", 
+               "erc", 
+               "etherlime", 
+               "find_paths", 
+               "kspec", 
+               "printers", 
+               "simil", 
+               "slither_config", 
+               "truffle", 
+               "upgradability", 
+               "prop"]
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.6
@@ -25,19 +41,16 @@ jobs:
     - name: Install dependencies
       run: |
         python setup.py install
-        # Used by travis_test.sh
+        # Used by ci_test.sh
         pip install deepdiff
 
-        sudo wget -O /usr/bin/solc-0.4.25 https://github.com/ethereum/solidity/releases/download/v0.4.25/solc-static-linux
-        sudo chmod +x /usr/bin/solc-0.4.25
-        sudo wget -O /usr/bin/solc-0.5.1 https://github.com/ethereum/solidity/releases/download/v0.5.1/solc-static-linux
-        sudo chmod +x /usr/bin/solc-0.5.1
-        sudo wget -O /usr/bin/solc-0.5.0 https://github.com/ethereum/solidity/releases/download/v0.5.0/solc-static-linux
-        sudo chmod +x /usr/bin/solc-0.5.0
-        sudo cp /usr/bin/solc-0.5.1 /usr/bin/solc
+        git clone https://github.com/crytic/solc-select.git
+        ./solc-select/scripts/install.sh
+        solc use 0.5.1
+
     - name: Run Tests
       env:
         TEST_TYPE: ${{ matrix.type }}
         GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
       run: |
-        bash scripts/travis_test_${TEST_TYPE}.sh
+        bash scripts/ci_test_${TEST_TYPE}.sh

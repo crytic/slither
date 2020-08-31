@@ -4,7 +4,8 @@
 
 DIR_TESTS="tests/check-erc"
 
-slither-check-erc "$DIR_TESTS/erc20.sol" ERC20 --solc solc-0.5.0 > test_1.txt 2>&1
+solc use 0.5.0
+slither-check-erc "$DIR_TESTS/erc20.sol" ERC20 > test_1.txt 2>&1
 DIFF=$(diff test_1.txt "$DIR_TESTS/test_1.txt")
 if [  "$DIFF" != "" ]
 then

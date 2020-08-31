@@ -1,73 +1,8 @@
 #!/usr/bin/env bash
 
-### Test Detectors
-
-DIR="$(cd "$(dirname "$0")" && pwd)"
-
-CURRENT_PATH=$(pwd)
-TRAVIS_PATH='/home/travis/build/crytic/slither'
-
-# test_slither file.sol detectors
-test_slither(){
-
-    expected="$DIR/../tests/expected_json/$(basename "$1" .sol).$2.json"
-
-    # run slither detector on input file and save output as json
-    slither "$1" --solc-disable-warnings --detect "$2" --json "$DIR/tmp-test.json" --solc solc-0.5.1
-    if [ $? -eq 255 ]
-    then
-        echo "Slither crashed"
-        exit 255
-    fi
-
-    if [ ! -f "$DIR/tmp-test.json" ]; then
-        echo ""
-        echo "Missing generated file"
-        echo ""
-        exit 1
-    fi
-    sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$DIR/tmp-test.json" -i
-    result=$(python "$DIR/json_diff.py" "$expected" "$DIR/tmp-test.json")
-
-    rm "$DIR/tmp-test.json"
-    if [ "$result" != "{}" ]; then
-      echo ""
-      echo "failed test of file: $1, detector: $2"
-      echo ""
-      echo "$result"
-      echo ""
-      exit 1
-    fi
-
-    # run slither detector on input file and save output as json
-    slither "$1" --solc-disable-warnings --detect "$2" --legacy-ast --json "$DIR/tmp-test.json" --solc solc-0.5.1
-    if [ $? -eq 255 ]
-    then
-        echo "Slither crashed"
-        exit 255
-    fi
-
-    if [ ! -f "$DIR/tmp-test.json" ]; then
-        echo ""
-        echo "Missing generated file"
-        echo ""
-        exit 1
-    fi
-
-    sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$DIR/tmp-test.json" -i
-    result=$(python "$DIR/json_diff.py" "$expected" "$DIR/tmp-test.json")
-
-    rm "$DIR/tmp-test.json"
-    if [ "$result" != "{}" ]; then
-      echo ""
-      echo "failed test of file: $1, detector: $2"
-      echo ""
-      echo "$result"
-      echo ""
-      exit 1
-    fi
-}
-
+source "$(dirname "$0")""/ci_test.sh"
+  
+solc use "0.5.1"
 
 test_slither tests/void-cst.sol "void-cst"
 test_slither tests/solc_version_incorrect_05.ast.json "solc-version"

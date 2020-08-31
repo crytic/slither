@@ -1,73 +1,8 @@
 #!/usr/bin/env bash
 
-### Test Detectors
+source "$(dirname "$0")""/ci_test.sh"
 
-DIR="$(cd "$(dirname "$0")" && pwd)"
-
-CURRENT_PATH=$(pwd)
-TRAVIS_PATH='/home/travis/build/crytic/slither'
-# test_slither file.sol detectors
-test_slither(){
-
-    expected="$DIR/../tests/expected_json/$(basename "$1" .sol).$2.json"
-
-    # run slither detector on input file and save output as json
-    slither "$1" --solc-disable-warnings --detect "$2" --json "$DIR/tmp-test.json" --solc solc-0.4.25
-    if [ $? -eq 255 ]
-    then
-        echo "Slither crashed"
-        exit 255
-    fi
-
-    if [ ! -f "$DIR/tmp-test.json" ]; then
-        echo ""
-        echo "Missing generated file"
-        echo ""
-        exit 1
-    fi
-
-    sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$DIR/tmp-test.json" -i
-    result=$(python "$DIR/json_diff.py" "$expected" "$DIR/tmp-test.json")
-
-    rm "$DIR/tmp-test.json"
-    if [ "$result" != "{}" ]; then
-      echo ""
-      echo "failed test of file: $1, detector: $2"
-      echo ""
-      echo "$result"
-      echo ""
-      exit 1
-    fi
-
-    # run slither detector on input file and save output as json
-    slither "$1" --solc-disable-warnings --detect "$2" --legacy-ast --json "$DIR/tmp-test.json" --solc solc-0.4.25
-    if [ $? -eq 255 ]
-    then
-        echo "Slither crashed"
-        exit 255
-    fi
-
-    if [ ! -f "$DIR/tmp-test.json" ]; then
-        echo ""
-        echo "Missing generated file"
-        echo ""
-        exit 1
-    fi
-
-    sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$DIR/tmp-test.json" -i
-    result=$(python "$DIR/json_diff.py" "$expected" "$DIR/tmp-test.json")
-	
-    rm "$DIR/tmp-test.json"
-    if [ "$result" != "{}" ]; then
-      echo ""
-      echo "failed test of file: $1, detector: $2"
-      echo ""
-      echo "$result"
-      echo ""
-      exit 1
-    fi
-}
-
+solc use "0.4.25"
 
 test_slither tests/unchecked_lowlevel.sol "unchecked-lowlevel"
 test_slither tests/deprecated_calls.sol "deprecated-standards"
@@ -92,7 +27,6 @@ test_slither tests/const_state_variables.sol "constable-states"
 test_slither tests/external_function.sol "external-function"
 test_slither tests/external_function_2.sol "external-function"
 test_slither tests/naming_convention.sol "naming-convention"
-#test_slither tests/complex_func.sol "complex-function"
 test_slither tests/controlled_delegatecall.sol "controlled-delegatecall"
 test_slither tests/uninitialized_local_variable.sol "uninitialized-local"
 test_slither tests/constant.sol "constant-function-asm"
