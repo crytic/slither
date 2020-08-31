@@ -46,6 +46,8 @@ jobs:
 
         git clone https://github.com/crytic/solc-select.git
         ./solc-select/scripts/install.sh
+        export PATH=/home/runner/.solc-select:$PATH
+        echo "export PATH=/home/runner/.solc-select:$PATH" >> ~/.bashrc
         solc use 0.5.1
 
     - name: Run Tests
