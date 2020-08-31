@@ -3,5 +3,11 @@ target-version = ["py36"]
 line-length = 100
 [tool.pylint.messages_control]
 disable = """
-C0116,C0114
+missing-module-docstring,
+missing-class-docstring,
+missing-function-docstring,
+unnecessary-lambda,
+bad-continuation,
+cyclic-import,
+line-too-long
 """
