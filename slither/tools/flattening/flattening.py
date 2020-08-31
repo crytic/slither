@@ -43,7 +43,7 @@ class Flattening:
         remove_assert=False,
         private_to_internal=False,
         export_path: Optional[str] = None,
-        pragma_solidity: Optional[str] = None
+        pragma_solidity: Optional[str] = None,
     ):
         self._source_codes: Dict[Contract, str] = {}
         self._slither = slither

@@ -11,17 +11,16 @@ class ConstantPragma(AbstractDetector):
     Check that the same pragma is used in all the files
     """
 
-    ARGUMENT = 'pragma'
-    HELP = 'If different pragma directives are used'
+    ARGUMENT = "pragma"
+    HELP = "If different pragma directives are used"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used"
 
-
-    WIKI_TITLE = 'Different pragma directives are used'
-    WIKI_DESCRIPTION = 'Detect whether different Solidity versions are used.'
-    WIKI_RECOMMENDATION = 'Use one Solidity version.'
+    WIKI_TITLE = "Different pragma directives are used"
+    WIKI_DESCRIPTION = "Detect whether different Solidity versions are used."
+    WIKI_RECOMMENDATION = "Use one Solidity version."
 
     def _detect(self):
         results = []

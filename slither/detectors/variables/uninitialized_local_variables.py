@@ -12,17 +12,16 @@ class UninitializedLocalVars(AbstractDetector):
     """
     """
 
-    ARGUMENT = 'uninitialized-local'
-    HELP = 'Uninitialized local variables'
+    ARGUMENT = "uninitialized-local"
+    HELP = "Uninitialized local variables"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-local-variables'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-local-variables"
 
-
-    WIKI_TITLE = 'Uninitialized local variables'
-    WIKI_DESCRIPTION = 'Uninitialized local variables.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Uninitialized local variables"
+    WIKI_DESCRIPTION = "Uninitialized local variables."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Uninitialized is Owner{
     function withdraw() payable public onlyOwner{
@@ -31,9 +30,9 @@ contract Uninitialized is Owner{
     }
 }
 ```
-Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is lost.'''
+Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is lost."""
 
-    WIKI_RECOMMENDATION = 'Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero.'
+    WIKI_RECOMMENDATION = "Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero."
 
     key = "UNINITIALIZEDLOCAL"
 
@@ -73,7 +72,6 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
         for son in node.sons:
             self._detect_uninitialized(function, son, visited)
 
-
     def _detect(self):
         """ Detect uninitialized local variables
 
@@ -92,11 +90,13 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
                     if function.contains_assembly:
                         continue
                     # dont consider storage variable, as they are detected by another detector
-                    uninitialized_local_variables = [v for v in function.local_variables if not v.is_storage and v.uninitialized]
+                    uninitialized_local_variables = [
+                        v for v in function.local_variables if not v.is_storage and v.uninitialized
+                    ]
                     function.entry_point.context[self.key] = uninitialized_local_variables
                     self._detect_uninitialized(function, function.entry_point, [])
         all_results = list(set(self.results))
-        for(function, uninitialized_local_variable) in all_results:
+        for (function, uninitialized_local_variable) in all_results:
 
             info = [uninitialized_local_variable, " is a local variable never initialized\n"]
             json = self.generate_result(info)

@@ -3,11 +3,10 @@ from slither.slithir.utils.utils import is_valid_lvalue
 
 
 class Phi(OperationWithLValue):
-
     def __init__(self, left_variable, nodes):
         # When Phi operations are created the
         # correct indexes of the variables are not yet computed
-        # We store the nodes where the variables are written 
+        # We store the nodes where the variables are written
         # so we can update the rvalues of the Phi operation
         # after its instantiation
         assert is_valid_lvalue(left_variable)
@@ -34,4 +33,6 @@ class Phi(OperationWithLValue):
         return self._nodes
 
     def __str__(self):
-        return '{}({}) := \u03D5({})'.format(self.lvalue, self.lvalue.type, [str(v) for v in self._rvalues])
+        return "{}({}) := \u03D5({})".format(
+            self.lvalue, self.lvalue.type, [str(v) for v in self._rvalues]
+        )

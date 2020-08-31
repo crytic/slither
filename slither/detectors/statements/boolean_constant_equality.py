@@ -12,16 +12,16 @@ class BooleanEquality(AbstractDetector):
     Boolean constant misuse
     """
 
-    ARGUMENT = 'boolean-equal'
-    HELP = 'Comparison to boolean constant'
+    ARGUMENT = "boolean-equal"
+    HELP = "Comparison to boolean constant"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#boolean-equality'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#boolean-equality"
 
-    WIKI_TITLE = 'Boolean equality'
-    WIKI_DESCRIPTION = '''Detects the comparison to boolean constants.'''
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Boolean equality"
+    WIKI_DESCRIPTION = """Detects the comparison to boolean constants."""
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
 	function f(bool x) public {
@@ -33,9 +33,9 @@ contract A {
 	}
 }
 ```
-Boolean constants can be used directly and do not need to be compare to `true` or `false`.'''
+Boolean constants can be used directly and do not need to be compare to `true` or `false`."""
 
-    WIKI_RECOMMENDATION = '''Remove the equality to the boolean constant.'''
+    WIKI_RECOMMENDATION = """Remove the equality to the boolean constant."""
 
     @staticmethod
     def _detect_boolean_equality(contract):

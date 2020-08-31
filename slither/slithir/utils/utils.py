@@ -8,9 +8,22 @@ from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.tuple import TupleVariable
 
+
 def is_valid_rvalue(v):
-    return isinstance(v, (StateVariable, LocalVariable, TemporaryVariable, Constant, SolidityVariable, ReferenceVariable))
+    return isinstance(
+        v,
+        (
+            StateVariable,
+            LocalVariable,
+            TemporaryVariable,
+            Constant,
+            SolidityVariable,
+            ReferenceVariable,
+        ),
+    )
+
 
 def is_valid_lvalue(v):
-    return isinstance(v, (StateVariable, LocalVariable, TemporaryVariable, ReferenceVariable, TupleVariable))
-
+    return isinstance(
+        v, (StateVariable, LocalVariable, TemporaryVariable, ReferenceVariable, TupleVariable)
+    )

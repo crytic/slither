@@ -66,7 +66,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     # abi.decode returns an a list arbitrary types
     "abi.decode()": [],
     "type(address)": [],
-    "type()": [], # 0.6.8 changed type(address) to type()
+    "type()": [],  # 0.6.8 changed type(address) to type()
 }
 
 

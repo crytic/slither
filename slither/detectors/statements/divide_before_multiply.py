@@ -13,7 +13,10 @@ def is_division(ir):
             return True
 
     if isinstance(ir, LibraryCall):
-        if ir.function.name.lower() in ['div', 'safediv', ]:
+        if ir.function.name.lower() in [
+            "div",
+            "safediv",
+        ]:
             if len(ir.arguments) == 2:
                 if ir.lvalue:
                     return True
@@ -26,7 +29,10 @@ def is_multiplication(ir):
             return True
 
     if isinstance(ir, LibraryCall):
-        if ir.function.name.lower() in ['mul', 'safemul', ]:
+        if ir.function.name.lower() in [
+            "mul",
+            "safemul",
+        ]:
             if len(ir.arguments) == 2:
                 if ir.lvalue:
                     return True
@@ -49,17 +55,17 @@ class DivideBeforeMultiply(AbstractDetector):
     Divide before multiply
     """
 
-    ARGUMENT = 'divide-before-multiply'
-    HELP = 'Imprecise arithmetic operations order'
+    ARGUMENT = "divide-before-multiply"
+    HELP = "Imprecise arithmetic operations order"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#divide-before-multiply'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#divide-before-multiply"
 
-    WIKI_TITLE = 'Divide before multiply'
-    WIKI_DESCRIPTION = '''Solidity only supports integers, so division will often truncate; performing a multiply before a divison can sometimes avoid loss of precision.'''
-    WIKI_DESCRIPTION = '''Solidity integer division might truncate. As a result, performing multiplication before divison might reduce precision.'''
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Divide before multiply"
+    WIKI_DESCRIPTION = """Solidity only supports integers, so division will often truncate; performing a multiply before a divison can sometimes avoid loss of precision."""
+    WIKI_DESCRIPTION = """Solidity integer division might truncate. As a result, performing multiplication before divison might reduce precision."""
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
 	function f(uint n) public {
@@ -69,9 +75,9 @@ contract A {
 ```
 If `n` is greater than `oldSupply`, `coins` will be zero. For example, with `oldSupply = 5; n = 10, interest = 2`, coins will be zero.  
 If `(oldSupply * interest / n)` was used, `coins` would have been `1`.   
-In general, it's usually a good idea to re-arrange arithmetic to perform multiplication before division, unless the limit of a smaller type makes this dangerous.'''
+In general, it's usually a good idea to re-arrange arithmetic to perform multiplication before division, unless the limit of a smaller type makes this dangerous."""
 
-    WIKI_RECOMMENDATION = '''Consider ordering multiplication before division.'''
+    WIKI_RECOMMENDATION = """Consider ordering multiplication before division."""
 
     def _explore(self, node, explored, f_results, divisions):
         if node in explored:

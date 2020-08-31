@@ -15,16 +15,16 @@ class DeprecatedStandards(AbstractDetector):
     Use of Deprecated Standards
     """
 
-    ARGUMENT = 'deprecated-standards'
-    HELP = 'Deprecated Solidity Standards'
+    ARGUMENT = "deprecated-standards"
+    HELP = "Deprecated Solidity Standards"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards"
 
-    WIKI_TITLE = 'Deprecated standards'
-    WIKI_DESCRIPTION = 'Detect the usage of deprecated standards.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Deprecated standards"
+    WIKI_DESCRIPTION = "Detect the usage of deprecated standards."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract ContractWithDeprecatedReferences {
     // Deprecated: Change block.blockhash() -> blockhash()
@@ -51,15 +51,19 @@ contract ContractWithDeprecatedReferences {
         suicide(address(0));
     }
 }
-```'''
+```"""
 
-    WIKI_RECOMMENDATION = 'Replace all uses of deprecated symbols.'
+    WIKI_RECOMMENDATION = "Replace all uses of deprecated symbols."
 
     # The format for the following deprecated lists is [(detecting_signature, original_text, recommended_text)]
-    DEPRECATED_SOLIDITY_VARIABLE = [("block.blockhash", "block.blockhash()", "blockhash()"),
-                                    ("msg.gas", "msg.gas", "gasleft()")]
-    DEPRECATED_SOLIDITY_FUNCTIONS = [("suicide(address)", "suicide()", "selfdestruct()"),
-                                     ("sha3()", "sha3()", "keccak256()")]
+    DEPRECATED_SOLIDITY_VARIABLE = [
+        ("block.blockhash", "block.blockhash()", "blockhash()"),
+        ("msg.gas", "msg.gas", "gasleft()"),
+    ]
+    DEPRECATED_SOLIDITY_FUNCTIONS = [
+        ("suicide(address)", "suicide()", "selfdestruct()"),
+        ("sha3()", "sha3()", "keccak256()"),
+    ]
     DEPRECATED_NODE_TYPES = [(NodeType.THROW, "throw", "revert()")]
     DEPRECATED_LOW_LEVEL_CALLS = [("callcode", "callcode", "delegatecall")]
 
@@ -113,7 +117,9 @@ contract ContractWithDeprecatedReferences {
 
         for state_variable in contract.state_variables_declared:
             if state_variable.expression:
-                deprecated_results = self.detect_deprecation_in_expression(state_variable.expression)
+                deprecated_results = self.detect_deprecation_in_expression(
+                    state_variable.expression
+                )
                 if deprecated_results:
                     results.append((state_variable, deprecated_results))
 
@@ -152,10 +158,12 @@ contract ContractWithDeprecatedReferences {
                 for deprecated_reference in deprecated_references:
                     source_object = deprecated_reference[0]
                     deprecated_entries = deprecated_reference[1]
-                    info = ['Deprecated standard detected ', source_object, ':\n']
+                    info = ["Deprecated standard detected ", source_object, ":\n"]
 
                     for (dep_id, original_desc, recommended_disc) in deprecated_entries:
-                        info += [f"\t- Usage of \"{original_desc}\" should be replaced with \"{recommended_disc}\"\n"]
+                        info += [
+                            f'\t- Usage of "{original_desc}" should be replaced with "{recommended_disc}"\n'
+                        ]
 
                     res = self.generate_result(info)
                     results.append(res)

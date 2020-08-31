@@ -3,7 +3,6 @@ from slither.slithir.utils.utils import is_valid_rvalue
 
 
 class InitArray(OperationWithLValue):
-
     def __init__(self, init_values, lvalue):
         # init_values can be an array of n dimension
         # reduce was removed in py3
@@ -33,7 +32,6 @@ class InitArray(OperationWithLValue):
         return list(self._init_values)
 
     def __str__(self):
-
         def convert(elem):
             if isinstance(elem, (list,)):
                 return str([convert(x) for x in elem])

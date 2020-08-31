@@ -10,16 +10,16 @@ class LocalShadowing(AbstractDetector):
     Local variable shadowing
     """
 
-    ARGUMENT = 'shadowing-local'
-    HELP = 'Local variables shadowing'
+    ARGUMENT = "shadowing-local"
+    HELP = "Local variables shadowing"
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing"
 
-    WIKI_TITLE = 'Local variable shadowing'
-    WIKI_DESCRIPTION = 'Detection of shadowing using local variables.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Local variable shadowing"
+    WIKI_DESCRIPTION = "Detection of shadowing using local variables."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 pragma solidity ^0.4.24;
 
@@ -38,9 +38,9 @@ contract Bug {
     }
 }
 ```
-`sensitive_function.owner` shadows `Bug.owner`. As a result, the use of `owner` in `sensitive_function` might be incorrect.'''
+`sensitive_function.owner` shadows `Bug.owner`. As a result, the use of `owner` in `sensitive_function` might be incorrect."""
 
-    WIKI_RECOMMENDATION = 'Rename the local variables that shadow another component.'
+    WIKI_RECOMMENDATION = "Rename the local variables that shadow another component."
 
     OVERSHADOWED_FUNCTION = "function"
     OVERSHADOWED_MODIFIER = "modifier"
@@ -80,7 +80,9 @@ contract Bug {
                     # Check state variables
                     for scope_state_variable in scope_contract.state_variables_declared:
                         if variable.name == scope_state_variable.name:
-                            overshadowed.append((self.OVERSHADOWED_STATE_VARIABLE, scope_state_variable))
+                            overshadowed.append(
+                                (self.OVERSHADOWED_STATE_VARIABLE, scope_state_variable)
+                            )
 
                 # If we have found any overshadowed objects, we'll want to add it to our result list.
                 if overshadowed:
@@ -104,7 +106,7 @@ contract Bug {
                 for shadow in shadows:
                     local_variable = shadow[0]
                     overshadowed = shadow[1]
-                    info = [local_variable, ' shadows:\n']
+                    info = [local_variable, " shadows:\n"]
                     for overshadowed_entry in overshadowed:
                         info += ["\t- ", overshadowed_entry[1], f" ({overshadowed_entry[0]})\n"]
 

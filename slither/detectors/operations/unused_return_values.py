@@ -12,16 +12,18 @@ class UnusedReturnValues(AbstractDetector):
     If the return value of a function is never used, it's likely to be bug
     """
 
-    ARGUMENT = 'unused-return'
-    HELP = 'Unused return values'
+    ARGUMENT = "unused-return"
+    HELP = "Unused return values"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return"
 
-    WIKI_TITLE = 'Unused return'
-    WIKI_DESCRIPTION = 'The return value of an external call is not stored in a local or state variable.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Unused return"
+    WIKI_DESCRIPTION = (
+        "The return value of an external call is not stored in a local or state variable."
+    )
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract MyConc{
     using SafeMath for uint;   
@@ -30,9 +32,9 @@ contract MyConc{
     }
 }
 ```
-`MyConc` calls `add` of `SafeMath`, but does not store the result in `a`. As a result, the computation has no effect.'''
+`MyConc` calls `add` of `SafeMath`, but does not store the result in `a`. As a result, the computation has no effect."""
 
-    WIKI_RECOMMENDATION = 'Ensure that all the return values of the function calls are used.'
+    WIKI_RECOMMENDATION = "Ensure that all the return values of the function calls are used."
 
     _txt_description = "external calls"
 
@@ -81,4 +83,3 @@ contract MyConc{
                         results.append(res)
 
         return results
-

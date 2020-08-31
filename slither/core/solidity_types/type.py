@@ -3,7 +3,8 @@ from typing import Tuple
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 
-class Type(SourceMapping,metaclass=abc.ABCMeta):
+
+class Type(SourceMapping, metaclass=abc.ABCMeta):
     @property
     @abc.abstractmethod
     def storage_size(self) -> Tuple[int, bool]:

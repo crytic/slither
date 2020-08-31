@@ -1,23 +1,26 @@
-from slither.core.declarations import Event, Contract, SolidityVariableComposed, SolidityFunction, Structure
+from slither.core.declarations import (
+    Event,
+    Contract,
+    SolidityVariableComposed,
+    SolidityFunction,
+    Structure,
+)
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.lvalue import OperationWithLValue
 
 
 class TmpCall(OperationWithLValue):
-
     def __init__(self, called, nbr_arguments, result, type_call):
-        assert isinstance(called, (Contract,
-                                   Variable,
-                                   SolidityVariableComposed,
-                                   SolidityFunction,
-                                   Structure,
-                                   Event))
+        assert isinstance(
+            called,
+            (Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event),
+        )
         super(TmpCall, self).__init__()
         self._called = called
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
         self._lvalue = result
-        self._ori = None # 
+        self._ori = None  #
         self._callid = None
         self._gas = None
         self._value = None
@@ -83,5 +86,4 @@ class TmpCall(OperationWithLValue):
         self._ori = ori
 
     def __str__(self):
-        return str(self.lvalue) +' = TMPCALL{} '.format(self.nbr_arguments)+ str(self._called) 
-
+        return str(self.lvalue) + " = TMPCALL{} ".format(self.nbr_arguments) + str(self._called)

@@ -1,27 +1,24 @@
 """
 """
 from slither.core.cfg.node import NodeType
-from slither.detectors.abstract_detector import (AbstractDetector,
-                                                 DetectorClassification)
-from slither.slithir.operations import (HighLevelCall, LibraryCall,
-                                        LowLevelCall, Send, Transfer)
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.slithir.operations import HighLevelCall, LibraryCall, LowLevelCall, Send, Transfer
 
 
 class MultipleCallsInLoop(AbstractDetector):
     """
     """
 
-    ARGUMENT = 'calls-loop'
-    HELP = 'Multiple calls in a loop'
+    ARGUMENT = "calls-loop"
+    HELP = "Multiple calls in a loop"
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation/#calls-inside-a-loop'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation/#calls-inside-a-loop"
 
-
-    WIKI_TITLE = 'Calls inside a loop'
-    WIKI_DESCRIPTION = 'Calls inside a loop might lead to a denial-of-service attack.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Calls inside a loop"
+    WIKI_DESCRIPTION = "Calls inside a loop might lead to a denial-of-service attack."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract CallsInLoop{
 
@@ -39,9 +36,9 @@ contract CallsInLoop{
 
 }
 ```
-If one of the destinations has a fallback function that reverts, `bad` will always revert.'''
+If one of the destinations has a fallback function that reverts, `bad` will always revert."""
 
-    WIKI_RECOMMENDATION = 'Favor [pull over push](https://github.com/ethereum/wiki/wiki/Safety#favor-pull-over-push-for-external-calls) strategy for external calls.'
+    WIKI_RECOMMENDATION = "Favor [pull over push](https://github.com/ethereum/wiki/wiki/Safety#favor-pull-over-push-for-external-calls) strategy for external calls."
 
     @staticmethod
     def call_in_loop(node, in_loop, visited, ret):
@@ -57,10 +54,7 @@ If one of the destinations has a fallback function that reverts, `bad` will alwa
 
         if in_loop:
             for ir in node.irs:
-                if isinstance(ir, (LowLevelCall,
-                                   HighLevelCall,
-                                   Send,
-                                   Transfer)):
+                if isinstance(ir, (LowLevelCall, HighLevelCall, Send, Transfer)):
                     if isinstance(ir, LibraryCall):
                         continue
                     ret.append(node)
@@ -73,8 +67,7 @@ If one of the destinations has a fallback function that reverts, `bad` will alwa
         ret = []
         for f in contract.functions + contract.modifiers:
             if f.contract_declarer == contract and f.is_implemented:
-                MultipleCallsInLoop.call_in_loop(f.entry_point,
-                                                 False, [], ret)
+                MultipleCallsInLoop.call_in_loop(f.entry_point, False, [], ret)
 
         return ret
 

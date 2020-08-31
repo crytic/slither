@@ -231,7 +231,12 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
             Return the function signature without the return values
         """
         name, parameters, _ = self.signature
-        return ".".join([self.contract_declarer.name] + self._scope + [name]) + "(" + ",".join(parameters) + ")"
+        return (
+            ".".join([self.contract_declarer.name] + self._scope + [name])
+            + "("
+            + ",".join(parameters)
+            + ")"
+        )
 
     @property
     def contains_assembly(self) -> bool:
@@ -1615,8 +1620,9 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         return ir.rvalues[0] == ir.lvalue
 
     def fix_phi(self, last_state_variables_instances, initial_state_variables_instances):
-        from slither.slithir.operations import (InternalCall, PhiCallback)
-        from slither.slithir.variables import (Constant, StateIRVariable)
+        from slither.slithir.operations import InternalCall, PhiCallback
+        from slither.slithir.variables import Constant, StateIRVariable
+
         for node in self.nodes:
             for ir in node.irs_ssa:
                 if node == self.entry_point:

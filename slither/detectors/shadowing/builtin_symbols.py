@@ -10,17 +10,16 @@ class BuiltinSymbolShadowing(AbstractDetector):
     Built-in symbol shadowing
     """
 
-    ARGUMENT = 'shadowing-builtin'
-    HELP = 'Built-in symbol shadowing'
+    ARGUMENT = "shadowing-builtin"
+    HELP = "Built-in symbol shadowing"
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#builtin-symbol-shadowing'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#builtin-symbol-shadowing"
 
-
-    WIKI_TITLE = 'Builtin Symbol Shadowing'
-    WIKI_DESCRIPTION = 'Detection of shadowing built-in symbols using local variables, state variables, functions, modifiers, or events.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Builtin Symbol Shadowing"
+    WIKI_DESCRIPTION = "Detection of shadowing built-in symbols using local variables, state variables, functions, modifiers, or events."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 pragma solidity ^0.4.24;
 
@@ -36,9 +35,9 @@ contract Bug {
     }
 }
 ```
-`now` is defined as a state variable, and shadows with the built-in symbol `now`. The function `assert` overshadows the built-in `assert` function. Any use of either of these built-in symbols may lead to unexpected results.'''
+`now` is defined as a state variable, and shadows with the built-in symbol `now`. The function `assert` overshadows the built-in `assert` function. Any use of either of these built-in symbols may lead to unexpected results."""
 
-    WIKI_RECOMMENDATION = 'Rename the local variables, state variables, functions, modifiers, and events that shadow a builtin symbol.'
+    WIKI_RECOMMENDATION = "Rename the local variables, state variables, functions, modifiers, and events that shadow a builtin symbol."
 
     SHADOWING_FUNCTION = "function"
     SHADOWING_MODIFIER = "modifier"
@@ -47,17 +46,70 @@ contract Bug {
     SHADOWING_EVENT = "event"
 
     # Reserved keywords reference: https://solidity.readthedocs.io/en/v0.5.2/units-and-global-variables.html
-    BUILTIN_SYMBOLS = ["assert", "require", "revert", "block", "blockhash",
-                       "gasleft", "msg", "now", "tx", "this", "addmod", "mulmod",
-                       "keccak256", "sha256", "sha3", "ripemd160", "ecrecover",
-                       "selfdestruct", "suicide", "abi", "fallback", "receive"]
+    BUILTIN_SYMBOLS = [
+        "assert",
+        "require",
+        "revert",
+        "block",
+        "blockhash",
+        "gasleft",
+        "msg",
+        "now",
+        "tx",
+        "this",
+        "addmod",
+        "mulmod",
+        "keccak256",
+        "sha256",
+        "sha3",
+        "ripemd160",
+        "ecrecover",
+        "selfdestruct",
+        "suicide",
+        "abi",
+        "fallback",
+        "receive",
+    ]
 
     # https://solidity.readthedocs.io/en/v0.5.2/miscellaneous.html#reserved-keywords
-    RESERVED_KEYWORDS = ['abstract', 'after', 'alias', 'apply', 'auto', 'case', 'catch', 'copyof',
-                         'default', 'define', 'final', 'immutable', 'implements', 'in', 'inline',
-                         'let', 'macro', 'match', 'mutable', 'null', 'of', 'override', 'partial',
-                         'promise', 'reference', 'relocatable', 'sealed', 'sizeof', 'static',
-                         'supports', 'switch', 'try', 'type', 'typedef', 'typeof', 'unchecked']
+    RESERVED_KEYWORDS = [
+        "abstract",
+        "after",
+        "alias",
+        "apply",
+        "auto",
+        "case",
+        "catch",
+        "copyof",
+        "default",
+        "define",
+        "final",
+        "immutable",
+        "implements",
+        "in",
+        "inline",
+        "let",
+        "macro",
+        "match",
+        "mutable",
+        "null",
+        "of",
+        "override",
+        "partial",
+        "promise",
+        "reference",
+        "relocatable",
+        "sealed",
+        "sizeof",
+        "static",
+        "supports",
+        "switch",
+        "try",
+        "type",
+        "typedef",
+        "typeof",
+        "unchecked",
+    ]
 
     def is_builtin_symbol(self, word):
         """ Detects if a given word is a built-in symbol.

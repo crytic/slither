@@ -168,7 +168,7 @@ class Node(SourceMapping, ChildFunction):
         # key are variable name
         self._phi_origins_state_variables: Dict[str, Tuple[StateVariable, Set["Node"]]] = {}
         self._phi_origins_local_variables: Dict[str, Tuple[LocalVariable, Set["Node"]]] = {}
-        #self._phi_origins_member_variables: Dict[str, Tuple[MemberVariable, Set["Node"]]] = {}
+        # self._phi_origins_member_variables: Dict[str, Tuple[MemberVariable, Set["Node"]]] = {}
 
         self._expression: Optional[Expression] = None
         self._variable_declaration: Optional[LocalVariable] = None
@@ -983,11 +983,11 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     def __str__(self):
-        additional_info = ''
+        additional_info = ""
         if self.expression:
-            additional_info += ' ' + str(self.expression)
+            additional_info += " " + str(self.expression)
         elif self.variable_declaration:
-            additional_info += ' ' + str(self.variable_declaration)
+            additional_info += " " + str(self.variable_declaration)
         txt = str(self._node_type) + additional_info
         return txt
 

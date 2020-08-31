@@ -321,7 +321,12 @@ class FunctionSolc:
 
     def _new_yul_block(self, src: Union[str, Dict]) -> YulBlock:
         node = self._function.new_node(NodeType.ASSEMBLY, src)
-        yul_object = YulBlock(self._function.contract, node, [self._function.name, f"asm_{len(self._node_to_yulobject)}"], parent_func=self._function)
+        yul_object = YulBlock(
+            self._function.contract,
+            node,
+            [self._function.name, f"asm_{len(self._node_to_yulobject)}"],
+            parent_func=self._function,
+        )
         self._node_to_yulobject[node] = yul_object
         return yul_object
 
@@ -821,22 +826,22 @@ class FunctionSolc:
             node = self._parse_block(statement, node)
         elif name == "InlineAssembly":
             # Added with solc 0.6 - the yul code is an AST
-            if 'AST' in statement:
+            if "AST" in statement:
                 self._function.contains_assembly = True
-                yul_object = self._new_yul_block(statement['src'])
+                yul_object = self._new_yul_block(statement["src"])
                 entrypoint = yul_object.entrypoint
-                exitpoint = yul_object.convert(statement['AST'])
+                exitpoint = yul_object.convert(statement["AST"])
 
                 # technically, entrypoint and exitpoint are YulNodes and we should be returning a NodeSolc here
                 # but they both expose an underlying_node so oh well
                 link_underlying_nodes(node, entrypoint)
                 node = exitpoint
             else:
-                asm_node = self._new_node(NodeType.ASSEMBLY, statement['src'])
+                asm_node = self._new_node(NodeType.ASSEMBLY, statement["src"])
                 self._function._contains_assembly = True
                 # Added with solc 0.4.12
-                if 'operations' in statement:
-                    asm_node.underlying_node.add_inline_asm(statement['operations'])
+                if "operations" in statement:
+                    asm_node.underlying_node.add_inline_asm(statement["operations"])
                 link_underlying_nodes(node, asm_node)
                 node = asm_node
         elif name == "DoWhileStatement":

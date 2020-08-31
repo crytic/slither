@@ -26,7 +26,10 @@ def dict_are_equal(d1, d2):
     return all(set(d1[k]) == set(d2[k]) for k in d1.keys())
 
 
-def is_subset(new_info: Dict[Union[Variable, Node], Set[Node]], old_info: Dict[Union[Variable, Node], Set[Node]]):
+def is_subset(
+    new_info: Dict[Union[Variable, Node], Set[Node]],
+    old_info: Dict[Union[Variable, Node], Set[Node]],
+):
     for k in new_info.keys():
         if k not in old_info:
             return False
@@ -36,11 +39,13 @@ def is_subset(new_info: Dict[Union[Variable, Node], Set[Node]], old_info: Dict[U
 
 
 def to_hashable(d: Dict[Node, Set[Node]]):
-    list_tuple = list(tuple((k, tuple(sorted(values, key=lambda x: x.node_id)))) for k, values in d.items())
+    list_tuple = list(
+        tuple((k, tuple(sorted(values, key=lambda x: x.node_id)))) for k, values in d.items()
+    )
     return tuple(sorted(list_tuple, key=lambda x: x[0].node_id))
 
-class AbstractState:
 
+class AbstractState:
     def __init__(self):
         # send_eth returns the list of calls sending value
         # calls returns the list of calls that can callback
@@ -104,23 +109,36 @@ class AbstractState:
     def merge_fathers(self, node, skip_father, detector):
         for father in node.fathers:
             if detector.KEY in father.context:
-                self._send_eth = union_dict(self._send_eth,
-                                            {key: values for key, values in father.context[detector.KEY].send_eth.items() if
-                                             key != skip_father})
-                self._calls = union_dict(self._calls,
-                                         {key: values for key, values in father.context[detector.KEY].calls.items() if
-                                          key != skip_father})
+                self._send_eth = union_dict(
+                    self._send_eth,
+                    {
+                        key: values
+                        for key, values in father.context[detector.KEY].send_eth.items()
+                        if key != skip_father
+                    },
+                )
+                self._calls = union_dict(
+                    self._calls,
+                    {
+                        key: values
+                        for key, values in father.context[detector.KEY].calls.items()
+                        if key != skip_father
+                    },
+                )
                 self._reads = union_dict(self._reads, father.context[detector.KEY].reads)
-                self._reads_prior_calls = union_dict(self.reads_prior_calls,
-                                                     father.context[detector.KEY].reads_prior_calls)
+                self._reads_prior_calls = union_dict(
+                    self.reads_prior_calls, father.context[detector.KEY].reads_prior_calls
+                )
 
     def analyze_node(self, node, detector):
-        state_vars_read: Dict[Variable, Set[Node]] = defaultdict(set,
-                                                                 {v: {node} for v in node.state_variables_read})
+        state_vars_read: Dict[Variable, Set[Node]] = defaultdict(
+            set, {v: {node} for v in node.state_variables_read}
+        )
 
         # All the state variables written
-        state_vars_written: Dict[Variable, Set[Node]] = defaultdict(set,
-                                                                    {v: {node} for v in node.state_variables_written})
+        state_vars_written: Dict[Variable, Set[Node]] = defaultdict(
+            set, {v: {node} for v in node.state_variables_written}
+        )
         slithir_operations = []
         # Add the state variables written in internal calls
         for internal_call in node.internal_calls:
@@ -139,9 +157,11 @@ class AbstractState:
         for ir in node.irs + slithir_operations:
             if detector.can_callback(ir):
                 self._calls[node] |= {ir.node}
-                self._reads_prior_calls[node] = set(self._reads_prior_calls.get(node, set()) |
-                                                    set(node.context[detector.KEY].reads.keys()) |
-                                                    set(state_vars_read.keys()))
+                self._reads_prior_calls[node] = set(
+                    self._reads_prior_calls.get(node, set())
+                    | set(node.context[detector.KEY].reads.keys())
+                    | set(state_vars_read.keys())
+                )
                 contains_call = True
 
             if detector.can_send_eth(ir):
@@ -151,7 +171,6 @@ class AbstractState:
                 self._events[ir] |= {ir.node, node}
 
         self._reads = union_dict(self._reads, state_vars_read)
-
 
         return contains_call
 
@@ -170,7 +189,7 @@ class AbstractState:
 
 
 class Reentrancy(AbstractDetector):
-    KEY = 'REENTRANCY'
+    KEY = "REENTRANCY"
 
     # can_callback and can_send_eth are static method
     # allowing inherited classes to define different behaviors
@@ -207,7 +226,10 @@ class Reentrancy(AbstractDetector):
 
             This will work only on naive implementation
         """
-        return isinstance(node.expression, UnaryOperation) and node.expression.type == UnaryOperationType.BANG
+        return (
+            isinstance(node.expression, UnaryOperation)
+            and node.expression.type == UnaryOperationType.BANG
+        )
 
     def _explore(self, node, visited, skip_father=None):
         """

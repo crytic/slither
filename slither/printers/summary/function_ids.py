@@ -8,10 +8,10 @@ from slither.utils.myprettytable import MyPrettyTable
 
 class FunctionIds(AbstractPrinter):
 
-    ARGUMENT = 'function-id'
-    HELP = 'Print the keccack256 signature of the functions'
+    ARGUMENT = "function-id"
+    HELP = "Print the keccack256 signature of the functions"
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#function-id'
+    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#function-id"
 
     def output(self, _filename):
         """
@@ -20,21 +20,21 @@ class FunctionIds(AbstractPrinter):
                 _filename(string)
         """
 
-        txt = ''
+        txt = ""
         all_tables = []
         for contract in self.slither.contracts_derived:
-            txt += '\n{}:\n'.format(contract.name)
-            table = MyPrettyTable(['Name', 'ID'])
+            txt += "\n{}:\n".format(contract.name)
+            table = MyPrettyTable(["Name", "ID"])
             for function in contract.functions:
-                if function.visibility in ['public', 'external']:
+                if function.visibility in ["public", "external"]:
                     function_id = get_function_id(function.solidity_signature)
                     table.add_row([function.solidity_signature, f"{function_id:#0{10}x}"])
             for variable in contract.state_variables:
-                if variable.visibility in ['public']:
+                if variable.visibility in ["public"]:
                     sig = variable.function_name
                     function_id = get_function_id(sig)
                     table.add_row([sig, f"{function_id:#0{10}x}"])
-            txt += str(table) + '\n'
+            txt += str(table) + "\n"
             all_tables.append((contract.name, table))
 
         self.info(txt)
