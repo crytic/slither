@@ -33,3 +33,4 @@ jobs:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
+          DEFAULT_RULES_LOCATION: '/github/workspace/'
