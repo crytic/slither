@@ -6,6 +6,8 @@ from slither.slithir.variables.variable import SlithIRVariable
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
+from slither.core.solidity_types.type import Type
+
 
 class TupleVariable(ChildNode, SlithIRVariable):
 

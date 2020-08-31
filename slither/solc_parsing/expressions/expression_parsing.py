@@ -168,6 +168,11 @@ def find_variable(
     if var_name in structures:
         return structures[var_name]
 
+    structures_top_level = contract.slither.top_level_structures
+    for st in structures_top_level:
+        if st.name == var_name:
+            return st
+
     events = contract.events_as_dict
     if var_name in events:
         return events[var_name]
@@ -175,6 +180,11 @@ def find_variable(
     enums = contract.enums_as_dict
     if var_name in enums:
         return enums[var_name]
+
+    enums_top_level = contract.slither.top_level_enums
+    for enum in enums_top_level:
+        if enum.name == var_name:
+            return enum
 
     # If the enum is refered as its name rather than its canonicalName
     enums = {e.name: e for e in contract.enums}
@@ -411,7 +421,6 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
     #    | Expression '?' Expression ':' Expression
     #    | Expression ('=' | '|=' | '^=' | '&=' | '<<=' | '>>=' | '+=' | '-=' | '*=' | '/=' | '%=') Expression
     #    | PrimaryExpression
-
     # The AST naming does not follow the spec
     name = expression[caller_context.get_key()]
     is_compact_ast = caller_context.is_compact_ast
@@ -636,7 +645,12 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         # if abi.decode is used
         # For example, abi.decode(data, ...(uint[]) )
         if right is None:
-            return parse_expression(left, caller_context)
+            ret = parse_expression(left, caller_context)
+            # Nested array are not yet available in abi.decode
+            if isinstance(ret, ElementaryTypeNameExpression):
+                old_type = ret.type
+                ret.type = ArrayType(old_type, None)
+            return ret
 
         left_expression = parse_expression(left, caller_context)
         right_expression = parse_expression(right, caller_context)
@@ -748,5 +762,14 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         call = CallExpression(called, arguments, "Modifier")
         call.set_offset(src, caller_context.slither)
         return call
+
+    elif name == "IndexRangeAccess":
+        # For now, we convert array slices to a direct array access
+        # As a result the generated IR will lose the slices information
+        # As far as I understand, array slice are only used in abi.decode
+        # https://solidity.readthedocs.io/en/v0.6.12/types.html
+        # TODO: Investigate array slices usage and implication for the IR
+        base = parse_expression(expression["baseExpression"], caller_context)
+        return base
 
     raise ParsingError("Expression not parsed %s" % name)

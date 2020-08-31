@@ -26,8 +26,8 @@ class ConstCandidateStateVars(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant"
 
     WIKI_TITLE = "State variables that could be declared constant"
-    WIKI_DESCRIPTION = "Constant state variable should be declared constant to save gas."
-    WIKI_RECOMMENDATION = "Add the `constant` attributes to the state variables that never change."
+    WIKI_DESCRIPTION = "Constant state variables should be declared constant to save gas."
+    WIKI_RECOMMENDATION = "Add the `constant` attributes to state variables that never change."
 
     @staticmethod
     def _valid_candidate(v):

@@ -1,0 +1,7 @@
+[tool.black]
+target-version = ["py36"]
+line-length = 100
+[tool.pylint.messages_control]
+disable = """
+C0116,C0114
+"""

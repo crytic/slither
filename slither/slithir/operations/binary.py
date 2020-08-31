@@ -48,6 +48,49 @@ class BinaryType(Enum):
             BinaryType.NOT_EQUAL,
         ]
 
+    @staticmethod
+    def get_type(operation_type):
+        if operation_type == "**":
+            return BinaryType.POWER
+        if operation_type == "*":
+            return BinaryType.MULTIPLICATION
+        if operation_type == "/":
+            return BinaryType.DIVISION
+        if operation_type == "%":
+            return BinaryType.MODULO
+        if operation_type == "+":
+            return BinaryType.ADDITION
+        if operation_type == "-":
+            return BinaryType.SUBTRACTION
+        if operation_type == "<<":
+            return BinaryType.LEFT_SHIFT
+        if operation_type == ">>":
+            return BinaryType.RIGHT_SHIFT
+        if operation_type == "&":
+            return BinaryType.AND
+        if operation_type == "^":
+            return BinaryType.CARET
+        if operation_type == "|":
+            return BinaryType.OR
+        if operation_type == "<":
+            return BinaryType.LESS
+        if operation_type == ">":
+            return BinaryType.GREATER
+        if operation_type == "<=":
+            return BinaryType.LESS_EQUAL
+        if operation_type == ">=":
+            return BinaryType.GREATER_EQUAL
+        if operation_type == "==":
+            return BinaryType.EQUAL
+        if operation_type == "!=":
+            return BinaryType.NOT_EQUAL
+        if operation_type == "&&":
+            return BinaryType.ANDAND
+        if operation_type == "||":
+            return BinaryType.OROR
+
+        raise SlithIRError("get_type: Unknown operation type {})".format(operation_type))
+
     def __str__(self):
         if self == BinaryType.POWER:
             return "**"

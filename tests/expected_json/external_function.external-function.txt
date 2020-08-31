@@ -9,6 +9,6 @@ funcNotCalled() should be declared external:
 	- ContractWithFunctionNotCalled2.funcNotCalled() (tests/external_function.sol#32-39)
 parameter_read_ok_for_external(uint256) should be declared external:
 	- FunctionParameterWrite.parameter_read_ok_for_external(uint256) (tests/external_function.sol#74-76)
-Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-as-external[0m
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external[0m
 tests/external_function.sol analyzed (6 contracts with 1 detectors), 5 result(s) found
 [94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

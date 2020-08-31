@@ -651,13 +651,13 @@ class Node(SourceMapping, ChildFunction):
 
     @property
     def son_true(self) -> Optional["Node"]:
-        if self.type == NodeType.IF:
+        if self.type in [NodeType.IF, NodeType.IFLOOP]:
             return self._sons[0]
         return None
 
     @property
     def son_false(self) -> Optional["Node"]:
-        if self.type == NodeType.IF and len(self._sons) >= 1:
+        if self.type in [NodeType.IF, NodeType.IFLOOP] and len(self._sons) >= 1:
             return self._sons[1]
         return None
 
@@ -984,11 +984,11 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     def __str__(self):
-        additional_info = ''
+        additional_info = ""
         if self.expression:
-            additional_info += ' ' + str(self.expression)
+            additional_info += " " + str(self.expression)
         elif self.variable_declaration:
-            additional_info += ' ' + str(self.variable_declaration)
+            additional_info += " " + str(self.variable_declaration)
         txt = str(self._node_type) + additional_info
         return txt
 
