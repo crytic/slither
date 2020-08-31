@@ -21,6 +21,8 @@ class PrinterSlithIRSSA(AbstractPrinter):
 
         txt = ""
         for contract in self.contracts:
+            if contract.is_top_level:
+                continue
             txt += "Contract {}".format(contract.name) + "\n"
             for function in contract.functions:
                 txt += "\tFunction {}".format(function.canonical_name) + "\n"
@@ -30,6 +32,7 @@ class PrinterSlithIRSSA(AbstractPrinter):
                     if node.irs_ssa:
                         txt += "\t\tIRs:" + "\n"
                         for ir in node.irs_ssa:
+                            txt += "\t\t\t{}".format(ir) + "\n"
                             txt += "\t\t\t{}".format(ir) + "\n"
                     table = pprint_dependency_table(node)
                     txt += "\n" + str(table) + "\n"
@@ -42,6 +45,7 @@ class PrinterSlithIRSSA(AbstractPrinter):
                     if node.irs_ssa:
                         txt += "\t\tIRs:" + "\n"
                         for ir in node.irs_ssa:
+                            txt += "\t\t\t{}".format(ir) + "\n"
                             txt += "\t\t\t{}".format(ir) + "\n"
                     table = pprint_dependency_table(node)
                     txt += "\n" + str(table) + "\n"

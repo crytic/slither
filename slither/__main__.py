@@ -473,6 +473,11 @@ def parse_args(detector_classes, printer_classes):
     # if the json is splitted in different files
     parser.add_argument("--splitted", help=argparse.SUPPRESS, action="store_true", default=False)
 
+    # Disable the throw/catch on partial analyses
+    parser.add_argument(
+        "--disallow-partial", help=argparse.SUPPRESS, action="store_true", default=False
+    )
+
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
@@ -556,6 +561,9 @@ class FormatterCryticCompile(logging.Formatter):
 
 
 def main():
+    # Codebase with complex domninators can lead to a lot of SSA recursive call
+    sys.setrecursionlimit(1500)
+
     detectors, printers = get_detectors_and_printers()
 
     main_impl(all_detector_classes=detectors, all_printer_classes=printers)

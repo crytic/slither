@@ -25,8 +25,8 @@ class ReentrancyEvent(Reentrancy):
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
     WIKI_DESCRIPTION = """
-Detection of the [re-entrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
-Only report reentrancies leading to out-of-order Events"""
+Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
+Only report reentrancies leading to out-of-order events."""
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
     function bug(Called d){
@@ -36,9 +36,9 @@ Only report reentrancies leading to out-of-order Events"""
     }
 ```
 
-If `d.()` reenters, the `Counter` events will be showed in an incorrect order, which might lead to issues for third-parties."""
+If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, which might lead to issues for third parties."""
 
-    WIKI_RECOMMENDATION = "Apply the [check-effects-interactions pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy)."
+    WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy)."
 
     STANDARD_JSON = False
 
@@ -85,7 +85,7 @@ If `d.()` reenters, the `Counter` events will be showed in an incorrect order, w
         for (func, calls, send_eth), events in result_sorted:
             calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
             send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
-            events = sorted(events, key=lambda x: (x.variable.name, x.node.node_id))
+            events = sorted(events, key=lambda x: (str(x.variable.name), x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]
             info += ["\tExternal calls:\n"]

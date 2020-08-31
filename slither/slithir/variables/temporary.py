@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
 
+
 class TemporaryVariable(ChildNode, Variable):
     COUNTER = 0
 

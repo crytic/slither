@@ -1,5 +1,6 @@
 from typing import Optional, Union, List, TYPE_CHECKING
 
+from slither.core.declarations import Function
 from slither.slithir.operations.operation import Operation
 
 from slither.slithir.variables.tuple import TupleVariable
@@ -22,7 +23,11 @@ class Return(Operation):
         # ex: return call()
         # where call() dont return
         if not isinstance(values, list):
-            assert is_valid_rvalue(values) or isinstance(values, TupleVariable) or values is None
+            assert (
+                is_valid_rvalue(values)
+                or isinstance(values, (TupleVariable, Function))
+                or values is None
+            )
             if values is None:
                 values = []
             else:
@@ -41,7 +46,7 @@ class Return(Operation):
         if isinstance(value, list):
             assert all(self._valid_value(v) for v in value)
         else:
-            assert is_valid_rvalue(value) or isinstance(value, TupleVariable)
+            assert is_valid_rvalue(value) or isinstance(value, (TupleVariable, Function))
         return True
 
     @property

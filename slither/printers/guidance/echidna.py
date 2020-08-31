@@ -18,6 +18,7 @@ from slither.core.slither_core import SlitherCore
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
+
 from slither.slithir.operations import (
     AccessMember,
     Operation,

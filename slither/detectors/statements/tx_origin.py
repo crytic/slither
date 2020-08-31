@@ -20,7 +20,7 @@ class TxOrigin(AbstractDetector):
     )
 
     WIKI_TITLE = "Dangerous usage of `tx.origin`"
-    WIKI_DESCRIPTION = "`tx.origin`-based protection can be abused by malicious contract if a legitimate user interacts with the malicious contract."
+    WIKI_DESCRIPTION = "`tx.origin`-based protection can be abused by a malicious contract if a legitimate user interacts with the malicious contract."
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract TxOrigin {

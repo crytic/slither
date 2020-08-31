@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from slither.core.variables.variable import Variable
 
 
+
 class ArgumentType(Enum):
     CALL = 0
     VALUE = 1

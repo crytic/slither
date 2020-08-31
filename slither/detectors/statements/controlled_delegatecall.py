@@ -15,7 +15,7 @@ class ControlledDelegateCall(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#controlled-delegatecall"
 
     WIKI_TITLE = "Controlled Delegatecall"
-    WIKI_DESCRIPTION = "Delegatecall or callcode to an address controlled by the user."
+    WIKI_DESCRIPTION = "`Delegatecall` or `callcode` to an address controlled by the user."
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Delegatecall{
@@ -24,7 +24,7 @@ contract Delegatecall{
     }
 }
 ```
-Bob calls `delegate` and delegates the execution to its malicious contract. As a result, Bob withdraws the funds of the contract and destructs it."""
+Bob calls `delegate` and delegates the execution to his malicious contract. As a result, Bob withdraws the funds of the contract and destructs it."""
 
     WIKI_RECOMMENDATION = "Avoid using `delegatecall`. Use only trusted destinations."
 

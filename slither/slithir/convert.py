@@ -23,6 +23,7 @@ from slither.core.solidity_types import (
 )
 from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
 from slither.core.solidity_types.type import Type
+from slither.core.variables.function_type_variable import FunctionTypeVariable
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
@@ -33,6 +34,7 @@ from slither.slithir.operations import (
     Binary,
     BinaryType,
     Call,
+    CodeSize,
     Condition,
     Delete,
     EventCall,
@@ -66,6 +68,7 @@ from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElementaryType
+from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import Constant, IndexVariable, MemberVariable, TemporaryVariable
 from slither.slithir.variables import TupleVariable
 from slither.slithir.variables.reference import ReferenceVariable
@@ -220,7 +223,7 @@ def convert_arguments(arguments):
 
 
 def is_temporary(ins: Operation) -> bool:
-    return isinstance(ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray))
+    return isinstance(ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure))
 
 
 # endregion
@@ -596,6 +599,15 @@ def propagate_types(ir: Operation, node: "Node") -> Optional[Operation]:
                     b.set_node(ir.node)
                     return b
                 if (
+                    ir.variable_right == "codesize"
+                    and not isinstance(ir.variable_left, Contract)
+                    and isinstance(ir.variable_left.type, ElementaryType)
+                ):
+                    b = CodeSize(ir.variable_left, ir.lvalue)
+                    b.set_expression(ir.expression)
+                    b.set_node(ir.node)
+                    return b
+                if (
                     ir.variable_right == "selector"
                     and not isinstance(ir.variable_left, (Contract, Enum))
                     and isinstance(ir.variable_left.type, Function)
@@ -615,7 +627,36 @@ def propagate_types(ir: Operation, node: "Node") -> Optional[Operation]:
                     return _convert_type_contract(ir, node.function.slither)
                 left = ir.variable_left
                 t = None
-                if isinstance(left, (Variable, SolidityVariable)):
+                # Handling of this.function_name usage
+                if (
+                        left == SolidityVariable("this")
+                        and isinstance(ir.variable_right, Constant)
+                        and str(ir.variable_right) in [x.name for x in ir.function.contract.functions]
+                ):
+                    # Assumption that this.function_name can only compile if
+                    # And the contract does not have two functions starting with function_name
+                    # Otherwise solc raises:
+                    # Error: Member "f" not unique after argument-dependent lookup in contract
+                    targeted_function = next(
+                        (
+                            x
+                            for x in ir.function.contract.functions
+                            if x.name == str(ir.variable_right)
+                        )
+                    )
+                    parameters = []
+                    returns = []
+                    for parameter in targeted_function.parameters:
+                        v = FunctionTypeVariable()
+                        v.name = parameter.name
+                        parameters.append(v)
+                    for return_var in targeted_function.returns:
+                        v = FunctionTypeVariable()
+                        v.name = return_var.name
+                        returns.append(v)
+                    t = FunctionType(parameters, returns)
+                    ir.lvalue.set_type(t)
+                elif isinstance(left, (Variable, SolidityVariable)):
                     t = left.type
                 elif isinstance(left, (Contract, Enum, Structure)):
                     t = UserDefinedType(left)
@@ -672,7 +713,7 @@ def propagate_types(ir: Operation, node: "Node") -> Optional[Operation]:
             elif isinstance(ir, Send):
                 ir.lvalue.set_type(ElementaryType("bool"))
             elif isinstance(ir, SolidityCall):
-                if ir.function.name == "type(address)":
+                if ir.function.name in ["type(address)", "type()"]:
                     ir.function.return_type = [TypeInformation(ir.arguments[0])]
                 return_type = ir.function.return_type
                 if len(return_type) == 1:
@@ -689,7 +730,15 @@ def propagate_types(ir: Operation, node: "Node") -> Optional[Operation]:
                 t = types[idx]
                 ir.lvalue.set_type(t)
             elif isinstance(
-                ir, (Argument, TmpCall, TmpNewArray, TmpNewContract, TmpNewElementaryType,),
+                ir,
+                (
+                    Argument,
+                    TmpCall,
+                    TmpNewArray,
+                    TmpNewContract,
+                    TmpNewStructure,
+                    TmpNewElementaryType,
+                ),
             ):
                 # temporary operation; they will be removed
                 pass
@@ -837,7 +886,7 @@ def extract_tmp_call(ins: TmpCall, contract: Contract) -> Operation:
 ###################################################################################
 
 
-def can_be_low_level(ir: HighLevelCall) -> bool:
+def can_be_low_level(ir):
     return ir.function_name in [
         "transfer",
         "send",
@@ -846,6 +895,7 @@ def can_be_low_level(ir: HighLevelCall) -> bool:
         "callcode",
         "staticcall",
     ]
+
 
 
 def convert_to_low_level(ir: HighLevelCall) -> Union[LowLevelCall, Transfer, Send]:
@@ -885,7 +935,10 @@ def convert_to_low_level(ir: HighLevelCall) -> Union[LowLevelCall, Transfer, Sen
         new_ir.call_value = ir.call_value
         new_ir.arguments = ir.arguments
         if new_ir.lvalue:
-            new_ir.lvalue.set_type(ElementaryType("bool"))
+            if ir.slither.solc_version >= "0.5":
+                new_ir.lvalue.set_type([ElementaryType("bool"), ElementaryType("bytes")])
+            else:
+                new_ir.lvalue.set_type(ElementaryType("bool"))
         new_ir.set_expression(ir.expression)
         new_ir.set_node(ir.node)
         return new_ir
@@ -916,6 +969,24 @@ def convert_to_solidity_func(ir: HighLevelCall) -> SolidityCall:
     if new_ir.lvalue:
         if isinstance(call.return_type, list) and len(call.return_type) == 1:
             new_ir.lvalue.set_type(call.return_type[0])
+        elif (
+                isinstance(new_ir.lvalue, TupleVariable)
+                and call == SolidityFunction("abi.decode()")
+                and len(new_ir.arguments) == 2
+                and isinstance(new_ir.arguments[1], list)
+        ):
+            types = [x for x in new_ir.arguments[1]]
+            new_ir.lvalue.set_type(types)
+        # abi.decode where the type to decode is a singleton
+        # abi.decode(a, (uint))
+        elif call == SolidityFunction("abi.decode()") and len(new_ir.arguments) == 2:
+            # If the variable is a referenceVariable, we are lost
+            # See https://github.com/crytic/slither/issues/566 for potential solutions
+            if not isinstance(new_ir.arguments[1], ReferenceVariable):
+                decode_type = new_ir.arguments[1]
+                if isinstance(decode_type, (Structure, Enum, Contract)):
+                    decode_type = UserDefinedType(decode_type)
+                new_ir.lvalue.set_type(decode_type)
         else:
             new_ir.lvalue.set_type(call.return_type)
     return new_ir
@@ -1132,6 +1203,44 @@ def convert_type_library_call(ir: LibraryCall, lib_contract: Contract) -> Option
     return ir
 
 
+def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
+    """
+    Convert structure elements types to a list of types
+    Recursive function
+
+    :param return_type:
+    :return:
+    """
+    if isinstance(return_type, UserDefinedType) and isinstance(return_type.type, Structure):
+        ret = []
+        for v in return_type.type.elems_ordered:
+            ret += _convert_to_structure_to_list(v.type)
+        return ret
+    # Mapping and arrays are not included in external call
+    #
+    # contract A{
+    #
+    #     struct St{
+    #         uint a;
+    #         uint b;
+    #         mapping(uint => uint) map;
+    #         uint[] array;
+    #     }
+    #
+    #     mapping (uint => St) public st;
+    #
+    # }
+    #
+    # contract B{
+    #
+    #     function f(A a) public{
+    #         (uint a, uint b) = a.st(0);
+    #     }
+    # }
+    if isinstance(return_type, (MappingType, ArrayType)):
+        return []
+    return [return_type.type]
+
 def convert_type_of_high_and_internal_level_call(
     ir: Union[InternalCall, HighLevelCall], contract: Contract
 ):
@@ -1200,6 +1309,17 @@ def convert_type_of_high_and_internal_level_call(
         else:
             return_type = func.type
     if return_type and ir.lvalue:
+
+        # If the return type is a structure, but the lvalue is a tuple
+        # We convert the type of the structure to a list of element
+        # TODO: explore to replace all tuple variables by structures
+        if (
+            isinstance(ir.lvalue, TupleVariable)
+            and isinstance(return_type, UserDefinedType)
+            and isinstance(return_type.type, Structure)
+        ):
+            return_type = _convert_to_structure_to_list(return_type)
+
         ir.lvalue.set_type(return_type)
     else:
         ir.lvalue = None
@@ -1237,7 +1357,7 @@ def remove_temporary(result: List[Operation]) -> List[Operation]:
     result = [
         ins
         for ins in result
-        if not isinstance(ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray))
+        if not isinstance(ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure))
     ]
 
     return result
@@ -1326,6 +1446,9 @@ def convert_constant_types(irs: List[Operation]):
                                     was_changed = True
                                 ir_rvalue.set_type(ElementaryType("int256"))
 
+                            if ir.rvalue.type.type != "int256":
+                                ir.rvalue.set_type(ElementaryType("int256"))
+                                was_changed = True
             if isinstance(ir, Binary):
                 ir_lvalue_type = ir.lvalue.type
                 if isinstance(ir_lvalue_type, ElementaryType):
