@@ -4,7 +4,6 @@ from slither.slithir.variables.constant import Constant
 
 
 class NewContract(Call, OperationWithLValue):
-
     def __init__(self, contract_name, lvalue):
         assert isinstance(contract_name, Constant)
         assert is_valid_lvalue(lvalue)
@@ -61,13 +60,13 @@ class NewContract(Call, OperationWithLValue):
     ###################################################################################
 
     def can_reenter(self, callstack=None):
-        '''
+        """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view
         For call to this. check if the destination can re-enter
         :param callstack: check for recursion
         :return: bool
-        '''
+        """
         callstack = [] if callstack is None else callstack
         constructor = self.contract_created.constructor
         if constructor is None:
@@ -78,19 +77,19 @@ class NewContract(Call, OperationWithLValue):
         return constructor.can_reenter(callstack)
 
     def can_send_eth(self):
-        '''
+        """
         Must be called after slithIR analysis pass
         :return: bool
-        '''
+        """
         return self._call_value is not None
 
     # endregion
 
     def __str__(self):
-        options = ''
+        options = ""
         if self.call_value:
-            options = 'value:{} '.format(self.call_value)
+            options = "value:{} ".format(self.call_value)
         if self.call_salt:
-            options += 'salt:{} '.format(self.call_salt)
+            options += "salt:{} ".format(self.call_salt)
         args = [str(a) for a in self.arguments]
-        return '{} = new {}({}) {}'.format(self.lvalue, self.contract_name, ','.join(args), options)
+        return "{} = new {}({}) {}".format(self.lvalue, self.contract_name, ",".join(args), options)

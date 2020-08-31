@@ -163,7 +163,8 @@ class SlitherSolc:
                 assert self._is_compact_ast  # Do not support top level definition for legacy AST
                 fake_contract_data = {
                     "name": f"SlitherInternalTopLevelContract{self._top_level_contracts_counter}",
-                    "id": -1000 + self._top_level_contracts_counter,  # TODO: determine if collission possible
+                    "id": -1000
+                    + self._top_level_contracts_counter,  # TODO: determine if collission possible
                     "linearizedBaseContracts": [],
                     "fullyImplemented": True,
                     "contractKind": "SLitherInternal",
@@ -243,8 +244,8 @@ class SlitherSolc:
         # the key is the contractid
         for contract in self._underlying_contract_to_parser.keys():
             if (
-                    contract.name.startswith("SlitherInternalTopLevelContract")
-                    and not contract.is_top_level
+                contract.name.startswith("SlitherInternalTopLevelContract")
+                and not contract.is_top_level
             ):
                 raise SlitherException(
                     """Your codebase has a contract named 'SlitherInternalTopLevelContract'.
@@ -364,7 +365,7 @@ Please rename it, this name is reserved for Slither's internals"""
         return
 
     def _analyze_first_part(
-            self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
     ):
         for lib in libraries:
             self._parse_struct_var_modifiers_functions(lib)
@@ -390,7 +391,7 @@ Please rename it, this name is reserved for Slither's internals"""
         return
 
     def _analyze_second_part(
-            self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
     ):
         for lib in libraries:
             self._analyze_struct_events(lib)
@@ -416,7 +417,7 @@ Please rename it, this name is reserved for Slither's internals"""
         return
 
     def _analyze_third_part(
-            self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
     ):
         for lib in libraries:
             self._analyze_variables_modifiers_functions(lib)

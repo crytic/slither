@@ -1,7 +1,7 @@
-
 from .variable import SlithIRVariable
 from slither.core.variables.variable import Variable
 from slither.core.children.child_node import ChildNode
+
 
 class TemporaryVariable(ChildNode, Variable):
 
@@ -16,7 +16,6 @@ class TemporaryVariable(ChildNode, Variable):
             self._index = index
         self._node = node
 
-
     @property
     def index(self):
         return self._index
@@ -27,8 +26,7 @@ class TemporaryVariable(ChildNode, Variable):
 
     @property
     def name(self):
-        return 'TMP_{}'.format(self.index)
+        return "TMP_{}".format(self.index)
 
     def __str__(self):
         return self.name
-

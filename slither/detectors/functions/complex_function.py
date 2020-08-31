@@ -1,10 +1,6 @@
-from slither.core.declarations.solidity_variables import (SolidityFunction,
-                                                          SolidityVariableComposed)
-from slither.detectors.abstract_detector import (AbstractDetector,
-                                                 DetectorClassification)
-from slither.slithir.operations import (HighLevelCall,
-                                        LowLevelCall,
-                                        LibraryCall)
+from slither.core.declarations.solidity_variables import SolidityFunction, SolidityVariableComposed
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.slithir.operations import HighLevelCall, LowLevelCall, LibraryCall
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 
 
@@ -17,9 +13,8 @@ class ComplexFunction(AbstractDetector):
             - numerous external calls
     """
 
-
-    ARGUMENT = 'complex-function'
-    HELP = 'Complex functions'
+    ARGUMENT = "complex-function"
+    HELP = "Complex functions"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.MEDIUM
 
@@ -42,10 +37,7 @@ class ComplexFunction(AbstractDetector):
         code_complexity = compute_cyclomatic_complexity(func)
 
         if code_complexity > ComplexFunction.MAX_CYCLOMATIC_COMPLEXITY:
-            result.append({
-                "func": func,
-                "cause": ComplexFunction.CAUSE_CYCLOMATIC
-            })
+            result.append({"func": func, "cause": ComplexFunction.CAUSE_CYCLOMATIC})
 
         """Detect the number of external calls in the func
            shouldn't be greater than 5
@@ -57,19 +49,13 @@ class ComplexFunction(AbstractDetector):
                     count += 1
 
         if count > ComplexFunction.MAX_EXTERNAL_CALLS:
-            result.append({
-                "func": func,
-                "cause": ComplexFunction.CAUSE_EXTERNAL_CALL
-            })
+            result.append({"func": func, "cause": ComplexFunction.CAUSE_EXTERNAL_CALL})
 
         """Checks the number of the state variables written
            shouldn't be greater than 10
         """
         if len(func.state_variables_written) > ComplexFunction.MAX_STATE_VARIABLES:
-            result.append({
-                "func": func,
-                "cause": ComplexFunction.CAUSE_STATE_VARS
-            })
+            result.append({"func": func, "cause": ComplexFunction.CAUSE_STATE_VARS})
 
         return result
 
@@ -100,19 +86,20 @@ class ComplexFunction(AbstractDetector):
                 if cause == self.CAUSE_STATE_VARS:
                     txt += "\t- Reason: High number of modified state variables"
 
-                info = txt.format(func.canonical_name,
-                                  func.source_mapping_str)
+                info = txt.format(func.canonical_name, func.source_mapping_str)
                 info = info + "\n"
                 self.log(info)
 
                 res = self.generate_result(info)
-                res.add(func, {
-                    'high_number_of_external_calls': cause == self.CAUSE_EXTERNAL_CALL,
-                    'high_number_of_branches': cause == self.CAUSE_CYCLOMATIC,
-                    'high_number_of_state_variables': cause == self.CAUSE_STATE_VARS
-                })
+                res.add(
+                    func,
+                    {
+                        "high_number_of_external_calls": cause == self.CAUSE_EXTERNAL_CALL,
+                        "high_number_of_branches": cause == self.CAUSE_CYCLOMATIC,
+                        "high_number_of_state_variables": cause == self.CAUSE_STATE_VARS,
+                    },
+                )
 
                 results.append(res)
 
         return results
-

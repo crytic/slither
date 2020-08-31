@@ -5,7 +5,6 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 
 
 class InternalCall(Call, OperationWithLValue):
-
     def __init__(self, function, nbr_arguments, result, type_call):
         super(InternalCall, self).__init__()
         if isinstance(function, Function):
@@ -59,15 +58,13 @@ class InternalCall(Call, OperationWithLValue):
     def __str__(self):
         args = [str(a) for a in self.arguments]
         if not self.lvalue:
-            lvalue = ''
+            lvalue = ""
         elif isinstance(self.lvalue.type, (list,)):
-            lvalue = '{}({}) = '.format(self.lvalue, ','.join(str(x) for x in self.lvalue.type))
+            lvalue = "{}({}) = ".format(self.lvalue, ",".join(str(x) for x in self.lvalue.type))
         else:
-            lvalue = '{}({}) = '.format(self.lvalue, self.lvalue.type)
+            lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
         if self.is_modifier_call:
-            txt = '{}MODIFIER_CALL, {}({})'
+            txt = "{}MODIFIER_CALL, {}({})"
         else:
-            txt = '{}INTERNAL_CALL, {}({})'
-        return txt.format(lvalue,
-                          self.function.canonical_name,
-                          ','.join(args))
+            txt = "{}INTERNAL_CALL, {}({})"
+        return txt.format(lvalue, self.function.canonical_name, ",".join(args))

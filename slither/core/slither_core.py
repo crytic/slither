@@ -62,7 +62,6 @@ class SlitherCore(Context):
         # If set to true, slither will not catch errors during parsing
         self._disallow_partial: bool = False
 
-
     ###################################################################################
     ###################################################################################
     # region Source code
@@ -219,7 +218,6 @@ class SlitherCore(Context):
         top_level_structures = [c.structures for c in self.contracts if c.is_top_level]
         return [st for sublist in top_level_structures for st in sublist]
 
-
     @property
     def top_level_enums(self) -> List[Enum]:
         top_level_enums = [c.enums for c in self.contracts if c.is_top_level]
@@ -369,7 +367,6 @@ class SlitherCore(Context):
     def contracts_with_missing_inheritance(self) -> Set:
         return self._contract_with_missing_inheritance
 
-
     @property
     def disallow_partial(self) -> bool:
         """
@@ -415,4 +412,5 @@ class SlitherCore(Context):
 
     def storage_layout_of(self, contract, var) -> Tuple[int, int]:
         return self._storage_layouts[contract.name][var.canonical_name]
+
     # endregion

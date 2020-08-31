@@ -2,27 +2,32 @@
     Check if ethers are locked in the contract
 """
 
-from slither.detectors.abstract_detector import (AbstractDetector,
-                                                 DetectorClassification)
-from slither.slithir.operations import (HighLevelCall, LowLevelCall, Send,
-                                        Transfer, NewContract, LibraryCall, InternalCall)
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.slithir.operations import (
+    HighLevelCall,
+    LowLevelCall,
+    Send,
+    Transfer,
+    NewContract,
+    LibraryCall,
+    InternalCall,
+)
 
 
 class LockedEther(AbstractDetector):
     """
     """
 
-    ARGUMENT = 'locked-ether'
+    ARGUMENT = "locked-ether"
     HELP = "Contracts that lock ether"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether"
 
-
-    WIKI_TITLE = 'Contracts that lock Ether'
-    WIKI_DESCRIPTION = 'Contract with a `payable` function, but without a withdrawal capacity.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Contracts that lock Ether"
+    WIKI_DESCRIPTION = "Contract with a `payable` function, but without a withdrawal capacity."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 pragma solidity 0.4.24;
 contract Locked{
@@ -30,9 +35,9 @@ contract Locked{
     }
 }
 ```
-Every Ether sent to `Locked` will be lost.'''
+Every Ether sent to `Locked` will be lost."""
 
-    WIKI_RECOMMENDATION = 'Remove the payable attribute or add a withdraw function.'
+    WIKI_RECOMMENDATION = "Remove the payable attribute or add a withdraw function."
 
     @staticmethod
     def do_no_send_ether(contract):
@@ -45,15 +50,17 @@ Every Ether sent to `Locked` will be lost.'''
             to_explore = []
             for function in functions:
                 calls = [c.name for c in function.internal_calls]
-                if 'suicide(address)' in calls or 'selfdestruct(address)' in calls:
+                if "suicide(address)" in calls or "selfdestruct(address)" in calls:
                     return False
                 for node in function.nodes:
                     for ir in node.irs:
-                        if isinstance(ir, (Send, Transfer, HighLevelCall, LowLevelCall, NewContract)):
+                        if isinstance(
+                            ir, (Send, Transfer, HighLevelCall, LowLevelCall, NewContract)
+                        ):
                             if ir.call_value and ir.call_value != 0:
                                 return False
                         if isinstance(ir, (LowLevelCall)):
-                            if ir.function_name in ['delegatecall', 'callcode']:
+                            if ir.function_name in ["delegatecall", "callcode"]:
                                 return False
                         # If a new internal call or librarycall
                         # Add it to the list to explore
@@ -63,7 +70,6 @@ Every Ether sent to `Locked` will be lost.'''
                                 to_explore.append(ir.function)
 
         return True
-
 
     def _detect(self):
         results = []

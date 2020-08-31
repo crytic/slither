@@ -11,28 +11,32 @@
 """
 from slither.core.declarations import Function
 from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
-from slither.core.declarations.solidity_variables import (SolidityFunction,
-                                                          SolidityVariableComposed)
-from slither.detectors.abstract_detector import (AbstractDetector,
-                                                 DetectorClassification)
-from slither.slithir.operations import (HighLevelCall, Index, LowLevelCall,
-                                        Send, SolidityCall, Transfer)
+from slither.core.declarations.solidity_variables import SolidityFunction, SolidityVariableComposed
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.slithir.operations import (
+    HighLevelCall,
+    Index,
+    LowLevelCall,
+    Send,
+    SolidityCall,
+    Transfer,
+)
 
 
 class ArbitrarySend(AbstractDetector):
     """
     """
 
-    ARGUMENT = 'arbitrary-send'
-    HELP = 'Functions that send Ether to arbitrary destinations'
+    ARGUMENT = "arbitrary-send"
+    HELP = "Functions that send Ether to arbitrary destinations"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations"
 
-    WIKI_TITLE = 'Functions that send Ether to arbitrary destinations'
-    WIKI_DESCRIPTION = 'Unprotected call to a function sending Ether to an arbitrary address.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Functions that send Ether to arbitrary destinations"
+    WIKI_DESCRIPTION = "Unprotected call to a function sending Ether to an arbitrary address."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract ArbitrarySend{
     address destination;
@@ -45,9 +49,9 @@ contract ArbitrarySend{
     }
 }
 ```
-Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract's balance.'''
+Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract's balance."""
 
-    WIKI_RECOMMENDATION = 'Ensure that an arbitrary user cannot withdraw unauthorized funds.'
+    WIKI_RECOMMENDATION = "Ensure that an arbitrary user cannot withdraw unauthorized funds."
 
     def arbitrary_send(self, func):
         """
@@ -59,31 +63,33 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
         for node in func.nodes:
             for ir in node.irs:
                 if isinstance(ir, SolidityCall):
-                    if ir.function == SolidityFunction('ecrecover(bytes32,uint8,bytes32,bytes32)'):
+                    if ir.function == SolidityFunction("ecrecover(bytes32,uint8,bytes32,bytes32)"):
                         return False
                 if isinstance(ir, Index):
-                    if ir.variable_right == SolidityVariableComposed('msg.sender'):
+                    if ir.variable_right == SolidityVariableComposed("msg.sender"):
                         return False
-                    if is_dependent(ir.variable_right, SolidityVariableComposed('msg.sender'), func.contract):
+                    if is_dependent(
+                        ir.variable_right, SolidityVariableComposed("msg.sender"), func.contract
+                    ):
                         return False
                 if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
                     if isinstance(ir, (HighLevelCall)):
                         if isinstance(ir.function, Function):
-                            if ir.function.full_name == 'transferFrom(address,address,uint256)':
+                            if ir.function.full_name == "transferFrom(address,address,uint256)":
                                 return False
                     if ir.call_value is None:
                         continue
-                    if ir.call_value == SolidityVariableComposed('msg.value'):
+                    if ir.call_value == SolidityVariableComposed("msg.value"):
                         continue
-                    if is_dependent(ir.call_value, SolidityVariableComposed('msg.value'), func.contract):
+                    if is_dependent(
+                        ir.call_value, SolidityVariableComposed("msg.value"), func.contract
+                    ):
                         continue
 
                     if is_tainted(ir.destination, func.contract):
                         ret.append(node)
 
-
         return ret
-
 
     def detect_arbitrary_send(self, contract):
         """
@@ -110,9 +116,9 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
             for (func, nodes) in arbitrary_send:
 
                 info = [func, " sends eth to arbitrary user\n"]
-                info += ['\tDangerous calls:\n']
+                info += ["\tDangerous calls:\n"]
                 for node in nodes:
-                    info += ['\t- ', node, '\n']
+                    info += ["\t- ", node, "\n"]
 
                 res = self.generate_result(info)
 

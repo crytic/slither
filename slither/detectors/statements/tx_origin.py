@@ -10,16 +10,18 @@ class TxOrigin(AbstractDetector):
     Detect usage of tx.origin in a conditional node
     """
 
-    ARGUMENT = 'tx-origin'
-    HELP = 'Dangerous usage of `tx.origin`'
+    ARGUMENT = "tx-origin"
+    HELP = "Dangerous usage of `tx.origin`"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-usage-of-txorigin'
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-usage-of-txorigin"
+    )
 
-    WIKI_TITLE = 'Dangerous usage of `tx.origin`'
-    WIKI_DESCRIPTION = '`tx.origin`-based protection can be abused by a malicious contract if a legitimate user interacts with the malicious contract.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Dangerous usage of `tx.origin`"
+    WIKI_DESCRIPTION = "`tx.origin`-based protection can be abused by a malicious contract if a legitimate user interacts with the malicious contract."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract TxOrigin {
     address owner = msg.sender;
@@ -28,9 +30,9 @@ contract TxOrigin {
         require(tx.origin == owner);
     }
 ```
-Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `TxOrigin` and bypasses the `tx.origin` protection.'''
+Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `TxOrigin` and bypasses the `tx.origin` protection."""
 
-    WIKI_RECOMMENDATION = 'Do not use `tx.origin` for authorization.'
+    WIKI_RECOMMENDATION = "Do not use `tx.origin` for authorization."
 
     @staticmethod
     def _contains_incorrect_tx_origin_use(node):
@@ -42,8 +44,9 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
         """
         solidity_var_read = node.solidity_variables_read
         if solidity_var_read:
-            return any(v.name == 'tx.origin' for v in solidity_var_read) and\
-                   all(v.name != 'msg.sender' for v in solidity_var_read)
+            return any(v.name == "tx.origin" for v in solidity_var_read) and all(
+                v.name != "msg.sender" for v in solidity_var_read
+            )
         return False
 
     def detect_tx_origin(self, contract):
@@ -51,10 +54,12 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
         for f in contract.functions:
 
             nodes = f.nodes
-            condtional_nodes = [n for n in nodes if n.contains_if() or
-                                n.contains_require_or_assert()]
-            bad_tx_nodes = [n for n in condtional_nodes if
-                            self._contains_incorrect_tx_origin_use(n)]
+            condtional_nodes = [
+                n for n in nodes if n.contains_if() or n.contains_require_or_assert()
+            ]
+            bad_tx_nodes = [
+                n for n in condtional_nodes if self._contains_incorrect_tx_origin_use(n)
+            ]
             if bad_tx_nodes:
                 ret.append((f, bad_tx_nodes))
         return ret

@@ -10,16 +10,16 @@ class StateShadowing(AbstractDetector):
     Shadowing of state variable
     """
 
-    ARGUMENT = 'shadowing-state'
-    HELP = 'State variables shadowing'
+    ARGUMENT = "shadowing-state"
+    HELP = "State variables shadowing"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#state-variable-shadowing'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#state-variable-shadowing"
 
-    WIKI_TITLE = 'State variable shadowing'
-    WIKI_DESCRIPTION = 'Detection of state variables shadowed.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "State variable shadowing"
+    WIKI_DESCRIPTION = "Detection of state variables shadowed."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract BaseContract{
     address owner;
@@ -43,10 +43,9 @@ contract DerivedContract is BaseContract{
     }
 }
 ```
-`owner` of `BaseContract` is never assigned and the modifier `isOwner` does not work.'''
+`owner` of `BaseContract` is never assigned and the modifier `isOwner` does not work."""
 
-    WIKI_RECOMMENDATION = 'Remove the state variable shadowing.'
-
+    WIKI_RECOMMENDATION = "Remove the state variable shadowing."
 
     def detect_shadowing(self, contract):
         ret = []
@@ -76,12 +75,11 @@ contract DerivedContract is BaseContract{
                 for all_variables in shadowing:
                     shadow = all_variables[0]
                     variables = all_variables[1:]
-                    info = [shadow, ' shadows:\n']
+                    info = [shadow, " shadows:\n"]
                     for var in variables:
                         info += ["\t- ", var, "\n"]
 
                     res = self.generate_result(info)
                     results.append(res)
-
 
         return results

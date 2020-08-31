@@ -4,7 +4,15 @@ Module detecting misuse of Boolean constants
 from slither.core.cfg.node import NodeType
 from slither.core.solidity_types import ElementaryType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Assignment, Call, Return, InitArray, Binary, BinaryType, Condition
+from slither.slithir.operations import (
+    Assignment,
+    Call,
+    Return,
+    InitArray,
+    Binary,
+    BinaryType,
+    Condition,
+)
 from slither.slithir.variables import Constant
 
 
@@ -13,16 +21,18 @@ class BooleanConstantMisuse(AbstractDetector):
     Boolean constant misuse
     """
 
-    ARGUMENT = 'boolean-cst'
-    HELP = 'Misuse of Boolean constant'
+    ARGUMENT = "boolean-cst"
+    HELP = "Misuse of Boolean constant"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#misuse-of-a-boolean-constant'
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#misuse-of-a-boolean-constant"
+    )
 
-    WIKI_TITLE = 'Misuse of a Boolean constant'
-    WIKI_DESCRIPTION = '''Detects the misuse of a Boolean constant.'''
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Misuse of a Boolean constant"
+    WIKI_DESCRIPTION = """Detects the misuse of a Boolean constant."""
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
 	function f(uint x) public {
@@ -41,9 +51,9 @@ contract A {
 }
 ```
 Boolean constants in code have only a few legitimate uses. 
-Other uses (in complex expressions, as conditionals) indicate either an error or, most likely, the persistence of faulty code.'''
+Other uses (in complex expressions, as conditionals) indicate either an error or, most likely, the persistence of faulty code."""
 
-    WIKI_RECOMMENDATION = '''Verify and simplify the condition.'''
+    WIKI_RECOMMENDATION = """Verify and simplify the condition."""
 
     @staticmethod
     def _detect_boolean_constant_misuses(contract):
@@ -68,7 +78,9 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
                     if node.irs:
                         if len(node.irs) == 1:
                             ir = node.irs[0]
-                            if isinstance(ir, Condition) and ir.value == Constant('True', ElementaryType('bool')):
+                            if isinstance(ir, Condition) and ir.value == Constant(
+                                "True", ElementaryType("bool")
+                            ):
                                 continue
 
                 for ir in node.irs:
@@ -103,5 +115,5 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
 
                         res = self.generate_result(info)
                         results.append(res)
-                
+
         return results

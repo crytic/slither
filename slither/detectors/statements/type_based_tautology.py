@@ -7,21 +7,24 @@ from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.variables import Constant
 from slither.core.solidity_types.elementary_type import Int, Uint
 
+
 class TypeBasedTautology(AbstractDetector):
     """
     Type-based tautology or contradiction
     """
 
-    ARGUMENT = 'tautology'
-    HELP = 'Tautology or contradiction'
+    ARGUMENT = "tautology"
+    HELP = "Tautology or contradiction"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#tautology-or-contradiction'
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#tautology-or-contradiction"
+    )
 
-    WIKI_TITLE = 'Tautology or contradiction'
-    WIKI_DESCRIPTION = '''Detects expressions that are tautologies or contradictions.'''
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Tautology or contradiction"
+    WIKI_DESCRIPTION = """Detects expressions that are tautologies or contradictions."""
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
 	function f(uint x) public {
@@ -41,18 +44,19 @@ contract A {
 ```
 `x` is a `uint256`, so `x >= 0` will be always true.
 `y` is a `uint8`, so `y <512` will be always true.  
-'''
+"""
 
-    WIKI_RECOMMENDATION = '''Fix the incorrect comparison by changing the value type or the comparison.'''
+    WIKI_RECOMMENDATION = (
+        """Fix the incorrect comparison by changing the value type or the comparison."""
+    )
 
     def typeRange(self, t):
         bits = int(t.split("int")[1])
         if t in Uint:
-            return (0, (2**bits)-1)
+            return (0, (2 ** bits) - 1)
         if t in Int:
-            v = (2**(bits-1))-1
+            v = (2 ** (bits - 1)) - 1
             return (-v, v)
-
 
     flip_table = {
         BinaryType.GREATER: BinaryType.LESS,
@@ -62,14 +66,14 @@ contract A {
     }
 
     def _detect_tautology_or_contradiction(self, low, high, cval, op):
-        '''
+        """
         Return true if "[low high] op cval " is always true or always false
         :param low:
         :param high:
         :param cval:
         :param op:
         :return:
-        '''
+        """
         if op == BinaryType.LESS:
             # a < cval
             # its a tautology if
@@ -124,7 +128,9 @@ contract A {
                             rtype = str(ir.variable_right.type)
                             if rtype in allInts:
                                 (low, high) = self.typeRange(rtype)
-                                if self._detect_tautology_or_contradiction(low, high, cval, self.flip_table[ir.type]):
+                                if self._detect_tautology_or_contradiction(
+                                    low, high, cval, self.flip_table[ir.type]
+                                ):
                                     f_results.add(node)
 
                         if isinstance(ir.variable_right, Constant):
@@ -132,7 +138,9 @@ contract A {
                             ltype = str(ir.variable_left.type)
                             if ltype in allInts:
                                 (low, high) = self.typeRange(ltype)
-                                if self._detect_tautology_or_contradiction(low, high, cval, ir.type):
+                                if self._detect_tautology_or_contradiction(
+                                    low, high, cval, ir.type
+                                ):
                                     f_results.add(node)
             results.append((function, f_results))
 

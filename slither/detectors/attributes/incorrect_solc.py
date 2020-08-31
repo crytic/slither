@@ -13,7 +13,7 @@ from slither.formatters.attributes.incorrect_solc import format
 # 3: version number
 # 4: version number
 
-PATTERN = re.compile('(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)')
+PATTERN = re.compile("(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
 
 
 class IncorrectSolc(AbstractDetector):
@@ -21,50 +21,71 @@ class IncorrectSolc(AbstractDetector):
     Check if an old version of solc is used
     """
 
-    ARGUMENT = 'solc-version'
-    HELP = 'Incorrect Solidity version'
+    ARGUMENT = "solc-version"
+    HELP = "Incorrect Solidity version"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity"
 
-    WIKI_TITLE = 'Incorrect versions of Solidity'
-    WIKI_DESCRIPTION = '''
+    WIKI_TITLE = "Incorrect versions of Solidity"
+    WIKI_DESCRIPTION = """
 `solc` frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks.
-We also recommend avoiding complex `pragma` statement.'''
-    WIKI_RECOMMENDATION = '''
+We also recommend avoiding complex `pragma` statement."""
+    WIKI_RECOMMENDATION = """
 Deploy with any of the following Solidity versions:
 - 0.5.11 - 0.5.13,
 - 0.5.15 - 0.5.17,
 - 0.6.8,
 - 0.6.10 - 0.6.11.
 Use a simple pragma version that allows any of these versions.
-Consider using the latest version of Solidity for testing.'''
+Consider using the latest version of Solidity for testing."""
 
     COMPLEX_PRAGMA_TXT = "is too complex"
     OLD_VERSION_TXT = "allows old versions"
     LESS_THAN_TXT = "uses lesser than"
 
-    TOO_RECENT_VERSION_TXT = "necessitates a version too recent to be trusted. Consider deploying with 0.6.11"
-    BUGGY_VERSION_TXT = "is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
+    TOO_RECENT_VERSION_TXT = (
+        "necessitates a version too recent to be trusted. Consider deploying with 0.6.11"
+    )
+    BUGGY_VERSION_TXT = (
+        "is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
+    )
 
     # Indicates the allowed versions. Must be formatted in increasing order.
-    ALLOWED_VERSIONS = ["0.5.11", "0.5.12", "0.5.13", "0.5.15", "0.5.16", "0.5.17", "0.6.8", "0.6.10", "0.6.11"]
+    ALLOWED_VERSIONS = [
+        "0.5.11",
+        "0.5.12",
+        "0.5.13",
+        "0.5.15",
+        "0.5.16",
+        "0.5.17",
+        "0.6.8",
+        "0.6.10",
+        "0.6.11",
+    ]
 
     # Indicates the versions that should not be used.
-    BUGGY_VERSIONS = ["0.4.22", "^0.4.22",
-                      "0.5.5", "^0.5.5",
-                      "0.5.6", "^0.5.6",
-                      "0.5.14", "^0.5.14",
-                      "0.6.9", "^0.6.9"]
+    BUGGY_VERSIONS = [
+        "0.4.22",
+        "^0.4.22",
+        "0.5.5",
+        "^0.5.5",
+        "0.5.6",
+        "^0.5.6",
+        "0.5.14",
+        "^0.5.14",
+        "0.6.9",
+        "^0.6.9",
+    ]
 
     def _check_version(self, version):
         op = version[0]
-        if op and op not in ['>', '>=', '^']:
+        if op and op not in [">", ">=", "^"]:
             return self.LESS_THAN_TXT
-        version_number = '.'.join(version[2:])
+        version_number = ".".join(version[2:])
         if version_number not in self.ALLOWED_VERSIONS:
-            if list(map(int, version[2:])) > list(map(int, self.ALLOWED_VERSIONS[-1].split('.'))):
+            if list(map(int, version[2:])) > list(map(int, self.ALLOWED_VERSIONS[-1].split("."))):
                 return self.TOO_RECENT_VERSION_TXT
             return self.OLD_VERSION_TXT
         return None
@@ -81,7 +102,11 @@ Consider using the latest version of Solidity for testing.'''
             version_right = versions[1]
             # Only allow two elements if the second one is
             # <0.5.0 or <0.6.0
-            if version_right not in [('<', '', '0', '5', '0'), ('<', '', '0', '6', '0'), ('<', '', '0', '7', '0')]:
+            if version_right not in [
+                ("<", "", "0", "5", "0"),
+                ("<", "", "0", "6", "0"),
+                ("<", "", "0", "7", "0"),
+            ]:
                 return self.COMPLEX_PRAGMA_TXT
             return self._check_version(version_left)
         else:
@@ -119,10 +144,15 @@ Consider using the latest version of Solidity for testing.'''
 
         if self.slither.crytic_compile:
             if self.slither.crytic_compile.compiler_version:
-                if self.slither.crytic_compile.compiler_version.version not in self.ALLOWED_VERSIONS:
-                    info = ["solc-",
-                            self.slither.crytic_compile.compiler_version.version,
-                            " is not recommended for deployement\n"]
+                if (
+                    self.slither.crytic_compile.compiler_version.version
+                    not in self.ALLOWED_VERSIONS
+                ):
+                    info = [
+                        "solc-",
+                        self.slither.crytic_compile.compiler_version.version,
+                        " is not recommended for deployement\n",
+                    ]
 
                     json = self.generate_result(info)
 

@@ -12,11 +12,15 @@ class Return(Operation):
     """
 
     def __init__(self, values):
-        # Note: Can return None 
+        # Note: Can return None
         # ex: return call()
         # where call() dont return
         if not isinstance(values, list):
-            assert is_valid_rvalue(values) or isinstance(values, (TupleVariable, Function)) or values is None
+            assert (
+                is_valid_rvalue(values)
+                or isinstance(values, (TupleVariable, Function))
+                or values is None
+            )
             if values is None:
                 values = []
             else:
@@ -47,4 +51,4 @@ class Return(Operation):
         return self._unroll(self._values)
 
     def __str__(self):
-        return "RETURN {}".format(','.join(['{}'.format(x) for x in self.values]))
+        return "RETURN {}".format(",".join(["{}".format(x) for x in self.values]))

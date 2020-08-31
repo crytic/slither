@@ -4,7 +4,6 @@ from slither.core.declarations.solidity_variables import SolidityVariable
 
 
 class Transfer(Call):
-
     def __init__(self, destination, value):
         assert isinstance(destination, (Variable, SolidityVariable))
         self._destination = destination
@@ -28,5 +27,5 @@ class Transfer(Call):
         return self._destination
 
     def __str__(self):
-        value = 'value:{}'.format(self.call_value)
-        return 'Transfer dest:{} {}'.format(self.destination, value)
+        value = "value:{}".format(self.call_value)
+        return "Transfer dest:{} {}".format(self.destination, value)

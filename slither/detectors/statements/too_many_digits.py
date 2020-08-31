@@ -11,17 +11,17 @@ class TooManyDigits(AbstractDetector):
     Detect numbers with too many digits
     """
 
-    ARGUMENT = 'too-many-digits'
-    HELP = 'Conformance to numeric notation best practices'
+    ARGUMENT = "too-many-digits"
+    HELP = "Conformance to numeric notation best practices"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits'
-    WIKI_TITLE = 'Too many digits'
-    WIKI_DESCRIPTION = '''
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits"
+    WIKI_TITLE = "Too many digits"
+    WIKI_DESCRIPTION = """
 Literals with many digits are difficult to read and review.
-'''
-    WIKI_EXPLOIT_SCENARIO = '''
+"""
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract MyContract{
     uint 1_ether = 10000000000000000000; 
@@ -29,13 +29,13 @@ contract MyContract{
 ```
 
 While `1_ether` looks like `1 ether`, it is `10 ether`. As a result, it's likely to be used incorrectly.
-'''
-    WIKI_RECOMMENDATION = '''
+"""
+    WIKI_RECOMMENDATION = """
 Use:
 - [Ether suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#ether-units),
 - [Time suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#time-units), or
 - [The scientific notation](https://solidity.readthedocs.io/en/latest/types.html#rational-and-integer-literals)
-'''
+"""
 
     @staticmethod
     def _detect_too_many_digits(f):
@@ -49,7 +49,7 @@ Use:
                     if isinstance(read, Constant):
                         # read.value can return an int or a str. Convert it to str
                         value_as_str = read.original_value
-                        if '00000' in value_as_str:
+                        if "00000" in value_as_str:
                             # Info to be printed
                             ret.append(node)
         return ret
@@ -59,14 +59,14 @@ Use:
 
         # iterate over all contracts
         for contract in self.slither.contracts_derived:
-        # iterate over all functions
+            # iterate over all functions
             for f in contract.functions:
                 # iterate over all the nodes
                 ret = self._detect_too_many_digits(f)
                 if ret:
-                    func_info = [f, ' uses literals with too many digits:']
+                    func_info = [f, " uses literals with too many digits:"]
                     for node in ret:
-                        node_info = func_info + ['\n\t- ', node,'\n']
+                        node_info = func_info + ["\n\t- ", node, "\n"]
 
                         # Add the result in result
                         res = self.generate_result(node_info)

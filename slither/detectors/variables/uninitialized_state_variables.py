@@ -19,16 +19,16 @@ class UninitializedStateVarsDetection(AbstractDetector):
     Constant function detector
     """
 
-    ARGUMENT = 'uninitialized-state'
-    HELP = 'Uninitialized state variables'
+    ARGUMENT = "uninitialized-state"
+    HELP = "Uninitialized state variables"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-state-variables'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-state-variables"
 
-    WIKI_TITLE = 'Uninitialized state variables'
-    WIKI_DESCRIPTION = 'Uninitialized state variables.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Uninitialized state variables"
+    WIKI_DESCRIPTION = "Uninitialized state variables."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Uninitialized{
     address destination;
@@ -39,10 +39,10 @@ contract Uninitialized{
 }
 ```
 Bob calls `transfer`. As a result, the Ether are sent to the address `0x0` and are lost.
-'''
-    WIKI_RECOMMENDATION = '''
+"""
+    WIKI_RECOMMENDATION = """
 Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero.
-'''
+"""
 
     @staticmethod
     def _written_variables(contract):
@@ -51,12 +51,11 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             for n in f.nodes:
                 ret += n.state_variables_written
                 for ir in n.irs:
-                    if isinstance(ir, LibraryCall) \
-                            or isinstance(ir, InternalCall):
+                    if isinstance(ir, LibraryCall) or isinstance(ir, InternalCall):
                         idx = 0
                         if ir.function:
                             for param in ir.function.parameters:
-                                if param.location == 'storage':
+                                if param.location == "storage":
                                     # If its a storage variable, add either the variable
                                     # Or the variable it points to if its a reference
                                     if isinstance(ir.arguments[idx], ReferenceVariable):
@@ -69,7 +68,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
 
     def _variable_written_in_proxy(self):
         # Hack to memoize without having it define in the init
-        if hasattr(self, '__variables_written_in_proxy'):
+        if hasattr(self, "__variables_written_in_proxy"):
             return self.__variables_written_in_proxy
 
         variables_written_in_proxy = []
@@ -85,7 +84,10 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         if contract.is_upgradeable:
             variables_name_written_in_proxy = self._variable_written_in_proxy()
             if variables_name_written_in_proxy:
-                variables_in_contract = [contract.get_state_variable_from_name(v) for v in variables_name_written_in_proxy]
+                variables_in_contract = [
+                    contract.get_state_variable_from_name(v)
+                    for v in variables_name_written_in_proxy
+                ]
                 variables_in_contract = [v for v in variables_in_contract if v]
                 variables += variables_in_contract
         return list(set(variables))
@@ -101,10 +103,13 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         written_variables = self._written_variables(contract)
         written_variables += self._written_variables_in_proxy(contract)
         read_variables = self._read_variables(contract)
-        return [(variable, contract.get_functions_reading_from_variable(variable))
-                for variable in contract.state_variables if variable not in written_variables and \
-                not variable.expression and \
-                variable in read_variables]
+        return [
+            (variable, contract.get_functions_reading_from_variable(variable))
+            for variable in contract.state_variables
+            if variable not in written_variables
+            and not variable.expression
+            and variable in read_variables
+        ]
 
     def _detect(self):
         """ Detect uninitialized state variables

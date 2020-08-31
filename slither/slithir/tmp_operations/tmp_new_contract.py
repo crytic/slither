@@ -1,7 +1,7 @@
 from slither.slithir.operations.lvalue import OperationWithLValue
 
-class TmpNewContract(OperationWithLValue):
 
+class TmpNewContract(OperationWithLValue):
     def __init__(self, contract_name, lvalue):
         super(TmpNewContract, self).__init__()
         self._contract_name = contract_name
@@ -34,5 +34,4 @@ class TmpNewContract(OperationWithLValue):
         return []
 
     def __str__(self):
-        return '{} = new {}'.format(self.lvalue, self.contract_name)
-
+        return "{} = new {}".format(self.lvalue, self.contract_name)
