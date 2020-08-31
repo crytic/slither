@@ -32,4 +32,4 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
