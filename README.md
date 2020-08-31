@@ -123,7 +123,7 @@ See the [Printer documentation](https://github.com/crytic/slither/wiki/Printer-d
 - `slither-check-upgradeability`: [Review `delegatecall`-based upgradeability](https://github.com/crytic/slither/wiki/Upgradeability-Checks)
 - `slither-prop`: [Automatic unit tests and properties generation](https://github.com/crytic/slither/wiki/Properties-generation)
 - `slither-flat`: [Flatten a codebase](https://github.com/crytic/slither/wiki/Contract-Flattening)
-- `slither-erc`: [Check the ERC's conformance](https://github.com/crytic/slither/wiki/ERC-Conformance)
+- `slither-check-erc`: [Check the ERC's conformance](https://github.com/crytic/slither/wiki/ERC-Conformance)
 - `slither-format`: [Automatic patches generation](https://github.com/crytic/slither/wiki/Slither-format)
 
 See the [Tool documentation](https://github.com/crytic/slither/wiki/Tool-Documentation) for additional tools.
