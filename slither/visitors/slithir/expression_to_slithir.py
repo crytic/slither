@@ -8,6 +8,7 @@ from slither.core.expressions import (
     BinaryOperationType,
 )
 from slither.core.expressions.expression import Expression
+from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.slithir.operations import (
     Assignment,
     Binary,

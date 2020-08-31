@@ -1,7 +1,7 @@
 from typing import Union, Optional, TYPE_CHECKING
 
 from slither.core.children.child_node import ChildNode
-from slither.core.declarations import Contract, Enum, SolidityVariable
+from slither.core.declarations import Contract, Enum, SolidityVariable, Function
 
 from slither.slithir.variables.variable import SlithIRVariable
 
