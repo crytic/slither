@@ -4,6 +4,8 @@ from decimal import Decimal
 from .variable import SlithIRVariable
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
 from slither.utils.arithmetic import convert_subdenomination
+from ..exceptions import SlithIRError
+
 
 @total_ordering
 class Constant(SlithIRVariable):
@@ -28,9 +30,13 @@ class Constant(SlithIRVariable):
                     if 'e' in val or 'E' in val:
                         base, expo = val.split('e') if 'e' in val else val.split('E')
                         base, expo = Decimal(base), int(expo)
-                        if expo > 80:
+                        # The resulting number must be < 2**256-1, otherwise solc
+                        # Would not be able to compile it
+                        # 10**77 is the largest exponent that fits
+                        # See https://github.com/ethereum/solidity/blob/9e61f92bd4d19b430cb8cb26f1c7cf79f1dff380/libsolidity/ast/Types.cpp#L1281-L1290
+                        if expo > 77:
                             if base != Decimal(0):
-                                raise ValueError("exponent is too large to fit in any Solidity integer size")
+                                raise SlithIRError(f"{base}e{expo} is too large to fit in any Solidity integer size")
                             else:
                                 self._val = 0
                         else:
