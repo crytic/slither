@@ -984,11 +984,11 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     def __str__(self):
-        additional_info = ''
+        additional_info = ""
         if self.expression:
-            additional_info += ' ' + str(self.expression)
+            additional_info += " " + str(self.expression)
         elif self.variable_declaration:
-            additional_info += ' ' + str(self.variable_declaration)
+            additional_info += " " + str(self.variable_declaration)
         txt = str(self._node_type) + additional_info
         return txt
 

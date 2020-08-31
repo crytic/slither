@@ -733,7 +733,6 @@ def main_impl(all_detector_classes, all_printer_classes):
         logging.error("Error in %s" % args.filename)
         logging.error(output_error)
 
-
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
     if outputting_json:
         if "console" in args.json_types:
