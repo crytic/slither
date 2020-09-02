@@ -25,7 +25,7 @@ Instructions for installing a development version of Slither can be found in our
 
 ## Detectors regression tests
 
-For each new detector, at least one regression tests must be present. 
+For each new detector, at least one regression tests must be present.
 To generate the following scripts, you must have [`solc-select`](https://github.com/crytic/solc-select) installed.
 
 - Create a test in `tests`

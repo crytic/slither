@@ -1,6 +1,11 @@
 ---
 name: Lint Code Base
 
+defaults:
+  run:
+    # To load bashrc
+    shell: bash -ieo pipefail {0}
+
 on:
   pull_request:
     branches: [master, dev]
@@ -24,7 +29,11 @@ jobs:
           pip install .
           pip install deepdiff numpy
 
-      - name: Lint the rest
+          echo 'SHELLCHECK_OPTS="-e SC1090"' >> ~/.bashrc
+
+          cp pyproject.toml /action/lib/.automation/
+
+      - name: Lint everything
         uses: docker://github/super-linter:v3
         if: always()
         env:
@@ -33,3 +42,6 @@ jobs:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
+          VALIDATE_JSON: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
+          VALIDATE_PYTHON_BLACK: false
