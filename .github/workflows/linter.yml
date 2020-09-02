@@ -31,7 +31,8 @@ jobs:
 
           echo 'SHELLCHECK_OPTS="-e SC1090"' >> ~/.bashrc
 
-          cp pyproject.toml /action/lib/.automation/
+          mkdir -p .github/linters
+          cp pyproject.toml .github/linters
 
       - name: Lint everything
         uses: docker://github/super-linter:v3
