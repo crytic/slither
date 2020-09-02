@@ -3,7 +3,7 @@ from slither.formatters.exceptions import FormatError, FormatImpossible
 from slither.formatters.utils.patches import create_patch
 
 
-def format(slither, result):
+def custom_format(slither, result):
     elements = result["elements"]
     for element in elements:
 
@@ -12,7 +12,9 @@ def format(slither, result):
         contract = slither.get_contract_from_name(contract_name)
         var = contract.get_state_variable_from_name(element["name"])
         if not var.expression:
-            raise FormatImpossible(f"{var.name} is uninitialized and cannot become constant.")
+            raise FormatImpossible(
+                f"{var.name} is uninitialized and cannot become constant."
+            )
 
         _patch(
             slither,
@@ -25,7 +27,9 @@ def format(slither, result):
         )
 
 
-def _patch(slither, result, in_file, match_text, replace_text, modify_loc_start, modify_loc_end):
+def _patch(  # pylint: disable=too-many-arguments
+    slither, result, in_file, match_text, replace_text, modify_loc_start, modify_loc_end
+):
     in_file_str = slither.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Add keyword `constant` before the variable name

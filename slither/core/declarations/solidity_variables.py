@@ -3,6 +3,7 @@ from typing import List, Dict, Union
 
 from slither.core.context.context import Context
 from slither.core.solidity_types import ElementaryType, TypeInformation
+from slither.exceptions import SlitherException
 
 SOLIDITY_VARIABLES = {
     "now": "uint256",
@@ -90,8 +91,12 @@ class SolidityVariable(Context):
         self._name = name
 
     # dev function, will be removed once the code is stable
-    def _check_name(self, name: str):
-        assert name in SOLIDITY_VARIABLES or name.endswith("_slot") or name.endswith("_offset")
+    def _check_name(self, name: str):  # pylint: disable=no-self-use
+        assert (
+            name in SOLIDITY_VARIABLES
+            or name.endswith("_slot")
+            or name.endswith("_offset")
+        )
 
     @property
     def state_variable(self):
@@ -99,6 +104,8 @@ class SolidityVariable(Context):
             return self._name[:-5]
         if self._name.endswith("_offset"):
             return self._name[:-7]
+        to_log = f"Incorrect YUL parsing. {self} is not a solidity variable that can be seen as a state variable"
+        raise SlitherException(to_log)
 
     @property
     def name(self) -> str:
@@ -119,8 +126,6 @@ class SolidityVariable(Context):
 
 
 class SolidityVariableComposed(SolidityVariable):
-    def __init__(self, name: str):
-        super(SolidityVariableComposed, self).__init__(name)
 
     def _check_name(self, name: str):
         assert name in SOLIDITY_VARIABLES_COMPOSED

@@ -15,6 +15,22 @@ from slither.utils.inheritance_analysis import (
 )
 
 
+def _get_pattern_func(func):
+    # Html pattern, each line is a row in a table
+    func_name = func.full_name
+    pattern = '<TR><TD align="left">    %s</TD></TR>'
+    pattern_shadow = (
+        '<TR><TD align="left"><font color="#FFA500">    %s</font></TD></TR>'
+    )
+    if func.shadows:
+        return pattern_shadow % func_name
+    return pattern % func_name
+
+
+def _get_port_id(var, contract):
+    return "%s%s" % (var.name, contract.name)
+
+
 class PrinterInheritanceGraph(AbstractPrinter):
     ARGUMENT = "inheritance-graph"
     HELP = "Export the inheritance graph of each contract to a dot file"
@@ -25,7 +41,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         super(PrinterInheritanceGraph, self).__init__(slither, logger)
 
         inheritance = [x.inheritance for x in slither.contracts]
-        self.inheritance = set([item for sublist in inheritance for item in sublist])
+        self.inheritance = {item for sublist in inheritance for item in sublist}
 
         self.overshadowing_state_variables = {}
         shadows = detect_state_variable_shadowing(slither.contracts)
@@ -36,37 +52,30 @@ class PrinterInheritanceGraph(AbstractPrinter):
             # Add overshadowing variable entry.
             if overshadowing_state_var not in self.overshadowing_state_variables:
                 self.overshadowing_state_variables[overshadowing_state_var] = set()
-            self.overshadowing_state_variables[overshadowing_state_var].add(overshadowed_state_var)
+            self.overshadowing_state_variables[overshadowing_state_var].add(
+                overshadowed_state_var
+            )
 
-    def _get_pattern_func(self, func, contract):
-        # Html pattern, each line is a row in a table
-        func_name = func.full_name
-        pattern = '<TR><TD align="left">    %s</TD></TR>'
-        pattern_shadow = '<TR><TD align="left"><font color="#FFA500">    %s</font></TD></TR>'
-        if func.shadows:
-            return pattern_shadow % func_name
-        return pattern % func_name
-
-    def _get_pattern_var(self, var, contract):
+    def _get_pattern_var(self, var):
         # Html pattern, each line is a row in a table
         var_name = var.name
         pattern = '<TR><TD align="left">    %s</TD></TR>'
-        pattern_contract = (
-            '<TR><TD align="left">    %s<font color="blue" POINT-SIZE="10"> (%s)</font></TD></TR>'
+        pattern_contract = '<TR><TD align="left">    %s<font color="blue" POINT-SIZE="10"> (%s)</font></TD></TR>'
+        pattern_shadow = (
+            '<TR><TD align="left"><font color="red">    %s</font></TD></TR>'
         )
-        pattern_shadow = '<TR><TD align="left"><font color="red">    %s</font></TD></TR>'
         pattern_contract_shadow = '<TR><TD align="left"><font color="red">    %s</font><font color="blue" POINT-SIZE="10"> (%s)</font></TD></TR>'
 
-        if isinstance(var.type, UserDefinedType) and isinstance(var.type.type, Contract):
+        if isinstance(var.type, UserDefinedType) and isinstance(
+            var.type.type, Contract
+        ):
             if var in self.overshadowing_state_variables:
                 return pattern_contract_shadow % (var_name, var.type.type.name)
-            else:
-                return pattern_contract % (var_name, var.type.type.name)
-        else:
-            if var in self.overshadowing_state_variables:
-                return pattern_shadow % var_name
-            else:
-                return pattern % var_name
+            return pattern_contract % (var_name, var.type.type.name)
+
+        if var in self.overshadowing_state_variables:
+            return pattern_shadow % var_name
+        return pattern % var_name
 
     @staticmethod
     def _get_indirect_shadowing_information(contract):
@@ -89,9 +98,6 @@ class PrinterInheritanceGraph(AbstractPrinter):
             )
         return "\n".join(result)
 
-    def _get_port_id(self, var, contract):
-        return "%s%s" % (var.name, contract.name)
-
     def _summary(self, contract):
         """
             Build summary using HTML
@@ -112,7 +118,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         # Functions
         visibilities = ["public", "external"]
         public_functions = [
-            self._get_pattern_func(f, contract)
+            _get_pattern_func(f)
             for f in contract.functions
             if not f.is_constructor
             and not f.is_constructor_variables
@@ -121,7 +127,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         ]
         public_functions = "".join(public_functions)
         private_functions = [
-            self._get_pattern_func(f, contract)
+            _get_pattern_func(f)
             for f in contract.functions
             if not f.is_constructor
             and not f.is_constructor_variables
@@ -132,7 +138,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
         # Modifiers
         modifiers = [
-            self._get_pattern_func(m, contract)
+            _get_pattern_func(m)
             for m in contract.modifiers
             if m.contract_declarer == contract
         ]
@@ -140,21 +146,23 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
         # Public variables
         public_variables = [
-            self._get_pattern_var(v, contract)
+            self._get_pattern_var(v)
             for v in contract.state_variables_declared
             if v.visibility in visibilities
         ]
         public_variables = "".join(public_variables)
 
         private_variables = [
-            self._get_pattern_var(v, contract)
+            self._get_pattern_var(v)
             for v in contract.state_variables_declared
             if v.visibility not in visibilities
         ]
         private_variables = "".join(private_variables)
 
         # Obtain any indirect shadowing information for this node.
-        indirect_shadowing_information = self._get_indirect_shadowing_information(contract)
+        indirect_shadowing_information = self._get_indirect_shadowing_information(
+            contract
+        )
 
         # Build the node label
         ret += '%s[shape="box"' % contract.name

@@ -23,9 +23,7 @@ class ReentrancyNoGas(Reentrancy):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-4"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-4"
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
     WIKI_DESCRIPTION = """
@@ -71,25 +69,27 @@ Only report reentrancy that is based on `transfer` or `send`."""
                             calls=to_hashable(node.context[self.KEY].calls),
                             send_eth=to_hashable(node.context[self.KEY].send_eth),
                         )
-                        finding_vars = set(
-                            [
-                                FindingValue(v, node, tuple(sorted(nodes, key=lambda x: x.node_id)))
-                                for (v, nodes) in node.context[self.KEY].written.items()
-                            ]
-                        )
-                        finding_vars |= set(
-                            [
-                                FindingValue(
-                                    e, e.node, tuple(sorted(nodes, key=lambda x: x.node_id))
-                                )
-                                for (e, nodes) in node.context[self.KEY].events.items()
-                            ]
-                        )
+                        finding_vars = {
+                            FindingValue(
+                                v,
+                                node,
+                                tuple(sorted(nodes, key=lambda x: x.node_id)),
+                            )
+                            for (v, nodes) in node.context[self.KEY].written.items()
+                        }
+                        finding_vars |= {
+                            FindingValue(
+                                e,
+                                e.node,
+                                tuple(sorted(nodes, key=lambda x: x.node_id)),
+                            )
+                            for (e, nodes) in node.context[self.KEY].events.items()
+                        }
                         if finding_vars:
                             result[finding_key] |= finding_vars
         return result
 
-    def _detect(self):
+    def _detect(self):  # pylint: disable=too-many-branches,too-many-locals
         """
         """
 
@@ -123,7 +123,9 @@ Only report reentrancy that is based on `transfer` or `send`."""
                 for (v, node, nodes) in varsWrittenOrEvent
                 if isinstance(v, Variable)
             ]
-            varsWritten = sorted(varsWritten, key=lambda x: (x.variable.name, x.node.node_id))
+            varsWritten = sorted(
+                varsWritten, key=lambda x: (x.variable.name, x.node.node_id)
+            )
             if varsWritten:
                 info += ["\tState variables written after the call(s):\n"]
                 for finding_value in varsWritten:
@@ -157,18 +159,24 @@ Only report reentrancy that is based on `transfer` or `send`."""
                 res.add(call_info, {"underlying_type": "external_calls"})
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
-                        res.add(call_list_info, {"underlying_type": "external_calls_sending_eth"})
+                        res.add(
+                            call_list_info,
+                            {"underlying_type": "external_calls_sending_eth"},
+                        )
 
             #
 
             # If the calls are not the same ones that send eth, add the eth sending nodes.
             if calls != send_eth:
                 for (call_info, calls_list) in send_eth:
-                    res.add(call_info, {"underlying_type": "external_calls_sending_eth"})
+                    res.add(
+                        call_info, {"underlying_type": "external_calls_sending_eth"}
+                    )
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             res.add(
-                                call_list_info, {"underlying_type": "external_calls_sending_eth"}
+                                call_list_info,
+                                {"underlying_type": "external_calls_sending_eth"},
                             )
 
             # Add all variables written via nodes which write them.

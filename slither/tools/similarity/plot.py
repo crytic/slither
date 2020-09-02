@@ -1,12 +1,19 @@
 import logging
+import random
 import sys
 import traceback
-import operator
-import numpy as np
-import random
 
-from .model import load_model
-from .encode import load_and_encode, parse_target
+try:
+    import numpy as np
+except ImportError:
+    print("ERROR: in order to use slither-simil, you need to install numpy:")
+    print(
+        "$ pip3 install numpy --user\n"
+    )
+    sys.exit(-1)
+
+from slither.tools.similarity.encode import load_and_encode, parse_target
+from slither.tools.similarity.model import load_model
 
 try:
     from sklearn import decomposition
@@ -18,7 +25,7 @@ except ImportError:
 logger = logging.getLogger("Slither-simil")
 
 
-def plot(args):
+def plot(args):  # pylint: disable=too-many-locals
 
     if decomposition is None or plt is None:
         logger.error(
@@ -31,7 +38,6 @@ def plot(args):
 
         model = args.model
         model = load_model(model)
-        filename = args.filename
         # contract = args.contract
         contract, fname = parse_target(args.fname)
         # solc = args.solc
@@ -75,7 +81,7 @@ def plot(args):
         logger.info("Saving figure to plot.png..")
         plt.savefig("plot.png", bbox_inches="tight")
 
-    except Exception:
+    except Exception:  # pylint: disable=broad-except
         logger.error("Error in %s" % args.filename)
         logger.error(traceback.format_exc())
         sys.exit(-1)

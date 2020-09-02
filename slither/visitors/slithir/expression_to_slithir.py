@@ -1,6 +1,10 @@
 import logging
 
-from slither.core.declarations import Function, SolidityVariable, SolidityVariableComposed
+from slither.core.declarations import (
+    Function,
+    SolidityVariable,
+    SolidityVariableComposed,
+)
 from slither.core.expressions import (
     AssignmentOperationType,
     UnaryOperationType,
@@ -8,7 +12,10 @@ from slither.core.expressions import (
 )
 from slither.core.solidity_types import ArrayType, ElementaryType
 from slither.core.solidity_types.type import Type
-from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
+from slither.core.variables.local_variable_init_from_tuple import (
+    LocalVariableInitFromTuple,
+)
+from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
     Assignment,
     Binary,
@@ -18,8 +25,6 @@ from slither.slithir.operations import (
     InitArray,
     InternalCall,
     Member,
-    NewArray,
-    NewContract,
     TypeConversion,
     Unary,
     Unpack,
@@ -30,10 +35,13 @@ from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElementaryType
-from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable, TupleVariable
+from slither.slithir.variables import (
+    Constant,
+    ReferenceVariable,
+    TemporaryVariable,
+    TupleVariable,
+)
 from slither.visitors.expression.expression import ExpressionVisitor
-
-from slither.slithir.exceptions import SlithIRError
 
 logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
 
@@ -85,33 +93,33 @@ _signed_to_unsigned = {
 def convert_assignment(left, right, t, return_type):
     if t == AssignmentOperationType.ASSIGN:
         return Assignment(left, right, return_type)
-    elif t == AssignmentOperationType.ASSIGN_OR:
+    if t == AssignmentOperationType.ASSIGN_OR:
         return Binary(left, left, right, BinaryType.OR)
-    elif t == AssignmentOperationType.ASSIGN_CARET:
+    if t == AssignmentOperationType.ASSIGN_CARET:
         return Binary(left, left, right, BinaryType.CARET)
-    elif t == AssignmentOperationType.ASSIGN_AND:
+    if t == AssignmentOperationType.ASSIGN_AND:
         return Binary(left, left, right, BinaryType.AND)
-    elif t == AssignmentOperationType.ASSIGN_LEFT_SHIFT:
+    if t == AssignmentOperationType.ASSIGN_LEFT_SHIFT:
         return Binary(left, left, right, BinaryType.LEFT_SHIFT)
-    elif t == AssignmentOperationType.ASSIGN_RIGHT_SHIFT:
+    if t == AssignmentOperationType.ASSIGN_RIGHT_SHIFT:
         return Binary(left, left, right, BinaryType.RIGHT_SHIFT)
-    elif t == AssignmentOperationType.ASSIGN_ADDITION:
+    if t == AssignmentOperationType.ASSIGN_ADDITION:
         return Binary(left, left, right, BinaryType.ADDITION)
-    elif t == AssignmentOperationType.ASSIGN_SUBTRACTION:
+    if t == AssignmentOperationType.ASSIGN_SUBTRACTION:
         return Binary(left, left, right, BinaryType.SUBTRACTION)
-    elif t == AssignmentOperationType.ASSIGN_MULTIPLICATION:
+    if t == AssignmentOperationType.ASSIGN_MULTIPLICATION:
         return Binary(left, left, right, BinaryType.MULTIPLICATION)
-    elif t == AssignmentOperationType.ASSIGN_DIVISION:
+    if t == AssignmentOperationType.ASSIGN_DIVISION:
         return Binary(left, left, right, BinaryType.DIVISION)
-    elif t == AssignmentOperationType.ASSIGN_MODULO:
+    if t == AssignmentOperationType.ASSIGN_MODULO:
         return Binary(left, left, right, BinaryType.MODULO)
 
     raise SlithIRError("Missing type during assignment conversion")
 
 
 class ExpressionToSlithIR(ExpressionVisitor):
-    def __init__(self, expression, node):
-        from slither.core.cfg.node import NodeType
+    def __init__(self, expression, node):  # pylint: disable=super-init-not-called
+        from slither.core.cfg.node import NodeType  # pylint: disable=import-outside-toplevel
 
         self._expression = expression
         self._node = node
@@ -133,7 +141,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         if isinstance(left, list):  # tuple expression:
             if isinstance(right, list):  # unbox assigment
                 assert len(left) == len(right)
-                for idx in range(len(left)):
+                for idx, _ in enumerate(left):
                     if not left[idx] is None:
                         operation = convert_assignment(
                             left[idx],
@@ -146,7 +154,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 set_val(expression, None)
             else:
                 assert isinstance(right, TupleVariable)
-                for idx in range(len(left)):
+                for idx, _ in enumerate(left):
                     if not left[idx] is None:
                         index = idx
                         # The following test is probably always true?
@@ -209,7 +217,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 new_right = right
 
             new_final = TemporaryVariable(self._node)
-            operation = Binary(new_final, new_left, new_right, _signed_to_unsigned[expression.type])
+            operation = Binary(
+                new_final, new_left, new_right, _signed_to_unsigned[expression.type]
+            )
             operation.set_expression(expression)
             self._result.append(operation)
 
@@ -223,7 +233,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
         set_val(expression, val)
 
-    def _post_call_expression(self, expression):
+    def _post_call_expression(self, expression):  # pylint: disable=too-many-branches,too-many-statements
         called = get(expression.called)
         args = [get(a) for a in expression.arguments if a]
         for arg in args:
@@ -234,7 +244,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
             # internal call
 
             # If tuple
-            if expression.type_call.startswith("tuple(") and expression.type_call != "tuple()":
+            if (
+                expression.type_call.startswith("tuple(")
+                and expression.type_call != "tuple()"
+            ):
                 val = TupleVariable(self._node)
             else:
                 val = TemporaryVariable(self._node)
@@ -261,7 +274,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 set_val(expression, val)
             elif called.name == "selfbalance()":
                 val = TemporaryVariable(self._node)
-                var = TypeConversion(val, SolidityVariable("this"), ElementaryType("address"))
+                var = TypeConversion(
+                    val, SolidityVariable("this"), ElementaryType("address")
+                )
                 self._result.append(var)
 
                 val1 = ReferenceVariable(self._node)
@@ -270,7 +285,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 set_val(expression, val1)
             elif called.name == "address()":
                 val = TemporaryVariable(self._node)
-                var = TypeConversion(val, SolidityVariable("this"), ElementaryType("address"))
+                var = TypeConversion(
+                    val, SolidityVariable("this"), ElementaryType("address")
+                )
                 self._result.append(var)
                 set_val(expression, val)
             elif called.name == "callvalue()":
@@ -280,7 +297,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 set_val(expression, val)
             else:
                 # If tuple
-                if expression.type_call.startswith("tuple(") and expression.type_call != "tuple()":
+                if (
+                    expression.type_call.startswith("tuple(")
+                    and expression.type_call != "tuple()"
+                ):
                     val = TupleVariable(self._node)
                 else:
                     val = TemporaryVariable(self._node)
@@ -302,7 +322,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 set_val(expression, val)
 
     def _post_conditional_expression(self, expression):
-        raise Exception("Ternary operator are not convertible to SlithIR {}".format(expression))
+        raise Exception(
+            "Ternary operator are not convertible to SlithIR {}".format(expression)
+        )
 
     def _post_elementary_type_name_expression(self, expression):
         set_val(expression, expression.type)
@@ -393,7 +415,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         self._result.append(operation)
         set_val(expression, val)
 
-    def _post_unary_operation(self, expression):
+    def _post_unary_operation(self, expression):  # pylint: disable=too-many-branches,too-many-statements
         value = get(expression.expression)
         if expression.type in [UnaryOperationType.BANG, UnaryOperationType.TILD]:
             lvalue = TemporaryVariable(self._node)
@@ -407,12 +429,16 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.PLUSPLUS_PRE]:
-            operation = Binary(value, value, Constant("1", value.type), BinaryType.ADDITION)
+            operation = Binary(
+                value, value, Constant("1", value.type), BinaryType.ADDITION
+            )
             operation.set_expression(expression)
             self._result.append(operation)
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.MINUSMINUS_PRE]:
-            operation = Binary(value, value, Constant("1", value.type), BinaryType.SUBTRACTION)
+            operation = Binary(
+                value, value, Constant("1", value.type), BinaryType.SUBTRACTION
+            )
             operation.set_expression(expression)
             self._result.append(operation)
             set_val(expression, value)
@@ -421,7 +447,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
             operation = Assignment(lvalue, value, value.type)
             operation.set_expression(expression)
             self._result.append(operation)
-            operation = Binary(value, value, Constant("1", value.type), BinaryType.ADDITION)
+            operation = Binary(
+                value, value, Constant("1", value.type), BinaryType.ADDITION
+            )
             operation.set_expression(expression)
             self._result.append(operation)
             set_val(expression, lvalue)
@@ -430,7 +458,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
             operation = Assignment(lvalue, value, value.type)
             operation.set_expression(expression)
             self._result.append(operation)
-            operation = Binary(value, value, Constant("1", value.type), BinaryType.SUBTRACTION)
+            operation = Binary(
+                value, value, Constant("1", value.type), BinaryType.SUBTRACTION
+            )
             operation.set_expression(expression)
             self._result.append(operation)
             set_val(expression, lvalue)
@@ -438,9 +468,13 @@ class ExpressionToSlithIR(ExpressionVisitor):
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.MINUS_PRE]:
             lvalue = TemporaryVariable(self._node)
-            operation = Binary(lvalue, Constant("0", value.type), value, BinaryType.SUBTRACTION)
+            operation = Binary(
+                lvalue, Constant("0", value.type), value, BinaryType.SUBTRACTION
+            )
             operation.set_expression(expression)
             self._result.append(operation)
             set_val(expression, lvalue)
         else:
-            raise SlithIRError("Unary operation to IR not supported {}".format(expression))
+            raise SlithIRError(
+                "Unary operation to IR not supported {}".format(expression)
+            )

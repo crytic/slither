@@ -14,3 +14,7 @@ class ExpressionTyped(Expression):
     @property
     def type(self):
         return self._type
+
+    @type.setter
+    def type(self, new_type: "Type"):
+        self._type = new_type

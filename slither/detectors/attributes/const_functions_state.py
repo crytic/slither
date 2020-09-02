@@ -3,7 +3,7 @@ Module detecting constant functions
 Recursively check the called functions
 """
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.formatters.attributes.const_functions import format
+from slither.formatters.attributes.const_functions import custom_format
 
 
 class ConstantFunctionsState(AbstractDetector):
@@ -40,9 +40,7 @@ contract Constant{
 `Constant` was deployed with Solidity 0.4.25. Bob writes a smart contract that interacts with `Constant` in Solidity 0.5.0. 
 All the calls to `get` revert, breaking Bob's smart contract execution."""
 
-    WIKI_RECOMMENDATION = (
-        "Ensure that attributes of contracts compiled prior to Solidity 0.5.0 are correct."
-    )
+    WIKI_RECOMMENDATION = "Ensure that attributes of contracts compiled prior to Solidity 0.5.0 are correct."
 
     def _detect(self):
         """ Detect the constant function changing the state
@@ -63,7 +61,10 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
                     if variables_written:
                         attr = "view" if f.view else "pure"
 
-                        info = [f, f" is declared {attr} but changes state variables:\n"]
+                        info = [
+                            f,
+                            f" is declared {attr} but changes state variables:\n",
+                        ]
 
                         for variable_written in variables_written:
                             info += ["\t- ", variable_written, "\n"]
@@ -76,4 +77,4 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
 
     @staticmethod
     def _format(slither, result):
-        format(slither, result)
+        custom_format(slither, result)

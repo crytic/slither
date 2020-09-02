@@ -21,7 +21,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Slither.Format")
 
 
-def format(slither, result):
+# pylint: disable=anomalous-backslash-in-string
+
+def custom_format(slither, result):
     elements = result["elements"]
     for element in elements:
         target = element["additional_fields"]["target"]
@@ -126,13 +128,15 @@ def _name_already_use(slither, name):
     if not KEY in slither.context:
         all_names = set()
         for contract in slither.contracts_derived:
-            all_names = all_names.union(set([st.name for st in contract.structures]))
-            all_names = all_names.union(set([f.name for f in contract.functions_and_modifiers]))
-            all_names = all_names.union(set([e.name for e in contract.enums]))
-            all_names = all_names.union(set([s.name for s in contract.state_variables]))
+            all_names = all_names.union({st.name for st in contract.structures})
+            all_names = all_names.union(
+                {f.name for f in contract.functions_and_modifiers}
+            )
+            all_names = all_names.union({e.name for e in contract.enums})
+            all_names = all_names.union({s.name for s in contract.state_variables})
 
             for function in contract.functions:
-                all_names = all_names.union(set([v.name for v in function.variables]))
+                all_names = all_names.union({v.name for v in function.variables})
 
         slither.context[KEY] = all_names
     return name in slither.context[KEY]
@@ -144,13 +148,17 @@ def _convert_CapWords(original_name, slither):
     while "_" in name:
         offset = name.find("_")
         if len(name) > offset:
-            name = name[0:offset] + name[offset + 1].upper() + name[offset + 1 :]
+            name = name[0:offset] + name[offset + 1].upper() + name[offset + 1:]
 
     if _name_already_use(slither, name):
-        raise FormatImpossible(f"{original_name} cannot be converted to {name} (already used)")
+        raise FormatImpossible(
+            f"{original_name} cannot be converted to {name} (already used)"
+        )
 
     if name in SOLIDITY_KEYWORDS:
-        raise FormatImpossible(f"{original_name} cannot be converted to {name} (Solidity keyword)")
+        raise FormatImpossible(
+            f"{original_name} cannot be converted to {name} (Solidity keyword)"
+        )
     return name
 
 
@@ -162,21 +170,29 @@ def _convert_mixedCase(original_name, slither):
     while "_" in name:
         offset = name.find("_")
         if len(name) > offset:
-            name = name[0:offset] + name[offset + 1].upper() + name[offset + 2 :]
+            name = name[0:offset] + name[offset + 1].upper() + name[offset + 2:]
 
     name = name[0].lower() + name[1:]
     if _name_already_use(slither, name):
-        raise FormatImpossible(f"{original_name} cannot be converted to {name} (already used)")
+        raise FormatImpossible(
+            f"{original_name} cannot be converted to {name} (already used)"
+        )
     if name in SOLIDITY_KEYWORDS:
-        raise FormatImpossible(f"{original_name} cannot be converted to {name} (Solidity keyword)")
+        raise FormatImpossible(
+            f"{original_name} cannot be converted to {name} (Solidity keyword)"
+        )
     return name
 
 
 def _convert_UPPER_CASE_WITH_UNDERSCORES(name, slither):
     if _name_already_use(slither, name.upper()):
-        raise FormatImpossible(f"{name} cannot be converted to {name.upper()} (already used)")
+        raise FormatImpossible(
+            f"{name} cannot be converted to {name.upper()} (already used)"
+        )
     if name.upper() in SOLIDITY_KEYWORDS:
-        raise FormatImpossible(f"{name} cannot be converted to {name.upper()} (Solidity keyword)")
+        raise FormatImpossible(
+            f"{name} cannot be converted to {name.upper()} (Solidity keyword)"
+        )
     return name.upper()
 
 
@@ -210,15 +226,18 @@ def _get_from_contract(slither, element, name, getter):
 
 
 def _patch(slither, result, element, _target):
-
     if _target == "contract":
         target = slither.get_contract_from_name(element["name"])
 
     elif _target == "structure":
-        target = _get_from_contract(slither, element, element["name"], "get_structure_from_name")
+        target = _get_from_contract(
+            slither, element, element["name"], "get_structure_from_name"
+        )
 
     elif _target == "event":
-        target = _get_from_contract(slither, element, element["name"], "get_event_from_name")
+        target = _get_from_contract(
+            slither, element, element["name"], "get_event_from_name"
+        )
 
     elif _target == "function":
         # Avoid constructor (FP?)
@@ -230,15 +249,17 @@ def _patch(slither, result, element, _target):
 
     elif _target == "modifier":
         modifier_sig = element["type_specific_fields"]["signature"]
-        target = _get_from_contract(slither, element, modifier_sig, "get_modifier_from_signature")
+        target = _get_from_contract(
+            slither, element, modifier_sig, "get_modifier_from_signature"
+        )
 
     elif _target == "parameter":
-        contract_name = element["type_specific_fields"]["parent"]["type_specific_fields"]["parent"][
-            "name"
-        ]
-        function_sig = element["type_specific_fields"]["parent"]["type_specific_fields"][
-            "signature"
-        ]
+        contract_name = element["type_specific_fields"]["parent"][
+            "type_specific_fields"
+        ]["parent"]["name"]
+        function_sig = element["type_specific_fields"]["parent"][
+            "type_specific_fields"
+        ]["signature"]
         param_name = element["name"]
         contract = slither.get_contract_from_name(contract_name)
         function = contract.get_function_from_signature(function_sig)
@@ -247,12 +268,12 @@ def _patch(slither, result, element, _target):
     elif _target in ["variable", "variable_constant"]:
         # Local variable
         if element["type_specific_fields"]["parent"] == "function":
-            contract_name = element["type_specific_fields"]["parent"]["type_specific_fields"][
-                "parent"
-            ]["name"]
-            function_sig = element["type_specific_fields"]["parent"]["type_specific_fields"][
-                "signature"
-            ]
+            contract_name = element["type_specific_fields"]["parent"][
+                "type_specific_fields"
+            ]["parent"]["name"]
+            function_sig = element["type_specific_fields"]["parent"][
+                "type_specific_fields"
+            ]["signature"]
             var_name = element["name"]
             contract = slither.get_contract_from_name(contract_name)
             function = contract.get_function_from_signature(function_sig)
@@ -271,7 +292,9 @@ def _patch(slither, result, element, _target):
     else:
         raise FormatError("Unknown naming convention! " + _target)
 
-    _explore(slither, result, target, conventions[element["additional_fields"]["convention"]])
+    _explore(
+        slither, result, target, conventions[element["additional_fields"]["convention"]]
+    )
 
 
 # endregion
@@ -288,7 +311,13 @@ def _patch(slither, result, element, _target):
 RE_MAPPING_FROM = b"([a-zA-Z0-9\._\[\]]*)"
 RE_MAPPING_TO = b"([\=\>\(\) a-zA-Z0-9\._\[\]\   ]*)"
 RE_MAPPING = (
-    b"[ ]*mapping[ ]*\([ ]*" + RE_MAPPING_FROM + b"[ ]*" + b"=>" + b"[ ]*" + RE_MAPPING_TO + b"\)"
+        b"[ ]*mapping[ ]*\([ ]*"
+        + RE_MAPPING_FROM
+        + b"[ ]*"
+        + b"=>"
+        + b"[ ]*"
+        + RE_MAPPING_TO
+        + b"\)"
 )
 
 
@@ -301,15 +330,17 @@ def _is_var_declaration(slither, filename, start):
     :return:
     """
     v = "var "
-    return slither.source_code[filename][start : start + len(v)] == v
+    return slither.source_code[filename][start: start + len(v)] == v
 
 
-def _explore_type(slither, result, target, convert, type, filename_source_code, start, end):
-    if isinstance(type, UserDefinedType):
+def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches
+        slither, result, target, convert, custom_type, filename_source_code, start, end
+):
+    if isinstance(custom_type, UserDefinedType):
         # Patch type based on contract/enum
-        if isinstance(type.type, (Enum, Contract)):
-            if type.type == target:
-                old_str = type.type.name
+        if isinstance(custom_type.type, (Enum, Contract)):
+            if custom_type.type == target:
+                old_str = custom_type.type.name
                 new_str = convert(old_str, slither)
 
                 loc_start = start
@@ -318,13 +349,15 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
                 else:
                     loc_end = loc_start + len(old_str)
 
-                create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
+                create_patch(
+                    result, filename_source_code, loc_start, loc_end, old_str, new_str
+                )
 
         else:
             # Patch type based on structure
-            assert isinstance(type.type, Structure)
-            if type.type == target:
-                old_str = type.type.name
+            assert isinstance(custom_type.type, Structure)
+            if custom_type.type == target:
+                old_str = custom_type.type.name
                 new_str = convert(old_str, slither)
 
                 loc_start = start
@@ -333,15 +366,17 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
                 else:
                     loc_end = loc_start + len(old_str)
 
-                create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
+                create_patch(
+                    result, filename_source_code, loc_start, loc_end, old_str, new_str
+                )
 
             # Structure contain a list of elements, that might need patching
             # .elems return a list of VariableStructure
             _explore_variables_declaration(
-                slither, type.type.elems.values(), result, target, convert
+                slither, custom_type.type.elems.values(), result, target, convert
             )
 
-    if isinstance(type, MappingType):
+    if isinstance(custom_type, MappingType):
         # Mapping has three steps:
         # Convert the "from" type
         # Convert the "to" type
@@ -350,39 +385,42 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
 
         # Do the comparison twice, so we can factor together the re matching
         # mapping can only have elementary type in type_from
-        if isinstance(type.type_to, (UserDefinedType, MappingType)) or target in [
-            type.type_from,
-            type.type_to,
+        if isinstance(custom_type.type_to, (UserDefinedType, MappingType)) or target in [
+            custom_type.type_from,
+            custom_type.type_to,
         ]:
 
             full_txt_start = start
             full_txt_end = end
             full_txt = slither.source_code[filename_source_code].encode("utf8")[
-                full_txt_start:full_txt_end
-            ]
+                       full_txt_start:full_txt_end
+                       ]
             re_match = re.match(RE_MAPPING, full_txt)
             assert re_match
 
-            if type.type_from == target:
-                old_str = type.type_from.name
+            if custom_type.type_from == target:
+                old_str = custom_type.type_from.name
                 new_str = convert(old_str, slither)
 
                 loc_start = start + re_match.start(1)
                 loc_end = loc_start + len(old_str)
 
-                create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
+                create_patch(
+                    result, filename_source_code, loc_start, loc_end, old_str, new_str
+                )
 
-            if type.type_to == target:
-
-                old_str = type.type_to.name
+            if custom_type.type_to == target:
+                old_str = custom_type.type_to.name
                 new_str = convert(old_str, slither)
 
                 loc_start = start + re_match.start(2)
                 loc_end = loc_start + len(old_str)
 
-                create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
+                create_patch(
+                    result, filename_source_code, loc_start, loc_end, old_str, new_str
+                )
 
-            if isinstance(type.type_to, (UserDefinedType, MappingType)):
+            if isinstance(custom_type.type_to, (UserDefinedType, MappingType)):
                 loc_start = start + re_match.start(2)
                 loc_end = start + re_match.end(2)
                 _explore_type(
@@ -390,15 +428,15 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
                     result,
                     target,
                     convert,
-                    type.type_to,
+                    custom_type.type_to,
                     filename_source_code,
                     loc_start,
                     loc_end,
                 )
 
 
-def _explore_variables_declaration(
-    slither, variables, result, target, convert, patch_comment=False
+def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-many-locals,too-many-nested-blocks
+        slither, variables, result, target, convert, patch_comment=False
 ):
     for variable in variables:
         # First explore the type of the variable
@@ -406,8 +444,8 @@ def _explore_variables_declaration(
         full_txt_start = variable.source_mapping["start"]
         full_txt_end = full_txt_start + variable.source_mapping["length"]
         full_txt = slither.source_code[filename_source_code].encode("utf8")[
-            full_txt_start:full_txt_end
-        ]
+                   full_txt_start:full_txt_end
+                   ]
 
         _explore_type(
             slither,
@@ -428,23 +466,28 @@ def _explore_variables_declaration(
             loc_start = full_txt_start + full_txt.find(old_str.encode("utf8"))
             loc_end = loc_start + len(old_str)
 
-            create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
+            create_patch(
+                result, filename_source_code, loc_start, loc_end, old_str, new_str
+            )
 
             # Patch comment only makes sense for local variable declaration in the parameter list
             if patch_comment and isinstance(variable, LocalVariable):
-                if "lines" in variable.source_mapping and variable.source_mapping["lines"]:
+                if (
+                        "lines" in variable.source_mapping
+                        and variable.source_mapping["lines"]
+                ):
                     func = variable.function
                     end_line = func.source_mapping["lines"][0]
                     if variable in func.parameters:
                         idx = len(func.parameters) - func.parameters.index(variable) + 1
                         first_line = end_line - idx - 2
 
-                        potential_comments = slither.source_code[filename_source_code].encode(
-                            "utf8"
-                        )
-                        potential_comments = potential_comments.splitlines(keepends=True)[
-                            first_line : end_line - 1
-                        ]
+                        potential_comments = slither.source_code[
+                            filename_source_code
+                        ].encode("utf8")
+                        potential_comments = potential_comments.splitlines(
+                            keepends=True
+                        )[first_line: end_line - 1]
 
                         idx_beginning = func.source_mapping["start"]
                         idx_beginning += -func.source_mapping["starting_column"] + 1
@@ -475,7 +518,9 @@ def _explore_variables_declaration(
 def _explore_structures_declaration(slither, structures, result, target, convert):
     for st in structures:
         # Explore the variable declared within the structure (VariableStructure)
-        _explore_variables_declaration(slither, st.elems.values(), result, target, convert)
+        _explore_variables_declaration(
+            slither, st.elems.values(), result, target, convert
+        )
 
         # If the structure is the target
         if st == target:
@@ -486,16 +531,20 @@ def _explore_structures_declaration(slither, structures, result, target, convert
             full_txt_start = st.source_mapping["start"]
             full_txt_end = full_txt_start + st.source_mapping["length"]
             full_txt = slither.source_code[filename_source_code].encode("utf8")[
-                full_txt_start:full_txt_end
-            ]
+                       full_txt_start:full_txt_end
+                       ]
 
             # The name is after the space
             matches = re.finditer(b"struct[ ]*", full_txt)
             # Look for the end offset of the largest list of ' '
-            loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
+            loc_start = (
+                    full_txt_start + max(matches, key=lambda x: len(x.group())).end()
+            )
             loc_end = loc_start + len(old_str)
 
-            create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
+            create_patch(
+                result, filename_source_code, loc_start, loc_end, old_str, new_str
+            )
 
 
 def _explore_events_declaration(slither, events, result, target, convert):
@@ -513,47 +562,52 @@ def _explore_events_declaration(slither, events, result, target, convert):
             loc_start = event.source_mapping["start"]
             loc_end = loc_start + len(old_str)
 
-            create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
+            create_patch(
+                result, filename_source_code, loc_start, loc_end, old_str, new_str
+            )
 
 
 def get_ir_variables(ir):
-    vars = ir.read
+    all_vars = ir.read
 
     if isinstance(ir, (InternalCall, InternalDynamicCall, HighLevelCall)):
-        vars += [ir.function]
+        all_vars += [ir.function]
 
     if isinstance(ir, (HighLevelCall, Send, LowLevelCall, Transfer)):
-        vars += [ir.call_value]
+        all_vars += [ir.call_value]
 
     if isinstance(ir, (HighLevelCall, LowLevelCall)):
-        vars += [ir.call_gas]
+        all_vars += [ir.call_gas]
 
     if isinstance(ir, OperationWithLValue):
-        vars += [ir.lvalue]
+        all_vars += [ir.lvalue]
 
-    return [v for v in vars if v]
+    return [v for v in all_vars if v]
 
 
 def _explore_irs(slither, irs, result, target, convert):
+    # pylint: disable=too-many-locals
     if irs is None:
         return
     for ir in irs:
         for v in get_ir_variables(ir):
             if target == v or (
-                isinstance(target, Function)
-                and isinstance(v, Function)
-                and v.canonical_name == target.canonical_name
+                    isinstance(target, Function)
+                    and isinstance(v, Function)
+                    and v.canonical_name == target.canonical_name
             ):
                 source_mapping = ir.expression.source_mapping
                 filename_source_code = source_mapping["filename_absolute"]
                 full_txt_start = source_mapping["start"]
                 full_txt_end = full_txt_start + source_mapping["length"]
                 full_txt = slither.source_code[filename_source_code].encode("utf8")[
-                    full_txt_start:full_txt_end
-                ]
+                           full_txt_start:full_txt_end
+                           ]
 
                 if not target.name.encode("utf8") in full_txt:
-                    raise FormatError(f"{target} not found in {full_txt} ({source_mapping}")
+                    raise FormatError(
+                        f"{target} not found in {full_txt} ({source_mapping}"
+                    )
 
                 old_str = target.name.encode("utf8")
                 new_str = convert(old_str, slither)
@@ -562,24 +616,37 @@ def _explore_irs(slither, irs, result, target, convert):
                 # Can be found multiple time on the same IR
                 # We patch one by one
                 while old_str in full_txt:
-
                     target_found_at = full_txt.find((old_str))
 
-                    full_txt = full_txt[target_found_at + 1 :]
+                    full_txt = full_txt[target_found_at + 1:]
                     counter += target_found_at
 
                     loc_start = full_txt_start + counter
                     loc_end = loc_start + len(old_str)
 
-                    create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
+                    create_patch(
+                        result,
+                        filename_source_code,
+                        loc_start,
+                        loc_end,
+                        old_str,
+                        new_str,
+                    )
 
 
 def _explore_functions(slither, functions, result, target, convert):
     for function in functions:
-        _explore_variables_declaration(slither, function.variables, result, target, convert, True)
-        _explore_irs(slither, function.all_slithir_operations(), result, target, convert)
+        _explore_variables_declaration(
+            slither, function.variables, result, target, convert, True
+        )
+        _explore_irs(
+            slither, function.all_slithir_operations(), result, target, convert
+        )
 
-        if isinstance(target, Function) and function.canonical_name == target.canonical_name:
+        if (
+                isinstance(target, Function)
+                and function.canonical_name == target.canonical_name
+        ):
             old_str = function.name
             new_str = convert(old_str, slither)
 
@@ -587,8 +654,8 @@ def _explore_functions(slither, functions, result, target, convert):
             full_txt_start = function.source_mapping["start"]
             full_txt_end = full_txt_start + function.source_mapping["length"]
             full_txt = slither.source_code[filename_source_code].encode("utf8")[
-                full_txt_start:full_txt_end
-            ]
+                       full_txt_start:full_txt_end
+                       ]
 
             # The name is after the space
             if isinstance(target, Modifier):
@@ -596,10 +663,14 @@ def _explore_functions(slither, functions, result, target, convert):
             else:
                 matches = re.finditer(b"function([ ]*)", full_txt)
             # Look for the end offset of the largest list of ' '
-            loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
+            loc_start = (
+                    full_txt_start + max(matches, key=lambda x: len(x.group())).end()
+            )
             loc_end = loc_start + len(old_str)
 
-            create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
+            create_patch(
+                result, filename_source_code, loc_start, loc_end, old_str, new_str
+            )
 
 
 def _explore_enums(slither, enums, result, target, convert):
@@ -612,22 +683,32 @@ def _explore_enums(slither, enums, result, target, convert):
             full_txt_start = enum.source_mapping["start"]
             full_txt_end = full_txt_start + enum.source_mapping["length"]
             full_txt = slither.source_code[filename_source_code].encode("utf8")[
-                full_txt_start:full_txt_end
-            ]
+                       full_txt_start:full_txt_end
+                       ]
 
             # The name is after the space
             matches = re.finditer(b"enum([ ]*)", full_txt)
             # Look for the end offset of the largest list of ' '
-            loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
+            loc_start = (
+                    full_txt_start + max(matches, key=lambda x: len(x.group())).end()
+            )
             loc_end = loc_start + len(old_str)
 
-            create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
+            create_patch(
+                result, filename_source_code, loc_start, loc_end, old_str, new_str
+            )
 
 
 def _explore_contract(slither, contract, result, target, convert):
-    _explore_variables_declaration(slither, contract.state_variables, result, target, convert)
-    _explore_structures_declaration(slither, contract.structures, result, target, convert)
-    _explore_functions(slither, contract.functions_and_modifiers, result, target, convert)
+    _explore_variables_declaration(
+        slither, contract.state_variables, result, target, convert
+    )
+    _explore_structures_declaration(
+        slither, contract.structures, result, target, convert
+    )
+    _explore_functions(
+        slither, contract.functions_and_modifiers, result, target, convert
+    )
     _explore_enums(slither, contract.enums, result, target, convert)
 
     if contract == target:
@@ -635,8 +716,8 @@ def _explore_contract(slither, contract, result, target, convert):
         full_txt_start = contract.source_mapping["start"]
         full_txt_end = full_txt_start + contract.source_mapping["length"]
         full_txt = slither.source_code[filename_source_code].encode("utf8")[
-            full_txt_start:full_txt_end
-        ]
+                   full_txt_start:full_txt_end
+                   ]
 
         old_str = contract.name
         new_str = convert(old_str, slither)
@@ -654,6 +735,5 @@ def _explore_contract(slither, contract, result, target, convert):
 def _explore(slither, result, target, convert):
     for contract in slither.contracts_derived:
         _explore_contract(slither, contract, result, target, convert)
-
 
 # endregion

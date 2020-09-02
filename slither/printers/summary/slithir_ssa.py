@@ -10,7 +10,9 @@ class PrinterSlithIRSSA(AbstractPrinter):
     ARGUMENT = "slithir-ssa"
     HELP = "Print the slithIR representation of the functions"
 
-    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir-ssa"
+    WIKI = (
+        "https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir-ssa"
+    )
 
     def output(self, _filename):
         """

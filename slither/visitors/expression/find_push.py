@@ -1,6 +1,4 @@
 from slither.visitors.expression.expression import ExpressionVisitor
-from slither.core.expressions.identifier import Identifier
-from slither.core.expressions.index_access import IndexAccess
 
 from slither.visitors.expression.right_value import RightValue
 

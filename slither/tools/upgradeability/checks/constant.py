@@ -1,4 +1,7 @@
-from slither.tools.upgradeability.checks.abstract_checks import AbstractCheck, CheckClassification
+from slither.tools.upgradeability.checks.abstract_checks import (
+    AbstractCheck,
+    CheckClassification,
+)
 
 
 class WereConstant(AbstractCheck):
@@ -67,7 +70,8 @@ Do not remove `constant` from a state variables during an update.
                     if not state_v2.is_constant:
                         # If v2 has additional non constant variables, we need to skip them
                         if (
-                            state_v1.name != state_v2.name or state_v1.type != state_v2.type
+                            state_v1.name != state_v2.name
+                            or state_v1.type != state_v2.type
                         ) and v2_additional_variables > 0:
                             v2_additional_variables -= 1
                             idx_v2 += 1
@@ -149,7 +153,8 @@ Do not make an existing state variable `constant`.
                     if not state_v2.is_constant:
                         # If v2 has additional non constant variables, we need to skip them
                         if (
-                            state_v1.name != state_v2.name or state_v1.type != state_v2.type
+                            state_v1.name != state_v2.name
+                            or state_v1.type != state_v2.type
                         ) and v2_additional_variables > 0:
                             v2_additional_variables -= 1
                             idx_v2 += 1

@@ -47,7 +47,9 @@ def output_to_json(filename: str, error, results: Dict):
     else:
         # Write json to file
         if os.path.isfile(filename):
-            logger.info(yellow(f"{filename} exists already, the overwrite is prevented"))
+            logger.info(
+                yellow(f"{filename} exists already, the overwrite is prevented")
+            )
         else:
             with open(filename, "w", encoding="utf8") as f:
                 json.dump(json_result, f, indent=2)
@@ -62,7 +64,9 @@ ZIP_TYPES_ACCEPTED = {
 }
 
 
-def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: str = "lzma"):
+def output_to_zip(
+    filename: str, error: Optional[str], results: Dict, zip_type: str = "lzma"
+):
     """
     Output the results to a zip
     The file in the zip is named slither_results.json
@@ -78,9 +82,13 @@ def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: 
         logger.info(yellow(f"{filename} exists already, the overwrite is prevented"))
     else:
         with ZipFile(
-            filename, "w", compression=ZIP_TYPES_ACCEPTED.get(zip_type, zipfile.ZIP_LZMA)
+            filename,
+            "w",
+            compression=ZIP_TYPES_ACCEPTED.get(zip_type, zipfile.ZIP_LZMA),
         ) as file_desc:
-            file_desc.writestr("slither_results.json", json.dumps(json_result).encode("utf8"))
+            file_desc.writestr(
+                "slither_results.json", json.dumps(json_result).encode("utf8")
+            )
 
 
 # endregion
@@ -96,13 +104,14 @@ def _convert_to_description(d):
         return d
 
     if not isinstance(d, SourceMapping):
-        raise SlitherError(f"{d} does not inherit from SourceMapping, conversion impossible")
+        raise SlitherError(
+            f"{d} does not inherit from SourceMapping, conversion impossible"
+        )
 
     if isinstance(d, Node):
         if d.expression:
             return f"{d.expression} ({d.source_mapping_str})"
-        else:
-            return f"{str(d)} ({d.source_mapping_str})"
+        return f"{str(d)} ({d.source_mapping_str})"
 
     if hasattr(d, "canonical_name"):
         return f"{d.canonical_name} ({d.source_mapping_str})"
@@ -118,13 +127,14 @@ def _convert_to_markdown(d, markdown_root):
         return d
 
     if not isinstance(d, SourceMapping):
-        raise SlitherError(f"{d} does not inherit from SourceMapping, conversion impossible")
+        raise SlitherError(
+            f"{d} does not inherit from SourceMapping, conversion impossible"
+        )
 
     if isinstance(d, Node):
         if d.expression:
             return f"[{d.expression}]({d.source_mapping_to_markdown(markdown_root)})"
-        else:
-            return f"[{str(d)}]({d.source_mapping_to_markdown(markdown_root)})"
+        return f"[{str(d)}]({d.source_mapping_to_markdown(markdown_root)})"
 
     if hasattr(d, "canonical_name"):
         return f"[{d.canonical_name}]({d.source_mapping_to_markdown(markdown_root)})"
@@ -145,13 +155,14 @@ def _convert_to_id(d):
         return d
 
     if not isinstance(d, SourceMapping):
-        raise SlitherError(f"{d} does not inherit from SourceMapping, conversion impossible")
+        raise SlitherError(
+            f"{d} does not inherit from SourceMapping, conversion impossible"
+        )
 
     if isinstance(d, Node):
         if d.expression:
             return f"{d.expression} ({d.source_mapping_str})"
-        else:
-            return f"{str(d)} ({d.source_mapping_str})"
+        return f"{str(d)} ({d.source_mapping_str})"
 
     if isinstance(d, Pragma):
         return f"{d} ({d.source_mapping_str})"
@@ -174,13 +185,13 @@ def _convert_to_id(d):
 
 
 def _create_base_element(
-    type, name, source_mapping, type_specific_fields=None, additional_fields=None
+    custom_type, name, source_mapping, type_specific_fields=None, additional_fields=None
 ):
     if additional_fields is None:
         additional_fields = {}
     if type_specific_fields is None:
         type_specific_fields = {}
-    element = {"type": type, "name": name, "source_mapping": source_mapping}
+    element = {"type": custom_type, "name": name, "source_mapping": source_mapping}
     if type_specific_fields:
         element["type_specific_fields"] = type_specific_fields
     if additional_fields:
@@ -189,6 +200,7 @@ def _create_base_element(
 
 
 def _create_parent_element(element):
+    # pylint: disable=import-outside-toplevel
     from slither.core.children.child_contract import ChildContract
     from slither.core.children.child_function import ChildFunction
     from slither.core.children.child_inheritance import ChildInheritance
@@ -211,7 +223,9 @@ def _create_parent_element(element):
     return None
 
 
-SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node]
+SupportedOutput = Union[
+    Variable, Contract, Function, Enum, Event, Structure, Pragma, Node
+]
 
 
 class Output:
@@ -235,7 +249,9 @@ class Output:
         self._data: Dict[str, Any] = OrderedDict()
         self._data["elements"] = []
         self._data["description"] = "".join(_convert_to_description(d) for d in info)
-        self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
+        self._data["markdown"] = "".join(
+            _convert_to_markdown(d, markdown_root) for d in info
+        )
 
         id_txt = "".join(_convert_to_id(d) for d in info)
         self._data["id"] = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()
@@ -284,7 +300,9 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_variable(self, variable: Variable, additional_fields: Optional[Dict] = None):
+    def add_variable(
+        self, variable: Variable, additional_fields: Optional[Dict] = None
+    ):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(variable)}
@@ -308,7 +326,9 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_contract(self, contract: Contract, additional_fields: Optional[Dict] = None):
+    def add_contract(
+        self, contract: Contract, additional_fields: Optional[Dict] = None
+    ):
         if additional_fields is None:
             additional_fields = {}
         element = _create_base_element(
@@ -323,7 +343,9 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_function(self, function: Function, additional_fields: Optional[Dict] = None):
+    def add_function(
+        self, function: Function, additional_fields: Optional[Dict] = None
+    ):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -339,7 +361,9 @@ class Output:
         )
         self._data["elements"].append(element)
 
-    def add_functions(self, functions: List[Function], additional_fields: Optional[Dict] = None):
+    def add_functions(
+        self, functions: List[Function], additional_fields: Optional[Dict] = None
+    ):
         if additional_fields is None:
             additional_fields = {}
         for function in sorted(functions, key=lambda x: x.name):
@@ -357,7 +381,11 @@ class Output:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(enum)}
         element = _create_base_element(
-            "enum", enum.name, enum.source_mapping, type_specific_fields, additional_fields
+            "enum",
+            enum.name,
+            enum.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
         self._data["elements"].append(element)
 
@@ -373,7 +401,11 @@ class Output:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(struct)}
         element = _create_base_element(
-            "struct", struct.name, struct.source_mapping, type_specific_fields, additional_fields
+            "struct",
+            struct.name,
+            struct.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
         self._data["elements"].append(element)
 
@@ -392,7 +424,11 @@ class Output:
             "signature": event.full_name,
         }
         element = _create_base_element(
-            "event", event.name, event.source_mapping, type_specific_fields, additional_fields
+            "event",
+            event.name,
+            event.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
 
         self._data["elements"].append(element)
@@ -412,7 +448,11 @@ class Output:
         }
         node_name = str(node.expression) if node.expression else ""
         element = _create_base_element(
-            "node", node_name, node.source_mapping, type_specific_fields, additional_fields
+            "node",
+            node_name,
+            node.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
         self._data["elements"].append(element)
 
@@ -432,7 +472,11 @@ class Output:
             additional_fields = {}
         type_specific_fields = {"directive": pragma.directive}
         element = _create_base_element(
-            "pragma", pragma.version, pragma.source_mapping, type_specific_fields, additional_fields
+            "pragma",
+            pragma.version,
+            pragma.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
         self._data["elements"].append(element)
 
@@ -443,7 +487,9 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_file(self, filename: str, content: str, additional_fields: Optional[Dict] = None):
+    def add_file(
+        self, filename: str, content: str, additional_fields: Optional[Dict] = None
+    ):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"filename": filename, "content": content}
@@ -459,12 +505,17 @@ class Output:
     ###################################################################################
 
     def add_pretty_table(
-        self, content: MyPrettyTable, name: str, additional_fields: Optional[Dict] = None
+        self,
+        content: MyPrettyTable,
+        name: str,
+        additional_fields: Optional[Dict] = None,
     ):
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"content": content.to_json(), "name": name}
-        element = _create_base_element("pretty_table", type_specific_fields, additional_fields)
+        element = _create_base_element(
+            "pretty_table", type_specific_fields, additional_fields
+        )
 
         self._data["elements"].append(element)
 
@@ -476,7 +527,11 @@ class Output:
     ###################################################################################
 
     def add_other(
-        self, name: str, source_mapping, slither, additional_fields: Optional[Dict] = None
+        self,
+        name: str,
+        source_mapping,
+        slither,
+        additional_fields: Optional[Dict] = None,
     ):
         # If this a tuple with (filename, start, end), convert it to a source mapping.
         if additional_fields is None:
@@ -487,7 +542,10 @@ class Output:
             source_id = next(
                 (
                     source_unit_id
-                    for (source_unit_id, source_unit_filename) in slither.source_units.items()
+                    for (
+                        source_unit_id,
+                        source_unit_filename,
+                    ) in slither.source_units.items()
                     if source_unit_filename == filename
                 ),
                 -1,
@@ -507,5 +565,7 @@ class Output:
             source_mapping = source_mapping.source_mapping
 
         # Create the underlying element and add it to our resulting json
-        element = _create_base_element("other", name, source_mapping, {}, additional_fields)
+        element = _create_base_element(
+            "other", name, source_mapping, {}, additional_fields
+        )
         self._data["elements"].append(element)

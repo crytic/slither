@@ -6,12 +6,21 @@
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
 from slither.core.declarations import Function
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Assignment, Balance, Binary, BinaryType, HighLevelCall
+from slither.slithir.operations import (
+    Assignment,
+    Balance,
+    Binary,
+    BinaryType,
+    HighLevelCall,
+)
 
 from slither.core.solidity_types import MappingType, ElementaryType
 
 from slither.core.variables.state_variable import StateVariable
-from slither.core.declarations.solidity_variables import SolidityVariable, SolidityVariableComposed
+from slither.core.declarations.solidity_variables import (
+    SolidityVariable,
+    SolidityVariableComposed,
+)
 
 
 class IncorrectStrictEquality(AbstractDetector):
@@ -20,12 +29,12 @@ class IncorrectStrictEquality(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-strict-equalities"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-strict-equalities"
 
     WIKI_TITLE = "Dangerous strict equalities"
-    WIKI_DESCRIPTION = "Use of strict equalities that can be easily manipulated by an attacker."
+    WIKI_DESCRIPTION = (
+        "Use of strict equalities that can be easily manipulated by an attacker."
+    )
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Crowdsale{
@@ -36,9 +45,7 @@ contract Crowdsale{
 `Crowdsale` relies on `fund_reached` to know when to stop the sale of tokens.
 `Crowdsale` reaches 100 Ether. Bob sends 0.1 Ether. As a result, `fund_reached` is always false and the `crowdsale` never ends."""
 
-    WIKI_RECOMMENDATION = (
-        """Don't use strict equality to determine if an account has enough Ether or tokens."""
-    )
+    WIKI_RECOMMENDATION = """Don't use strict equality to determine if an account has enough Ether or tokens."""
 
     sources_taint = [
         SolidityVariable("now"),
@@ -98,7 +105,9 @@ contract Crowdsale{
                 for ir in node.irs_ssa:
 
                     # Filter to only tainted equality (==) comparisons
-                    if self.is_direct_comparison(ir) and self.is_any_tainted(ir.used, taints, func):
+                    if self.is_direct_comparison(ir) and self.is_any_tainted(
+                        ir.used, taints, func
+                    ):
                         if func not in results:
                             results[func] = []
                         results[func].append(node)
@@ -133,7 +142,7 @@ contract Crowdsale{
 
                 # Output each node with the function info header as a separate result.
                 for node in nodes:
-                    node_info = func_info + [f"\t- ", node, "\n"]
+                    node_info = func_info + ["\t- ", node, "\n"]
 
                     res = self.generate_result(node_info)
                     results.append(res)

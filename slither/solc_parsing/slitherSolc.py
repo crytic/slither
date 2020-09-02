@@ -7,10 +7,6 @@ from typing import List, Dict
 from slither.core.declarations import Contract
 from slither.exceptions import SlitherException
 
-logging.basicConfig()
-logger = logging.getLogger("SlitherSolcParsing")
-logger.setLevel(logging.INFO)
-
 from slither.solc_parsing.declarations.contract import ContractSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.core.slither_core import SlitherCore
@@ -18,8 +14,12 @@ from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.import_directive import Import
 from slither.analyses.data_dependency.data_dependency import compute_dependency
 
+logging.basicConfig()
+logger = logging.getLogger("SlitherSolcParsing")
+logger.setLevel(logging.INFO)
 
 class SlitherSolc:
+    # pylint: disable=no-self-use
     def __init__(self, filename: str, core: SlitherCore):
         super(SlitherSolc, self).__init__()
         core.filename = filename
@@ -82,16 +82,17 @@ class SlitherSolc:
             data_loaded = json.loads(json_data)
             # Truffle AST
             if "ast" in data_loaded:
-                self.parse_contracts_from_loaded_json(data_loaded["ast"], data_loaded["sourcePath"])
+                self.parse_contracts_from_loaded_json(
+                    data_loaded["ast"], data_loaded["sourcePath"]
+                )
                 return True
             # solc AST, where the non-json text was removed
+            if "attributes" in data_loaded:
+                filename = data_loaded["attributes"]["absolutePath"]
             else:
-                if "attributes" in data_loaded:
-                    filename = data_loaded["attributes"]["absolutePath"]
-                else:
-                    filename = data_loaded["absolutePath"]
-                self.parse_contracts_from_loaded_json(data_loaded, filename)
-                return True
+                filename = data_loaded["absolutePath"]
+            self.parse_contracts_from_loaded_json(data_loaded, filename)
+            return True
         except ValueError:
 
             first = json_data.find("{")
@@ -105,7 +106,7 @@ class SlitherSolc:
                 return True
             return False
 
-    def parse_contracts_from_loaded_json(self, data_loaded: Dict, filename: str):
+    def parse_contracts_from_loaded_json(self, data_loaded: Dict, filename: str):  # pylint: disable=too-many-branches
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
 
@@ -115,11 +116,11 @@ class SlitherSolc:
                     self._core.add_source_code(sourcePath)
 
         if data_loaded[self.get_key()] == "root":
-            self._core._solc_version = "0.3"
+            self._core.solc_version = "0.3"
             logger.error("solc <0.4 is not supported")
             return
-        elif data_loaded[self.get_key()] == "SourceUnit":
-            self._core._solc_version = "0.4"
+        if data_loaded[self.get_key()] == "SourceUnit":
+            self._core.solc_version = "0.4"
             self._parse_source_unit(data_loaded, filename)
         else:
             logger.error("solc version is not supported")
@@ -153,18 +154,25 @@ class SlitherSolc:
                 if self.is_compact_ast:
                     import_directive = Import(contract_data["absolutePath"])
                 else:
-                    import_directive = Import(contract_data["attributes"]["absolutePath"])
+                    import_directive = Import(
+                        contract_data["attributes"]["absolutePath"]
+                    )
                 import_directive.set_offset(contract_data["src"], self._core)
                 self._core.import_directives.append(import_directive)
 
-            elif contract_data[self.get_key()] in ["StructDefinition", "EnumDefinition"]:
+            elif contract_data[self.get_key()] in [
+                "StructDefinition",
+                "EnumDefinition",
+            ]:
                 # This can only happen for top-level structure and enum
                 # They were introduced with 0.6.5
-                assert self._is_compact_ast  # Do not support top level definition for legacy AST
+                assert (
+                    self._is_compact_ast
+                )  # Do not support top level definition for legacy AST
                 fake_contract_data = {
                     "name": f"SlitherInternalTopLevelContract{self._top_level_contracts_counter}",
                     "id": -1000
-                    + self._top_level_contracts_counter,  # TODO: determine if collission possible
+                          + self._top_level_contracts_counter,  # TODO: determine if collission possible
                     "linearizedBaseContracts": [],
                     "fullyImplemented": True,
                     "contractKind": "SLitherInternal",
@@ -176,11 +184,11 @@ class SlitherSolc:
                 contract.set_offset(contract_data["src"], self._core)
 
                 if contract_data[self.get_key()] == "StructDefinition":
-                    top_level_contract._structuresNotParsed.append(
+                    top_level_contract.structures_not_parsed.append(
                         contract_data
                     )  # Todo add proper setters
                 else:
-                    top_level_contract._enumsNotParsed.append(
+                    top_level_contract.enums_not_parsed.append(
                         contract_data
                     )  # Todo add proper setters
 
@@ -188,7 +196,7 @@ class SlitherSolc:
 
     def _parse_source_unit(self, data: Dict, filename: str):
         if data[self.get_key()] != "SourceUnit":
-            return -1  # handle solc prior 0.3.6
+            return  # handle solc prior 0.3.6
 
         # match any char for filename
         # filename can contain space, /, -, ..
@@ -232,7 +240,7 @@ class SlitherSolc:
     def analyzed(self) -> bool:
         return self._analyzed
 
-    def analyze_contracts(self):
+    def analyze_contracts(self):  # pylint: disable=too-many-statements,too-many-branches
         if not self._underlying_contract_to_parser:
             logger.info(
                 f"No contract were found in {self._core.filename}, check the correct compilation"
@@ -242,10 +250,10 @@ class SlitherSolc:
 
         # First we save all the contracts in a dict
         # the key is the contractid
-        for contract in self._underlying_contract_to_parser.keys():
+        for contract in self._underlying_contract_to_parser:
             if (
-                contract.name.startswith("SlitherInternalTopLevelContract")
-                and not contract.is_top_level
+                    contract.name.startswith("SlitherInternalTopLevelContract")
+                    and not contract.is_top_level
             ):
                 raise SlitherException(
                     """Your codebase has a contract named 'SlitherInternalTopLevelContract'.
@@ -286,7 +294,9 @@ Please rename it, this name is reserved for Slither's internals"""
             # Resolve immediate base contracts
             for i in contract_parser.baseContracts:
                 if i in contract_parser.remapping:
-                    fathers.append(self._core.get_contract_from_name(contract_parser.remapping[i]))
+                    fathers.append(
+                        self._core.get_contract_from_name(contract_parser.remapping[i])
+                    )
                 elif i in self._contracts_by_id:
                     fathers.append(self._contracts_by_id[i])
                 else:
@@ -311,7 +321,9 @@ Please rename it, this name is reserved for Slither's internals"""
                 self._core.contracts_with_missing_inheritance.add(
                     contract_parser.underlying_contract
                 )
-                contract_parser.log_incorrect_parsing(f"Missing inheritance {contract_parser}")
+                contract_parser.log_incorrect_parsing(
+                    f"Missing inheritance {contract_parser}"
+                )
                 contract_parser.set_is_analyzed(True)
                 contract_parser.delete_content()
 
@@ -319,17 +331,23 @@ Please rename it, this name is reserved for Slither's internals"""
 
         # Any contract can refer another contract enum without need for inheritance
         self._analyze_all_enums(contracts_to_be_analyzed)
+        # pylint: disable=expression-not-assigned
         [c.set_is_analyzed(False) for c in self._underlying_contract_to_parser.values()]
 
         libraries = [
-            c for c in contracts_to_be_analyzed if c.underlying_contract.contract_kind == "library"
+            c
+            for c in contracts_to_be_analyzed
+            if c.underlying_contract.contract_kind == "library"
         ]
         contracts_to_be_analyzed = [
-            c for c in contracts_to_be_analyzed if c.underlying_contract.contract_kind != "library"
+            c
+            for c in contracts_to_be_analyzed
+            if c.underlying_contract.contract_kind != "library"
         ]
 
         # We first parse the struct/variables/functions/contract
         self._analyze_first_part(contracts_to_be_analyzed, libraries)
+        # pylint: disable=expression-not-assigned
         [c.set_is_analyzed(False) for c in self._underlying_contract_to_parser.values()]
 
         # We analyze the struct and parse and analyze the events
@@ -362,10 +380,11 @@ Please rename it, this name is reserved for Slither's internals"""
                 self._analyze_enums(contract)
             else:
                 contracts_to_be_analyzed += [contract]
-        return
 
     def _analyze_first_part(
-        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+            self,
+            contracts_to_be_analyzed: List[ContractSolc],
+            libraries: List[ContractSolc],
     ):
         for lib in libraries:
             self._parse_struct_var_modifiers_functions(lib)
@@ -388,10 +407,11 @@ Please rename it, this name is reserved for Slither's internals"""
 
             else:
                 contracts_to_be_analyzed += [contract]
-        return
 
     def _analyze_second_part(
-        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+            self,
+            contracts_to_be_analyzed: List[ContractSolc],
+            libraries: List[ContractSolc],
     ):
         for lib in libraries:
             self._analyze_struct_events(lib)
@@ -414,10 +434,11 @@ Please rename it, this name is reserved for Slither's internals"""
 
             else:
                 contracts_to_be_analyzed += [contract]
-        return
 
     def _analyze_third_part(
-        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+            self,
+            contracts_to_be_analyzed: List[ContractSolc],
+            libraries: List[ContractSolc],
     ):
         for lib in libraries:
             self._analyze_variables_modifiers_functions(lib)
@@ -440,7 +461,6 @@ Please rename it, this name is reserved for Slither's internals"""
 
             else:
                 contracts_to_be_analyzed += [contract]
-        return
 
     def _analyze_enums(self, contract: ContractSolc):
         # Enum must be analyzed first

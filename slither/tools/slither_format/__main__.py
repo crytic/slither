@@ -1,10 +1,11 @@
 import sys
 import argparse
+import logging
+from crytic_compile import cryticparser
 from slither import Slither
 from slither.utils.command_line import read_config_file
-import logging
-from .slither_format import slither_format
-from crytic_compile import cryticparser
+from slither.tools.slither_format.slither_format import slither_format
+
 
 logging.basicConfig()
 logger = logging.getLogger("Slither").setLevel(logging.INFO)
@@ -29,7 +30,9 @@ def parse_args():
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
     """
-    parser = argparse.ArgumentParser(description="slither_format", usage="slither_format filename")
+    parser = argparse.ArgumentParser(
+        description="slither_format", usage="slither_format filename"
+    )
 
     parser.add_argument(
         "filename", help="The filename of the contract or truffle directory to analyze."
@@ -42,10 +45,17 @@ def parse_args():
         default=False,
     )
     parser.add_argument(
-        "--verbose-json", "-j", help="verbose json output", action="store_true", default=False
+        "--verbose-json",
+        "-j",
+        help="verbose json output",
+        action="store_true",
+        default=False,
     )
     parser.add_argument(
-        "--version", help="displays the current version", version="0.1.0", action="version"
+        "--version",
+        help="displays the current version",
+        version="0.1.0",
+        action="version",
     )
 
     parser.add_argument(

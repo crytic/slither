@@ -28,20 +28,24 @@ def parse_args():
         usage="slither-flat filename",
     )
 
-    parser.add_argument("filename", help="The filename of the contract or project to analyze.")
+    parser.add_argument(
+        "filename", help="The filename of the contract or project to analyze."
+    )
 
     parser.add_argument("--contract", help="Flatten one contract.", default=None)
 
     parser.add_argument(
         "--strategy",
         help=f"Flatenning strategy: {STRATEGIES_NAMES} (default: MostDerived).",
-        default=Strategy.MostDerived.name,
+        default=Strategy.MostDerived.name, # pylint: disable=no-member
     )
 
     group_export = parser.add_argument_group("Export options")
 
     group_export.add_argument(
-        "--dir", help=f"Export directory (default: {DEFAULT_EXPORT_PATH}).", default=None
+        "--dir",
+        help=f"Export directory (default: {DEFAULT_EXPORT_PATH}).",
+        default=None,
     )
 
     group_export.add_argument(
@@ -52,7 +56,10 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--zip", help="Export all the files to a zip file", action="store", default=None,
+        "--zip",
+        help="Export all the files to a zip file",
+        action="store",
+        default=None,
     )
 
     parser.add_argument(
@@ -69,7 +76,9 @@ def parse_args():
     )
 
     group_patching.add_argument(
-        "--convert-private", help="Convert private variables to internal.", action="store_true"
+        "--convert-private",
+        help="Convert private variables to internal.",
+        action="store_true",
     )
 
     group_patching.add_argument(
@@ -109,9 +118,8 @@ def main():
     try:
         strategy = Strategy[args.strategy]
     except KeyError:
-        logger.error(
-            f"{args.strategy} is not a valid strategy, use: {STRATEGIES_NAMES} (default MostDerived)"
-        )
+        to_log = f"{args.strategy} is not a valid strategy, use: {STRATEGIES_NAMES} (default MostDerived)"
+        logger.error(to_log)
         return
     flat.export(
         strategy=strategy,

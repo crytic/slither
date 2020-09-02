@@ -4,7 +4,7 @@ from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 
 
-class InternalCall(Call, OperationWithLValue):
+class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     def __init__(self, function, nbr_arguments, result, type_call):
         super(InternalCall, self).__init__()
         if isinstance(function, Function):
@@ -60,7 +60,9 @@ class InternalCall(Call, OperationWithLValue):
         if not self.lvalue:
             lvalue = ""
         elif isinstance(self.lvalue.type, (list,)):
-            lvalue = "{}({}) = ".format(self.lvalue, ",".join(str(x) for x in self.lvalue.type))
+            lvalue = "{}({}) = ".format(
+                self.lvalue, ",".join(str(x) for x in self.lvalue.type)
+            )
         else:
             lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
         if self.is_modifier_call:

@@ -7,6 +7,7 @@ logger = logging.getLogger("ConvertToEVM")
 def load_evm_cfg_builder():
     try:
         # Avoiding the addition of evm_cfg_builder as permanent dependency
+        # pylint: disable=import-outside-toplevel
         from evm_cfg_builder.cfg import CFG
 
         return CFG

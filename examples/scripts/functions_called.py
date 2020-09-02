@@ -3,7 +3,7 @@ from slither.slither import Slither
 
 if len(sys.argv) != 2:
     print("python functions_called.py functions_called.sol")
-    exit(-1)
+    sys.exit(-1)
 
 # Init slither
 slither = Slither(sys.argv[1])

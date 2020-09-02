@@ -14,7 +14,9 @@ if TYPE_CHECKING:
 
 
 class ModifierSolc(FunctionSolc):
-    def __init__(self, modifier: Modifier, function_data: Dict, contract_parser: "ContractSolc"):
+    def __init__(
+        self, modifier: Modifier, function_data: Dict, contract_parser: "ContractSolc"
+    ):
         super().__init__(modifier, function_data, contract_parser)
         # _modifier is equal to _function, but keep it here to prevent
         # confusion for mypy in underlying_function

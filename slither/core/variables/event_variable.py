@@ -1,4 +1,4 @@
-from .variable import Variable
+from slither.core.variables.variable import Variable
 from slither.core.children.child_event import ChildEvent
 
 

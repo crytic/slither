@@ -1,4 +1,3 @@
-import os
 import argparse
 import logging
 from slither import Slither
@@ -31,7 +30,7 @@ def main():
     args = parse_args()
 
     # Perform slither analysis on the given filename
-    slither = Slither(args.filename, **vars(args))
+    _slither = Slither(args.filename, **vars(args))
 
     logger.info("Analysis done!")
 

@@ -20,9 +20,7 @@ class ReentrancyBenign(Reentrancy):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2"
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
     WIKI_DESCRIPTION = """
@@ -62,13 +60,15 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                                 for v in node.context[self.KEY].written
                                 if v in node.context[self.KEY].reads_prior_calls[c]
                             ]
-                        not_read_then_written = set(
-                            [
-                                FindingValue(v, node, tuple(sorted(nodes, key=lambda x: x.node_id)))
-                                for (v, nodes) in node.context[self.KEY].written.items()
-                                if v not in read_then_written
-                            ]
-                        )
+                        not_read_then_written = {
+                            FindingValue(
+                                v,
+                                node,
+                                tuple(sorted(nodes, key=lambda x: x.node_id)),
+                            )
+                            for (v, nodes) in node.context[self.KEY].written.items()
+                            if v not in read_then_written
+                        }
                         if not_read_then_written:
                             # calls are ordered
                             finding_key = FindingKey(
@@ -79,7 +79,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                             result[finding_key] |= not_read_then_written
         return result
 
-    def _detect(self):
+    def _detect(self):  # pylint: disable=too-many-branches
         """
         """
 
@@ -88,12 +88,16 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
         results = []
 
-        result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0].function.name)
+        result_sorted = sorted(
+            list(reentrancies.items()), key=lambda x: x[0].function.name
+        )
         varsWritten: List[FindingValue]
         for (func, calls, send_eth), varsWritten in result_sorted:
             calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
             send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
-            varsWritten = sorted(varsWritten, key=lambda x: (x.variable.name, x.node.node_id))
+            varsWritten = sorted(
+                varsWritten, key=lambda x: (x.variable.name, x.node.node_id)
+            )
 
             info = ["Reentrancy in ", func, ":\n"]
 
@@ -128,18 +132,24 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                 res.add(call_info, {"underlying_type": "external_calls"})
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
-                        res.add(call_list_info, {"underlying_type": "external_calls_sending_eth"})
+                        res.add(
+                            call_list_info,
+                            {"underlying_type": "external_calls_sending_eth"},
+                        )
 
             #
 
             # If the calls are not the same ones that send eth, add the eth sending nodes.
             if calls != send_eth:
                 for (call_info, calls_list) in calls:
-                    res.add(call_info, {"underlying_type": "external_calls_sending_eth"})
+                    res.add(
+                        call_info, {"underlying_type": "external_calls_sending_eth"}
+                    )
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             res.add(
-                                call_list_info, {"underlying_type": "external_calls_sending_eth"}
+                                call_list_info,
+                                {"underlying_type": "external_calls_sending_eth"},
                             )
 
             # Add all variables written via nodes which write them.

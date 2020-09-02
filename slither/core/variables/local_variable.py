@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .variable import Variable
+from slither.core.variables.variable import Variable
 from slither.core.children.child_function import ChildFunction
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.solidity_types.array_type import ArrayType

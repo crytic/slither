@@ -16,7 +16,10 @@ from slither.slithir.operations import Call, EventCall
 
 
 def union_dict(d1, d2):
-    d3 = {k: d1.get(k, set()) | d2.get(k, set()) for k in set(list(d1.keys()) + list(d2.keys()))}
+    d3 = {
+        k: d1.get(k, set()) | d2.get(k, set())
+        for k in set(list(d1.keys()) + list(d2.keys()))
+    }
     return defaultdict(set, d3)
 
 
@@ -40,7 +43,8 @@ def is_subset(
 
 def to_hashable(d: Dict[Node, Set[Node]]):
     list_tuple = list(
-        tuple((k, tuple(sorted(values, key=lambda x: x.node_id)))) for k, values in d.items()
+        tuple((k, tuple(sorted(values, key=lambda x: x.node_id))))
+        for k, values in d.items()
     )
     return tuple(sorted(list_tuple, key=lambda x: x[0].node_id))
 
@@ -125,9 +129,12 @@ class AbstractState:
                         if key != skip_father
                     },
                 )
-                self._reads = union_dict(self._reads, father.context[detector.KEY].reads)
+                self._reads = union_dict(
+                    self._reads, father.context[detector.KEY].reads
+                )
                 self._reads_prior_calls = union_dict(
-                    self.reads_prior_calls, father.context[detector.KEY].reads_prior_calls
+                    self.reads_prior_calls,
+                    father.context[detector.KEY].reads_prior_calls,
                 )
 
     def analyze_node(self, node, detector):
@@ -178,14 +185,36 @@ class AbstractState:
         self._send_eth = union_dict(self._send_eth, fathers.send_eth)
         self._calls = union_dict(self._calls, fathers.calls)
         self._reads = union_dict(self._reads, fathers.reads)
-        self._reads_prior_calls = union_dict(self._reads_prior_calls, fathers.reads_prior_calls)
+        self._reads_prior_calls = union_dict(
+            self._reads_prior_calls, fathers.reads_prior_calls
+        )
 
     def does_not_bring_new_info(self, new_info):
         if is_subset(new_info.calls, self.calls):
             if is_subset(new_info.send_eth, self.send_eth):
                 if is_subset(new_info.reads, self.reads):
-                    if dict_are_equal(new_info.reads_prior_calls, self.reads_prior_calls):
+                    if dict_are_equal(
+                        new_info.reads_prior_calls, self.reads_prior_calls
+                    ):
                         return True
+        return False
+
+
+def _filter_if(node):
+    """
+        Check if the node is a condtional node where
+        there is an external call checked
+        Heuristic:
+            - The call is a IF node
+            - It contains a, external call
+            - The condition is the negation (!)
+
+        This will work only on naive implementation
+    """
+    return (
+        isinstance(node.expression, UnaryOperation)
+        and node.expression.type == UnaryOperationType.BANG
+    )
 
 
 class Reentrancy(AbstractDetector):
@@ -214,22 +243,6 @@ class Reentrancy(AbstractDetector):
             Detect if the node can send eth
         """
         return isinstance(ir, Call) and ir.can_send_eth()
-
-    def _filter_if(self, node):
-        """
-            Check if the node is a condtional node where
-            there is an external call checked
-            Heuristic:
-                - The call is a IF node
-                - It contains a, external call
-                - The condition is the negation (!)
-
-            This will work only on naive implementation
-        """
-        return (
-            isinstance(node.expression, UnaryOperation)
-            and node.expression.type == UnaryOperationType.BANG
-        )
 
     def _explore(self, node, visited, skip_father=None):
         """
@@ -266,7 +279,7 @@ class Reentrancy(AbstractDetector):
 
         sons = node.sons
         if contains_call and node.type in [NodeType.IF, NodeType.IFLOOP]:
-            if self._filter_if(node):
+            if _filter_if(node):
                 son = sons[0]
                 self._explore(son, visited, node)
                 sons = sons[1:]
@@ -279,8 +292,6 @@ class Reentrancy(AbstractDetector):
             self._explore(son, visited)
 
     def detect_reentrancy(self, contract):
-        """
-        """
         for function in contract.functions_and_modifiers_declared:
             if function.is_implemented:
                 if self.KEY in function.context:
@@ -296,7 +307,7 @@ class Reentrancy(AbstractDetector):
         # new variables written
         # This speedup the exploration through a light fixpoint
         # Its particular useful on 'complex' functions with several loops and conditions
-        self.visited_all_paths = {}
+        self.visited_all_paths = {}  # pylint: disable=attribute-defined-outside-init
 
         for c in self.contracts:
             self.detect_reentrancy(c)

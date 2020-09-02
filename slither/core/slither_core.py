@@ -12,7 +12,15 @@ from typing import Optional, Dict, List, Set, Union, Tuple
 from crytic_compile import CryticCompile
 
 from slither.core.context.context import Context
-from slither.core.declarations import Contract, Pragma, Import, Function, Modifier, Structure, Enum
+from slither.core.declarations import (
+    Contract,
+    Pragma,
+    Import,
+    Function,
+    Modifier,
+    Structure,
+    Enum,
+)
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import InternalCall
 from slither.slithir.variables import Constant
@@ -22,7 +30,14 @@ logger = logging.getLogger("Slither")
 logging.basicConfig()
 
 
-class SlitherCore(Context):
+def _relative_path_format(path: str) -> str:
+    """
+       Strip relative paths of "." and ".."
+    """
+    return path.split("..")[-1].strip(".").strip("/")
+
+
+class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-many-public-methods
     """
     Slither static analyzer
     """
@@ -115,6 +130,10 @@ class SlitherCore(Context):
             return self.crytic_compile.compiler_version.version
         return self._solc_version
 
+    @solc_version.setter
+    def solc_version(self, version: str):
+        self._solc_version = version
+
     @property
     def pragma_directives(self) -> List[Pragma]:
         """ list(core.declarations.Pragma): Pragma directives."""
@@ -142,14 +161,20 @@ class SlitherCore(Context):
         """list(Contract): List of contracts that are derived and not inherited."""
         inheritance = (x.inheritance for x in self.contracts)
         inheritance = [item for sublist in inheritance for item in sublist]
-        return [c for c in self._contracts.values() if c not in inheritance and not c.is_top_level]
+        return [
+            c
+            for c in self._contracts.values()
+            if c not in inheritance and not c.is_top_level
+        ]
 
     @property
     def contracts_as_dict(self) -> Dict[str, Contract]:
         """list(dict(str: Contract): List of contracts as dict: name -> Contract."""
         return self._contracts
 
-    def get_contract_from_name(self, contract_name: Union[str, Constant]) -> Optional[Contract]:
+    def get_contract_from_name(
+        self, contract_name: Union[str, Constant]
+    ) -> Optional[Contract]:
         """
             Return a contract from a name
         Args:
@@ -245,12 +270,6 @@ class SlitherCore(Context):
     ###################################################################################
     ###################################################################################
 
-    def relative_path_format(self, path: str) -> str:
-        """
-           Strip relative paths of "." and ".."
-        """
-        return path.split("..")[-1].strip(".").strip("/")
-
     def valid_result(self, r: Dict) -> bool:
         """
             Check if the result is valid
@@ -272,7 +291,7 @@ class SlitherCore(Context):
         for path in self._paths_to_filter:
             try:
                 if any(
-                    bool(re.search(self.relative_path_format(path), src_mapping))
+                    bool(re.search(_relative_path_format(path), src_mapping))
                     for src_mapping in source_mapping_elements
                 ):
                     matching = True
@@ -287,11 +306,15 @@ class SlitherCore(Context):
         if r["elements"] and matching:
             return False
         if r["elements"] and self._exclude_dependencies:
-            return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
+            return not all(
+                element["source_mapping"]["is_dependency"] for element in r["elements"]
+            )
         if r["id"] in self._previous_results_ids:
             return False
         # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
-        return not r["description"] in [pr["description"] for pr in self._previous_results]
+        return not r["description"] in [
+            pr["description"] for pr in self._previous_results
+        ]
 
     def load_previous_results(self):
         filename = self._previous_results_filename
@@ -305,7 +328,11 @@ class SlitherCore(Context):
                                 self._previous_results_ids.add(r["id"])
         except json.decoder.JSONDecodeError:
             logger.error(
-                red("Impossible to decode {}. Consider removing the file".format(filename))
+                red(
+                    "Impossible to decode {}. Consider removing the file".format(
+                        filename
+                    )
+                )
             )
 
     def write_results_to_hide(self):
@@ -404,7 +431,10 @@ class SlitherCore(Context):
                     slot += 1
                     offset = 0
 
-                self._storage_layouts[contract.name][var.canonical_name] = (slot, offset)
+                self._storage_layouts[contract.name][var.canonical_name] = (
+                    slot,
+                    offset,
+                )
                 if new_slot:
                     slot += math.ceil(size / 32)
                 else:

@@ -2,13 +2,14 @@ from typing import Union, TYPE_CHECKING, Tuple
 import math
 
 from slither.core.solidity_types.type import Type
+from slither.exceptions import SlitherException
 
 if TYPE_CHECKING:
     from slither.core.declarations.structure import Structure
     from slither.core.declarations.enum import Enum
     from slither.core.declarations.contract import Contract
 
-
+# pylint: disable=import-outside-toplevel
 class UserDefinedType(Type):
     def __init__(self, t):
         from slither.core.declarations.structure import Structure
@@ -31,9 +32,9 @@ class UserDefinedType(Type):
 
         if isinstance(self._type, Contract):
             return 20, False
-        elif isinstance(self._type, Enum):
+        if isinstance(self._type, Enum):
             return int(math.ceil(math.log2(len(self._type.values)) / 8)), False
-        elif isinstance(self._type, Structure):
+        if isinstance(self._type, Structure):
             # todo there's some duplicate logic here and slither_core, can we refactor this?
             slot = 0
             offset = 0
@@ -54,6 +55,8 @@ class UserDefinedType(Type):
             if offset > 0:
                 slot += 1
             return slot * 32, True
+        to_log = f"{self} does not have storage size"
+        raise SlitherException(to_log)
 
     def __str__(self):
         from slither.core.declarations.structure import Structure

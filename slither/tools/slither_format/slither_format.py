@@ -5,7 +5,9 @@ from slither.detectors.attributes.incorrect_solc import IncorrectSolc
 from slither.detectors.attributes.constant_pragma import ConstantPragma
 from slither.detectors.naming_convention.naming_convention import NamingConvention
 from slither.detectors.functions.external_function import ExternalFunction
-from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
+from slither.detectors.variables.possible_const_state_variables import (
+    ConstCandidateStateVars,
+)
 from slither.detectors.attributes.const_functions_asm import ConstantFunctionsAsm
 from slither.detectors.attributes.const_functions_state import ConstantFunctionsState
 from slither.utils.colors import yellow
@@ -25,7 +27,7 @@ all_detectors = {
 }
 
 
-def slither_format(slither, **kwargs):
+def slither_format(slither, **kwargs):  # pylint: disable=too-many-locals
     """'
     Keyword Args:
         detectors_to_run (str): Comma-separated list of detectors, defaults to all
@@ -42,7 +44,9 @@ def slither_format(slither, **kwargs):
 
     detector_results = slither.run_detectors()
     detector_results = [x for x in detector_results if x]  # remove empty results
-    detector_results = [item for sublist in detector_results for item in sublist]  # flatten
+    detector_results = [
+        item for sublist in detector_results for item in sublist
+    ]  # flatten
 
     export = Path("crytic-export", "patches")
 
@@ -50,7 +54,11 @@ def slither_format(slither, **kwargs):
 
     counter_result = 0
 
-    logger.info(yellow("slither-format is in beta, carefully review each patch before merging it."))
+    logger.info(
+        yellow(
+            "slither-format is in beta, carefully review each patch before merging it."
+        )
+    )
 
     for result in detector_results:
         if not "patches" in result:
@@ -65,7 +73,7 @@ def slither_format(slither, **kwargs):
         logger.info(f"Issue: {one_line_description}")
         logger.info(f"Generated: ({export_result})")
 
-        for file, diff, in result["patches_diff"].items():
+        for _, diff, in result["patches_diff"].items():
             filename = f"fix_{counter}.patch"
             path = Path(export_result, filename)
             logger.info(f"\t- {filename}")
@@ -139,8 +147,8 @@ def print_patches_json(number_of_slither_results, patches):
         print('"Patch file":' + '"' + file + '",')
         print('"Number of patches":' + '"' + str(len(patches[file])) + '"', ",")
         print('"Patches":' + "[")
-        for index, patch in enumerate(patches[file]):
-            if index > 0:
+        for inner_index, patch in enumerate(patches[file]):
+            if inner_index > 0:
                 print(",")
             print("{", end="")
             print('"Detector":' + '"' + patch["detector"] + '",')

@@ -12,7 +12,12 @@ from slither.core.solidity_types import MappingType, ArrayType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.exceptions import SlitherException
 from slither.slithir.operations import NewContract, TypeConversion, SolidityCall
-from slither.tools.flattening.export.export import Export, export_as_json, save_to_zip, save_to_disk
+from slither.tools.flattening.export.export import (
+    Export,
+    export_as_json,
+    save_to_zip,
+    save_to_disk,
+)
 
 logger = logging.getLogger("Slither-flattening")
 
@@ -36,6 +41,7 @@ DEFAULT_EXPORT_PATH = Path("crytic-export/flattening")
 
 
 class Flattening:
+    # pylint: disable=too-many-instance-attributes,too-many-arguments,too-many-locals,too-few-public-methods
     def __init__(
         self,
         slither,
@@ -53,7 +59,9 @@ class Flattening:
         self._private_to_internal = private_to_internal
         self._pragma_solidity = pragma_solidity
 
-        self._export_path: Path = DEFAULT_EXPORT_PATH if export_path is None else Path(export_path)
+        self._export_path: Path = DEFAULT_EXPORT_PATH if export_path is None else Path(
+            export_path
+        )
 
         self._check_abi_encoder_v2()
 
@@ -71,7 +79,7 @@ class Flattening:
                 self._use_abi_encoder_v2 = True
                 return
 
-    def _get_source_code(self, contract: Contract):
+    def _get_source_code(self, contract: Contract):  # pylint: disable=too-many-branches,too-many-statements
         """
         Save the source code of the contract in self._source_codes
         Patch the source code
@@ -79,7 +87,9 @@ class Flattening:
         :return:
         """
         src_mapping = contract.source_mapping
-        content = self._slither.source_code[src_mapping["filename_absolute"]].encode("utf8")
+        content = self._slither.source_code[src_mapping["filename_absolute"]].encode(
+            "utf8"
+        )
         start = src_mapping["start"]
         end = src_mapping["start"] + src_mapping["length"]
 
@@ -97,21 +107,33 @@ class Flattening:
                     )
                     attributes_end = f.returns_src.source_mapping["start"]
                     attributes = content[attributes_start:attributes_end]
-                    regex = re.search(r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes)
+                    regex = re.search(
+                        r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes
+                    )
                     if regex:
                         to_patch.append(
-                            Patch(attributes_start + regex.span()[0] + 1, "public_to_external")
+                            Patch(
+                                attributes_start + regex.span()[0] + 1,
+                                "public_to_external",
+                            )
                         )
                     else:
-                        raise SlitherException(f"External keyword not found {f.name} {attributes}")
+                        raise SlitherException(
+                            f"External keyword not found {f.name} {attributes}"
+                        )
 
                     for var in f.parameters:
                         if var.location == "calldata":
                             calldata_start = var.source_mapping["start"]
                             calldata_end = calldata_start + var.source_mapping["length"]
-                            calldata_idx = content[calldata_start:calldata_end].find(" calldata ")
+                            calldata_idx = content[calldata_start:calldata_end].find(
+                                " calldata "
+                            )
                             to_patch.append(
-                                Patch(calldata_start + calldata_idx + 1, "calldata_to_memory")
+                                Patch(
+                                    calldata_start + calldata_idx + 1,
+                                    "calldata_to_memory",
+                                )
                             )
 
         if self._private_to_internal:
@@ -119,25 +141,34 @@ class Flattening:
                 if variable.visibility == "private":
                     print(variable.source_mapping)
                     attributes_start = variable.source_mapping["start"]
-                    attributes_end = attributes_start + variable.source_mapping["length"]
+                    attributes_end = (
+                        attributes_start + variable.source_mapping["length"]
+                    )
                     attributes = content[attributes_start:attributes_end]
                     print(attributes)
                     regex = re.search(r" private ", attributes)
                     if regex:
                         to_patch.append(
-                            Patch(attributes_start + regex.span()[0] + 1, "private_to_internal")
+                            Patch(
+                                attributes_start + regex.span()[0] + 1,
+                                "private_to_internal",
+                            )
                         )
                     else:
-                        raise SlitherException(f"private keyword not found {v.name} {attributes}")
+                        raise SlitherException(
+                            f"private keyword not found {variable.name} {attributes}"
+                        )
 
         if self._remove_assert:
             for function in contract.functions_and_modifiers_declared:
                 for node in function.nodes:
                     for ir in node.irs:
-                        if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
-                            "assert(bool)"
-                        ):
-                            to_patch.append(Patch(node.source_mapping["start"], "line_removal"))
+                        if isinstance(
+                            ir, SolidityCall
+                        ) and ir.function == SolidityFunction("assert(bool)"):
+                            to_patch.append(
+                                Patch(node.source_mapping["start"], "line_removal")
+                            )
                             logger.info(
                                 f"Code commented: {node.expression} ({node.source_mapping_str})"
                             )
@@ -150,11 +181,17 @@ class Flattening:
             index = patch.index
             index = index - start
             if patch_type == "public_to_external":
-                content = content[:index] + "public" + content[index + len("external") :]
+                content = (
+                    content[:index] + "public" + content[index + len("external") :]
+                )
             if patch_type == "private_to_internal":
-                content = content[:index] + "internal" + content[index + len("private") :]
+                content = (
+                    content[:index] + "internal" + content[index + len("private") :]
+                )
             elif patch_type == "calldata_to_memory":
-                content = content[:index] + "memory" + content[index + len("calldata") :]
+                content = (
+                    content[:index] + "memory" + content[index + len("calldata") :]
+                )
             else:
                 assert patch_type == "line_removal"
                 content = content[:index] + " // " + content[index:]
@@ -180,7 +217,9 @@ class Flattening:
         if isinstance(t, UserDefinedType):
             if isinstance(t.type, (Enum, Structure)):
                 if t.type.contract != contract and t.type.contract not in exported:
-                    self._export_list_used_contracts(t.type.contract, exported, list_contract)
+                    self._export_list_used_contracts(
+                        t.type.contract, exported, list_contract
+                    )
             else:
                 assert isinstance(t.type, Contract)
                 if t.type != contract and t.type not in exported:
@@ -191,7 +230,7 @@ class Flattening:
         elif isinstance(t, ArrayType):
             self._export_from_type(t.type, contract, exported, list_contract)
 
-    def _export_list_used_contracts(
+    def _export_list_used_contracts(  # pylint: disable=too-many-branches
         self, contract: Contract, exported: Set[str], list_contract: List[Contract]
     ):
         if contract.name in exported:
@@ -204,7 +243,7 @@ class Flattening:
         externals = contract.all_library_calls + contract.all_high_level_calls
         # externals is a list of (contract, function)
         # We also filter call to itself to avoid infilite loop
-        externals = list(set([e[0] for e in externals if e[0] != contract]))
+        externals = list({e[0] for e in externals if e[0] != contract})
 
         for inherited in externals:
             self._export_list_used_contracts(inherited, exported, list_contract)
@@ -225,7 +264,10 @@ class Flattening:
         for f in contract.functions_declared:
             for ir in f.slithir_operations:
                 if isinstance(ir, NewContract):
-                    if ir.contract_created != contract and not ir.contract_created in exported:
+                    if (
+                        ir.contract_created != contract
+                        and not ir.contract_created in exported
+                    ):
                         self._export_list_used_contracts(
                             ir.contract_created, exported, list_contract
                         )
@@ -242,8 +284,8 @@ class Flattening:
         content = ""
         content += self._pragmas()
 
-        for contract in list_contracts:
-            content += self._source_codes[contract]
+        for listed_contract in list_contracts:
+            content += self._source_codes[listed_contract]
             content += "\n"
 
         return Export(filename=path, content=content)
@@ -255,7 +297,7 @@ class Flattening:
         return ret
 
     def _export_all(self) -> List[Export]:
-        path = Path(self._export_path, f"export.sol")
+        path = Path(self._export_path, "export.sol")
 
         content = ""
         content += self._pragmas()
@@ -266,17 +308,17 @@ class Flattening:
         # We only need the inheritance order here, as solc can compile
         # a contract that use another contract type (ex: state variable) that he has not seen yet
         while contract_to_explore:
-            next = contract_to_explore.pop(0)
+            next_to_explore = contract_to_explore.pop(0)
 
-            if not next.inheritance or all(
-                (father in contract_seen for father in next.inheritance)
+            if not next_to_explore.inheritance or all(
+                (father in contract_seen for father in next_to_explore.inheritance)
             ):
                 content += "\n"
-                content += self._source_codes[next]
+                content += self._source_codes[next_to_explore]
                 content += "\n"
-                contract_seen.add(next)
+                contract_seen.add(next_to_explore)
             else:
-                contract_to_explore.append(next)
+                contract_to_explore.append(next_to_explore)
 
         return [Export(filename=path, content=content)]
 
@@ -299,12 +341,12 @@ class Flattening:
             exports.append(Export(filename=path, content=content))
         return exports
 
-    def export(
+    def export(  # pylint: disable=too-many-arguments,too-few-public-methods
         self,
         strategy: Strategy,
         target: Optional[str] = None,
         json: Optional[str] = None,
-        zip: Optional[str] = None,
+        zip: Optional[str] = None,  # pylint: disable=redefined-builtin
         zip_type: Optional[str] = None,
     ):
 

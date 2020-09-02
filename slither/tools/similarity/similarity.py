@@ -1,4 +1,13 @@
-import numpy as np
+import sys
+
+try:
+    import numpy as np
+except ImportError:
+    print("ERROR: in order to use slither-simil, you need to install numpy:")
+    print(
+        "$ pip3 install numpy --user\n"
+    )
+    sys.exit(-1)
 
 
 def similarity(v1, v2):

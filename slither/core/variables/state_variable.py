@@ -1,6 +1,6 @@
 from typing import Optional, TYPE_CHECKING, Tuple, List
 
-from .variable import Variable
+from slither.core.variables.variable import Variable
 from slither.core.children.child_contract import ChildContract
 from slither.utils.type import export_nested_types_from_variable
 
@@ -34,7 +34,11 @@ class StateVariable(ChildContract, Variable):
             Return the signature of the state variable as a function signature
             :return: (str, list(str), list(str)), as (name, list parameters type, list return values type)
         """
-        return self.name, [str(x) for x in export_nested_types_from_variable(self)], str(self.type)
+        return (
+            self.name,
+            [str(x) for x in export_nested_types_from_variable(self)],
+            str(self.type),
+        )
 
     @property
     def signature_str(self) -> str:
@@ -43,7 +47,14 @@ class StateVariable(ChildContract, Variable):
             :return: str: func_name(type1,type2) returns(type3)
         """
         name, parameters, returnVars = self.signature
-        return name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
+        return (
+            name
+            + "("
+            + ",".join(parameters)
+            + ") returns("
+            + ",".join(returnVars)
+            + ")"
+        )
 
     # endregion
     ###################################################################################

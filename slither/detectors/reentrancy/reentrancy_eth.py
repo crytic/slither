@@ -20,9 +20,7 @@ class ReentrancyEth(Reentrancy):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities"
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
     WIKI_DESCRIPTION = """
@@ -48,7 +46,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
     def find_reentrancies(self):
         result = defaultdict(set)
-        for contract in self.contracts:
+        for contract in self.contracts:  # pylint: disable=too-many-nested-blocks
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
                     # dead code
@@ -61,15 +59,17 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                         for c in node.context[self.KEY].calls:
                             if c == node:
                                 continue
-                            read_then_written |= set(
-                                [
-                                    FindingValue(
-                                        v, node, tuple(sorted(nodes, key=lambda x: x.node_id))
-                                    )
-                                    for (v, nodes) in node.context[self.KEY].written.items()
-                                    if v in node.context[self.KEY].reads_prior_calls[c]
-                                ]
-                            )
+                            read_then_written |= {
+                                FindingValue(
+                                    v,
+                                    node,
+                                    tuple(sorted(nodes, key=lambda x: x.node_id)),
+                                )
+                                for (v, nodes) in node.context[
+                                    self.KEY
+                                ].written.items()
+                                if v in node.context[self.KEY].reads_prior_calls[c]
+                            }
 
                         if read_then_written:
                             # calls are ordered
@@ -82,7 +82,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                             result[finding_key] |= set(read_then_written)
         return result
 
-    def _detect(self):
+    def _detect(self):  # pylint: disable=too-many-branches
         """
         """
         super()._detect()
@@ -91,12 +91,16 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
         results = []
 
-        result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0].function.name)
+        result_sorted = sorted(
+            list(reentrancies.items()), key=lambda x: x[0].function.name
+        )
         varsWritten: List[FindingValue]
         for (func, calls, send_eth), varsWritten in result_sorted:
             calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
             send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
-            varsWritten = sorted(varsWritten, key=lambda x: (x.variable.name, x.node.node_id))
+            varsWritten = sorted(
+                varsWritten, key=lambda x: (x.variable.name, x.node.node_id)
+            )
 
             info = ["Reentrancy in ", func, ":\n"]
             info += ["\tExternal calls:\n"]
@@ -130,16 +134,22 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                 res.add(call_info, {"underlying_type": "external_calls"})
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
-                        res.add(call_list_info, {"underlying_type": "external_calls_sending_eth"})
+                        res.add(
+                            call_list_info,
+                            {"underlying_type": "external_calls_sending_eth"},
+                        )
 
             # If the calls are not the same ones that send eth, add the eth sending nodes.
             if calls != send_eth:
                 for (call_info, calls_list) in send_eth:
-                    res.add(call_info, {"underlying_type": "external_calls_sending_eth"})
+                    res.add(
+                        call_info, {"underlying_type": "external_calls_sending_eth"}
+                    )
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             res.add(
-                                call_list_info, {"underlying_type": "external_calls_sending_eth"}
+                                call_list_info,
+                                {"underlying_type": "external_calls_sending_eth"},
                             )
 
             # Add all variables written via nodes which write them.

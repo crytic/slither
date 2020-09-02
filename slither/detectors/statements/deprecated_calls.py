@@ -2,12 +2,15 @@
 Module detecting deprecated standards.
 """
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.visitors.expression.export_values import ExportValues
-from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction
 from slither.core.cfg.node import NodeType
+from slither.core.declarations.solidity_variables import (
+    SolidityVariableComposed,
+    SolidityFunction,
+)
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall
-from slither.solc_parsing.variables.state_variable import StateVariableSolc, StateVariable
+from slither.visitors.expression.export_values import ExportValues
+
 
 # Reference: https://smartcontractsecurity.github.io/SWC-registry/docs/SWC-111
 class DeprecatedStandards(AbstractDetector):
@@ -124,7 +127,7 @@ contract ContractWithDeprecatedReferences {
                     results.append((state_variable, deprecated_results))
 
         # Loop through all functions + modifiers in this contract.
-        for function in contract.functions_and_modifiers_declared:
+        for function in contract.functions_and_modifiers_declared: # pylint: disable=too-many-nested-blocks
             # Loop through each node in this function.
             for node in function.nodes:
                 # Detect deprecated references in the node.
@@ -153,14 +156,16 @@ contract ContractWithDeprecatedReferences {
         """
         results = []
         for contract in self.contracts:
-            deprecated_references = self.detect_deprecated_references_in_contract(contract)
+            deprecated_references = self.detect_deprecated_references_in_contract(
+                contract
+            )
             if deprecated_references:
                 for deprecated_reference in deprecated_references:
                     source_object = deprecated_reference[0]
                     deprecated_entries = deprecated_reference[1]
                     info = ["Deprecated standard detected ", source_object, ":\n"]
 
-                    for (dep_id, original_desc, recommended_disc) in deprecated_entries:
+                    for (_dep_id, original_desc, recommended_disc) in deprecated_entries:
                         info += [
                             f'\t- Usage of "{original_desc}" should be replaced with "{recommended_disc}"\n'
                         ]

@@ -1,7 +1,6 @@
-from .variable import SlithIRVariable
 from slither.core.children.child_node import ChildNode
-from slither.core.variables.variable import Variable
 from slither.core.declarations import Contract, Enum, SolidityVariable, Function
+from slither.core.variables.variable import Variable
 
 
 class ReferenceVariable(ChildNode, Variable):
@@ -45,7 +44,7 @@ class ReferenceVariable(ChildNode, Variable):
     def points_to(self, points_to):
         # Can only be a rvalue of
         # Member or Index operator
-        from slither.slithir.utils.utils import is_valid_lvalue
+        from slither.slithir.utils.utils import is_valid_lvalue  # pylint: disable=import-outside-toplevel
 
         assert is_valid_lvalue(points_to) or isinstance(
             points_to, (SolidityVariable, Contract, Enum)

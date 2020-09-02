@@ -47,11 +47,12 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
     @staticmethod
     def _written_variables(contract):
         ret = []
+        # pylint: disable=too-many-nested-blocks
         for f in contract.all_functions_called + contract.modifiers:
             for n in f.nodes:
                 ret += n.state_variables_written
                 for ir in n.irs:
-                    if isinstance(ir, LibraryCall) or isinstance(ir, InternalCall):
+                    if isinstance(ir, (LibraryCall, InternalCall)):
                         idx = 0
                         if ir.function:
                             for param in ir.function.parameters:
@@ -69,6 +70,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
     def _variable_written_in_proxy(self):
         # Hack to memoize without having it define in the init
         if hasattr(self, "__variables_written_in_proxy"):
+            # pylint: disable=access-member-before-definition
             return self.__variables_written_in_proxy
 
         variables_written_in_proxy = []
@@ -76,7 +78,8 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             if c.is_upgradeable_proxy:
                 variables_written_in_proxy += self._written_variables(c)
 
-        self.__variables_written_in_proxy = list(set([v.name for v in variables_written_in_proxy]))
+        # pylint: disable=attribute-defined-outside-init
+        self.__variables_written_in_proxy = list({v.name for v in variables_written_in_proxy})
         return self.__variables_written_in_proxy
 
     def _written_variables_in_proxy(self, contract):

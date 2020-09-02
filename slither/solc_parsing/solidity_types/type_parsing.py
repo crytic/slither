@@ -1,7 +1,11 @@
 import logging
+import re
 from typing import List, TYPE_CHECKING, Union, Dict
 
-from slither.core.solidity_types.elementary_type import ElementaryType, ElementaryTypeName
+from slither.core.solidity_types.elementary_type import (
+    ElementaryType,
+    ElementaryTypeName,
+)
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.solidity_types.array_type import ArrayType
@@ -15,15 +19,15 @@ from slither.core.declarations.contract import Contract
 from slither.core.expressions.literal import Literal
 
 from slither.solc_parsing.exceptions import ParsingError
-import re
 
 if TYPE_CHECKING:
     from slither.core.declarations import Structure, Enum
 
 logger = logging.getLogger("TypeParsing")
 
+# pylint: disable=anomalous-backslash-in-string
 
-class UnknownType:
+class UnknownType:  # pylint: disable=too-few-public-methods
     def __init__(self, name):
         self._name = name
 
@@ -32,7 +36,7 @@ class UnknownType:
         return self._name
 
 
-def _find_from_type_name(
+def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     name: str,
     contract: Contract,
     contracts: List[Contract],
@@ -46,8 +50,7 @@ def _find_from_type_name(
         depth = name.count("[")
         if depth:
             return ArrayType(ElementaryType(name_elementary), Literal(depth, "uint256"))
-        else:
-            return ElementaryType(name_elementary)
+        return ElementaryType(name_elementary)
     # We first look for contract
     # To avoid collision
     # Ex: a structure with the name of a contract
@@ -71,25 +74,33 @@ def _find_from_type_name(
         all_enums = [item for sublist in all_enums for item in sublist]
         var_type = next((e for e in all_enums if e.name == enum_name), None)
         if not var_type:
-            var_type = next((e for e in all_enums if e.canonical_name == enum_name), None)
+            var_type = next(
+                (e for e in all_enums if e.canonical_name == enum_name), None
+            )
     if not var_type:
         # any contract can refer to another contract's structure
         name_struct = name
         if name_struct.startswith("struct "):
             name_struct = name_struct[len("struct ") :]
-            name_struct = name_struct.split(" ")[0]  # remove stuff like storage pointer at the end
+            name_struct = name_struct.split(" ")[
+                0
+            ]  # remove stuff like storage pointer at the end
         all_structures = [c.structures for c in contracts]
         all_structures = [item for sublist in all_structures for item in sublist]
         var_type = next((st for st in all_structures if st.name == name_struct), None)
         if not var_type:
-            var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
+            var_type = next(
+                (st for st in all_structures if st.canonical_name == name_struct), None
+            )
         # case where struct xxx.xx[] where not well formed in the AST
         if not var_type:
             depth = 0
             while name_struct.endswith("[]"):
                 name_struct = name_struct[0:-2]
                 depth += 1
-            var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
+            var_type = next(
+                (st for st in all_structures if st.canonical_name == name_struct), None
+            )
             if var_type:
                 return ArrayType(UserDefinedType(var_type), Literal(depth, "uint256"))
 
@@ -104,7 +115,8 @@ def _find_from_type_name(
             params = found[0][0].split(",")
             return_values = found[0][1].split(",")
             params = [
-                _find_from_type_name(p, contract, contracts, structures, enums) for p in params
+                _find_from_type_name(p, contract, contracts, structures, enums)
+                for p in params
             ]
             return_values = [
                 _find_from_type_name(r, contract, contracts, structures, enums)
@@ -125,16 +137,21 @@ def _find_from_type_name(
         if name.startswith("mapping("):
             # nested mapping declared with var
             if name.count("mapping(") == 1:
-                found = re.findall("mapping\(([a-zA-Z0-9\.]*) => ([a-zA-Z0-9\.\[\]]*)\)", name)
+                found = re.findall(
+                    "mapping\(([a-zA-Z0-9\.]*) => ([a-zA-Z0-9\.\[\]]*)\)", name
+                )
             else:
                 found = re.findall(
-                    "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)", name
+                    "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)",
+                    name,
                 )
             assert len(found) == 1
             from_ = found[0][0]
             to_ = found[0][1]
 
-            from_type = _find_from_type_name(from_, contract, contracts, structures, enums)
+            from_type = _find_from_type_name(
+                from_, contract, contracts, structures, enums
+            )
             to_type = _find_from_type_name(to_, contract, contracts, structures, enums)
 
             return MappingType(from_type, to_type)
@@ -146,8 +163,12 @@ def _find_from_type_name(
 
 def parse_type(t: Union[Dict, UnknownType], caller_context):
     # local import to avoid circular dependency
+    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+    # pylint: disable=import-outside-toplevel
     from slither.solc_parsing.expressions.expression_parsing import parse_expression
-    from slither.solc_parsing.variables.function_type_variable import FunctionTypeVariableSolc
+    from slither.solc_parsing.variables.function_type_variable import (
+        FunctionTypeVariableSolc,
+    )
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
 
@@ -174,15 +195,19 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     if isinstance(t, UnknownType):
         return _find_from_type_name(t.name, contract, contracts, structures, enums)
 
-    elif t[key] == "ElementaryTypeName":
+    if t[key] == "ElementaryTypeName":
         if is_compact_ast:
             return ElementaryType(t["name"])
         return ElementaryType(t["attributes"][key])
 
-    elif t[key] == "UserDefinedTypeName":
+    if t[key] == "UserDefinedTypeName":
         if is_compact_ast:
             return _find_from_type_name(
-                t["typeDescriptions"]["typeString"], contract, contracts, structures, enums
+                t["typeDescriptions"]["typeString"],
+                contract,
+                contracts,
+                structures,
+                enums,
             )
 
         # Determine if we have a type node (otherwise we use the name node, as some older solc did not have 'type').
@@ -191,7 +216,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
             t["attributes"][type_name_key], contract, contracts, structures, enums
         )
 
-    elif t[key] == "ArrayTypeName":
+    if t[key] == "ArrayTypeName":
         length = None
         if is_compact_ast:
             if t["length"]:
@@ -205,7 +230,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
             array_type = parse_type(t["children"][0], contract_parser)
         return ArrayType(array_type, length)
 
-    elif t[key] == "Mapping":
+    if t[key] == "Mapping":
 
         if is_compact_ast:
             mappingFrom = parse_type(t["keyType"], contract_parser)
@@ -218,7 +243,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
 
         return MappingType(mappingFrom, mappingTo)
 
-    elif t[key] == "FunctionTypeName":
+    if t[key] == "FunctionTypeName":
 
         if is_compact_ast:
             params = t["parameterTypes"]

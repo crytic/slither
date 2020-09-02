@@ -8,7 +8,7 @@ class IncorrectCheckInitialization(Exception):
     pass
 
 
-class CheckClassification:
+class CheckClassification:  # pylint: disable=too-few-public-methods
     HIGH = 0
     MEDIUM = 1
     LOW = 2
@@ -81,12 +81,16 @@ class AbstractCheck(metaclass=abc.ABCMeta):
             CheckClassification.INFORMATIONAL
         ]:
             raise IncorrectCheckInitialization(
-                "WIKI_EXPLOIT_SCENARIO is not initialized {}".format(self.__class__.__name__)
+                "WIKI_EXPLOIT_SCENARIO is not initialized {}".format(
+                    self.__class__.__name__
+                )
             )
 
         if not self.WIKI_RECOMMENDATION:
             raise IncorrectCheckInitialization(
-                "WIKI_RECOMMENDATION is not initialized {}".format(self.__class__.__name__)
+                "WIKI_RECOMMENDATION is not initialized {}".format(
+                    self.__class__.__name__
+                )
             )
 
         if self.REQUIRE_PROXY and self.REQUIRE_CONTRACT_V2:
@@ -129,14 +133,16 @@ class AbstractCheck(metaclass=abc.ABCMeta):
         if all_results:
             if self.logger:
                 info = "\n"
-                for idx, result in enumerate(all_results):
+                for result in all_results:
                     info += result["description"]
                 info += "Reference: {}".format(self.WIKI)
                 self._log(info)
         return all_results
 
     def generate_result(self, info, additional_fields=None):
-        output = Output(info, additional_fields, markdown_root=self.contract.slither.markdown_root)
+        output = Output(
+            info, additional_fields, markdown_root=self.contract.slither.markdown_root
+        )
 
         output.data["check"] = self.ARGUMENT
 

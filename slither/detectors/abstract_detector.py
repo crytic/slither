@@ -11,7 +11,7 @@ class IncorrectDetectorInitialization(Exception):
     pass
 
 
-class DetectorClassification:
+class DetectorClassification:  # pylint: disable=too-few-public-methods
     HIGH = 0
     MEDIUM = 1
     LOW = 2
@@ -87,12 +87,16 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             DetectorClassification.OPTIMIZATION,
         ]:
             raise IncorrectDetectorInitialization(
-                "WIKI_EXPLOIT_SCENARIO is not initialized {}".format(self.__class__.__name__)
+                "WIKI_EXPLOIT_SCENARIO is not initialized {}".format(
+                    self.__class__.__name__
+                )
             )
 
         if not self.WIKI_RECOMMENDATION:
             raise IncorrectDetectorInitialization(
-                "WIKI_RECOMMENDATION is not initialized {}".format(self.__class__.__name__)
+                "WIKI_RECOMMENDATION is not initialized {}".format(
+                    self.__class__.__name__
+                )
             )
 
         if re.match("^[a-zA-Z0-9_-]*$", self.ARGUMENT) is None:
@@ -131,12 +135,14 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         """TODO Documentation"""
         return []
 
+    # pylint: disable=too-many-branches
     def detect(self):
         all_results = self._detect()
         # Keep only dictionaries
         all_results = [r.data for r in all_results]
         results = []
         # only keep valid result, and remove dupplicate
+        # pylint: disable=expression-not-assigned
         [
             results.append(r)
             for r in all_results
@@ -173,15 +179,19 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                             )
                             continue
                         for patch in patches:
-                            patched_txt, offset = apply_patch(patched_txt, patch, offset)
-                        diff = create_diff(self.slither, original_txt, patched_txt, file)
+                            patched_txt, offset = apply_patch(
+                                patched_txt, patch, offset
+                            )
+                        diff = create_diff(
+                            self.slither, original_txt, patched_txt, file
+                        )
                         if not diff:
                             self._log(f"Impossible to generate patch; empty {result}")
                         else:
                             result["patches_diff"][file] = diff
 
-                except FormatImpossible as e:
-                    self._log(f'\nImpossible to patch:\n\t{result["description"]}\t{e}')
+                except FormatImpossible as exception:
+                    self._log(f'\nImpossible to patch:\n\t{result["description"]}\t{exception}')
 
         if results and self.slither.triage_mode:
             while True:
@@ -206,7 +216,9 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                     )
                     return [r for (idx, r) in enumerate(results) if idx not in indexes]
                 except ValueError:
-                    self.logger.error(yellow("Malformed input. Example of valid input: 0,1,2,3"))
+                    self.logger.error(
+                        yellow("Malformed input. Example of valid input: 0,1,2,3")
+                    )
         return results
 
     @property
@@ -228,6 +240,6 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return output
 
     @staticmethod
-    def _format(slither, result):
+    def _format(_slither, _result):
         """Implement format"""
         return

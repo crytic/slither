@@ -4,7 +4,6 @@
     as the ReferenceVariable are in SSA form in both version
 """
 from .reference import ReferenceVariable
-from .variable import SlithIRVariable
 
 
 class ReferenceVariableSSA(ReferenceVariable):

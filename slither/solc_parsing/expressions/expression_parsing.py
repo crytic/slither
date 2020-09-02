@@ -17,10 +17,15 @@ from slither.core.expressions.assignment_operation import (
     AssignmentOperation,
     AssignmentOperationType,
 )
-from slither.core.expressions.binary_operation import BinaryOperation, BinaryOperationType
+from slither.core.expressions.binary_operation import (
+    BinaryOperation,
+    BinaryOperationType,
+)
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.conditional_expression import ConditionalExpression
-from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
+from slither.core.expressions.elementary_type_name_expression import (
+    ElementaryTypeNameExpression,
+)
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
 from slither.core.expressions.literal import Literal
@@ -33,7 +38,12 @@ from slither.core.expressions.super_identifier import SuperIdentifier
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
 from slither.core.expressions.unary_operation import UnaryOperation, UnaryOperationType
-from slither.core.solidity_types import ArrayType, ElementaryType, FunctionType, MappingType
+from slither.core.solidity_types import (
+    ArrayType,
+    ElementaryType,
+    FunctionType,
+    MappingType,
+)
 from slither.core.variables.variable import Variable
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
@@ -44,6 +54,8 @@ if TYPE_CHECKING:
     from slither.solc_parsing.declarations.contract import ContractSolc
 
 logger = logging.getLogger("ExpressionParsing")
+
+# pylint: disable=anomalous-backslash-in-string,import-outside-toplevel,too-many-branches,too-many-locals
 
 ###################################################################################
 ###################################################################################
@@ -68,13 +80,20 @@ def get_pointer_name(variable: Variable):
     return None
 
 
-def find_variable(
+def find_variable(  # pylint: disable=too-many-locals,too-many-statements
     var_name: str,
     caller_context: CallerContext,
     referenced_declaration: Optional[int] = None,
     is_super=False,
 ) -> Union[
-    Variable, Function, Contract, SolidityVariable, SolidityFunction, Event, Enum, Structure
+    Variable,
+    Function,
+    Contract,
+    SolidityVariable,
+    SolidityFunction,
+    Event,
+    Enum,
+    Structure,
 ]:
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
@@ -218,7 +237,9 @@ def find_variable(
             if function_candidate.referenced_declaration == referenced_declaration:
                 return function_candidate.underlying_function
 
-    raise VariableNotFound("Variable not found: {} (context {})".format(var_name, caller_context))
+    raise VariableNotFound(
+        "Variable not found: {} (context {})".format(var_name, caller_context)
+    )
 
 
 # endregion
@@ -273,7 +294,7 @@ def filter_name(value: str) -> str:
 ###################################################################################
 
 
-def parse_call(expression: Dict, caller_context):
+def parse_call(expression: Dict, caller_context):  # pylint: disable=too-many-statements
     src = expression["src"]
     if caller_context.is_compact_ast:
         attributes = expression
@@ -323,7 +344,9 @@ def parse_call(expression: Dict, caller_context):
         if expression["expression"][caller_context.get_key()] == "FunctionCallOptions":
             call_with_options = expression["expression"]
             for idx, name in enumerate(call_with_options.get("names", [])):
-                option = parse_expression(call_with_options["options"][idx], caller_context)
+                option = parse_expression(
+                    call_with_options["options"][idx], caller_context
+                )
                 if name == "value":
                     call_value = option
                 if name == "gas":
@@ -332,7 +355,9 @@ def parse_call(expression: Dict, caller_context):
                     call_salt = option
         arguments = []
         if expression["arguments"]:
-            arguments = [parse_expression(a, caller_context) for a in expression["arguments"]]
+            arguments = [
+                parse_expression(a, caller_context) for a in expression["arguments"]
+            ]
     else:
         children = expression["children"]
         called = parse_expression(children[0], caller_context)
@@ -394,6 +419,7 @@ def _parse_elementary_type_name_expression(
 
 
 def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expression":
+    # pylint: disable=too-many-nested-blocks,too-many-statements
     """
 
     Returns:
@@ -432,7 +458,9 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         else:
             attributes = expression["attributes"]
         assert "prefix" in attributes
-        operation_type = UnaryOperationType.get_type(attributes["operator"], attributes["prefix"])
+        operation_type = UnaryOperationType.get_type(
+            attributes["operator"], attributes["prefix"]
+        )
 
         if is_compact_ast:
             expression = parse_expression(expression["subExpression"], caller_context)
@@ -443,7 +471,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         unary_op.set_offset(src, caller_context.slither)
         return unary_op
 
-    elif name == "BinaryOperation":
+    if name == "BinaryOperation":
         if is_compact_ast:
             attributes = expression
         else:
@@ -451,50 +479,60 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         operation_type = BinaryOperationType.get_type(attributes["operator"])
 
         if is_compact_ast:
-            left_expression = parse_expression(expression["leftExpression"], caller_context)
-            right_expression = parse_expression(expression["rightExpression"], caller_context)
+            left_expression = parse_expression(
+                expression["leftExpression"], caller_context
+            )
+            right_expression = parse_expression(
+                expression["rightExpression"], caller_context
+            )
         else:
             assert len(expression["children"]) == 2
-            left_expression = parse_expression(expression["children"][0], caller_context)
-            right_expression = parse_expression(expression["children"][1], caller_context)
+            left_expression = parse_expression(
+                expression["children"][0], caller_context
+            )
+            right_expression = parse_expression(
+                expression["children"][1], caller_context
+            )
         binary_op = BinaryOperation(left_expression, right_expression, operation_type)
         binary_op.set_offset(src, caller_context.slither)
         return binary_op
 
-    elif name in "FunctionCall":
+    if name in "FunctionCall":
         return parse_call(expression, caller_context)
 
-    elif name == "FunctionCallOptions":
+    if name == "FunctionCallOptions":
         # call/gas info are handled in parse_call
         called = parse_expression(expression["expression"], caller_context)
         assert isinstance(called, (MemberAccess, NewContract))
         return called
 
-    elif name == "TupleExpression":
-        """
-            For expression like
-            (a,,c) = (1,2,3)
-            the AST provides only two children in the left side
-            We check the type provided (tuple(uint256,,uint256))
-            To determine that there is an empty variable
-            Otherwhise we would not be able to determine that
-            a = 1, c = 3, and 2 is lost
-
-            Note: this is only possible with Solidity >= 0.4.12
-        """
+    if name == "TupleExpression":
+        #     For expression like
+        #     (a,,c) = (1,2,3)
+        #     the AST provides only two children in the left side
+        #     We check the type provided (tuple(uint256,,uint256))
+        #     To determine that there is an empty variable
+        #     Otherwhise we would not be able to determine that
+        #     a = 1, c = 3, and 2 is lost
+        #
+        #     Note: this is only possible with Solidity >= 0.4.12
         if is_compact_ast:
             expressions = [
-                parse_expression(e, caller_context) if e else None for e in expression["components"]
+                parse_expression(e, caller_context) if e else None
+                for e in expression["components"]
             ]
         else:
             if "children" not in expression:
                 attributes = expression["attributes"]
                 components = attributes["components"]
                 expressions = [
-                    parse_expression(c, caller_context) if c else None for c in components
+                    parse_expression(c, caller_context) if c else None
+                    for c in components
                 ]
             else:
-                expressions = [parse_expression(e, caller_context) for e in expression["children"]]
+                expressions = [
+                    parse_expression(e, caller_context) for e in expression["children"]
+                ]
         # Add none for empty tuple items
         if "attributes" in expression:
             if "type" in expression["attributes"]:
@@ -502,32 +540,42 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
                 if ",," in t or "(," in t or ",)" in t:
                     t = t[len("tuple(") : -1]
                     elems = t.split(",")
-                    for idx in range(len(elems)):
+                    for idx, _ in enumerate(elems):
                         if elems[idx] == "":
                             expressions.insert(idx, None)
         t = TupleExpression(expressions)
         t.set_offset(src, caller_context.slither)
         return t
 
-    elif name == "Conditional":
+    if name == "Conditional":
         if is_compact_ast:
             if_expression = parse_expression(expression["condition"], caller_context)
-            then_expression = parse_expression(expression["trueExpression"], caller_context)
-            else_expression = parse_expression(expression["falseExpression"], caller_context)
+            then_expression = parse_expression(
+                expression["trueExpression"], caller_context
+            )
+            else_expression = parse_expression(
+                expression["falseExpression"], caller_context
+            )
         else:
             children = expression["children"]
             assert len(children) == 3
             if_expression = parse_expression(children[0], caller_context)
             then_expression = parse_expression(children[1], caller_context)
             else_expression = parse_expression(children[2], caller_context)
-        conditional = ConditionalExpression(if_expression, then_expression, else_expression)
+        conditional = ConditionalExpression(
+            if_expression, then_expression, else_expression
+        )
         conditional.set_offset(src, caller_context.slither)
         return conditional
 
-    elif name == "Assignment":
+    if name == "Assignment":
         if is_compact_ast:
-            left_expression = parse_expression(expression["leftHandSide"], caller_context)
-            right_expression = parse_expression(expression["rightHandSide"], caller_context)
+            left_expression = parse_expression(
+                expression["leftHandSide"], caller_context
+            )
+            right_expression = parse_expression(
+                expression["rightHandSide"], caller_context
+            )
 
             operation_type = AssignmentOperationType.get_type(expression["operator"])
 
@@ -548,7 +596,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         assignement.set_offset(src, caller_context.slither)
         return assignement
 
-    elif name == "Literal":
+    if name == "Literal":
 
         subdenomination = None
 
@@ -599,7 +647,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         literal.set_offset(src, caller_context.slither)
         return literal
 
-    elif name == "Identifier":
+    if name == "Identifier":
         assert "children" not in expression
 
         t = None
@@ -613,7 +661,9 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
                 t = expression["attributes"]["type"]
 
         if t:
-            found = re.findall("[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
+            found = re.findall(
+                "[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t
+            )
             assert len(found) <= 1
             if found:
                 value = value + "(" + found[0] + ")"
@@ -630,7 +680,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         identifier.set_offset(src, caller_context.slither)
         return identifier
 
-    elif name == "IndexAccess":
+    if name == "IndexAccess":
         if is_compact_ast:
             index_type = expression["typeDescriptions"]["typeString"]
             left = expression["baseExpression"]
@@ -658,11 +708,13 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         index.set_offset(src, caller_context.slither)
         return index
 
-    elif name == "MemberAccess":
+    if name == "MemberAccess":
         if caller_context.is_compact_ast:
             member_name = expression["memberName"]
             member_type = expression["typeDescriptions"]["typeString"]
-            member_expression = parse_expression(expression["expression"], caller_context)
+            member_expression = parse_expression(
+                expression["expression"], caller_context
+            )
         else:
             member_name = expression["attributes"]["member_name"]
             member_type = expression["attributes"]["type"]
@@ -685,11 +737,13 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
             return idx
         return member_access
 
-    elif name == "ElementaryTypeNameExpression":
-        return _parse_elementary_type_name_expression(expression, is_compact_ast, caller_context)
+    if name == "ElementaryTypeNameExpression":
+        return _parse_elementary_type_name_expression(
+            expression, is_compact_ast, caller_context
+        )
 
     # NewExpression is not a root expression, it's always the child of another expression
-    elif name == "NewExpression":
+    if name == "NewExpression":
 
         if is_compact_ast:
             type_name = expression["typeName"]
@@ -715,7 +769,9 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
                     array_type = ElementaryType(type_name["attributes"]["name"])
             elif type_name[caller_context.get_key()] == "UserDefinedTypeName":
                 if is_compact_ast:
-                    array_type = parse_type(UnknownType(type_name["name"]), caller_context)
+                    array_type = parse_type(
+                        UnknownType(type_name["name"]), caller_context
+                    )
                 else:
                     array_type = parse_type(
                         UnknownType(type_name["attributes"]["name"]), caller_context
@@ -747,13 +803,15 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         new.set_offset(src, caller_context.slither)
         return new
 
-    elif name == "ModifierInvocation":
+    if name == "ModifierInvocation":
 
         if is_compact_ast:
             called = parse_expression(expression["modifierName"], caller_context)
             arguments = []
             if expression["arguments"]:
-                arguments = [parse_expression(a, caller_context) for a in expression["arguments"]]
+                arguments = [
+                    parse_expression(a, caller_context) for a in expression["arguments"]
+                ]
         else:
             children = expression["children"]
             called = parse_expression(children[0], caller_context)
@@ -763,7 +821,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         call.set_offset(src, caller_context.slither)
         return call
 
-    elif name == "IndexRangeAccess":
+    if name == "IndexRangeAccess":
         # For now, we convert array slices to a direct array access
         # As a result the generated IR will lose the slices information
         # As far as I understand, array slice are only used in abi.decode

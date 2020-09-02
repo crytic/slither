@@ -3,7 +3,7 @@
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.formatters.attributes.constant_pragma import format
+from slither.formatters.attributes.constant_pragma import custom_format
 
 
 class ConstantPragma(AbstractDetector):
@@ -43,4 +43,4 @@ class ConstantPragma(AbstractDetector):
 
     @staticmethod
     def _format(slither, result):
-        format(slither, result)
+        custom_format(slither, result)

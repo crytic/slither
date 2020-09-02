@@ -47,7 +47,7 @@ contract Bug {
     OVERSHADOWED_STATE_VARIABLE = "state variable"
     OVERSHADOWED_EVENT = "event"
 
-    def detect_shadowing_definitions(self, contract):
+    def detect_shadowing_definitions(self, contract):  # pylint: disable=too-many-branches
         """ Detects if functions, access modifiers, events, state variables, and local variables are named after
         reserved keywords. Any such definitions are returned in a list.
 
@@ -68,11 +68,15 @@ contract Bug {
                     # Check functions
                     for scope_function in scope_contract.functions_declared:
                         if variable.name == scope_function.name:
-                            overshadowed.append((self.OVERSHADOWED_FUNCTION, scope_function))
+                            overshadowed.append(
+                                (self.OVERSHADOWED_FUNCTION, scope_function)
+                            )
                     # Check modifiers
                     for scope_modifier in scope_contract.modifiers_declared:
                         if variable.name == scope_modifier.name:
-                            overshadowed.append((self.OVERSHADOWED_MODIFIER, scope_modifier))
+                            overshadowed.append(
+                                (self.OVERSHADOWED_MODIFIER, scope_modifier)
+                            )
                     # Check events
                     for scope_event in scope_contract.events_declared:
                         if variable.name == scope_event.name:
@@ -108,7 +112,11 @@ contract Bug {
                     overshadowed = shadow[1]
                     info = [local_variable, " shadows:\n"]
                     for overshadowed_entry in overshadowed:
-                        info += ["\t- ", overshadowed_entry[1], f" ({overshadowed_entry[0]})\n"]
+                        info += [
+                            "\t- ",
+                            overshadowed_entry[1],
+                            f" ({overshadowed_entry[0]})\n",
+                        ]
 
                     # Generate relevant JSON data for this shadowing definition.
                     res = self.generate_result(info)

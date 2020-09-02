@@ -3,7 +3,7 @@ from slither.formatters.exceptions import FormatError
 from slither.formatters.utils.patches import create_patch
 
 
-def format(slither, result):
+def custom_format(slither, result):
     elements = result["elements"]
     for element in elements:
         if element["type"] != "function":

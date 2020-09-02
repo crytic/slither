@@ -16,7 +16,9 @@ class Assembly(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage"
+    )
 
     WIKI_TITLE = "Assembly usage"
     WIKI_DESCRIPTION = "The use of assembly is error-prone and should be avoided."

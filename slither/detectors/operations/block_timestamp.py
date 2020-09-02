@@ -7,7 +7,10 @@ from typing import List, Tuple
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, Contract
-from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityVariable
+from slither.core.declarations.solidity_variables import (
+    SolidityVariableComposed,
+    SolidityVariable,
+)
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Binary, BinaryType
 
@@ -17,7 +20,9 @@ def _timestamp(func: Function) -> List[Node]:
     for node in func.nodes:
         if node.contains_require_or_assert():
             for var in node.variables_read:
-                if is_dependent(var, SolidityVariableComposed("block.timestamp"), func.contract):
+                if is_dependent(
+                    var, SolidityVariableComposed("block.timestamp"), func.contract
+                ):
                     ret.add(node)
                 if is_dependent(var, SolidityVariable("now"), func.contract):
                     ret.add(node)
@@ -33,7 +38,9 @@ def _timestamp(func: Function) -> List[Node]:
     return sorted(list(ret), key=lambda x: x.node_id)
 
 
-def _detect_dangerous_timestamp(contract: Contract) -> List[Tuple[Function, List[Node]]]:
+def _detect_dangerous_timestamp(
+    contract: Contract,
+) -> List[Tuple[Function, List[Node]]]:
     """
     Args:
         contract (Contract)
@@ -49,20 +56,18 @@ def _detect_dangerous_timestamp(contract: Contract) -> List[Tuple[Function, List
 
 
 class Timestamp(AbstractDetector):
-    """
-    """
 
     ARGUMENT = "timestamp"
     HELP = "Dangerous usage of `block.timestamp`"
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp"
+    )
 
     WIKI_TITLE = "Block timestamp"
-    WIKI_DESCRIPTION = (
-        "Dangerous usage of `block.timestamp`. `block.timestamp` can be manipulated by miners."
-    )
+    WIKI_DESCRIPTION = "Dangerous usage of `block.timestamp`. `block.timestamp` can be manipulated by miners."
     WIKI_EXPLOIT_SCENARIO = """"Bob's contract relies on `block.timestamp` for its randomness. Eve is a miner and manipulates `block.timestamp` to exploit Bob's contract."""
     WIKI_RECOMMENDATION = "Avoid relying on `block.timestamp`."
 

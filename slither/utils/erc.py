@@ -1,7 +1,9 @@
 from collections import namedtuple
-from typing import Union, List
+from typing import List
 
-ERC = namedtuple("ERC", ["name", "parameters", "return_type", "view", "required", "events"])
+ERC = namedtuple(
+    "ERC", ["name", "parameters", "return_type", "view", "required", "events"]
+)
 ERC_EVENT = namedtuple("ERC_EVENT", ["name", "parameters", "indexes"])
 
 
@@ -17,14 +19,20 @@ def erc_to_signatures(erc: List[ERC]):
 # Final
 # https://eips.ethereum.org/EIPS/eip-20
 
-ERC20_transfer_event = ERC_EVENT("Transfer", ["address", "address", "uint256"], [True, True, False])
-ERC20_approval_event = ERC_EVENT("Approval", ["address", "address", "uint256"], [True, True, False])
+ERC20_transfer_event = ERC_EVENT(
+    "Transfer", ["address", "address", "uint256"], [True, True, False]
+)
+ERC20_approval_event = ERC_EVENT(
+    "Approval", ["address", "address", "uint256"], [True, True, False]
+)
 ERC20_EVENTS = [ERC20_transfer_event, ERC20_approval_event]
 
 ERC20 = [
     ERC("totalSupply", [], "uint256", True, True, []),
     ERC("balanceOf", ["address"], "uint256", True, True, []),
-    ERC("transfer", ["address", "uint256"], "bool", False, True, [ERC20_transfer_event]),
+    ERC(
+        "transfer", ["address", "uint256"], "bool", False, True, [ERC20_transfer_event]
+    ),
     ERC(
         "transferFrom",
         ["address", "address", "uint256"],
@@ -62,8 +70,17 @@ ERC223 = [
     ERC("decimals", [], "uint8", True, True, []),
     ERC("totalSupply", [], "uint256", True, True, []),
     ERC("balanceOf", ["address"], "uint256", True, True, []),
-    ERC("transfer", ["address", "uint256"], "bool", False, True, [ERC223_transfer_event]),
-    ERC("transfer", ["address", "uint256", "bytes"], "bool", False, True, [ERC223_transfer_event]),
+    ERC(
+        "transfer", ["address", "uint256"], "bool", False, True, [ERC223_transfer_event]
+    ),
+    ERC(
+        "transfer",
+        ["address", "uint256", "bytes"],
+        "bool",
+        False,
+        True,
+        [ERC223_transfer_event],
+    ),
     ERC(
         "transfer",
         ["address", "uint256", "bytes", "string"],
@@ -87,12 +104,20 @@ ERC165_signatures = erc_to_signatures(ERC165)
 # https://eips.ethereum.org/EIPS/eip-721
 # Must have ERC165
 
-ERC721_transfer_event = ERC_EVENT("Transfer", ["address", "address", "uint256"], [True, True, True])
-ERC721_approval_event = ERC_EVENT("Approval", ["address", "address", "uint256"], [True, True, True])
+ERC721_transfer_event = ERC_EVENT(
+    "Transfer", ["address", "address", "uint256"], [True, True, True]
+)
+ERC721_approval_event = ERC_EVENT(
+    "Approval", ["address", "address", "uint256"], [True, True, True]
+)
 ERC721_approvalforall_event = ERC_EVENT(
     "ApprovalForAll", ["address", "address", "bool"], [True, True, False]
 )
-ERC721_EVENTS = [ERC721_transfer_event, ERC721_approval_event, ERC721_approvalforall_event]
+ERC721_EVENTS = [
+    ERC721_transfer_event,
+    ERC721_approval_event,
+    ERC721_approvalforall_event,
+]
 
 ERC721 = [
     ERC("balanceOf", ["address"], "uint256", True, True, []),
@@ -114,10 +139,22 @@ ERC721 = [
         [ERC721_transfer_event],
     ),
     ERC(
-        "transferFrom", ["address", "address", "uint256"], "", False, True, [ERC721_transfer_event]
+        "transferFrom",
+        ["address", "address", "uint256"],
+        "",
+        False,
+        True,
+        [ERC721_transfer_event],
     ),
     ERC("approve", ["address", "uint256"], "", False, True, [ERC721_approval_event]),
-    ERC("setApprovalForAll", ["address", "bool"], "", False, True, [ERC721_approvalforall_event]),
+    ERC(
+        "setApprovalForAll",
+        ["address", "bool"],
+        "",
+        False,
+        True,
+        [ERC721_approvalforall_event],
+    ),
     ERC("getApproved", ["uint256"], "address", True, True, []),
     ERC("isApprovedForAll", ["address", "address"], "bool", True, True, []),
 ] + ERC165
@@ -136,7 +173,14 @@ ERC721_signatures = erc_to_signatures(ERC721)
 # https://eips.ethereum.org/EIPS/eip-1820
 ERC1820_EVENTS = []
 ERC1820 = [
-    ERC("canImplementInterfaceForAddress", ["bytes32", "address"], "bytes32", True, True, [])
+    ERC(
+        "canImplementInterfaceForAddress",
+        ["bytes32", "address"],
+        "bytes32",
+        True,
+        True,
+        [],
+    )
 ]
 ERC1820_signatures = erc_to_signatures(ERC1820)
 
@@ -148,15 +192,21 @@ ERC777_sent_event = ERC_EVENT(
     [True, True, True, False, False, False],
 )
 ERC777_minted_event = ERC_EVENT(
-    "Minted", ["address", "address", "uint256", "bytes", "bytes"], [True, True, False, False, False]
+    "Minted",
+    ["address", "address", "uint256", "bytes", "bytes"],
+    [True, True, False, False, False],
 )
 ERC777_burned_event = ERC_EVENT(
-    "Burned", ["address", "address", "uint256", "bytes", "bytes"], [True, True, False, False, False]
+    "Burned",
+    ["address", "address", "uint256", "bytes", "bytes"],
+    [True, True, False, False, False],
 )
 ERC777_authorizedOperator_event = ERC_EVENT(
     "AuthorizedOperator", ["address", "address"], [True, True]
 )
-ERC777_revokedoperator_event = ERC_EVENT("RevokedOperator", ["address", "address"], [True, True])
+ERC777_revokedoperator_event = ERC_EVENT(
+    "RevokedOperator", ["address", "address"], [True, True]
+)
 ERC777_EVENTS = [
     ERC777_sent_event,
     ERC777_minted_event,
@@ -173,7 +223,14 @@ ERC777 = [
     ERC("granularity", [], "uint256", True, True, []),
     ERC("defaultOperators", [], "address[]", True, True, []),
     ERC("isOperatorFor", ["address", "address"], "bool", True, True, []),
-    ERC("authorizeOperator", ["address"], "", False, True, [ERC777_authorizedOperator_event]),
+    ERC(
+        "authorizeOperator",
+        ["address"],
+        "",
+        False,
+        True,
+        [ERC777_authorizedOperator_event],
+    ),
     ERC("revokeOperator", ["address"], "", False, True, [ERC777_revokedoperator_event]),
     ERC("send", ["address", "uint256", "bytes"], "", False, True, [ERC777_sent_event]),
     ERC(

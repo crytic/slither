@@ -58,7 +58,7 @@ class SourceMapping(Context):
         return lines, starting_column, ending_column
 
     @staticmethod
-    def _convert_source_mapping(offset: str, slither):
+    def _convert_source_mapping(offset: str, slither):  # pylint: disable=too-many-locals
         """
         Convert a text offset to a real offset
         see https://solidity.readthedocs.io/en/develop/miscellaneous.html#source-mappings
@@ -112,10 +112,14 @@ class SourceMapping(Context):
 
         if slither.crytic_compile and filename in slither.crytic_compile.src_content:
             source_code = slither.crytic_compile.src_content[filename]
-            (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code, s, l)
+            (lines, starting_column, ending_column) = SourceMapping._compute_line(
+                source_code, s, l
+            )
         elif filename in slither.source_code:
             source_code = slither.source_code[filename]
-            (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code, s, l)
+            (lines, starting_column, ending_column) = SourceMapping._compute_line(
+                source_code, s, l
+            )
         else:
             (lines, starting_column, ending_column) = ([], None, None)
 
@@ -145,7 +149,7 @@ class SourceMapping(Context):
         elif len(lines) == 1:
             lines = "#{}{}".format(line_descr, lines[0])
         else:
-            lines = "#{}{}-{}{}".format(line_descr, lines[0], line_descr, lines[-1])
+            lines = f"#{line_descr}{lines[0]}-{line_descr}{lines[-1]}"
         return lines
 
     def source_mapping_to_markdown(self, markdown_root: str) -> str:

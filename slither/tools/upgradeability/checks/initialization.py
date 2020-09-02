@@ -1,9 +1,11 @@
 import logging
 
 from slither.slithir.operations import InternalCall
-from slither.tools.upgradeability.checks.abstract_checks import AbstractCheck, CheckClassification
-from slither.utils.output import Output
-from slither.utils.colors import red, yellow, green
+from slither.tools.upgradeability.checks.abstract_checks import (
+    AbstractCheck,
+    CheckClassification,
+)
+from slither.utils.colors import red
 
 logger = logging.getLogger("Slither-check-upgradeability")
 
@@ -13,7 +15,9 @@ class MultipleInitTarget(Exception):
 
 
 def _get_initialize_functions(contract):
-    return [f for f in contract.functions if f.name == "initialize" and f.is_implemented]
+    return [
+        f for f in contract.functions if f.name == "initialize" and f.is_implemented
+    ]
 
 
 def _get_all_internal_calls(function):
@@ -26,7 +30,9 @@ def _get_all_internal_calls(function):
 
 
 def _get_most_derived_init(contract):
-    init_functions = [f for f in contract.functions if not f.is_shadowed and f.name == "initialize"]
+    init_functions = [
+        f for f in contract.functions if not f.is_shadowed and f.name == "initialize"
+    ]
     if len(init_functions) > 1:
         if len([f for f in init_functions if f.contract_declarer == contract]) == 1:
             return next((f for f in init_functions if f.contract_declarer == contract))
@@ -120,7 +126,9 @@ Review manually the contract's initialization. Consider inheriting a `Initializa
         if initializable not in self.contract.inheritance:
             return []
 
-        initializer = self.contract.get_modifier_from_canonical_name("Initializable.initializer()")
+        initializer = self.contract.get_modifier_from_canonical_name(
+            "Initializable.initializer()"
+        )
         if initializer is None:
             info = ["Initializable.initializer() does not exist.\n"]
             json = self.generate_result(info)
@@ -165,7 +173,9 @@ Use `Initializable.initializer()`.
         # See InitializableInherited
         if initializable not in self.contract.inheritance:
             return []
-        initializer = self.contract.get_modifier_from_canonical_name("Initializable.initializer()")
+        initializer = self.contract.get_modifier_from_canonical_name(
+            "Initializable.initializer()"
+        )
         # InitializableInitializer
         if initializer is None:
             return []
@@ -228,8 +238,12 @@ Ensure all the initialize functions are reached by the most derived initialize f
             return []
 
         all_init_functions = _get_initialize_functions(self.contract)
-        all_init_functions_called = _get_all_internal_calls(most_derived_init) + [most_derived_init]
-        missing_calls = [f for f in all_init_functions if not f in all_init_functions_called]
+        all_init_functions_called = _get_all_internal_calls(most_derived_init) + [
+            most_derived_init
+        ]
+        missing_calls = [
+            f for f in all_init_functions if not f in all_init_functions_called
+        ]
         for f in missing_calls:
             info = ["Missing call to ", f, " in ", most_derived_init, ".\n"]
             json = self.generate_result(info)
@@ -292,10 +306,14 @@ Call only one time every initialize function.
         if most_derived_init is None:
             return []
 
-        all_init_functions_called = _get_all_internal_calls(most_derived_init) + [most_derived_init]
-        double_calls = list(
-            set([f for f in all_init_functions_called if all_init_functions_called.count(f) > 1])
-        )
+        all_init_functions_called = _get_all_internal_calls(most_derived_init) + [
+            most_derived_init
+        ]
+        double_calls = list({
+            f
+            for f in all_init_functions_called
+            if all_init_functions_called.count(f) > 1
+        })
         for f in double_calls:
             info = [f, " is called multiple times in ", most_derived_init, ".\n"]
             json = self.generate_result(info)
@@ -337,6 +355,11 @@ Ensure that the function is called at deployment.
         if most_derived_init is None:
             return []
 
-        info = [self.contract, f" needs to be initialized by ", most_derived_init, ".\n"]
+        info = [
+            self.contract,
+            " needs to be initialized by ",
+            most_derived_init,
+            ".\n",
+        ]
         json = self.generate_result(info)
         return [json]

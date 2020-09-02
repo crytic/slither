@@ -1,8 +1,5 @@
-from .variable import SlithIRVariable
-from slither.core.variables.variable import Variable
 from slither.core.children.child_node import ChildNode
-
-from slither.core.solidity_types.type import Type
+from slither.slithir.variables.variable import SlithIRVariable
 
 
 class TupleVariable(ChildNode, SlithIRVariable):

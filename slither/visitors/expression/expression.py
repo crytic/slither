@@ -5,7 +5,9 @@ from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.conditional_expression import ConditionalExpression
-from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
+from slither.core.expressions.elementary_type_name_expression import (
+    ElementaryTypeNameExpression,
+)
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
@@ -38,7 +40,7 @@ class ExpressionVisitor:
 
     # visit an expression
     # call pre_visit, visit_expression_name, post_visit
-    def _visit_expression(self, expression: Expression):
+    def _visit_expression(self, expression: Expression):  # pylint: disable=too-many-branches
         self._pre_visit(expression)
 
         if isinstance(expression, AssignmentOperation):
@@ -159,7 +161,7 @@ class ExpressionVisitor:
 
     # pre visit
 
-    def _pre_visit(self, expression):
+    def _pre_visit(self, expression):  # pylint: disable=too-many-branches
         if isinstance(expression, AssignmentOperation):
             self._pre_assignement_operation(expression)
 
@@ -260,7 +262,7 @@ class ExpressionVisitor:
 
     # post visit
 
-    def _post_visit(self, expression):
+    def _post_visit(self, expression):  # pylint: disable=too-many-branches
         if isinstance(expression, AssignmentOperation):
             self._post_assignement_operation(expression)
 

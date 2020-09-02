@@ -8,10 +8,10 @@ if TYPE_CHECKING:
 
 
 class Literal(Expression):
-    def __init__(self, value, type, subdenomination=None):
+    def __init__(self, value, custom_type, subdenomination=None):
         super(Literal, self).__init__()
         self._value: Union[int, str] = value
-        self._type = type
+        self._type = custom_type
         self._subdenomination: Optional[str] = subdenomination
 
     @property

@@ -10,9 +10,9 @@ from slither import Slither
 from slither.exceptions import SlitherException
 from slither.utils.colors import red
 from slither.utils.output import output_to_json
-from .checks import all_checks
-from .checks.abstract_checks import AbstractCheck
-from .utils.command_line import (
+from slither.tools.upgradeability.checks import all_checks
+from slither.tools.upgradeability.checks.abstract_checks import AbstractCheck
+from slither.tools.upgradeability.utils.command_line import (
     output_detectors_json,
     output_wiki,
     output_detectors,
@@ -57,7 +57,10 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--markdown-root", help="URL for markdown generation", action="store", default=""
+        "--markdown-root",
+        help="URL for markdown generation",
+        action="store",
+        default="",
     )
 
     parser.add_argument(
@@ -72,7 +75,9 @@ def parse_args():
         default=False,
     )
 
-    parser.add_argument("--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False)
+    parser.add_argument(
+        "--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False
+    )
 
     cryticparser.init(parser)
 
@@ -92,34 +97,36 @@ def parse_args():
 
 def _get_checks():
     detectors = [getattr(all_checks, name) for name in dir(all_checks)]
-    detectors = [c for c in detectors if inspect.isclass(c) and issubclass(c, AbstractCheck)]
+    detectors = [
+        c for c in detectors if inspect.isclass(c) and issubclass(c, AbstractCheck)
+    ]
     return detectors
 
 
-class ListDetectors(argparse.Action):
-    def __call__(self, parser, *args, **kwargs):
+class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
+    def __call__(self, parser, *args, **kwargs):   # pylint: disable=signature-differs
         checks = _get_checks()
         output_detectors(checks)
         parser.exit()
 
 
-class ListDetectorsJson(argparse.Action):
-    def __call__(self, parser, *args, **kwargs):
+class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-methods
+    def __call__(self, parser, *args, **kwargs):   # pylint: disable=signature-differs
         checks = _get_checks()
         detector_types_json = output_detectors_json(checks)
         print(json.dumps(detector_types_json))
         parser.exit()
 
 
-class OutputMarkdown(argparse.Action):
-    def __call__(self, parser, args, values, option_string=None):
+class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
+    def __call__(self, parser, args, values, option_string=None):   # pylint: disable=signature-differs
         checks = _get_checks()
         output_to_markdown(checks, values)
         parser.exit()
 
 
-class OutputWiki(argparse.Action):
-    def __call__(self, parser, args, values, option_string=None):
+class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
+    def __call__(self, parser, args, values, option_string=None):   # pylint: disable=signature-differs
         checks = _get_checks()
         output_wiki(checks, values)
         parser.exit()
@@ -143,7 +150,9 @@ def _checks_on_contract(detectors, contract):
 
 def _checks_on_contract_update(detectors, contract_v1, contract_v2):
     detectors = [
-        d(logger, contract_v1, contract_v2=contract_v2) for d in detectors if d.REQUIRE_CONTRACT_V2
+        d(logger, contract_v1, contract_v2=contract_v2)
+        for d in detectors
+        if d.REQUIRE_CONTRACT_V2
     ]
     return _run_checks(detectors), len(detectors)
 
@@ -160,9 +169,13 @@ def _checks_on_contract_and_proxy(detectors, contract, proxy):
 ###################################################################################
 ###################################################################################
 
-
+# pylint: disable=too-many-statements,too-many-branches,too-many-locals
 def main():
-    json_results = {"proxy-present": False, "contract_v2-present": False, "detectors": []}
+    json_results = {
+        "proxy-present": False,
+        "contract_v2-present": False,
+        "detectors": [],
+    }
 
     args = parse_args()
 
@@ -170,19 +183,21 @@ def main():
     number_detectors_run = 0
     detectors = _get_checks()
     try:
-        v1 = Slither(v1_filename, **vars(args))
+        variable1 = Slither(v1_filename, **vars(args))
 
         # Analyze logic contract
         v1_name = args.ContractName
-        v1_contract = v1.get_contract_from_name(v1_name)
+        v1_contract = variable1.get_contract_from_name(v1_name)
         if v1_contract is None:
-            info = "Contract {} not found in {}".format(v1_name, v1.filename)
+            info = "Contract {} not found in {}".format(v1_name, variable1.filename)
             logger.error(red(info))
             if args.json:
                 output_to_json(args.json, str(info), json_results)
             return
 
-        detectors_results, number_detectors = _checks_on_contract(detectors, v1_contract)
+        detectors_results, number_detectors = _checks_on_contract(
+            detectors, v1_contract
+        )
         json_results["detectors"] += detectors_results
         number_detectors_run += number_detectors
 
@@ -192,11 +207,13 @@ def main():
             if args.proxy_filename:
                 proxy = Slither(args.proxy_filename, **vars(args))
             else:
-                proxy = v1
+                proxy = variable1
 
             proxy_contract = proxy.get_contract_from_name(args.proxy_name)
             if proxy_contract is None:
-                info = "Proxy {} not found in {}".format(args.proxy_name, proxy.filename)
+                info = "Proxy {} not found in {}".format(
+                    args.proxy_name, proxy.filename
+                )
                 logger.error(red(info))
                 if args.json:
                     output_to_json(args.json, str(info), json_results)
@@ -211,14 +228,14 @@ def main():
         # Analyze new version
         if args.new_contract_name:
             if args.new_contract_filename:
-                v2 = Slither(args.new_contract_filename, **vars(args))
+                variable2 = Slither(args.new_contract_filename, **vars(args))
             else:
-                v2 = v1
+                variable2 = variable1
 
-            v2_contract = v2.get_contract_from_name(args.new_contract_name)
+            v2_contract = variable2.get_contract_from_name(args.new_contract_name)
             if v2_contract is None:
                 info = "New logic contract {} not found in {}".format(
-                    args.new_contract_name, v2.filename
+                    args.new_contract_name, variable2.filename
                 )
                 logger.error(red(info))
                 if args.json:
@@ -244,16 +261,15 @@ def main():
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
 
-        logger.info(
-            f'{len(json_results["detectors"])} findings, {number_detectors_run} detectors run'
-        )
+        to_log = f'{len(json_results["detectors"])} findings, {number_detectors_run} detectors run'
+        logger.info(to_log)
         if args.json:
             output_to_json(args.json, None, json_results)
 
-    except SlitherException as e:
-        logger.error(str(e))
+    except SlitherException as slither_exception:
+        logger.error(str(slither_exception))
         if args.json:
-            output_to_json(args.json, str(e), json_results)
+            output_to_json(args.json, str(slither_exception), json_results)
         return
 
 

@@ -9,8 +9,6 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 
 
 class UninitializedLocalVars(AbstractDetector):
-    """
-    """
 
     ARGUMENT = "uninitialized-local"
     HELP = "Uninitialized local variables"
@@ -55,7 +53,9 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
         else:
             self.visited_all_paths[node] = []
 
-        self.visited_all_paths[node] = list(set(self.visited_all_paths[node] + fathers_context))
+        self.visited_all_paths[node] = list(
+            set(self.visited_all_paths[node] + fathers_context)
+        )
 
         if self.key in node.context:
             fathers_context += node.context[self.key]
@@ -66,7 +66,9 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
                 self.results.append((function, uninitialized_local_variable))
 
         # Only save the local variables that are not yet written
-        uninitialized_local_variables = list(set(fathers_context) - set(node.variables_written))
+        uninitialized_local_variables = list(
+            set(fathers_context) - set(node.variables_written)
+        )
         node.context[self.key] = uninitialized_local_variables
 
         for son in node.sons:
@@ -81,6 +83,7 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
         """
         results = []
 
+        # pylint: disable=attribute-defined-outside-init
         self.results = []
         self.visited_all_paths = {}
 
@@ -91,14 +94,21 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
                         continue
                     # dont consider storage variable, as they are detected by another detector
                     uninitialized_local_variables = [
-                        v for v in function.local_variables if not v.is_storage and v.uninitialized
+                        v
+                        for v in function.local_variables
+                        if not v.is_storage and v.uninitialized
                     ]
-                    function.entry_point.context[self.key] = uninitialized_local_variables
+                    function.entry_point.context[
+                        self.key
+                    ] = uninitialized_local_variables
                     self._detect_uninitialized(function, function.entry_point, [])
         all_results = list(set(self.results))
         for (function, uninitialized_local_variable) in all_results:
 
-            info = [uninitialized_local_variable, " is a local variable never initialized\n"]
+            info = [
+                uninitialized_local_variable,
+                " is a local variable never initialized\n",
+            ]
             json = self.generate_result(info)
             results.append(json)
 

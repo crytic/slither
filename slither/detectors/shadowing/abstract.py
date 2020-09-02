@@ -6,6 +6,20 @@ Recursively check the called functions
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
+def detect_shadowing(contract):
+    ret = []
+    variables_fathers = []
+    for father in contract.inheritance:
+        if all(not f.is_implemented for f in father.functions + father.modifiers):
+            variables_fathers += father.state_variables_declared
+
+    for var in contract.state_variables_declared:
+        shadow = [v for v in variables_fathers if v.name == var.name]
+        if shadow:
+            ret.append([var] + shadow)
+    return ret
+
+
 class ShadowingAbstractDetection(AbstractDetector):
     """
     Shadowing detection
@@ -34,19 +48,6 @@ contract DerivedContract is BaseContract{
 
     WIKI_RECOMMENDATION = "Remove the state variable shadowing."
 
-    def detect_shadowing(self, contract):
-        ret = []
-        variables_fathers = []
-        for father in contract.inheritance:
-            if all(not f.is_implemented for f in father.functions + father.modifiers):
-                variables_fathers += father.state_variables_declared
-
-        for var in contract.state_variables_declared:
-            shadow = [v for v in variables_fathers if v.name == var.name]
-            if shadow:
-                ret.append([var] + shadow)
-        return ret
-
     def _detect(self):
         """ Detect shadowing
 
@@ -56,8 +57,8 @@ contract DerivedContract is BaseContract{
 
         """
         results = []
-        for c in self.contracts:
-            shadowing = self.detect_shadowing(c)
+        for contract in self.contracts:
+            shadowing = detect_shadowing(contract)
             if shadowing:
                 for all_variables in shadowing:
                     shadow = all_variables[0]

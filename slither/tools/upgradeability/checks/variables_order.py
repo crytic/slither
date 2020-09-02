@@ -1,4 +1,7 @@
-from slither.tools.upgradeability.checks.abstract_checks import CheckClassification, AbstractCheck
+from slither.tools.upgradeability.checks.abstract_checks import (
+    CheckClassification,
+    AbstractCheck,
+)
 
 
 class MissingVariable(AbstractCheck):
@@ -6,7 +9,9 @@ class MissingVariable(AbstractCheck):
     IMPACT = CheckClassification.MEDIUM
 
     HELP = "Variable missing in the v2"
-    WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#missing-variables"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Upgradeability-Checks#missing-variables"
+    )
     WIKI_TITLE = "Missing variables"
     WIKI_DESCRIPTION = """
 Detect variables that were present in the original contracts but are not in the updated one.
@@ -37,11 +42,19 @@ Do not change the order of the state variables in the updated contract.
     def _check(self):
         contract1 = self.contract
         contract2 = self.contract_v2
-        order1 = [variable for variable in contract1.state_variables if not variable.is_constant]
-        order2 = [variable for variable in contract2.state_variables if not variable.is_constant]
+        order1 = [
+            variable
+            for variable in contract1.state_variables
+            if not variable.is_constant
+        ]
+        order2 = [
+            variable
+            for variable in contract2.state_variables
+            if not variable.is_constant
+        ]
 
         results = []
-        for idx in range(0, len(order1)):
+        for idx, _ in enumerate(order1):
             variable1 = order1[idx]
             if len(order2) <= idx:
                 info = ["Variable missing in ", contract2, ": ", variable1, "\n"]
@@ -92,11 +105,19 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
     def _check(self):
         contract1 = self._contract1()
         contract2 = self._contract2()
-        order1 = [variable for variable in contract1.state_variables if not variable.is_constant]
-        order2 = [variable for variable in contract2.state_variables if not variable.is_constant]
+        order1 = [
+            variable
+            for variable in contract1.state_variables
+            if not variable.is_constant
+        ]
+        order2 = [
+            variable
+            for variable in contract2.state_variables
+            if not variable.is_constant
+        ]
 
         results = []
-        for idx in range(0, len(order1)):
+        for idx, _ in enumerate(order1):
             if len(order2) <= idx:
                 # Handle by MissingVariable
                 return results
@@ -104,9 +125,15 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
             variable1 = order1[idx]
             variable2 = order2[idx]
             if (variable1.name != variable2.name) or (variable1.type != variable2.type):
-                info = ["Different variables between ", contract1, " and ", contract2, "\n"]
-                info += [f"\t ", variable1, "\n"]
-                info += [f"\t ", variable2, "\n"]
+                info = [
+                    "Different variables between ",
+                    contract1,
+                    " and ",
+                    contract2,
+                    "\n",
+                ]
+                info += ["\t ", variable1, "\n"]
+                info += ["\t ", variable2, "\n"]
                 json = self.generate_result(info)
                 results.append(json)
 
@@ -154,9 +181,7 @@ class ExtraVariablesProxy(AbstractCheck):
     IMPACT = CheckClassification.MEDIUM
 
     HELP = "Extra vars in the proxy"
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Upgradeability-Checks#extra-variables-in-the-proxy"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#extra-variables-in-the-proxy"
     WIKI_TITLE = "Extra variables in the proxy"
 
     WIKI_DESCRIPTION = """
@@ -193,8 +218,16 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
     def _check(self):
         contract1 = self._contract1()
         contract2 = self._contract2()
-        order1 = [variable for variable in contract1.state_variables if not variable.is_constant]
-        order2 = [variable for variable in contract2.state_variables if not variable.is_constant]
+        order1 = [
+            variable
+            for variable in contract1.state_variables
+            if not variable.is_constant
+        ]
+        order2 = [
+            variable
+            for variable in contract2.state_variables
+            if not variable.is_constant
+        ]
 
         results = []
 

@@ -1,7 +1,7 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import SolidityCall
 from slither.slithir.operations import InternalCall, InternalDynamicCall
-from slither.formatters.functions.external_function import format
+from slither.formatters.functions.external_function import custom_format
 
 
 class ExternalFunction(AbstractDetector):
@@ -81,7 +81,9 @@ class ExternalFunction(AbstractDetector):
 
         # Somehow we couldn't resolve it, which shouldn't happen, as the provided function should be found if we could
         # not find some any more basic.
-        raise Exception("Could not resolve the base-most function for the provided function.")
+        raise Exception(
+            "Could not resolve the base-most function for the provided function."
+        )
 
     @staticmethod
     def get_all_function_definitions(base_most_function):
@@ -105,7 +107,7 @@ class ExternalFunction(AbstractDetector):
     def function_parameters_written(function):
         return any(p in function.variables_written for p in function.parameters)
 
-    def _detect(self):
+    def _detect(self):  # pylint: disable=too-many-locals,too-many-branches
         results = []
 
         # Create a set to track contracts with dynamic calls. All contracts with dynamic calls could potentially be
@@ -157,20 +159,22 @@ class ExternalFunction(AbstractDetector):
                 all_function_definitions = set(
                     self.get_all_function_definitions(base_most_function)
                 )
-                completed_functions = completed_functions.union(all_function_definitions)
+                completed_functions = completed_functions.union(
+                    all_function_definitions
+                )
 
                 # Filter false-positives: Determine if any of these sources have dynamic calls, if so, flag all of these
                 # function definitions, and then flag all functions in all contracts that make dynamic calls.
-                sources_with_dynamic_calls = set(all_possible_sources) & dynamic_call_contracts
+                sources_with_dynamic_calls = (
+                    set(all_possible_sources) & dynamic_call_contracts
+                )
                 if sources_with_dynamic_calls:
-                    functions_in_dynamic_call_sources = set(
-                        [
-                            f
-                            for dyn_contract in sources_with_dynamic_calls
-                            for f in dyn_contract.functions
-                            if not f.is_constructor
-                        ]
-                    )
+                    functions_in_dynamic_call_sources = {
+                        f
+                        for dyn_contract in sources_with_dynamic_calls
+                        for f in dyn_contract.functions
+                        if not f.is_constructor
+                    }
                     completed_functions = completed_functions.union(
                         functions_in_dynamic_call_sources
                     )
@@ -200,10 +204,12 @@ class ExternalFunction(AbstractDetector):
                     function_definition = all_function_definitions[0]
                     all_function_definitions = all_function_definitions[1:]
 
-                    info = [f"{function_definition.full_name} should be declared external:\n"]
-                    info += [f"\t- ", function_definition, "\n"]
+                    info = [
+                        f"{function_definition.full_name} should be declared external:\n"
+                    ]
+                    info += ["\t- ", function_definition, "\n"]
                     for other_function_definition in all_function_definitions:
-                        info += [f"\t- ", other_function_definition, "\n"]
+                        info += ["\t- ", other_function_definition, "\n"]
 
                     res = self.generate_result(info)
 
@@ -213,4 +219,4 @@ class ExternalFunction(AbstractDetector):
 
     @staticmethod
     def _format(slither, result):
-        format(slither, result)
+        custom_format(slither, result)

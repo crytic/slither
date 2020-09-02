@@ -15,6 +15,7 @@ class HighLevelCall(Call, OperationWithLValue):
         High level message call
     """
 
+    # pylint: disable=too-many-arguments,too-many-instance-attributes
     def __init__(self, destination, function_name, nbr_arguments, result, type_call):
         assert isinstance(function_name, Constant)
         assert is_valid_lvalue(result) or result is None
@@ -33,7 +34,7 @@ class HighLevelCall(Call, OperationWithLValue):
 
     # Development function, to be removed once the code is stable
     # It is ovveride by LbraryCall
-    def _check_destination(self, destination):
+    def _check_destination(self, destination):  # pylint: disable=no-self-use
         assert isinstance(destination, (Variable, SolidityVariable))
 
     @property
@@ -62,7 +63,9 @@ class HighLevelCall(Call, OperationWithLValue):
 
     @property
     def read(self):
-        all_read = [self.destination, self.call_gas, self.call_value] + self._unroll(self.arguments)
+        all_read = [self.destination, self.call_gas, self.call_value] + self._unroll(
+            self.arguments
+        )
         # remove None
         return [x for x in all_read if x] + [self.destination]
 
@@ -106,7 +109,9 @@ class HighLevelCall(Call, OperationWithLValue):
         """
         # If solidity >0.5, STATICCALL is used
         if self.slither.solc_version and self.slither.solc_version >= "0.5.0":
-            if isinstance(self.function, Function) and (self.function.view or self.function.pure):
+            if isinstance(self.function, Function) and (
+                self.function.view or self.function.pure
+            ):
                 return False
             if isinstance(self.function, Variable):
                 return False
@@ -154,7 +159,9 @@ class HighLevelCall(Call, OperationWithLValue):
         if not self.lvalue:
             lvalue = ""
         elif isinstance(self.lvalue.type, (list,)):
-            lvalue = "{}({}) = ".format(self.lvalue, ",".join(str(x) for x in self.lvalue.type))
+            lvalue = "{}({}) = ".format(
+                self.lvalue, ",".join(str(x) for x in self.lvalue.type)
+            )
         else:
             lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
         return txt.format(

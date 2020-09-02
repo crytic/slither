@@ -5,7 +5,7 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
 
 
-class InternalDynamicCall(Call, OperationWithLValue):
+class InternalDynamicCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     def __init__(self, lvalue, function, function_type):
         assert isinstance(function_type, FunctionType)
         assert isinstance(function, Variable)
@@ -66,7 +66,9 @@ class InternalDynamicCall(Call, OperationWithLValue):
         if not self.lvalue:
             lvalue = ""
         elif isinstance(self.lvalue.type, (list,)):
-            lvalue = "{}({}) = ".format(self.lvalue, ",".join(str(x) for x in self.lvalue.type))
+            lvalue = "{}({}) = ".format(
+                self.lvalue, ",".join(str(x) for x in self.lvalue.type)
+            )
         else:
             lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
         txt = "{}INTERNAL_DYNAMIC_CALL {}({}) {} {}"

@@ -3,7 +3,7 @@ from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
 
 
-class NewContract(Call, OperationWithLValue):
+class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     def __init__(self, contract_name, lvalue):
         assert isinstance(contract_name, Constant)
         assert is_valid_lvalue(lvalue)
@@ -92,4 +92,6 @@ class NewContract(Call, OperationWithLValue):
         if self.call_salt:
             options += "salt:{} ".format(self.call_salt)
         args = [str(a) for a in self.arguments]
-        return "{} = new {}({}) {}".format(self.lvalue, self.contract_name, ",".join(args), options)
+        return "{} = new {}({}) {}".format(
+            self.lvalue, self.contract_name, ",".join(args), options
+        )

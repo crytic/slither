@@ -29,4 +29,6 @@ class NewStructure(Call, OperationWithLValue):
 
     def __str__(self):
         args = [str(a) for a in self.arguments]
-        return "{} = new {}({})".format(self.lvalue, self.structure_name, ",".join(args))
+        return "{} = new {}({})".format(
+            self.lvalue, self.structure_name, ",".join(args)
+        )

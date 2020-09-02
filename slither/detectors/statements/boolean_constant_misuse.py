@@ -26,9 +26,7 @@ class BooleanConstantMisuse(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#misuse-of-a-boolean-constant"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#misuse-of-a-boolean-constant"
 
     WIKI_TITLE = "Misuse of a Boolean constant"
     WIKI_DESCRIPTION = """Detects the misuse of a Boolean constant."""
@@ -56,7 +54,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
     WIKI_RECOMMENDATION = """Verify and simplify the condition."""
 
     @staticmethod
-    def _detect_boolean_constant_misuses(contract):
+    def _detect_boolean_constant_misuses(contract):  # pylint: disable=too-many-branches
         """
         Detects and returns all nodes which misuse a Boolean constant.
         :param contract: Contract to detect assignment within.
@@ -67,7 +65,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
         results = []
 
         # Loop for each function and modifier.
-        for function in contract.functions_declared:
+        for function in contract.functions_declared:  # pylint: disable=too-many-nested-blocks
             f_results = set()
 
             # Loop for every node in this function, looking for boolean constants
@@ -88,13 +86,17 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
                         # It's ok to use a bare boolean constant in these contexts
                         continue
                     if isinstance(ir, Binary):
-                        if ir.type in [BinaryType.ADDITION, BinaryType.EQUAL, BinaryType.NOT_EQUAL]:
+                        if ir.type in [
+                            BinaryType.ADDITION,
+                            BinaryType.EQUAL,
+                            BinaryType.NOT_EQUAL,
+                        ]:
                             # Comparing to a Boolean constant is dubious style, but harmless
                             # Equal is catch by another detector (informational severity)
                             continue
                     for r in ir.read:
                         if isinstance(r, Constant):
-                            if type(r.value) is bool:
+                            if isinstance(r.value, bool):
                                 f_results.add(node)
                 results.append((function, f_results))
 
@@ -111,7 +113,12 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
             if boolean_constant_misuses:
                 for (func, nodes) in boolean_constant_misuses:
                     for node in nodes:
-                        info = [func, " uses a Boolean constant improperly:\n\t-", node, "\n"]
+                        info = [
+                            func,
+                            " uses a Boolean constant improperly:\n\t-",
+                            node,
+                            "\n",
+                        ]
 
                         res = self.generate_result(info)
                         results.append(res)

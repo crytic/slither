@@ -6,7 +6,9 @@ logger = logging.getLogger("Slither-conformance")
 
 
 def approval_race_condition(contract, ret):
-    increaseAllowance = contract.get_function_from_signature("increaseAllowance(address,uint256)")
+    increaseAllowance = contract.get_function_from_signature(
+        "increaseAllowance(address,uint256)"
+    )
 
     if not increaseAllowance:
         increaseAllowance = contract.get_function_from_signature(

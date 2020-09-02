@@ -6,12 +6,13 @@ from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.slithir.variables.constant import Constant
 
 
-class LowLevelCall(Call, OperationWithLValue):
+class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     """
         High level message call
     """
 
     def __init__(self, destination, function_name, nbr_arguments, result, type_call):
+        # pylint: disable=too-many-arguments
         assert isinstance(destination, (Variable, SolidityVariable))
         assert isinstance(function_name, Constant)
         super(LowLevelCall, self).__init__()
@@ -55,7 +56,7 @@ class LowLevelCall(Call, OperationWithLValue):
         # remove None
         return self._unroll([x for x in all_read if x])
 
-    def can_reenter(self, callstack=None):
+    def can_reenter(self, _callstack=None):
         """
         Must be called after slithIR analysis pass
         :return: bool

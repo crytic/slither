@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from slither.core.declarations import Function, Contract
 
 
-class ChildNode(object):
+class ChildNode:
     def __init__(self):
         super(ChildNode, self).__init__()
         self._node = None

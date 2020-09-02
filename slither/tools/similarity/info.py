@@ -22,7 +22,6 @@ def info(args):
 
         filename = args.filename
         contract, fname = parse_target(args.fname)
-        solc = args.solc
 
         if filename is None and contract is None and fname is None:
             logger.info("%s uses the following words:", args.model)
@@ -31,7 +30,9 @@ def info(args):
             sys.exit(0)
 
         if filename is None or contract is None or fname is None:
-            logger.error("The encode mode requires filename, contract and fname parameters.")
+            logger.error(
+                "The encode mode requires filename, contract and fname parameters."
+            )
             sys.exit(-1)
 
         irs = encode_contract(filename, **vars(args))
@@ -41,13 +42,15 @@ def info(args):
         x = (filename, contract, fname)
         y = " ".join(irs[x])
 
-        logger.info("Function {} in contract {} is encoded as:".format(fname, contract))
+        to_log = "Function {} in contract {} is encoded as:".format(fname, contract)
+        logger.info(to_log)
         logger.info(y)
         if model is not None:
             fvector = model.get_sentence_vector(y)
             logger.info(fvector)
 
-    except Exception:
-        logger.error("Error in %s" % args.filename)
+    except Exception:  # pylint: disable=broad-except
+        to_log = "Error in %s" % args.filename
+        logger.error(to_log)
         logger.error(traceback.format_exc())
         sys.exit(-1)

@@ -79,7 +79,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
 
     WIKI_RECOMMENDATION = """Consider ordering multiplication before division."""
 
-    def _explore(self, node, explored, f_results, divisions):
+    def _explore(self, node, explored, f_results, divisions):  # pylint: disable=too-many-branches
         if node in explored:
             return
         explored.add(node)
@@ -111,7 +111,9 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
                         if node in divisions[r]:
                             nodes += [n for n in divisions[r] if n not in nodes]
                         else:
-                            nodes += [n for n in divisions[r] + [node] if n not in nodes]
+                            nodes += [
+                                n for n in divisions[r] + [node] if n not in nodes
+                            ]
                 if nodes:
                     node_results = nodes
 
@@ -170,11 +172,16 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
         """
         results = []
         for contract in self.contracts:
-            divisions_before_multiplications = self.detect_divide_before_multiply(contract)
+            divisions_before_multiplications = self.detect_divide_before_multiply(
+                contract
+            )
             if divisions_before_multiplications:
                 for (func, nodes) in divisions_before_multiplications:
 
-                    info = [func, " performs a multiplication on the result of a division:\n"]
+                    info = [
+                        func,
+                        " performs a multiplication on the result of a division:\n",
+                    ]
 
                     for node in nodes:
                         info += ["\t-", node, "\n"]

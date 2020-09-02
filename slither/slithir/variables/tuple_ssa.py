@@ -4,7 +4,6 @@
     as the TupleVariable are in SSA form in both version
 """
 from .tuple import TupleVariable
-from .variable import SlithIRVariable
 
 
 class TupleVariableSSA(TupleVariable):

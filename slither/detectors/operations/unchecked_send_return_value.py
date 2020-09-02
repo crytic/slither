@@ -3,7 +3,7 @@ Module detecting unused return values from send
 """
 
 from slither.detectors.abstract_detector import DetectorClassification
-from .unused_return_values import UnusedReturnValues
+from slither.detectors.operations.unused_return_values import UnusedReturnValues
 from slither.slithir.operations import Send
 
 
@@ -17,7 +17,9 @@ class UncheckedSend(UnusedReturnValues):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-send"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-send"
+    )
 
     WIKI_TITLE = "Unchecked Send"
     WIKI_DESCRIPTION = "The return value of a `send` is not checked."
@@ -37,5 +39,5 @@ If `send` is used to prevent blocking operations, consider logging the failed `s
 
     _txt_description = "send calls"
 
-    def _is_instance(self, ir):
+    def _is_instance(self, ir):  # pylint: disable=no-self-use
         return isinstance(ir, Send)

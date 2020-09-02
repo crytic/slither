@@ -1,15 +1,15 @@
 from functools import total_ordering
 from decimal import Decimal
 
-from .variable import SlithIRVariable
+from slither.slithir.variables.variable import SlithIRVariable
+from slither.slithir.exceptions import SlithIRError
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
 from slither.utils.arithmetic import convert_subdenomination
-from ..exceptions import SlithIRError
 
 
 @total_ordering
 class Constant(SlithIRVariable):
-    def __init__(self, val, type=None, subdenomination=None):
+    def __init__(self, val, constant_type=None, subdenomination=None):  # pylint: disable=too-many-branches
         super(Constant, self).__init__()
         assert isinstance(val, str)
 
@@ -19,10 +19,10 @@ class Constant(SlithIRVariable):
         if subdenomination:
             val = str(convert_subdenomination(val, subdenomination))
 
-        if type:
-            assert isinstance(type, ElementaryType)
-            self._type = type
-            if type.type in Int + Uint + ["address"]:
+        if constant_type:  # pylint: disable=too-many-nested-blocks
+            assert isinstance(constant_type, ElementaryType)
+            self._type = constant_type
+            if constant_type.type in Int + Uint + ["address"]:
                 if val.startswith("0x") or val.startswith("0X"):
                     self._val = int(val, 16)
                 else:
@@ -38,13 +38,12 @@ class Constant(SlithIRVariable):
                                 raise SlithIRError(
                                     f"{base}e{expo} is too large to fit in any Solidity integer size"
                                 )
-                            else:
-                                self._val = 0
+                            self._val = 0
                         else:
                             self._val = int(Decimal(base) * Decimal(10 ** expo))
                     else:
                         self._val = int(Decimal(val))
-            elif type.type == "bool":
+            elif constant_type.type == "bool":
                 self._val = (val == "true") | (val == "True")
             else:
                 self._val = val

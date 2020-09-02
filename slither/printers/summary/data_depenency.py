@@ -9,15 +9,11 @@ from slither.utils.myprettytable import MyPrettyTable
 
 
 def _get(v, c):
-    return list(
-        set(
-            [
-                d.name
-                for d in get_dependencies(v, c)
-                if not isinstance(d, (TemporaryVariable, ReferenceVariable))
-            ]
-        )
-    )
+    return list({
+        d.name
+        for d in get_dependencies(v, c)
+        if not isinstance(d, (TemporaryVariable, ReferenceVariable))
+    })
 
 
 class DataDependency(AbstractPrinter):

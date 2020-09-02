@@ -1,7 +1,7 @@
 from slither.formatters.utils.patches import create_patch
 
 
-def format(slither, result):
+def custom_format(slither, result):
     elements = result["elements"]
     for element in elements:
         if element["type"] == "variable":
@@ -26,7 +26,11 @@ def _patch(slither, result, in_file, modify_loc_start):
         in_file,
         int(modify_loc_start),
         # Remove the entire declaration until the semicolon
-        int(modify_loc_start + len(old_str_of_interest.decode("utf-8").partition(";")[0]) + 1),
+        int(
+            modify_loc_start
+            + len(old_str_of_interest.decode("utf-8").partition(";")[0])
+            + 1
+        ),
         old_str,
         "",
     )

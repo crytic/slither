@@ -2,7 +2,7 @@ from collections import defaultdict
 from typing import Dict
 
 
-class Context:
+class Context:  # pylint: disable=too-few-public-methods
     def __init__(self):
         super(Context, self).__init__()
         self._context = {"MEMBERS": defaultdict(None)}

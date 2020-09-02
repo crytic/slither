@@ -16,7 +16,20 @@ logger_detector = logging.getLogger("Detectors")
 logger_printer = logging.getLogger("Printers")
 
 
-class Slither(SlitherCore):
+def _check_common_things(thing_name, cls, base_cls, instances_list):
+
+    if not issubclass(cls, base_cls) or cls is base_cls:
+        raise Exception(
+            "You can't register {!r} as a {}. You need to pass a class that inherits from {}".format(
+                cls, thing_name, base_cls.__name__
+            )
+        )
+
+    if any(type(obj) == cls for obj in instances_list):  # pylint: disable=unidiomatic-typecheck
+        raise Exception("You can't register {!r} twice.".format(cls))
+
+
+class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
     def __init__(self, target, **kwargs):
         """
             Args:
@@ -93,7 +106,8 @@ class Slither(SlitherCore):
         with open(filename, encoding="utf8") as astFile:
             stdout = astFile.read()
             if not stdout:
-                raise SlitherError("Empty AST file: %s", filename)
+                to_log = f"Empty AST file: {filename}"
+                raise SlitherError(to_log)
         contracts_json = stdout.split("\n=")
 
         self._parser = SlitherSolc(filename, self)
@@ -128,17 +142,25 @@ class Slither(SlitherCore):
 
     @property
     def detectors_informational(self):
-        return [d for d in self.detectors if d.IMPACT == DetectorClassification.INFORMATIONAL]
+        return [
+            d
+            for d in self.detectors
+            if d.IMPACT == DetectorClassification.INFORMATIONAL
+        ]
 
     @property
     def detectors_optimization(self):
-        return [d for d in self.detectors if d.IMPACT == DetectorClassification.OPTIMIZATION]
+        return [
+            d for d in self.detectors if d.IMPACT == DetectorClassification.OPTIMIZATION
+        ]
 
     def register_detector(self, detector_class):
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
-        self._check_common_things("detector", detector_class, AbstractDetector, self._detectors)
+        _check_common_things(
+            "detector", detector_class, AbstractDetector, self._detectors
+        )
 
         instance = detector_class(self, logger_detector)
         self._detectors.append(instance)
@@ -147,7 +169,9 @@ class Slither(SlitherCore):
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
-        self._check_common_things("printer", printer_class, AbstractPrinter, self._printers)
+        _check_common_things(
+            "printer", printer_class, AbstractPrinter, self._printers
+        )
 
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)
@@ -168,32 +192,6 @@ class Slither(SlitherCore):
         """
 
         return [p.output(self.filename).data for p in self._printers]
-
-    def _check_common_things(self, thing_name, cls, base_cls, instances_list):
-
-        if not issubclass(cls, base_cls) or cls is base_cls:
-            raise Exception(
-                "You can't register {!r} as a {}. You need to pass a class that inherits from {}".format(
-                    cls, thing_name, base_cls.__name__
-                )
-            )
-
-        if any(type(obj) == cls for obj in instances_list):
-            raise Exception("You can't register {!r} twice.".format(cls))
-
-    def _run_solc(self, filename, solc, disable_solc_warnings, solc_arguments, ast_format):
-        if not os.path.isfile(filename):
-            raise SlitherError(
-                "{} does not exist (are you in the correct directory?)".format(filename)
-            )
-        assert filename.endswith("json")
-        with open(filename, encoding="utf8") as astFile:
-            stdout = astFile.read()
-            if not stdout:
-                raise SlitherError("Empty AST file: %s", filename)
-        stdout = stdout.split("\n=")
-
-        return stdout
 
     @property
     def triage_mode(self):

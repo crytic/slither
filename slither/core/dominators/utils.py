@@ -43,6 +43,7 @@ def compute_dominators(nodes: List["Node"]):
 
         for dominator in node.dominators:
             if dominator != node:
+                # pylint: disable=expression-not-assigned
                 [
                     idom_candidates.remove(d)
                     for d in dominator.dominators

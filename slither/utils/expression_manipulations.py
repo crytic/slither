@@ -19,7 +19,7 @@ from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
 from slither.all_exceptions import SlitherException
 
-
+# pylint: disable=protected-access
 def f_expressions(e, x):
     e._expressions.append(x)
 
@@ -36,7 +36,7 @@ def f_called(e, x):
     e._called = x
 
 
-class SplitTernaryExpression(object):
+class SplitTernaryExpression:
     def __init__(self, expression):
 
         if isinstance(expression, ConditionalExpression):
@@ -47,7 +47,9 @@ class SplitTernaryExpression(object):
             self.true_expression = copy.copy(expression)
             self.false_expression = copy.copy(expression)
             self.condition = None
-            self.copy_expression(expression, self.true_expression, self.false_expression)
+            self.copy_expression(
+                expression, self.true_expression, self.false_expression
+            )
 
     def apply_copy(self, next_expr, true_expression, false_expression, f):
 
@@ -56,39 +58,49 @@ class SplitTernaryExpression(object):
             f(false_expression, copy.copy(next_expr.else_expression))
             self.condition = copy.copy(next_expr.if_expression)
             return False
-        else:
-            f(true_expression, copy.copy(next_expr))
-            f(false_expression, copy.copy(next_expr))
-            return True
 
-    def copy_expression(self, expression, true_expression, false_expression):
+        f(true_expression, copy.copy(next_expr))
+        f(false_expression, copy.copy(next_expr))
+        return True
+
+    def copy_expression(self, expression, true_expression, false_expression):  # pylint: disable=too-many-branches
         if self.condition:
             return
 
         if isinstance(expression, ConditionalExpression):
             raise SlitherException("Nested ternary operator not handled")
 
-        if isinstance(expression, (Literal, Identifier, IndexAccess, NewArray, NewContract)):
-            return None
+        if isinstance(
+            expression, (Literal, Identifier, IndexAccess, NewArray, NewContract)
+        ):
+            return
 
         # case of lib
         # (.. ? .. : ..).add
         if isinstance(expression, MemberAccess):
             next_expr = expression.expression
-            if self.apply_copy(next_expr, true_expression, false_expression, f_expression):
+            if self.apply_copy(
+                next_expr, true_expression, false_expression, f_expression
+            ):
                 self.copy_expression(
                     next_expr, true_expression.expression, false_expression.expression
                 )
 
-        elif isinstance(expression, (AssignmentOperation, BinaryOperation, TupleExpression)):
+        elif isinstance(
+            expression, (AssignmentOperation, BinaryOperation, TupleExpression)
+        ):
             true_expression._expressions = []
             false_expression._expressions = []
 
             for next_expr in expression.expressions:
-                if self.apply_copy(next_expr, true_expression, false_expression, f_expressions):
+                if self.apply_copy(
+                    next_expr, true_expression, false_expression, f_expressions
+                ):
                     # always on last arguments added
                     self.copy_expression(
-                        next_expr, true_expression.expressions[-1], false_expression.expressions[-1]
+                        next_expr,
+                        true_expression.expressions[-1],
+                        false_expression.expressions[-1],
                     )
 
         elif isinstance(expression, CallExpression):
@@ -97,33 +109,49 @@ class SplitTernaryExpression(object):
             # case of lib
             # (.. ? .. : ..).add
             if self.apply_copy(next_expr, true_expression, false_expression, f_called):
-                self.copy_expression(next_expr, true_expression.called, false_expression.called)
+                self.copy_expression(
+                    next_expr, true_expression.called, false_expression.called
+                )
 
             true_expression._arguments = []
             false_expression._arguments = []
 
             for next_expr in expression.arguments:
-                if self.apply_copy(next_expr, true_expression, false_expression, f_call):
+                if self.apply_copy(
+                    next_expr, true_expression, false_expression, f_call
+                ):
                     # always on last arguments added
                     self.copy_expression(
-                        next_expr, true_expression.arguments[-1], false_expression.arguments[-1]
+                        next_expr,
+                        true_expression.arguments[-1],
+                        false_expression.arguments[-1],
                     )
 
         elif isinstance(expression, TypeConversion):
             next_expr = expression.expression
-            if self.apply_copy(next_expr, true_expression, false_expression, f_expression):
+            if self.apply_copy(
+                next_expr, true_expression, false_expression, f_expression
+            ):
                 self.copy_expression(
-                    expression.expression, true_expression.expression, false_expression.expression
+                    expression.expression,
+                    true_expression.expression,
+                    false_expression.expression,
                 )
 
         elif isinstance(expression, UnaryOperation):
             next_expr = expression.expression
-            if self.apply_copy(next_expr, true_expression, false_expression, f_expression):
+            if self.apply_copy(
+                next_expr, true_expression, false_expression, f_expression
+            ):
                 self.copy_expression(
-                    expression.expression, true_expression.expression, false_expression.expression
+                    expression.expression,
+                    true_expression.expression,
+                    false_expression.expression,
                 )
 
         else:
             raise SlitherException(
-                "Ternary operation not handled {}({})".format(expression, type(expression))
+                "Ternary operation not handled {}({})".format(
+                    expression, type(expression)
+                )
             )

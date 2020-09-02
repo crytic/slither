@@ -2,7 +2,7 @@
 Module detecting unused return values from low level
 """
 from slither.detectors.abstract_detector import DetectorClassification
-from .unused_return_values import UnusedReturnValues
+from slither.detectors.operations.unused_return_values import UnusedReturnValues
 from slither.slithir.operations import LowLevelCall
 
 
@@ -32,9 +32,11 @@ The return value of the low-level call is not checked, so if the call fails, the
 If the low level is used to prevent blocking operations, consider logging failed calls.
     """
 
-    WIKI_RECOMMENDATION = "Ensure that the return value of a low-level call is checked or logged."
+    WIKI_RECOMMENDATION = (
+        "Ensure that the return value of a low-level call is checked or logged."
+    )
 
     _txt_description = "low-level calls"
 
-    def _is_instance(self, ir):
+    def _is_instance(self, ir):  # pylint: disable=no-self-use
         return isinstance(ir, LowLevelCall)

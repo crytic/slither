@@ -26,7 +26,9 @@ libraries = {
     "AragonOS-UnsafeAragonApp": lambda x: is_aragonos_unsafe_aragon_app(x),
     "AragonOS-Autopetrified": lambda x: is_aragonos_autopetrified(x),
     "AragonOS-DelegateProxy": lambda x: is_aragonos_delegate_proxy(x),
-    "AragonOS-DepositableDelegateProxy": lambda x: is_aragonos_depositable_delegate_proxy(x),
+    "AragonOS-DepositableDelegateProxy": lambda x: is_aragonos_depositable_delegate_proxy(
+        x
+    ),
     "AragonOS-DepositableStorage": lambda x: is_aragonos_delegate_proxy(x),
     "AragonOS-Initializable": lambda x: is_aragonos_initializable(x),
     "AragonOS-IsContract": lambda x: is_aragonos_is_contract(x),
@@ -55,7 +57,10 @@ def is_openzepellin(contract: "Contract") -> bool:
     if not contract.is_from_dependency():
         return False
     path = Path(contract.source_mapping["filename_absolute"]).parts
-    is_zep = "openzeppelin-solidity" in Path(contract.source_mapping["filename_absolute"]).parts
+    is_zep = (
+        "openzeppelin-solidity"
+        in Path(contract.source_mapping["filename_absolute"]).parts
+    )
     try:
         is_zep |= path[path.index("@openzeppelin") + 1] == "contracts"
     except IndexError:

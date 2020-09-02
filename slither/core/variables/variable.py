@@ -112,6 +112,7 @@ class Variable(SourceMapping):
         Return the name of the variable as a function signature
         :return:
         """
+        # pylint: disable=import-outside-toplevel
         from slither.core.solidity_types import ArrayType, MappingType
         from slither.utils.type import export_nested_types_from_variable
 
@@ -120,7 +121,9 @@ class Variable(SourceMapping):
         assert return_type
 
         if isinstance(return_type, (ArrayType, MappingType)):
-            variable_getter_args = ",".join(map(str, export_nested_types_from_variable(self)))
+            variable_getter_args = ",".join(
+                map(str, export_nested_types_from_variable(self))
+            )
 
         return f"{self.name}({variable_getter_args})"
 

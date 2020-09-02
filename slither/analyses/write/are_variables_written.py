@@ -2,7 +2,7 @@
     Detect if all the given variables are written in all the paths of the function
 """
 from collections import defaultdict
-from typing import Dict, Tuple, Set, List, Optional
+from typing import Dict, Set, List
 
 from slither.core.cfg.node import NodeType, Node
 from slither.core.declarations import SolidityFunction
@@ -18,7 +18,7 @@ from slither.slithir.operations import (
 from slither.slithir.variables import ReferenceVariable, TemporaryVariable
 
 
-class State:
+class State:  # pylint: disable=too-few-public-methods
     def __init__(self):
         # Map node -> list of variables set
         # Were each variables set represents a configuration of a path
@@ -33,8 +33,12 @@ class State:
         self.nodes: Dict[Node, List[Set[Variable]]] = defaultdict(list)
 
 
+# pylint: disable=too-many-branches
 def _visit(
-    node: Node, state: State, variables_written: Set[Variable], variables_to_write: List[Variable]
+    node: Node,
+    state: State,
+    variables_written: Set[Variable],
+    variables_to_write: List[Variable],
 ):
     """
     Explore all the nodes to look for values not written when the node's function return
@@ -51,7 +55,10 @@ def _visit(
     for ir in node.irs:
         if isinstance(ir, SolidityCall):
             # TODO convert the revert to a THROW node
-            if ir.function in [SolidityFunction("revert(string)"), SolidityFunction("revert()")]:
+            if ir.function in [
+                SolidityFunction("revert(string)"),
+                SolidityFunction("revert()"),
+            ]:
                 return []
 
         if not isinstance(ir, OperationWithLValue):
@@ -61,7 +68,9 @@ def _visit(
         if isinstance(ir, (Length, Balance)):
             refs[ir.lvalue] = ir.value
 
-        if ir.lvalue and not isinstance(ir.lvalue, (TemporaryVariable, ReferenceVariable)):
+        if ir.lvalue and not isinstance(
+            ir.lvalue, (TemporaryVariable, ReferenceVariable)
+        ):
             variables_written.add(ir.lvalue)
 
         lvalue = ir.lvalue
