@@ -364,39 +364,12 @@ def propagate_type_and_convert_call(result, node):
         new_ins = propagate_types(ins, node)
         if new_ins:
             if isinstance(new_ins, (list,)):
-                if len(new_ins) == 2:
-                    new_ins[0].set_node(ins.node)
-                    new_ins[1].set_node(ins.node)
-                    del result[idx]
-                    result.insert(idx, new_ins[0])
-                    result.insert(idx + 1, new_ins[1])
-                    idx = idx + 1
-                elif len(new_ins) == 3:
-                    new_ins[0].set_node(ins.node)
-                    new_ins[1].set_node(ins.node)
-                    new_ins[2].set_node(ins.node)
-                    del result[idx]
-                    result.insert(idx, new_ins[0])
-                    result.insert(idx + 1, new_ins[1])
-                    result.insert(idx + 2, new_ins[2])
-                    idx = idx + 2
-                else:
-                    # Pop conversion
-                    assert len(new_ins) == 6
-                    new_ins[0].set_node(ins.node)
-                    new_ins[1].set_node(ins.node)
-                    new_ins[2].set_node(ins.node)
-                    new_ins[3].set_node(ins.node)
-                    new_ins[4].set_node(ins.node)
-                    new_ins[5].set_node(ins.node)
-                    del result[idx]
-                    result.insert(idx, new_ins[0])
-                    result.insert(idx + 1, new_ins[1])
-                    result.insert(idx + 2, new_ins[2])
-                    result.insert(idx + 3, new_ins[3])
-                    result.insert(idx + 4, new_ins[4])
-                    result.insert(idx + 5, new_ins[5])
-                    idx = idx + 5
+                for new_ins_ in new_ins:
+                    new_ins_.set_node(ins.node)
+                del result[idx]
+                for i in range(len(new_ins)):
+                    result.insert(idx + i, new_ins[i])
+                idx = idx + len(new_ins) - 1
             else:
                 new_ins.set_node(ins.node)
                 result[idx] = new_ins
@@ -516,7 +489,7 @@ def propagate_types(ir, node):  # pylint: disable=too-many-locals
                 if isinstance(t, ArrayType) or (
                     isinstance(t, ElementaryType) and t.type == "bytes"
                 ):
-                    if ir.function_name == "push" and len(ir.arguments) == 1:
+                    if ir.function_name == "push" and len(ir.arguments) <= 1:
                         return convert_to_push(ir, node)
                     if ir.function_name == "pop" and len(ir.arguments) == 0:
                         return convert_to_pop(ir, node)
@@ -1028,65 +1001,71 @@ def convert_to_solidity_func(ir):
 
 def convert_to_push(ir, node):
     """
-    Convert a call to a PUSH operaiton
+    Convert a call to a series of operations to push a new value onto the array
 
-    The funciton assume to receive a correct IR
+    The function assume to receive a correct IR
     The checks must be done by the caller
 
     May necessitate to create an intermediate operation (InitArray)
-    Necessitate to return the lenght (see push documentation)
+    Necessitate to return the length (see push documentation)
     As a result, the function return may return a list
     """
 
-    # TODO remove Push Operator, and change this to existing operators
+    ret = []
 
-    lvalue = ir.lvalue
-    if isinstance(ir.arguments[0], list):
-        ret = []
+    arr = ir.destination
 
-        val = TemporaryVariable(node)
-        operation = InitArray(ir.arguments[0], val)
-        operation.set_expression(ir.expression)
-        operation.set_node(ir.node)
-        ret.append(operation)
+    length = ReferenceVariable(node)
+    length.set_type(ElementaryType("uint256"))
 
-        prev_ir = ir
-        ir = Push(ir.destination, val)
-        ir.set_expression(prev_ir.expression)
-        ir.set_node(prev_ir.node)
+    ir_length = Length(arr, length)
+    ir_length.set_expression(ir.expression)
+    ir_length.set_node(ir.node)
+    ir_length.lvalue.points_to = arr
+    ret.append(ir_length)
 
-        length = Literal(len(operation.init_values), "uint256")
-        t = operation.init_values[0].type
-        ir.lvalue.set_type(ArrayType(t, length))
+    length_val = TemporaryVariable(node)
+    length_val.set_type(ElementaryType("uint256"))
+    ir_get_length = Assignment(length_val, length, ElementaryType("uint256"))
+    ir_get_length.set_expression(ir.expression)
+    ir_get_length.set_node(ir.node)
+    ret.append(ir_get_length)
 
-        ret.append(ir)
+    new_length_val = TemporaryVariable(node)
+    ir_add_1 = Binary(new_length_val, length_val, Constant("1", ElementaryType("uint256")), BinaryType.ADDITION)
+    ir_add_1.set_expression(ir.expression)
+    ir_add_1.set_node(ir.node)
+    ret.append(ir_add_1)
 
-        if lvalue:
-            length = Length(ir.array, lvalue)
-            length.set_expression(ir.expression)
-            length.lvalue.points_to = ir.lvalue
-            length.set_node(ir.node)
-            ret.append(length)
+    ir_assign_length = Assignment(length, new_length_val, ElementaryType("uint256"))
+    ir_assign_length.set_expression(ir.expression)
+    ir_assign_length.set_node(ir.node)
+    ret.append(ir_assign_length)
 
-        return ret
+    new_type = ir.destination.type.type
 
-    prev_ir = ir
-    ir = Push(ir.destination, ir.arguments[0])
-    ir.set_expression(prev_ir.expression)
-    ir.set_node(prev_ir.node)
+    element_to_add = ReferenceVariable(node)
+    element_to_add.set_type(new_type)
+    ir_assign_element_to_add = Index(element_to_add, arr, length_val, ElementaryType("uint256"))
+    ir_length.lvalue.points_to = arr
+    ir_assign_element_to_add.set_expression(ir.expression)
+    ir_assign_element_to_add.set_node(ir.node)
+    ret.append(ir_assign_element_to_add)
 
-    if lvalue:
-        ret = []
-        ret.append(ir)
+    if len(ir.arguments) > 0:
+        ir_assign_value = Assignment(element_to_add, ir.arguments[0], ir.arguments[0].type)
+        ir_assign_value.set_expression(ir.expression)
+        ir_assign_value.set_node(ir.node)
+        ret.append(ir_assign_value)
+    else:
+        new_element = ir.lvalue
+        new_element.set_type(new_type)
+        ir_assign_value = Assignment(new_element, element_to_add, new_type)
+        ir_assign_value.set_expression(ir.expression)
+        ir_assign_value.set_node(ir.node)
+        ret.append(ir_assign_value)
 
-        length = Length(ir.array, lvalue)
-        length.set_expression(ir.expression)
-        length.lvalue.points_to = ir.lvalue
-        length.set_node(ir.node)
-        ret.append(length)
-        return ret
-
-    return ir
+    return ret
 
 
 def convert_to_pop(ir, node):
