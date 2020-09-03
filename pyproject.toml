@@ -16,5 +16,6 @@ too-many-return-statements,
 too-many-ancestors,
 logging-fstring-interpolation,
 logging-not-lazy,
-duplicate-code
+duplicate-code,
+import-error
 """
