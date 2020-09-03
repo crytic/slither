@@ -150,10 +150,13 @@ Consider using the latest version of Solidity for testing."""
                     info = [
                         "solc-",
                         self.slither.crytic_compile.compiler_version.version,
-                        " is not recommended for deployement\n",
+                        " is not recommended for deployment\n",
                     ]
 
                     json = self.generate_result(info)
+
+                    # TODO: Once crytic-compile adds config file info, add a source mapping element pointing to
+                    #       the line in the config that specifies the problematic version of solc
 
                     results.append(json)
 
