@@ -1,4 +1,4 @@
-from slither.core.declarations import Contract
+from slither.core.declarations import Contract, Function
 from slither.core.declarations.enum import Enum
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_rvalue
@@ -8,7 +8,20 @@ from slither.slithir.variables.reference import ReferenceVariable
 
 class Member(OperationWithLValue):
     def __init__(self, variable_left, variable_right, result):
-        assert is_valid_rvalue(variable_left) or isinstance(variable_left, (Contract, Enum))
+        # Function can happen for something like
+        # library FunctionExtensions {
+        #     function h(function() internal _t, uint8) internal {  }
+        # }
+        # contract FunctionMembers {
+        #     using FunctionExtensions for function();
+        #
+        #     function f() public {
+        #         f.h(1);
+        #     }
+        # }
+        assert is_valid_rvalue(variable_left) or isinstance(
+            variable_left, (Contract, Enum, Function)
+        )
         assert isinstance(variable_right, Constant)
         assert isinstance(result, ReferenceVariable)
         super().__init__()
