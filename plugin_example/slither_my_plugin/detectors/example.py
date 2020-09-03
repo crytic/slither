@@ -1,7 +1,7 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
-class Example(AbstractDetector):
+class Example(AbstractDetector):  # pylint: disable=too-few-public-methods
     """
     Documentation
     """

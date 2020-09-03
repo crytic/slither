@@ -12,7 +12,12 @@ from slither.core.solidity_types import MappingType, ArrayType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.exceptions import SlitherException
 from slither.slithir.operations import NewContract, TypeConversion, SolidityCall
-from slither.tools.flattening.export.export import Export, export_as_json, save_to_zip, save_to_disk
+from slither.tools.flattening.export.export import (
+    Export,
+    export_as_json,
+    save_to_zip,
+    save_to_disk,
+)
 
 logger = logging.getLogger("Slither-flattening")
 
@@ -36,6 +41,7 @@ DEFAULT_EXPORT_PATH = Path("crytic-export/flattening")
 
 
 class Flattening:
+    # pylint: disable=too-many-instance-attributes,too-many-arguments,too-many-locals,too-few-public-methods
     def __init__(
         self,
         slither,
@@ -71,7 +77,9 @@ class Flattening:
                 self._use_abi_encoder_v2 = True
                 return
 
-    def _get_source_code(self, contract: Contract):
+    def _get_source_code(
+        self, contract: Contract
+    ):  # pylint: disable=too-many-branches,too-many-statements
         """
         Save the source code of the contract in self._source_codes
         Patch the source code
@@ -100,7 +108,7 @@ class Flattening:
                     regex = re.search(r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes)
                     if regex:
                         to_patch.append(
-                            Patch(attributes_start + regex.span()[0] + 1, "public_to_external")
+                            Patch(attributes_start + regex.span()[0] + 1, "public_to_external",)
                         )
                     else:
                         raise SlitherException(f"External keyword not found {f.name} {attributes}")
@@ -111,7 +119,7 @@ class Flattening:
                             calldata_end = calldata_start + var.source_mapping["length"]
                             calldata_idx = content[calldata_start:calldata_end].find(" calldata ")
                             to_patch.append(
-                                Patch(calldata_start + calldata_idx + 1, "calldata_to_memory")
+                                Patch(calldata_start + calldata_idx + 1, "calldata_to_memory",)
                             )
 
         if self._private_to_internal:
@@ -125,10 +133,12 @@ class Flattening:
                     regex = re.search(r" private ", attributes)
                     if regex:
                         to_patch.append(
-                            Patch(attributes_start + regex.span()[0] + 1, "private_to_internal")
+                            Patch(attributes_start + regex.span()[0] + 1, "private_to_internal",)
                         )
                     else:
-                        raise SlitherException(f"private keyword not found {v.name} {attributes}")
+                        raise SlitherException(
+                            f"private keyword not found {variable.name} {attributes}"
+                        )
 
         if self._remove_assert:
             for function in contract.functions_and_modifiers_declared:
@@ -191,7 +201,7 @@ class Flattening:
         elif isinstance(t, ArrayType):
             self._export_from_type(t.type, contract, exported, list_contract)
 
-    def _export_list_used_contracts(
+    def _export_list_used_contracts(  # pylint: disable=too-many-branches
         self, contract: Contract, exported: Set[str], list_contract: List[Contract]
     ):
         if contract.name in exported:
@@ -204,7 +214,7 @@ class Flattening:
         externals = contract.all_library_calls + contract.all_high_level_calls
         # externals is a list of (contract, function)
         # We also filter call to itself to avoid infilite loop
-        externals = list(set([e[0] for e in externals if e[0] != contract]))
+        externals = list({e[0] for e in externals if e[0] != contract})
 
         for inherited in externals:
             self._export_list_used_contracts(inherited, exported, list_contract)
@@ -242,8 +252,8 @@ class Flattening:
         content = ""
         content += self._pragmas()
 
-        for contract in list_contracts:
-            content += self._source_codes[contract]
+        for listed_contract in list_contracts:
+            content += self._source_codes[listed_contract]
             content += "\n"
 
         return Export(filename=path, content=content)
@@ -255,7 +265,7 @@ class Flattening:
         return ret
 
     def _export_all(self) -> List[Export]:
-        path = Path(self._export_path, f"export.sol")
+        path = Path(self._export_path, "export.sol")
 
         content = ""
         content += self._pragmas()
@@ -266,17 +276,17 @@ class Flattening:
         # We only need the inheritance order here, as solc can compile
         # a contract that use another contract type (ex: state variable) that he has not seen yet
         while contract_to_explore:
-            next = contract_to_explore.pop(0)
+            next_to_explore = contract_to_explore.pop(0)
 
-            if not next.inheritance or all(
-                (father in contract_seen for father in next.inheritance)
+            if not next_to_explore.inheritance or all(
+                (father in contract_seen for father in next_to_explore.inheritance)
             ):
                 content += "\n"
-                content += self._source_codes[next]
+                content += self._source_codes[next_to_explore]
                 content += "\n"
-                contract_seen.add(next)
+                contract_seen.add(next_to_explore)
             else:
-                contract_to_explore.append(next)
+                contract_to_explore.append(next_to_explore)
 
         return [Export(filename=path, content=content)]
 
@@ -299,12 +309,12 @@ class Flattening:
             exports.append(Export(filename=path, content=content))
         return exports
 
-    def export(
+    def export(  # pylint: disable=too-many-arguments,too-few-public-methods
         self,
         strategy: Strategy,
         target: Optional[str] = None,
         json: Optional[str] = None,
-        zip: Optional[str] = None,
+        zip: Optional[str] = None,  # pylint: disable=redefined-builtin
         zip_type: Optional[str] = None,
     ):
 

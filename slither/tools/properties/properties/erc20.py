@@ -20,7 +20,10 @@ from slither.tools.properties.properties.ercs.erc20.properties.transfer import (
     ERC20_Pausable,
 )
 from slither.tools.properties.properties.ercs.erc20.unit_tests.truffle import generate_truffle_test
-from slither.tools.properties.properties.properties import property_to_solidity, Property
+from slither.tools.properties.properties.properties import (
+    property_to_solidity,
+    Property,
+)
 from slither.tools.properties.solidity.generate_properties import (
     generate_solidity_properties,
     generate_test_contract,
@@ -41,7 +44,8 @@ ERC20_PROPERTIES = {
     ),
     "NotBurnable": PropertyDescription(ERC20_NotBurnable, "Test that no one can burn tokens"),
     "Burnable": PropertyDescription(
-        ERC20_NotBurnable, 'Test the burn of tokens. Require the "burn(address) returns()" function'
+        ERC20_NotBurnable,
+        'Test the burn of tokens. Require the "burn(address) returns()" function',
     ),
 }
 
@@ -63,7 +67,10 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
     :param type_property: One of ERC20_PROPERTIES.keys()
     :return:
     """
-    if contract.slither.crytic_compile.type not in [PlatformType.TRUFFLE, PlatformType.SOLC]:
+    if contract.slither.crytic_compile.type not in [
+        PlatformType.TRUFFLE,
+        PlatformType.SOLC,
+    ]:
         logging.error(f"{contract.slither.crytic_compile.type} not yet supported by slither-prop")
         return
 
@@ -75,9 +82,7 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
 
     properties = ERC20_PROPERTIES.get(type_property, None)
     if properties is None:
-        logger.error(
-            f"{type_property} unknown. Types available {[x for x in ERC20_PROPERTIES.keys()]}"
-        )
+        logger.error(f"{type_property} unknown. Types available {ERC20_PROPERTIES.keys()}")
         return
     properties = properties.properties
 
@@ -97,7 +102,7 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
     # Generate the Test contract
     initialization_recommendation = _initialization_recommendation(type_property)
     contract_filename, contract_name = generate_test_contract(
-        contract, type_property, output_dir, property_file, initialization_recommendation
+        contract, type_property, output_dir, property_file, initialization_recommendation,
     )
 
     # Generate Echidna config file
@@ -147,6 +152,7 @@ def _platform_to_output_dir(platform: AbstractPlatform) -> Path:
         return Path(platform.target, "contracts", "crytic")
     if platform.TYPE == PlatformType.SOLC:
         return Path(platform.target).parent
+    return Path()
 
 
 def _check_compatibility(contract):

@@ -110,7 +110,12 @@ contract Token{
             functions = IncorrectERC721InterfaceDetection.detect_incorrect_erc721_interface(c)
             if functions:
                 for function in functions:
-                    info = [c, " has incorrect ERC721 function interface:", function, "\n"]
+                    info = [
+                        c,
+                        " has incorrect ERC721 function interface:",
+                        function,
+                        "\n",
+                    ]
                     res = self.generate_result(info)
 
                     results.append(res)

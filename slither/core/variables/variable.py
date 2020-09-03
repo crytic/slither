@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class Variable(SourceMapping):
     def __init__(self):
-        super(Variable, self).__init__()
+        super().__init__()
         self._name: Optional[str] = None
         self._initial_expression: Optional["Expression"] = None
         self._type: Optional[Type] = None
@@ -112,6 +112,7 @@ class Variable(SourceMapping):
         Return the name of the variable as a function signature
         :return:
         """
+        # pylint: disable=import-outside-toplevel
         from slither.core.solidity_types import ArrayType, MappingType
         from slither.utils.type import export_nested_types_from_variable
 

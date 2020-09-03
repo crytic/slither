@@ -179,7 +179,10 @@ contract Bug {
                     shadow_type = shadow[0]
                     shadow_object = shadow[1]
 
-                    info = [shadow_object, f' ({shadow_type}) shadows built-in symbol"\n']
+                    info = [
+                        shadow_object,
+                        f' ({shadow_type}) shadows built-in symbol"\n',
+                    ]
 
                     res = self.generate_result(info)
                     results.append(res)

@@ -19,7 +19,7 @@ from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
 from slither.all_exceptions import SlitherException
 
-
+# pylint: disable=protected-access
 def f_expressions(e, x):
     e._expressions.append(x)
 
@@ -36,7 +36,7 @@ def f_called(e, x):
     e._called = x
 
 
-class SplitTernaryExpression(object):
+class SplitTernaryExpression:
     def __init__(self, expression):
 
         if isinstance(expression, ConditionalExpression):
@@ -56,12 +56,14 @@ class SplitTernaryExpression(object):
             f(false_expression, copy.copy(next_expr.else_expression))
             self.condition = copy.copy(next_expr.if_expression)
             return False
-        else:
-            f(true_expression, copy.copy(next_expr))
-            f(false_expression, copy.copy(next_expr))
-            return True
 
-    def copy_expression(self, expression, true_expression, false_expression):
+        f(true_expression, copy.copy(next_expr))
+        f(false_expression, copy.copy(next_expr))
+        return True
+
+    def copy_expression(
+        self, expression, true_expression, false_expression
+    ):  # pylint: disable=too-many-branches
         if self.condition:
             return
 
@@ -69,7 +71,7 @@ class SplitTernaryExpression(object):
             raise SlitherException("Nested ternary operator not handled")
 
         if isinstance(expression, (Literal, Identifier, IndexAccess, NewArray, NewContract)):
-            return None
+            return
 
         # case of lib
         # (.. ? .. : ..).add
@@ -88,7 +90,9 @@ class SplitTernaryExpression(object):
                 if self.apply_copy(next_expr, true_expression, false_expression, f_expressions):
                     # always on last arguments added
                     self.copy_expression(
-                        next_expr, true_expression.expressions[-1], false_expression.expressions[-1]
+                        next_expr,
+                        true_expression.expressions[-1],
+                        false_expression.expressions[-1],
                     )
 
         elif isinstance(expression, CallExpression):
@@ -106,21 +110,21 @@ class SplitTernaryExpression(object):
                 if self.apply_copy(next_expr, true_expression, false_expression, f_call):
                     # always on last arguments added
                     self.copy_expression(
-                        next_expr, true_expression.arguments[-1], false_expression.arguments[-1]
+                        next_expr, true_expression.arguments[-1], false_expression.arguments[-1],
                     )
 
         elif isinstance(expression, TypeConversion):
             next_expr = expression.expression
             if self.apply_copy(next_expr, true_expression, false_expression, f_expression):
                 self.copy_expression(
-                    expression.expression, true_expression.expression, false_expression.expression
+                    expression.expression, true_expression.expression, false_expression.expression,
                 )
 
         elif isinstance(expression, UnaryOperation):
             next_expr = expression.expression
             if self.apply_copy(next_expr, true_expression, false_expression, f_expression):
                 self.copy_expression(
-                    expression.expression, true_expression.expression, false_expression.expression
+                    expression.expression, true_expression.expression, false_expression.expression,
                 )
 
         else:

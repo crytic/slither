@@ -76,7 +76,7 @@ class UnaryOperationType(Enum):
             UnaryOperationType.MINUS_PRE,
         ]:
             return True
-        elif operation_type in [
+        if operation_type in [
             UnaryOperationType.PLUSPLUS_POST,
             UnaryOperationType.MINUSMINUS_POST,
         ]:
@@ -88,7 +88,7 @@ class UnaryOperationType(Enum):
 class UnaryOperation(ExpressionTyped):
     def __init__(self, expression, expression_type):
         assert isinstance(expression, Expression)
-        super(UnaryOperation, self).__init__()
+        super().__init__()
         self._expression: Expression = expression
         self._type: UnaryOperationType = expression_type
         if expression_type in [
@@ -117,5 +117,4 @@ class UnaryOperation(ExpressionTyped):
     def __str__(self):
         if self.is_prefix:
             return str(self.type) + " " + str(self._expression)
-        else:
-            return str(self._expression) + " " + str(self.type)
+        return str(self._expression) + " " + str(self.type)

@@ -1,10 +1,15 @@
-import os
 import argparse
+import sys
+
+import logging
+from crytic_compile import cryticparser
 from slither import Slither
 from slither.utils.colors import red
-import logging
-from .possible_paths import find_target_paths, resolve_functions, ResolveFunctionException
-from crytic_compile import cryticparser
+from slither.tools.possible_paths.possible_paths import (
+    find_target_paths,
+    resolve_functions,
+    ResolveFunctionException,
+)
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
@@ -16,7 +21,7 @@ def parse_args():
     :return: Returns the arguments for the program.
     """
     parser = argparse.ArgumentParser(
-        description="PossiblePaths", usage="possible_paths.py filename [contract.function targets]"
+        description="PossiblePaths", usage="possible_paths.py filename [contract.function targets]",
     )
 
     parser.add_argument(
@@ -44,22 +49,22 @@ def main():
 
     try:
         targets = resolve_functions(slither, args.targets)
-    except ResolveFunctionException as r:
-        print(red(r))
-        exit(-1)
+    except ResolveFunctionException as resolvefunction:
+        print(red(resolvefunction))
+        sys.exit(-1)
 
     # Print out all target functions.
-    print(f"Target functions:")
+    print("Target functions:")
     for target in targets:
         print(f"- {target.contract_declarer.name}.{target.full_name}")
     print("\n")
 
     # Obtain all paths which reach the target functions.
     reaching_paths = find_target_paths(slither, targets)
-    reaching_functions = set([y for x in reaching_paths for y in x if y not in targets])
+    reaching_functions = {y for x in reaching_paths for y in x if y not in targets}
 
     # Print out all function names which can reach the targets.
-    print(f"The following functions reach the specified targets:")
+    print("The following functions reach the specified targets:")
     for function_desc in sorted([f"{f.canonical_name}" for f in reaching_functions]):
         print(f"- {function_desc}")
     print("\n")
@@ -71,7 +76,7 @@ def main():
     ]
 
     # Print a sorted list of all function paths which can reach the targets.
-    print(f"The following paths reach the specified targets:")
+    print("The following paths reach the specified targets:")
     for reaching_path in sorted(reaching_paths_str):
         print(f"{reaching_path}\n")
 

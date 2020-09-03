@@ -9,8 +9,6 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 
 
 class UninitializedStorageVars(AbstractDetector):
-    """
-    """
 
     ARGUMENT = "uninitialized-storage"
     HELP = "Uninitialized storage variables"
@@ -89,6 +87,7 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
         """
         results = []
 
+        # pylint: disable=attribute-defined-outside-init
         self.results = []
         self.visited_all_paths = {}
 
@@ -102,7 +101,10 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
                     self._detect_uninitialized(function, function.entry_point, [])
 
         for (function, uninitialized_storage_variable) in self.results:
-            info = [uninitialized_storage_variable, " is a storage variable never initialized\n"]
+            info = [
+                uninitialized_storage_variable,
+                " is a storage variable never initialized\n",
+            ]
             json = self.generate_result(info)
             results.append(json)
 

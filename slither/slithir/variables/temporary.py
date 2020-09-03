@@ -1,6 +1,5 @@
-from .variable import SlithIRVariable
-from slither.core.variables.variable import Variable
 from slither.core.children.child_node import ChildNode
+from slither.core.variables.variable import Variable
 
 
 class TemporaryVariable(ChildNode, Variable):
@@ -8,7 +7,7 @@ class TemporaryVariable(ChildNode, Variable):
     COUNTER = 0
 
     def __init__(self, node, index=None):
-        super(TemporaryVariable, self).__init__()
+        super().__init__()
         if index is None:
             self._index = TemporaryVariable.COUNTER
             TemporaryVariable.COUNTER += 1

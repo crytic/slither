@@ -3,7 +3,10 @@ Module detecting misuse of Boolean constants
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Assignment, Call, Return, InitArray, Binary, BinaryType
+from slither.slithir.operations import (
+    Binary,
+    BinaryType,
+)
 from slither.slithir.variables import Constant
 
 
@@ -44,7 +47,10 @@ Boolean constants can be used directly and do not need to be compare to `true` o
         results = []
 
         # Loop for each function and modifier.
-        for function in contract.functions_and_modifiers_declared:
+        # pylint: disable=too-many-nested-blocks
+        for (
+            function
+        ) in contract.functions_and_modifiers_declared:
             f_results = set()
 
             # Loop for every node in this function, looking for boolean constants
@@ -54,7 +60,7 @@ Boolean constants can be used directly and do not need to be compare to `true` o
                         if ir.type in [BinaryType.EQUAL, BinaryType.NOT_EQUAL]:
                             for r in ir.read:
                                 if isinstance(r, Constant):
-                                    if type(r.value) is bool:
+                                    if isinstance(r.value, bool):
                                         f_results.add(node)
                 results.append((function, f_results))
 
@@ -71,7 +77,12 @@ Boolean constants can be used directly and do not need to be compare to `true` o
             if boolean_constant_misuses:
                 for (func, nodes) in boolean_constant_misuses:
                     for node in nodes:
-                        info = [func, " compares to a boolean constant:\n\t-", node, "\n"]
+                        info = [
+                            func,
+                            " compares to a boolean constant:\n\t-",
+                            node,
+                            "\n",
+                        ]
 
                         res = self.generate_result(info)
                         results.append(res)

@@ -41,7 +41,7 @@ class BinaryOperationType(Enum):
     RIGHT_SHIFT_ARITHMETIC = 23
 
     @staticmethod
-    def get_type(operation_type: "BinaryOperation"):
+    def get_type(operation_type: "BinaryOperation"):  # pylint: disable=too-many-branches
         if operation_type == "**":
             return BinaryOperationType.POWER
         if operation_type == "*":
@@ -93,7 +93,7 @@ class BinaryOperationType(Enum):
 
         raise SlitherCoreError("get_type: Unknown operation type {})".format(operation_type))
 
-    def __str__(self):
+    def __str__(self):  # pylint: disable=too-many-branches
         if self == BinaryOperationType.POWER:
             return "**"
         if self == BinaryOperationType.MULTIPLICATION:
@@ -149,7 +149,7 @@ class BinaryOperation(ExpressionTyped):
     def __init__(self, left_expression, right_expression, expression_type):
         assert isinstance(left_expression, Expression)
         assert isinstance(right_expression, Expression)
-        super(BinaryOperation, self).__init__()
+        super().__init__()
         self._expressions = [left_expression, right_expression]
         self._type: BinaryOperationType = expression_type
 

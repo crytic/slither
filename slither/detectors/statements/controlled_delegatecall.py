@@ -3,9 +3,20 @@ from slither.slithir.operations import LowLevelCall
 from slither.analyses.data_dependency.data_dependency import is_tainted
 
 
+def controlled_delegatecall(function):
+    ret = []
+    for node in function.nodes:
+        for ir in node.irs:
+            if isinstance(ir, LowLevelCall) and ir.function_name in [
+                "delegatecall",
+                "callcode",
+            ]:
+                if is_tainted(ir.destination, function.contract):
+                    ret.append(node)
+    return ret
+
+
 class ControlledDelegateCall(AbstractDetector):
-    """
-    """
 
     ARGUMENT = "controlled-delegatecall"
     HELP = "Controlled delegatecall destination"
@@ -28,18 +39,6 @@ Bob calls `delegate` and delegates the execution to his malicious contract. As a
 
     WIKI_RECOMMENDATION = "Avoid using `delegatecall`. Use only trusted destinations."
 
-    def controlled_delegatecall(self, function):
-        ret = []
-        for node in function.nodes:
-            for ir in node.irs:
-                if isinstance(ir, LowLevelCall) and ir.function_name in [
-                    "delegatecall",
-                    "callcode",
-                ]:
-                    if is_tainted(ir.destination, function.contract):
-                        ret.append(node)
-        return ret
-
     def _detect(self):
         results = []
 
@@ -49,9 +48,12 @@ Bob calls `delegate` and delegates the execution to his malicious contract. As a
                 # As functions to upgrades the destination lead to too many FPs
                 if contract.is_upgradeable_proxy and f.is_protected():
                     continue
-                nodes = self.controlled_delegatecall(f)
+                nodes = controlled_delegatecall(f)
                 if nodes:
-                    func_info = [f, " uses delegatecall to a input-controlled function id\n"]
+                    func_info = [
+                        f,
+                        " uses delegatecall to a input-controlled function id\n",
+                    ]
 
                     for node in nodes:
                         node_info = func_info + ["\t- ", node, "\n"]

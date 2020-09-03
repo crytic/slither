@@ -5,7 +5,7 @@ from slither.core.solidity_types.type import Type
 
 class NewArray(Call, OperationWithLValue):
     def __init__(self, depth, array_type, lvalue):
-        super(NewArray, self).__init__()
+        super().__init__()
         assert isinstance(array_type, Type)
         self._depth = depth
         self._array_type = array_type

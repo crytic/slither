@@ -56,6 +56,8 @@ if TYPE_CHECKING:
     )
 
 
+# pylint: disable=too-many-lines,too-many-branches,too-many-instance-attributes
+
 ###################################################################################
 ###################################################################################
 # region NodeType
@@ -140,15 +142,16 @@ class NodeType(Enum):
 
 # endregion
 
-
-class Node(SourceMapping, ChildFunction):
+# I am not sure why, but pylint reports a lot of "no-member" issue that are not real (Josselin)
+# pylint: disable=no-member
+class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-methods
     """
     Node class
 
     """
 
     def __init__(self, node_type: NodeType, node_id: int):
-        super(Node, self).__init__()
+        super().__init__()
         self._node_type = node_type
 
         # TODO: rename to explicit CFG
@@ -180,7 +183,7 @@ class Node(SourceMapping, ChildFunction):
         self._ssa_vars_written: List["SlithIRVariable"] = []
         self._ssa_vars_read: List["SlithIRVariable"] = []
 
-        self._internal_calls: List[Function] = []
+        self._internal_calls: List["Function"] = []
         self._solidity_calls: List[SolidityFunction] = []
         self._high_level_calls: List["HighLevelCallType"] = []  # contains library calls
         self._library_calls: List["LibraryCallType"] = []
@@ -457,6 +460,7 @@ class Node(SourceMapping, ChildFunction):
         :param callstack: used internally to check for recursion
         :return bool:
         """
+        # pylint: disable=import-outside-toplevel
         from slither.slithir.operations import Call
 
         if self._can_reenter is None:
@@ -472,6 +476,7 @@ class Node(SourceMapping, ChildFunction):
         Check if the node can send eth
         :return bool:
         """
+        # pylint: disable=import-outside-toplevel
         from slither.slithir.operations import Call
 
         if self._can_send_eth is None:
@@ -793,11 +798,11 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def phi_origins_local_variables(self) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
+    def phi_origins_local_variables(self,) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
         return self._phi_origins_local_variables
 
     @property
-    def phi_origins_state_variables(self) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
+    def phi_origins_state_variables(self,) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
         return self._phi_origins_state_variables
 
     # @property
@@ -835,11 +840,12 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
     ###################################################################################
 
-    def _find_read_write_call(self):
+    def _find_read_write_call(self):  # pylint: disable=too-many-statements
 
         for ir in self.irs:
 
-            self._slithir_vars |= set([v for v in ir.read if self._is_valid_slithir_var(v)])
+            self._slithir_vars |= {v for v in ir.read if self._is_valid_slithir_var(v)}
+
             if isinstance(ir, OperationWithLValue):
                 var = ir.lvalue
                 if var and self._is_valid_slithir_var(var):
@@ -885,9 +891,10 @@ class Node(SourceMapping, ChildFunction):
                 else:
                     try:
                         self._high_level_calls.append((ir.destination.type.type, ir.function))
-                    except AttributeError:
+                    except AttributeError as error:
+                        #  pylint: disable=raise-missing-from
                         raise SlitherException(
-                            f"Function not found on {ir}. Please try compiling with a recent Solidity version."
+                            f"Function not found on {ir}. Please try compiling with a recent Solidity version. {error}"
                         )
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)
@@ -1024,11 +1031,11 @@ def recheable(node: Node) -> Set[Node]:
     nodes = node.sons
     visited = set()
     while nodes:
-        next = nodes[0]
+        next_node = nodes[0]
         nodes = nodes[1:]
-        if next not in visited:
-            visited.add(next)
-            for son in next.sons:
+        if next_node not in visited:
+            visited.add(next_node)
+            for son in next_node.sons:
                 if son not in visited:
                     nodes.append(son)
     return visited

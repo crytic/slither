@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class IndexAccess(ExpressionTyped):
     def __init__(self, left_expression, right_expression, index_type):
-        super(IndexAccess, self).__init__()
+        super().__init__()
         self._expressions = [left_expression, right_expression]
         # TODO type of undexAccess is not always a Type
         #        assert isinstance(index_type, Type)

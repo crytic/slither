@@ -14,7 +14,12 @@ from slither.core.declarations.solidity_variables import (
     SolidityVariable,
     SolidityVariableComposed,
 )
-from slither.core.expressions import Identifier, IndexAccess, MemberAccess, UnaryOperation
+from slither.core.expressions import (
+    Identifier,
+    IndexAccess,
+    MemberAccess,
+    UnaryOperation,
+)
 from slither.core.solidity_types import UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
@@ -22,6 +27,8 @@ from slither.core.variables.local_variable import LocalVariable
 
 from slither.core.variables.state_variable import StateVariable
 from slither.utils.utils import unroll
+
+# pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
 
 if TYPE_CHECKING:
     from slither.utils.type_helpers import (
@@ -46,7 +53,7 @@ ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
 
 class ModifierStatements:
     def __init__(
-        self, modifier: Union["Contract", "Function"], entry_point: "Node", nodes: List["Node"]
+        self, modifier: Union["Contract", "Function"], entry_point: "Node", nodes: List["Node"],
     ):
         self._modifier = modifier
         self._entry_point = entry_point
@@ -82,13 +89,29 @@ class FunctionType(Enum):
     CONSTRUCTOR_CONSTANT_VARIABLES = 11  # Fake function to hold variable declaration statements
 
 
-class Function(ChildContract, ChildInheritance, SourceMapping):
+def _filter_state_variables_written(expressions: List["Expression"]):
+    ret = []
+    for expression in expressions:
+        if isinstance(expression, Identifier):
+            ret.append(expression)
+        if isinstance(expression, UnaryOperation):
+            ret.append(expression.expression)
+        if isinstance(expression, MemberAccess):
+            ret.append(expression.expression)
+        if isinstance(expression, IndexAccess):
+            ret.append(expression.expression_left)
+    return ret
+
+
+class Function(
+    ChildContract, ChildInheritance, SourceMapping
+):  # pylint: disable=too-many-public-methods
     """
         Function class
     """
 
     def __init__(self):
-        super(Function, self).__init__()
+        super().__init__()
         self._scope: List[str] = []
         self._name: Optional[str] = None
         self._view: bool = False
@@ -187,13 +210,13 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         """
         if self._name == "" and self._function_type == FunctionType.CONSTRUCTOR:
             return "constructor"
-        elif self._function_type == FunctionType.FALLBACK:
+        if self._function_type == FunctionType.FALLBACK:
             return "fallback"
-        elif self._function_type == FunctionType.RECEIVE:
+        if self._function_type == FunctionType.RECEIVE:
             return "receive"
-        elif self._function_type == FunctionType.CONSTRUCTOR_VARIABLES:
+        if self._function_type == FunctionType.CONSTRUCTOR_VARIABLES:
             return "slitherConstructorVariables"
-        elif self._function_type == FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES:
+        if self._function_type == FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES:
             return "slitherConstructorConstantVariables"
         return self._name
 
@@ -815,15 +838,13 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         if self._return_values is None:
             return_values = list()
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
-            [
+            [  # pylint: disable=expression-not-assigned
                 return_values.extend(ir.values)
                 for node in returns
                 for ir in node.irs
                 if isinstance(ir, Return)
             ]
-            self._return_values = list(
-                set([x for x in return_values if not isinstance(x, Constant)])
-            )
+            self._return_values = list({x for x in return_values if not isinstance(x, Constant)})
         return self._return_values
 
     @property
@@ -838,14 +859,14 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         if self._return_values_ssa is None:
             return_values_ssa = list()
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
-            [
+            [  # pylint: disable=expression-not-assigned
                 return_values_ssa.extend(ir.values)
                 for node in returns
                 for ir in node.irs_ssa
                 if isinstance(ir, Return)
             ]
             self._return_values_ssa = list(
-                set([x for x in return_values_ssa if not isinstance(x, Constant)])
+                {x for x in return_values_ssa if not isinstance(x, Constant)}
             )
         return self._return_values_ssa
 
@@ -1047,8 +1068,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
         return self._all_expressions
 
     def all_slithir_operations(self) -> List["Operation"]:
-        """
-        """
         if self._all_slithir_operations is None:
             self._all_slithir_operations = self._explore_functions(lambda x: x.slithir_operations)
         return self._all_slithir_operations
@@ -1133,7 +1152,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
     @staticmethod
     def _explore_func_conditional(
-        func: "Function", f: Callable[["Node"], List[SolidityVariable]], include_loop: bool
+        func: "Function", f: Callable[["Node"], List[SolidityVariable]], include_loop: bool,
     ):
         ret = [f(n) for n in func.nodes if n.is_conditional(include_loop)]
         return [item for sublist in ret for item in sublist]
@@ -1412,19 +1431,6 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     ###################################################################################
     ###################################################################################
 
-    def _filter_state_variables_written(self, expressions: List["Expression"]):
-        ret = []
-        for expression in expressions:
-            if isinstance(expression, Identifier):
-                ret.append(expression)
-            if isinstance(expression, UnaryOperation):
-                ret.append(expression.expression)
-            if isinstance(expression, MemberAccess):
-                ret.append(expression.expression)
-            if isinstance(expression, IndexAccess):
-                ret.append(expression.expression_left)
-        return ret
-
     def _analyze_read_write(self):
         """ Compute variables read/written/...
 
@@ -1548,6 +1554,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
     def _get_last_ssa_variable_instances(
         self, target_state: bool, target_local: bool
     ) -> Dict[str, Set["SlithIRVariable"]]:
+        # pylint: disable=too-many-locals,too-many-branches
         from slither.slithir.variables import ReferenceVariable
         from slither.slithir.operations import OperationWithLValue
         from slither.core.cfg.node import NodeType
@@ -1603,10 +1610,10 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
         return ret
 
-    def get_last_ssa_state_variables_instances(self) -> Dict[str, Set["SlithIRVariable"]]:
+    def get_last_ssa_state_variables_instances(self,) -> Dict[str, Set["SlithIRVariable"]]:
         return self._get_last_ssa_variable_instances(target_state=True, target_local=False)
 
-    def get_last_ssa_local_variables_instances(self) -> Dict[str, Set["SlithIRVariable"]]:
+    def get_last_ssa_local_variables_instances(self,) -> Dict[str, Set["SlithIRVariable"]]:
         return self._get_last_ssa_variable_instances(target_state=False, target_local=True)
 
     @staticmethod
@@ -1662,7 +1669,10 @@ class Function(ChildContract, ChildInheritance, SourceMapping):
 
     def generate_slithir_ssa(self, all_ssa_state_variables_instances):
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
-        from slither.core.dominators.utils import compute_dominance_frontier, compute_dominators
+        from slither.core.dominators.utils import (
+            compute_dominance_frontier,
+            compute_dominators,
+        )
 
         compute_dominators(self.nodes)
         compute_dominance_frontier(self.nodes)

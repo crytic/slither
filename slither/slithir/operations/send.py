@@ -9,7 +9,7 @@ class Send(Call, OperationWithLValue):
     def __init__(self, destination, value, result):
         assert is_valid_lvalue(result)
         assert isinstance(destination, (Variable, SolidityVariable))
-        super(Send, self).__init__()
+        super().__init__()
         self._destination = destination
         self._lvalue = result
 

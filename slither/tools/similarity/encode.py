@@ -9,7 +9,12 @@ from slither.core.declarations import (
     SolidityVariable,
     Function,
 )
-from slither.core.solidity_types import ElementaryType, ArrayType, MappingType, UserDefinedType
+from slither.core.solidity_types import (
+    ElementaryType,
+    ArrayType,
+    MappingType,
+    UserDefinedType,
+)
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.core.variables.state_variable import StateVariable
@@ -42,7 +47,12 @@ from slither.slithir.operations import (
     InitArray,
     InternalCall,
 )
-from slither.slithir.variables import TemporaryVariable, TupleVariable, Constant, ReferenceVariable
+from slither.slithir.variables import (
+    TemporaryVariable,
+    TupleVariable,
+    Constant,
+    ReferenceVariable,
+)
 from .cache import load_cache
 
 simil_logger = logging.getLogger("Slither-simil")
@@ -59,10 +69,10 @@ def parse_target(target):
     parts = target.split(".")
     if len(parts) == 1:
         return None, parts[0]
-    elif len(parts) == 2:
+    if len(parts) == 2:
         return parts
-    else:
-        simil_logger.error("Invalid target. It should be 'function' or 'Contract.function'")
+    simil_logger.error("Invalid target. It should be 'function' or 'Contract.function'")
+    return None
 
 
 def load_and_encode(infile, vmodel, ext=None, nsamples=None, **kwargs):
@@ -80,7 +90,7 @@ def load_and_encode(infile, vmodel, ext=None, nsamples=None, **kwargs):
     return r
 
 
-def load_contracts(dirname, ext=None, nsamples=None, **kwargs):
+def load_contracts(dirname, ext=None, nsamples=None):
     r = []
     walk = list(os.walk(dirname))
     for x, y, files in walk:
@@ -90,12 +100,12 @@ def load_contracts(dirname, ext=None, nsamples=None, **kwargs):
 
     if nsamples is None:
         return r
-    else:
-        # TODO: shuffle
-        return r[:nsamples]
+
+    # TODO: shuffle
+    return r[:nsamples]
 
 
-def ntype(_type):
+def ntype(_type):  # pylint: disable=too-many-branches
     if isinstance(_type, ElementaryType):
         _type = str(_type)
     elif isinstance(_type, ArrayType):
@@ -119,24 +129,23 @@ def ntype(_type):
 
     if "struct" in _type:
         return "struct"
-    elif "enum" in _type:
+    if "enum" in _type:
         return "enum"
-    elif "tuple" in _type:
+    if "tuple" in _type:
         return "tuple"
-    elif "contract" in _type:
+    if "contract" in _type:
         return "contract"
-    elif "mapping" in _type:
+    if "mapping" in _type:
         return "mapping"
-    else:
-        return _type.replace(" ", "_")
+    return _type.replace(" ", "_")
 
 
-def encode_ir(ir):
+def encode_ir(ir):  # pylint: disable=too-many-branches
     # operations
     if isinstance(ir, Assignment):
         return "({}):=({})".format(encode_ir(ir.lvalue), encode_ir(ir.rvalue))
     if isinstance(ir, Index):
-        return "index({})".format(ntype(ir._type))
+        return "index({})".format(ntype(ir.index_type))
     if isinstance(ir, Member):
         return "member"  # .format(ntype(ir._type))
     if isinstance(ir, Length):
@@ -154,9 +163,9 @@ def encode_ir(ir):
     if isinstance(ir, NewContract):
         return "new_contract"
     if isinstance(ir, NewArray):
-        return "new_array({})".format(ntype(ir._array_type))
+        return "new_array({})".format(ntype(ir.array_type))
     if isinstance(ir, NewElementaryType):
-        return "new_elementary({})".format(ntype(ir._type))
+        return "new_elementary({})".format(ntype(ir.type))
     if isinstance(ir, Push):
         return "push({},{})".format(encode_ir(ir.value), encode_ir(ir.lvalue))
     if isinstance(ir, Delete):
@@ -164,7 +173,7 @@ def encode_ir(ir):
     if isinstance(ir, SolidityCall):
         return "solidity_call({})".format(ir.function.full_name)
     if isinstance(ir, InternalCall):
-        return "internal_call({})".format(ntype(ir._type_call))
+        return "internal_call({})".format(ntype(ir.type_call))
     if isinstance(ir, EventCall):  # is this useful?
         return "event"
     if isinstance(ir, LibraryCall):
@@ -192,7 +201,7 @@ def encode_ir(ir):
 
     # variables
     if isinstance(ir, Constant):
-        return "constant({})".format(ntype(ir._type))
+        return "constant({})".format(ntype(ir.type))
     if isinstance(ir, SolidityVariableComposed):
         return "solidity_variable_composed({})".format(ir.name)
     if isinstance(ir, SolidityVariable):
@@ -200,20 +209,19 @@ def encode_ir(ir):
     if isinstance(ir, TemporaryVariable):
         return "temporary_variable"
     if isinstance(ir, ReferenceVariable):
-        return "reference({})".format(ntype(ir._type))
+        return "reference({})".format(ntype(ir.type))
     if isinstance(ir, LocalVariable):
-        return "local_solc_variable({})".format(ir._location)
+        return "local_solc_variable({})".format(ir.location)
     if isinstance(ir, StateVariable):
-        return "state_solc_variable({})".format(ntype(ir._type))
+        return "state_solc_variable({})".format(ntype(ir.type))
     if isinstance(ir, LocalVariableInitFromTuple):
         return "local_variable_init_tuple"
     if isinstance(ir, TupleVariable):
         return "tuple_variable"
 
     # default
-    else:
-        simil_logger.error(type(ir), "is missing encoding!")
-        return ""
+    simil_logger.error(type(ir), "is missing encoding!")
+    return ""
 
 
 def encode_contract(cfilename, **kwargs):
@@ -222,7 +230,7 @@ def encode_contract(cfilename, **kwargs):
     # Init slither
     try:
         slither = Slither(cfilename, **kwargs)
-    except:
+    except Exception:  # pylint: disable=broad-except
         simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs["solc"])
         return r
 

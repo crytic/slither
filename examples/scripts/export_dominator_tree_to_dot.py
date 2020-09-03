@@ -4,7 +4,7 @@ from slither.slither import Slither
 
 if len(sys.argv) != 2:
     print("python export_dominator_tree_to_dot.py contract.sol")
-    exit(-1)
+    sys.exit(-1)
 
 # Init slither
 slither = Slither(sys.argv[1])

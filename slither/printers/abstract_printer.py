@@ -41,10 +41,10 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
     def generate_output(self, info, additional_fields=None):
         if additional_fields is None:
             additional_fields = {}
-        d = output.Output(info, additional_fields)
-        d.data["printer"] = self.ARGUMENT
+        printer_output = output.Output(info, additional_fields)
+        printer_output.data["printer"] = self.ARGUMENT
 
-        return d
+        return printer_output
 
     @abc.abstractmethod
     def output(self, filename):

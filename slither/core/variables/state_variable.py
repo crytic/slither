@@ -1,17 +1,17 @@
 from typing import Optional, TYPE_CHECKING, Tuple, List
 
-from .variable import Variable
+from slither.core.variables.variable import Variable
 from slither.core.children.child_contract import ChildContract
 from slither.utils.type import export_nested_types_from_variable
 
 if TYPE_CHECKING:
-    from ..cfg.node import Node
-    from ..declarations import Contract
+    from slither.core.cfg.node import Node
+    from slither.core.declarations import Contract
 
 
 class StateVariable(ChildContract, Variable):
     def __init__(self):
-        super(StateVariable, self).__init__()
+        super().__init__()
         self._node_initialization: Optional["Node"] = None
 
     def is_declared_by(self, contract: "Contract") -> bool:
@@ -34,7 +34,11 @@ class StateVariable(ChildContract, Variable):
             Return the signature of the state variable as a function signature
             :return: (str, list(str), list(str)), as (name, list parameters type, list return values type)
         """
-        return self.name, [str(x) for x in export_nested_types_from_variable(self)], str(self.type)
+        return (
+            self.name,
+            [str(x) for x in export_nested_types_from_variable(self)],
+            str(self.type),
+        )
 
     @property
     def signature_str(self) -> str:

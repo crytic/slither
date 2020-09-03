@@ -2,12 +2,16 @@ import argparse
 import logging
 import sys
 
-from slither import Slither
 from crytic_compile import cryticparser
 
-from slither.tools.properties.addresses.address import Addresses
+from slither import Slither
 from slither.tools.properties.properties.erc20 import generate_erc20, ERC20_PROPERTIES
-from slither.tools.properties.addresses.address import OWNER_ADDRESS, USER_ADDRESS, ATTACKER_ADDRESS
+from slither.tools.properties.addresses.address import (
+    Addresses,
+    OWNER_ADDRESS,
+    USER_ADDRESS,
+    ATTACKER_ADDRESS,
+)
 from slither.utils.myprettytable import MyPrettyTable
 
 logging.basicConfig()
@@ -41,14 +45,14 @@ def _all_properties():
     return table
 
 
-class ListScenarios(argparse.Action):
-    def __call__(self, parser, *args, **kwargs):
+class ListScenarios(argparse.Action):  # pylint: disable=too-few-public-methods
+    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
         logger.info(_all_scenarios())
         parser.exit()
 
 
-class ListProperties(argparse.Action):
-    def __call__(self, parser, *args, **kwargs):
+class ListProperties(argparse.Action):  # pylint: disable=too-few-public-methods
+    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
         logger.info(_all_properties())
         parser.exit()
 
@@ -72,7 +76,7 @@ def parse_args():
 
     parser.add_argument(
         "--scenario",
-        help=f"Test a specific scenario. Use --list-scenarios to see the available scenarios. Default Transferable",
+        help="Test a specific scenario. Use --list-scenarios to see the available scenarios. Default Transferable",
         default="Transferable",
     )
 
@@ -101,7 +105,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--address-attacker", help=f"Attacker address. Default {ATTACKER_ADDRESS}", default=None
+        "--address-attacker", help=f"Attacker address. Default {ATTACKER_ADDRESS}", default=None,
     )
 
     # Add default arguments from crytic-compile
@@ -126,9 +130,10 @@ def main():
             contract = slither.contracts[0]
         else:
             if args.contract is None:
-                logger.error(f"Specify the target: --contract ContractName")
+                to_log = "Specify the target: --contract ContractName"
             else:
-                logger.error(f"{args.contract} not found")
+                to_log = f"{args.contract} not found"
+            logger.error(to_log)
             return
 
     addresses = Addresses(args.address_owner, args.address_user, args.address_attacker)

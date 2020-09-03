@@ -3,7 +3,7 @@ from slither.core.declarations import Contract, Function
 from slither.core.cfg.node import Node
 from slither.utils.function import get_function_id
 from slither.exceptions import SlitherError
-from .evm_cfg_builder import load_evm_cfg_builder
+from slither.analyses.evm.evm_cfg_builder import load_evm_cfg_builder
 
 logger = logging.getLogger("ConvertToEVM")
 
@@ -101,16 +101,17 @@ def _get_evm_instructions_function(function_info):
         # Todo: Could rename it appropriately in evm-cfg-builder
         #    by detecting that init bytecode is being parsed.
         name = "_dispatcher"
-        hash = ""
+        func_hash = ""
     else:
         cfg = function_info["contract_info"]["cfg"]
         name = function.name
         # Get first four bytes of function singature's keccak-256 hash used as function selector
-        hash = str(hex(get_function_id(function.full_name)))
+        func_hash = str(hex(get_function_id(function.full_name)))
 
-    function_evm = _get_function_evm(cfg, name, hash)
+    function_evm = _get_function_evm(cfg, name, func_hash)
     if function_evm is None:
-        logger.error("Function " + function.name + " not found in the EVM code")
+        to_log = "Function " + function.name + " not found in the EVM code"
+        logger.error(to_log)
         raise SlitherError("Function " + function.name + " not found in the EVM code")
 
     function_ins = []
@@ -153,14 +154,15 @@ def _get_function_evm(cfg, function_name, function_hash):
         if function_evm.name[:2] == "0x" and function_evm.name == function_hash:
             return function_evm
         # Match function name
-        elif function_evm.name[:2] != "0x" and function_evm.name.split("(")[0] == function_name:
+        if function_evm.name[:2] != "0x" and function_evm.name.split("(")[0] == function_name:
             return function_evm
     return None
 
 
+# pylint: disable=too-many-locals
 def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither, filename):
     """
-    Generate Solidity source to EVM instruction mapping using evm_cfg_builder:cfg.instructions 
+    Generate Solidity source to EVM instruction mapping using evm_cfg_builder:cfg.instructions
     and solc:srcmap_runtime
 
     Returns: Solidity source to EVM instruction mapping
@@ -180,11 +182,11 @@ def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither
         mapping_item = mapping.split(":")
         mapping_item += prev_mapping[len(mapping_item) :]
 
-        for i in range(len(mapping_item)):
+        for i, _ in enumerate(mapping_item):
             if mapping_item[i] == "":
                 mapping_item[i] = int(prev_mapping[i])
 
-        offset, length, file_id, _ = mapping_item
+        offset, _length, file_id, _ = mapping_item
         prev_mapping = mapping_item
 
         if file_id == "-1":

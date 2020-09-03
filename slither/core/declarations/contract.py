@@ -3,9 +3,9 @@
 """
 import logging
 from pathlib import Path
+from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
 
 from crytic_compile.platform import Type as PlatformType
-from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
 
 from slither.core.children.child_slither import ChildSlither
 from slither.core.solidity_types.type import Type
@@ -22,6 +22,7 @@ from slither.utils.erc import (
 )
 from slither.utils.tests_pattern import is_test_contract
 
+# pylint: disable=too-many-lines,too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks
 if TYPE_CHECKING:
     from slither.utils.type_helpers import LibraryCallType, HighLevelCallType
     from slither.core.declarations import Enum, Event, Modifier
@@ -33,13 +34,13 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger("Contract")
 
 
-class Contract(ChildSlither, SourceMapping):
+class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-methods
     """
     Contract class
     """
 
     def __init__(self):
-        super(Contract, self).__init__()
+        super().__init__()
 
         self._name: Optional[str] = None
         self._id: Optional[int] = None
@@ -358,9 +359,7 @@ class Contract(ChildSlither, SourceMapping):
                 v.full_name for v in self.state_variables if v.visibility in ["public", "external"]
             ]
 
-            sigs += set(
-                [f.full_name for f in self.functions if f.visibility in ["public", "external"]]
-            )
+            sigs += {f.full_name for f in self.functions if f.visibility in ["public", "external"]}
             self._signatures = list(set(sigs))
         return self._signatures
 
@@ -377,13 +376,11 @@ class Contract(ChildSlither, SourceMapping):
                 if v.visibility in ["public", "external"]
             ]
 
-            sigs += set(
-                [
-                    f.full_name
-                    for f in self.functions_declared
-                    if f.visibility in ["public", "external"]
-                ]
-            )
+            sigs += {
+                f.full_name
+                for f in self.functions_declared
+                if f.visibility in ["public", "external"]
+            }
             self._signatures_declared = list(set(sigs))
         return self._signatures_declared
 
@@ -396,6 +393,9 @@ class Contract(ChildSlither, SourceMapping):
 
     def available_functions_as_dict(self) -> Dict[str, "Function"]:
         return {f.full_name: f for f in self._functions.values() if not f.is_shadowed}
+
+    def add_function(self, func: "Function"):
+        self._functions[func.canonical_name] = func
 
     def set_functions(self, functions: Dict[str, "Function"]):
         """
@@ -1142,7 +1142,10 @@ class Contract(ChildSlither, SourceMapping):
         node.set_function(func)
         func.add_node(node)
         expression = AssignmentOperation(
-            Identifier(variable), variable.expression, AssignmentOperationType.ASSIGN, variable.type
+            Identifier(variable),
+            variable.expression,
+            AssignmentOperationType.ASSIGN,
+            variable.type,
         )
 
         expression.set_offset(variable.source_mapping, self.slither)

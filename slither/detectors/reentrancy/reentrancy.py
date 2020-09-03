@@ -127,7 +127,7 @@ class AbstractState:
                 )
                 self._reads = union_dict(self._reads, father.context[detector.KEY].reads)
                 self._reads_prior_calls = union_dict(
-                    self.reads_prior_calls, father.context[detector.KEY].reads_prior_calls
+                    self.reads_prior_calls, father.context[detector.KEY].reads_prior_calls,
                 )
 
     def analyze_node(self, node, detector):
@@ -186,6 +186,24 @@ class AbstractState:
                 if is_subset(new_info.reads, self.reads):
                     if dict_are_equal(new_info.reads_prior_calls, self.reads_prior_calls):
                         return True
+        return False
+
+
+def _filter_if(node):
+    """
+        Check if the node is a condtional node where
+        there is an external call checked
+        Heuristic:
+            - The call is a IF node
+            - It contains a, external call
+            - The condition is the negation (!)
+
+        This will work only on naive implementation
+    """
+    return (
+        isinstance(node.expression, UnaryOperation)
+        and node.expression.type == UnaryOperationType.BANG
+    )
 
 
 class Reentrancy(AbstractDetector):
@@ -214,22 +232,6 @@ class Reentrancy(AbstractDetector):
             Detect if the node can send eth
         """
         return isinstance(ir, Call) and ir.can_send_eth()
-
-    def _filter_if(self, node):
-        """
-            Check if the node is a condtional node where
-            there is an external call checked
-            Heuristic:
-                - The call is a IF node
-                - It contains a, external call
-                - The condition is the negation (!)
-
-            This will work only on naive implementation
-        """
-        return (
-            isinstance(node.expression, UnaryOperation)
-            and node.expression.type == UnaryOperationType.BANG
-        )
 
     def _explore(self, node, visited, skip_father=None):
         """
@@ -266,7 +268,7 @@ class Reentrancy(AbstractDetector):
 
         sons = node.sons
         if contains_call and node.type in [NodeType.IF, NodeType.IFLOOP]:
-            if self._filter_if(node):
+            if _filter_if(node):
                 son = sons[0]
                 self._explore(son, visited, node)
                 sons = sons[1:]
@@ -279,8 +281,6 @@ class Reentrancy(AbstractDetector):
             self._explore(son, visited)
 
     def detect_reentrancy(self, contract):
-        """
-        """
         for function in contract.functions_and_modifiers_declared:
             if function.is_implemented:
                 if self.KEY in function.context:
@@ -296,7 +296,7 @@ class Reentrancy(AbstractDetector):
         # new variables written
         # This speedup the exploration through a light fixpoint
         # Its particular useful on 'complex' functions with several loops and conditions
-        self.visited_all_paths = {}
+        self.visited_all_paths = {}  # pylint: disable=attribute-defined-outside-init
 
         for c in self.contracts:
             self.detect_reentrancy(c)

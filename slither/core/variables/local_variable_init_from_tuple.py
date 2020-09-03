@@ -14,7 +14,7 @@ class LocalVariableInitFromTuple(LocalVariable):
     """
 
     def __init__(self):
-        super(LocalVariableInitFromTuple, self).__init__()
+        super().__init__()
         self._tuple_index: Optional[int] = None
 
     @property

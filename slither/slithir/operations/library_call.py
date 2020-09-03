@@ -38,5 +38,5 @@ class LibraryCall(HighLevelCall):
             lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
         txt = "{}LIBRARY_CALL, dest:{}, function:{}, arguments:{} {}"
         return txt.format(
-            lvalue, self.destination, self.function_name, [str(x) for x in arguments], gas
+            lvalue, self.destination, self.function_name, [str(x) for x in arguments], gas,
         )

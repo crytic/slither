@@ -7,7 +7,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.visitors.expression.export_values import ExportValues
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.state_variable import StateVariable
-from slither.formatters.variables.possible_const_state_variables import format
+from slither.formatters.variables.possible_const_state_variables import custom_format
 
 
 class ConstCandidateStateVars(AbstractDetector):
@@ -72,18 +72,18 @@ class ConstCandidateStateVars(AbstractDetector):
         results = []
 
         all_variables = [c.state_variables for c in self.slither.contracts]
-        all_variables = set([item for sublist in all_variables for item in sublist])
-        all_non_constant_elementary_variables = set(
-            [v for v in all_variables if self._valid_candidate(v)]
-        )
+        all_variables = {item for sublist in all_variables for item in sublist}
+        all_non_constant_elementary_variables = {
+            v for v in all_variables if self._valid_candidate(v)
+        }
 
         all_functions = [c.all_functions_called for c in self.slither.contracts]
-        all_functions = list(set([item for sublist in all_functions for item in sublist]))
+        all_functions = list({item for sublist in all_functions for item in sublist})
 
         all_variables_written = [
             f.state_variables_written for f in all_functions if not f.is_constructor_variables
         ]
-        all_variables_written = set([item for sublist in all_variables_written for item in sublist])
+        all_variables_written = {item for sublist in all_variables_written for item in sublist}
 
         constable_variables = [
             v
@@ -103,4 +103,4 @@ class ConstCandidateStateVars(AbstractDetector):
 
     @staticmethod
     def _format(slither, result):
-        format(slither, result)
+        custom_format(slither, result)

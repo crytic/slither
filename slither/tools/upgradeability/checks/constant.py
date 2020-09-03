@@ -1,4 +1,7 @@
-from slither.tools.upgradeability.checks.abstract_checks import AbstractCheck, CheckClassification
+from slither.tools.upgradeability.checks.abstract_checks import (
+    AbstractCheck,
+    CheckClassification,
+)
 
 
 class WereConstant(AbstractCheck):

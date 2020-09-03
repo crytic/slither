@@ -3,7 +3,7 @@ import difflib
 from collections import defaultdict
 
 
-def create_patch(result, file, start, end, old_str, new_str):
+def create_patch(result, file, start, end, old_str, new_str):  # pylint: disable=too-many-arguments
     if isinstance(old_str, bytes):
         old_str = old_str.decode("utf8")
     if isinstance(new_str, bytes):

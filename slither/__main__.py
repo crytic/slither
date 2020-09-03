@@ -10,8 +10,10 @@ import sys
 import traceback
 
 from pkg_resources import iter_entry_points, require
+
 from crytic_compile import cryticparser
 from crytic_compile.platform.standard import generate_standard_export
+from crytic_compile import compile_all, is_supported
 
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
@@ -34,7 +36,6 @@ from slither.utils.command_line import (
     JSON_OUTPUT_TYPES,
     DEFAULT_JSON_OUTPUT_TYPES,
 )
-from crytic_compile import compile_all, is_supported
 from slither.exceptions import SlitherException
 
 logging.basicConfig()
@@ -80,7 +81,12 @@ def process_all(target, args, detector_classes, printer_classes):
         results_printers.extend(current_results_printers)
         slither_instances.append(slither)
         analyzed_contracts_count += current_analyzed_count
-    return slither_instances, results_detectors, results_printers, analyzed_contracts_count
+    return (
+        slither_instances,
+        results_detectors,
+        results_printers,
+        analyzed_contracts_count,
+    )
 
 
 def _process(slither, detector_classes, printer_classes):
@@ -113,8 +119,8 @@ def process_from_asts(filenames, args, detector_classes, printer_classes):
     all_contracts = []
 
     for filename in filenames:
-        with open(filename, encoding="utf8") as f:
-            contract_loaded = json.load(f)
+        with open(filename, encoding="utf8") as file_open:
+            contract_loaded = json.load(file_open)
             all_contracts.append(contract_loaded["ast"])
 
     return process_single(all_contracts, args, detector_classes, printer_classes)
@@ -128,7 +134,7 @@ def process_from_asts(filenames, args, detector_classes, printer_classes):
 ###################################################################################
 
 
-def exit(results):
+def my_exit(results):
     if not results:
         sys.exit(0)
     sys.exit(len(results))
@@ -159,11 +165,16 @@ def get_detectors_and_printers():
 
         plugin_detectors, plugin_printers = make_plugin()
 
-        if not all(issubclass(d, AbstractDetector) for d in plugin_detectors):
-            raise Exception("Error when loading plugin %s, %r is not a detector" % (entry_point, d))
-
-        if not all(issubclass(p, AbstractPrinter) for p in plugin_printers):
-            raise Exception("Error when loading plugin %s, %r is not a printer" % (entry_point, p))
+        detector = None
+        if not all(issubclass(detector, AbstractDetector) for detector in plugin_detectors):
+            raise Exception(
+                "Error when loading plugin %s, %r is not a detector" % (entry_point, detector)
+            )
+        printer = None
+        if not all(issubclass(printer, AbstractPrinter) for printer in plugin_printers):
+            raise Exception(
+                "Error when loading plugin %s, %r is not a printer" % (entry_point, printer)
+            )
 
         # We convert those to lists in case someone returns a tuple
         detectors += list(plugin_detectors)
@@ -172,6 +183,7 @@ def get_detectors_and_printers():
     return detectors, printers
 
 
+# pylint: disable=too-many-branches
 def choose_detectors(args, all_detector_classes):
     # If detectors are specified, run only these ones
 
@@ -182,15 +194,15 @@ def choose_detectors(args, all_detector_classes):
         detectors_to_run = all_detector_classes
         if args.detectors_to_exclude:
             detectors_excluded = args.detectors_to_exclude.split(",")
-            for d in detectors:
-                if d in detectors_excluded:
-                    detectors_to_run.remove(detectors[d])
+            for detector in detectors:
+                if detector in detectors_excluded:
+                    detectors_to_run.remove(detectors[detector])
     else:
-        for d in args.detectors_to_run.split(","):
-            if d in detectors:
-                detectors_to_run.append(detectors[d])
+        for detector in args.detectors_to_run.split(","):
+            if detector in detectors:
+                detectors_to_run.append(detectors[detector])
             else:
-                raise Exception("Error: {} is not a detector".format(d))
+                raise Exception("Error: {} is not a detector".format(detector))
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
@@ -232,11 +244,11 @@ def choose_printers(args, all_printer_classes):
         return all_printer_classes
 
     printers = {p.ARGUMENT: p for p in all_printer_classes}
-    for p in args.printers_to_run.split(","):
-        if p in printers:
-            printers_to_run.append(printers[p])
+    for printer in args.printers_to_run.split(","):
+        if printer in printers:
+            printers_to_run.append(printers[printer])
         else:
-            raise Exception("Error: {} is not a printer".format(p))
+            raise Exception("Error: {} is not a printer".format(printer))
     return printers_to_run
 
 
@@ -368,7 +380,7 @@ def parse_args(detector_classes, printer_classes):
 
     group_misc.add_argument(
         "--json-types",
-        help=f"Comma-separated list of result types to output to JSON, defaults to "
+        help="Comma-separated list of result types to output to JSON, defaults to "
         + f'{",".join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. '
         + f'Available types: {",".join(output_type for output_type in JSON_OUTPUT_TYPES)}',
         action="store",
@@ -390,7 +402,7 @@ def parse_args(detector_classes, printer_classes):
     )
 
     group_misc.add_argument(
-        "--markdown-root", help="URL for markdown generation", action="store", default=""
+        "--markdown-root", help="URL for markdown generation", action="store", default="",
     )
 
     group_misc.add_argument(
@@ -425,7 +437,7 @@ def parse_args(detector_classes, printer_classes):
     )
 
     group_misc.add_argument(
-        "--solc-ast", help="Provide the contract as a json AST", action="store_true", default=False
+        "--solc-ast", help="Provide the contract as a json AST", action="store_true", default=False,
     )
 
     group_misc.add_argument(
@@ -496,36 +508,36 @@ def parse_args(detector_classes, printer_classes):
     return args
 
 
-class ListDetectors(argparse.Action):
-    def __call__(self, parser, *args, **kwargs):
+class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
+    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
         detectors, _ = get_detectors_and_printers()
         output_detectors(detectors)
         parser.exit()
 
 
-class ListDetectorsJson(argparse.Action):
-    def __call__(self, parser, *args, **kwargs):
+class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-methods
+    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
         detectors, _ = get_detectors_and_printers()
         detector_types_json = output_detectors_json(detectors)
         print(json.dumps(detector_types_json))
         parser.exit()
 
 
-class ListPrinters(argparse.Action):
-    def __call__(self, parser, *args, **kwargs):
+class ListPrinters(argparse.Action):  # pylint: disable=too-few-public-methods
+    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
         _, printers = get_detectors_and_printers()
         output_printers(printers)
         parser.exit()
 
 
-class OutputMarkdown(argparse.Action):
+class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, args, values, option_string=None):
         detectors, printers = get_detectors_and_printers()
         output_to_markdown(detectors, printers, values)
         parser.exit()
 
 
-class OutputWiki(argparse.Action):
+class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, args, values, option_string=None):
         detectors, _ = get_detectors_and_printers()
         output_wiki(detectors, values)
@@ -569,6 +581,7 @@ def main():
     main_impl(all_detector_classes=detectors, all_printer_classes=printers)
 
 
+# pylint: disable=too-many-statements,too-many-branches,too-many-locals
 def main_impl(all_detector_classes, all_printer_classes):
     """
     :param all_detector_classes: A list of all detectors that can be included/excluded.
@@ -588,9 +601,8 @@ def main_impl(all_detector_classes, all_printer_classes):
     outputting_json_stdout = args.json == "-"
     outputting_zip = args.zip is not None
     if args.zip_type not in ZIP_TYPES_ACCEPTED.keys():
-        logger.error(
-            f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED.keys())}'
-        )
+        to_log = f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED.keys())}'
+        logger.error(to_log)
 
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
     # output.
@@ -616,8 +628,8 @@ def main_impl(all_detector_classes, all_printer_classes):
         ("Printers", default_log),
         # ('CryticCompile', default_log)
     ]:
-        l = logging.getLogger(l_name)
-        l.setLevel(l_level)
+        logger_level = logging.getLogger(l_name)
+        logger_level.setLevel(l_level)
 
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
@@ -728,17 +740,17 @@ def main_impl(all_detector_classes, all_printer_classes):
         if args.ignore_return_value:
             return
 
-    except SlitherException as se:
-        output_error = str(se)
+    except SlitherException as slither_exception:
+        output_error = str(slither_exception)
         traceback.print_exc()
         logging.error(red("Error:"))
         logging.error(red(output_error))
         logging.error("Please report an issue to https://github.com/crytic/slither/issues")
 
-    except Exception:
+    except Exception:  # pylint: disable=broad-except
         output_error = traceback.format_exc()
         logging.error(traceback.print_exc())
-        logging.error("Error in %s" % args.filename)
+        logging.error(f"Error in {args.filename}")  # pylint: disable=logging-fstring-interpolation
         logging.error(output_error)
 
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
@@ -758,7 +770,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     if output_error:
         sys.exit(-1)
     else:
-        exit(results_detectors)
+        my_exit(results_detectors)
 
 
 if __name__ == "__main__":

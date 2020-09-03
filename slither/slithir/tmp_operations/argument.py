@@ -11,7 +11,7 @@ class ArgumentType(Enum):
 
 class Argument(Operation):
     def __init__(self, argument):
-        super(Argument, self).__init__()
+        super().__init__()
         self._argument = argument
         self._type = ArgumentType.CALL
         self._callid = None

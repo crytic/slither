@@ -9,8 +9,6 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 
 
 class UninitializedLocalVars(AbstractDetector):
-    """
-    """
 
     ARGUMENT = "uninitialized-local"
     HELP = "Uninitialized local variables"
@@ -81,6 +79,7 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
         """
         results = []
 
+        # pylint: disable=attribute-defined-outside-init
         self.results = []
         self.visited_all_paths = {}
 
@@ -98,7 +97,10 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
         all_results = list(set(self.results))
         for (function, uninitialized_local_variable) in all_results:
 
-            info = [uninitialized_local_variable, " is a local variable never initialized\n"]
+            info = [
+                uninitialized_local_variable,
+                " is a local variable never initialized\n",
+            ]
             json = self.generate_result(info)
             results.append(json)
 

@@ -42,7 +42,7 @@ As a result, the second contract cannot be analyzed.
 """
     WIKI_RECOMMENDATION = "Rename the contract."
 
-    def _detect(self):
+    def _detect(self):  # pylint: disable=too-many-locals,too-many-branches
         results = []
 
         names_reused = self.slither.contract_name_collisions

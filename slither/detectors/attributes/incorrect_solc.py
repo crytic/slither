@@ -4,7 +4,7 @@
 
 import re
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.formatters.attributes.incorrect_solc import format
+from slither.formatters.attributes.incorrect_solc import custom_format
 
 # group:
 # 0: ^ > >= < <= (optional)
@@ -13,6 +13,7 @@ from slither.formatters.attributes.incorrect_solc import format
 # 3: version number
 # 4: version number
 
+# pylint: disable=anomalous-backslash-in-string
 PATTERN = re.compile("(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
 
 
@@ -97,7 +98,7 @@ Consider using the latest version of Solidity for testing."""
         if len(versions) == 1:
             version = versions[0]
             return self._check_version(version)
-        elif len(versions) == 2:
+        if len(versions) == 2:
             version_left = versions[0]
             version_right = versions[1]
             # Only allow two elements if the second one is
@@ -109,8 +110,7 @@ Consider using the latest version of Solidity for testing."""
             ]:
                 return self.COMPLEX_PRAGMA_TXT
             return self._check_version(version_left)
-        else:
-            return self.COMPLEX_PRAGMA_TXT
+        return self.COMPLEX_PRAGMA_TXT
 
     def _detect(self):
         """
@@ -121,14 +121,13 @@ Consider using the latest version of Solidity for testing."""
         results = []
         pragma = self.slither.pragma_directives
         disallowed_pragmas = []
-        detected_version = False
+
         for p in pragma:
             # Skip any pragma directives which do not refer to version
             if len(p.directive) < 1 or p.directive[0] != "solidity":
                 continue
 
             # This is version, so we test if this is disallowed.
-            detected_version = True
             reason = self._check_pragma(p.version)
             if reason:
                 disallowed_pragmas.append((reason, p))
@@ -162,4 +161,4 @@ Consider using the latest version of Solidity for testing."""
 
     @staticmethod
     def _format(slither, result):
-        format(slither, result)
+        custom_format(slither, result)

@@ -3,15 +3,13 @@
 import argparse
 import logging
 import sys
-import traceback
-import operator
 
 from crytic_compile import cryticparser
 
-from .info import info
-from .test import test
-from .train import train
-from .plot import plot
+from slither.tools.similarity.info import info
+from slither.tools.similarity.test import test
+from slither.tools.similarity.train import train
+from slither.tools.similarity.plot import plot
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-simil")
@@ -56,7 +54,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--version", help="displays the current version", version="0.0", action="version"
+        "--version", help="displays the current version", version="0.0", action="version",
     )
 
     cryticparser.init(parser)
@@ -94,7 +92,8 @@ def main():
     elif mode == "plot":
         plot(args)
     else:
-        logger.error("Invalid mode!. It should be one of these: %s" % ", ".join(modes))
+        to_log = "Invalid mode!. It should be one of these: %s" % ", ".join(modes)
+        logger.error(to_log)
         sys.exit(-1)
 
 

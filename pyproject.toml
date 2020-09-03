@@ -9,5 +9,13 @@ missing-function-docstring,
 unnecessary-lambda,
 bad-continuation,
 cyclic-import,
-line-too-long
+line-too-long,
+invalid-name,
+fixme,
+too-many-return-statements,
+too-many-ancestors,
+logging-fstring-interpolation,
+logging-not-lazy,
+duplicate-code,
+import-error
 """

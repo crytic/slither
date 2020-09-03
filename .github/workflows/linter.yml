@@ -29,8 +29,6 @@ jobs:
           pip install .
           pip install deepdiff numpy
 
-          echo 'SHELLCHECK_OPTS="-e SC1090"' >> ~/.bashrc
-
           mkdir -p .github/linters
           cp pyproject.toml .github/linters
 
@@ -46,3 +44,8 @@ jobs:
           VALIDATE_JSON: false
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_DOCKERFILE: false
+          VALIDATE_DOCKERFILE_HADOLINT: false
+          VALIDATE_EDITORCONFIG: false
+          SHELLCHECK_OPTS: "-e SC1090"

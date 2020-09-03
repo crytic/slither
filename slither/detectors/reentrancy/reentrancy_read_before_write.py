@@ -45,7 +45,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
 
     def find_reentrancies(self):
         result = defaultdict(set)
-        for contract in self.contracts:
+        for contract in self.contracts:  # pylint: disable=too-many-nested-blocks
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
                     # dead code
@@ -56,15 +56,13 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                         for c in node.context[self.KEY].calls:
                             if c == node:
                                 continue
-                            read_then_written |= set(
-                                [
-                                    FindingValue(
-                                        v, node, tuple(sorted(nodes, key=lambda x: x.node_id))
-                                    )
-                                    for (v, nodes) in node.context[self.KEY].written.items()
-                                    if v in node.context[self.KEY].reads_prior_calls[c]
-                                ]
-                            )
+                            read_then_written |= {
+                                FindingValue(
+                                    v, node, tuple(sorted(nodes, key=lambda x: x.node_id)),
+                                )
+                                for (v, nodes) in node.context[self.KEY].written.items()
+                                if v in node.context[self.KEY].reads_prior_calls[c]
+                            }
 
                         # We found a potential re-entrancy bug
                         if read_then_written:
@@ -76,7 +74,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                             result[finding_key] |= read_then_written
         return result
 
-    def _detect(self):
+    def _detect(self):  # pylint: disable=too-many-branches
         """
         """
 
@@ -116,7 +114,9 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                 res.add(call_info, {"underlying_type": "external_calls"})
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
-                        res.add(call_list_info, {"underlying_type": "external_calls_sending_eth"})
+                        res.add(
+                            call_list_info, {"underlying_type": "external_calls_sending_eth"},
+                        )
 
             # Add all variables written via nodes which write them.
             for finding_value in varsWritten:

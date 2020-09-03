@@ -45,7 +45,7 @@ class BinaryType(Enum):
         ]
 
     @staticmethod
-    def get_type(operation_type):
+    def get_type(operation_type):  # pylint: disable=too-many-branches
         if operation_type == "**":
             return BinaryType.POWER
         if operation_type == "*":
@@ -87,7 +87,7 @@ class BinaryType(Enum):
 
         raise SlithIRError("get_type: Unknown operation type {})".format(operation_type))
 
-    def __str__(self):
+    def __str__(self):  # pylint: disable=too-many-branches
         if self == BinaryType.POWER:
             return "**"
         if self == BinaryType.MULTIPLICATION:
@@ -135,7 +135,7 @@ class Binary(OperationWithLValue):
         assert is_valid_rvalue(right_variable)
         assert is_valid_lvalue(result)
         assert isinstance(operation_type, BinaryType)
-        super(Binary, self).__init__()
+        super().__init__()
         self._variables = [left_variable, right_variable]
         self._type = operation_type
         self._lvalue = result
@@ -174,7 +174,7 @@ class Binary(OperationWithLValue):
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
             return "{}(-> {}) = {} {} {}".format(
-                str(self.lvalue), points, self.variable_left, self.type_str, self.variable_right
+                str(self.lvalue), points, self.variable_left, self.type_str, self.variable_right,
             )
         return "{}({}) = {} {} {}".format(
             str(self.lvalue),

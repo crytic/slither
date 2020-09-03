@@ -7,7 +7,7 @@ class OperationWithLValue(Operation):
     """
 
     def __init__(self):
-        super(OperationWithLValue, self).__init__()
+        super().__init__()
 
         self._lvalue = None
 

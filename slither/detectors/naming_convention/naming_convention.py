@@ -1,6 +1,6 @@
 import re
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.formatters.naming_convention.naming_convention import format
+from slither.formatters.naming_convention.naming_convention import custom_format
 
 
 class NamingConvention(AbstractDetector):
@@ -54,7 +54,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
     def should_avoid_name(name):
         return re.search("^[lOI]$", name) is not None
 
-    def _detect(self):
+    def _detect(self):  # pylint: disable=too-many-branches,too-many-statements
 
         results = []
         for contract in self.contracts:
@@ -117,11 +117,15 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
             for var in contract.state_variables_declared:
                 if self.should_avoid_name(var.name):
                     if not self.is_upper_case_with_underscores(var.name):
-                        info = ["Variable ", var, " used l, O, I, which should not be used\n"]
+                        info = [
+                            "Variable ",
+                            var,
+                            " used l, O, I, which should not be used\n",
+                        ]
 
                         res = self.generate_result(info)
                         res.add(
-                            var, {"target": "variable", "convention": "l_O_I_should_not_be_used"}
+                            var, {"target": "variable", "convention": "l_O_I_should_not_be_used",},
                         )
                         results.append(res)
 
@@ -131,7 +135,11 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         continue
 
                     if not self.is_upper_case_with_underscores(var.name):
-                        info = ["Constant ", var, " is not in UPPER_CASE_WITH_UNDERSCORES\n"]
+                        info = [
+                            "Constant ",
+                            var,
+                            " is not in UPPER_CASE_WITH_UNDERSCORES\n",
+                        ]
 
                         res = self.generate_result(info)
                         res.add(
@@ -175,4 +183,4 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
     @staticmethod
     def _format(slither, result):
-        format(slither, result)
+        custom_format(slither, result)

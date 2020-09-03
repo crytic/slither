@@ -1,7 +1,6 @@
-from .variable import SlithIRVariable
 from slither.core.children.child_node import ChildNode
-from slither.core.variables.variable import Variable
 from slither.core.declarations import Contract, Enum, SolidityVariable, Function
+from slither.core.variables.variable import Variable
 
 
 class ReferenceVariable(ChildNode, Variable):
@@ -9,7 +8,7 @@ class ReferenceVariable(ChildNode, Variable):
     COUNTER = 0
 
     def __init__(self, node, index=None):
-        super(ReferenceVariable, self).__init__()
+        super().__init__()
         if index is None:
             self._index = ReferenceVariable.COUNTER
             ReferenceVariable.COUNTER += 1
@@ -45,6 +44,7 @@ class ReferenceVariable(ChildNode, Variable):
     def points_to(self, points_to):
         # Can only be a rvalue of
         # Member or Index operator
+        # pylint: disable=import-outside-toplevel
         from slither.slithir.utils.utils import is_valid_lvalue
 
         assert is_valid_lvalue(points_to) or isinstance(
@@ -62,7 +62,7 @@ class ReferenceVariable(ChildNode, Variable):
     # to handle the function selector
     def set_type(self, t):
         if not isinstance(t, Function):
-            super(ReferenceVariable, self).set_type(t)
+            super().set_type(t)
         else:
             self._type = t
 

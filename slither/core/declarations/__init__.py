@@ -5,5 +5,9 @@ from .function import Function
 from .import_directive import Import
 from .modifier import Modifier
 from .pragma_directive import Pragma
-from .solidity_variables import SolidityVariable, SolidityVariableComposed, SolidityFunction
+from .solidity_variables import (
+    SolidityVariable,
+    SolidityVariableComposed,
+    SolidityFunction,
+)
 from .structure import Structure

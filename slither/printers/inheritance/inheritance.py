@@ -31,7 +31,7 @@ class PrinterInheritance(AbstractPrinter):
         info = "Inheritance\n"
 
         if not self.contracts:
-            return
+            return []
 
         info += blue("Child_Contract -> ") + green("Immediate_Base_Contracts")
         info += green(" [Not_Immediate_Base_Contracts]")

@@ -1,6 +1,3 @@
-"""
-"""
-
 from slither.printers.abstract_printer import AbstractPrinter
 
 
@@ -11,7 +8,7 @@ class CFG(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#cfg"
 
-    def output(self, original_filename):
+    def output(self, filename):
         """
             _filename is not used
             Args:
@@ -24,10 +21,8 @@ class CFG(AbstractPrinter):
             if contract.is_top_level:
                 continue
             for function in contract.functions + contract.modifiers:
-                if original_filename:
-                    filename = "{}-{}-{}.dot".format(
-                        original_filename, contract.name, function.full_name
-                    )
+                if filename:
+                    filename = "{}-{}-{}.dot".format(filename, contract.name, function.full_name)
                 else:
                     filename = "{}-{}.dot".format(contract.name, function.full_name)
                 info += "Export {}\n".format(filename)
@@ -39,6 +34,6 @@ class CFG(AbstractPrinter):
         self.info(info)
 
         res = self.generate_output(info)
-        for filename, content in all_files:
-            res.add_file(filename, content)
+        for filename_result, content in all_files:
+            res.add_file(filename_result, content)
         return res

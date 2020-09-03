@@ -18,7 +18,7 @@ def resolve_function(slither, contract_name, function_name):
 
     # Obtain the target function
     target_function = next(
-        (function for function in contract.functions if function.name == function_name), None
+        (function for function in contract.functions if function.name == function_name), None,
     )
 
     # Verify we have resolved the function specified.
@@ -85,8 +85,8 @@ def all_function_definitions(function):
     ]
 
 
-def __find_target_paths(slither, target_function, current_path=[]):
-
+def __find_target_paths(slither, target_function, current_path=None):
+    current_path = current_path if current_path else []
     # Create our results list
     results = set()
 

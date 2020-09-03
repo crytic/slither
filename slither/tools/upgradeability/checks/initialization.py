@@ -1,9 +1,11 @@
 import logging
 
 from slither.slithir.operations import InternalCall
-from slither.tools.upgradeability.checks.abstract_checks import AbstractCheck, CheckClassification
-from slither.utils.output import Output
-from slither.utils.colors import red, yellow, green
+from slither.tools.upgradeability.checks.abstract_checks import (
+    AbstractCheck,
+    CheckClassification,
+)
+from slither.utils.colors import red
 
 logger = logging.getLogger("Slither-check-upgradeability")
 
@@ -294,7 +296,7 @@ Call only one time every initialize function.
 
         all_init_functions_called = _get_all_internal_calls(most_derived_init) + [most_derived_init]
         double_calls = list(
-            set([f for f in all_init_functions_called if all_init_functions_called.count(f) > 1])
+            {f for f in all_init_functions_called if all_init_functions_called.count(f) > 1}
         )
         for f in double_calls:
             info = [f, " is called multiple times in ", most_derived_init, ".\n"]
@@ -337,6 +339,11 @@ Ensure that the function is called at deployment.
         if most_derived_init is None:
             return []
 
-        info = [self.contract, f" needs to be initialized by ", most_derived_init, ".\n"]
+        info = [
+            self.contract,
+            " needs to be initialized by ",
+            most_derived_init,
+            ".\n",
+        ]
         json = self.generate_result(info)
         return [json]

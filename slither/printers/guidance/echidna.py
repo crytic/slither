@@ -1,9 +1,6 @@
-"""
-"""
-
 import json
 from collections import defaultdict
-from typing import Dict, List, Set, Tuple, Union, NamedTuple
+from typing import Dict, List, Set, Tuple, NamedTuple
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
@@ -32,13 +29,13 @@ from slither.slithir.operations import (
     TypeConversion,
     Balance,
 )
-from slither.slithir.operations.binary import Binary, BinaryType
+from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
 
 
 def _get_name(f: Function) -> str:
     if f.is_fallback or f.is_receive:
-        return f"()"
+        return "()"
     return f.solidity_signature
 
 
@@ -67,7 +64,7 @@ def _extract_solidity_variable_usage(
     return ret
 
 
-def _is_constant(f: Function) -> bool:
+def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
     """
     Heuristic:
     - If view/pure with Solidity >= 0.4 -> Return true
@@ -141,8 +138,12 @@ def _extract_assert(slither: SlitherCore) -> Dict[str, List[str]]:
 
 # Create a named tuple that is serialization in json
 def json_serializable(cls):
+    # pylint: disable=unnecessary-comprehension
+    # TODO: the next line is a quick workaround to prevent pylint from crashing
+    # It can be removed once https://github.com/PyCQA/pylint/pull/3810 is merged
+    my_super = super
     def as_dict(self):
-        yield {name: value for name, value in zip(self._fields, iter(super(cls, self).__iter__()))}
+        yield {name: value for name, value in zip(self._fields, iter(my_super(cls, self).__iter__()))}
 
     cls.__iter__ = as_dict
     return cls
@@ -157,7 +158,7 @@ class ConstantValue(NamedTuple):
     type: str
 
 
-def _extract_constants_from_irs(
+def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-nested-blocks
     irs: List[Operation],
     all_cst_used: List[ConstantValue],
     all_cst_used_in_binary: Dict[str, List[ConstantValue]],
@@ -185,14 +186,13 @@ def _extract_constants_from_irs(
                     if r.node_initialization.irs:
                         if r.node_initialization in context_explored:
                             continue
-                        else:
-                            context_explored.add(r.node_initialization)
-                            _extract_constants_from_irs(
-                                r.node_initialization.irs,
-                                all_cst_used,
-                                all_cst_used_in_binary,
-                                context_explored,
-                            )
+                        context_explored.add(r.node_initialization)
+                        _extract_constants_from_irs(
+                            r.node_initialization.irs,
+                            all_cst_used,
+                            all_cst_used_in_binary,
+                            context_explored,
+                        )
 
 
 def _extract_constants(
@@ -227,7 +227,9 @@ def _extract_constants(
     return ret_cst_used, ret_cst_used_in_binary
 
 
-def _extract_function_relations(slither: SlitherCore) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
+def _extract_function_relations(
+    slither: SlitherCore,
+) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
     # contract -> function -> [functions]
     ret: Dict[str, Dict[str, Dict[str, List[str]]]] = defaultdict(dict)
     for contract in slither.contracts:
@@ -241,7 +243,10 @@ def _extract_function_relations(slither: SlitherCore) -> Dict[str, Dict[str, Dic
             for function in contract.functions_entry_points
         }
         for function in contract.functions_entry_points:
-            ret[contract.name][_get_name(function)] = {"impacts": [], "is_impacted_by": []}
+            ret[contract.name][_get_name(function)] = {
+                "impacts": [],
+                "is_impacted_by": [],
+            }
             for candidate, varsWritten in written.items():
                 if any((r in varsWritten for r in function.all_state_variables_read())):
                     ret[contract.name][_get_name(function)]["is_impacted_by"].append(candidate)
@@ -292,7 +297,7 @@ def _call_a_parameter(slither: SlitherCore) -> Dict[str, List[Dict]]:
     """
     # contract -> [ (function, idx, interface_called) ]
     ret: Dict[str, List[Dict]] = defaultdict(list)
-    for contract in slither.contracts:
+    for contract in slither.contracts:  # pylint: disable=too-many-nested-blocks
         for function in contract.functions_entry_points:
             for ir in function.all_slithir_operations():
                 if isinstance(ir, HighLevelCall):
@@ -324,7 +329,7 @@ class Echidna(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#echidna"
 
-    def output(self, filename):
+    def output(self, filename):  # pylint: disable=too-many-locals
         """
             Output the inheritance relation
 

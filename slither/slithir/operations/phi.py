@@ -11,7 +11,7 @@ class Phi(OperationWithLValue):
         # after its instantiation
         assert is_valid_lvalue(left_variable)
         assert isinstance(nodes, set)
-        super(Phi, self).__init__()
+        super().__init__()
         self._lvalue = left_variable
         self._rvalues = []
         self._nodes = nodes

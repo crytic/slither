@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 class ChildExpression:
     def __init__(self):
-        super(ChildExpression, self).__init__()
+        super().__init__()
         self._expression = None
 
     def set_expression(self, expression: "Expression"):

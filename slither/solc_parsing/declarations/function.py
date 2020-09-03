@@ -1,11 +1,13 @@
-"""
-"""
 import logging
 from typing import Dict, Optional, Union, List, TYPE_CHECKING
 
 from slither.core.cfg.node import NodeType, link_nodes, insert_node, Node
 from slither.core.declarations.contract import Contract
-from slither.core.declarations.function import Function, ModifierStatements, FunctionType
+from slither.core.declarations.function import (
+    Function,
+    ModifierStatements,
+    FunctionType,
+)
 
 from slither.core.expressions import AssignmentOperation
 from slither.core.variables.local_variable import LocalVariable
@@ -38,9 +40,10 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
+# pylint: disable=too-many-lines,too-many-branches,too-many-locals,too-many-statements,too-many-instance-attributes
+
+
 class FunctionSolc:
-    """
-    """
 
     # elems = [(type, name)]
 
@@ -568,7 +571,9 @@ class FunctionSolc:
         if not node_condition.underlying_node.sons:
             link_underlying_nodes(node_startDoWhile, node_condition)
         else:
-            link_nodes(node_startDoWhile.underlying_node, node_condition.underlying_node.sons[0])
+            link_nodes(
+                node_startDoWhile.underlying_node, node_condition.underlying_node.sons[0],
+            )
         link_underlying_nodes(statement, node_condition)
         link_underlying_nodes(node_condition, node_endDoWhile)
         return node_endDoWhile
@@ -838,7 +843,7 @@ class FunctionSolc:
                 node = exitpoint
             else:
                 asm_node = self._new_node(NodeType.ASSEMBLY, statement["src"])
-                self._function._contains_assembly = True
+                self._function.contains_assembly = True
                 # Added with solc 0.4.12
                 if "operations" in statement:
                     asm_node.underlying_node.add_inline_asm(statement["operations"])
@@ -1131,7 +1136,7 @@ class FunctionSolc:
     ###################################################################################
 
     def _remove_incorrect_edges(self):
-        for node in self._node_to_nodesolc.keys():
+        for node in self._node_to_nodesolc:
             if node.type in [NodeType.RETURN, NodeType.THROW]:
                 for son in node.sons:
                     son.remove_father(node)
@@ -1166,7 +1171,7 @@ class FunctionSolc:
         while set(prev_nodes) != set(self._node_to_nodesolc.keys()):
             prev_nodes = self._node_to_nodesolc.keys()
             to_remove: List[Node] = []
-            for node in self._node_to_nodesolc.keys():
+            for node in self._node_to_nodesolc:
                 if node.type == NodeType.ENDIF and not node.fathers:
                     for son in node.sons:
                         son.remove_father(node)
@@ -1189,7 +1194,7 @@ class FunctionSolc:
         updated = False
         while ternary_found:
             ternary_found = False
-            for node in self._node_to_nodesolc.keys():
+            for node in self._node_to_nodesolc:
                 has_cond = HasConditional(node.expression)
                 if has_cond.result():
                     st = SplitTernaryExpression(node.expression)
@@ -1253,9 +1258,15 @@ class FunctionSolc:
         link_underlying_nodes(condition_node, true_node_parser)
         link_underlying_nodes(condition_node, false_node_parser)
 
-        if true_node_parser.underlying_node.type not in [NodeType.THROW, NodeType.RETURN]:
+        if true_node_parser.underlying_node.type not in [
+            NodeType.THROW,
+            NodeType.RETURN,
+        ]:
             link_underlying_nodes(true_node_parser, endif_node)
-        if false_node_parser.underlying_node.type not in [NodeType.THROW, NodeType.RETURN]:
+        if false_node_parser.underlying_node.type not in [
+            NodeType.THROW,
+            NodeType.RETURN,
+        ]:
             link_underlying_nodes(false_node_parser, endif_node)
 
         self._function.nodes = [n for n in self._function.nodes if n.node_id != node.node_id]

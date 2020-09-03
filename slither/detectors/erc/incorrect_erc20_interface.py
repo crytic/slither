@@ -101,7 +101,12 @@ contract Token{
             functions = IncorrectERC20InterfaceDetection.detect_incorrect_erc20_interface(c)
             if functions:
                 for function in functions:
-                    info = [c, " has incorrect ERC20 function interface:", function, "\n"]
+                    info = [
+                        c,
+                        " has incorrect ERC20 function interface:",
+                        function,
+                        "\n",
+                    ]
                     json = self.generate_result(info)
 
                     results.append(json)

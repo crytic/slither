@@ -84,8 +84,8 @@ def all_function_definitions(function):
     ]
 
 
-def __find_target_paths(target_function, current_path=[]):
-
+def __find_target_paths(target_function, current_path=None):
+    current_path = current_path if current_path else []
     # Create our results list
     results = set()
 
@@ -184,17 +184,17 @@ slither = Slither(args.filename, is_truffle=args.is_truffle)
 targets = resolve_functions(args.targets)
 
 # Print out all target functions.
-print(f"Target functions:")
+print("Target functions:")
 for target in targets:
     print(f"-{target.contract.name}.{target.full_name}")
 print("\n")
 
 # Obtain all paths which reach the target functions.
 reaching_paths = find_target_paths(targets)
-reaching_functions = set([y for x in reaching_paths for y in x if y not in targets])
+reaching_functions = {y for x in reaching_paths for y in x if y not in targets}
 
 # Print out all function names which can reach the targets.
-print(f"The following functions reach the specified targets:")
+print("The following functions reach the specified targets:")
 for function_desc in sorted([f"{f.canonical_name}" for f in reaching_functions]):
     print(f"-{function_desc}")
 print("\n")
@@ -205,6 +205,6 @@ reaching_paths_str = [
 ]
 
 # Print a sorted list of all function paths which can reach the targets.
-print(f"The following paths reach the specified targets:")
+print("The following paths reach the specified targets:")
 for reaching_path in sorted(reaching_paths_str):
     print(f"{reaching_path}\n")

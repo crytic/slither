@@ -6,11 +6,11 @@ from slither.core.variables.function_type_variable import FunctionTypeVariable
 
 class FunctionType(Type):
     def __init__(
-        self, params: List[FunctionTypeVariable], return_values: List[FunctionTypeVariable]
+        self, params: List[FunctionTypeVariable], return_values: List[FunctionTypeVariable],
     ):
         assert all(isinstance(x, FunctionTypeVariable) for x in params)
         assert all(isinstance(x, FunctionTypeVariable) for x in return_values)
-        super(FunctionType, self).__init__()
+        super().__init__()
         self._params: List[FunctionTypeVariable] = params
         self._return_values: List[FunctionTypeVariable] = return_values
 

@@ -32,7 +32,7 @@ class Return(Operation):
             # was valid for returns(uint)
             values = [v for v in values if not v is None]
             self._valid_value(values)
-        super(Return, self).__init__()
+        super().__init__()
         self._values = values
 
     def _valid_value(self, value):

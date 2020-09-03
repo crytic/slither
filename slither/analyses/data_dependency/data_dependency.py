@@ -135,7 +135,7 @@ def is_tainted_ssa(variable, context, only_unprotected=False, ignore_generic_tai
 
 
 def get_dependencies(
-    variable: Variable, context: Union[Contract, Function], only_unprotected: bool = False
+    variable: Variable, context: Union[Contract, Function], only_unprotected: bool = False,
 ) -> Set[Variable]:
     """
     Return the variables for which `variable` depends on.
@@ -170,7 +170,7 @@ def get_all_dependencies(
 
 
 def get_dependencies_ssa(
-    variable: Variable, context: Union[Contract, Function], only_unprotected: bool = False
+    variable: Variable, context: Union[Contract, Function], only_unprotected: bool = False,
 ) -> Set[Variable]:
     """
     Return the variables for which `variable` depends on (SSA version).
@@ -274,6 +274,7 @@ def compute_dependency_contract(contract, slither):
         propagate_function(contract, function, KEY_SSA, KEY_NON_SSA)
         propagate_function(contract, function, KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED)
 
+        # pylint: disable=expression-not-assigned
         if function.visibility in ["public", "external"]:
             [slither.context[KEY_INPUT].add(p) for p in function.parameters]
             [slither.context[KEY_INPUT_SSA].add(p) for p in function.parameters_ssa]
@@ -296,12 +297,10 @@ def propagate_function(contract, function, context_key, context_key_non_ssa):
 def transitive_close_dependencies(context, context_key, context_key_non_ssa):
     # transitive closure
     changed = True
-    while changed:
+    while changed:  # pylint: disable=too-many-nested-blocks
         changed = False
         # Need to create new set() as its changed during iteration
-        data_depencencies = {
-            k: set([v for v in values]) for k, values in context.context[context_key].items()
-        }
+        data_depencencies = {k: set(values) for k, values in context.context[context_key].items()}
         for key, items in data_depencencies.items():
             for item in items:
                 if item in data_depencencies:
@@ -328,6 +327,7 @@ def add_dependency(lvalue, function, ir, is_protected):
         read = ir.function.return_values_ssa
     else:
         read = ir.read
+    # pylint: disable=expression-not-assigned
     [function.context[KEY_SSA][lvalue].add(v) for v in read if not isinstance(v, Constant)]
     if not is_protected:
         [
@@ -375,7 +375,8 @@ def convert_variable_to_non_ssa(v):
     ):
         return v.non_ssa_version
     assert isinstance(
-        v, (Constant, SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function, Type)
+        v,
+        (Constant, SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function, Type,),
     )
     return v
 
@@ -387,6 +388,6 @@ def convert_to_non_ssa(data_depencies):
         var = convert_variable_to_non_ssa(k)
         if not var in ret:
             ret[var] = set()
-        ret[var] = ret[var].union(set([convert_variable_to_non_ssa(v) for v in values]))
+        ret[var] = ret[var].union({convert_variable_to_non_ssa(v) for v in values})
 
     return ret

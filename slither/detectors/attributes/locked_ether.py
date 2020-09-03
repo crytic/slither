@@ -14,9 +14,7 @@ from slither.slithir.operations import (
 )
 
 
-class LockedEther(AbstractDetector):
-    """
-    """
+class LockedEther(AbstractDetector):  # pylint: disable=too-many-nested-blocks
 
     ARGUMENT = "locked-ether"
     HELP = "Contracts that lock ether"
@@ -44,7 +42,7 @@ Every Ether sent to `Locked` will be lost."""
         functions = contract.all_functions_called
         to_explore = functions
         explored = []
-        while to_explore:
+        while to_explore:  # pylint: disable=too-many-nested-blocks
             functions = to_explore
             explored += to_explore
             to_explore = []
@@ -55,7 +53,7 @@ Every Ether sent to `Locked` will be lost."""
                 for node in function.nodes:
                     for ir in node.irs:
                         if isinstance(
-                            ir, (Send, Transfer, HighLevelCall, LowLevelCall, NewContract)
+                            ir, (Send, Transfer, HighLevelCall, LowLevelCall, NewContract),
                         ):
                             if ir.call_value and ir.call_value != 0:
                                 return False
@@ -83,7 +81,7 @@ Every Ether sent to `Locked` will be lost."""
                     info = [f"Contract locking ether found in {self.filename}:\n"]
                     info += ["\tContract ", contract, " has payable functions:\n"]
                     for function in funcs_payable:
-                        info += [f"\t - ", function, "\n"]
+                        info += ["\t - ", function, "\n"]
                     info += "\tBut does not have a function to withdraw the ether\n"
 
                     json = self.generate_result(info)

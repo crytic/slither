@@ -79,7 +79,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
 
     WIKI_RECOMMENDATION = """Consider ordering multiplication before division."""
 
-    def _explore(self, node, explored, f_results, divisions):
+    def _explore(self, node, explored, f_results, divisions):  # pylint: disable=too-many-branches
         if node in explored:
             return
         explored.add(node)
@@ -174,7 +174,10 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
             if divisions_before_multiplications:
                 for (func, nodes) in divisions_before_multiplications:
 
-                    info = [func, " performs a multiplication on the result of a division:\n"]
+                    info = [
+                        func,
+                        " performs a multiplication on the result of a division:\n",
+                    ]
 
                     for node in nodes:
                         info += ["\t-", node, "\n"]

@@ -21,7 +21,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Slither.Format")
 
 
-def format(slither, result):
+# pylint: disable=anomalous-backslash-in-string
+
+
+def custom_format(slither, result):
     elements = result["elements"]
     for element in elements:
         target = element["additional_fields"]["target"]
@@ -126,13 +129,13 @@ def _name_already_use(slither, name):
     if not KEY in slither.context:
         all_names = set()
         for contract in slither.contracts_derived:
-            all_names = all_names.union(set([st.name for st in contract.structures]))
-            all_names = all_names.union(set([f.name for f in contract.functions_and_modifiers]))
-            all_names = all_names.union(set([e.name for e in contract.enums]))
-            all_names = all_names.union(set([s.name for s in contract.state_variables]))
+            all_names = all_names.union({st.name for st in contract.structures})
+            all_names = all_names.union({f.name for f in contract.functions_and_modifiers})
+            all_names = all_names.union({e.name for e in contract.enums})
+            all_names = all_names.union({s.name for s in contract.state_variables})
 
             for function in contract.functions:
-                all_names = all_names.union(set([v.name for v in function.variables]))
+                all_names = all_names.union({v.name for v in function.variables})
 
         slither.context[KEY] = all_names
     return name in slither.context[KEY]
@@ -210,7 +213,6 @@ def _get_from_contract(slither, element, name, getter):
 
 
 def _patch(slither, result, element, _target):
-
     if _target == "contract":
         target = slither.get_contract_from_name(element["name"])
 
@@ -304,12 +306,14 @@ def _is_var_declaration(slither, filename, start):
     return slither.source_code[filename][start : start + len(v)] == v
 
 
-def _explore_type(slither, result, target, convert, type, filename_source_code, start, end):
-    if isinstance(type, UserDefinedType):
+def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches
+    slither, result, target, convert, custom_type, filename_source_code, start, end
+):
+    if isinstance(custom_type, UserDefinedType):
         # Patch type based on contract/enum
-        if isinstance(type.type, (Enum, Contract)):
-            if type.type == target:
-                old_str = type.type.name
+        if isinstance(custom_type.type, (Enum, Contract)):
+            if custom_type.type == target:
+                old_str = custom_type.type.name
                 new_str = convert(old_str, slither)
 
                 loc_start = start
@@ -322,9 +326,9 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
 
         else:
             # Patch type based on structure
-            assert isinstance(type.type, Structure)
-            if type.type == target:
-                old_str = type.type.name
+            assert isinstance(custom_type.type, Structure)
+            if custom_type.type == target:
+                old_str = custom_type.type.name
                 new_str = convert(old_str, slither)
 
                 loc_start = start
@@ -338,10 +342,10 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
             # Structure contain a list of elements, that might need patching
             # .elems return a list of VariableStructure
             _explore_variables_declaration(
-                slither, type.type.elems.values(), result, target, convert
+                slither, custom_type.type.elems.values(), result, target, convert
             )
 
-    if isinstance(type, MappingType):
+    if isinstance(custom_type, MappingType):
         # Mapping has three steps:
         # Convert the "from" type
         # Convert the "to" type
@@ -350,9 +354,9 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
 
         # Do the comparison twice, so we can factor together the re matching
         # mapping can only have elementary type in type_from
-        if isinstance(type.type_to, (UserDefinedType, MappingType)) or target in [
-            type.type_from,
-            type.type_to,
+        if isinstance(custom_type.type_to, (UserDefinedType, MappingType)) or target in [
+            custom_type.type_from,
+            custom_type.type_to,
         ]:
 
             full_txt_start = start
@@ -363,8 +367,8 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
             re_match = re.match(RE_MAPPING, full_txt)
             assert re_match
 
-            if type.type_from == target:
-                old_str = type.type_from.name
+            if custom_type.type_from == target:
+                old_str = custom_type.type_from.name
                 new_str = convert(old_str, slither)
 
                 loc_start = start + re_match.start(1)
@@ -372,9 +376,8 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
 
                 create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
-            if type.type_to == target:
-
-                old_str = type.type_to.name
+            if custom_type.type_to == target:
+                old_str = custom_type.type_to.name
                 new_str = convert(old_str, slither)
 
                 loc_start = start + re_match.start(2)
@@ -382,7 +385,7 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
 
                 create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
-            if isinstance(type.type_to, (UserDefinedType, MappingType)):
+            if isinstance(custom_type.type_to, (UserDefinedType, MappingType)):
                 loc_start = start + re_match.start(2)
                 loc_end = start + re_match.end(2)
                 _explore_type(
@@ -390,14 +393,14 @@ def _explore_type(slither, result, target, convert, type, filename_source_code, 
                     result,
                     target,
                     convert,
-                    type.type_to,
+                    custom_type.type_to,
                     filename_source_code,
                     loc_start,
                     loc_end,
                 )
 
 
-def _explore_variables_declaration(
+def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-many-locals,too-many-nested-blocks
     slither, variables, result, target, convert, patch_comment=False
 ):
     for variable in variables:
@@ -517,24 +520,25 @@ def _explore_events_declaration(slither, events, result, target, convert):
 
 
 def get_ir_variables(ir):
-    vars = ir.read
+    all_vars = ir.read
 
     if isinstance(ir, (InternalCall, InternalDynamicCall, HighLevelCall)):
-        vars += [ir.function]
+        all_vars += [ir.function]
 
     if isinstance(ir, (HighLevelCall, Send, LowLevelCall, Transfer)):
-        vars += [ir.call_value]
+        all_vars += [ir.call_value]
 
     if isinstance(ir, (HighLevelCall, LowLevelCall)):
-        vars += [ir.call_gas]
+        all_vars += [ir.call_gas]
 
     if isinstance(ir, OperationWithLValue):
-        vars += [ir.lvalue]
+        all_vars += [ir.lvalue]
 
-    return [v for v in vars if v]
+    return [v for v in all_vars if v]
 
 
 def _explore_irs(slither, irs, result, target, convert):
+    # pylint: disable=too-many-locals
     if irs is None:
         return
     for ir in irs:
@@ -562,7 +566,6 @@ def _explore_irs(slither, irs, result, target, convert):
                 # Can be found multiple time on the same IR
                 # We patch one by one
                 while old_str in full_txt:
-
                     target_found_at = full_txt.find((old_str))
 
                     full_txt = full_txt[target_found_at + 1 :]
@@ -571,7 +574,9 @@ def _explore_irs(slither, irs, result, target, convert):
                     loc_start = full_txt_start + counter
                     loc_end = loc_start + len(old_str)
 
-                    create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
+                    create_patch(
+                        result, filename_source_code, loc_start, loc_end, old_str, new_str,
+                    )
 
 
 def _explore_functions(slither, functions, result, target, convert):

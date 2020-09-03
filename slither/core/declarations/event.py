@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class Event(ChildContract, SourceMapping):
     def __init__(self):
-        super(Event, self).__init__()
+        super().__init__()
         self._name = None
         self._elems: List[EventVariable] = []
 

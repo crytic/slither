@@ -1,13 +1,15 @@
-"""
-"""
 from slither.core.cfg.node import NodeType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import HighLevelCall, LibraryCall, LowLevelCall, Send, Transfer
+from slither.slithir.operations import (
+    HighLevelCall,
+    LibraryCall,
+    LowLevelCall,
+    Send,
+    Transfer,
+)
 
 
 class MultipleCallsInLoop(AbstractDetector):
-    """
-    """
 
     ARGUMENT = "calls-loop"
     HELP = "Multiple calls in a loop"

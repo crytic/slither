@@ -9,13 +9,13 @@ from slither.core.variables.variable import Variable
 from slither.slithir.operations.lvalue import OperationWithLValue
 
 
-class TmpCall(OperationWithLValue):
+class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     def __init__(self, called, nbr_arguments, result, type_call):
         assert isinstance(
             called,
-            (Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event),
+            (Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event,),
         )
-        super(TmpCall, self).__init__()
+        super().__init__()
         self._called = called
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call

@@ -15,11 +15,12 @@ class HighLevelCall(Call, OperationWithLValue):
         High level message call
     """
 
+    # pylint: disable=too-many-arguments,too-many-instance-attributes
     def __init__(self, destination, function_name, nbr_arguments, result, type_call):
         assert isinstance(function_name, Constant)
         assert is_valid_lvalue(result) or result is None
         self._check_destination(destination)
-        super(HighLevelCall, self).__init__()
+        super().__init__()
         self._destination = destination
         self._function_name = function_name
         self._nbr_arguments = nbr_arguments
@@ -33,7 +34,7 @@ class HighLevelCall(Call, OperationWithLValue):
 
     # Development function, to be removed once the code is stable
     # It is ovveride by LbraryCall
-    def _check_destination(self, destination):
+    def _check_destination(self, destination):  # pylint: disable=no-self-use
         assert isinstance(destination, (Variable, SolidityVariable))
 
     @property

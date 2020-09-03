@@ -76,7 +76,11 @@ Failure to include these keywords will exclude the parameter data in the transac
                 # Add each problematic event definition to our result list
                 for (event, parameter) in unindexed_params:
 
-                    info = ["ERC20 event ", event, f"does not index parameter {parameter}\n"]
+                    info = [
+                        "ERC20 event ",
+                        event,
+                        f"does not index parameter {parameter}\n",
+                    ]
 
                     # Add the events to the JSON (note: we do not add the params/vars as they have no source mapping).
                     res = self.generate_result(info)

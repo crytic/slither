@@ -12,7 +12,15 @@ from typing import Optional, Dict, List, Set, Union, Tuple
 from crytic_compile import CryticCompile
 
 from slither.core.context.context import Context
-from slither.core.declarations import Contract, Pragma, Import, Function, Modifier, Structure, Enum
+from slither.core.declarations import (
+    Contract,
+    Pragma,
+    Import,
+    Function,
+    Modifier,
+    Structure,
+    Enum,
+)
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import InternalCall
 from slither.slithir.variables import Constant
@@ -22,13 +30,20 @@ logger = logging.getLogger("Slither")
 logging.basicConfig()
 
 
-class SlitherCore(Context):
+def _relative_path_format(path: str) -> str:
+    """
+       Strip relative paths of "." and ".."
+    """
+    return path.split("..")[-1].strip(".").strip("/")
+
+
+class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-many-public-methods
     """
     Slither static analyzer
     """
 
     def __init__(self):
-        super(SlitherCore, self).__init__()
+        super().__init__()
         self._contracts: Dict[str, Contract] = {}
         self._filename: Optional[str] = None
         self._source_units: Dict[int, str] = {}
@@ -114,6 +129,10 @@ class SlitherCore(Context):
         if self.crytic_compile:
             return self.crytic_compile.compiler_version.version
         return self._solc_version
+
+    @solc_version.setter
+    def solc_version(self, version: str):
+        self._solc_version = version
 
     @property
     def pragma_directives(self) -> List[Pragma]:
@@ -245,12 +264,6 @@ class SlitherCore(Context):
     ###################################################################################
     ###################################################################################
 
-    def relative_path_format(self, path: str) -> str:
-        """
-           Strip relative paths of "." and ".."
-        """
-        return path.split("..")[-1].strip(".").strip("/")
-
     def valid_result(self, r: Dict) -> bool:
         """
             Check if the result is valid
@@ -272,7 +285,7 @@ class SlitherCore(Context):
         for path in self._paths_to_filter:
             try:
                 if any(
-                    bool(re.search(self.relative_path_format(path), src_mapping))
+                    bool(re.search(_relative_path_format(path), src_mapping))
                     for src_mapping in source_mapping_elements
                 ):
                     matching = True
@@ -404,7 +417,10 @@ class SlitherCore(Context):
                     slot += 1
                     offset = 0
 
-                self._storage_layouts[contract.name][var.canonical_name] = (slot, offset)
+                self._storage_layouts[contract.name][var.canonical_name] = (
+                    slot,
+                    offset,
+                )
                 if new_slot:
                     slot += math.ceil(size / 32)
                 else:
