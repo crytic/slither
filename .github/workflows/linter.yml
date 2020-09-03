@@ -41,9 +41,9 @@ jobs:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
+          PYTHON_BLACK_CONFIG_FILE: pyproject.toml
           VALIDATE_JSON: false
           VALIDATE_JAVASCRIPT_STANDARD: false
-          VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_FLAKE8: false
           VALIDATE_DOCKERFILE: false
           VALIDATE_DOCKERFILE_HADOLINT: false

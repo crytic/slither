@@ -128,9 +128,7 @@ contract ContractWithDeprecatedReferences {
 
         # Loop through all functions + modifiers in this contract.
         # pylint: disable=too-many-nested-blocks
-        for (
-            function
-        ) in contract.functions_and_modifiers_declared:
+        for function in contract.functions_and_modifiers_declared:
             # Loop through each node in this function.
             for node in function.nodes:
                 # Detect deprecated references in the node.
