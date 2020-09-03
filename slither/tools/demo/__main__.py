@@ -1,7 +1,7 @@
 import argparse
 import logging
-from slither import Slither
 from crytic_compile import cryticparser
+from slither import Slither
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
