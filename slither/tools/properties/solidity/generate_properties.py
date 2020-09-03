@@ -18,7 +18,9 @@ def generate_solidity_properties(
 
     test_contract_name = f"Properties{contract.name}{type_property}"
 
-    solidity_content = f"{solidity_import}\ncontract {test_contract_name} is CryticInterface,{contract.name}"
+    solidity_content = (
+        f"{solidity_import}\ncontract {test_contract_name} is CryticInterface,{contract.name}"
+    )
     solidity_content += f"{{\n\n{solidity_properties}\n}}\n"
 
     filename = f"{test_contract_name}.sol"
@@ -42,9 +44,7 @@ def generate_test_contract(
     content += f"contract {test_contract_name} is {properties_name} {{\n"
     content += "\tconstructor() public{\n"
     content += "\t\t// Existing addresses:\n"
-    content += (
-        "\t\t// - crytic_owner: If the contract has an owner, it must be crytic_owner\n"
-    )
+    content += "\t\t// - crytic_owner: If the contract has an owner, it must be crytic_owner\n"
     content += "\t\t// - crytic_user: Legitimate user\n"
     content += "\t\t// - crytic_attacker: Attacker\n"
     content += "\t\t// \n"

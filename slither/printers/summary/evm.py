@@ -21,12 +21,8 @@ def _extract_evm_info(slither):
     CFG = load_evm_cfg_builder()
 
     for contract in slither.contracts_derived:
-        contract_bytecode_runtime = slither.crytic_compile.bytecode_runtime(
-            contract.name
-        )
-        contract_srcmap_runtime = slither.crytic_compile.srcmap_runtime(
-            contract.name
-        )
+        contract_bytecode_runtime = slither.crytic_compile.bytecode_runtime(contract.name)
+        contract_srcmap_runtime = slither.crytic_compile.srcmap_runtime(contract.name)
         cfg = CFG(contract_bytecode_runtime)
         evm_info["cfg", contract.name] = cfg
         evm_info["mapping", contract.name] = generate_source_to_evm_ins_mapping(
@@ -41,9 +37,7 @@ def _extract_evm_info(slither):
         cfg_init = CFG(contract_bytecode_init)
 
         evm_info["cfg_init", contract.name] = cfg_init
-        evm_info[
-            "mapping_init", contract.name
-        ] = generate_source_to_evm_ins_mapping(
+        evm_info["mapping_init", contract.name] = generate_source_to_evm_ins_mapping(
             cfg_init.instructions,
             contract_srcmap_init,
             slither,
@@ -102,15 +96,12 @@ class PrinterEVM(AbstractPrinter):
                 for node in function.nodes:
                     txt += green("\t\tNode: " + str(node) + "\n")
                     node_source_line = (
-                        contract_file[0 : node.source_mapping["start"]].count(
-                            "\n".encode("utf-8")
-                        )
+                        contract_file[0 : node.source_mapping["start"]].count("\n".encode("utf-8"))
                         + 1
                     )
                     txt += green(
                         "\t\tSource line {}: {}\n".format(
-                            node_source_line,
-                            contract_file_lines[node_source_line - 1].rstrip(),
+                            node_source_line, contract_file_lines[node_source_line - 1].rstrip(),
                         )
                     )
                     txt += magenta("\t\tEVM Instructions:\n")
@@ -127,15 +118,12 @@ class PrinterEVM(AbstractPrinter):
                 for node in modifier.nodes:
                     txt += green("\t\tNode: " + str(node) + "\n")
                     node_source_line = (
-                        contract_file[0 : node.source_mapping["start"]].count(
-                            "\n".encode("utf-8")
-                        )
+                        contract_file[0 : node.source_mapping["start"]].count("\n".encode("utf-8"))
                         + 1
                     )
                     txt += green(
                         "\t\tSource line {}: {}\n".format(
-                            node_source_line,
-                            contract_file_lines[node_source_line - 1].rstrip(),
+                            node_source_line, contract_file_lines[node_source_line - 1].rstrip(),
                         )
                     )
                     txt += magenta("\t\tEVM Instructions:\n")

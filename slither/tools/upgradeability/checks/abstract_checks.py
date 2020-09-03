@@ -81,16 +81,12 @@ class AbstractCheck(metaclass=abc.ABCMeta):
             CheckClassification.INFORMATIONAL
         ]:
             raise IncorrectCheckInitialization(
-                "WIKI_EXPLOIT_SCENARIO is not initialized {}".format(
-                    self.__class__.__name__
-                )
+                "WIKI_EXPLOIT_SCENARIO is not initialized {}".format(self.__class__.__name__)
             )
 
         if not self.WIKI_RECOMMENDATION:
             raise IncorrectCheckInitialization(
-                "WIKI_RECOMMENDATION is not initialized {}".format(
-                    self.__class__.__name__
-                )
+                "WIKI_RECOMMENDATION is not initialized {}".format(self.__class__.__name__)
             )
 
         if self.REQUIRE_PROXY and self.REQUIRE_CONTRACT_V2:
@@ -140,9 +136,7 @@ class AbstractCheck(metaclass=abc.ABCMeta):
         return all_results
 
     def generate_result(self, info, additional_fields=None):
-        output = Output(
-            info, additional_fields, markdown_root=self.contract.slither.markdown_root
-        )
+        output = Output(info, additional_fields, markdown_root=self.contract.slither.markdown_root)
 
         output.data["check"] = self.ARGUMENT
 

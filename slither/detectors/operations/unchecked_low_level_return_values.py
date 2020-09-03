@@ -32,9 +32,7 @@ The return value of the low-level call is not checked, so if the call fails, the
 If the low level is used to prevent blocking operations, consider logging failed calls.
     """
 
-    WIKI_RECOMMENDATION = (
-        "Ensure that the return value of a low-level call is checked or logged."
-    )
+    WIKI_RECOMMENDATION = "Ensure that the return value of a low-level call is checked or logged."
 
     _txt_description = "low-level calls"
 

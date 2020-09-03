@@ -11,16 +11,12 @@ def get_signatures(c):
     functions = [
         f.full_name
         for f in functions
-        if f.visibility in ["public", "external"]
-        and not f.is_constructor
-        and not f.is_fallback
+        if f.visibility in ["public", "external"] and not f.is_constructor and not f.is_fallback
     ]
 
     variables = c.state_variables
     variables = [
-        variable.name + "()"
-        for variable in variables
-        if variable.visibility in ["public"]
+        variable.name + "()" for variable in variables if variable.visibility in ["public"]
     ]
     return list(set(functions + variables))
 
@@ -92,9 +88,7 @@ Rename the function. Avoid public functions in the proxy.
                     implem_function = _get_function_or_variable(
                         self.contract, signatures_ids_implem[k]
                     )
-                    proxy_function = _get_function_or_variable(
-                        self.proxy, signatures_ids_proxy[k]
-                    )
+                    proxy_function = _get_function_or_variable(self.proxy, signatures_ids_proxy[k])
 
                     info = [
                         "Function id collision found: ",
@@ -160,9 +154,7 @@ Rename the function. Avoid public functions in the proxy.
                     implem_function = _get_function_or_variable(
                         self.contract, signatures_ids_implem[k]
                     )
-                    proxy_function = _get_function_or_variable(
-                        self.proxy, signatures_ids_proxy[k]
-                    )
+                    proxy_function = _get_function_or_variable(self.proxy, signatures_ids_proxy[k])
 
                     info = [
                         "Function shadowing found: ",

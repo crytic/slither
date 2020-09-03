@@ -19,7 +19,9 @@ class ReentrancyEvent(Reentrancy):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3"
+    )
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
     WIKI_DESCRIPTION = """
@@ -59,11 +61,7 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
                             send_eth=to_hashable(node.context[self.KEY].send_eth),
                         )
                         finding_vars = {
-                            FindingValue(
-                                e,
-                                e.node,
-                                tuple(sorted(nodes, key=lambda x: x.node_id)),
-                            )
+                            FindingValue(e, e.node, tuple(sorted(nodes, key=lambda x: x.node_id)),)
                             for (e, nodes) in node.context[self.KEY].events.items()
                         }
                         if finding_vars:
@@ -83,9 +81,7 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
         for (func, calls, send_eth), events in result_sorted:
             calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
             send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
-            events = sorted(
-                events, key=lambda x: (str(x.variable.name), x.node.node_id)
-            )
+            events = sorted(events, key=lambda x: (str(x.variable.name), x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]
             info += ["\tExternal calls:\n"]
@@ -120,8 +116,7 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
                         res.add(
-                            call_list_info,
-                            {"underlying_type": "external_calls_sending_eth"},
+                            call_list_info, {"underlying_type": "external_calls_sending_eth"},
                         )
 
             #
@@ -129,14 +124,11 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
             # If the calls are not the same ones that send eth, add the eth sending nodes.
             if calls != send_eth:
                 for (call_info, calls_list) in send_eth:
-                    res.add(
-                        call_info, {"underlying_type": "external_calls_sending_eth"}
-                    )
+                    res.add(call_info, {"underlying_type": "external_calls_sending_eth"})
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             res.add(
-                                call_list_info,
-                                {"underlying_type": "external_calls_sending_eth"},
+                                call_list_info, {"underlying_type": "external_calls_sending_eth"},
                             )
 
             for finding_value in events:

@@ -173,9 +173,7 @@ def get_canonical_names(ir, function_name, contract_name):
 
     # list of list of arguments
     argss = convert_arguments(ir.arguments)
-    return [
-        sig.format(f"{contract_name}.{function_name}", ",".join(args)) for args in argss
-    ]
+    return [sig.format(f"{contract_name}.{function_name}", ",".join(args)) for args in argss]
 
 
 def convert_arguments(arguments):
@@ -208,8 +206,7 @@ def convert_arguments(arguments):
 
 def is_temporary(ins):
     return isinstance(
-        ins,
-        (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure),
+        ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure),
     )
 
 
@@ -401,9 +398,7 @@ def _convert_type_contract(ir, slither):
                 "The codebase uses type(x).creationCode, but crytic-compile was not used. As a result, the bytecode cannot be found"
             )
             bytecode = "MISSING_BYTECODE"
-        assignment = Assignment(
-            ir.lvalue, Constant(str(bytecode)), ElementaryType("bytes")
-        )
+        assignment = Assignment(ir.lvalue, Constant(str(bytecode)), ElementaryType("bytes"))
         assignment.set_expression(ir.expression)
         assignment.set_node(ir.node)
         assignment.lvalue.set_type(ElementaryType("bytes"))
@@ -416,9 +411,7 @@ def _convert_type_contract(ir, slither):
                 "The codebase uses type(x).runtimeCode, but crytic-compile was not used. As a result, the bytecode cannot be found"
             )
             bytecode = "MISSING_BYTECODE"
-        assignment = Assignment(
-            ir.lvalue, Constant(str(bytecode)), ElementaryType("bytes")
-        )
+        assignment = Assignment(ir.lvalue, Constant(str(bytecode)), ElementaryType("bytes"))
         assignment.set_expression(ir.expression)
         assignment.set_node(ir.node)
         assignment.lvalue.set_type(ElementaryType("bytes"))
@@ -439,9 +432,7 @@ def _convert_type_contract(ir, slither):
         return assignment
 
     if ir.variable_right == "name":
-        assignment = Assignment(
-            ir.lvalue, Constant(contract.name), ElementaryType("string")
-        )
+        assignment = Assignment(ir.lvalue, Constant(contract.name), ElementaryType("string"))
         assignment.set_expression(ir.expression)
         assignment.set_node(ir.node)
         assignment.lvalue.set_type(ElementaryType("string"))
@@ -490,9 +481,7 @@ def propagate_types(ir, node):  # pylint: disable=too-many-locals
                     t_type = t.type
                     if isinstance(t_type, Contract):
                         contract = node.slither.get_contract_from_name(t_type.name)
-                        return convert_type_of_high_and_internal_level_call(
-                            ir, contract
-                        )
+                        return convert_type_of_high_and_internal_level_call(ir, contract)
 
                 # Convert HighLevelCall to LowLevelCall
                 if isinstance(t, ElementaryType) and t.name == "address":
@@ -527,9 +516,7 @@ def propagate_types(ir, node):  # pylint: disable=too-many-locals
             elif isinstance(ir, InternalCall):
                 # if its not a tuple, return a singleton
                 if ir.function is None:
-                    convert_type_of_high_and_internal_level_call(
-                        ir, node.function.contract
-                    )
+                    convert_type_of_high_and_internal_level_call(ir, node.function.contract)
                 return_type = ir.function.return_type
                 if return_type:
                     if len(return_type) == 1:
@@ -582,9 +569,7 @@ def propagate_types(ir, node):  # pylint: disable=too-many-locals
                     b.set_expression(ir.expression)
                     b.set_node(ir.node)
                     return b
-                if ir.variable_right == "selector" and isinstance(
-                    ir.variable_left.type, Function
-                ):
+                if ir.variable_right == "selector" and isinstance(ir.variable_left.type, Function):
                     assignment = Assignment(
                         ir.lvalue,
                         Constant(str(get_function_id(ir.variable_left.type.full_name))),
@@ -604,8 +589,7 @@ def propagate_types(ir, node):  # pylint: disable=too-many-locals
                 if (
                     left == SolidityVariable("this")
                     and isinstance(ir.variable_right, Constant)
-                    and str(ir.variable_right)
-                    in [x.name for x in ir.function.contract.functions]
+                    and str(ir.variable_right) in [x.name for x in ir.function.contract.functions]
                 ):
                     # Assumption that this.function_name can only compile if
                     # And the contract does not have two functions starting with function_name
@@ -654,12 +638,7 @@ def propagate_types(ir, node):  # pylint: disable=too-many-locals
                             # We dont need to check for function collision, as solc prevents the use of selector
                             # if there are multiple functions with the same name
                             f = next(
-                                (
-                                    f
-                                    for f in type_t.functions
-                                    if f.name == ir.variable_right
-                                ),
-                                None,
+                                (f for f in type_t.functions if f.name == ir.variable_right), None,
                             )
                             if f:
                                 ir.lvalue.set_type(f)
@@ -721,10 +700,9 @@ def propagate_types(ir, node):  # pylint: disable=too-many-locals
                 # temporary operation; they will be removed
                 pass
             else:
-                raise SlithIRError(
-                    "Not handling {} during type propgation".format(type(ir))
-                )
+                raise SlithIRError("Not handling {} during type propgation".format(type(ir)))
     return None
+
 
 def extract_tmp_call(ins, contract):
     assert isinstance(ins, TmpCall)
@@ -795,10 +773,7 @@ def extract_tmp_call(ins, contract):
             ins.called = SolidityFunction("blockhash(uint256)")
         elif str(ins.called) == "this.balance":
             s = SolidityCall(
-                SolidityFunction("this.balance()"),
-                ins.nbr_arguments,
-                ins.lvalue,
-                ins.type_call,
+                SolidityFunction("this.balance()"), ins.nbr_arguments, ins.lvalue, ins.type_call,
             )
             s.set_expression(ins.expression)
             return s
@@ -1050,17 +1025,13 @@ def convert_to_pop(ir, node):
 
     val = TemporaryVariable(node)
 
-    ir_sub_1 = Binary(
-        val, length, Constant("1", ElementaryType("uint256")), BinaryType.SUBTRACTION
-    )
+    ir_sub_1 = Binary(val, length, Constant("1", ElementaryType("uint256")), BinaryType.SUBTRACTION)
     ir_sub_1.set_expression(ir.expression)
     ir_sub_1.set_node(ir.node)
     ret.append(ir_sub_1)
 
     element_to_delete = ReferenceVariable(node)
-    ir_assign_element_to_delete = Index(
-        element_to_delete, arr, val, ElementaryType("uint256")
-    )
+    ir_assign_element_to_delete = Index(element_to_delete, arr, val, ElementaryType("uint256"))
     ir_length.lvalue.points_to = arr
     element_to_delete.set_type(ElementaryType("uint256"))
     ir_assign_element_to_delete.set_expression(ir.expression)
@@ -1093,11 +1064,7 @@ def look_for_library(contract, ir, using_for, t):
         lib_contract = contract.slither.get_contract_from_name(str(destination))
         if lib_contract:
             lib_call = LibraryCall(
-                lib_contract,
-                ir.function_name,
-                ir.nbr_arguments,
-                ir.lvalue,
-                ir.type_call,
+                lib_contract, ir.function_name, ir.nbr_arguments, ir.lvalue, ir.type_call,
             )
             lib_call.set_expression(ir.expression)
             lib_call.set_node(ir.node)
@@ -1157,9 +1124,7 @@ def convert_type_library_call(ir, lib_contract):
         # myFunc(uint)
         # can be called with an uint8
         for function in lib_contract.functions:
-            if function.name == ir.function_name and len(function.parameters) == len(
-                ir.arguments
-            ):
+            if function.name == ir.function_name and len(function.parameters) == len(ir.arguments):
                 func = function
                 break
     if not func:
@@ -1188,9 +1153,7 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
     :param return_type:
     :return:
     """
-    if isinstance(return_type, UserDefinedType) and isinstance(
-        return_type.type, Structure
-    ):
+    if isinstance(return_type, UserDefinedType) and isinstance(return_type.type, Structure):
         ret = []
         for v in return_type.type.elems_ordered:
             ret += _convert_to_structure_to_list(v.type)
@@ -1248,9 +1211,7 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
         # myFunc(uint)
         # can be called with an uint8
         for function in contract.functions:
-            if function.name == ir.function_name and len(function.parameters) == len(
-                ir.arguments
-            ):
+            if function.name == ir.function_name and len(function.parameters) == len(ir.arguments):
                 func = function
                 break
     # lowlelvel lookup needs to be done at last step
@@ -1336,14 +1297,7 @@ def remove_temporary(result):
         ins
         for ins in result
         if not isinstance(
-            ins,
-            (
-                Argument,
-                TmpNewElementaryType,
-                TmpNewContract,
-                TmpNewArray,
-                TmpNewStructure,
-            ),
+            ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure,),
         )
     ]
 
@@ -1369,9 +1323,7 @@ def remove_unused(result):
         # and reference that are written
         for ins in result:
             to_keep += [str(x) for x in ins.read]
-            if isinstance(ins, OperationWithLValue) and not isinstance(
-                ins, (Index, Member)
-            ):
+            if isinstance(ins, OperationWithLValue) and not isinstance(ins, (Index, Member)):
                 if isinstance(ins.lvalue, ReferenceVariable):
                     to_keep += [str(ins.lvalue)]
 

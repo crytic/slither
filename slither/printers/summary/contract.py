@@ -71,15 +71,11 @@ class ContractSummary(AbstractPrinter):
                 for function in functions:
                     if function.visibility in ["external", "public"]:
                         txt += green(
-                            "    - {} ({})\n".format(
-                                function.full_name, function.visibility
-                            )
+                            "    - {} ({})\n".format(function.full_name, function.visibility)
                         )
                     if function.visibility in ["internal", "private"]:
                         txt += magenta(
-                            "    - {} ({})\n".format(
-                                function.full_name, function.visibility
-                            )
+                            "    - {} ({})\n".format(function.full_name, function.visibility)
                         )
                     if function.visibility not in [
                         "external",
@@ -87,9 +83,7 @@ class ContractSummary(AbstractPrinter):
                         "internal",
                         "private",
                     ]:
-                        txt += "    - {}  ({})\n".format(
-                            function.full_name, function.visibility
-                        )
+                        txt += "    - {}  ({})\n".format(function.full_name, function.visibility)
 
                     additional_fields.add(
                         function, additional_fields={"visibility": function.visibility}

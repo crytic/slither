@@ -36,11 +36,7 @@ contract Token{
     def incorrect_erc20_interface(signature):
         (name, parameters, returnVars) = signature
 
-        if (
-            name == "transfer"
-            and parameters == ["address", "uint256"]
-            and returnVars != ["bool"]
-        ):
+        if name == "transfer" and parameters == ["address", "uint256"] and returnVars != ["bool"]:
             return True
 
         if (
@@ -50,11 +46,7 @@ contract Token{
         ):
             return True
 
-        if (
-            name == "approve"
-            and parameters == ["address", "uint256"]
-            and returnVars != ["bool"]
-        ):
+        if name == "approve" and parameters == ["address", "uint256"] and returnVars != ["bool"]:
             return True
 
         if (
@@ -64,11 +56,7 @@ contract Token{
         ):
             return True
 
-        if (
-            name == "balanceOf"
-            and parameters == ["address"]
-            and returnVars != ["uint256"]
-        ):
+        if name == "balanceOf" and parameters == ["address"] and returnVars != ["uint256"]:
             return True
 
         if name == "totalSupply" and parameters == [] and returnVars != ["uint256"]:
@@ -110,9 +98,7 @@ contract Token{
         """
         results = []
         for c in self.slither.contracts_derived:
-            functions = IncorrectERC20InterfaceDetection.detect_incorrect_erc20_interface(
-                c
-            )
+            functions = IncorrectERC20InterfaceDetection.detect_incorrect_erc20_interface(c)
             if functions:
                 for function in functions:
                     info = [

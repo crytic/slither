@@ -26,12 +26,8 @@ class ConstCandidateStateVars(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant"
 
     WIKI_TITLE = "State variables that could be declared constant"
-    WIKI_DESCRIPTION = (
-        "Constant state variables should be declared constant to save gas."
-    )
-    WIKI_RECOMMENDATION = (
-        "Add the `constant` attributes to state variables that never change."
-    )
+    WIKI_DESCRIPTION = "Constant state variables should be declared constant to save gas."
+    WIKI_RECOMMENDATION = "Add the `constant` attributes to state variables that never change."
 
     @staticmethod
     def _valid_candidate(v):
@@ -65,10 +61,7 @@ class ConstCandidateStateVars(AbstractDetector):
         if not values:
             return True
         if all(
-            (
-                val in self.valid_solidity_function or self._is_constant_var(val)
-                for val in values
-            )
+            (val in self.valid_solidity_function or self._is_constant_var(val) for val in values)
         ):
             return True
         return False
@@ -80,15 +73,15 @@ class ConstCandidateStateVars(AbstractDetector):
 
         all_variables = [c.state_variables for c in self.slither.contracts]
         all_variables = {item for sublist in all_variables for item in sublist}
-        all_non_constant_elementary_variables = {v for v in all_variables if self._valid_candidate(v)}
+        all_non_constant_elementary_variables = {
+            v for v in all_variables if self._valid_candidate(v)
+        }
 
         all_functions = [c.all_functions_called for c in self.slither.contracts]
         all_functions = list({item for sublist in all_functions for item in sublist})
 
         all_variables_written = [
-            f.state_variables_written
-            for f in all_functions
-            if not f.is_constructor_variables
+            f.state_variables_written for f in all_functions if not f.is_constructor_variables
         ]
         all_variables_written = {item for sublist in all_variables_written for item in sublist}
 
@@ -98,9 +91,7 @@ class ConstCandidateStateVars(AbstractDetector):
             if (not v in all_variables_written) and self._constant_initial_expression(v)
         ]
         # Order for deterministic results
-        constable_variables = sorted(
-            constable_variables, key=lambda x: x.canonical_name
-        )
+        constable_variables = sorted(constable_variables, key=lambda x: x.canonical_name)
 
         # Create a result for each finding
         for v in constable_variables:

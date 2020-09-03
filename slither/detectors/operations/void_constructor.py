@@ -9,9 +9,7 @@ class VoidConstructor(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#void-constructor"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#void-constructor"
 
     WIKI_TITLE = "Void constructor"
     WIKI_DESCRIPTION = "Detect the call to a constructor that is not implemented"

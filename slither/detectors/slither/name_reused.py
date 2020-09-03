@@ -49,9 +49,7 @@ As a result, the second contract cannot be analyzed.
 
         # First show the contracts that we know are missing
         incorrectly_constructed = [
-            contract
-            for contract in self.contracts
-            if contract.is_incorrectly_constructed
+            contract for contract in self.contracts if contract.is_incorrectly_constructed
         ]
 
         inheritance_corrupted = defaultdict(list)
@@ -68,9 +66,7 @@ As a result, the second contract cannot be analyzed.
                     info += ["\t- ", file, "\n"]
 
             if contract_name in inheritance_corrupted:
-                info += [
-                    "\tAs a result, the inherited contracts are not correctly analyzed:\n"
-                ]
+                info += ["\tAs a result, the inherited contracts are not correctly analyzed:\n"]
             for corrupted in inheritance_corrupted[contract_name]:
                 info += ["\t\t- ", corrupted, "\n"]
             res = self.generate_result(info)
@@ -83,18 +79,14 @@ As a result, the second contract cannot be analyzed.
         for b in most_base_with_missing_inheritance:
             info = [b, " inherits from a contract for which the name is reused.\n"]
             if b.inheritance:
-                info += [
-                    "\t- Slither could not determine which contract has a duplicate name:\n"
-                ]
+                info += ["\t- Slither could not determine which contract has a duplicate name:\n"]
                 for inheritance in b.inheritance:
                     info += ["\t\t-", inheritance, "\n"]
                 info += ["\t- Check if:\n"]
                 info += ["\t\t- A inherited contract is missing from this list,\n"]
                 info += ["\t\t- The contract are imported from the correct files.\n"]
             if b.derived_contracts:
-                info += [
-                    f"\t- This issue impacts the contracts inheriting from {b.name}:\n"
-                ]
+                info += [f"\t- This issue impacts the contracts inheriting from {b.name}:\n"]
                 for derived in b.derived_contracts:
                     info += ["\t\t-", derived, "\n"]
             res = self.generate_result(info)

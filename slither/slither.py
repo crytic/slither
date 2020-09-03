@@ -144,25 +144,17 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
 
     @property
     def detectors_informational(self):
-        return [
-            d
-            for d in self.detectors
-            if d.IMPACT == DetectorClassification.INFORMATIONAL
-        ]
+        return [d for d in self.detectors if d.IMPACT == DetectorClassification.INFORMATIONAL]
 
     @property
     def detectors_optimization(self):
-        return [
-            d for d in self.detectors if d.IMPACT == DetectorClassification.OPTIMIZATION
-        ]
+        return [d for d in self.detectors if d.IMPACT == DetectorClassification.OPTIMIZATION]
 
     def register_detector(self, detector_class):
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
-        _check_common_things(
-            "detector", detector_class, AbstractDetector, self._detectors
-        )
+        _check_common_things("detector", detector_class, AbstractDetector, self._detectors)
 
         instance = detector_class(self, logger_detector)
         self._detectors.append(instance)
@@ -171,9 +163,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
-        _check_common_things(
-            "printer", printer_class, AbstractPrinter, self._printers
-        )
+        _check_common_things("printer", printer_class, AbstractPrinter, self._printers)
 
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)

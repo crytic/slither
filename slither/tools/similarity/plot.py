@@ -7,9 +7,7 @@ try:
     import numpy as np
 except ImportError:
     print("ERROR: in order to use slither-simil, you need to install numpy:")
-    print(
-        "$ pip3 install numpy --user\n"
-    )
+    print("$ pip3 install numpy --user\n")
     sys.exit(-1)
 
 from slither.tools.similarity.encode import load_and_encode, parse_target

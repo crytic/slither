@@ -50,9 +50,7 @@ class AssignmentOperationType(Enum):
         if operation_type == "%=":
             return AssignmentOperationType.ASSIGN_MODULO
 
-        raise SlitherCoreError(
-            "get_type: Unknown operation type {})".format(operation_type)
-        )
+        raise SlitherCoreError("get_type: Unknown operation type {})".format(operation_type))
 
     def __str__(self):
         if self == AssignmentOperationType.ASSIGN:
@@ -117,10 +115,4 @@ class AssignmentOperation(ExpressionTyped):
         return self._type
 
     def __str__(self):
-        return (
-            str(self.expression_left)
-            + " "
-            + str(self.type)
-            + " "
-            + str(self.expression_right)
-        )
+        return str(self.expression_left) + " " + str(self.type) + " " + str(self.expression_right)

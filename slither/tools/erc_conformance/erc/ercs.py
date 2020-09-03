@@ -26,10 +26,10 @@ def _check_signature(erc_function, contract, ret):
         # The check on state variable is needed until we have a better API to handle state variable getters
         state_variable_as_function = contract.get_state_variable_from_name(name)
 
-        if (
-            not state_variable_as_function
-            or not state_variable_as_function.visibility in ["public", "external",]
-        ):
+        if not state_variable_as_function or not state_variable_as_function.visibility in [
+            "public",
+            "external",
+        ]:
             txt = f'[ ] {sig} is missing {"" if required else "(optional)"}'
             logger.info(txt)
             missing_func = output.Output(
@@ -39,10 +39,7 @@ def _check_signature(erc_function, contract, ret):
             ret["missing_function"].append(missing_func.data)
             return
 
-        types = [
-            str(x)
-            for x in export_nested_types_from_variable(state_variable_as_function)
-        ]
+        types = [str(x) for x in export_nested_types_from_variable(state_variable_as_function)]
 
         if types != parameters:
             txt = f'[ ] {sig} is missing {"" if required else "(optional)"}'
@@ -54,9 +51,7 @@ def _check_signature(erc_function, contract, ret):
             ret["missing_function"].append(missing_func.data)
             return
 
-        function_return_type = [
-            export_return_type_from_variable(state_variable_as_function)
-        ]
+        function_return_type = [export_return_type_from_variable(state_variable_as_function)]
         function = state_variable_as_function
 
         function_view = True
@@ -180,9 +175,7 @@ def _check_events(erc_event, contract, ret):
                 txt = f"\t[ ] parameter {i} should be indexed"
                 logger.info(txt)
 
-                missing_event_index = output.Output(
-                    txt, additional_fields={"missing_index": i}
-                )
+                missing_event_index = output.Output(txt, additional_fields={"missing_index": i})
                 missing_event_index.add_event(event)
                 ret["missing_event_index"].append(missing_event_index.data)
 

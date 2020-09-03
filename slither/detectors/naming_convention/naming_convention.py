@@ -91,9 +91,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         "private",
                     ] and self.is_mixed_case_with_underscore(func.name):
                         continue
-                    if func.name.startswith("echidna_") or func.name.startswith(
-                        "crytic_"
-                    ):
+                    if func.name.startswith("echidna_") or func.name.startswith("crytic_"):
                         continue
                     info = ["Function ", func, " is not in mixedCase\n"]
 
@@ -108,16 +106,12 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     if argument in func.variables_read_or_written:
                         correct_naming = self.is_mixed_case(argument.name)
                     else:
-                        correct_naming = self.is_mixed_case_with_underscore(
-                            argument.name
-                        )
+                        correct_naming = self.is_mixed_case_with_underscore(argument.name)
                     if not correct_naming:
                         info = ["Parameter ", argument, " is not in mixedCase\n"]
 
                         res = self.generate_result(info)
-                        res.add(
-                            argument, {"target": "parameter", "convention": "mixedCase"}
-                        )
+                        res.add(argument, {"target": "parameter", "convention": "mixedCase"})
                         results.append(res)
 
             for var in contract.state_variables_declared:
@@ -131,11 +125,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
                         res = self.generate_result(info)
                         res.add(
-                            var,
-                            {
-                                "target": "variable",
-                                "convention": "l_O_I_should_not_be_used",
-                            },
+                            var, {"target": "variable", "convention": "l_O_I_should_not_be_used",},
                         )
                         results.append(res)
 

@@ -16,9 +16,7 @@ class LowLevelCalls(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls"
 
     WIKI_TITLE = "Low-level calls"
     WIKI_DESCRIPTION = "The use of low-level calls is error-prone. Low-level calls do not check for [code existence](https://solidity.readthedocs.io/en/v0.4.25/control-structures.html#error-handling-assert-require-revert-and-exceptions) or call success."

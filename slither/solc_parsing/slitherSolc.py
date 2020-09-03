@@ -18,6 +18,7 @@ logging.basicConfig()
 logger = logging.getLogger("SlitherSolcParsing")
 logger.setLevel(logging.INFO)
 
+
 class SlitherSolc:
     # pylint: disable=no-self-use
     def __init__(self, filename: str, core: SlitherCore):
@@ -82,9 +83,7 @@ class SlitherSolc:
             data_loaded = json.loads(json_data)
             # Truffle AST
             if "ast" in data_loaded:
-                self.parse_contracts_from_loaded_json(
-                    data_loaded["ast"], data_loaded["sourcePath"]
-                )
+                self.parse_contracts_from_loaded_json(data_loaded["ast"], data_loaded["sourcePath"])
                 return True
             # solc AST, where the non-json text was removed
             if "attributes" in data_loaded:
@@ -106,7 +105,9 @@ class SlitherSolc:
                 return True
             return False
 
-    def parse_contracts_from_loaded_json(self, data_loaded: Dict, filename: str):  # pylint: disable=too-many-branches
+    def parse_contracts_from_loaded_json(
+        self, data_loaded: Dict, filename: str
+    ):  # pylint: disable=too-many-branches
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
 
@@ -154,9 +155,7 @@ class SlitherSolc:
                 if self.is_compact_ast:
                     import_directive = Import(contract_data["absolutePath"])
                 else:
-                    import_directive = Import(
-                        contract_data["attributes"]["absolutePath"]
-                    )
+                    import_directive = Import(contract_data["attributes"]["absolutePath"])
                 import_directive.set_offset(contract_data["src"], self._core)
                 self._core.import_directives.append(import_directive)
 
@@ -166,13 +165,11 @@ class SlitherSolc:
             ]:
                 # This can only happen for top-level structure and enum
                 # They were introduced with 0.6.5
-                assert (
-                    self._is_compact_ast
-                )  # Do not support top level definition for legacy AST
+                assert self._is_compact_ast  # Do not support top level definition for legacy AST
                 fake_contract_data = {
                     "name": f"SlitherInternalTopLevelContract{self._top_level_contracts_counter}",
                     "id": -1000
-                          + self._top_level_contracts_counter,  # TODO: determine if collission possible
+                    + self._top_level_contracts_counter,  # TODO: determine if collission possible
                     "linearizedBaseContracts": [],
                     "fullyImplemented": True,
                     "contractKind": "SLitherInternal",
@@ -252,8 +249,8 @@ class SlitherSolc:
         # the key is the contractid
         for contract in self._underlying_contract_to_parser:
             if (
-                    contract.name.startswith("SlitherInternalTopLevelContract")
-                    and not contract.is_top_level
+                contract.name.startswith("SlitherInternalTopLevelContract")
+                and not contract.is_top_level
             ):
                 raise SlitherException(
                     """Your codebase has a contract named 'SlitherInternalTopLevelContract'.
@@ -294,9 +291,7 @@ Please rename it, this name is reserved for Slither's internals"""
             # Resolve immediate base contracts
             for i in contract_parser.baseContracts:
                 if i in contract_parser.remapping:
-                    fathers.append(
-                        self._core.get_contract_from_name(contract_parser.remapping[i])
-                    )
+                    fathers.append(self._core.get_contract_from_name(contract_parser.remapping[i]))
                 elif i in self._contracts_by_id:
                     fathers.append(self._contracts_by_id[i])
                 else:
@@ -321,9 +316,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 self._core.contracts_with_missing_inheritance.add(
                     contract_parser.underlying_contract
                 )
-                contract_parser.log_incorrect_parsing(
-                    f"Missing inheritance {contract_parser}"
-                )
+                contract_parser.log_incorrect_parsing(f"Missing inheritance {contract_parser}")
                 contract_parser.set_is_analyzed(True)
                 contract_parser.delete_content()
 
@@ -335,14 +328,10 @@ Please rename it, this name is reserved for Slither's internals"""
         [c.set_is_analyzed(False) for c in self._underlying_contract_to_parser.values()]
 
         libraries = [
-            c
-            for c in contracts_to_be_analyzed
-            if c.underlying_contract.contract_kind == "library"
+            c for c in contracts_to_be_analyzed if c.underlying_contract.contract_kind == "library"
         ]
         contracts_to_be_analyzed = [
-            c
-            for c in contracts_to_be_analyzed
-            if c.underlying_contract.contract_kind != "library"
+            c for c in contracts_to_be_analyzed if c.underlying_contract.contract_kind != "library"
         ]
 
         # We first parse the struct/variables/functions/contract
@@ -382,9 +371,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_first_part(
-            self,
-            contracts_to_be_analyzed: List[ContractSolc],
-            libraries: List[ContractSolc],
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc],
     ):
         for lib in libraries:
             self._parse_struct_var_modifiers_functions(lib)
@@ -409,9 +396,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_second_part(
-            self,
-            contracts_to_be_analyzed: List[ContractSolc],
-            libraries: List[ContractSolc],
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc],
     ):
         for lib in libraries:
             self._analyze_struct_events(lib)
@@ -436,9 +421,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_third_part(
-            self,
-            contracts_to_be_analyzed: List[ContractSolc],
-            libraries: List[ContractSolc],
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc],
     ):
         for lib in libraries:
             self._analyze_variables_modifiers_functions(lib)

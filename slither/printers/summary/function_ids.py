@@ -11,9 +11,7 @@ class FunctionIds(AbstractPrinter):
     ARGUMENT = "function-id"
     HELP = "Print the keccack256 signature of the functions"
 
-    WIKI = (
-        "https://github.com/trailofbits/slither/wiki/Printer-documentation#function-id"
-    )
+    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#function-id"
 
     def output(self, _filename):
         """
@@ -30,9 +28,7 @@ class FunctionIds(AbstractPrinter):
             for function in contract.functions:
                 if function.visibility in ["public", "external"]:
                     function_id = get_function_id(function.solidity_signature)
-                    table.add_row(
-                        [function.solidity_signature, f"{function_id:#0{10}x}"]
-                    )
+                    table.add_row([function.solidity_signature, f"{function_id:#0{10}x}"])
             for variable in contract.state_variables:
                 if variable.visibility in ["public"]:
                     sig = variable.function_name

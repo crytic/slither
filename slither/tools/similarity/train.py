@@ -33,9 +33,7 @@ def train(args):  # pylint: disable=too-many-locals
                     if ir != []:
                         x = " ".join(ir)
                         f.write(x + "\n")
-                        cache.append(
-                            (os.path.split(filename_inner)[-1], contract, function, x)
-                        )
+                        cache.append((os.path.split(filename_inner)[-1], contract, function, x))
 
         logger.info("Starting training")
         model = train_unsupervised(input=last_data_train_filename, model="skipgram")

@@ -111,9 +111,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
                         if node in divisions[r]:
                             nodes += [n for n in divisions[r] if n not in nodes]
                         else:
-                            nodes += [
-                                n for n in divisions[r] + [node] if n not in nodes
-                            ]
+                            nodes += [n for n in divisions[r] + [node] if n not in nodes]
                 if nodes:
                     node_results = nodes
 
@@ -172,9 +170,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
         """
         results = []
         for contract in self.contracts:
-            divisions_before_multiplications = self.detect_divide_before_multiply(
-                contract
-            )
+            divisions_before_multiplications = self.detect_divide_before_multiply(contract)
             if divisions_before_multiplications:
                 for (func, nodes) in divisions_before_multiplications:
 

@@ -26,15 +26,11 @@ def parse_args():
 
     parser.add_argument("model", help="model.bin")
 
-    parser.add_argument(
-        "--filename", action="store", dest="filename", help="contract.sol"
-    )
+    parser.add_argument("--filename", action="store", dest="filename", help="contract.sol")
 
     parser.add_argument("--fname", action="store", dest="fname", help="Target function")
 
-    parser.add_argument(
-        "--ext", action="store", dest="ext", help="Extension to filter contracts"
-    )
+    parser.add_argument("--ext", action="store", dest="ext", help="Extension to filter contracts")
 
     parser.add_argument(
         "--nsamples",
@@ -58,10 +54,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--version",
-        help="displays the current version",
-        version="0.0",
-        action="version",
+        "--version", help="displays the current version", version="0.0", action="version",
     )
 
     cryticparser.init(parser)

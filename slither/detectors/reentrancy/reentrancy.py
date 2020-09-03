@@ -16,10 +16,7 @@ from slither.slithir.operations import Call, EventCall
 
 
 def union_dict(d1, d2):
-    d3 = {
-        k: d1.get(k, set()) | d2.get(k, set())
-        for k in set(list(d1.keys()) + list(d2.keys()))
-    }
+    d3 = {k: d1.get(k, set()) | d2.get(k, set()) for k in set(list(d1.keys()) + list(d2.keys()))}
     return defaultdict(set, d3)
 
 
@@ -43,8 +40,7 @@ def is_subset(
 
 def to_hashable(d: Dict[Node, Set[Node]]):
     list_tuple = list(
-        tuple((k, tuple(sorted(values, key=lambda x: x.node_id))))
-        for k, values in d.items()
+        tuple((k, tuple(sorted(values, key=lambda x: x.node_id)))) for k, values in d.items()
     )
     return tuple(sorted(list_tuple, key=lambda x: x[0].node_id))
 
@@ -129,12 +125,9 @@ class AbstractState:
                         if key != skip_father
                     },
                 )
-                self._reads = union_dict(
-                    self._reads, father.context[detector.KEY].reads
-                )
+                self._reads = union_dict(self._reads, father.context[detector.KEY].reads)
                 self._reads_prior_calls = union_dict(
-                    self.reads_prior_calls,
-                    father.context[detector.KEY].reads_prior_calls,
+                    self.reads_prior_calls, father.context[detector.KEY].reads_prior_calls,
                 )
 
     def analyze_node(self, node, detector):
@@ -185,17 +178,13 @@ class AbstractState:
         self._send_eth = union_dict(self._send_eth, fathers.send_eth)
         self._calls = union_dict(self._calls, fathers.calls)
         self._reads = union_dict(self._reads, fathers.reads)
-        self._reads_prior_calls = union_dict(
-            self._reads_prior_calls, fathers.reads_prior_calls
-        )
+        self._reads_prior_calls = union_dict(self._reads_prior_calls, fathers.reads_prior_calls)
 
     def does_not_bring_new_info(self, new_info):
         if is_subset(new_info.calls, self.calls):
             if is_subset(new_info.send_eth, self.send_eth):
                 if is_subset(new_info.reads, self.reads):
-                    if dict_are_equal(
-                        new_info.reads_prior_calls, self.reads_prior_calls
-                    ):
+                    if dict_are_equal(new_info.reads_prior_calls, self.reads_prior_calls):
                         return True
         return False
 

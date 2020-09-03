@@ -16,9 +16,7 @@ class TooManyDigits(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits"
     WIKI_TITLE = "Too many digits"
     WIKI_DESCRIPTION = """
 Literals with many digits are difficult to read and review.

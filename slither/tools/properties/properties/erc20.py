@@ -9,15 +9,9 @@ from crytic_compile.platform import Type as PlatformType
 from slither.core.declarations import Contract
 from slither.tools.properties.addresses.address import Addresses
 from slither.tools.properties.platforms.echidna import generate_echidna_config
-from slither.tools.properties.properties.ercs.erc20.properties.burn import (
-    ERC20_NotBurnable,
-)
-from slither.tools.properties.properties.ercs.erc20.properties.initialization import (
-    ERC20_CONFIG,
-)
-from slither.tools.properties.properties.ercs.erc20.properties.mint import (
-    ERC20_NotMintable,
-)
+from slither.tools.properties.properties.ercs.erc20.properties.burn import ERC20_NotBurnable
+from slither.tools.properties.properties.ercs.erc20.properties.initialization import ERC20_CONFIG
+from slither.tools.properties.properties.ercs.erc20.properties.mint import ERC20_NotMintable
 from slither.tools.properties.properties.ercs.erc20.properties.mint_and_burn import (
     ERC20_NotMintableNotBurnable,
 )
@@ -25,9 +19,7 @@ from slither.tools.properties.properties.ercs.erc20.properties.transfer import (
     ERC20_Transferable,
     ERC20_Pausable,
 )
-from slither.tools.properties.properties.ercs.erc20.unit_tests.truffle import (
-    generate_truffle_test,
-)
+from slither.tools.properties.properties.ercs.erc20.unit_tests.truffle import generate_truffle_test
 from slither.tools.properties.properties.properties import (
     property_to_solidity,
     Property,
@@ -44,19 +36,13 @@ logger = logging.getLogger("Slither")
 PropertyDescription = namedtuple("PropertyDescription", ["properties", "description"])
 
 ERC20_PROPERTIES = {
-    "Transferable": PropertyDescription(
-        ERC20_Transferable, "Test the correct tokens transfer"
-    ),
+    "Transferable": PropertyDescription(ERC20_Transferable, "Test the correct tokens transfer"),
     "Pausable": PropertyDescription(ERC20_Pausable, "Test the pausable functionality"),
-    "NotMintable": PropertyDescription(
-        ERC20_NotMintable, "Test that no one can mint tokens"
-    ),
+    "NotMintable": PropertyDescription(ERC20_NotMintable, "Test that no one can mint tokens"),
     "NotMintableNotBurnable": PropertyDescription(
         ERC20_NotMintableNotBurnable, "Test that no one can mint or burn tokens"
     ),
-    "NotBurnable": PropertyDescription(
-        ERC20_NotBurnable, "Test that no one can burn tokens"
-    ),
+    "NotBurnable": PropertyDescription(ERC20_NotBurnable, "Test that no one can burn tokens"),
     "Burnable": PropertyDescription(
         ERC20_NotBurnable,
         'Test the burn of tokens. Require the "burn(address) returns()" function',
@@ -85,9 +71,7 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
         PlatformType.TRUFFLE,
         PlatformType.SOLC,
     ]:
-        logging.error(
-            f"{contract.slither.crytic_compile.type} not yet supported by slither-prop"
-        )
+        logging.error(f"{contract.slither.crytic_compile.type} not yet supported by slither-prop")
         return
 
     # Check if the contract is an ERC20 contract and if the functions have the correct visibility
@@ -98,9 +82,7 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
 
     properties = ERC20_PROPERTIES.get(type_property, None)
     if properties is None:
-        logger.error(
-            f"{type_property} unknown. Types available {ERC20_PROPERTIES.keys()}"
-        )
+        logger.error(f"{type_property} unknown. Types available {ERC20_PROPERTIES.keys()}")
         return
     properties = properties.properties
 
@@ -120,11 +102,7 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
     # Generate the Test contract
     initialization_recommendation = _initialization_recommendation(type_property)
     contract_filename, contract_name = generate_test_contract(
-        contract,
-        type_property,
-        output_dir,
-        property_file,
-        initialization_recommendation,
+        contract, type_property, output_dir, property_file, initialization_recommendation,
     )
 
     # Generate Echidna config file
@@ -136,14 +114,10 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
 
     # If truffle, generate unit tests
     if contract.slither.crytic_compile.type == PlatformType.TRUFFLE:
-        unit_test_info = generate_truffle_test(
-            contract, type_property, unit_tests, addresses
-        )
+        unit_test_info = generate_truffle_test(contract, type_property, unit_tests, addresses)
 
     logger.info("################################################")
-    logger.info(
-        green(f"Update the constructor in {Path(output_dir, contract_filename)}")
-    )
+    logger.info(green(f"Update the constructor in {Path(output_dir, contract_filename)}"))
 
     if unit_test_info:
         logger.info(green(unit_test_info))
@@ -192,9 +166,7 @@ def _check_compatibility(contract):
     if transfer.visibility != "public":
         errors = f"slither-prop requires {transfer.canonical_name} to be public. Please change the visibility"
 
-    transfer_from = contract.get_function_from_signature(
-        "transferFrom(address,address,uint256)"
-    )
+    transfer_from = contract.get_function_from_signature("transferFrom(address,address,uint256)")
     if transfer_from.visibility != "public":
         if errors:
             errors += "\n"
@@ -213,9 +185,7 @@ def _get_properties(contract, properties: List[Property]) -> Tuple[str, List[Pro
     solidity_properties = ""
 
     if contract.slither.crytic_compile.type == PlatformType.TRUFFLE:
-        solidity_properties += "\n".join(
-            [property_to_solidity(p) for p in ERC20_CONFIG]
-        )
+        solidity_properties += "\n".join([property_to_solidity(p) for p in ERC20_CONFIG])
 
     solidity_properties += "\n".join([property_to_solidity(p) for p in properties])
     unit_tests = [p for p in properties if p.is_unit_test]

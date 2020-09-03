@@ -3,7 +3,9 @@ from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.variable import SlithIRVariable
 
 
-class LocalIRVariable(LocalVariable, SlithIRVariable):  # pylint: disable=too-many-instance-attributes
+class LocalIRVariable(
+    LocalVariable, SlithIRVariable
+):  # pylint: disable=too-many-instance-attributes
     def __init__(self, local_variable):
         assert isinstance(local_variable, LocalVariable)
 
@@ -67,7 +69,5 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):  # pylint: disable=too-ma
     @property
     def ssa_name(self):
         if self.is_storage:
-            return "{}_{} (-> {})".format(
-                self._name, self.index, [v.name for v in self.refers_to]
-            )
+            return "{}_{} (-> {})".format(self._name, self.index, [v.name for v in self.refers_to])
         return "{}_{}".format(self._name, self.index)

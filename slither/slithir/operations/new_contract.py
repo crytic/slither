@@ -92,6 +92,4 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
         if self.call_salt:
             options += "salt:{} ".format(self.call_salt)
         args = [str(a) for a in self.arguments]
-        return "{} = new {}({}) {}".format(
-            self.lvalue, self.contract_name, ",".join(args), options
-        )
+        return "{} = new {}({}) {}".format(self.lvalue, self.contract_name, ",".join(args), options)

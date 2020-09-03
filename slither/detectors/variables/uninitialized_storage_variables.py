@@ -61,9 +61,7 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
         else:
             self.visited_all_paths[node] = []
 
-        self.visited_all_paths[node] = list(
-            set(self.visited_all_paths[node] + fathers_context)
-        )
+        self.visited_all_paths[node] = list(set(self.visited_all_paths[node] + fathers_context))
 
         if self.key in node.context:
             fathers_context += node.context[self.key]
@@ -74,9 +72,7 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
                 self.results.append((function, uninitialized_storage_variable))
 
         # Only save the storage variables that are not yet written
-        uninitialized_storage_variables = list(
-            set(fathers_context) - set(node.variables_written)
-        )
+        uninitialized_storage_variables = list(set(fathers_context) - set(node.variables_written))
         node.context[self.key] = uninitialized_storage_variables
 
         for son in node.sons:
@@ -99,13 +95,9 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
             for function in contract.functions:
                 if function.is_implemented:
                     uninitialized_storage_variables = [
-                        v
-                        for v in function.local_variables
-                        if v.is_storage and v.uninitialized
+                        v for v in function.local_variables if v.is_storage and v.uninitialized
                     ]
-                    function.entry_point.context[
-                        self.key
-                    ] = uninitialized_storage_variables
+                    function.entry_point.context[self.key] = uninitialized_storage_variables
                     self._detect_uninitialized(function, function.entry_point, [])
 
         for (function, uninitialized_storage_variable) in self.results:

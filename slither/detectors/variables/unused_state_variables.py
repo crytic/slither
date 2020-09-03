@@ -17,19 +17,13 @@ def detect_unused(contract):
     all_functions = contract.all_functions_called + contract.modifiers
     variables_used = [x.state_variables_read for x in all_functions]
     variables_used += [
-        x.state_variables_written
-        for x in all_functions
-        if not x.is_constructor_variables
+        x.state_variables_written for x in all_functions if not x.is_constructor_variables
     ]
 
     array_candidates = [x.variables for x in all_functions]
+    array_candidates = [i for sl in array_candidates for i in sl] + contract.state_variables
     array_candidates = [
-        i for sl in array_candidates for i in sl
-    ] + contract.state_variables
-    array_candidates = [
-        x.type.length
-        for x in array_candidates
-        if isinstance(x.type, ArrayType) and x.type.length
+        x.type.length for x in array_candidates if isinstance(x.type, ArrayType) and x.type.length
     ]
     array_candidates = [ExportValues(x).result() for x in array_candidates]
     array_candidates = [i for sl in array_candidates for i in sl]
@@ -40,11 +34,7 @@ def detect_unused(contract):
     variables_used = list(set(variables_used + array_candidates))
 
     # Return the variables unused that are not public
-    return [
-        x
-        for x in contract.variables
-        if x not in variables_used and x.visibility != "public"
-    ]
+    return [x for x in contract.variables if x not in variables_used and x.visibility != "public"]
 
 
 class UnusedStateVars(AbstractDetector):

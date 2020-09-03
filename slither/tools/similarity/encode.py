@@ -16,9 +16,7 @@ from slither.core.solidity_types import (
     UserDefinedType,
 )
 from slither.core.variables.local_variable import LocalVariable
-from slither.core.variables.local_variable_init_from_tuple import (
-    LocalVariableInitFromTuple,
-)
+from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
     Assignment,
@@ -73,9 +71,7 @@ def parse_target(target):
         return None, parts[0]
     if len(parts) == 2:
         return parts
-    simil_logger.error(
-        "Invalid target. It should be 'function' or 'Contract.function'"
-    )
+    simil_logger.error("Invalid target. It should be 'function' or 'Contract.function'")
     return None
 
 
@@ -235,9 +231,7 @@ def encode_contract(cfilename, **kwargs):
     try:
         slither = Slither(cfilename, **kwargs)
     except Exception:  # pylint: disable=broad-except
-        simil_logger.error(
-            "Compilation failed for %s using %s", cfilename, kwargs["solc"]
-        )
+        simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs["solc"])
         return r
 
     # Iterate over all the contracts

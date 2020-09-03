@@ -12,9 +12,7 @@ def custom_format(slither, result):
         contract = slither.get_contract_from_name(contract_name)
         var = contract.get_state_variable_from_name(element["name"])
         if not var.expression:
-            raise FormatImpossible(
-                f"{var.name} is uninitialized and cannot become constant."
-            )
+            raise FormatImpossible(f"{var.name} is uninitialized and cannot become constant.")
 
         _patch(
             slither,

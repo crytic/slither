@@ -46,13 +46,13 @@ def _all_properties():
 
 
 class ListScenarios(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):   # pylint: disable=signature-differs
+    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
         logger.info(_all_scenarios())
         parser.exit()
 
 
 class ListProperties(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):   # pylint: disable=signature-differs
+    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
         logger.info(_all_properties())
         parser.exit()
 
@@ -105,9 +105,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--address-attacker",
-        help=f"Attacker address. Default {ATTACKER_ADDRESS}",
-        default=None,
+        "--address-attacker", help=f"Attacker address. Default {ATTACKER_ADDRESS}", default=None,
     )
 
     # Add default arguments from crytic-compile

@@ -92,11 +92,7 @@ class SolidityVariable(Context):
 
     # dev function, will be removed once the code is stable
     def _check_name(self, name: str):  # pylint: disable=no-self-use
-        assert (
-            name in SOLIDITY_VARIABLES
-            or name.endswith("_slot")
-            or name.endswith("_offset")
-        )
+        assert name in SOLIDITY_VARIABLES or name.endswith("_slot") or name.endswith("_offset")
 
     @property
     def state_variable(self):
@@ -126,7 +122,6 @@ class SolidityVariable(Context):
 
 
 class SolidityVariableComposed(SolidityVariable):
-
     def _check_name(self, name: str):
         assert name in SOLIDITY_VARIABLES_COMPOSED
 

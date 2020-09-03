@@ -15,7 +15,9 @@ class TxOrigin(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-usage-of-txorigin"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-usage-of-txorigin"
+    )
 
     WIKI_TITLE = "Dangerous usage of `tx.origin`"
     WIKI_DESCRIPTION = "`tx.origin`-based protection can be abused by a malicious contract if a legitimate user interacts with the malicious contract."

@@ -3,7 +3,9 @@ from decimal import Decimal
 from slither.exceptions import SlitherException
 
 
-def convert_subdenomination(value: str, sub: str) -> int:  # pylint: disable=too-many-return-statements
+def convert_subdenomination(
+    value: str, sub: str
+) -> int:  # pylint: disable=too-many-return-statements
 
     # to allow 0.1 ether conversion
     if value[0:2] == "0x":
@@ -31,6 +33,4 @@ def convert_subdenomination(value: str, sub: str) -> int:  # pylint: disable=too
     if sub == "years":
         return int(decimal_value * 60 * 60 * 24 * 7 * 365)
 
-    raise SlitherException(
-        f"Subdemonination conversion impossible {decimal_value} {sub}"
-    )
+    raise SlitherException(f"Subdemonination conversion impossible {decimal_value} {sub}")

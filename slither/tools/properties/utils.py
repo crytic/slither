@@ -27,9 +27,7 @@ def write_file(
         if discard_if_exist:
             return
         if not allow_overwrite:
-            logger.info(
-                yellow(f"{file_to_write} already exist and will not be overwritten")
-            )
+            logger.info(yellow(f"{file_to_write} already exist and will not be overwritten"))
             return
         logger.info(yellow(f"Overwrite {file_to_write}"))
     else:

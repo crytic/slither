@@ -40,7 +40,9 @@ contract Constant{
 `Constant` was deployed with Solidity 0.4.25. Bob writes a smart contract that interacts with `Constant` in Solidity 0.5.0. 
 All the calls to `get` revert, breaking Bob's smart contract execution."""
 
-    WIKI_RECOMMENDATION = "Ensure the attributes of contracts compiled prior to Solidity 0.5.0 are correct."
+    WIKI_RECOMMENDATION = (
+        "Ensure the attributes of contracts compiled prior to Solidity 0.5.0 are correct."
+    )
 
     def _detect(self):
         """ Detect the constant function using assembly code

@@ -29,10 +29,29 @@ jobs:
           pip install .
           pip install deepdiff numpy
 
-          echo 'disable=SC1090"' >> ~/.shellcheckrc
-
           mkdir -p .github/linters
           cp pyproject.toml .github/linters
+
+      # Currently pylint in super linter does not have
+      # Access to the libraries installed
+      # Leading to import error
+      # https://github.com/github/super-linter/issues/157#issuecomment-648850330
+      ## Dependencies with pip in venv
+      - name: Install dependencies with pip
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install .
+          .venv/bin/pip install deepdiff numpy
+      ## Dependencies with pipenv
+      - name: Install dependencies with pipenv
+        run: |
+          python3 -m pip install pipenv
+          python3 -m pipenv sync --python 3.6
+        env:
+          PIPENV_VENV_IN_PROJECT: 1
+      # Now we move the dependencies where super-linter can see them
+      - name: Move the dependencies
+        run: mv .venv /home/runner/work/_temp/_github_workflow
 
       - name: Lint everything
         uses: docker://github/super-linter:v3
@@ -48,3 +67,7 @@ jobs:
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_FLAKE8: false
           VALIDATE_DOCKERFILE: false
+          VALIDATE_DOCKERFILE_HADOLINT: false
+          VALIDATE_EDITORCONFIG: false
+          PYTHONPATH: "/github/workspace/:/github/workflow/.venv/lib/python3.6/site-packages"
+          SHELLCHECK_OPTS: "-e SC1090"

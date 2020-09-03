@@ -169,12 +169,8 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._dominance_frontier: Set["Node"] = set()
         # Phi origin
         # key are variable name
-        self._phi_origins_state_variables: Dict[
-            str, Tuple[StateVariable, Set["Node"]]
-        ] = {}
-        self._phi_origins_local_variables: Dict[
-            str, Tuple[LocalVariable, Set["Node"]]
-        ] = {}
+        self._phi_origins_state_variables: Dict[str, Tuple[StateVariable, Set["Node"]]] = {}
+        self._phi_origins_local_variables: Dict[str, Tuple[LocalVariable, Set["Node"]]] = {}
         # self._phi_origins_member_variables: Dict[str, Tuple[MemberVariable, Set["Node"]]] = {}
 
         self._expression: Optional[Expression] = None
@@ -721,9 +717,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
     @staticmethod
     def _is_non_slithir_var(var: Variable):
-        return not isinstance(
-            var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable)
-        )
+        return not isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
 
     @staticmethod
     def _is_valid_slithir_var(var: Variable):
@@ -804,15 +798,11 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     ###################################################################################
 
     @property
-    def phi_origins_local_variables(
-        self,
-    ) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
+    def phi_origins_local_variables(self,) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
         return self._phi_origins_local_variables
 
     @property
-    def phi_origins_state_variables(
-        self,
-    ) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
+    def phi_origins_state_variables(self,) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
         return self._phi_origins_state_variables
 
     # @property
@@ -900,9 +890,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                     self._high_level_calls.append((self.function.contract, ir.function))
                 else:
                     try:
-                        self._high_level_calls.append(
-                            (ir.destination.type.type, ir.function)
-                        )
+                        self._high_level_calls.append((ir.destination.type.type, ir.function))
                     except AttributeError as error:
                         #  pylint: disable=raise-missing-from
                         raise SlitherException(
@@ -914,22 +902,12 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                 self._library_calls.append((ir.destination, ir.function))
 
         self._vars_read = list(set(self._vars_read))
-        self._state_vars_read = [
-            v for v in self._vars_read if isinstance(v, StateVariable)
-        ]
-        self._local_vars_read = [
-            v for v in self._vars_read if isinstance(v, LocalVariable)
-        ]
-        self._solidity_vars_read = [
-            v for v in self._vars_read if isinstance(v, SolidityVariable)
-        ]
+        self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
+        self._local_vars_read = [v for v in self._vars_read if isinstance(v, LocalVariable)]
+        self._solidity_vars_read = [v for v in self._vars_read if isinstance(v, SolidityVariable)]
         self._vars_written = list(set(self._vars_written))
-        self._state_vars_written = [
-            v for v in self._vars_written if isinstance(v, StateVariable)
-        ]
-        self._local_vars_written = [
-            v for v in self._vars_written if isinstance(v, LocalVariable)
-        ]
+        self._state_vars_written = [v for v in self._vars_written if isinstance(v, StateVariable)]
+        self._local_vars_written = [v for v in self._vars_written if isinstance(v, LocalVariable)]
         self._internal_calls = list(set(self._internal_calls))
         self._solidity_calls = list(set(self._solidity_calls))
         self._high_level_calls = list(set(self._high_level_calls))
@@ -955,9 +933,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                 continue
             if not isinstance(ir, (Phi, Index, Member)):
                 self._ssa_vars_read += [
-                    v
-                    for v in ir.read
-                    if isinstance(v, (StateIRVariable, LocalIRVariable))
+                    v for v in ir.read if isinstance(v, (StateIRVariable, LocalIRVariable))
                 ]
                 for var in ir.read:
                     if isinstance(var, ReferenceVariable):
@@ -985,12 +961,8 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                         continue
                     self._ssa_vars_written.append(var)
         self._ssa_vars_read = list(set(self._ssa_vars_read))
-        self._ssa_state_vars_read = [
-            v for v in self._ssa_vars_read if isinstance(v, StateVariable)
-        ]
-        self._ssa_local_vars_read = [
-            v for v in self._ssa_vars_read if isinstance(v, LocalVariable)
-        ]
+        self._ssa_state_vars_read = [v for v in self._ssa_vars_read if isinstance(v, StateVariable)]
+        self._ssa_local_vars_read = [v for v in self._ssa_vars_read if isinstance(v, LocalVariable)]
         self._ssa_vars_written = list(set(self._ssa_vars_written))
         self._ssa_state_vars_written = [
             v for v in self._ssa_vars_written if isinstance(v, StateVariable)
@@ -1003,20 +975,12 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         vars_written = [self._convert_ssa(x) for x in self._ssa_vars_written]
 
         self._vars_read += [v for v in vars_read if v not in self._vars_read]
-        self._state_vars_read = [
-            v for v in self._vars_read if isinstance(v, StateVariable)
-        ]
-        self._local_vars_read = [
-            v for v in self._vars_read if isinstance(v, LocalVariable)
-        ]
+        self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
+        self._local_vars_read = [v for v in self._vars_read if isinstance(v, LocalVariable)]
 
         self._vars_written += [v for v in vars_written if v not in self._vars_written]
-        self._state_vars_written = [
-            v for v in self._vars_written if isinstance(v, StateVariable)
-        ]
-        self._local_vars_written = [
-            v for v in self._vars_written if isinstance(v, LocalVariable)
-        ]
+        self._state_vars_written = [v for v in self._vars_written if isinstance(v, StateVariable)]
+        self._local_vars_written = [v for v in self._vars_written if isinstance(v, LocalVariable)]
 
     # endregion
     ###################################################################################

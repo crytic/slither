@@ -24,9 +24,7 @@ class LockedEther(AbstractDetector):  # pylint: disable=too-many-nested-blocks
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether"
 
     WIKI_TITLE = "Contracts that lock Ether"
-    WIKI_DESCRIPTION = (
-        "Contract with a `payable` function, but without a withdrawal capacity."
-    )
+    WIKI_DESCRIPTION = "Contract with a `payable` function, but without a withdrawal capacity."
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 pragma solidity 0.4.24;
@@ -55,8 +53,7 @@ Every Ether sent to `Locked` will be lost."""
                 for node in function.nodes:
                     for ir in node.irs:
                         if isinstance(
-                            ir,
-                            (Send, Transfer, HighLevelCall, LowLevelCall, NewContract),
+                            ir, (Send, Transfer, HighLevelCall, LowLevelCall, NewContract),
                         ):
                             if ir.call_value and ir.call_value != 0:
                                 return False
@@ -78,9 +75,7 @@ Every Ether sent to `Locked` will be lost."""
         for contract in self.slither.contracts_derived:
             if contract.is_signature_only():
                 continue
-            funcs_payable = [
-                function for function in contract.functions if function.payable
-            ]
+            funcs_payable = [function for function in contract.functions if function.payable]
             if funcs_payable:
                 if self.do_no_send_ether(contract):
                     info = [f"Contract locking ether found in {self.filename}:\n"]

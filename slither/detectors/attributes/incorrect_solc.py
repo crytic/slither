@@ -46,8 +46,12 @@ Consider using the latest version of Solidity for testing."""
     OLD_VERSION_TXT = "allows old versions"
     LESS_THAN_TXT = "uses lesser than"
 
-    TOO_RECENT_VERSION_TXT = "necessitates a version too recent to be trusted. Consider deploying with 0.6.11"
-    BUGGY_VERSION_TXT = "is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
+    TOO_RECENT_VERSION_TXT = (
+        "necessitates a version too recent to be trusted. Consider deploying with 0.6.11"
+    )
+    BUGGY_VERSION_TXT = (
+        "is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
+    )
 
     # Indicates the allowed versions. Must be formatted in increasing order.
     ALLOWED_VERSIONS = [
@@ -82,9 +86,7 @@ Consider using the latest version of Solidity for testing."""
             return self.LESS_THAN_TXT
         version_number = ".".join(version[2:])
         if version_number not in self.ALLOWED_VERSIONS:
-            if list(map(int, version[2:])) > list(
-                map(int, self.ALLOWED_VERSIONS[-1].split("."))
-            ):
+            if list(map(int, version[2:])) > list(map(int, self.ALLOWED_VERSIONS[-1].split("."))):
                 return self.TOO_RECENT_VERSION_TXT
             return self.OLD_VERSION_TXT
         return None

@@ -138,10 +138,7 @@ def _get_evm_instructions_node(node_info):
 
     # Get evm instructions corresponding to node's source line number
     node_source_line = (
-        contract_file[0 : node_info["node"].source_mapping["start"]].count(
-            "\n".encode("utf-8")
-        )
-        + 1
+        contract_file[0 : node_info["node"].source_mapping["start"]].count("\n".encode("utf-8")) + 1
     )
     node_pcs = contract_pcs.get(node_source_line, [])
     node_ins = []
@@ -157,17 +154,13 @@ def _get_function_evm(cfg, function_name, function_hash):
         if function_evm.name[:2] == "0x" and function_evm.name == function_hash:
             return function_evm
         # Match function name
-        if (
-            function_evm.name[:2] != "0x"
-            and function_evm.name.split("(")[0] == function_name
-        ):
+        if function_evm.name[:2] != "0x" and function_evm.name.split("(")[0] == function_name:
             return function_evm
     return None
 
+
 # pylint: disable=too-many-locals
-def generate_source_to_evm_ins_mapping(
-    evm_instructions, srcmap_runtime, slither, filename
-):
+def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither, filename):
     """
     Generate Solidity source to EVM instruction mapping using evm_cfg_builder:cfg.instructions
     and solc:srcmap_runtime
@@ -207,8 +200,6 @@ def generate_source_to_evm_ins_mapping(
         # Append evm instructions to the corresponding source line number
         # Note: Some evm instructions in mapping are not necessarily in program execution order
         # Note: The order depends on how solc creates the srcmap_runtime
-        source_to_evm_mapping.setdefault(line_number, []).append(
-            evm_instructions[idx].pc
-        )
+        source_to_evm_mapping.setdefault(line_number, []).append(evm_instructions[idx].pc)
 
     return source_to_evm_mapping

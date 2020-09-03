@@ -68,7 +68,9 @@ class TypeBasedTautology(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#tautology-or-contradiction"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#tautology-or-contradiction"
+    )
 
     WIKI_TITLE = "Tautology or contradiction"
     WIKI_DESCRIPTION = """Detects expressions that are tautologies or contradictions."""
@@ -139,9 +141,7 @@ contract A {
                             ltype = str(ir.variable_left.type)
                             if ltype in allInts:
                                 (low, high) = typeRange(ltype)
-                                if _detect_tautology_or_contradiction(
-                                    low, high, cval, ir.type
-                                ):
+                                if _detect_tautology_or_contradiction(low, high, cval, ir.type):
                                     f_results.add(node)
             results.append((function, f_results))
 

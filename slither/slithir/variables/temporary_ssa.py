@@ -6,7 +6,7 @@
 from slither.slithir.variables.temporary import TemporaryVariable
 
 
-class TemporaryVariableSSA(TemporaryVariable):   # pylint: disable=too-few-public-methods
+class TemporaryVariableSSA(TemporaryVariable):  # pylint: disable=too-few-public-methods
     def __init__(self, temporary):
         super().__init__(temporary.node, temporary.index)
 

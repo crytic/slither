@@ -26,9 +26,7 @@ class ControlledDelegateCall(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#controlled-delegatecall"
 
     WIKI_TITLE = "Controlled Delegatecall"
-    WIKI_DESCRIPTION = (
-        "`Delegatecall` or `callcode` to an address controlled by the user."
-    )
+    WIKI_DESCRIPTION = "`Delegatecall` or `callcode` to an address controlled by the user."
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Delegatecall{

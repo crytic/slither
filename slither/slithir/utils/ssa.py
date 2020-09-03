@@ -97,6 +97,7 @@ def transform_slithir_vars_to_ssa(function):
 
 # pylint: disable=too-many-arguments,too-many-locals,too-many-nested-blocks,too-many-statements,too-many-branches
 
+
 def add_ssa_ir(function, all_state_variables_instances):
     """
         Add SSA version of the IR
@@ -124,9 +125,7 @@ def add_ssa_ir(function, all_state_variables_instances):
     for (_, variable_instance) in all_state_variables_instances.items():
         if is_used_later(function.entry_point, variable_instance):
             # rvalues are fixed in solc_parsing.declaration.function
-            function.entry_point.add_ssa_ir(
-                Phi(StateIRVariable(variable_instance), set())
-            )
+            function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
     add_phi_origins(function.entry_point, init_definition, dict())
 
@@ -174,9 +173,7 @@ def add_ssa_ir(function, all_state_variables_instances):
     init_state_variables_instances = dict(all_state_variables_instances)
 
     initiate_all_local_variables_instances(
-        function.nodes,
-        init_local_variables_instances,
-        all_init_local_variables_instances,
+        function.nodes, init_local_variables_instances, all_init_local_variables_instances,
     )
 
     generate_ssa_irs(
@@ -264,18 +261,14 @@ def generate_ssa_irs(
 
             node.add_ssa_ir(new_ir)
 
-            if isinstance(
-                ir, (InternalCall, HighLevelCall, InternalDynamicCall, LowLevelCall)
-            ):
+            if isinstance(ir, (InternalCall, HighLevelCall, InternalDynamicCall, LowLevelCall)):
                 if isinstance(ir, LibraryCall):
                     continue
                 for variable in all_state_variables_instances.values():
                     if not is_used_later(node, variable):
                         continue
                     new_var = StateIRVariable(variable)
-                    new_var.index = (
-                        all_state_variables_instances[variable.canonical_name].index + 1
-                    )
+                    new_var.index = all_state_variables_instances[variable.canonical_name].index + 1
                     all_state_variables_instances[variable.canonical_name] = new_var
                     state_variables_instances[variable.canonical_name] = new_var
                     phi_ir = PhiCallback(new_var, {node}, new_ir, variable)
@@ -411,9 +404,7 @@ def update_lvalue(
                 local_variables_instances[lvalue.name] = new_var
             else:
                 new_var = StateIRVariable(lvalue)
-                new_var.index = (
-                    all_state_variables_instances[lvalue.canonical_name].index + 1
-                )
+                new_var.index = all_state_variables_instances[lvalue.canonical_name].index + 1
                 all_state_variables_instances[lvalue.canonical_name] = new_var
                 state_variables_instances[lvalue.canonical_name] = new_var
             if update_through_ref:
@@ -468,8 +459,7 @@ def fix_phi_rvalues_and_storage_ref(
     for ir in node.irs_ssa:
         if isinstance(ir, (Phi)) and not ir.rvalues:
             variables = [
-                last_name(dst, ir.lvalue, init_local_variables_instances)
-                for dst in ir.nodes
+                last_name(dst, ir.lvalue, init_local_variables_instances) for dst in ir.nodes
             ]
             ir.rvalues = variables
         if isinstance(ir, (Phi, PhiCallback)):
@@ -516,8 +506,7 @@ def add_phi_origins(node, local_variables_definition, state_variables_definition
     # We keep the instance as we want to avoid to add __hash__ on v.name in Variable
     # That might work for this used, but could create collision for other uses
     local_variables_definition = dict(
-        local_variables_definition,
-        **{v.name: (v, node) for v in node.local_variables_written},
+        local_variables_definition, **{v.name: (v, node) for v in node.local_variables_written},
     )
     state_variables_definition = dict(
         state_variables_definition,
@@ -577,10 +566,7 @@ def get(
         local_variables_instances[variable.name] = new_var
         all_local_variables_instances[variable.name] = new_var
         return new_var
-    if (
-        isinstance(variable, StateVariable)
-        and variable.canonical_name in state_variables_instances
-    ):
+    if isinstance(variable, StateVariable) and variable.canonical_name in state_variables_instances:
         return state_variables_instances[variable.canonical_name]
     if isinstance(variable, ReferenceVariable):
         if not variable.index in reference_variables_instances:
@@ -612,16 +598,7 @@ def get(
         return tuple_variables_instances[variable.index]
     assert isinstance(
         variable,
-        (
-            Constant,
-            SolidityVariable,
-            Contract,
-            Enum,
-            SolidityFunction,
-            Structure,
-            Function,
-            Type,
-        ),
+        (Constant, SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function, Type,),
     )  # type for abi.decode(.., t)
     return variable
 
@@ -704,13 +681,9 @@ def copy_ir(ir, *instances):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
         if isinstance(ir, LibraryCall):
-            new_ir = LibraryCall(
-                destination, function_name, nbr_arguments, lvalue, type_call
-            )
+            new_ir = LibraryCall(destination, function_name, nbr_arguments, lvalue, type_call)
         else:
-            new_ir = HighLevelCall(
-                destination, function_name, nbr_arguments, lvalue, type_call
-            )
+            new_ir = HighLevelCall(destination, function_name, nbr_arguments, lvalue, type_call)
         new_ir.call_id = ir.call_id
         new_ir.call_value = get_variable(ir, lambda x: x.call_value, *instances)
         new_ir.call_gas = get_variable(ir, lambda x: x.call_gas, *instances)
@@ -748,9 +721,7 @@ def copy_ir(ir, *instances):
         nbr_arguments = ir.nbr_arguments
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
-        new_ir = LowLevelCall(
-            destination, function_name, nbr_arguments, lvalue, type_call
-        )
+        new_ir = LowLevelCall(destination, function_name, nbr_arguments, lvalue, type_call)
         new_ir.call_id = ir.call_id
         new_ir.call_value = get_variable(ir, lambda x: x.call_value, *instances)
         new_ir.call_gas = get_variable(ir, lambda x: x.call_gas, *instances)

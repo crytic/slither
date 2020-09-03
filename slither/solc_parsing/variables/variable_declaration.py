@@ -22,12 +22,15 @@ class MultipleVariablesDeclaration(Exception):
     var (a,b) = ...
     It should occur only on local variable definition
     """
+
     # pylint: disable=unnecessary-pass
     pass
 
 
 class VariableDeclarationSolc:
-    def __init__(self, variable: Variable, variable_data: Dict):  # pylint: disable=too-many-branches
+    def __init__(
+        self, variable: Variable, variable_data: Dict
+    ):  # pylint: disable=too-many-branches
         """
             A variable can be declared through a statement, or directly.
             If it is through a statement, the following children may contain
@@ -61,9 +64,7 @@ class VariableDeclarationSolc:
             elif nodeType == "VariableDeclaration":
                 self._init_from_declaration(variable_data, variable_data["value"])
             else:
-                raise ParsingError(
-                    "Incorrect variable declaration type {}".format(nodeType)
-                )
+                raise ParsingError("Incorrect variable declaration type {}".format(nodeType))
 
         else:
             nodeType = variable_data["name"]
@@ -87,9 +88,7 @@ class VariableDeclarationSolc:
             elif nodeType == "VariableDeclaration":
                 self._init_from_declaration(variable_data, False)
             else:
-                raise ParsingError(
-                    "Incorrect variable declaration type {}".format(nodeType)
-                )
+                raise ParsingError("Incorrect variable declaration type {}".format(nodeType))
 
     @property
     def underlying_variable(self) -> Variable:
@@ -183,7 +182,5 @@ class VariableDeclarationSolc:
             self._elem_to_parse = None
 
         if self._variable.initialized:
-            self._variable.expression = parse_expression(
-                self._initializedNotParsed, caller_context
-            )
+            self._variable.expression = parse_expression(self._initializedNotParsed, caller_context)
             self._initializedNotParsed = None

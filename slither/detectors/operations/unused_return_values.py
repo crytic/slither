@@ -7,8 +7,6 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.slithir.operations import HighLevelCall
 
 
-
-
 class UnusedReturnValues(AbstractDetector):
     """
     If the return value of a function is never used, it's likely to be bug
@@ -22,7 +20,9 @@ class UnusedReturnValues(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return"
 
     WIKI_TITLE = "Unused return"
-    WIKI_DESCRIPTION = "The return value of an external call is not stored in a local or state variable."
+    WIKI_DESCRIPTION = (
+        "The return value of an external call is not stored in a local or state variable."
+    )
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract MyConc{
@@ -34,9 +34,7 @@ contract MyConc{
 ```
 `MyConc` calls `add` of `SafeMath`, but does not store the result in `a`. As a result, the computation has no effect."""
 
-    WIKI_RECOMMENDATION = (
-        "Ensure that all the return values of the function calls are used."
-    )
+    WIKI_RECOMMENDATION = "Ensure that all the return values of the function calls are used."
 
     _txt_description = "external calls"
 

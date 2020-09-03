@@ -44,9 +44,7 @@ class NodeSolc:
                     AssignmentOperationType.ASSIGN,
                     self._node.variable_declaration.type,
                 )
-                _expression.set_offset(
-                    self._node.expression.source_mapping, self._node.slither
-                )
+                _expression.set_offset(self._node.expression.source_mapping, self._node.slither)
                 self._node.add_expression(_expression, bypass_verif_empty=True)
 
             expression = self._node.expression
@@ -59,12 +57,8 @@ class NodeSolc:
             find_call = FindCalls(expression)
             self._node.calls_as_expression = find_call.result()
             self._node.external_calls_as_expressions = [
-                c
-                for c in self._node.calls_as_expression
-                if not isinstance(c.called, Identifier)
+                c for c in self._node.calls_as_expression if not isinstance(c.called, Identifier)
             ]
             self._node.internal_calls_as_expressions = [
-                c
-                for c in self._node.calls_as_expression
-                if isinstance(c.called, Identifier)
+                c for c in self._node.calls_as_expression if isinstance(c.called, Identifier)
             ]

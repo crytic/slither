@@ -81,9 +81,7 @@ class ExternalFunction(AbstractDetector):
 
         # Somehow we couldn't resolve it, which shouldn't happen, as the provided function should be found if we could
         # not find some any more basic.
-        raise Exception(
-            "Could not resolve the base-most function for the provided function."
-        )
+        raise Exception("Could not resolve the base-most function for the provided function.")
 
     @staticmethod
     def get_all_function_definitions(base_most_function):
@@ -159,15 +157,11 @@ class ExternalFunction(AbstractDetector):
                 all_function_definitions = set(
                     self.get_all_function_definitions(base_most_function)
                 )
-                completed_functions = completed_functions.union(
-                    all_function_definitions
-                )
+                completed_functions = completed_functions.union(all_function_definitions)
 
                 # Filter false-positives: Determine if any of these sources have dynamic calls, if so, flag all of these
                 # function definitions, and then flag all functions in all contracts that make dynamic calls.
-                sources_with_dynamic_calls = (
-                    set(all_possible_sources) & dynamic_call_contracts
-                )
+                sources_with_dynamic_calls = set(all_possible_sources) & dynamic_call_contracts
                 if sources_with_dynamic_calls:
                     functions_in_dynamic_call_sources = {
                         f
@@ -204,9 +198,7 @@ class ExternalFunction(AbstractDetector):
                     function_definition = all_function_definitions[0]
                     all_function_definitions = all_function_definitions[1:]
 
-                    info = [
-                        f"{function_definition.full_name} should be declared external:\n"
-                    ]
+                    info = [f"{function_definition.full_name} should be declared external:\n"]
                     info += ["\t- ", function_definition, "\n"]
                     for other_function_definition in all_function_definitions:
                         info += ["\t- ", other_function_definition, "\n"]

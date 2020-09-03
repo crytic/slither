@@ -59,9 +59,7 @@ class Flattening:
         self._private_to_internal = private_to_internal
         self._pragma_solidity = pragma_solidity
 
-        self._export_path: Path = DEFAULT_EXPORT_PATH if export_path is None else Path(
-            export_path
-        )
+        self._export_path: Path = DEFAULT_EXPORT_PATH if export_path is None else Path(export_path)
 
         self._check_abi_encoder_v2()
 
@@ -79,7 +77,9 @@ class Flattening:
                 self._use_abi_encoder_v2 = True
                 return
 
-    def _get_source_code(self, contract: Contract):  # pylint: disable=too-many-branches,too-many-statements
+    def _get_source_code(
+        self, contract: Contract
+    ):  # pylint: disable=too-many-branches,too-many-statements
         """
         Save the source code of the contract in self._source_codes
         Patch the source code
@@ -87,9 +87,7 @@ class Flattening:
         :return:
         """
         src_mapping = contract.source_mapping
-        content = self._slither.source_code[src_mapping["filename_absolute"]].encode(
-            "utf8"
-        )
+        content = self._slither.source_code[src_mapping["filename_absolute"]].encode("utf8")
         start = src_mapping["start"]
         end = src_mapping["start"] + src_mapping["length"]
 
@@ -107,33 +105,21 @@ class Flattening:
                     )
                     attributes_end = f.returns_src.source_mapping["start"]
                     attributes = content[attributes_start:attributes_end]
-                    regex = re.search(
-                        r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes
-                    )
+                    regex = re.search(r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes)
                     if regex:
                         to_patch.append(
-                            Patch(
-                                attributes_start + regex.span()[0] + 1,
-                                "public_to_external",
-                            )
+                            Patch(attributes_start + regex.span()[0] + 1, "public_to_external",)
                         )
                     else:
-                        raise SlitherException(
-                            f"External keyword not found {f.name} {attributes}"
-                        )
+                        raise SlitherException(f"External keyword not found {f.name} {attributes}")
 
                     for var in f.parameters:
                         if var.location == "calldata":
                             calldata_start = var.source_mapping["start"]
                             calldata_end = calldata_start + var.source_mapping["length"]
-                            calldata_idx = content[calldata_start:calldata_end].find(
-                                " calldata "
-                            )
+                            calldata_idx = content[calldata_start:calldata_end].find(" calldata ")
                             to_patch.append(
-                                Patch(
-                                    calldata_start + calldata_idx + 1,
-                                    "calldata_to_memory",
-                                )
+                                Patch(calldata_start + calldata_idx + 1, "calldata_to_memory",)
                             )
 
         if self._private_to_internal:
@@ -141,18 +127,13 @@ class Flattening:
                 if variable.visibility == "private":
                     print(variable.source_mapping)
                     attributes_start = variable.source_mapping["start"]
-                    attributes_end = (
-                        attributes_start + variable.source_mapping["length"]
-                    )
+                    attributes_end = attributes_start + variable.source_mapping["length"]
                     attributes = content[attributes_start:attributes_end]
                     print(attributes)
                     regex = re.search(r" private ", attributes)
                     if regex:
                         to_patch.append(
-                            Patch(
-                                attributes_start + regex.span()[0] + 1,
-                                "private_to_internal",
-                            )
+                            Patch(attributes_start + regex.span()[0] + 1, "private_to_internal",)
                         )
                     else:
                         raise SlitherException(
@@ -163,12 +144,10 @@ class Flattening:
             for function in contract.functions_and_modifiers_declared:
                 for node in function.nodes:
                     for ir in node.irs:
-                        if isinstance(
-                            ir, SolidityCall
-                        ) and ir.function == SolidityFunction("assert(bool)"):
-                            to_patch.append(
-                                Patch(node.source_mapping["start"], "line_removal")
-                            )
+                        if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
+                            "assert(bool)"
+                        ):
+                            to_patch.append(Patch(node.source_mapping["start"], "line_removal"))
                             logger.info(
                                 f"Code commented: {node.expression} ({node.source_mapping_str})"
                             )
@@ -181,17 +160,11 @@ class Flattening:
             index = patch.index
             index = index - start
             if patch_type == "public_to_external":
-                content = (
-                    content[:index] + "public" + content[index + len("external") :]
-                )
+                content = content[:index] + "public" + content[index + len("external") :]
             if patch_type == "private_to_internal":
-                content = (
-                    content[:index] + "internal" + content[index + len("private") :]
-                )
+                content = content[:index] + "internal" + content[index + len("private") :]
             elif patch_type == "calldata_to_memory":
-                content = (
-                    content[:index] + "memory" + content[index + len("calldata") :]
-                )
+                content = content[:index] + "memory" + content[index + len("calldata") :]
             else:
                 assert patch_type == "line_removal"
                 content = content[:index] + " // " + content[index:]
@@ -217,9 +190,7 @@ class Flattening:
         if isinstance(t, UserDefinedType):
             if isinstance(t.type, (Enum, Structure)):
                 if t.type.contract != contract and t.type.contract not in exported:
-                    self._export_list_used_contracts(
-                        t.type.contract, exported, list_contract
-                    )
+                    self._export_list_used_contracts(t.type.contract, exported, list_contract)
             else:
                 assert isinstance(t.type, Contract)
                 if t.type != contract and t.type not in exported:
@@ -264,10 +235,7 @@ class Flattening:
         for f in contract.functions_declared:
             for ir in f.slithir_operations:
                 if isinstance(ir, NewContract):
-                    if (
-                        ir.contract_created != contract
-                        and not ir.contract_created in exported
-                    ):
+                    if ir.contract_created != contract and not ir.contract_created in exported:
                         self._export_list_used_contracts(
                             ir.contract_created, exported, list_contract
                         )

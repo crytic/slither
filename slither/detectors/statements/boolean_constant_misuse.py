@@ -26,7 +26,9 @@ class BooleanConstantMisuse(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#misuse-of-a-boolean-constant"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#misuse-of-a-boolean-constant"
+    )
 
     WIKI_TITLE = "Misuse of a Boolean constant"
     WIKI_DESCRIPTION = """Detects the misuse of a Boolean constant."""

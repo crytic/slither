@@ -68,15 +68,11 @@ contract Bug {
                     # Check functions
                     for scope_function in scope_contract.functions_declared:
                         if variable.name == scope_function.name:
-                            overshadowed.append(
-                                (self.OVERSHADOWED_FUNCTION, scope_function)
-                            )
+                            overshadowed.append((self.OVERSHADOWED_FUNCTION, scope_function))
                     # Check modifiers
                     for scope_modifier in scope_contract.modifiers_declared:
                         if variable.name == scope_modifier.name:
-                            overshadowed.append(
-                                (self.OVERSHADOWED_MODIFIER, scope_modifier)
-                            )
+                            overshadowed.append((self.OVERSHADOWED_MODIFIER, scope_modifier))
                     # Check events
                     for scope_event in scope_contract.events_declared:
                         if variable.name == scope_event.name:

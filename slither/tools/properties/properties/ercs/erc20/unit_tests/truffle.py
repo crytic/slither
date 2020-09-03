@@ -8,19 +8,14 @@ from slither.tools.properties.platforms.truffle import (
     generate_migration,
     generate_unit_test,
 )
-from slither.tools.properties.properties.ercs.erc20.properties.initialization import (
-    ERC20_CONFIG,
-)
+from slither.tools.properties.properties.ercs.erc20.properties.initialization import ERC20_CONFIG
 from slither.tools.properties.properties.properties import Property
 
 logger = logging.getLogger("Slither")
 
 
 def generate_truffle_test(
-    contract: Contract,
-    type_property: str,
-    unit_tests: List[Property],
-    addresses: Addresses,
+    contract: Contract, type_property: str, unit_tests: List[Property], addresses: Addresses,
 ) -> str:
     test_contract = f"Test{contract.name}{type_property}"
     filename_init = f"Initialization{test_contract}.js"

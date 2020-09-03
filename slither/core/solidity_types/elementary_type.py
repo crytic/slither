@@ -123,9 +123,7 @@ MN = list(itertools.product(M, N))
 Fixed = ["fixed{}x{}".format(m, n) for (m, n) in MN] + ["fixed"]
 Ufixed = ["ufixed{}x{}".format(m, n) for (m, n) in MN] + ["ufixed"]
 
-ElementaryTypeName = (
-    ["address", "bool", "string", "var"] + Int + Uint + Byte + Fixed + Ufixed
-)
+ElementaryTypeName = ["address", "bool", "string", "var"] + Int + Uint + Byte + Fixed + Ufixed
 
 
 class NonElementaryType(Exception):

@@ -127,7 +127,10 @@ contract ContractWithDeprecatedReferences {
                     results.append((state_variable, deprecated_results))
 
         # Loop through all functions + modifiers in this contract.
-        for function in contract.functions_and_modifiers_declared: # pylint: disable=too-many-nested-blocks
+        # pylint: disable=too-many-nested-blocks
+        for (
+            function
+        ) in contract.functions_and_modifiers_declared:
             # Loop through each node in this function.
             for node in function.nodes:
                 # Detect deprecated references in the node.
@@ -156,9 +159,7 @@ contract ContractWithDeprecatedReferences {
         """
         results = []
         for contract in self.contracts:
-            deprecated_references = self.detect_deprecated_references_in_contract(
-                contract
-            )
+            deprecated_references = self.detect_deprecated_references_in_contract(contract)
             if deprecated_references:
                 for deprecated_reference in deprecated_references:
                     source_object = deprecated_reference[0]

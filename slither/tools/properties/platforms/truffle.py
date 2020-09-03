@@ -103,18 +103,14 @@ def generate_unit_test(  # pylint: disable=too-many-arguments,too-many-branches
             for caller in callers:
                 content += f"\t\tlet test_{caller} = await instance.{unit_test.name[:-2]}.call({{from: {caller}}});\n"
                 if assert_message:
-                    content += (
-                        f'\t\tassert.equal(test_{caller}, true, "{assert_message}");\n'
-                    )
+                    content += f'\t\tassert.equal(test_{caller}, true, "{assert_message}");\n'
                 else:
                     content += f"\t\tassert.equal(test_{caller}, true);\n"
         elif unit_test.return_type == PropertyReturn.FAIL:
             for caller in callers:
                 content += f"\t\tlet test_{caller} = await instance.{unit_test.name[:-2]}.call({{from: {caller}}});\n"
                 if assert_message:
-                    content += (
-                        f'\t\tassert.equal(test_{caller}, false, "{assert_message}");\n'
-                    )
+                    content += f'\t\tassert.equal(test_{caller}, false, "{assert_message}");\n'
                 else:
                     content += f"\t\tassert.equal(test_{caller}, false);\n"
         elif unit_test.return_type == PropertyReturn.FAIL_OR_THROW:

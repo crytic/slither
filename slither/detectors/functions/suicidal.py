@@ -20,9 +20,7 @@ class Suicidal(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#suicidal"
 
     WIKI_TITLE = "Suicidal"
-    WIKI_DESCRIPTION = (
-        "Unprotected call to a function executing `selfdestruct`/`suicide`."
-    )
+    WIKI_DESCRIPTION = "Unprotected call to a function executing `selfdestruct`/`suicide`."
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Suicidal{

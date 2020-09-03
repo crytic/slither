@@ -6,9 +6,7 @@ from slither.utils import output
 
 
 class ConstructorPrinter(AbstractPrinter):
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Printer-documentation#constructor-calls"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Printer-documentation#constructor-calls"
     ARGUMENT = "constructor-calls"
     HELP = "Print the constructors executed"
 

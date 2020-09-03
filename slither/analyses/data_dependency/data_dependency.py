@@ -112,9 +112,7 @@ def is_tainted(variable, context, only_unprotected=False, ignore_generic_taint=F
     )
 
 
-def is_tainted_ssa(
-    variable, context, only_unprotected=False, ignore_generic_taint=False
-):
+def is_tainted_ssa(variable, context, only_unprotected=False, ignore_generic_taint=False):
     """
     Args:
         variable
@@ -137,9 +135,7 @@ def is_tainted_ssa(
 
 
 def get_dependencies(
-    variable: Variable,
-    context: Union[Contract, Function],
-    only_unprotected: bool = False,
+    variable: Variable, context: Union[Contract, Function], only_unprotected: bool = False,
 ) -> Set[Variable]:
     """
     Return the variables for which `variable` depends on.
@@ -174,9 +170,7 @@ def get_all_dependencies(
 
 
 def get_dependencies_ssa(
-    variable: Variable,
-    context: Union[Contract, Function],
-    only_unprotected: bool = False,
+    variable: Variable, context: Union[Contract, Function], only_unprotected: bool = False,
 ) -> Set[Variable]:
     """
     Return the variables for which `variable` depends on (SSA version).
@@ -278,9 +272,7 @@ def compute_dependency_contract(contract, slither):
         compute_dependency_function(function)
 
         propagate_function(contract, function, KEY_SSA, KEY_NON_SSA)
-        propagate_function(
-            contract, function, KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED
-        )
+        propagate_function(contract, function, KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED)
 
         # pylint: disable=expression-not-assigned
         if function.visibility in ["public", "external"]:
@@ -308,10 +300,7 @@ def transitive_close_dependencies(context, context_key, context_key_non_ssa):
     while changed:  # pylint: disable=too-many-nested-blocks
         changed = False
         # Need to create new set() as its changed during iteration
-        data_depencencies = {
-            k: set(values)
-            for k, values in context.context[context_key].items()
-        }
+        data_depencencies = {k: set(values) for k, values in context.context[context_key].items()}
         for key, items in data_depencencies.items():
             for item in items:
                 if item in data_depencencies:
@@ -320,9 +309,7 @@ def transitive_close_dependencies(context, context_key, context_key_non_ssa):
                         if not additional_item in items and additional_item != key:
                             changed = True
                             context.context[context_key][key].add(additional_item)
-    context.context[context_key_non_ssa] = convert_to_non_ssa(
-        context.context[context_key]
-    )
+    context.context[context_key_non_ssa] = convert_to_non_ssa(context.context[context_key])
 
 
 def propagate_contract(contract, context_key, context_key_non_ssa):
@@ -341,11 +328,7 @@ def add_dependency(lvalue, function, ir, is_protected):
     else:
         read = ir.read
     # pylint: disable=expression-not-assigned
-    [
-        function.context[KEY_SSA][lvalue].add(v)
-        for v in read
-        if not isinstance(v, Constant)
-    ]
+    [function.context[KEY_SSA][lvalue].add(v) for v in read if not isinstance(v, Constant)]
     if not is_protected:
         [
             function.context[KEY_SSA_UNPROTECTED][lvalue].add(v)
@@ -393,16 +376,7 @@ def convert_variable_to_non_ssa(v):
         return v.non_ssa_version
     assert isinstance(
         v,
-        (
-            Constant,
-            SolidityVariable,
-            Contract,
-            Enum,
-            SolidityFunction,
-            Structure,
-            Function,
-            Type,
-        ),
+        (Constant, SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function, Type,),
     )
     return v
 

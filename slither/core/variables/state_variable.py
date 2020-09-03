@@ -47,14 +47,7 @@ class StateVariable(ChildContract, Variable):
             :return: str: func_name(type1,type2) returns(type3)
         """
         name, parameters, returnVars = self.signature
-        return (
-            name
-            + "("
-            + ",".join(parameters)
-            + ") returns("
-            + ",".join(returnVars)
-            + ")"
-        )
+        return name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
 
     # endregion
     ###################################################################################

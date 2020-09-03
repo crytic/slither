@@ -17,9 +17,7 @@ class UncheckedSend(UnusedReturnValues):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-send"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-send"
 
     WIKI_TITLE = "Unchecked Send"
     WIKI_DESCRIPTION = "The return value of a `send` is not checked."

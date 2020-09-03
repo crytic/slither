@@ -19,9 +19,7 @@ def _get_pattern_func(func):
     # Html pattern, each line is a row in a table
     func_name = func.full_name
     pattern = '<TR><TD align="left">    %s</TD></TR>'
-    pattern_shadow = (
-        '<TR><TD align="left"><font color="#FFA500">    %s</font></TD></TR>'
-    )
+    pattern_shadow = '<TR><TD align="left"><font color="#FFA500">    %s</font></TD></TR>'
     if func.shadows:
         return pattern_shadow % func_name
     return pattern % func_name
@@ -52,23 +50,19 @@ class PrinterInheritanceGraph(AbstractPrinter):
             # Add overshadowing variable entry.
             if overshadowing_state_var not in self.overshadowing_state_variables:
                 self.overshadowing_state_variables[overshadowing_state_var] = set()
-            self.overshadowing_state_variables[overshadowing_state_var].add(
-                overshadowed_state_var
-            )
+            self.overshadowing_state_variables[overshadowing_state_var].add(overshadowed_state_var)
 
     def _get_pattern_var(self, var):
         # Html pattern, each line is a row in a table
         var_name = var.name
         pattern = '<TR><TD align="left">    %s</TD></TR>'
-        pattern_contract = '<TR><TD align="left">    %s<font color="blue" POINT-SIZE="10"> (%s)</font></TD></TR>'
-        pattern_shadow = (
-            '<TR><TD align="left"><font color="red">    %s</font></TD></TR>'
+        pattern_contract = (
+            '<TR><TD align="left">    %s<font color="blue" POINT-SIZE="10"> (%s)</font></TD></TR>'
         )
+        pattern_shadow = '<TR><TD align="left"><font color="red">    %s</font></TD></TR>'
         pattern_contract_shadow = '<TR><TD align="left"><font color="red">    %s</font><font color="blue" POINT-SIZE="10"> (%s)</font></TD></TR>'
 
-        if isinstance(var.type, UserDefinedType) and isinstance(
-            var.type.type, Contract
-        ):
+        if isinstance(var.type, UserDefinedType) and isinstance(var.type.type, Contract):
             if var in self.overshadowing_state_variables:
                 return pattern_contract_shadow % (var_name, var.type.type.name)
             return pattern_contract % (var_name, var.type.type.name)
@@ -138,9 +132,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
         # Modifiers
         modifiers = [
-            _get_pattern_func(m)
-            for m in contract.modifiers
-            if m.contract_declarer == contract
+            _get_pattern_func(m) for m in contract.modifiers if m.contract_declarer == contract
         ]
         modifiers = "".join(modifiers)
 
@@ -160,9 +152,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         private_variables = "".join(private_variables)
 
         # Obtain any indirect shadowing information for this node.
-        indirect_shadowing_information = self._get_indirect_shadowing_information(
-            contract
-        )
+        indirect_shadowing_information = self._get_indirect_shadowing_information(contract)
 
         # Build the node label
         ret += '%s[shape="box"' % contract.name

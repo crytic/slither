@@ -47,8 +47,7 @@ class PrinterHumanSummary(AbstractPrinter):
             mint_unlimited = None  # no minting
 
         race_condition_mitigated = (
-            "increaseApproval" in functions_name
-            or "safeIncreaseAllowance" in functions_name
+            "increaseApproval" in functions_name or "safeIncreaseAllowance" in functions_name
         )
 
         return pause, mint_unlimited, race_condition_mitigated
@@ -56,9 +55,7 @@ class PrinterHumanSummary(AbstractPrinter):
     def get_summary_erc20(self, contract):
         txt = ""
 
-        pause, mint_unlimited, race_condition_mitigated = self._get_summary_erc20(
-            contract
-        )
+        pause, mint_unlimited, race_condition_mitigated = self._get_summary_erc20(contract)
 
         if pause:
             txt += yellow("Pausable") + "\n"
@@ -89,15 +86,11 @@ class PrinterHumanSummary(AbstractPrinter):
 
         issues_optimization = [c.detect() for c in checks_optimization]
         issues_optimization = [c for c in issues_optimization if c]
-        issues_optimization = [
-            item for sublist in issues_optimization for item in sublist
-        ]
+        issues_optimization = [item for sublist in issues_optimization for item in sublist]
 
         issues_informational = [c.detect() for c in checks_informational]
         issues_informational = [c for c in issues_informational if c]
-        issues_informational = [
-            item for sublist in issues_informational for item in sublist
-        ]
+        issues_informational = [item for sublist in issues_informational for item in sublist]
 
         issues_low = [c.detect() for c in checks_low]
         issues_low = [c for c in issues_low if c]
@@ -112,11 +105,7 @@ class PrinterHumanSummary(AbstractPrinter):
         issues_high = [item for sublist in issues_high for item in sublist]
 
         all_results = (
-            issues_optimization
-            + issues_informational
-            + issues_low
-            + issues_medium
-            + issues_high
+            issues_optimization + issues_informational + issues_low + issues_medium + issues_high
         )
 
         return (
@@ -265,10 +254,7 @@ class PrinterHumanSummary(AbstractPrinter):
                 has_assembly = True
 
             for ir in function.slithir_operations:
-                if (
-                    isinstance(ir, (LowLevelCall, HighLevelCall, Send, Transfer))
-                    and ir.call_value
-                ):
+                if isinstance(ir, (LowLevelCall, HighLevelCall, Send, Transfer)) and ir.call_value:
                     can_send_eth = True
                 if isinstance(ir, SolidityCall) and ir.function in [
                     SolidityFunction("suicide(address)"),
@@ -389,22 +375,11 @@ class PrinterHumanSummary(AbstractPrinter):
                 erc20_info += self.get_summary_erc20(contract)
 
             features = "\n".join(
-                [
-                    name
-                    for name, to_print in self._get_features(contract).items()
-                    if to_print
-                ]
+                [name for name, to_print in self._get_features(contract).items() if to_print]
             )
 
             table.add_row(
-                [
-                    contract.name,
-                    number_functions,
-                    ercs,
-                    erc20_info,
-                    is_complex,
-                    features,
-                ]
+                [contract.name, number_functions, ercs, erc20_info, is_complex, features,]
             )
 
         self.info(txt + "\n" + str(table))
@@ -420,15 +395,11 @@ class PrinterHumanSummary(AbstractPrinter):
                 "is_erc20": contract.is_erc20(),
                 "number_functions": self._number_functions(contract),
                 "features": [
-                    name
-                    for name, to_print in self._get_features(contract).items()
-                    if to_print
+                    name for name, to_print in self._get_features(contract).items() if to_print
                 ],
             }
             if contract_d["is_erc20"]:
-                pause, mint_limited, race_condition_mitigated = self._get_summary_erc20(
-                    contract
-                )
+                pause, mint_limited, race_condition_mitigated = self._get_summary_erc20(contract)
                 contract_d["erc20_pause"] = pause
                 if mint_limited is not None:
                     contract_d["erc20_can_mint"] = True

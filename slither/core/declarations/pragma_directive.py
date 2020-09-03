@@ -32,10 +32,7 @@ class Pragma(SourceMapping):
     @property
     def is_abi_encoder_v2(self) -> bool:
         if len(self._directive) == 2:
-            return (
-                self._directive[0] == "experimental"
-                and self._directive[1] == "ABIEncoderV2"
-            )
+            return self._directive[0] == "experimental" and self._directive[1] == "ABIEncoderV2"
         return False
 
     def __str__(self):

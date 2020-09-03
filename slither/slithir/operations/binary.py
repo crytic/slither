@@ -85,9 +85,7 @@ class BinaryType(Enum):
         if operation_type == "||":
             return BinaryType.OROR
 
-        raise SlithIRError(
-            "get_type: Unknown operation type {})".format(operation_type)
-        )
+        raise SlithIRError("get_type: Unknown operation type {})".format(operation_type))
 
     def __str__(self):  # pylint: disable=too-many-branches
         if self == BinaryType.POWER:
@@ -128,9 +126,7 @@ class BinaryType(Enum):
             return "&&"
         if self == BinaryType.OROR:
             return "||"
-        raise SlithIRError(
-            "str: Unknown operation type {} {})".format(self, type(self))
-        )
+        raise SlithIRError("str: Unknown operation type {} {})".format(self, type(self)))
 
 
 class Binary(OperationWithLValue):
@@ -178,11 +174,7 @@ class Binary(OperationWithLValue):
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
             return "{}(-> {}) = {} {} {}".format(
-                str(self.lvalue),
-                points,
-                self.variable_left,
-                self.type_str,
-                self.variable_right,
+                str(self.lvalue), points, self.variable_left, self.type_str, self.variable_right,
             )
         return "{}({}) = {} {} {}".format(
             str(self.lvalue),

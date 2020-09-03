@@ -14,14 +14,11 @@ def resolve_function(slither, contract_name, function_name):
 
     # Verify the contract was resolved successfully
     if contract is None:
-        raise ResolveFunctionException(
-            f"Could not resolve target contract: {contract_name}"
-        )
+        raise ResolveFunctionException(f"Could not resolve target contract: {contract_name}")
 
     # Obtain the target function
     target_function = next(
-        (function for function in contract.functions if function.name == function_name),
-        None,
+        (function for function in contract.functions if function.name == function_name), None,
     )
 
     # Verify we have resolved the function specified.
@@ -46,9 +43,7 @@ def resolve_functions(slither, functions):
 
     # Verify that the provided argument is a list.
     if not isinstance(functions, list):
-        raise ResolveFunctionException(
-            "Provided functions to resolve must be a list type."
-        )
+        raise ResolveFunctionException("Provided functions to resolve must be a list type.")
 
     # Loop for each item in the list.
     for item in functions:
@@ -110,17 +105,13 @@ def __find_target_paths(slither, target_function, current_path=None):
                 continue
 
             # Find all function calls in this function (except for low level)
-            called_functions = [
-                f for (_, f) in function.high_level_calls + function.library_calls
-            ]
+            called_functions = [f for (_, f) in function.high_level_calls + function.library_calls]
             called_functions += function.internal_calls
             called_functions = set(called_functions)
 
             # If any of our target functions are reachable from this function, it's a result.
             if all_target_functions.intersection(called_functions):
-                path_results = __find_target_paths(
-                    slither, function, current_path.copy()
-                )
+                path_results = __find_target_paths(slither, function, current_path.copy())
                 if path_results:
                     results = results.union(path_results)
 

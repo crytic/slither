@@ -27,6 +27,7 @@ logger = logging.getLogger("TypeParsing")
 
 # pylint: disable=anomalous-backslash-in-string
 
+
 class UnknownType:  # pylint: disable=too-few-public-methods
     def __init__(self, name):
         self._name = name
@@ -74,33 +75,25 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
         all_enums = [item for sublist in all_enums for item in sublist]
         var_type = next((e for e in all_enums if e.name == enum_name), None)
         if not var_type:
-            var_type = next(
-                (e for e in all_enums if e.canonical_name == enum_name), None
-            )
+            var_type = next((e for e in all_enums if e.canonical_name == enum_name), None)
     if not var_type:
         # any contract can refer to another contract's structure
         name_struct = name
         if name_struct.startswith("struct "):
             name_struct = name_struct[len("struct ") :]
-            name_struct = name_struct.split(" ")[
-                0
-            ]  # remove stuff like storage pointer at the end
+            name_struct = name_struct.split(" ")[0]  # remove stuff like storage pointer at the end
         all_structures = [c.structures for c in contracts]
         all_structures = [item for sublist in all_structures for item in sublist]
         var_type = next((st for st in all_structures if st.name == name_struct), None)
         if not var_type:
-            var_type = next(
-                (st for st in all_structures if st.canonical_name == name_struct), None
-            )
+            var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
         # case where struct xxx.xx[] where not well formed in the AST
         if not var_type:
             depth = 0
             while name_struct.endswith("[]"):
                 name_struct = name_struct[0:-2]
                 depth += 1
-            var_type = next(
-                (st for st in all_structures if st.canonical_name == name_struct), None
-            )
+            var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
             if var_type:
                 return ArrayType(UserDefinedType(var_type), Literal(depth, "uint256"))
 
@@ -115,8 +108,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
             params = found[0][0].split(",")
             return_values = found[0][1].split(",")
             params = [
-                _find_from_type_name(p, contract, contracts, structures, enums)
-                for p in params
+                _find_from_type_name(p, contract, contracts, structures, enums) for p in params
             ]
             return_values = [
                 _find_from_type_name(r, contract, contracts, structures, enums)
@@ -137,21 +129,16 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
         if name.startswith("mapping("):
             # nested mapping declared with var
             if name.count("mapping(") == 1:
-                found = re.findall(
-                    "mapping\(([a-zA-Z0-9\.]*) => ([a-zA-Z0-9\.\[\]]*)\)", name
-                )
+                found = re.findall("mapping\(([a-zA-Z0-9\.]*) => ([a-zA-Z0-9\.\[\]]*)\)", name)
             else:
                 found = re.findall(
-                    "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)",
-                    name,
+                    "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)", name,
                 )
             assert len(found) == 1
             from_ = found[0][0]
             to_ = found[0][1]
 
-            from_type = _find_from_type_name(
-                from_, contract, contracts, structures, enums
-            )
+            from_type = _find_from_type_name(from_, contract, contracts, structures, enums)
             to_type = _find_from_type_name(to_, contract, contracts, structures, enums)
 
             return MappingType(from_type, to_type)
@@ -166,9 +153,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     # pylint: disable=import-outside-toplevel
     from slither.solc_parsing.expressions.expression_parsing import parse_expression
-    from slither.solc_parsing.variables.function_type_variable import (
-        FunctionTypeVariableSolc,
-    )
+    from slither.solc_parsing.variables.function_type_variable import FunctionTypeVariableSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
 
@@ -203,11 +188,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     if t[key] == "UserDefinedTypeName":
         if is_compact_ast:
             return _find_from_type_name(
-                t["typeDescriptions"]["typeString"],
-                contract,
-                contracts,
-                structures,
-                enums,
+                t["typeDescriptions"]["typeString"], contract, contracts, structures, enums,
             )
 
         # Determine if we have a type node (otherwise we use the name node, as some older solc did not have 'type').

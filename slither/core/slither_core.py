@@ -161,20 +161,14 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
         """list(Contract): List of contracts that are derived and not inherited."""
         inheritance = (x.inheritance for x in self.contracts)
         inheritance = [item for sublist in inheritance for item in sublist]
-        return [
-            c
-            for c in self._contracts.values()
-            if c not in inheritance and not c.is_top_level
-        ]
+        return [c for c in self._contracts.values() if c not in inheritance and not c.is_top_level]
 
     @property
     def contracts_as_dict(self) -> Dict[str, Contract]:
         """list(dict(str: Contract): List of contracts as dict: name -> Contract."""
         return self._contracts
 
-    def get_contract_from_name(
-        self, contract_name: Union[str, Constant]
-    ) -> Optional[Contract]:
+    def get_contract_from_name(self, contract_name: Union[str, Constant]) -> Optional[Contract]:
         """
             Return a contract from a name
         Args:
@@ -306,15 +300,11 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
         if r["elements"] and matching:
             return False
         if r["elements"] and self._exclude_dependencies:
-            return not all(
-                element["source_mapping"]["is_dependency"] for element in r["elements"]
-            )
+            return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
         if r["id"] in self._previous_results_ids:
             return False
         # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
-        return not r["description"] in [
-            pr["description"] for pr in self._previous_results
-        ]
+        return not r["description"] in [pr["description"] for pr in self._previous_results]
 
     def load_previous_results(self):
         filename = self._previous_results_filename
@@ -328,11 +318,7 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
                                 self._previous_results_ids.add(r["id"])
         except json.decoder.JSONDecodeError:
             logger.error(
-                red(
-                    "Impossible to decode {}. Consider removing the file".format(
-                        filename
-                    )
-                )
+                red("Impossible to decode {}. Consider removing the file".format(filename))
             )
 
     def write_results_to_hide(self):

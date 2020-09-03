@@ -13,14 +13,7 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
     def __init__(self, called, nbr_arguments, result, type_call):
         assert isinstance(
             called,
-            (
-                Contract,
-                Variable,
-                SolidityVariableComposed,
-                SolidityFunction,
-                Structure,
-                Event,
-            ),
+            (Contract, Variable, SolidityVariableComposed, SolidityFunction, Structure, Event,),
         )
         super().__init__()
         self._called = called
@@ -93,8 +86,4 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
         self._ori = ori
 
     def __str__(self):
-        return (
-            str(self.lvalue)
-            + " = TMPCALL{} ".format(self.nbr_arguments)
-            + str(self._called)
-        )
+        return str(self.lvalue) + " = TMPCALL{} ".format(self.nbr_arguments) + str(self._called)

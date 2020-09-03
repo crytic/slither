@@ -35,10 +35,7 @@ class State:  # pylint: disable=too-few-public-methods
 
 # pylint: disable=too-many-branches
 def _visit(
-    node: Node,
-    state: State,
-    variables_written: Set[Variable],
-    variables_to_write: List[Variable],
+    node: Node, state: State, variables_written: Set[Variable], variables_to_write: List[Variable],
 ):
     """
     Explore all the nodes to look for values not written when the node's function return
@@ -68,9 +65,7 @@ def _visit(
         if isinstance(ir, (Length, Balance)):
             refs[ir.lvalue] = ir.value
 
-        if ir.lvalue and not isinstance(
-            ir.lvalue, (TemporaryVariable, ReferenceVariable)
-        ):
+        if ir.lvalue and not isinstance(ir.lvalue, (TemporaryVariable, ReferenceVariable)):
             variables_written.add(ir.lvalue)
 
         lvalue = ir.lvalue

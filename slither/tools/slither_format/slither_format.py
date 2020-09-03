@@ -5,9 +5,7 @@ from slither.detectors.attributes.incorrect_solc import IncorrectSolc
 from slither.detectors.attributes.constant_pragma import ConstantPragma
 from slither.detectors.naming_convention.naming_convention import NamingConvention
 from slither.detectors.functions.external_function import ExternalFunction
-from slither.detectors.variables.possible_const_state_variables import (
-    ConstCandidateStateVars,
-)
+from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
 from slither.detectors.attributes.const_functions_asm import ConstantFunctionsAsm
 from slither.detectors.attributes.const_functions_state import ConstantFunctionsState
 from slither.utils.colors import yellow
@@ -44,9 +42,7 @@ def slither_format(slither, **kwargs):  # pylint: disable=too-many-locals
 
     detector_results = slither.run_detectors()
     detector_results = [x for x in detector_results if x]  # remove empty results
-    detector_results = [
-        item for sublist in detector_results for item in sublist
-    ]  # flatten
+    detector_results = [item for sublist in detector_results for item in sublist]  # flatten
 
     export = Path("crytic-export", "patches")
 
@@ -54,11 +50,7 @@ def slither_format(slither, **kwargs):  # pylint: disable=too-many-locals
 
     counter_result = 0
 
-    logger.info(
-        yellow(
-            "slither-format is in beta, carefully review each patch before merging it."
-        )
-    )
+    logger.info(yellow("slither-format is in beta, carefully review each patch before merging it."))
 
     for result in detector_results:
         if not "patches" in result:

@@ -12,6 +12,7 @@ logger = logging.getLogger("Slither.kspec")
 
 # pylint: disable=anomalous-backslash-in-string
 
+
 def _refactor_type(targeted_type):
     return {"uint": "uint256", "int": "int256"}.get(targeted_type, targeted_type)
 
@@ -43,12 +44,9 @@ def _get_all_covered_kspec_functions(target):
                 )
                 function_arguments = function_full_name[start:end].split(",")
                 function_arguments = [
-                    _refactor_type(arg.strip().split(" ")[0])
-                    for arg in function_arguments
+                    _refactor_type(arg.strip().split(" ")[0]) for arg in function_arguments
                 ]
-                function_full_name = (
-                        function_full_name[:start] + ",".join(function_arguments) + ")"
-                )
+                function_full_name = function_full_name[:start] + ",".join(function_arguments) + ")"
                 covered_functions.add((contract_name, function_full_name))
                 i += 1
         i += 1
@@ -61,20 +59,16 @@ def _get_slither_functions(slither):
         f
         for f in slither.functions
         if (
-                f.contract == f.contract_declarer
-                and f.is_implemented
-                and not f.is_constructor
-                and not f.is_constructor_variables
+            f.contract == f.contract_declarer
+            and f.is_implemented
+            and not f.is_constructor
+            and not f.is_constructor_variables
         )
     ]
     # Use list(set()) because same state variable instances can be shared accross contracts
     # TODO: integrate state variables
     all_functions_declared += list(
-        {
-            s
-            for s in slither.state_variables
-            if s.visibility in ["public", "external"]
-        }
+        {s for s in slither.state_variables if s.visibility in ["public", "external"]}
     )
     slither_functions = {
         (function.contract.name, function.full_name): function
@@ -107,9 +101,7 @@ def _generate_output_unresolved(kspec, message, color, generate_json):
         logger.info(color(info))
 
     if generate_json:
-        json_kspec_present = output.Output(
-            info, additional_fields={"signatures": kspec}
-        )
+        json_kspec_present = output.Output(info, additional_fields={"signatures": kspec})
         return json_kspec_present.data
     return None
 

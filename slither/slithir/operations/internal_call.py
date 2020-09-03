@@ -60,9 +60,7 @@ class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         if not self.lvalue:
             lvalue = ""
         elif isinstance(self.lvalue.type, (list,)):
-            lvalue = "{}({}) = ".format(
-                self.lvalue, ",".join(str(x) for x in self.lvalue.type)
-            )
+            lvalue = "{}({}) = ".format(self.lvalue, ",".join(str(x) for x in self.lvalue.type))
         else:
             lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
         if self.is_modifier_call:

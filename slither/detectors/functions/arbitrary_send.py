@@ -35,35 +35,26 @@ def arbitrary_send(func):
     for node in func.nodes:
         for ir in node.irs:
             if isinstance(ir, SolidityCall):
-                if ir.function == SolidityFunction(
-                        "ecrecover(bytes32,uint8,bytes32,bytes32)"
-                ):
+                if ir.function == SolidityFunction("ecrecover(bytes32,uint8,bytes32,bytes32)"):
                     return False
             if isinstance(ir, Index):
                 if ir.variable_right == SolidityVariableComposed("msg.sender"):
                     return False
                 if is_dependent(
-                        ir.variable_right,
-                        SolidityVariableComposed("msg.sender"),
-                        func.contract,
+                    ir.variable_right, SolidityVariableComposed("msg.sender"), func.contract,
                 ):
                     return False
             if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
                 if isinstance(ir, (HighLevelCall)):
                     if isinstance(ir.function, Function):
-                        if (
-                                ir.function.full_name
-                                == "transferFrom(address,address,uint256)"
-                        ):
+                        if ir.function.full_name == "transferFrom(address,address,uint256)":
                             return False
                 if ir.call_value is None:
                     continue
                 if ir.call_value == SolidityVariableComposed("msg.value"):
                     continue
                 if is_dependent(
-                        ir.call_value,
-                        SolidityVariableComposed("msg.value"),
-                        func.contract,
+                    ir.call_value, SolidityVariableComposed("msg.value"), func.contract,
                 ):
                     continue
 
@@ -98,9 +89,7 @@ class ArbitrarySend(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations"
 
     WIKI_TITLE = "Functions that send Ether to arbitrary destinations"
-    WIKI_DESCRIPTION = (
-        "Unprotected call to a function sending Ether to an arbitrary address."
-    )
+    WIKI_DESCRIPTION = "Unprotected call to a function sending Ether to an arbitrary address."
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract ArbitrarySend{
@@ -116,9 +105,7 @@ contract ArbitrarySend{
 ```
 Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract's balance."""
 
-    WIKI_RECOMMENDATION = (
-        "Ensure that an arbitrary user cannot withdraw unauthorized funds."
-    )
+    WIKI_RECOMMENDATION = "Ensure that an arbitrary user cannot withdraw unauthorized funds."
 
     def _detect(self):
         """

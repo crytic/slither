@@ -20,9 +20,7 @@ class BooleanEquality(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#boolean-equality"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#boolean-equality"
 
     WIKI_TITLE = "Boolean equality"
     WIKI_DESCRIPTION = """Detects the comparison to boolean constants."""
@@ -49,7 +47,10 @@ Boolean constants can be used directly and do not need to be compare to `true` o
         results = []
 
         # Loop for each function and modifier.
-        for function in contract.functions_and_modifiers_declared:  # pylint: disable=too-many-nested-blocks
+        # pylint: disable=too-many-nested-blocks
+        for (
+            function
+        ) in contract.functions_and_modifiers_declared:
             f_results = set()
 
             # Loop for every node in this function, looking for boolean constants

@@ -38,27 +38,16 @@ def _node(node, label=None):
 
 # pylint: disable=too-many-arguments
 def _process_internal_call(
-        contract,
-        function,
-        internal_call,
-        contract_calls,
-        solidity_functions,
-        solidity_calls,
+    contract, function, internal_call, contract_calls, solidity_functions, solidity_calls,
 ):
     if isinstance(internal_call, (Function)):
         contract_calls[contract].add(
-            _edge(
-                _function_node(contract, function),
-                _function_node(contract, internal_call),
-            )
+            _edge(_function_node(contract, function), _function_node(contract, internal_call),)
         )
     elif isinstance(internal_call, (SolidityFunction)):
-        solidity_functions.add(_node(_solidity_function_node(internal_call)), )
+        solidity_functions.add(_node(_solidity_function_node(internal_call)),)
         solidity_calls.add(
-            _edge(
-                _function_node(contract, function),
-                _solidity_function_node(internal_call),
-            )
+            _edge(_function_node(contract, function), _solidity_function_node(internal_call),)
         )
 
 
@@ -95,12 +84,7 @@ def _render_solidity_calls(solidity_functions, solidity_calls):
 
 
 def _process_external_call(
-        contract,
-        function,
-        external_call,
-        contract_functions,
-        external_calls,
-        all_contracts,
+    contract, function, external_call, contract_functions, external_calls, all_contracts,
 ):
     external_contract, external_function = external_call
 
@@ -110,10 +94,7 @@ def _process_external_call(
     # add variable as node to respective contract
     if isinstance(external_function, (Variable)):
         contract_functions[external_contract].add(
-            _node(
-                _function_node(external_contract, external_function),
-                external_function.name,
-            )
+            _node(_function_node(external_contract, external_function), external_function.name,)
         )
 
     external_calls.add(
@@ -126,36 +107,24 @@ def _process_external_call(
 
 # pylint: disable=too-many-arguments
 def _process_function(
-        contract,
-        function,
-        contract_functions,
-        contract_calls,
-        solidity_functions,
-        solidity_calls,
-        external_calls,
-        all_contracts,
+    contract,
+    function,
+    contract_functions,
+    contract_calls,
+    solidity_functions,
+    solidity_calls,
+    external_calls,
+    all_contracts,
 ):
-    contract_functions[contract].add(
-        _node(_function_node(contract, function), function.name),
-    )
+    contract_functions[contract].add(_node(_function_node(contract, function), function.name),)
 
     for internal_call in function.internal_calls:
         _process_internal_call(
-            contract,
-            function,
-            internal_call,
-            contract_calls,
-            solidity_functions,
-            solidity_calls,
+            contract, function, internal_call, contract_calls, solidity_functions, solidity_calls,
         )
     for external_call in function.high_level_calls:
         _process_external_call(
-            contract,
-            function,
-            external_call,
-            contract_functions,
-            external_calls,
-            all_contracts,
+            contract, function, external_call, contract_functions, external_calls, all_contracts,
         )
 
 
@@ -189,9 +158,7 @@ def _process_functions(functions):
             contract, contract_functions, contract_calls
         )
 
-    render_solidity_calls = _render_solidity_calls(
-        solidity_functions, solidity_calls
-    )
+    render_solidity_calls = _render_solidity_calls(solidity_functions, solidity_calls)
 
     render_external_calls = _render_external_calls(external_calls)
 
@@ -202,9 +169,7 @@ class PrinterCallGraph(AbstractPrinter):
     ARGUMENT = "call-graph"
     HELP = "Export the call-graph of the contracts to a dot file"
 
-    WIKI = (
-        "https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph"
-    )
+    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph"
 
     def output(self, filename):
         """
@@ -223,9 +188,7 @@ class PrinterCallGraph(AbstractPrinter):
         with open(filename, "w", encoding="utf8") as f:
             info += f"Call Graph: {filename}\n"
             content = "\n".join(
-                ["strict digraph {"]
-                + [_process_functions(self.slither.functions)]
-                + ["}"]
+                ["strict digraph {"] + [_process_functions(self.slither.functions)] + ["}"]
             )
             f.write(content)
             results.append((filename, content))
@@ -234,9 +197,7 @@ class PrinterCallGraph(AbstractPrinter):
             with open(f"{derived_contract.name}.dot", "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_contract.name}.dot\n"
                 content = "\n".join(
-                    ["strict digraph {"]
-                    + [_process_functions(derived_contract.functions)]
-                    + ["}"]
+                    ["strict digraph {"] + [_process_functions(derived_contract.functions)] + ["}"]
                 )
                 f.write(content)
                 results.append((filename, content))

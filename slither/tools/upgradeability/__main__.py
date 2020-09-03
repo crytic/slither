@@ -57,10 +57,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--markdown-root",
-        help="URL for markdown generation",
-        action="store",
-        default="",
+        "--markdown-root", help="URL for markdown generation", action="store", default="",
     )
 
     parser.add_argument(
@@ -75,9 +72,7 @@ def parse_args():
         default=False,
     )
 
-    parser.add_argument(
-        "--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False
-    )
+    parser.add_argument("--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False)
 
     cryticparser.init(parser)
 
@@ -97,21 +92,19 @@ def parse_args():
 
 def _get_checks():
     detectors = [getattr(all_checks, name) for name in dir(all_checks)]
-    detectors = [
-        c for c in detectors if inspect.isclass(c) and issubclass(c, AbstractCheck)
-    ]
+    detectors = [c for c in detectors if inspect.isclass(c) and issubclass(c, AbstractCheck)]
     return detectors
 
 
 class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):   # pylint: disable=signature-differs
+    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
         checks = _get_checks()
         output_detectors(checks)
         parser.exit()
 
 
 class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):   # pylint: disable=signature-differs
+    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
         checks = _get_checks()
         detector_types_json = output_detectors_json(checks)
         print(json.dumps(detector_types_json))
@@ -119,14 +112,18 @@ class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-meth
 
 
 class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, args, values, option_string=None):   # pylint: disable=signature-differs
+    def __call__(
+        self, parser, args, values, option_string=None
+    ):  # pylint: disable=signature-differs
         checks = _get_checks()
         output_to_markdown(checks, values)
         parser.exit()
 
 
 class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, args, values, option_string=None):   # pylint: disable=signature-differs
+    def __call__(
+        self, parser, args, values, option_string=None
+    ):  # pylint: disable=signature-differs
         checks = _get_checks()
         output_wiki(checks, values)
         parser.exit()
@@ -150,9 +147,7 @@ def _checks_on_contract(detectors, contract):
 
 def _checks_on_contract_update(detectors, contract_v1, contract_v2):
     detectors = [
-        d(logger, contract_v1, contract_v2=contract_v2)
-        for d in detectors
-        if d.REQUIRE_CONTRACT_V2
+        d(logger, contract_v1, contract_v2=contract_v2) for d in detectors if d.REQUIRE_CONTRACT_V2
     ]
     return _run_checks(detectors), len(detectors)
 
@@ -195,9 +190,7 @@ def main():
                 output_to_json(args.json, str(info), json_results)
             return
 
-        detectors_results, number_detectors = _checks_on_contract(
-            detectors, v1_contract
-        )
+        detectors_results, number_detectors = _checks_on_contract(detectors, v1_contract)
         json_results["detectors"] += detectors_results
         number_detectors_run += number_detectors
 
@@ -211,9 +204,7 @@ def main():
 
             proxy_contract = proxy.get_contract_from_name(args.proxy_name)
             if proxy_contract is None:
-                info = "Proxy {} not found in {}".format(
-                    args.proxy_name, proxy.filename
-                )
+                info = "Proxy {} not found in {}".format(args.proxy_name, proxy.filename)
                 logger.error(red(info))
                 if args.json:
                     output_to_json(args.json, str(info), json_results)

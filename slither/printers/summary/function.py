@@ -65,26 +65,11 @@ class FunctionSummary(AbstractPrinter):
                 internal_calls = self._convert(internal_calls)
                 external_calls = self._convert(external_calls)
                 table.add_row(
-                    [
-                        f_name,
-                        visi,
-                        modifiers,
-                        read,
-                        write,
-                        internal_calls,
-                        external_calls,
-                    ]
+                    [f_name, visi, modifiers, read, write, internal_calls, external_calls,]
                 )
             txt += "\n \n" + str(table)
             table = MyPrettyTable(
-                [
-                    "Modifiers",
-                    "Visibility",
-                    "Read",
-                    "Write",
-                    "Internal Calls",
-                    "External Calls",
-                ]
+                ["Modifiers", "Visibility", "Read", "Write", "Internal Calls", "External Calls",]
             )
             for (
                 _c_name,
@@ -100,9 +85,7 @@ class FunctionSummary(AbstractPrinter):
                 write = self._convert(write)
                 internal_calls = self._convert(internal_calls)
                 external_calls = self._convert(external_calls)
-                table.add_row(
-                    [f_name, visi, read, write, internal_calls, external_calls]
-                )
+                table.add_row([f_name, visi, read, write, internal_calls, external_calls])
             txt += "\n\n" + str(table)
             txt += "\n"
             self.info(txt)

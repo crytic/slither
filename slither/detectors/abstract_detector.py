@@ -87,16 +87,12 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             DetectorClassification.OPTIMIZATION,
         ]:
             raise IncorrectDetectorInitialization(
-                "WIKI_EXPLOIT_SCENARIO is not initialized {}".format(
-                    self.__class__.__name__
-                )
+                "WIKI_EXPLOIT_SCENARIO is not initialized {}".format(self.__class__.__name__)
             )
 
         if not self.WIKI_RECOMMENDATION:
             raise IncorrectDetectorInitialization(
-                "WIKI_RECOMMENDATION is not initialized {}".format(
-                    self.__class__.__name__
-                )
+                "WIKI_RECOMMENDATION is not initialized {}".format(self.__class__.__name__)
             )
 
         if re.match("^[a-zA-Z0-9_-]*$", self.ARGUMENT) is None:
@@ -179,12 +175,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                             )
                             continue
                         for patch in patches:
-                            patched_txt, offset = apply_patch(
-                                patched_txt, patch, offset
-                            )
-                        diff = create_diff(
-                            self.slither, original_txt, patched_txt, file
-                        )
+                            patched_txt, offset = apply_patch(patched_txt, patch, offset)
+                        diff = create_diff(self.slither, original_txt, patched_txt, file)
                         if not diff:
                             self._log(f"Impossible to generate patch; empty {result}")
                         else:
@@ -216,9 +208,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                     )
                     return [r for (idx, r) in enumerate(results) if idx not in indexes]
                 except ValueError:
-                    self.logger.error(
-                        yellow("Malformed input. Example of valid input: 0,1,2,3")
-                    )
+                    self.logger.error(yellow("Malformed input. Example of valid input: 0,1,2,3"))
         return results
 
     @property

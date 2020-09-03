@@ -57,7 +57,8 @@ def _determine_solc_version_replacement(used_solc_version):
             return "pragma solidity " + REPLACEMENT_VERSIONS[1] + ";"
     return None
 
-#pylint: disable=too-many-arguments
+
+# pylint: disable=too-many-arguments
 def _patch(slither, result, in_file, solc_version, modify_loc_start, modify_loc_end):
     in_file_str = slither.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]

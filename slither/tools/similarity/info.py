@@ -30,9 +30,7 @@ def info(args):
             sys.exit(0)
 
         if filename is None or contract is None or fname is None:
-            logger.error(
-                "The encode mode requires filename, contract and fname parameters."
-            )
+            logger.error("The encode mode requires filename, contract and fname parameters.")
             sys.exit(-1)
 
         irs = encode_contract(filename, **vars(args))

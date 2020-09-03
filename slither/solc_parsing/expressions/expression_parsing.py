@@ -23,9 +23,7 @@ from slither.core.expressions.binary_operation import (
 )
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.conditional_expression import ConditionalExpression
-from slither.core.expressions.elementary_type_name_expression import (
-    ElementaryTypeNameExpression,
-)
+from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
 from slither.core.expressions.literal import Literal
@@ -86,14 +84,7 @@ def find_variable(  # pylint: disable=too-many-locals,too-many-statements
     referenced_declaration: Optional[int] = None,
     is_super=False,
 ) -> Union[
-    Variable,
-    Function,
-    Contract,
-    SolidityVariable,
-    SolidityFunction,
-    Event,
-    Enum,
-    Structure,
+    Variable, Function, Contract, SolidityVariable, SolidityFunction, Event, Enum, Structure,
 ]:
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
@@ -237,9 +228,7 @@ def find_variable(  # pylint: disable=too-many-locals,too-many-statements
             if function_candidate.referenced_declaration == referenced_declaration:
                 return function_candidate.underlying_function
 
-    raise VariableNotFound(
-        "Variable not found: {} (context {})".format(var_name, caller_context)
-    )
+    raise VariableNotFound("Variable not found: {} (context {})".format(var_name, caller_context))
 
 
 # endregion
@@ -344,9 +333,7 @@ def parse_call(expression: Dict, caller_context):  # pylint: disable=too-many-st
         if expression["expression"][caller_context.get_key()] == "FunctionCallOptions":
             call_with_options = expression["expression"]
             for idx, name in enumerate(call_with_options.get("names", [])):
-                option = parse_expression(
-                    call_with_options["options"][idx], caller_context
-                )
+                option = parse_expression(call_with_options["options"][idx], caller_context)
                 if name == "value":
                     call_value = option
                 if name == "gas":
@@ -355,9 +342,7 @@ def parse_call(expression: Dict, caller_context):  # pylint: disable=too-many-st
                     call_salt = option
         arguments = []
         if expression["arguments"]:
-            arguments = [
-                parse_expression(a, caller_context) for a in expression["arguments"]
-            ]
+            arguments = [parse_expression(a, caller_context) for a in expression["arguments"]]
     else:
         children = expression["children"]
         called = parse_expression(children[0], caller_context)
@@ -458,9 +443,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         else:
             attributes = expression["attributes"]
         assert "prefix" in attributes
-        operation_type = UnaryOperationType.get_type(
-            attributes["operator"], attributes["prefix"]
-        )
+        operation_type = UnaryOperationType.get_type(attributes["operator"], attributes["prefix"])
 
         if is_compact_ast:
             expression = parse_expression(expression["subExpression"], caller_context)
@@ -479,20 +462,12 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         operation_type = BinaryOperationType.get_type(attributes["operator"])
 
         if is_compact_ast:
-            left_expression = parse_expression(
-                expression["leftExpression"], caller_context
-            )
-            right_expression = parse_expression(
-                expression["rightExpression"], caller_context
-            )
+            left_expression = parse_expression(expression["leftExpression"], caller_context)
+            right_expression = parse_expression(expression["rightExpression"], caller_context)
         else:
             assert len(expression["children"]) == 2
-            left_expression = parse_expression(
-                expression["children"][0], caller_context
-            )
-            right_expression = parse_expression(
-                expression["children"][1], caller_context
-            )
+            left_expression = parse_expression(expression["children"][0], caller_context)
+            right_expression = parse_expression(expression["children"][1], caller_context)
         binary_op = BinaryOperation(left_expression, right_expression, operation_type)
         binary_op.set_offset(src, caller_context.slither)
         return binary_op
@@ -518,21 +493,17 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         #     Note: this is only possible with Solidity >= 0.4.12
         if is_compact_ast:
             expressions = [
-                parse_expression(e, caller_context) if e else None
-                for e in expression["components"]
+                parse_expression(e, caller_context) if e else None for e in expression["components"]
             ]
         else:
             if "children" not in expression:
                 attributes = expression["attributes"]
                 components = attributes["components"]
                 expressions = [
-                    parse_expression(c, caller_context) if c else None
-                    for c in components
+                    parse_expression(c, caller_context) if c else None for c in components
                 ]
             else:
-                expressions = [
-                    parse_expression(e, caller_context) for e in expression["children"]
-                ]
+                expressions = [parse_expression(e, caller_context) for e in expression["children"]]
         # Add none for empty tuple items
         if "attributes" in expression:
             if "type" in expression["attributes"]:
@@ -550,32 +521,22 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
     if name == "Conditional":
         if is_compact_ast:
             if_expression = parse_expression(expression["condition"], caller_context)
-            then_expression = parse_expression(
-                expression["trueExpression"], caller_context
-            )
-            else_expression = parse_expression(
-                expression["falseExpression"], caller_context
-            )
+            then_expression = parse_expression(expression["trueExpression"], caller_context)
+            else_expression = parse_expression(expression["falseExpression"], caller_context)
         else:
             children = expression["children"]
             assert len(children) == 3
             if_expression = parse_expression(children[0], caller_context)
             then_expression = parse_expression(children[1], caller_context)
             else_expression = parse_expression(children[2], caller_context)
-        conditional = ConditionalExpression(
-            if_expression, then_expression, else_expression
-        )
+        conditional = ConditionalExpression(if_expression, then_expression, else_expression)
         conditional.set_offset(src, caller_context.slither)
         return conditional
 
     if name == "Assignment":
         if is_compact_ast:
-            left_expression = parse_expression(
-                expression["leftHandSide"], caller_context
-            )
-            right_expression = parse_expression(
-                expression["rightHandSide"], caller_context
-            )
+            left_expression = parse_expression(expression["leftHandSide"], caller_context)
+            right_expression = parse_expression(expression["rightHandSide"], caller_context)
 
             operation_type = AssignmentOperationType.get_type(expression["operator"])
 
@@ -661,9 +622,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
                 t = expression["attributes"]["type"]
 
         if t:
-            found = re.findall(
-                "[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t
-            )
+            found = re.findall("[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
             assert len(found) <= 1
             if found:
                 value = value + "(" + found[0] + ")"
@@ -712,9 +671,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         if caller_context.is_compact_ast:
             member_name = expression["memberName"]
             member_type = expression["typeDescriptions"]["typeString"]
-            member_expression = parse_expression(
-                expression["expression"], caller_context
-            )
+            member_expression = parse_expression(expression["expression"], caller_context)
         else:
             member_name = expression["attributes"]["member_name"]
             member_type = expression["attributes"]["type"]
@@ -738,9 +695,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         return member_access
 
     if name == "ElementaryTypeNameExpression":
-        return _parse_elementary_type_name_expression(
-            expression, is_compact_ast, caller_context
-        )
+        return _parse_elementary_type_name_expression(expression, is_compact_ast, caller_context)
 
     # NewExpression is not a root expression, it's always the child of another expression
     if name == "NewExpression":
@@ -769,9 +724,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
                     array_type = ElementaryType(type_name["attributes"]["name"])
             elif type_name[caller_context.get_key()] == "UserDefinedTypeName":
                 if is_compact_ast:
-                    array_type = parse_type(
-                        UnknownType(type_name["name"]), caller_context
-                    )
+                    array_type = parse_type(UnknownType(type_name["name"]), caller_context)
                 else:
                     array_type = parse_type(
                         UnknownType(type_name["attributes"]["name"]), caller_context
@@ -809,9 +762,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
             called = parse_expression(expression["modifierName"], caller_context)
             arguments = []
             if expression["arguments"]:
-                arguments = [
-                    parse_expression(a, caller_context) for a in expression["arguments"]
-                ]
+                arguments = [parse_expression(a, caller_context) for a in expression["arguments"]]
         else:
             children = expression["children"]
             called = parse_expression(children[0], caller_context)

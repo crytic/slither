@@ -8,9 +8,7 @@ from slither.slithir.variables.reference import ReferenceVariable
 
 class Member(OperationWithLValue):
     def __init__(self, variable_left, variable_right, result):
-        assert is_valid_rvalue(variable_left) or isinstance(
-            variable_left, (Contract, Enum)
-        )
+        assert is_valid_rvalue(variable_left) or isinstance(variable_left, (Contract, Enum))
         assert isinstance(variable_right, Constant)
         assert isinstance(result, ReferenceVariable)
         super().__init__()
