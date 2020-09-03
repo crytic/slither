@@ -2,37 +2,47 @@ import re
 from slither.formatters.exceptions import FormatError, FormatImpossible
 from slither.formatters.utils.patches import create_patch
 
-def format(slither, result):
-    elements = result['elements']
+
+def custom_format(slither, result):
+    elements = result["elements"]
     for element in elements:
 
         # TODO: decide if this should be changed in the constant detector
-        contract_name = element['type_specific_fields']['parent']['name']
+        contract_name = element["type_specific_fields"]["parent"]["name"]
         contract = slither.get_contract_from_name(contract_name)
-        var = contract.get_state_variable_from_name(element['name'])
+        var = contract.get_state_variable_from_name(element["name"])
         if not var.expression:
-            raise FormatImpossible(f'{var.name} is uninitialized and cannot become constant.')
+            raise FormatImpossible(f"{var.name} is uninitialized and cannot become constant.")
 
-        _patch(slither, result, element['source_mapping']['filename_absolute'],
-               element['name'],
-               "constant " + element['name'],
-               element['source_mapping']['start'],
-               element['source_mapping']['start'] + element['source_mapping']['length'])
+        _patch(
+            slither,
+            result,
+            element["source_mapping"]["filename_absolute"],
+            element["name"],
+            "constant " + element["name"],
+            element["source_mapping"]["start"],
+            element["source_mapping"]["start"] + element["source_mapping"]["length"],
+        )
 
 
-def _patch(slither, result, in_file, match_text, replace_text, modify_loc_start, modify_loc_end):
-    in_file_str = slither.source_code[in_file].encode('utf8')
+def _patch(  # pylint: disable=too-many-arguments
+    slither, result, in_file, match_text, replace_text, modify_loc_start, modify_loc_end
+):
+    in_file_str = slither.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Add keyword `constant` before the variable name
-    (new_str_of_interest, num_repl) = re.subn(match_text, replace_text, old_str_of_interest.decode('utf-8'), 1)
+    (new_str_of_interest, num_repl) = re.subn(
+        match_text, replace_text, old_str_of_interest.decode("utf-8"), 1
+    )
     if num_repl != 0:
-        create_patch(result,
-                     in_file,
-                     modify_loc_start,
-                     modify_loc_end,
-                     old_str_of_interest,
-                     new_str_of_interest)
+        create_patch(
+            result,
+            in_file,
+            modify_loc_start,
+            modify_loc_end,
+            old_str_of_interest,
+            new_str_of_interest,
+        )
 
     else:
         raise FormatError("State variable not found?!")
-

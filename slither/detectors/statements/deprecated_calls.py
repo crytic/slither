@@ -2,12 +2,15 @@
 Module detecting deprecated standards.
 """
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.visitors.expression.export_values import ExportValues
-from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction
 from slither.core.cfg.node import NodeType
+from slither.core.declarations.solidity_variables import (
+    SolidityVariableComposed,
+    SolidityFunction,
+)
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall
-from slither.solc_parsing.variables.state_variable import StateVariableSolc, StateVariable
+from slither.visitors.expression.export_values import ExportValues
+
 
 # Reference: https://smartcontractsecurity.github.io/SWC-registry/docs/SWC-111
 class DeprecatedStandards(AbstractDetector):
@@ -15,16 +18,16 @@ class DeprecatedStandards(AbstractDetector):
     Use of Deprecated Standards
     """
 
-    ARGUMENT = 'deprecated-standards'
-    HELP = 'Deprecated Solidity Standards'
+    ARGUMENT = "deprecated-standards"
+    HELP = "Deprecated Solidity Standards"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards"
 
-    WIKI_TITLE = 'Deprecated standards'
-    WIKI_DESCRIPTION = 'Detect the usage of deprecated standards.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Deprecated standards"
+    WIKI_DESCRIPTION = "Detect the usage of deprecated standards."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract ContractWithDeprecatedReferences {
     // Deprecated: Change block.blockhash() -> blockhash()
@@ -51,20 +54,24 @@ contract ContractWithDeprecatedReferences {
         suicide(address(0));
     }
 }
-```'''
+```"""
 
-    WIKI_RECOMMENDATION = 'Replace all uses of deprecated symbols.'
+    WIKI_RECOMMENDATION = "Replace all uses of deprecated symbols."
 
     # The format for the following deprecated lists is [(detecting_signature, original_text, recommended_text)]
-    DEPRECATED_SOLIDITY_VARIABLE = [("block.blockhash", "block.blockhash()", "blockhash()"),
-                                    ("msg.gas", "msg.gas", "gasleft()")]
-    DEPRECATED_SOLIDITY_FUNCTIONS = [("suicide(address)", "suicide()", "selfdestruct()"),
-                                     ("sha3()", "sha3()", "keccak256()")]
+    DEPRECATED_SOLIDITY_VARIABLE = [
+        ("block.blockhash", "block.blockhash()", "blockhash()"),
+        ("msg.gas", "msg.gas", "gasleft()"),
+    ]
+    DEPRECATED_SOLIDITY_FUNCTIONS = [
+        ("suicide(address)", "suicide()", "selfdestruct()"),
+        ("sha3()", "sha3()", "keccak256()"),
+    ]
     DEPRECATED_NODE_TYPES = [(NodeType.THROW, "throw", "revert()")]
     DEPRECATED_LOW_LEVEL_CALLS = [("callcode", "callcode", "delegatecall")]
 
     def detect_deprecation_in_expression(self, expression):
-        """ Detects if an expression makes use of any deprecated standards.
+        """Detects if an expression makes use of any deprecated standards.
 
         Returns:
             list of tuple: (detecting_signature, original_text, recommended_text)"""
@@ -86,7 +93,7 @@ contract ContractWithDeprecatedReferences {
         return results
 
     def detect_deprecated_references_in_node(self, node):
-        """ Detects if a node makes use of any deprecated standards.
+        """Detects if a node makes use of any deprecated standards.
 
         Returns:
             list of tuple: (detecting_signature, original_text, recommended_text)"""
@@ -105,7 +112,7 @@ contract ContractWithDeprecatedReferences {
         return results
 
     def detect_deprecated_references_in_contract(self, contract):
-        """ Detects the usage of any deprecated built-in symbols.
+        """Detects the usage of any deprecated built-in symbols.
 
         Returns:
             list of tuple: (state_variable | node, (detecting_signature, original_text, recommended_text))"""
@@ -113,11 +120,14 @@ contract ContractWithDeprecatedReferences {
 
         for state_variable in contract.state_variables_declared:
             if state_variable.expression:
-                deprecated_results = self.detect_deprecation_in_expression(state_variable.expression)
+                deprecated_results = self.detect_deprecation_in_expression(
+                    state_variable.expression
+                )
                 if deprecated_results:
                     results.append((state_variable, deprecated_results))
 
         # Loop through all functions + modifiers in this contract.
+        # pylint: disable=too-many-nested-blocks
         for function in contract.functions_and_modifiers_declared:
             # Loop through each node in this function.
             for node in function.nodes:
@@ -138,7 +148,7 @@ contract ContractWithDeprecatedReferences {
         return results
 
     def _detect(self):
-        """ Detects if an expression makes use of any deprecated standards.
+        """Detects if an expression makes use of any deprecated standards.
 
         Recursively visit the calls
         Returns:
@@ -152,10 +162,12 @@ contract ContractWithDeprecatedReferences {
                 for deprecated_reference in deprecated_references:
                     source_object = deprecated_reference[0]
                     deprecated_entries = deprecated_reference[1]
-                    info = ['Deprecated standard detected ', source_object, ':\n']
+                    info = ["Deprecated standard detected ", source_object, ":\n"]
 
-                    for (dep_id, original_desc, recommended_disc) in deprecated_entries:
-                        info += [f"\t- Usage of \"{original_desc}\" should be replaced with \"{recommended_disc}\"\n"]
+                    for (_dep_id, original_desc, recommended_disc) in deprecated_entries:
+                        info += [
+                            f'\t- Usage of "{original_desc}" should be replaced with "{recommended_disc}"\n'
+                        ]
 
                     res = self.generate_result(info)
                     results.append(res)

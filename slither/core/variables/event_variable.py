@@ -1,10 +1,10 @@
-from .variable import Variable
+from slither.core.variables.variable import Variable
 from slither.core.children.child_event import ChildEvent
 
 
 class EventVariable(ChildEvent, Variable):
     def __init__(self):
-        super(EventVariable, self).__init__()
+        super().__init__()
         self._indexed = False
 
     @property

@@ -12,7 +12,15 @@ from typing import Optional, Dict, List, Set, Union, Tuple
 from crytic_compile import CryticCompile
 
 from slither.core.context.context import Context
-from slither.core.declarations import Contract, Pragma, Import, Function, Modifier, Structure, Enum
+from slither.core.declarations import (
+    Contract,
+    Pragma,
+    Import,
+    Function,
+    Modifier,
+    Structure,
+    Enum,
+)
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import InternalCall
 from slither.slithir.variables import Constant
@@ -22,13 +30,20 @@ logger = logging.getLogger("Slither")
 logging.basicConfig()
 
 
-class SlitherCore(Context):
+def _relative_path_format(path: str) -> str:
+    """
+    Strip relative paths of "." and ".."
+    """
+    return path.split("..")[-1].strip(".").strip("/")
+
+
+class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-many-public-methods
     """
     Slither static analyzer
     """
 
     def __init__(self):
-        super(SlitherCore, self).__init__()
+        super().__init__()
         self._contracts: Dict[str, Contract] = {}
         self._filename: Optional[str] = None
         self._source_units: Dict[int, str] = {}
@@ -61,7 +76,6 @@ class SlitherCore(Context):
 
         # If set to true, slither will not catch errors during parsing
         self._disallow_partial: bool = False
-
 
     ###################################################################################
     ###################################################################################
@@ -115,6 +129,10 @@ class SlitherCore(Context):
         if self.crytic_compile:
             return self.crytic_compile.compiler_version.version
         return self._solc_version
+
+    @solc_version.setter
+    def solc_version(self, version: str):
+        self._solc_version = version
 
     @property
     def pragma_directives(self) -> List[Pragma]:
@@ -219,7 +237,6 @@ class SlitherCore(Context):
         top_level_structures = [c.structures for c in self.contracts if c.is_top_level]
         return [st for sublist in top_level_structures for st in sublist]
 
-
     @property
     def top_level_enums(self) -> List[Enum]:
         top_level_enums = [c.enums for c in self.contracts if c.is_top_level]
@@ -234,7 +251,7 @@ class SlitherCore(Context):
 
     def print_functions(self, d: str):
         """
-            Export all the functions to dot files
+        Export all the functions to dot files
         """
         for c in self.contracts:
             for f in c.functions:
@@ -247,19 +264,13 @@ class SlitherCore(Context):
     ###################################################################################
     ###################################################################################
 
-    def relative_path_format(self, path: str) -> str:
-        """
-           Strip relative paths of "." and ".."
-        """
-        return path.split("..")[-1].strip(".").strip("/")
-
     def valid_result(self, r: Dict) -> bool:
         """
-            Check if the result is valid
-            A result is invalid if:
-                - All its source paths belong to the source path filtered
-                - Or a similar result was reported and saved during a previous run
-                - The --exclude-dependencies flag is set and results are only related to dependencies
+        Check if the result is valid
+        A result is invalid if:
+            - All its source paths belong to the source path filtered
+            - Or a similar result was reported and saved during a previous run
+            - The --exclude-dependencies flag is set and results are only related to dependencies
         """
         source_mapping_elements = [
             elem["source_mapping"]["filename_absolute"]
@@ -274,7 +285,7 @@ class SlitherCore(Context):
         for path in self._paths_to_filter:
             try:
                 if any(
-                    bool(re.search(self.relative_path_format(path), src_mapping))
+                    bool(re.search(_relative_path_format(path), src_mapping))
                     for src_mapping in source_mapping_elements
                 ):
                     matching = True
@@ -323,8 +334,8 @@ class SlitherCore(Context):
 
     def add_path_to_filter(self, path: str):
         """
-            Add path to filter
-            Path are used through direct comparison (no regex)
+        Add path to filter
+        Path are used through direct comparison (no regex)
         """
         self._paths_to_filter.add(path)
 
@@ -369,7 +380,6 @@ class SlitherCore(Context):
     def contracts_with_missing_inheritance(self) -> Set:
         return self._contract_with_missing_inheritance
 
-
     @property
     def disallow_partial(self) -> bool:
         """
@@ -407,7 +417,10 @@ class SlitherCore(Context):
                     slot += 1
                     offset = 0
 
-                self._storage_layouts[contract.name][var.canonical_name] = (slot, offset)
+                self._storage_layouts[contract.name][var.canonical_name] = (
+                    slot,
+                    offset,
+                )
                 if new_slot:
                     slot += math.ceil(size / 32)
                 else:
@@ -415,4 +428,5 @@ class SlitherCore(Context):
 
     def storage_layout_of(self, contract, var) -> Tuple[int, int]:
         return self._storage_layouts[contract.name][var.canonical_name]
+
     # endregion

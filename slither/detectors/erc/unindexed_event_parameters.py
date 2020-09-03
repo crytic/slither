@@ -9,16 +9,16 @@ class UnindexedERC20EventParameters(AbstractDetector):
     Un-indexed ERC20 event parameters
     """
 
-    ARGUMENT = 'erc20-indexed'
-    HELP = 'Un-indexed ERC20 event parameters'
+    ARGUMENT = "erc20-indexed"
+    HELP = "Un-indexed ERC20 event parameters"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-erc20-event-parameters'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-erc20-event-parameters"
 
-    WIKI_TITLE = 'Unindexed ERC20 event oarameters'
-    WIKI_DESCRIPTION = 'Detects whether events defined by the `ERC20` specification that should have some parameters as `indexed` are missing the `indexed` keyword.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Unindexed ERC20 event oarameters"
+    WIKI_DESCRIPTION = "Detects whether events defined by the `ERC20` specification that should have some parameters as `indexed` are missing the `indexed` keyword."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract ERC20Bad {
     // ...
@@ -29,9 +29,9 @@ contract ERC20Bad {
 }
 ```
 `Transfer` and `Approval` events should have the 'indexed' keyword on their two first parameters, as defined by the `ERC20` specification.
-Failure to include these keywords will exclude the parameter data in the transaction/block's bloom filter, so external tooling searching for these parameters may overlook them and fail to index logs from this token contract.'''
+Failure to include these keywords will exclude the parameter data in the transaction/block's bloom filter, so external tooling searching for these parameters may overlook them and fail to index logs from this token contract."""
 
-    WIKI_RECOMMENDATION = 'Add the `indexed` keyword to event parameters that should include it, according to the `ERC20` specification.'
+    WIKI_RECOMMENDATION = "Add the `indexed` keyword to event parameters that should include it, according to the `ERC20` specification."
 
     STANDARD_JSON = False
 
@@ -53,8 +53,10 @@ Failure to include these keywords will exclude the parameter data in the transac
         for event in contract.events_declared:
 
             # If this is transfer/approval events, expect the first two parameters to be indexed.
-            if event.full_name in ["Transfer(address,address,uint256)",
-                                   "Approval(address,address,uint256)"]:
+            if event.full_name in [
+                "Transfer(address,address,uint256)",
+                "Approval(address,address,uint256)",
+            ]:
                 if not event.elems[0].indexed:
                     results.append((event, event.elems[0]))
                 if not event.elems[1].indexed:
@@ -74,13 +76,16 @@ Failure to include these keywords will exclude the parameter data in the transac
                 # Add each problematic event definition to our result list
                 for (event, parameter) in unindexed_params:
 
-                    info = ["ERC20 event ", event, f"does not index parameter {parameter}\n"]
+                    info = [
+                        "ERC20 event ",
+                        event,
+                        f"does not index parameter {parameter}\n",
+                    ]
 
                     # Add the events to the JSON (note: we do not add the params/vars as they have no source mapping).
                     res = self.generate_result(info)
 
                     res.add(event, {"parameter_name": parameter.name})
                     results.append(res)
-
 
         return results

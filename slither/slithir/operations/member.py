@@ -7,18 +7,16 @@ from slither.slithir.variables.reference import ReferenceVariable
 
 
 class Member(OperationWithLValue):
-
     def __init__(self, variable_left, variable_right, result):
         assert is_valid_rvalue(variable_left) or isinstance(variable_left, (Contract, Enum))
         assert isinstance(variable_right, Constant)
         assert isinstance(result, ReferenceVariable)
-        super(Member, self).__init__()
+        super().__init__()
         self._variable_left = variable_left
         self._variable_right = variable_right
         self._lvalue = result
         self._gas = None
         self._value = None
-
 
     @property
     def read(self):
@@ -49,5 +47,6 @@ class Member(OperationWithLValue):
         self._gas = gas
 
     def __str__(self):
-        return '{}({}) -> {}.{}'.format(self.lvalue, self.lvalue.type, self.variable_left, self.variable_right)
-
+        return "{}({}) -> {}.{}".format(
+            self.lvalue, self.lvalue.type, self.variable_left, self.variable_right
+        )

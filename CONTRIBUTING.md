@@ -22,3 +22,25 @@ Some pull request guidelines:
 
 ## Development Environment
 Instructions for installing a development version of Slither can be found in our [wiki](https://github.com/crytic/slither/wiki/Developer-installation).
+
+## Linters
+
+Several linters and security checkers are run on the PRs.
+
+To run them locally:
+
+- `pylint slither --rconfig pyproject.toml`
+- `black slither --config pyproject.toml`
+
+## Detectors regression tests
+
+For each new detector, at least one regression tests must be present.
+To generate the following scripts, you must have [`solc-select`](https://github.com/crytic/solc-select) installed.
+
+- Create a test in `tests`
+- Update `script/ci_test_detectors_[solc_version].sh`, and add `generate_expected_json tests/YOUR_FILENAME.sol "DETECTOR_NAME"`. Be sure that all the other lines are commented (otherwise you will regenerate the tests for all the detectores)
+- Run `./script/ci_test_detectors_[solc_version].sh`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git.
+- Update `scripts/ci_test_detectors_[solc_version].sh` with your new tests.
+- Run `scripts/ci_test_detectors_[solc_version].sh` and check that everything worked.
+
+

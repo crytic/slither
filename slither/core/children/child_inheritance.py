@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 class ChildInheritance:
     def __init__(self):
-        super(ChildInheritance, self).__init__()
+        super().__init__()
         self._contract_declarer = None
 
     def set_contract_declarer(self, contract: "Contract"):

@@ -4,10 +4,9 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 
 
 class SolidityCall(Call, OperationWithLValue):
-
     def __init__(self, function, nbr_arguments, result, type_call):
         assert isinstance(function, SolidityFunction)
-        super(SolidityCall, self).__init__()
+        super().__init__()
         self._function = function
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
@@ -30,17 +29,21 @@ class SolidityCall(Call, OperationWithLValue):
         return self._type_call
 
     def __str__(self):
-        if (self.function == SolidityFunction("abi.decode()") and
-                len(self.arguments) == 2 and
-                isinstance(self.arguments[1], list)):
-            args = str(self.arguments[0]) + '(' + ','.join([str(a) for a in self.arguments[1]]) + ')'
+        if (
+            self.function == SolidityFunction("abi.decode()")
+            and len(self.arguments) == 2
+            and isinstance(self.arguments[1], list)
+        ):
+            args = (
+                str(self.arguments[0]) + "(" + ",".join([str(a) for a in self.arguments[1]]) + ")"
+            )
         else:
-            args = ','.join([str(a) for a in self.arguments])
+            args = ",".join([str(a) for a in self.arguments])
 
-        lvalue = ''
+        lvalue = ""
         if self.lvalue:
             if isinstance(self.lvalue.type, (list,)):
-                lvalue = '{}({}) = '.format(self.lvalue, ','.join(str(x) for x in self.lvalue.type))
+                lvalue = "{}({}) = ".format(self.lvalue, ",".join(str(x) for x in self.lvalue.type))
             else:
-                lvalue = '{}({}) = '.format(self.lvalue, self.lvalue.type)
-        return lvalue + 'SOLIDITY_CALL {}({})'.format(self.function.full_name, args)
+                lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
+        return lvalue + "SOLIDITY_CALL {}({})".format(self.function.full_name, args)

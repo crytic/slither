@@ -1,14 +1,5 @@
 from slither.visitors.expression.expression import ExpressionVisitor
 
-from slither.core.expressions.assignment_operation import AssignmentOperation
-
-from slither.core.variables.variable import Variable
-
-from slither.core.expressions.member_access import MemberAccess
-
-from slither.core.expressions.index_access import IndexAccess
-
-
 key = "WriteVar"
 
 

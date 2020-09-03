@@ -1,9 +1,9 @@
 from slither.slithir.operations.lvalue import OperationWithLValue
 
-class TmpNewStructure(OperationWithLValue):
 
+class TmpNewStructure(OperationWithLValue):
     def __init__(self, contract_name, lvalue):
-        super(TmpNewStructure, self).__init__()
+        super().__init__()
         self._contract_name = contract_name
         self._lvalue = lvalue
 
@@ -16,5 +16,4 @@ class TmpNewStructure(OperationWithLValue):
         return []
 
     def __str__(self):
-        return '{} = tmpnew {}'.format(self.lvalue, self.contract_name)
-
+        return "{} = tmpnew {}".format(self.lvalue, self.contract_name)

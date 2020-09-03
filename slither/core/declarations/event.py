@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class Event(ChildContract, SourceMapping):
     def __init__(self):
-        super(Event, self).__init__()
+        super().__init__()
         self._name = None
         self._elems: List[EventVariable] = []
 
@@ -24,7 +24,7 @@ class Event(ChildContract, SourceMapping):
 
     @property
     def signature(self) -> Tuple[str, List[str]]:
-        """ Return the function signature
+        """Return the function signature
         Returns:
             (str, list(str)): name, list parameters type
         """
@@ -32,7 +32,7 @@ class Event(ChildContract, SourceMapping):
 
     @property
     def full_name(self) -> str:
-        """ Return the function signature as a str
+        """Return the function signature as a str
         Returns:
             str: func_name(type1,type2)
         """
@@ -41,7 +41,7 @@ class Event(ChildContract, SourceMapping):
 
     @property
     def canonical_name(self) -> str:
-        """ Return the function signature as a str
+        """Return the function signature as a str
         Returns:
             str: contract.func_name(type1,type2)
         """

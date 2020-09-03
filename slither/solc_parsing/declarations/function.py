@@ -1,11 +1,13 @@
-"""
-"""
 import logging
 from typing import Dict, Optional, Union, List, TYPE_CHECKING
 
 from slither.core.cfg.node import NodeType, link_nodes, insert_node, Node
 from slither.core.declarations.contract import Contract
-from slither.core.declarations.function import Function, ModifierStatements, FunctionType
+from slither.core.declarations.function import (
+    Function,
+    ModifierStatements,
+    FunctionType,
+)
 
 from slither.core.expressions import AssignmentOperation
 from slither.core.variables.local_variable import LocalVariable
@@ -38,14 +40,18 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
+# pylint: disable=too-many-lines,too-many-branches,too-many-locals,too-many-statements,too-many-instance-attributes
+
+
 class FunctionSolc:
-    """
-    """
 
     # elems = [(type, name)]
 
     def __init__(
-        self, function: Function, function_data: Dict, contract_parser: "ContractSolc",
+        self,
+        function: Function,
+        function_data: Dict,
+        contract_parser: "ContractSolc",
     ):
         self._slither_parser: "SlitherSolc" = contract_parser.slither_parser
         self._contract_parser = contract_parser
@@ -124,7 +130,7 @@ class FunctionSolc:
     @property
     def referenced_declaration(self) -> Optional[str]:
         """
-            Return the compact AST referenced declaration id (None for legacy AST)
+        Return the compact AST referenced declaration id (None for legacy AST)
         """
         return self._referenced_declaration
 
@@ -321,7 +327,12 @@ class FunctionSolc:
 
     def _new_yul_block(self, src: Union[str, Dict]) -> YulBlock:
         node = self._function.new_node(NodeType.ASSEMBLY, src)
-        yul_object = YulBlock(self._function.contract, node, [self._function.name, f"asm_{len(self._node_to_yulobject)}"], parent_func=self._function)
+        yul_object = YulBlock(
+            self._function.contract,
+            node,
+            [self._function.name, f"asm_{len(self._node_to_yulobject)}"],
+            parent_func=self._function,
+        )
         self._node_to_yulobject[node] = yul_object
         return yul_object
 
@@ -563,7 +574,10 @@ class FunctionSolc:
         if not node_condition.underlying_node.sons:
             link_underlying_nodes(node_startDoWhile, node_condition)
         else:
-            link_nodes(node_startDoWhile.underlying_node, node_condition.underlying_node.sons[0])
+            link_nodes(
+                node_startDoWhile.underlying_node,
+                node_condition.underlying_node.sons[0],
+            )
         link_underlying_nodes(statement, node_condition)
         link_underlying_nodes(node_condition, node_endDoWhile)
         return node_endDoWhile
@@ -821,22 +835,22 @@ class FunctionSolc:
             node = self._parse_block(statement, node)
         elif name == "InlineAssembly":
             # Added with solc 0.6 - the yul code is an AST
-            if 'AST' in statement:
+            if "AST" in statement:
                 self._function.contains_assembly = True
-                yul_object = self._new_yul_block(statement['src'])
+                yul_object = self._new_yul_block(statement["src"])
                 entrypoint = yul_object.entrypoint
-                exitpoint = yul_object.convert(statement['AST'])
+                exitpoint = yul_object.convert(statement["AST"])
 
                 # technically, entrypoint and exitpoint are YulNodes and we should be returning a NodeSolc here
                 # but they both expose an underlying_node so oh well
                 link_underlying_nodes(node, entrypoint)
                 node = exitpoint
             else:
-                asm_node = self._new_node(NodeType.ASSEMBLY, statement['src'])
-                self._function._contains_assembly = True
+                asm_node = self._new_node(NodeType.ASSEMBLY, statement["src"])
+                self._function.contains_assembly = True
                 # Added with solc 0.4.12
-                if 'operations' in statement:
-                    asm_node.underlying_node.add_inline_asm(statement['operations'])
+                if "operations" in statement:
+                    asm_node.underlying_node.add_inline_asm(statement["operations"])
                 link_underlying_nodes(node, asm_node)
                 node = asm_node
         elif name == "DoWhileStatement":
@@ -1126,7 +1140,7 @@ class FunctionSolc:
     ###################################################################################
 
     def _remove_incorrect_edges(self):
-        for node in self._node_to_nodesolc.keys():
+        for node in self._node_to_nodesolc:
             if node.type in [NodeType.RETURN, NodeType.THROW]:
                 for son in node.sons:
                     son.remove_father(node)
@@ -1140,28 +1154,28 @@ class FunctionSolc:
 
     def _remove_alone_endif(self):
         """
-            Can occur on:
-            if(..){
-                return
-            }
-            else{
-                return
-            }
+        Can occur on:
+        if(..){
+            return
+        }
+        else{
+            return
+        }
 
-            Iterate until a fix point to remove the ENDIF node
-            creates on the following pattern
-            if(){
-                return
-            }
-            else if(){
-                return
-            }
+        Iterate until a fix point to remove the ENDIF node
+        creates on the following pattern
+        if(){
+            return
+        }
+        else if(){
+            return
+        }
         """
         prev_nodes = []
         while set(prev_nodes) != set(self._node_to_nodesolc.keys()):
             prev_nodes = self._node_to_nodesolc.keys()
             to_remove: List[Node] = []
-            for node in self._node_to_nodesolc.keys():
+            for node in self._node_to_nodesolc:
                 if node.type == NodeType.ENDIF and not node.fathers:
                     for son in node.sons:
                         son.remove_father(node)
@@ -1184,7 +1198,7 @@ class FunctionSolc:
         updated = False
         while ternary_found:
             ternary_found = False
-            for node in self._node_to_nodesolc.keys():
+            for node in self._node_to_nodesolc:
                 has_cond = HasConditional(node.expression)
                 if has_cond.result():
                     st = SplitTernaryExpression(node.expression)
@@ -1248,9 +1262,15 @@ class FunctionSolc:
         link_underlying_nodes(condition_node, true_node_parser)
         link_underlying_nodes(condition_node, false_node_parser)
 
-        if true_node_parser.underlying_node.type not in [NodeType.THROW, NodeType.RETURN]:
+        if true_node_parser.underlying_node.type not in [
+            NodeType.THROW,
+            NodeType.RETURN,
+        ]:
             link_underlying_nodes(true_node_parser, endif_node)
-        if false_node_parser.underlying_node.type not in [NodeType.THROW, NodeType.RETURN]:
+        if false_node_parser.underlying_node.type not in [
+            NodeType.THROW,
+            NodeType.RETURN,
+        ]:
             link_underlying_nodes(false_node_parser, endif_node)
 
         self._function.nodes = [n for n in self._function.nodes if n.node_id != node.node_id]

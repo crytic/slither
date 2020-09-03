@@ -12,14 +12,15 @@ from slither.slithir.variables.constant import Constant
 
 class HighLevelCall(Call, OperationWithLValue):
     """
-        High level message call
+    High level message call
     """
 
+    # pylint: disable=too-many-arguments,too-many-instance-attributes
     def __init__(self, destination, function_name, nbr_arguments, result, type_call):
         assert isinstance(function_name, Constant)
         assert is_valid_lvalue(result) or result is None
         self._check_destination(destination)
-        super(HighLevelCall, self).__init__()
+        super().__init__()
         self._destination = destination
         self._function_name = function_name
         self._nbr_arguments = nbr_arguments
@@ -33,7 +34,7 @@ class HighLevelCall(Call, OperationWithLValue):
 
     # Development function, to be removed once the code is stable
     # It is ovveride by LbraryCall
-    def _check_destination(self, destination):
+    def _check_destination(self, destination):  # pylint: disable=no-self-use
         assert isinstance(destination, (Variable, SolidityVariable))
 
     @property
@@ -97,15 +98,15 @@ class HighLevelCall(Call, OperationWithLValue):
     ###################################################################################
 
     def can_reenter(self, callstack=None):
-        '''
+        """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view
         For call to this. check if the destination can re-enter
         :param callstack: check for recursion
         :return: bool
-        '''
+        """
         # If solidity >0.5, STATICCALL is used
-        if self.slither.solc_version and self.slither.solc_version >= '0.5.0':
+        if self.slither.solc_version and self.slither.solc_version >= "0.5.0":
             if isinstance(self.function, Function) and (self.function.view or self.function.pure):
                 return False
             if isinstance(self.function, Variable):
@@ -113,7 +114,7 @@ class HighLevelCall(Call, OperationWithLValue):
         # If there is a call to itself
         # We can check that the function called is
         # reentrancy-safe
-        if self.destination == SolidityVariable('this'):
+        if self.destination == SolidityVariable("this"):
             if isinstance(self.function, Variable):
                 return False
             # In case of recursion, return False
@@ -126,10 +127,10 @@ class HighLevelCall(Call, OperationWithLValue):
         return True
 
     def can_send_eth(self):
-        '''
+        """
         Must be called after slithIR analysis pass
         :return: bool
-        '''
+        """
         return self._call_value is not None
 
     # endregion
@@ -140,27 +141,29 @@ class HighLevelCall(Call, OperationWithLValue):
     ###################################################################################
 
     def __str__(self):
-        value = ''
-        gas = ''
+        value = ""
+        gas = ""
         if self.call_value:
-            value = 'value:{}'.format(self.call_value)
+            value = "value:{}".format(self.call_value)
         if self.call_gas:
-            gas = 'gas:{}'.format(self.call_gas)
+            gas = "gas:{}".format(self.call_gas)
         arguments = []
         if self.arguments:
             arguments = self.arguments
 
-        txt = '{}HIGH_LEVEL_CALL, dest:{}({}), function:{}, arguments:{} {} {}'
+        txt = "{}HIGH_LEVEL_CALL, dest:{}({}), function:{}, arguments:{} {} {}"
         if not self.lvalue:
-            lvalue = ''
+            lvalue = ""
         elif isinstance(self.lvalue.type, (list,)):
-            lvalue = '{}({}) = '.format(self.lvalue, ','.join(str(x) for x in self.lvalue.type))
+            lvalue = "{}({}) = ".format(self.lvalue, ",".join(str(x) for x in self.lvalue.type))
         else:
-            lvalue = '{}({}) = '.format(self.lvalue, self.lvalue.type)
-        return txt.format(lvalue,
-                          self.destination,
-                          self.destination.type,
-                          self.function_name,
-                          [str(x) for x in arguments],
-                          value,
-                          gas)
+            lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
+        return txt.format(
+            lvalue,
+            self.destination,
+            self.destination.type,
+            self.function_name,
+            [str(x) for x in arguments],
+            value,
+            gas,
+        )

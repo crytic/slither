@@ -9,19 +9,17 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 
 
 class UninitializedStorageVars(AbstractDetector):
-    """
-    """
 
-    ARGUMENT = 'uninitialized-storage'
-    HELP = 'Uninitialized storage variables'
+    ARGUMENT = "uninitialized-storage"
+    HELP = "Uninitialized storage variables"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-storage-variables'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-storage-variables"
 
-    WIKI_TITLE = 'Uninitialized storage variables'
-    WIKI_DESCRIPTION = 'An uninitialized storage variable will act as a reference to the first state variable, and can override a critical variable.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Uninitialized storage variables"
+    WIKI_DESCRIPTION = "An uninitialized storage variable will act as a reference to the first state variable, and can override a critical variable."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Uninitialized{
     address owner = msg.sender;
@@ -37,9 +35,9 @@ contract Uninitialized{
 }
 ```
 Bob calls `func`. As a result, `owner` is overridden to `0`.
-'''
+"""
 
-    WIKI_RECOMMENDATION = 'Initialize all storage variables.'
+    WIKI_RECOMMENDATION = "Initialize all storage variables."
 
     # node.context[self.key] contains the uninitialized storage variables
     key = "UNINITIALIZEDSTORAGE"
@@ -80,9 +78,8 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
         for son in node.sons:
             self._detect_uninitialized(function, son, visited)
 
-
     def _detect(self):
-        """ Detect uninitialized storage variables
+        """Detect uninitialized storage variables
 
         Recursively visit the calls
         Returns:
@@ -90,18 +87,24 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
         """
         results = []
 
+        # pylint: disable=attribute-defined-outside-init
         self.results = []
         self.visited_all_paths = {}
 
         for contract in self.slither.contracts:
             for function in contract.functions:
                 if function.is_implemented:
-                    uninitialized_storage_variables = [v for v in function.local_variables if v.is_storage and v.uninitialized]
+                    uninitialized_storage_variables = [
+                        v for v in function.local_variables if v.is_storage and v.uninitialized
+                    ]
                     function.entry_point.context[self.key] = uninitialized_storage_variables
                     self._detect_uninitialized(function, function.entry_point, [])
 
-        for(function, uninitialized_storage_variable) in self.results:
-            info = [uninitialized_storage_variable, " is a storage variable never initialized\n"]
+        for (function, uninitialized_storage_variable) in self.results:
+            info = [
+                uninitialized_storage_variable,
+                " is a storage variable never initialized\n",
+            ]
             json = self.generate_result(info)
             results.append(json)
 

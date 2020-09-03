@@ -2,7 +2,6 @@ from .operation import Operation
 
 
 class Nop(Operation):
-
     @property
     def read(self):
         return []

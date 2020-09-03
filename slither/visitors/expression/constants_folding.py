@@ -1,7 +1,5 @@
-import logging
-
-from .expression import ExpressionVisitor
 from slither.core.expressions import BinaryOperationType, Literal
+from slither.visitors.expression.expression import ExpressionVisitor
 
 
 class NotConstant(Exception):
@@ -23,9 +21,9 @@ def set_val(expression, val):
 
 
 class ConstantFolding(ExpressionVisitor):
-    def __init__(self, expression, type):
-        self._type = type
-        super(ConstantFolding, self).__init__(expression)
+    def __init__(self, expression, custom_type):
+        self._type = custom_type
+        super().__init__(expression)
 
     def result(self):
         return Literal(int(get_val(self._expression)), self._type)

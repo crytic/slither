@@ -6,15 +6,16 @@ from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.slithir.variables.constant import Constant
 
 
-class LowLevelCall(Call, OperationWithLValue):
+class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     """
-        High level message call
+    High level message call
     """
 
     def __init__(self, destination, function_name, nbr_arguments, result, type_call):
+        # pylint: disable=too-many-arguments
         assert isinstance(destination, (Variable, SolidityVariable))
         assert isinstance(function_name, Constant)
-        super(LowLevelCall, self).__init__()
+        super().__init__()
         self._destination = destination
         self._function_name = function_name
         self._nbr_arguments = nbr_arguments
@@ -55,18 +56,18 @@ class LowLevelCall(Call, OperationWithLValue):
         # remove None
         return self._unroll([x for x in all_read if x])
 
-    def can_reenter(self, callstack=None):
-        '''
+    def can_reenter(self, _callstack=None):
+        """
         Must be called after slithIR analysis pass
         :return: bool
-        '''
+        """
         return True
 
     def can_send_eth(self):
-        '''
+        """
         Must be called after slithIR analysis pass
         :return: bool
-        '''
+        """
         return self._call_value is not None
 
     @property
@@ -86,25 +87,27 @@ class LowLevelCall(Call, OperationWithLValue):
         return self._type_call
 
     def __str__(self):
-        value = ''
-        gas = ''
+        value = ""
+        gas = ""
         if self.call_value:
-            value = 'value:{}'.format(self.call_value)
+            value = "value:{}".format(self.call_value)
         if self.call_gas:
-            gas = 'gas:{}'.format(self.call_gas)
+            gas = "gas:{}".format(self.call_gas)
         arguments = []
         if self.arguments:
             arguments = self.arguments
         return_type = self.lvalue.type
 
         if return_type and isinstance(return_type, list):
-            return_type = ','.join(str(x) for x in return_type)
+            return_type = ",".join(str(x) for x in return_type)
 
-        txt = '{}({}) = LOW_LEVEL_CALL, dest:{}, function:{}, arguments:{} {} {}'
-        return txt.format(self.lvalue,
-                          return_type,
-                          self.destination,
-                          self.function_name,
-                          [str(x) for x in arguments],
-                          value,
-                          gas)
+        txt = "{}({}) = LOW_LEVEL_CALL, dest:{}, function:{}, arguments:{} {} {}"
+        return txt.format(
+            self.lvalue,
+            return_type,
+            self.destination,
+            self.function_name,
+            [str(x) for x in arguments],
+            value,
+            gas,
+        )

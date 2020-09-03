@@ -3,11 +3,12 @@ import os
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
+# pylint: disable= no-name-in-module
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
-from .core.slither_core import SlitherCore
-from .exceptions import SlitherError
-from .solc_parsing.slitherSolc import SlitherSolc
+from slither.core.slither_core import SlitherCore
+from slither.exceptions import SlitherError
+from slither.solc_parsing.slitherSolc import SlitherSolc
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -16,34 +17,46 @@ logger_detector = logging.getLogger("Detectors")
 logger_printer = logging.getLogger("Printers")
 
 
-class Slither(SlitherCore):
+def _check_common_things(thing_name, cls, base_cls, instances_list):
+
+    if not issubclass(cls, base_cls) or cls is base_cls:
+        raise Exception(
+            "You can't register {!r} as a {}. You need to pass a class that inherits from {}".format(
+                cls, thing_name, base_cls.__name__
+            )
+        )
+
+    if any(type(obj) == cls for obj in instances_list):  # pylint: disable=unidiomatic-typecheck
+        raise Exception("You can't register {!r} twice.".format(cls))
+
+
+class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
     def __init__(self, target, **kwargs):
         """
-            Args:
-                target (str | list(json) | CryticCompile)
-            Keyword Args:
-                solc (str): solc binary location (default 'solc')
-                disable_solc_warnings (bool): True to disable solc warnings (default false)
-                solc_arguments (str): solc arguments (default '')
-                ast_format (str): ast format (default '--ast-compact-json')
-                filter_paths (list(str)): list of path to filter (default [])
-                triage_mode (bool): if true, switch to triage mode (default false)
-                exclude_dependencies (bool): if true, exclude results that are only related to dependencies
-                generate_patches (bool): if true, patches are generated (json output only)
+        Args:
+            target (str | list(json) | CryticCompile)
+        Keyword Args:
+            solc (str): solc binary location (default 'solc')
+            disable_solc_warnings (bool): True to disable solc warnings (default false)
+            solc_arguments (str): solc arguments (default '')
+            ast_format (str): ast format (default '--ast-compact-json')
+            filter_paths (list(str)): list of path to filter (default [])
+            triage_mode (bool): if true, switch to triage mode (default false)
+            exclude_dependencies (bool): if true, exclude results that are only related to dependencies
+            generate_patches (bool): if true, patches are generated (json output only)
 
-                truffle_ignore (bool): ignore truffle.js presence (default false)
-                truffle_build_directory (str): build truffle directory (default 'build/contracts')
-                truffle_ignore_compile (bool): do not run truffle compile (default False)
-                truffle_version (str): use a specific truffle version (default None)
+            truffle_ignore (bool): ignore truffle.js presence (default false)
+            truffle_build_directory (str): build truffle directory (default 'build/contracts')
+            truffle_ignore_compile (bool): do not run truffle compile (default False)
+            truffle_version (str): use a specific truffle version (default None)
 
-                embark_ignore (bool): ignore embark.js presence (default false)
-                embark_ignore_compile (bool): do not run embark build (default False)
-                embark_overwrite_config (bool): overwrite original config file (default false)
+            embark_ignore (bool): ignore embark.js presence (default false)
+            embark_ignore_compile (bool): do not run embark build (default False)
+            embark_overwrite_config (bool): overwrite original config file (default false)
 
         """
         super().__init__()
         self._parser: SlitherSolc  #  This could be another parser, like SlitherVyper, interface needs to be determined
-
 
         self._disallow_partial: bool = kwargs.get("disallow_partial", False)
 
@@ -61,7 +74,8 @@ class Slither(SlitherCore):
                     crytic_compile = CryticCompile(target, **kwargs)
                 self._crytic_compile = crytic_compile
             except InvalidCompilation as e:
-                raise SlitherError("Invalid compilation: \n" + str(e))
+                # pylint: disable=raise-missing-from
+                raise SlitherError(f"Invalid compilation: \n{str(e)}")
             for path, ast in crytic_compile.asts.items():
                 self._parser.parse_contracts_from_loaded_json(ast, path)
                 self.add_source_code(path)
@@ -94,7 +108,8 @@ class Slither(SlitherCore):
         with open(filename, encoding="utf8") as astFile:
             stdout = astFile.read()
             if not stdout:
-                raise SlitherError("Empty AST file: %s", filename)
+                to_log = f"Empty AST file: {filename}"
+                raise SlitherError(to_log)
         contracts_json = stdout.split("\n=")
 
         self._parser = SlitherSolc(filename, self)
@@ -139,7 +154,7 @@ class Slither(SlitherCore):
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
-        self._check_common_things("detector", detector_class, AbstractDetector, self._detectors)
+        _check_common_things("detector", detector_class, AbstractDetector, self._detectors)
 
         instance = detector_class(self, logger_detector)
         self._detectors.append(instance)
@@ -148,7 +163,7 @@ class Slither(SlitherCore):
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
-        self._check_common_things("printer", printer_class, AbstractPrinter, self._printers)
+        _check_common_things("printer", printer_class, AbstractPrinter, self._printers)
 
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)
@@ -169,32 +184,6 @@ class Slither(SlitherCore):
         """
 
         return [p.output(self.filename).data for p in self._printers]
-
-    def _check_common_things(self, thing_name, cls, base_cls, instances_list):
-
-        if not issubclass(cls, base_cls) or cls is base_cls:
-            raise Exception(
-                "You can't register {!r} as a {}. You need to pass a class that inherits from {}".format(
-                    cls, thing_name, base_cls.__name__
-                )
-            )
-
-        if any(type(obj) == cls for obj in instances_list):
-            raise Exception("You can't register {!r} twice.".format(cls))
-
-    def _run_solc(self, filename, solc, disable_solc_warnings, solc_arguments, ast_format):
-        if not os.path.isfile(filename):
-            raise SlitherError(
-                "{} does not exist (are you in the correct directory?)".format(filename)
-            )
-        assert filename.endswith("json")
-        with open(filename, encoding="utf8") as astFile:
-            stdout = astFile.read()
-            if not stdout:
-                raise SlitherError("Empty AST file: %s", filename)
-        stdout = stdout.split("\n=")
-
-        return stdout
 
     @property
     def triage_mode(self):

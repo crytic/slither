@@ -56,6 +56,8 @@ if TYPE_CHECKING:
     )
 
 
+# pylint: disable=too-many-lines,too-many-branches,too-many-instance-attributes
+
 ###################################################################################
 ###################################################################################
 # region NodeType
@@ -140,15 +142,16 @@ class NodeType(Enum):
 
 # endregion
 
-
-class Node(SourceMapping, ChildFunction):
+# I am not sure why, but pylint reports a lot of "no-member" issue that are not real (Josselin)
+# pylint: disable=no-member
+class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-methods
     """
     Node class
 
     """
 
     def __init__(self, node_type: NodeType, node_id: int):
-        super(Node, self).__init__()
+        super().__init__()
         self._node_type = node_type
 
         # TODO: rename to explicit CFG
@@ -168,7 +171,7 @@ class Node(SourceMapping, ChildFunction):
         # key are variable name
         self._phi_origins_state_variables: Dict[str, Tuple[StateVariable, Set["Node"]]] = {}
         self._phi_origins_local_variables: Dict[str, Tuple[LocalVariable, Set["Node"]]] = {}
-        #self._phi_origins_member_variables: Dict[str, Tuple[MemberVariable, Set["Node"]]] = {}
+        # self._phi_origins_member_variables: Dict[str, Tuple[MemberVariable, Set["Node"]]] = {}
 
         self._expression: Optional[Expression] = None
         self._variable_declaration: Optional[LocalVariable] = None
@@ -180,7 +183,7 @@ class Node(SourceMapping, ChildFunction):
         self._ssa_vars_written: List["SlithIRVariable"] = []
         self._ssa_vars_read: List["SlithIRVariable"] = []
 
-        self._internal_calls: List[Function] = []
+        self._internal_calls: List["Function"] = []
         self._solidity_calls: List[SolidityFunction] = []
         self._high_level_calls: List["HighLevelCallType"] = []  # contains library calls
         self._library_calls: List["LibraryCallType"] = []
@@ -233,7 +236,7 @@ class Node(SourceMapping, ChildFunction):
     @property
     def type(self) -> NodeType:
         """
-            NodeType: type of the node
+        NodeType: type of the node
         """
         return self._node_type
 
@@ -259,49 +262,49 @@ class Node(SourceMapping, ChildFunction):
     @property
     def variables_read(self) -> List[Variable]:
         """
-            list(Variable): Variables read (local/state/solidity)
+        list(Variable): Variables read (local/state/solidity)
         """
         return list(self._vars_read)
 
     @property
     def state_variables_read(self) -> List[StateVariable]:
         """
-            list(StateVariable): State variables read
+        list(StateVariable): State variables read
         """
         return list(self._state_vars_read)
 
     @property
     def local_variables_read(self) -> List[LocalVariable]:
         """
-            list(LocalVariable): Local variables read
+        list(LocalVariable): Local variables read
         """
         return list(self._local_vars_read)
 
     @property
     def solidity_variables_read(self) -> List[SolidityVariable]:
         """
-            list(SolidityVariable): State variables read
+        list(SolidityVariable): State variables read
         """
         return list(self._solidity_vars_read)
 
     @property
     def ssa_variables_read(self) -> List["SlithIRVariable"]:
         """
-            list(Variable): Variables read (local/state/solidity)
+        list(Variable): Variables read (local/state/solidity)
         """
         return list(self._ssa_vars_read)
 
     @property
     def ssa_state_variables_read(self) -> List[StateIRVariable]:
         """
-            list(StateVariable): State variables read
+        list(StateVariable): State variables read
         """
         return list(self._ssa_state_vars_read)
 
     @property
     def ssa_local_variables_read(self) -> List[LocalIRVariable]:
         """
-            list(LocalVariable): Local variables read
+        list(LocalVariable): Local variables read
         """
         return list(self._ssa_local_vars_read)
 
@@ -320,42 +323,42 @@ class Node(SourceMapping, ChildFunction):
     @property
     def variables_written(self) -> List[Variable]:
         """
-            list(Variable): Variables written (local/state/solidity)
+        list(Variable): Variables written (local/state/solidity)
         """
         return list(self._vars_written)
 
     @property
     def state_variables_written(self) -> List[StateVariable]:
         """
-            list(StateVariable): State variables written
+        list(StateVariable): State variables written
         """
         return list(self._state_vars_written)
 
     @property
     def local_variables_written(self) -> List[LocalVariable]:
         """
-            list(LocalVariable): Local variables written
+        list(LocalVariable): Local variables written
         """
         return list(self._local_vars_written)
 
     @property
     def ssa_variables_written(self) -> List["SlithIRVariable"]:
         """
-            list(Variable): Variables written (local/state/solidity)
+        list(Variable): Variables written (local/state/solidity)
         """
         return list(self._ssa_vars_written)
 
     @property
     def ssa_state_variables_written(self) -> List[StateIRVariable]:
         """
-            list(StateVariable): State variables written
+        list(StateVariable): State variables written
         """
         return list(self._ssa_state_vars_written)
 
     @property
     def ssa_local_variables_written(self) -> List[LocalIRVariable]:
         """
-            list(LocalVariable): Local variables written
+        list(LocalVariable): Local variables written
         """
         return list(self._ssa_local_vars_written)
 
@@ -377,49 +380,49 @@ class Node(SourceMapping, ChildFunction):
     @property
     def internal_calls(self) -> List["InternalCallType"]:
         """
-            list(Function or SolidityFunction): List of internal/soldiity function calls
+        list(Function or SolidityFunction): List of internal/soldiity function calls
         """
         return list(self._internal_calls)
 
     @property
     def solidity_calls(self) -> List[SolidityFunction]:
         """
-            list(SolidityFunction): List of Soldity calls
+        list(SolidityFunction): List of Soldity calls
         """
         return list(self._solidity_calls)
 
     @property
     def high_level_calls(self) -> List["HighLevelCallType"]:
         """
-            list((Contract, Function|Variable)):
-            List of high level calls (external calls).
-            A variable is called in case of call to a public state variable
-            Include library calls
+        list((Contract, Function|Variable)):
+        List of high level calls (external calls).
+        A variable is called in case of call to a public state variable
+        Include library calls
         """
         return list(self._high_level_calls)
 
     @property
     def library_calls(self) -> List["LibraryCallType"]:
         """
-            list((Contract, Function)):
-            Include library calls
+        list((Contract, Function)):
+        Include library calls
         """
         return list(self._library_calls)
 
     @property
     def low_level_calls(self) -> List["LowLevelCallType"]:
         """
-            list((Variable|SolidityVariable, str)): List of low_level call
-            A low level call is defined by
-            - the variable called
-            - the name of the function (call/delegatecall/codecall)
+        list((Variable|SolidityVariable, str)): List of low_level call
+        A low level call is defined by
+        - the variable called
+        - the name of the function (call/delegatecall/codecall)
         """
         return list(self._low_level_calls)
 
     @property
     def external_calls_as_expressions(self) -> List[Expression]:
         """
-            list(CallExpression): List of message calls (that creates a transaction)
+        list(CallExpression): List of message calls (that creates a transaction)
         """
         return self._external_calls_as_expressions
 
@@ -430,7 +433,7 @@ class Node(SourceMapping, ChildFunction):
     @property
     def internal_calls_as_expressions(self) -> List[Expression]:
         """
-            list(CallExpression): List of internal calls (that dont create a transaction)
+        list(CallExpression): List of internal calls (that dont create a transaction)
         """
         return self._internal_calls_as_expressions
 
@@ -457,6 +460,7 @@ class Node(SourceMapping, ChildFunction):
         :param callstack: used internally to check for recursion
         :return bool:
         """
+        # pylint: disable=import-outside-toplevel
         from slither.slithir.operations import Call
 
         if self._can_reenter is None:
@@ -472,6 +476,7 @@ class Node(SourceMapping, ChildFunction):
         Check if the node can send eth
         :return bool:
         """
+        # pylint: disable=import-outside-toplevel
         from slither.slithir.operations import Call
 
         if self._can_send_eth is None:
@@ -492,7 +497,7 @@ class Node(SourceMapping, ChildFunction):
     @property
     def expression(self) -> Optional[Expression]:
         """
-            Expression: Expression of the node
+        Expression: Expression of the node
         """
         return self._expression
 
@@ -583,7 +588,7 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     def add_father(self, father: "Node"):
-        """ Add a father node
+        """Add a father node
 
         Args:
             father: father to add
@@ -591,7 +596,7 @@ class Node(SourceMapping, ChildFunction):
         self._fathers.append(father)
 
     def set_fathers(self, fathers: List["Node"]):
-        """ Set the father nodes
+        """Set the father nodes
 
         Args:
             fathers: list of fathers to add
@@ -600,7 +605,7 @@ class Node(SourceMapping, ChildFunction):
 
     @property
     def fathers(self) -> List["Node"]:
-        """ Returns the father nodes
+        """Returns the father nodes
 
         Returns:
             list(Node): list of fathers
@@ -608,7 +613,7 @@ class Node(SourceMapping, ChildFunction):
         return list(self._fathers)
 
     def remove_father(self, father: "Node"):
-        """ Remove the father node. Do nothing if the node is not a father
+        """Remove the father node. Do nothing if the node is not a father
 
         Args:
             :param father:
@@ -616,7 +621,7 @@ class Node(SourceMapping, ChildFunction):
         self._fathers = [x for x in self._fathers if x.node_id != father.node_id]
 
     def remove_son(self, son: "Node"):
-        """ Remove the son node. Do nothing if the node is not a son
+        """Remove the son node. Do nothing if the node is not a son
 
         Args:
             :param son:
@@ -624,7 +629,7 @@ class Node(SourceMapping, ChildFunction):
         self._sons = [x for x in self._sons if x.node_id != son.node_id]
 
     def add_son(self, son: "Node"):
-        """ Add a son node
+        """Add a son node
 
         Args:
             son: son to add
@@ -632,7 +637,7 @@ class Node(SourceMapping, ChildFunction):
         self._sons.append(son)
 
     def set_sons(self, sons: List["Node"]):
-        """ Set the son nodes
+        """Set the son nodes
 
         Args:
             sons: list of fathers to add
@@ -641,7 +646,7 @@ class Node(SourceMapping, ChildFunction):
 
     @property
     def sons(self) -> List["Node"]:
-        """ Returns the son nodes
+        """Returns the son nodes
 
         Returns:
             list(Node): list of sons
@@ -669,7 +674,7 @@ class Node(SourceMapping, ChildFunction):
 
     @property
     def irs(self) -> List[Operation]:
-        """ Returns the slithIR representation
+        """Returns the slithIR representation
 
         return
             list(slithIR.Operation)
@@ -678,7 +683,7 @@ class Node(SourceMapping, ChildFunction):
 
     @property
     def irs_ssa(self) -> List[Operation]:
-        """ Returns the slithIR representation with SSA
+        """Returns the slithIR representation with SSA
 
         return
             list(slithIR.Operation)
@@ -691,7 +696,7 @@ class Node(SourceMapping, ChildFunction):
 
     def add_ssa_ir(self, ir: Operation):
         """
-            Use to place phi operation
+        Use to place phi operation
         """
         ir.set_node(self)
         self._irs_ssa.append(ir)
@@ -728,8 +733,8 @@ class Node(SourceMapping, ChildFunction):
     @property
     def dominators(self) -> Set["Node"]:
         """
-            Returns:
-                set(Node)
+        Returns:
+            set(Node)
         """
         return self._dominators
 
@@ -740,8 +745,8 @@ class Node(SourceMapping, ChildFunction):
     @property
     def immediate_dominator(self) -> Optional["Node"]:
         """
-            Returns:
-                Node or None
+        Returns:
+            Node or None
         """
         return self._immediate_dominator
 
@@ -752,16 +757,16 @@ class Node(SourceMapping, ChildFunction):
     @property
     def dominance_frontier(self) -> Set["Node"]:
         """
-            Returns:
-                set(Node)
+        Returns:
+            set(Node)
         """
         return self._dominance_frontier
 
     @dominance_frontier.setter
     def dominance_frontier(self, doms: Set["Node"]):
         """
-            Returns:
-                set(Node)
+        Returns:
+            set(Node)
         """
         self._dominance_frontier = doms
 
@@ -793,11 +798,15 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     @property
-    def phi_origins_local_variables(self) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
+    def phi_origins_local_variables(
+        self,
+    ) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
         return self._phi_origins_local_variables
 
     @property
-    def phi_origins_state_variables(self) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
+    def phi_origins_state_variables(
+        self,
+    ) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
         return self._phi_origins_state_variables
 
     # @property
@@ -835,11 +844,12 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
     ###################################################################################
 
-    def _find_read_write_call(self):
+    def _find_read_write_call(self):  # pylint: disable=too-many-statements
 
         for ir in self.irs:
 
-            self._slithir_vars |= set([v for v in ir.read if self._is_valid_slithir_var(v)])
+            self._slithir_vars |= {v for v in ir.read if self._is_valid_slithir_var(v)}
+
             if isinstance(ir, OperationWithLValue):
                 var = ir.lvalue
                 if var and self._is_valid_slithir_var(var):
@@ -885,9 +895,10 @@ class Node(SourceMapping, ChildFunction):
                 else:
                     try:
                         self._high_level_calls.append((ir.destination.type.type, ir.function))
-                    except AttributeError:
+                    except AttributeError as error:
+                        #  pylint: disable=raise-missing-from
                         raise SlitherException(
-                            f"Function not found on {ir}. Please try compiling with a recent Solidity version."
+                            f"Function not found on {ir}. Please try compiling with a recent Solidity version. {error}"
                         )
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)
@@ -983,11 +994,11 @@ class Node(SourceMapping, ChildFunction):
     ###################################################################################
 
     def __str__(self):
-        additional_info = ''
+        additional_info = ""
         if self.expression:
-            additional_info += ' ' + str(self.expression)
+            additional_info += " " + str(self.expression)
         elif self.variable_declaration:
-            additional_info += ' ' + str(self.variable_declaration)
+            additional_info += " " + str(self.variable_declaration)
         txt = str(self._node_type) + additional_info
         return txt
 
@@ -1024,11 +1035,11 @@ def recheable(node: Node) -> Set[Node]:
     nodes = node.sons
     visited = set()
     while nodes:
-        next = nodes[0]
+        next_node = nodes[0]
         nodes = nodes[1:]
-        if next not in visited:
-            visited.add(next)
-            for son in next.sons:
+        if next_node not in visited:
+            visited.add(next_node)
+            for son in next_node.sons:
                 if son not in visited:
                     nodes.append(son)
     return visited

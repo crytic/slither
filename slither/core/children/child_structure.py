@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 class ChildStructure:
     def __init__(self):
-        super(ChildStructure, self).__init__()
+        super().__init__()
         self._structure = None
 
     def set_structure(self, structure: "Structure"):

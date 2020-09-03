@@ -20,6 +20,8 @@ if TYPE_CHECKING:
     from slither.solc_parsing.slitherSolc import SlitherSolc
     from slither.core.slither_core import SlitherCore
 
+# pylint: disable=too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks,too-many-public-methods
+
 
 class ContractSolc:
     def __init__(self, slither_parser: "SlitherSolc", contract: Contract, data):
@@ -103,6 +105,14 @@ class ContractSolc:
     def modifiers_parser(self) -> List["ModifierSolc"]:
         return self._modifiers_parser
 
+    @property
+    def structures_not_parsed(self) -> List[Dict]:
+        return self._structuresNotParsed
+
+    @property
+    def enums_not_parsed(self) -> List[Dict]:
+        return self._enumsNotParsed
+
     ###################################################################################
     ###################################################################################
     # region AST
@@ -157,7 +167,7 @@ class ContractSolc:
                         "name"
                     ]
 
-    def _parse_base_contract_info(self):
+    def _parse_base_contract_info(self):  # pylint: disable=too-many-branches
         # Parse base contracts (immediate, non-linearized)
         if self.is_compact_ast:
             # Parse base contracts + constructors in compact-ast
@@ -278,7 +288,12 @@ class ContractSolc:
         for father in self._contract.inheritance_reverse:
             self._contract.variables_as_dict.update(father.variables_as_dict)
             self._contract.add_variables_ordered(
-                [var for var in father.state_variables_ordered if var not in self._contract.state_variables_ordered])
+                [
+                    var
+                    for var in father.state_variables_ordered
+                    if var not in self._contract.state_variables_ordered
+                ]
+            )
 
         for varNotParsed in self._variablesNotParsed:
             var = StateVariable()
@@ -339,9 +354,8 @@ class ContractSolc:
     def log_incorrect_parsing(self, error):
         if self._contract.slither.disallow_partial:
             raise ParsingError(error)
-        else:
-            LOGGER.error(error)
-            self._contract.is_incorrectly_parsed = True
+        LOGGER.error(error)
+        self._contract.is_incorrectly_parsed = True
 
     def analyze_content_modifiers(self):
         try:
@@ -356,7 +370,6 @@ class ContractSolc:
                 function_parser.analyze_content()
         except (VariableNotFound, KeyError, ParsingError) as e:
             self.log_incorrect_parsing(f"Missing function {e}")
-        return
 
     def analyze_params_modifiers(self):
         try:
@@ -398,7 +411,7 @@ class ContractSolc:
             self.log_incorrect_parsing(f"Missing params {e}")
         self._functions_no_params = []
 
-    def _analyze_params_elements(
+    def _analyze_params_elements(  # pylint: disable=too-many-arguments,too-many-locals
         self,
         elements_no_params: List[FunctionSolc],
         getter: Callable[["ContractSolc"], List[FunctionSolc]],
@@ -428,10 +441,15 @@ class ContractSolc:
                     elem.set_contract(self._contract)
                     elem.set_contract_declarer(element_parser.underlying_function.contract_declarer)
                     elem.set_offset(
-                        element_parser.function_not_parsed["src"], self._contract.slither
+                        element_parser.function_not_parsed["src"],
+                        self._contract.slither,
                     )
 
-                    elem_parser = Cls_parser(elem, element_parser.function_not_parsed, self,)
+                    elem_parser = Cls_parser(
+                        elem,
+                        element_parser.function_not_parsed,
+                        self,
+                    )
                     elem_parser.analyze_params()
                     if isinstance(elem, Modifier):
                         self._contract.slither.add_modifier(elem)
@@ -487,7 +505,6 @@ class ContractSolc:
                     var_parser.analyze(self)
                 except (VariableNotFound, KeyError) as e:
                     LOGGER.error(e)
-                    pass
 
     def analyze_state_variables(self):
         try:
@@ -566,7 +583,7 @@ class ContractSolc:
         new_enum.set_offset(enum["src"], self._contract.slither)
         self._contract.enums_as_dict[canonicalName] = new_enum
 
-    def _analyze_struct(self, struct: StructureSolc):
+    def _analyze_struct(self, struct: StructureSolc):  # pylint: disable=no-self-use
         struct.analyze()
 
     def analyze_structs(self):

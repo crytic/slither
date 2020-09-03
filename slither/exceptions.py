@@ -1,3 +1,6 @@
-class SlitherException(Exception): pass
+class SlitherException(Exception):
+    pass
 
-class SlitherError(SlitherException): pass
+
+class SlitherError(SlitherException):
+    pass

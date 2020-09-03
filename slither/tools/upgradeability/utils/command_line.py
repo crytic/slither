@@ -60,7 +60,7 @@ def output_detectors(detector_classes):
     print(table)
 
 
-def output_to_markdown(detector_classes, filter_wiki):
+def output_to_markdown(detector_classes, _filter_wiki):
     def extract_help(cls):
         if cls.WIKI == "":
             return cls.HELP

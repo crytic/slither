@@ -8,16 +8,16 @@ from slither.utils.colors import blue, green, magenta
 
 
 class ContractSummary(AbstractPrinter):
-    ARGUMENT = 'contract-summary'
-    HELP = 'Print a summary of the contracts'
+    ARGUMENT = "contract-summary"
+    HELP = "Print a summary of the contracts"
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#contract-summary'
+    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#contract-summary"
 
-    def output(self, _filename):
+    def output(self, _filename):  # pylint: disable=too-many-locals
         """
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
 
         txt = ""
@@ -30,28 +30,34 @@ class ContractSummary(AbstractPrinter):
             is_upgradeable_proxy = c.is_upgradeable_proxy
             is_upgradeable = c.is_upgradeable
 
-            additional_txt_info = ''
+            additional_txt_info = ""
 
             if is_upgradeable_proxy:
-                additional_txt_info += ' (Upgradeable Proxy)'
+                additional_txt_info += " (Upgradeable Proxy)"
 
             if is_upgradeable:
-                additional_txt_info += ' (Upgradeable)'
+                additional_txt_info += " (Upgradeable)"
 
             if c in self.slither.contracts_derived:
-                additional_txt_info += ' (Most derived contract)'
+                additional_txt_info += " (Most derived contract)"
 
             txt += blue(f"\n+ Contract {c.name}{additional_txt_info}\n")
-            additional_fields = output.Output('', additional_fields={
-                'is_upgradeable_proxy': is_upgradeable_proxy,
-                'is_upgradeable': is_upgradeable,
-                'is_most_derived': c in self.slither.contracts_derived
-            })
+            additional_fields = output.Output(
+                "",
+                additional_fields={
+                    "is_upgradeable_proxy": is_upgradeable_proxy,
+                    "is_upgradeable": is_upgradeable,
+                    "is_most_derived": c in self.slither.contracts_derived,
+                },
+            )
 
             # Order the function with
             # contract_declarer -> list_functions
-            public = [(f.contract_declarer.name, f) for f in c.functions if (not f.is_shadowed and
-                                                                             not f.is_constructor_variables)]
+            public = [
+                (f.contract_declarer.name, f)
+                for f in c.functions
+                if (not f.is_shadowed and not f.is_constructor_variables)
+            ]
             collect = collections.defaultdict(list)
             for a, b in public:
                 collect[a].append(b)
@@ -63,15 +69,25 @@ class ContractSummary(AbstractPrinter):
                 functions = sorted(functions, key=lambda f: f.full_name)
 
                 for function in functions:
-                    if function.visibility in ['external', 'public']:
-                        txt += green("    - {} ({})\n".format(function.full_name, function.visibility))
-                    if function.visibility in ['internal', 'private']:
-                        txt += magenta("    - {} ({})\n".format(function.full_name, function.visibility))
-                    if function.visibility not in ['external', 'public', 'internal', 'private']:
+                    if function.visibility in ["external", "public"]:
+                        txt += green(
+                            "    - {} ({})\n".format(function.full_name, function.visibility)
+                        )
+                    if function.visibility in ["internal", "private"]:
+                        txt += magenta(
+                            "    - {} ({})\n".format(function.full_name, function.visibility)
+                        )
+                    if function.visibility not in [
+                        "external",
+                        "public",
+                        "internal",
+                        "private",
+                    ]:
                         txt += "    - {}  ({})\n".format(function.full_name, function.visibility)
 
-                    additional_fields.add(function, additional_fields={"visibility":
-                                                                       function.visibility})
+                    additional_fields.add(
+                        function, additional_fields={"visibility": function.visibility}
+                    )
 
             all_contracts.append((c, additional_fields.data))
 

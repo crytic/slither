@@ -12,17 +12,16 @@ class Suicidal(AbstractDetector):
     Unprotected function detector
     """
 
-    ARGUMENT = 'suicidal'
-    HELP = 'Functions allowing anyone to destruct the contract'
+    ARGUMENT = "suicidal"
+    HELP = "Functions allowing anyone to destruct the contract"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#suicidal'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#suicidal"
 
-
-    WIKI_TITLE = 'Suicidal'
-    WIKI_DESCRIPTION = 'Unprotected call to a function executing `selfdestruct`/`suicide`.'
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Suicidal"
+    WIKI_DESCRIPTION = "Unprotected call to a function executing `selfdestruct`/`suicide`."
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Suicidal{
     function kill() public{
@@ -30,13 +29,13 @@ contract Suicidal{
     }
 }
 ```
-Bob calls `kill` and destructs the contract.'''
+Bob calls `kill` and destructs the contract."""
 
-    WIKI_RECOMMENDATION = 'Protect access to all sensitive functions.'
+    WIKI_RECOMMENDATION = "Protect access to all sensitive functions."
 
     @staticmethod
     def detect_suicidal_func(func):
-        """ Detect if the function is suicidal
+        """Detect if the function is suicidal
 
         Detect the public functions calling suicide/selfdestruct without protection
         Returns:
@@ -46,11 +45,11 @@ Bob calls `kill` and destructs the contract.'''
         if func.is_constructor:
             return False
 
-        if func.visibility not in ['public', 'external']:
+        if func.visibility not in ["public", "external"]:
             return False
 
         calls = [c.name for c in func.internal_calls]
-        if not ('suicide(address)' in calls or 'selfdestruct(address)' in calls):
+        if not ("suicide(address)" in calls or "selfdestruct(address)" in calls):
             return False
 
         if func.is_protected():
@@ -66,8 +65,7 @@ Bob calls `kill` and destructs the contract.'''
         return ret
 
     def _detect(self):
-        """ Detect the suicidal functions
-        """
+        """Detect the suicidal functions"""
         results = []
         for c in self.contracts:
             functions = self.detect_suicidal(c)

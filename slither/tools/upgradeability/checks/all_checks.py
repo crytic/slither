@@ -1,4 +1,5 @@
-from .initialization import (
+# pylint: disable=unused-import
+from slither.tools.upgradeability.checks.initialization import (
     InitializablePresent,
     InitializableInherited,
     InitializableInitializer,
@@ -8,11 +9,11 @@ from .initialization import (
     InitializeTarget,
 )
 
-from .functions_ids import IDCollision, FunctionShadowing
+from slither.tools.upgradeability.checks.functions_ids import IDCollision, FunctionShadowing
 
-from .variable_initialization import VariableWithInit
+from slither.tools.upgradeability.checks.variable_initialization import VariableWithInit
 
-from .variables_order import (
+from slither.tools.upgradeability.checks.variables_order import (
     MissingVariable,
     DifferentVariableContractProxy,
     DifferentVariableContractNewContract,
@@ -20,4 +21,4 @@ from .variables_order import (
     ExtraVariablesNewContract,
 )
 
-from .constant import WereConstant, BecameConstant
+from slither.tools.upgradeability.checks.constant import WereConstant, BecameConstant

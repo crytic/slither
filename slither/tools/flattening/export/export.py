@@ -24,7 +24,9 @@ def save_to_zip(files: List[Export], zip_filename: str, zip_type: str = "lzma"):
     """
     logger.info(f"Export {zip_filename}")
     with zipfile.ZipFile(
-        zip_filename, "w", compression=ZIP_TYPES_ACCEPTED.get(zip_type, zipfile.ZIP_LZMA)
+        zip_filename,
+        "w",
+        compression=ZIP_TYPES_ACCEPTED.get(zip_type, zipfile.ZIP_LZMA),
     ) as file_desc:
         for f in files:
             file_desc.writestr(str(f.filename), f.content)

@@ -2,18 +2,23 @@
     Detect if all the given variables are written in all the paths of the function
 """
 from collections import defaultdict
-from typing import Dict, Tuple, Set, List, Optional
+from typing import Dict, Set, List
 
 from slither.core.cfg.node import NodeType, Node
 from slither.core.declarations import SolidityFunction
 from slither.core.variables.variable import Variable
-from slither.slithir.operations import (Index, Member, OperationWithLValue,
-                                        SolidityCall, Length, Balance)
+from slither.slithir.operations import (
+    Index,
+    Member,
+    OperationWithLValue,
+    SolidityCall,
+    Length,
+    Balance,
+)
 from slither.slithir.variables import ReferenceVariable, TemporaryVariable
 
 
-class State:
-
+class State:  # pylint: disable=too-few-public-methods
     def __init__(self):
         # Map node -> list of variables set
         # Were each variables set represents a configuration of a path
@@ -28,7 +33,13 @@ class State:
         self.nodes: Dict[Node, List[Set[Variable]]] = defaultdict(list)
 
 
-def _visit(node: Node, state: State, variables_written: Set[Variable], variables_to_write: List[Variable]):
+# pylint: disable=too-many-branches
+def _visit(
+    node: Node,
+    state: State,
+    variables_written: Set[Variable],
+    variables_to_write: List[Variable],
+):
     """
     Explore all the nodes to look for values not written when the node's function return
     Fixpoint reaches if no new written variables are found
@@ -44,8 +55,10 @@ def _visit(node: Node, state: State, variables_written: Set[Variable], variables
     for ir in node.irs:
         if isinstance(ir, SolidityCall):
             # TODO convert the revert to a THROW node
-            if ir.function in [SolidityFunction('revert(string)'),
-                               SolidityFunction('revert()')]:
+            if ir.function in [
+                SolidityFunction("revert(string)"),
+                SolidityFunction("revert()"),
+            ]:
                 return []
 
         if not isinstance(ir, OperationWithLValue):
@@ -62,7 +75,9 @@ def _visit(node: Node, state: State, variables_written: Set[Variable], variables
         while isinstance(lvalue, ReferenceVariable):
             if lvalue not in refs:
                 break
-            if refs[lvalue] and not isinstance(refs[lvalue], (TemporaryVariable, ReferenceVariable)):
+            if refs[lvalue] and not isinstance(
+                refs[lvalue], (TemporaryVariable, ReferenceVariable)
+            ):
                 variables_written.add(refs[lvalue])
             lvalue = refs[lvalue]
 

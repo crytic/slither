@@ -3,7 +3,10 @@ Module detecting misuse of Boolean constants
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Assignment, Call, Return, InitArray, Binary, BinaryType
+from slither.slithir.operations import (
+    Binary,
+    BinaryType,
+)
 from slither.slithir.variables import Constant
 
 
@@ -12,16 +15,16 @@ class BooleanEquality(AbstractDetector):
     Boolean constant misuse
     """
 
-    ARGUMENT = 'boolean-equal'
-    HELP = 'Comparison to boolean constant'
+    ARGUMENT = "boolean-equal"
+    HELP = "Comparison to boolean constant"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#boolean-equality'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#boolean-equality"
 
-    WIKI_TITLE = 'Boolean equality'
-    WIKI_DESCRIPTION = '''Detects the comparison to boolean constants.'''
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_TITLE = "Boolean equality"
+    WIKI_DESCRIPTION = """Detects the comparison to boolean constants."""
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
 	function f(bool x) public {
@@ -33,9 +36,9 @@ contract A {
 	}
 }
 ```
-Boolean constants can be used directly and do not need to be compare to `true` or `false`.'''
+Boolean constants can be used directly and do not need to be compare to `true` or `false`."""
 
-    WIKI_RECOMMENDATION = '''Remove the equality to the boolean constant.'''
+    WIKI_RECOMMENDATION = """Remove the equality to the boolean constant."""
 
     @staticmethod
     def _detect_boolean_equality(contract):
@@ -44,6 +47,7 @@ Boolean constants can be used directly and do not need to be compare to `true` o
         results = []
 
         # Loop for each function and modifier.
+        # pylint: disable=too-many-nested-blocks
         for function in contract.functions_and_modifiers_declared:
             f_results = set()
 
@@ -54,7 +58,7 @@ Boolean constants can be used directly and do not need to be compare to `true` o
                         if ir.type in [BinaryType.EQUAL, BinaryType.NOT_EQUAL]:
                             for r in ir.read:
                                 if isinstance(r, Constant):
-                                    if type(r.value) is bool:
+                                    if isinstance(r.value, bool):
                                         f_results.add(node)
                 results.append((function, f_results))
 
@@ -71,7 +75,12 @@ Boolean constants can be used directly and do not need to be compare to `true` o
             if boolean_constant_misuses:
                 for (func, nodes) in boolean_constant_misuses:
                     for node in nodes:
-                        info = [func, " compares to a boolean constant:\n\t-", node, "\n"]
+                        info = [
+                            func,
+                            " compares to a boolean constant:\n\t-",
+                            node,
+                            "\n",
+                        ]
 
                         res = self.generate_result(info)
                         results.append(res)

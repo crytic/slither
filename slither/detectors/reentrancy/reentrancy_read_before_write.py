@@ -9,25 +9,26 @@ from collections import namedtuple, defaultdict
 from slither.detectors.abstract_detector import DetectorClassification
 from .reentrancy import Reentrancy, to_hashable
 
-FindingKey = namedtuple('FindingKey', ['function', 'calls'])
-FindingValue = namedtuple('FindingValue', ['variable', 'node', 'nodes'])
-
+FindingKey = namedtuple("FindingKey", ["function", "calls"])
+FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes"])
 
 
 class ReentrancyReadBeforeWritten(Reentrancy):
-    ARGUMENT = 'reentrancy-no-eth'
-    HELP = 'Reentrancy vulnerabilities (no theft of ethers)'
+    ARGUMENT = "reentrancy-no-eth"
+    HELP = "Reentrancy vulnerabilities (no theft of ethers)"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-1'
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-1"
+    )
 
-    WIKI_TITLE = 'Reentrancy vulnerabilities'
-    WIKI_DESCRIPTION = '''
+    WIKI_TITLE = "Reentrancy vulnerabilities"
+    WIKI_DESCRIPTION = """
 Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
-Do not report reentrancies that involve Ether (see `reentrancy-eth`).'''
+Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
 
-    WIKI_EXPLOIT_SCENARIO = '''
+    WIKI_EXPLOIT_SCENARIO = """
 ```solidity
     function bug(){
         require(not_called);
@@ -37,14 +38,14 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`).'''
         not_called = False;
     }   
 ```
-'''
-    WIKI_RECOMMENDATION = 'Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy).'
+"""
+    WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy)."
 
     STANDARD_JSON = False
 
     def find_reentrancies(self):
         result = defaultdict(set)
-        for contract in self.contracts:
+        for contract in self.contracts:  # pylint: disable=too-many-nested-blocks
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
                     # dead code
@@ -55,24 +56,28 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`).'''
                         for c in node.context[self.KEY].calls:
                             if c == node:
                                 continue
-                            read_then_written |= set([FindingValue(v,
-                                                                   node,
-                                                                   tuple(sorted(nodes, key=lambda x: x.node_id)))
-                                                      for (v, nodes)
-                                                      in node.context[self.KEY].written.items()
-                                                      if v in node.context[self.KEY].reads_prior_calls[c]])
+                            read_then_written |= {
+                                FindingValue(
+                                    v,
+                                    node,
+                                    tuple(sorted(nodes, key=lambda x: x.node_id)),
+                                )
+                                for (v, nodes) in node.context[self.KEY].written.items()
+                                if v in node.context[self.KEY].reads_prior_calls[c]
+                            }
 
                         # We found a potential re-entrancy bug
                         if read_then_written:
                             # calls are ordered
-                            finding_key = FindingKey(function=node.function,
-                                                     calls=to_hashable(node.context[self.KEY].calls))
+                            finding_key = FindingKey(
+                                function=node.function,
+                                calls=to_hashable(node.context[self.KEY].calls),
+                            )
                             result[finding_key] |= read_then_written
         return result
 
-    def _detect(self):
-        """
-        """
+    def _detect(self):  # pylint: disable=too-many-branches
+        """"""
 
         super()._detect()
         reentrancies = self.find_reentrancies()
@@ -84,20 +89,20 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`).'''
             calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
             varsWritten = sorted(varsWritten, key=lambda x: (x.variable.name, x.node.node_id))
 
-            info = ['Reentrancy in ', func, ':\n']
+            info = ["Reentrancy in ", func, ":\n"]
 
-            info += ['\tExternal calls:\n']
+            info += ["\tExternal calls:\n"]
             for (call_info, calls_list) in calls:
-                info += ['\t- ', call_info, '\n']
+                info += ["\t- ", call_info, "\n"]
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
-                        info += ['\t\t- ', call_list_info, '\n']
-            info += '\tState variables written after the call(s):\n'
+                        info += ["\t\t- ", call_list_info, "\n"]
+            info += "\tState variables written after the call(s):\n"
             for finding_value in varsWritten:
-                info += ['\t- ', finding_value.node, '\n']
+                info += ["\t- ", finding_value.node, "\n"]
                 for other_node in finding_value.nodes:
                     if other_node != finding_value.node:
-                        info += ['\t\t- ', other_node, '\n']
+                        info += ["\t\t- ", other_node, "\n"]
 
             # Create our JSON result
             res = self.generate_result(info)
@@ -107,27 +112,32 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`).'''
 
             # Add all underlying calls in the function which are potentially problematic.
             for (call_info, calls_list) in calls:
-                res.add(call_info, {
-                    "underlying_type": "external_calls"
-                })
+                res.add(call_info, {"underlying_type": "external_calls"})
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
-                        res.add(call_list_info, {
-                            "underlying_type": "external_calls_sending_eth"
-                        })
+                        res.add(
+                            call_list_info,
+                            {"underlying_type": "external_calls_sending_eth"},
+                        )
 
             # Add all variables written via nodes which write them.
             for finding_value in varsWritten:
-                res.add(finding_value.node, {
-                    "underlying_type": "variables_written",
-                    "variable_name": finding_value.variable.name
-                })
+                res.add(
+                    finding_value.node,
+                    {
+                        "underlying_type": "variables_written",
+                        "variable_name": finding_value.variable.name,
+                    },
+                )
                 for other_node in finding_value.nodes:
                     if other_node != finding_value.node:
-                        res.add(other_node, {
-                            "underlying_type": "variables_written",
-                            "variable_name": finding_value.variable.name
-                        })
+                        res.add(
+                            other_node,
+                            {
+                                "underlying_type": "variables_written",
+                                "variable_name": finding_value.variable.name,
+                            },
+                        )
 
             # Append our result
             results.append(res)

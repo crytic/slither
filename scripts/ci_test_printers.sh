@@ -10,4 +10,6 @@ if ! slither "tests/*.json" --print all --json -; then
     exit 1
 fi
 
-slither examples/scripts/test_evm_api.sol --print evm --solc solc-0.5.1
+solc use "0.5.1"
+
+slither examples/scripts/test_evm_api.sol --print evm 

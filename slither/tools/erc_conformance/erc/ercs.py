@@ -2,11 +2,15 @@ import logging
 
 from slither.slithir.operations import EventCall
 from slither.utils import output
-from slither.utils.type import export_nested_types_from_variable, export_return_type_from_variable
+from slither.utils.type import (
+    export_nested_types_from_variable,
+    export_return_type_from_variable,
+)
 
 logger = logging.getLogger("Slither-conformance")
 
 
+# pylint: disable=too-many-locals,too-many-branches,too-many-statements
 def _check_signature(erc_function, contract, ret):
     name = erc_function.name
     parameters = erc_function.parameters
@@ -52,8 +56,8 @@ def _check_signature(erc_function, contract, ret):
 
         function_view = True
     else:
-        function_return_type = function.return_type
-        function_view = function.view
+        function_return_type = function.return_type  # pylint: disable=no-member
+        function_view = function.view  # pylint: disable=no-member
 
     txt = f"[✓] {sig} is present"
     logger.info(txt)
@@ -106,7 +110,7 @@ def _check_signature(erc_function, contract, ret):
             should_be_view.add(function)
             ret["should_be_view"].append(should_be_view.data)
 
-    if events:
+    if events:  # pylint: disable=too-many-nested-blocks
         for event in events:
             event_sig = f'{event.name}({",".join(event.parameters)})'
 
@@ -185,10 +189,10 @@ def generic_erc_checks(contract, erc_functions, erc_events, ret, explored=None):
 
     logger.info(f"# Check {contract.name}\n")
 
-    logger.info(f"## Check functions")
+    logger.info("## Check functions")
     for erc_function in erc_functions:
         _check_signature(erc_function, contract, ret)
-    logger.info(f"\n## Check events")
+    logger.info("\n## Check events")
     for erc_event in erc_events:
         _check_events(erc_event, contract, ret)
 

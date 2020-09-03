@@ -1,4 +1,7 @@
-from slither.tools.upgradeability.checks.abstract_checks import CheckClassification, AbstractCheck
+from slither.tools.upgradeability.checks.abstract_checks import (
+    CheckClassification,
+    AbstractCheck,
+)
 
 
 class MissingVariable(AbstractCheck):
@@ -41,7 +44,7 @@ Do not change the order of the state variables in the updated contract.
         order2 = [variable for variable in contract2.state_variables if not variable.is_constant]
 
         results = []
-        for idx in range(0, len(order1)):
+        for idx, _ in enumerate(order1):
             variable1 = order1[idx]
             if len(order2) <= idx:
                 info = ["Variable missing in ", contract2, ": ", variable1, "\n"]
@@ -96,7 +99,7 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
         order2 = [variable for variable in contract2.state_variables if not variable.is_constant]
 
         results = []
-        for idx in range(0, len(order1)):
+        for idx, _ in enumerate(order1):
             if len(order2) <= idx:
                 # Handle by MissingVariable
                 return results
@@ -104,9 +107,15 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
             variable1 = order1[idx]
             variable2 = order2[idx]
             if (variable1.name != variable2.name) or (variable1.type != variable2.type):
-                info = ["Different variables between ", contract1, " and ", contract2, "\n"]
-                info += [f"\t ", variable1, "\n"]
-                info += [f"\t ", variable2, "\n"]
+                info = [
+                    "Different variables between ",
+                    contract1,
+                    " and ",
+                    contract2,
+                    "\n",
+                ]
+                info += ["\t ", variable1, "\n"]
+                info += ["\t ", variable2, "\n"]
                 json = self.generate_result(info)
                 results.append(json)
 

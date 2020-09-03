@@ -3,9 +3,9 @@
 """
 import logging
 from pathlib import Path
+from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
 
 from crytic_compile.platform import Type as PlatformType
-from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
 
 from slither.core.children.child_slither import ChildSlither
 from slither.core.solidity_types.type import Type
@@ -22,6 +22,7 @@ from slither.utils.erc import (
 )
 from slither.utils.tests_pattern import is_test_contract
 
+# pylint: disable=too-many-lines,too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks
 if TYPE_CHECKING:
     from slither.utils.type_helpers import LibraryCallType, HighLevelCallType
     from slither.core.declarations import Enum, Event, Modifier
@@ -33,13 +34,13 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger("Contract")
 
 
-class Contract(ChildSlither, SourceMapping):
+class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-methods
     """
     Contract class
     """
 
     def __init__(self):
-        super(Contract, self).__init__()
+        super().__init__()
 
         self._name: Optional[str] = None
         self._id: Optional[int] = None
@@ -133,21 +134,21 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def structures(self) -> List["Structure"]:
         """
-            list(Structure): List of the structures
+        list(Structure): List of the structures
         """
         return list(self._structures.values())
 
     @property
     def structures_inherited(self) -> List["Structure"]:
         """
-            list(Structure): List of the inherited structures
+        list(Structure): List of the inherited structures
         """
         return [s for s in self.structures if s.contract != self]
 
     @property
     def structures_declared(self) -> List["Structure"]:
         """
-            list(Structues): List of the structures declared within the contract (not inherited)
+        list(Structues): List of the structures declared within the contract (not inherited)
         """
         return [s for s in self.structures if s.contract == self]
 
@@ -169,14 +170,14 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def enums_inherited(self) -> List["Enum"]:
         """
-            list(Enum): List of the inherited enums
+        list(Enum): List of the inherited enums
         """
         return [e for e in self.enums if e.contract != self]
 
     @property
     def enums_declared(self) -> List["Enum"]:
         """
-            list(Enum): List of the enums declared within the contract (not inherited)
+        list(Enum): List of the enums declared within the contract (not inherited)
         """
         return [e for e in self.enums if e.contract == self]
 
@@ -194,21 +195,21 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def events(self) -> List["Event"]:
         """
-            list(Event): List of the events
+        list(Event): List of the events
         """
         return list(self._events.values())
 
     @property
     def events_inherited(self) -> List["Event"]:
         """
-            list(Event): List of the inherited events
+        list(Event): List of the inherited events
         """
         return [e for e in self.events if e.contract != self]
 
     @property
     def events_declared(self) -> List["Event"]:
         """
-            list(Event): List of the events declared within the contract (not inherited)
+        list(Event): List of the events declared within the contract (not inherited)
         """
         return [e for e in self.events if e.contract == self]
 
@@ -237,7 +238,7 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def variables(self) -> List["StateVariable"]:
         """
-            list(StateVariable): List of the state variables. Alias to self.state_variables
+        list(StateVariable): List of the state variables. Alias to self.state_variables
         """
         return list(self.state_variables)
 
@@ -248,14 +249,14 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def state_variables(self) -> List["StateVariable"]:
         """
-            list(StateVariable): List of the state variables.
+        list(StateVariable): List of the state variables.
         """
         return list(self._variables.values())
 
     @property
     def state_variables_ordered(self) -> List["StateVariable"]:
         """
-            list(StateVariable): List of the state variables by order of declaration.
+        list(StateVariable): List of the state variables by order of declaration.
         """
         return list(self._variables_ordered)
 
@@ -265,21 +266,21 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def state_variables_inherited(self) -> List["StateVariable"]:
         """
-            list(StateVariable): List of the inherited state variables
+        list(StateVariable): List of the inherited state variables
         """
         return [s for s in self.state_variables if s.contract != self]
 
     @property
     def state_variables_declared(self) -> List["StateVariable"]:
         """
-            list(StateVariable): List of the state variables declared within the contract (not inherited)
+        list(StateVariable): List of the state variables declared within the contract (not inherited)
         """
         return [s for s in self.state_variables if s.contract == self]
 
     @property
     def slithir_variables(self) -> List["SlithIRVariable"]:
         """
-            List all of the slithir variables (non SSA)
+        List all of the slithir variables (non SSA)
         """
         slithir_variables = [f.slithir_variables for f in self.functions + self.modifiers]  # type: ignore
         slithir_variables = [item for sublist in slithir_variables for item in sublist]
@@ -295,10 +296,10 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def constructor(self) -> Optional["Function"]:
         """
-            Return the contract's immediate constructor.
-            If there is no immediate constructor, returns the first constructor
-            executed, following the c3 linearization
-            Return None if there is no constructor.
+        Return the contract's immediate constructor.
+        If there is no immediate constructor, returns the first constructor
+        executed, following the c3 linearization
+        Return None if there is no constructor.
         """
         cst = self.constructors_declared
         if cst:
@@ -323,20 +324,20 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def constructors(self) -> List["Function"]:
         """
-            Return the list of constructors (including inherited)
+        Return the list of constructors (including inherited)
         """
         return [func for func in self.functions if func.is_constructor]
 
     @property
     def explicit_base_constructor_calls(self) -> List["Function"]:
         """
-            list(Function): List of the base constructors called explicitly by this contract definition.
+        list(Function): List of the base constructors called explicitly by this contract definition.
 
-                            Base constructors called by any constructor definition will not be included.
-                            Base constructors implicitly called by the contract definition (without
-                            parenthesis) will not be included.
+                        Base constructors called by any constructor definition will not be included.
+                        Base constructors implicitly called by the contract definition (without
+                        parenthesis) will not be included.
 
-                            On "contract B is A(){..}" it returns the constructor of A
+                        On "contract B is A(){..}" it returns the constructor of A
         """
         return [c.constructor for c in self._explicit_base_constructor_calls if c.constructor]
 
@@ -358,9 +359,7 @@ class Contract(ChildSlither, SourceMapping):
                 v.full_name for v in self.state_variables if v.visibility in ["public", "external"]
             ]
 
-            sigs += set(
-                [f.full_name for f in self.functions if f.visibility in ["public", "external"]]
-            )
+            sigs += {f.full_name for f in self.functions if f.visibility in ["public", "external"]}
             self._signatures = list(set(sigs))
         return self._signatures
 
@@ -377,25 +376,26 @@ class Contract(ChildSlither, SourceMapping):
                 if v.visibility in ["public", "external"]
             ]
 
-            sigs += set(
-                [
-                    f.full_name
-                    for f in self.functions_declared
-                    if f.visibility in ["public", "external"]
-                ]
-            )
+            sigs += {
+                f.full_name
+                for f in self.functions_declared
+                if f.visibility in ["public", "external"]
+            }
             self._signatures_declared = list(set(sigs))
         return self._signatures_declared
 
     @property
     def functions(self) -> List["Function"]:
         """
-            list(Function): List of the functions
+        list(Function): List of the functions
         """
         return list(self._functions.values())
 
     def available_functions_as_dict(self) -> Dict[str, "Function"]:
         return {f.full_name: f for f in self._functions.values() if not f.is_shadowed}
+
+    def add_function(self, func: "Function"):
+        self._functions[func.canonical_name] = func
 
     def set_functions(self, functions: Dict[str, "Function"]):
         """
@@ -409,21 +409,21 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def functions_inherited(self) -> List["Function"]:
         """
-            list(Function): List of the inherited functions
+        list(Function): List of the inherited functions
         """
         return [f for f in self.functions if f.contract_declarer != self]
 
     @property
     def functions_declared(self) -> List["Function"]:
         """
-            list(Function): List of the functions defined within the contract (not inherited)
+        list(Function): List of the functions defined within the contract (not inherited)
         """
         return [f for f in self.functions if f.contract_declarer == self]
 
     @property
     def functions_entry_points(self) -> List["Function"]:
         """
-            list(Functions): List of public and external functions
+        list(Functions): List of public and external functions
         """
         return [
             f
@@ -434,7 +434,7 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def modifiers(self) -> List["Modifier"]:
         """
-            list(Modifier): List of the modifiers
+        list(Modifier): List of the modifiers
         """
         return list(self._modifiers.values())
 
@@ -453,35 +453,35 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def modifiers_inherited(self) -> List["Modifier"]:
         """
-            list(Modifier): List of the inherited modifiers
+        list(Modifier): List of the inherited modifiers
         """
         return [m for m in self.modifiers if m.contract_declarer != self]
 
     @property
     def modifiers_declared(self) -> List["Modifier"]:
         """
-            list(Modifier): List of the modifiers defined within the contract (not inherited)
+        list(Modifier): List of the modifiers defined within the contract (not inherited)
         """
         return [m for m in self.modifiers if m.contract_declarer == self]
 
     @property
     def functions_and_modifiers(self) -> List["Function"]:
         """
-            list(Function|Modifier): List of the functions and modifiers
+        list(Function|Modifier): List of the functions and modifiers
         """
         return self.functions + self.modifiers  # type: ignore
 
     @property
     def functions_and_modifiers_inherited(self) -> List["Function"]:
         """
-            list(Function|Modifier): List of the inherited functions and modifiers
+        list(Function|Modifier): List of the inherited functions and modifiers
         """
         return self.functions_inherited + self.modifiers_inherited  # type: ignore
 
     @property
     def functions_and_modifiers_declared(self) -> List["Function"]:
         """
-            list(Function|Modifier): List of the functions and modifiers defined within the contract (not inherited)
+        list(Function|Modifier): List of the functions and modifiers defined within the contract (not inherited)
         """
         return self.functions_declared + self.modifiers_declared  # type: ignore
 
@@ -526,21 +526,21 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def inheritance(self) -> List["Contract"]:
         """
-            list(Contract): Inheritance list. Order: the first elem is the first father to be executed
+        list(Contract): Inheritance list. Order: the first elem is the first father to be executed
         """
         return list(self._inheritance)
 
     @property
     def immediate_inheritance(self) -> List["Contract"]:
         """
-            list(Contract): List of contracts immediately inherited from (fathers). Order: order of declaration.
+        list(Contract): List of contracts immediately inherited from (fathers). Order: order of declaration.
         """
         return list(self._immediate_inheritance)
 
     @property
     def inheritance_reverse(self) -> List["Contract"]:
         """
-            list(Contract): Inheritance list. Order: the last elem is the first father to be executed
+        list(Contract): Inheritance list. Order: the last elem is the first father to be executed
         """
         return list(reversed(self._inheritance))
 
@@ -557,7 +557,7 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def derived_contracts(self) -> List["Contract"]:
         """
-            list(Contract): Return the list of contracts derived from self
+        list(Contract): Return the list of contracts derived from self
         """
         candidates = self.slither.contracts
         return [c for c in candidates if self in c.inheritance]
@@ -571,13 +571,13 @@ class Contract(ChildSlither, SourceMapping):
 
     def get_functions_reading_from_variable(self, variable: "Variable") -> List["Function"]:
         """
-            Return the functions reading the variable
+        Return the functions reading the variable
         """
         return [f for f in self.functions if f.is_reading(variable)]
 
     def get_functions_writing_to_variable(self, variable: "Variable") -> List["Function"]:
         """
-            Return the functions writting the variable
+        Return the functions writting the variable
         """
         return [f for f in self.functions if f.is_writing(variable)]
 
@@ -596,9 +596,9 @@ class Contract(ChildSlither, SourceMapping):
 
     def get_modifier_from_signature(self, modifier_signature: str) -> Optional["Modifier"]:
         """
-            Return a modifier from a signature
+        Return a modifier from a signature
 
-            :param modifier_signature:
+        :param modifier_signature:
         """
         return next(
             (m for m in self.modifiers if m.full_name == modifier_signature and not m.is_shadowed),
@@ -627,9 +627,9 @@ class Contract(ChildSlither, SourceMapping):
 
     def get_state_variable_from_name(self, variable_name: str) -> Optional["StateVariable"]:
         """
-            Return a state variable from a name
+        Return a state variable from a name
 
-            :param variable_name:
+        :param variable_name:
         """
         return next((v for v in self.state_variables if v.name == variable_name), None)
 
@@ -728,8 +728,8 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def all_functions_called(self) -> List["Function"]:
         """
-            list(Function): List of functions reachable from the contract
-            Includes super, and private/internal functions not shadowed
+        list(Function): List of functions reachable from the contract
+        Includes super, and private/internal functions not shadowed
         """
         all_calls = [f for f in self.functions + self.modifiers if not f.is_shadowed]  # type: ignore
         all_callss = [f.all_internal_calls() for f in all_calls] + [all_calls]
@@ -746,7 +746,7 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def all_state_variables_written(self) -> List["StateVariable"]:
         """
-            list(StateVariable): List all of the state variables written
+        list(StateVariable): List all of the state variables written
         """
         all_state_variables_written = [
             f.all_state_variables_written() for f in self.functions + self.modifiers  # type: ignore
@@ -759,7 +759,7 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def all_state_variables_read(self) -> List["StateVariable"]:
         """
-            list(StateVariable): List all of the state variables read
+        list(StateVariable): List all of the state variables read
         """
         all_state_variables_read = [
             f.all_state_variables_read() for f in self.functions + self.modifiers  # type: ignore
@@ -772,7 +772,7 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def all_library_calls(self) -> List["LibraryCallType"]:
         """
-            list((Contract, Function): List all of the libraries func called
+        list((Contract, Function): List all of the libraries func called
         """
         all_high_level_calls = [f.all_library_calls() for f in self.functions + self.modifiers]  # type: ignore
         all_high_level_calls = [item for sublist in all_high_level_calls for item in sublist]
@@ -781,7 +781,7 @@ class Contract(ChildSlither, SourceMapping):
     @property
     def all_high_level_calls(self) -> List["HighLevelCallType"]:
         """
-            list((Contract, Function|Variable)): List all of the external high level calls
+        list((Contract, Function|Variable)): List all of the external high level calls
         """
         all_high_level_calls = [f.all_high_level_calls() for f in self.functions + self.modifiers]  # type: ignore
         all_high_level_calls = [item for sublist in all_high_level_calls for item in sublist]
@@ -797,7 +797,7 @@ class Contract(ChildSlither, SourceMapping):
     def get_summary(
         self, include_shadowed=True
     ) -> Tuple[str, List[str], List[str], List[str], List[str]]:
-        """ Return the function summary
+        """Return the function summary
 
         :param include_shadowed: boolean to indicate if shadowed functions should be included (default True)
         Returns:
@@ -818,7 +818,7 @@ class Contract(ChildSlither, SourceMapping):
         )
 
     def is_signature_only(self) -> bool:
-        """ Detect if the contract has only abstract functions
+        """Detect if the contract has only abstract functions
 
         Returns:
             bool: true if the function are abstract functions
@@ -1142,7 +1142,10 @@ class Contract(ChildSlither, SourceMapping):
         node.set_function(func)
         func.add_node(node)
         expression = AssignmentOperation(
-            Identifier(variable), variable.expression, AssignmentOperationType.ASSIGN, variable.type
+            Identifier(variable),
+            variable.expression,
+            AssignmentOperationType.ASSIGN,
+            variable.type,
         )
 
         expression.set_offset(variable.source_mapping, self.slither)

@@ -10,7 +10,9 @@ if TYPE_CHECKING:
     from slither.core.variables.state_variable import StateVariable
 
 
-def detect_c3_function_shadowing(contract: "Contract") -> Dict["Function", Set["Function"]]:
+def detect_c3_function_shadowing(
+    contract: "Contract",
+) -> Dict["Function", Set["Function"]]:
     """
     Detects and obtains functions which are indirectly shadowed via multiple inheritance by C3 linearization
     properties, despite not directly inheriting from each other.
@@ -48,7 +50,7 @@ def detect_state_variable_shadowing(
     inherited. The contracts are simply included to denote the immediate inheritance path from which the shadowed
     variable originates.
     """
-    results: Set[Tuple["Contract", StateVariable, "Contract", "StateVariable"]] = set()
+    results: Set[Tuple["Contract", "StateVariable", "Contract", "StateVariable"]] = set()
     for contract in contracts:
         variables_declared: Dict[str, "StateVariable"] = {
             variable.name: variable for variable in contract.state_variables_declared

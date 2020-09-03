@@ -1,9 +1,5 @@
 from slither.visitors.expression.expression import ExpressionVisitor
 
-from slither.core.expressions.assignment_operation import AssignmentOperationType
-
-from slither.core.variables.variable import Variable
-
 key = "ExportValues"
 
 

@@ -1,0 +1,51 @@
+---
+name: Lint Code Base
+
+defaults:
+  run:
+    # To load bashrc
+    shell: bash -ieo pipefail {0}
+
+on:
+  pull_request:
+    branches: [master, dev]
+
+jobs:
+  build:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
+      - name: Install dependencies
+        run: |
+          pip install .
+          pip install deepdiff numpy
+
+          mkdir -p .github/linters
+          cp pyproject.toml .github/linters
+
+      - name: Lint everything
+        uses: docker://github/super-linter:v3
+        if: always()
+        env:
+          # run linter on everything to catch preexisting problems
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
+          PYTHON_BLACK_CONFIG_FILE: pyproject.toml
+          VALIDATE_JSON: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
+          VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_DOCKERFILE: false
+          VALIDATE_DOCKERFILE_HADOLINT: false
+          VALIDATE_EDITORCONFIG: false
+          SHELLCHECK_OPTS: "-e SC1090"

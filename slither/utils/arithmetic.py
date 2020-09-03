@@ -3,7 +3,9 @@ from decimal import Decimal
 from slither.exceptions import SlitherException
 
 
-def convert_subdenomination(value: str, sub: str) -> int:
+def convert_subdenomination(
+    value: str, sub: str
+) -> int:  # pylint: disable=too-many-return-statements
 
     # to allow 0.1 ether conversion
     if value[0:2] == "0x":

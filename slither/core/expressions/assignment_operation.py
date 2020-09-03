@@ -88,7 +88,7 @@ class AssignmentOperation(ExpressionTyped):
     ):
         assert isinstance(left_expression, Expression)
         assert isinstance(right_expression, Expression)
-        super(AssignmentOperation, self).__init__()
+        super().__init__()
         left_expression.set_lvalue()
         self._expressions = [left_expression, right_expression]
         self._type = expression_type
