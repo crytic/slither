@@ -31,8 +31,8 @@ class StateVariable(ChildContract, Variable):
     @property
     def signature(self) -> Tuple[str, List[str], str]:
         """
-            Return the signature of the state variable as a function signature
-            :return: (str, list(str), list(str)), as (name, list parameters type, list return values type)
+        Return the signature of the state variable as a function signature
+        :return: (str, list(str), list(str)), as (name, list parameters type, list return values type)
         """
         return (
             self.name,
@@ -43,8 +43,8 @@ class StateVariable(ChildContract, Variable):
     @property
     def signature_str(self) -> str:
         """
-            Return the signature of the state variable as a function signature
-            :return: str: func_name(type1,type2) returns(type3)
+        Return the signature of the state variable as a function signature
+        :return: str: func_name(type1,type2) returns(type3)
         """
         name, parameters, returnVars = self.signature
         return name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
@@ -63,9 +63,9 @@ class StateVariable(ChildContract, Variable):
     @property
     def full_name(self) -> str:
         """
-            Return the name of the state variable as a function signaure
-            str: func_name(type1,type2)
-            :return: the function signature without the return values
+        Return the name of the state variable as a function signaure
+        str: func_name(type1,type2)
+        :return: the function signature without the return values
         """
         name, parameters, _ = self.signature
         return name + "(" + ",".join(parameters) + ")"

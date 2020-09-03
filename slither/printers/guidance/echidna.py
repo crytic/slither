@@ -334,11 +334,11 @@ class Echidna(AbstractPrinter):
 
     def output(self, filename):  # pylint: disable=too-many-locals
         """
-            Output the inheritance relation
+        Output the inheritance relation
 
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
 
         payable = _extract_payable(self.slither)

@@ -41,7 +41,9 @@ def arbitrary_send(func):
                 if ir.variable_right == SolidityVariableComposed("msg.sender"):
                     return False
                 if is_dependent(
-                    ir.variable_right, SolidityVariableComposed("msg.sender"), func.contract,
+                    ir.variable_right,
+                    SolidityVariableComposed("msg.sender"),
+                    func.contract,
                 ):
                     return False
             if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
@@ -54,7 +56,9 @@ def arbitrary_send(func):
                 if ir.call_value == SolidityVariableComposed("msg.value"):
                     continue
                 if is_dependent(
-                    ir.call_value, SolidityVariableComposed("msg.value"), func.contract,
+                    ir.call_value,
+                    SolidityVariableComposed("msg.value"),
+                    func.contract,
                 ):
                     continue
 
@@ -108,8 +112,7 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
     WIKI_RECOMMENDATION = "Ensure that an arbitrary user cannot withdraw unauthorized funds."
 
     def _detect(self):
-        """
-        """
+        """"""
         results = []
 
         for c in self.contracts:

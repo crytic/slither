@@ -15,9 +15,9 @@ class ContractSummary(AbstractPrinter):
 
     def output(self, _filename):  # pylint: disable=too-many-locals
         """
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
 
         txt = ""

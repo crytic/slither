@@ -54,7 +54,10 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--version", help="displays the current version", version="0.0", action="version",
+        "--version",
+        help="displays the current version",
+        version="0.0",
+        action="version",
     )
 
     cryticparser.init(parser)

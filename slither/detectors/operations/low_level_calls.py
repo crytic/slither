@@ -41,8 +41,7 @@ class LowLevelCalls(AbstractDetector):
         return ret
 
     def _detect(self):
-        """ Detect the functions that use low level calls
-        """
+        """Detect the functions that use low level calls"""
         results = []
         for c in self.contracts:
             values = self.detect_low_level_calls(c)

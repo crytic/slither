@@ -72,11 +72,19 @@ Only report reentrancy that is based on `transfer` or `send`."""
                             send_eth=to_hashable(node.context[self.KEY].send_eth),
                         )
                         finding_vars = {
-                            FindingValue(v, node, tuple(sorted(nodes, key=lambda x: x.node_id)),)
+                            FindingValue(
+                                v,
+                                node,
+                                tuple(sorted(nodes, key=lambda x: x.node_id)),
+                            )
                             for (v, nodes) in node.context[self.KEY].written.items()
                         }
                         finding_vars |= {
-                            FindingValue(e, e.node, tuple(sorted(nodes, key=lambda x: x.node_id)),)
+                            FindingValue(
+                                e,
+                                e.node,
+                                tuple(sorted(nodes, key=lambda x: x.node_id)),
+                            )
                             for (e, nodes) in node.context[self.KEY].events.items()
                         }
                         if finding_vars:
@@ -84,8 +92,7 @@ Only report reentrancy that is based on `transfer` or `send`."""
         return result
 
     def _detect(self):  # pylint: disable=too-many-branches,too-many-locals
-        """
-        """
+        """"""
 
         super()._detect()
         reentrancies = self.find_reentrancies()
@@ -152,7 +159,8 @@ Only report reentrancy that is based on `transfer` or `send`."""
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
                         res.add(
-                            call_list_info, {"underlying_type": "external_calls_sending_eth"},
+                            call_list_info,
+                            {"underlying_type": "external_calls_sending_eth"},
                         )
 
             #
@@ -164,7 +172,8 @@ Only report reentrancy that is based on `transfer` or `send`."""
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             res.add(
-                                call_list_info, {"underlying_type": "external_calls_sending_eth"},
+                                call_list_info,
+                                {"underlying_type": "external_calls_sending_eth"},
                             )
 
             # Add all variables written via nodes which write them.

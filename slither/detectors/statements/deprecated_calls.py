@@ -71,7 +71,7 @@ contract ContractWithDeprecatedReferences {
     DEPRECATED_LOW_LEVEL_CALLS = [("callcode", "callcode", "delegatecall")]
 
     def detect_deprecation_in_expression(self, expression):
-        """ Detects if an expression makes use of any deprecated standards.
+        """Detects if an expression makes use of any deprecated standards.
 
         Returns:
             list of tuple: (detecting_signature, original_text, recommended_text)"""
@@ -93,7 +93,7 @@ contract ContractWithDeprecatedReferences {
         return results
 
     def detect_deprecated_references_in_node(self, node):
-        """ Detects if a node makes use of any deprecated standards.
+        """Detects if a node makes use of any deprecated standards.
 
         Returns:
             list of tuple: (detecting_signature, original_text, recommended_text)"""
@@ -112,7 +112,7 @@ contract ContractWithDeprecatedReferences {
         return results
 
     def detect_deprecated_references_in_contract(self, contract):
-        """ Detects the usage of any deprecated built-in symbols.
+        """Detects the usage of any deprecated built-in symbols.
 
         Returns:
             list of tuple: (state_variable | node, (detecting_signature, original_text, recommended_text))"""
@@ -148,7 +148,7 @@ contract ContractWithDeprecatedReferences {
         return results
 
     def _detect(self):
-        """ Detects if an expression makes use of any deprecated standards.
+        """Detects if an expression makes use of any deprecated standards.
 
         Recursively visit the calls
         Returns:

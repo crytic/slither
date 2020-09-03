@@ -8,7 +8,7 @@ from slither.slithir.variables.constant import Constant
 
 class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     """
-        High level message call
+    High level message call
     """
 
     def __init__(self, destination, function_name, nbr_arguments, result, type_call):

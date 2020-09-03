@@ -65,8 +65,7 @@ contract MyConc{
         return [nodes_origin[value].node for value in values_returned]
 
     def _detect(self):
-        """ Detect high level calls which return a value that are never used
-        """
+        """Detect high level calls which return a value that are never used"""
         results = []
         for c in self.slither.contracts:
             for f in c.functions + c.modifiers:

@@ -7,8 +7,8 @@ from slither.slithir.utils.utils import is_valid_rvalue
 
 class Return(Operation):
     """
-       Return
-       Only present as last operation in RETURN node
+    Return
+    Only present as last operation in RETURN node
     """
 
     def __init__(self, values):

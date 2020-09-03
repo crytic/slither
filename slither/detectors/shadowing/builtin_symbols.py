@@ -112,7 +112,7 @@ contract Bug {
     ]
 
     def is_builtin_symbol(self, word):
-        """ Detects if a given word is a built-in symbol.
+        """Detects if a given word is a built-in symbol.
 
         Returns:
             boolean: True if the given word represents a built-in symbol."""
@@ -120,7 +120,7 @@ contract Bug {
         return word in self.BUILTIN_SYMBOLS or word in self.RESERVED_KEYWORDS
 
     def detect_builtin_shadowing_locals(self, function_or_modifier):
-        """ Detects if local variables in a given function/modifier are named after built-in symbols.
+        """Detects if local variables in a given function/modifier are named after built-in symbols.
             Any such items are returned in a list.
 
         Returns:
@@ -133,7 +133,7 @@ contract Bug {
         return results
 
     def detect_builtin_shadowing_definitions(self, contract):
-        """ Detects if functions, access modifiers, events, state variables, or local variables are named after built-in
+        """Detects if functions, access modifiers, events, state variables, or local variables are named after built-in
             symbols. Any such definitions are returned in a list.
 
         Returns:
@@ -162,7 +162,7 @@ contract Bug {
         return result
 
     def _detect(self):
-        """ Detect shadowing of built-in symbols
+        """Detect shadowing of built-in symbols
 
         Recursively visit the calls
         Returns:

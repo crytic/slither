@@ -33,9 +33,9 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
 
     def output(self, _filename):
         """
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
 
         txt = ""
@@ -52,7 +52,11 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
                 state_variables_written = [v.name for v in function.all_state_variables_written()]
                 msg_sender_condition = self.get_msg_sender_checks(function)
                 table.add_row(
-                    [function.name, str(state_variables_written), str(msg_sender_condition),]
+                    [
+                        function.name,
+                        str(state_variables_written),
+                        str(msg_sender_condition),
+                    ]
                 )
             all_tables.append((contract.name, table))
             txt += str(table) + "\n"

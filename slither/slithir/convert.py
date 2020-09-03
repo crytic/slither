@@ -206,7 +206,8 @@ def convert_arguments(arguments):
 
 def is_temporary(ins):
     return isinstance(
-        ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure),
+        ins,
+        (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure),
     )
 
 
@@ -220,7 +221,7 @@ def is_temporary(ins):
 
 def integrate_value_gas(result):
     """
-        Integrate value and gas temporary arguments to call instruction
+    Integrate value and gas temporary arguments to call instruction
     """
     was_changed = True
 
@@ -299,7 +300,7 @@ def integrate_value_gas(result):
 
 def propagate_type_and_convert_call(result, node):
     """
-        Propagate the types variables and convert tmp call to real call operation
+    Propagate the types variables and convert tmp call to real call operation
     """
     calls_value = {}
     calls_gas = {}
@@ -638,7 +639,8 @@ def propagate_types(ir, node):  # pylint: disable=too-many-locals
                             # We dont need to check for function collision, as solc prevents the use of selector
                             # if there are multiple functions with the same name
                             f = next(
-                                (f for f in type_t.functions if f.name == ir.variable_right), None,
+                                (f for f in type_t.functions if f.name == ir.variable_right),
+                                None,
                             )
                             if f:
                                 ir.lvalue.set_type(f)
@@ -773,7 +775,10 @@ def extract_tmp_call(ins, contract):
             ins.called = SolidityFunction("blockhash(uint256)")
         elif str(ins.called) == "this.balance":
             s = SolidityCall(
-                SolidityFunction("this.balance()"), ins.nbr_arguments, ins.lvalue, ins.type_call,
+                SolidityFunction("this.balance()"),
+                ins.nbr_arguments,
+                ins.lvalue,
+                ins.type_call,
             )
             s.set_expression(ins.expression)
             return s
@@ -858,11 +863,11 @@ def can_be_low_level(ir):
 
 def convert_to_low_level(ir):
     """
-        Convert to a transfer/send/or low level call
-        The funciton assume to receive a correct IR
-        The checks must be done by the caller
+    Convert to a transfer/send/or low level call
+    The funciton assume to receive a correct IR
+    The checks must be done by the caller
 
-        Must be called after can_be_low_level
+    Must be called after can_be_low_level
     """
     if ir.function_name == "transfer":
         assert len(ir.arguments) == 1
@@ -1064,7 +1069,11 @@ def look_for_library(contract, ir, using_for, t):
         lib_contract = contract.slither.get_contract_from_name(str(destination))
         if lib_contract:
             lib_call = LibraryCall(
-                lib_contract, ir.function_name, ir.nbr_arguments, ir.lvalue, ir.type_call,
+                lib_contract,
+                ir.function_name,
+                ir.nbr_arguments,
+                ir.lvalue,
+                ir.type_call,
             )
             lib_call.set_expression(ir.expression)
             lib_call.set_node(ir.node)
@@ -1098,8 +1107,8 @@ def convert_to_library(ir, node, using_for):
 
 def get_type(t):
     """
-        Convert a type to a str
-        If the instance is a Contract, return 'address' instead
+    Convert a type to a str
+    If the instance is a Contract, return 'address' instead
     """
     if isinstance(t, UserDefinedType):
         if isinstance(t.type, Contract):
@@ -1276,8 +1285,8 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
 
 def find_references_origin(irs):
     """
-        Make lvalue of each Index, Member operation
-        points to the left variable
+    Make lvalue of each Index, Member operation
+    points to the left variable
     """
     for ir in irs:
         if isinstance(ir, (Index, Member)):
@@ -1297,7 +1306,14 @@ def remove_temporary(result):
         ins
         for ins in result
         if not isinstance(
-            ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure,),
+            ins,
+            (
+                Argument,
+                TmpNewElementaryType,
+                TmpNewContract,
+                TmpNewArray,
+                TmpNewStructure,
+            ),
         )
     ]
 
@@ -1440,7 +1456,7 @@ def convert_delete(irs):
 
 def apply_ir_heuristics(irs, node):
     """
-        Apply a set of heuristic to improve slithIR
+    Apply a set of heuristic to improve slithIR
     """
 
     irs = integrate_value_gas(irs)

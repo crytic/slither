@@ -27,9 +27,9 @@ class RequireOrAssert(AbstractPrinter):
 
     def output(self, _filename):
         """
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
 
         all_tables = []
@@ -46,7 +46,10 @@ class RequireOrAssert(AbstractPrinter):
                 ]
                 require = [ir.node for ir in require]
                 table.add_row(
-                    [function.name, self._convert([str(m.expression) for m in set(require)]),]
+                    [
+                        function.name,
+                        self._convert([str(m.expression) for m in set(require)]),
+                    ]
                 )
             txt += "\n" + str(table)
             self.info(txt)

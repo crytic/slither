@@ -32,7 +32,7 @@ logging.basicConfig()
 
 def _relative_path_format(path: str) -> str:
     """
-       Strip relative paths of "." and ".."
+    Strip relative paths of "." and ".."
     """
     return path.split("..")[-1].strip(".").strip("/")
 
@@ -251,7 +251,7 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
 
     def print_functions(self, d: str):
         """
-            Export all the functions to dot files
+        Export all the functions to dot files
         """
         for c in self.contracts:
             for f in c.functions:
@@ -266,11 +266,11 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
 
     def valid_result(self, r: Dict) -> bool:
         """
-            Check if the result is valid
-            A result is invalid if:
-                - All its source paths belong to the source path filtered
-                - Or a similar result was reported and saved during a previous run
-                - The --exclude-dependencies flag is set and results are only related to dependencies
+        Check if the result is valid
+        A result is invalid if:
+            - All its source paths belong to the source path filtered
+            - Or a similar result was reported and saved during a previous run
+            - The --exclude-dependencies flag is set and results are only related to dependencies
         """
         source_mapping_elements = [
             elem["source_mapping"]["filename_absolute"]
@@ -334,8 +334,8 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
 
     def add_path_to_filter(self, path: str):
         """
-            Add path to filter
-            Path are used through direct comparison (no regex)
+        Add path to filter
+        Path are used through direct comparison (no regex)
         """
         self._paths_to_filter.add(path)
 

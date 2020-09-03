@@ -4,7 +4,7 @@ from slither.core.declarations.contract import Contract
 
 class LibraryCall(HighLevelCall):
     """
-        High level message call
+    High level message call
     """
 
     # Development function, to be removed once the code is stable
@@ -38,5 +38,9 @@ class LibraryCall(HighLevelCall):
             lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
         txt = "{}LIBRARY_CALL, dest:{}, function:{}, arguments:{} {}"
         return txt.format(
-            lvalue, self.destination, self.function_name, [str(x) for x in arguments], gas,
+            lvalue,
+            self.destination,
+            self.function_name,
+            [str(x) for x in arguments],
+            gas,
         )

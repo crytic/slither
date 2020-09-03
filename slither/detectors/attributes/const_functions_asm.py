@@ -45,7 +45,7 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
     )
 
     def _detect(self):
-        """ Detect the constant function using assembly code
+        """Detect the constant function using assembly code
 
         Recursively visit the calls
         Returns:

@@ -136,14 +136,18 @@ class YulScope(metaclass=abc.ABCMeta):
 
     def get_yul_local_variable_from_name(self, variable_name):
         return next(
-            (v for v in self._yul_local_variables if v.underlying.name == variable_name), None,
+            (v for v in self._yul_local_variables if v.underlying.name == variable_name),
+            None,
         )
 
     def add_yul_local_function(self, func):
         self._yul_local_functions.append(func)
 
     def get_yul_local_function_from_name(self, func_name):
-        return next((v for v in self._yul_local_functions if v.underlying.name == func_name), None,)
+        return next(
+            (v for v in self._yul_local_functions if v.underlying.name == func_name),
+            None,
+        )
 
 
 class YulLocalVariable:  # pylint: disable=too-few-public-methods
@@ -434,7 +438,11 @@ def convert_yul_switch(root: YulScope, parent: YulNode, ast: Dict) -> YulNode:
                     "name": "eq",
                 },
                 "arguments": [
-                    {"nodeType": "YulIdentifier", "src": case_ast["src"], "name": switch_expr_var,},
+                    {
+                        "nodeType": "YulIdentifier",
+                        "src": case_ast["src"],
+                        "name": switch_expr_var,
+                    },
                     value_ast,
                 ],
             },

@@ -26,7 +26,7 @@ class PhiCallback(Phi):
     @property
     def rvalue_no_callback(self):
         """
-            rvalue if callback are not considered
+        rvalue if callback are not considered
         """
         return self._rvalue_no_callback
 

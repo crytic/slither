@@ -28,8 +28,8 @@ class ReferenceVariable(ChildNode, Variable):
     @property
     def points_to(self):
         """
-            Return the variable pointer by the reference
-            It is the left member of a Index or Member operator
+        Return the variable pointer by the reference
+        It is the left member of a Index or Member operator
         """
         return self._points_to
 

@@ -13,9 +13,9 @@ class PrinterSlithIR(AbstractPrinter):
 
     def output(self, _filename):
         """
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
 
         txt = ""

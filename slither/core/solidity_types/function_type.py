@@ -6,7 +6,9 @@ from slither.core.variables.function_type_variable import FunctionTypeVariable
 
 class FunctionType(Type):
     def __init__(
-        self, params: List[FunctionTypeVariable], return_values: List[FunctionTypeVariable],
+        self,
+        params: List[FunctionTypeVariable],
+        return_values: List[FunctionTypeVariable],
     ):
         assert all(isinstance(x, FunctionTypeVariable) for x in params)
         assert all(isinstance(x, FunctionTypeVariable) for x in return_values)
@@ -42,7 +44,7 @@ class FunctionType(Type):
     @property
     def parameters_signature(self) -> str:
         """
-            Return the parameters signature(without the return statetement)
+        Return the parameters signature(without the return statetement)
         """
         # Use x.type
         # x.name may be empty
@@ -52,7 +54,7 @@ class FunctionType(Type):
     @property
     def signature(self) -> str:
         """
-            Return the signature(with the return statetement if it exists)
+        Return the signature(with the return statetement if it exists)
         """
         # Use x.type
         # x.name may be empty

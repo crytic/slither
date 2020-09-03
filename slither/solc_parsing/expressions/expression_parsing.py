@@ -84,7 +84,14 @@ def find_variable(  # pylint: disable=too-many-locals,too-many-statements
     referenced_declaration: Optional[int] = None,
     is_super=False,
 ) -> Union[
-    Variable, Function, Contract, SolidityVariable, SolidityFunction, Event, Enum, Structure,
+    Variable,
+    Function,
+    Contract,
+    SolidityVariable,
+    SolidityFunction,
+    Event,
+    Enum,
+    Structure,
 ]:
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc

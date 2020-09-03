@@ -17,10 +17,10 @@ class SourceMapping(Context):
     @staticmethod
     def _compute_line(source_code, start, length):
         """
-            Compute line(s) numbers and starting/ending columns
-            from a start/end offset. All numbers start from 1.
+        Compute line(s) numbers and starting/ending columns
+        from a start/end offset. All numbers start from 1.
 
-            Not done in an efficient way
+        Not done in an efficient way
         """
         source_code = source_code.encode("utf-8")
         total_length = len(source_code)

@@ -24,8 +24,7 @@ contract B is A{
 When reading `B`'s constructor definition, we might assume that `A()` initiates the contract, but no code is executed."""
 
     def _detect(self):
-        """
-        """
+        """"""
         results = []
         for c in self.contracts:
             cst = c.constructor

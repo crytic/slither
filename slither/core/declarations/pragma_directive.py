@@ -11,7 +11,7 @@ class Pragma(SourceMapping):
     @property
     def directive(self) -> List[str]:
         """
-            list(str)
+        list(str)
         """
         return self._directive
 

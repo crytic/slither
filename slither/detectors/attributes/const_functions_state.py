@@ -45,7 +45,7 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
     )
 
     def _detect(self):
-        """ Detect the constant function changing the state
+        """Detect the constant function changing the state
 
         Recursively visit the calls
         Returns:

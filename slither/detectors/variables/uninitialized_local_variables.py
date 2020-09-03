@@ -71,7 +71,7 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
             self._detect_uninitialized(function, son, visited)
 
     def _detect(self):
-        """ Detect uninitialized local variables
+        """Detect uninitialized local variables
 
         Recursively visit the calls
         Returns:

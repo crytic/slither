@@ -5,11 +5,11 @@ from slither.core.variables.local_variable import LocalVariable
 
 class LocalVariableInitFromTuple(LocalVariable):
     """
-        Use on this pattern:
-        var(a,b) = f()
+    Use on this pattern:
+    var(a,b) = f()
 
-        It is not possible to split the variable declaration in sigleton and keep the init value
-        We init a and b with f(). get_tuple_index ret() returns which returns values of f is to be used
+    It is not possible to split the variable declaration in sigleton and keep the init value
+    We init a and b with f(). get_tuple_index ret() returns which returns values of f is to be used
 
     """
 

@@ -10,7 +10,7 @@ class AbstractOperation(abc.ABC):
     @abc.abstractmethod
     def read(self):
         """
-            Return the list of variables READ
+        Return the list of variables READ
         """
         pass  # pylint: disable=unnecessary-pass
 
@@ -18,7 +18,7 @@ class AbstractOperation(abc.ABC):
     @abc.abstractmethod
     def used(self):
         """
-            Return the list of variables used
+        Return the list of variables used
         """
         pass  # pylint: disable=unnecessary-pass
 
@@ -27,7 +27,7 @@ class Operation(Context, ChildExpression, ChildNode, AbstractOperation):
     @property
     def used(self):
         """
-            By default used is all the variables read
+        By default used is all the variables read
         """
         return self.read
 

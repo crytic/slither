@@ -55,8 +55,7 @@ class UnusedStateVars(AbstractDetector):
     WIKI_RECOMMENDATION = "Remove unused state variables."
 
     def _detect(self):
-        """ Detect unused state variables
-        """
+        """Detect unused state variables"""
         results = []
         for c in self.slither.contracts_derived:
             unusedVars = detect_unused(c)

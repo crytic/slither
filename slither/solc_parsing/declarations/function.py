@@ -48,7 +48,10 @@ class FunctionSolc:
     # elems = [(type, name)]
 
     def __init__(
-        self, function: Function, function_data: Dict, contract_parser: "ContractSolc",
+        self,
+        function: Function,
+        function_data: Dict,
+        contract_parser: "ContractSolc",
     ):
         self._slither_parser: "SlitherSolc" = contract_parser.slither_parser
         self._contract_parser = contract_parser
@@ -127,7 +130,7 @@ class FunctionSolc:
     @property
     def referenced_declaration(self) -> Optional[str]:
         """
-            Return the compact AST referenced declaration id (None for legacy AST)
+        Return the compact AST referenced declaration id (None for legacy AST)
         """
         return self._referenced_declaration
 
@@ -572,7 +575,8 @@ class FunctionSolc:
             link_underlying_nodes(node_startDoWhile, node_condition)
         else:
             link_nodes(
-                node_startDoWhile.underlying_node, node_condition.underlying_node.sons[0],
+                node_startDoWhile.underlying_node,
+                node_condition.underlying_node.sons[0],
             )
         link_underlying_nodes(statement, node_condition)
         link_underlying_nodes(node_condition, node_endDoWhile)
@@ -1150,22 +1154,22 @@ class FunctionSolc:
 
     def _remove_alone_endif(self):
         """
-            Can occur on:
-            if(..){
-                return
-            }
-            else{
-                return
-            }
+        Can occur on:
+        if(..){
+            return
+        }
+        else{
+            return
+        }
 
-            Iterate until a fix point to remove the ENDIF node
-            creates on the following pattern
-            if(){
-                return
-            }
-            else if(){
-                return
-            }
+        Iterate until a fix point to remove the ENDIF node
+        creates on the following pattern
+        if(){
+            return
+        }
+        else if(){
+            return
+        }
         """
         prev_nodes = []
         while set(prev_nodes) != set(self._node_to_nodesolc.keys()):

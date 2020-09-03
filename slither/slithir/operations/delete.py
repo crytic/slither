@@ -5,8 +5,8 @@ from slither.slithir.utils.utils import is_valid_lvalue
 
 class Delete(OperationWithLValue):
     """
-        Delete has a lvalue, as it has for effect to change the value
-        of its operand
+    Delete has a lvalue, as it has for effect to change the value
+    of its operand
     """
 
     def __init__(self, lvalue, variable):

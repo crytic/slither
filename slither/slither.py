@@ -33,26 +33,26 @@ def _check_common_things(thing_name, cls, base_cls, instances_list):
 class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
     def __init__(self, target, **kwargs):
         """
-            Args:
-                target (str | list(json) | CryticCompile)
-            Keyword Args:
-                solc (str): solc binary location (default 'solc')
-                disable_solc_warnings (bool): True to disable solc warnings (default false)
-                solc_arguments (str): solc arguments (default '')
-                ast_format (str): ast format (default '--ast-compact-json')
-                filter_paths (list(str)): list of path to filter (default [])
-                triage_mode (bool): if true, switch to triage mode (default false)
-                exclude_dependencies (bool): if true, exclude results that are only related to dependencies
-                generate_patches (bool): if true, patches are generated (json output only)
+        Args:
+            target (str | list(json) | CryticCompile)
+        Keyword Args:
+            solc (str): solc binary location (default 'solc')
+            disable_solc_warnings (bool): True to disable solc warnings (default false)
+            solc_arguments (str): solc arguments (default '')
+            ast_format (str): ast format (default '--ast-compact-json')
+            filter_paths (list(str)): list of path to filter (default [])
+            triage_mode (bool): if true, switch to triage mode (default false)
+            exclude_dependencies (bool): if true, exclude results that are only related to dependencies
+            generate_patches (bool): if true, patches are generated (json output only)
 
-                truffle_ignore (bool): ignore truffle.js presence (default false)
-                truffle_build_directory (str): build truffle directory (default 'build/contracts')
-                truffle_ignore_compile (bool): do not run truffle compile (default False)
-                truffle_version (str): use a specific truffle version (default None)
+            truffle_ignore (bool): ignore truffle.js presence (default false)
+            truffle_build_directory (str): build truffle directory (default 'build/contracts')
+            truffle_ignore_compile (bool): do not run truffle compile (default False)
+            truffle_version (str): use a specific truffle version (default None)
 
-                embark_ignore (bool): ignore embark.js presence (default false)
-                embark_ignore_compile (bool): do not run embark build (default False)
-                embark_overwrite_config (bool): overwrite original config file (default false)
+            embark_ignore (bool): ignore embark.js presence (default false)
+            embark_ignore_compile (bool): do not run embark build (default False)
+            embark_overwrite_config (bool): overwrite original config file (default false)
 
         """
         super().__init__()
