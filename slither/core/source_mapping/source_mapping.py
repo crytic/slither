@@ -6,7 +6,7 @@ from slither.core.context.context import Context
 
 class SourceMapping(Context):
     def __init__(self):
-        super(SourceMapping, self).__init__()
+        super().__init__()
         # TODO create a namedtuple for the source mapping rather than a dict
         self._source_mapping: Optional[Dict] = None
 

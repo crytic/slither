@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 class ChildNode:
     def __init__(self):
-        super(ChildNode, self).__init__()
+        super().__init__()
         self._node = None
 
     def set_node(self, node: "Node"):

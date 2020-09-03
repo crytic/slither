@@ -3,7 +3,7 @@ from slither.slithir.operations.operation import Operation
 
 class Call(Operation):
     def __init__(self):
-        super(Call, self).__init__()
+        super().__init__()
         self._arguments = []
 
     @property

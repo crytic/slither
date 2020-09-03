@@ -8,7 +8,7 @@ from slither.core.declarations.structure import Structure
 
 class NewStructure(Call, OperationWithLValue):
     def __init__(self, structure, lvalue):
-        super(NewStructure, self).__init__()
+        super().__init__()
         assert isinstance(structure, Structure)
         assert is_valid_lvalue(lvalue)
         self._structure = structure

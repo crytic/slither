@@ -12,7 +12,7 @@ class MemberAccess(ExpressionTyped):
         # assert isinstance(member_type, Type)
         # TODO member_type is not always a Type
         assert isinstance(expression, Expression)
-        super(MemberAccess, self).__init__()
+        super().__init__()
         self._type: "Type" = member_type
         self._member_name: str = member_name
         self._expression: Expression = expression

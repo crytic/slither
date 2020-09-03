@@ -114,7 +114,7 @@ class Function(ChildContract, ChildInheritance, SourceMapping):  # pylint: disab
     """
 
     def __init__(self):
-        super(Function, self).__init__()
+        super().__init__()
         self._scope: List[str] = []
         self._name: Optional[str] = None
         self._view: bool = False

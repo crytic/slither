@@ -13,7 +13,7 @@ class Member(OperationWithLValue):
         )
         assert isinstance(variable_right, Constant)
         assert isinstance(result, ReferenceVariable)
-        super(Member, self).__init__()
+        super().__init__()
         self._variable_left = variable_left
         self._variable_right = variable_right
         self._lvalue = result

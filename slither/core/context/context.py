@@ -4,7 +4,7 @@ from typing import Dict
 
 class Context:  # pylint: disable=too-few-public-methods
     def __init__(self):
-        super(Context, self).__init__()
+        super().__init__()
         self._context = {"MEMBERS": defaultdict(None)}
 
     @property

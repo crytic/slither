@@ -92,7 +92,7 @@ class UnaryOperationType(Enum):
 class UnaryOperation(ExpressionTyped):
     def __init__(self, expression, expression_type):
         assert isinstance(expression, Expression)
-        super(UnaryOperation, self).__init__()
+        super().__init__()
         self._expression: Expression = expression
         self._type: UnaryOperationType = expression_type
         if expression_type in [

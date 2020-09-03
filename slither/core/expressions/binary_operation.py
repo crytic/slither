@@ -151,7 +151,7 @@ class BinaryOperation(ExpressionTyped):
     def __init__(self, left_expression, right_expression, expression_type):
         assert isinstance(left_expression, Expression)
         assert isinstance(right_expression, Expression)
-        super(BinaryOperation, self).__init__()
+        super().__init__()
         self._expressions = [left_expression, right_expression]
         self._type: BinaryOperationType = expression_type
 

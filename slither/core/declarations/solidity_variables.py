@@ -86,7 +86,7 @@ def solidity_function_signature(name):
 
 class SolidityVariable(Context):
     def __init__(self, name: str):
-        super(SolidityVariable, self).__init__()
+        super().__init__()
         self._check_name(name)
         self._name = name
 

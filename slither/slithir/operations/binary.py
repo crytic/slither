@@ -139,7 +139,7 @@ class Binary(OperationWithLValue):
         assert is_valid_rvalue(right_variable)
         assert is_valid_lvalue(result)
         assert isinstance(operation_type, BinaryType)
-        super(Binary, self).__init__()
+        super().__init__()
         self._variables = [left_variable, right_variable]
         self._type = operation_type
         self._lvalue = result

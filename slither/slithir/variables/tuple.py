@@ -7,7 +7,7 @@ class TupleVariable(ChildNode, SlithIRVariable):
     COUNTER = 0
 
     def __init__(self, node, index=None):
-        super(TupleVariable, self).__init__()
+        super().__init__()
         if index is None:
             self._index = TupleVariable.COUNTER
             TupleVariable.COUNTER += 1

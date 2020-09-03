@@ -40,7 +40,7 @@ class Contract(ChildSlither, SourceMapping):   # pylint: disable=too-many-public
     """
 
     def __init__(self):
-        super(Contract, self).__init__()
+        super().__init__()
 
         self._name: Optional[str] = None
         self._id: Optional[int] = None

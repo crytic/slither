@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 class ChildSlither:
     def __init__(self):
-        super(ChildSlither, self).__init__()
+        super().__init__()
         self._slither = None
 
     def set_slither(self, slither: "Slither"):

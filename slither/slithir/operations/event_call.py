@@ -3,7 +3,7 @@ from slither.slithir.operations.call import Call
 
 class EventCall(Call):
     def __init__(self, name):
-        super(EventCall, self).__init__()
+        super().__init__()
         self._name = name
         # todo add instance of the Event
 

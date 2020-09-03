@@ -6,7 +6,7 @@ from slither.core.variables.local_variable import LocalVariable
 
 class LocalVariableSolc(VariableDeclarationSolc):
     def __init__(self, variable: LocalVariable, variable_data: Dict):
-        super(LocalVariableSolc, self).__init__(variable, variable_data)
+        super().__init__(variable, variable_data)
 
     @property
     def underlying_variable(self) -> LocalVariable:
@@ -30,4 +30,4 @@ class LocalVariableSolc(VariableDeclarationSolc):
             else:
                 self.underlying_variable.set_location("default")
 
-        super(LocalVariableSolc, self)._analyze_variable_attributes(attributes)
+        super()._analyze_variable_attributes(attributes)

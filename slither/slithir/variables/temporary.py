@@ -7,7 +7,7 @@ class TemporaryVariable(ChildNode, Variable):
     COUNTER = 0
 
     def __init__(self, node, index=None):
-        super(TemporaryVariable, self).__init__()
+        super().__init__()
         if index is None:
             self._index = TemporaryVariable.COUNTER
             TemporaryVariable.COUNTER += 1

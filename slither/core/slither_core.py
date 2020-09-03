@@ -43,7 +43,7 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
     """
 
     def __init__(self):
-        super(SlitherCore, self).__init__()
+        super().__init__()
         self._contracts: Dict[str, Contract] = {}
         self._filename: Optional[str] = None
         self._source_units: Dict[int, str] = {}

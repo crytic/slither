@@ -14,7 +14,7 @@ class Assignment(OperationWithLValue):
         assert is_valid_rvalue(right_variable) or isinstance(
             right_variable, (Function, TupleVariable)
         )
-        super(Assignment, self).__init__()
+        super().__init__()
         self._variables = [left_variable, right_variable]
         self._lvalue = left_variable
         self._rvalue = right_variable

@@ -5,7 +5,7 @@ from slither.core.solidity_types.type import Type
 
 class TypeConversion(ExpressionTyped):
     def __init__(self, expression, expression_type):
-        super(TypeConversion, self).__init__()
+        super().__init__()
         assert isinstance(expression, Expression)
         assert isinstance(expression_type, Type)
         self._expression: Expression = expression

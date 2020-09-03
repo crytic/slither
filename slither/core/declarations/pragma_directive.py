@@ -5,7 +5,7 @@ from slither.core.source_mapping.source_mapping import SourceMapping
 
 class Pragma(SourceMapping):
     def __init__(self, directive: List[str]):
-        super(Pragma, self).__init__()
+        super().__init__()
         self._directive = directive
 
     @property

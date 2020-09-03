@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 class ChildContract:
     def __init__(self):
-        super(ChildContract, self).__init__()
+        super().__init__()
         self._contract = None
 
     def set_contract(self, contract: "Contract"):

@@ -12,7 +12,7 @@ from slither.core.declarations.structure import Structure
 
 class LocalVariable(ChildFunction, Variable):
     def __init__(self):
-        super(LocalVariable, self).__init__()
+        super().__init__()
         self._location: Optional[str] = None
 
     def set_location(self, loc: str):

@@ -6,7 +6,7 @@ from slither.core.variables.structure_variable import StructureVariable
 
 class StructureVariableSolc(VariableDeclarationSolc):
     def __init__(self, variable: StructureVariable, variable_data: Dict):
-        super(StructureVariableSolc, self).__init__(variable, variable_data)
+        super().__init__(variable, variable_data)
 
     @property
     def underlying_variable(self) -> StructureVariable:

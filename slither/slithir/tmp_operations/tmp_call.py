@@ -22,7 +22,7 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
                 Event,
             ),
         )
-        super(TmpCall, self).__init__()
+        super().__init__()
         self._called = called
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call

@@ -38,7 +38,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#inheritance-graph"
 
     def __init__(self, slither, logger):
-        super(PrinterInheritanceGraph, self).__init__(slither, logger)
+        super().__init__(slither, logger)
 
         inheritance = [x.inheritance for x in slither.contracts]
         self.inheritance = {item for sublist in inheritance for item in sublist}

@@ -15,7 +15,7 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         # pylint: disable=too-many-arguments
         assert isinstance(destination, (Variable, SolidityVariable))
         assert isinstance(function_name, Constant)
-        super(LowLevelCall, self).__init__()
+        super().__init__()
         self._destination = destination
         self._function_name = function_name
         self._nbr_arguments = nbr_arguments

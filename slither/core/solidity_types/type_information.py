@@ -14,7 +14,7 @@ class TypeInformation(Type):
         from slither.core.declarations.contract import Contract
 
         assert isinstance(c, Contract)
-        super(TypeInformation, self).__init__()
+        super().__init__()
         self._type = c
 
     @property

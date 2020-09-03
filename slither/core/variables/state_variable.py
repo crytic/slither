@@ -5,13 +5,13 @@ from slither.core.children.child_contract import ChildContract
 from slither.utils.type import export_nested_types_from_variable
 
 if TYPE_CHECKING:
-    from ..cfg.node import Node
-    from ..declarations import Contract
+    from slither.core.cfg.node import Node
+    from slither.core.declarations import Contract
 
 
 class StateVariable(ChildContract, Variable):
     def __init__(self):
-        super(StateVariable, self).__init__()
+        super().__init__()
         self._node_initialization: Optional["Node"] = None
 
     def is_declared_by(self, contract: "Contract") -> bool:

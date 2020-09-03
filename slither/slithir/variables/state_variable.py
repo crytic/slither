@@ -6,7 +6,7 @@ class StateIRVariable(StateVariable, SlithIRVariable):  # pylint: disable=too-ma
     def __init__(self, state_variable):
         assert isinstance(state_variable, StateVariable)
 
-        super(StateIRVariable, self).__init__()
+        super().__init__()
 
         # initiate ChildContract
         self.set_contract(state_variable.contract)

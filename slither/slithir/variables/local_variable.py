@@ -7,7 +7,7 @@ class LocalIRVariable(LocalVariable, SlithIRVariable):  # pylint: disable=too-ma
     def __init__(self, local_variable):
         assert isinstance(local_variable, LocalVariable)
 
-        super(LocalIRVariable, self).__init__()
+        super().__init__()
 
         # initiate ChildContract
         self.set_function(local_variable.function)

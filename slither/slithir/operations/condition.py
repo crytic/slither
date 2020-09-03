@@ -11,7 +11,7 @@ class Condition(Operation):
 
     def __init__(self, value):
         assert is_valid_rvalue(value)
-        super(Condition, self).__init__()
+        super().__init__()
         self._value = value
 
     @property

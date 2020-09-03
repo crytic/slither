@@ -13,7 +13,7 @@ class ArrayType(Type):
             if isinstance(length, int):
                 length = Literal(length, "uint256")
             assert isinstance(length, Expression)
-        super(ArrayType, self).__init__()
+        super().__init__()
         self._type: Type = t
         self._length: Optional[Expression] = length
 

@@ -15,4 +15,5 @@ def load_evm_cfg_builder():
         logger.error("To use evm features, you need to install evm-cfg-builder")
         logger.error("Documentation: https://github.com/crytic/evm_cfg_builder")
         logger.error("Installation: pip install evm-cfg-builder")
+        # pylint: disable=raise-missing-from
         raise SlitherError("evm-cfg-builder not installed.")

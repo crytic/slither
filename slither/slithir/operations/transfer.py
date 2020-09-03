@@ -7,7 +7,7 @@ class Transfer(Call):
     def __init__(self, destination, value):
         assert isinstance(destination, (Variable, SolidityVariable))
         self._destination = destination
-        super(Transfer, self).__init__()
+        super().__init__()
 
         self._call_value = value
 

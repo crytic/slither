@@ -151,7 +151,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     """
 
     def __init__(self, node_type: NodeType, node_id: int):
-        super(Node, self).__init__()
+        super().__init__()
         self._node_type = node_type
 
         # TODO: rename to explicit CFG
@@ -903,9 +903,10 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                         self._high_level_calls.append(
                             (ir.destination.type.type, ir.function)
                         )
-                    except AttributeError:
+                    except AttributeError as error:
+                        #  pylint: disable=raise-missing-from
                         raise SlitherException(
-                            f"Function not found on {ir}. Please try compiling with a recent Solidity version."
+                            f"Function not found on {ir}. Please try compiling with a recent Solidity version. {error}"
                         )
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)

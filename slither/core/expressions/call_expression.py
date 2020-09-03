@@ -6,7 +6,7 @@ from slither.core.expressions.expression import Expression
 class CallExpression(Expression):  # pylint: disable=too-many-instance-attributes
     def __init__(self, called, arguments, type_call):
         assert isinstance(called, Expression)
-        super(CallExpression, self).__init__()
+        super().__init__()
         self._called: Expression = called
         self._arguments: List[Expression] = arguments
         self._type_call: str = type_call

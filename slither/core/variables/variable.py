@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class Variable(SourceMapping):
     def __init__(self):
-        super(Variable, self).__init__()
+        super().__init__()
         self._name: Optional[str] = None
         self._initial_expression: Optional["Expression"] = None
         self._type: Optional[Type] = None

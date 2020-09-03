@@ -34,7 +34,7 @@ class Unary(OperationWithLValue):
     def __init__(self, result, variable, operation_type):
         assert is_valid_rvalue(variable)
         assert is_valid_lvalue(result)
-        super(Unary, self).__init__()
+        super().__init__()
         self._variable = variable
         self._type = operation_type
         self._lvalue = result

@@ -6,7 +6,7 @@ from slither.slithir.variables.reference import ReferenceVariable
 
 class Index(OperationWithLValue):
     def __init__(self, result, left_variable, right_variable, index_type):
-        super(Index, self).__init__()
+        super().__init__()
         assert is_valid_lvalue(
             left_variable
         ) or left_variable == SolidityVariableComposed("msg.data")

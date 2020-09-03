@@ -8,7 +8,7 @@ class NewElementaryType(Call, OperationWithLValue):
     def __init__(self, new_type, lvalue):
         assert isinstance(new_type, ElementaryType)
         assert is_valid_lvalue(lvalue)
-        super(NewElementaryType, self).__init__()
+        super().__init__()
         self._type = new_type
         self._lvalue = lvalue
 

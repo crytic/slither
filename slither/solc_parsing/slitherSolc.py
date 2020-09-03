@@ -21,7 +21,7 @@ logger.setLevel(logging.INFO)
 class SlitherSolc:
     # pylint: disable=no-self-use
     def __init__(self, filename: str, core: SlitherCore):
-        super(SlitherSolc, self).__init__()
+        super().__init__()
         core.filename = filename
         self._contracts_by_id: Dict[int, ContractSolc] = {}
         self._analyzed = False

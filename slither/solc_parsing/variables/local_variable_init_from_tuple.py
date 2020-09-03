@@ -10,7 +10,7 @@ class LocalVariableInitFromTupleSolc(VariableDeclarationSolc):
     def __init__(
         self, variable: LocalVariableInitFromTuple, variable_data: Dict, index: int
     ):
-        super(LocalVariableInitFromTupleSolc, self).__init__(variable, variable_data)
+        super().__init__(variable, variable_data)
         variable.tuple_index = index
 
     @property

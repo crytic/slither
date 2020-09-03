@@ -3,11 +3,12 @@ import os
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
+# pylint: disable= no-name-in-module
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.printers.abstract_printer import AbstractPrinter
-from .core.slither_core import SlitherCore
-from .exceptions import SlitherError
-from .solc_parsing.slitherSolc import SlitherSolc
+from slither.core.slither_core import SlitherCore
+from slither.exceptions import SlitherError
+from slither.solc_parsing.slitherSolc import SlitherSolc
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -73,7 +74,8 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
                     crytic_compile = CryticCompile(target, **kwargs)
                 self._crytic_compile = crytic_compile
             except InvalidCompilation as e:
-                raise SlitherError("Invalid compilation: \n" + str(e))
+                # pylint: disable=raise-missing-from
+                raise SlitherError(f"Invalid compilation: \n{str(e)}")
             for path, ast in crytic_compile.asts.items():
                 self._parser.parse_contracts_from_loaded_json(ast, path)
                 self.add_source_code(path)

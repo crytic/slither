@@ -136,7 +136,7 @@ class ElementaryType(Type):
     def __init__(self, t):
         if t not in ElementaryTypeName:
             raise NonElementaryType
-        super(ElementaryType, self).__init__()
+        super().__init__()
         if t == "uint":
             t = "uint256"
         elif t == "int":

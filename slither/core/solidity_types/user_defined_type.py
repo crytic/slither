@@ -17,7 +17,7 @@ class UserDefinedType(Type):
         from slither.core.declarations.contract import Contract
 
         assert isinstance(t, (Contract, Enum, Structure))
-        super(UserDefinedType, self).__init__()
+        super().__init__()
         self._type = t
 
     @property

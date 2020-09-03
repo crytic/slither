@@ -10,7 +10,7 @@ from slither.utils.arithmetic import convert_subdenomination
 @total_ordering
 class Constant(SlithIRVariable):
     def __init__(self, val, constant_type=None, subdenomination=None):  # pylint: disable=too-many-branches
-        super(Constant, self).__init__()
+        super().__init__()
         assert isinstance(val, str)
 
         self._original_value = val
