@@ -5,8 +5,8 @@ from slither.slithir.utils.utils import is_valid_rvalue
 
 class Condition(Operation):
     """
-       Condition
-       Only present as last operation in conditional node
+    Condition
+    Only present as last operation in conditional node
     """
 
     def __init__(self, value):

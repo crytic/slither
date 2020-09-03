@@ -10,9 +10,9 @@ class CFG(AbstractPrinter):
 
     def output(self, filename):
         """
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
 
         info = ""

@@ -12,7 +12,7 @@ from slither.slithir.variables.constant import Constant
 
 class HighLevelCall(Call, OperationWithLValue):
     """
-        High level message call
+    High level message call
     """
 
     # pylint: disable=too-many-arguments,too-many-instance-attributes

@@ -79,7 +79,7 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
             self._detect_uninitialized(function, son, visited)
 
     def _detect(self):
-        """ Detect uninitialized storage variables
+        """Detect uninitialized storage variables
 
         Recursively visit the calls
         Returns:

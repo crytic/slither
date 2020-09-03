@@ -55,9 +55,9 @@ class PrinterEVM(AbstractPrinter):
 
     def output(self, _filename):
         """
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
 
         txt = ""
@@ -101,7 +101,8 @@ class PrinterEVM(AbstractPrinter):
                     )
                     txt += green(
                         "\t\tSource line {}: {}\n".format(
-                            node_source_line, contract_file_lines[node_source_line - 1].rstrip(),
+                            node_source_line,
+                            contract_file_lines[node_source_line - 1].rstrip(),
                         )
                     )
                     txt += magenta("\t\tEVM Instructions:\n")
@@ -123,7 +124,8 @@ class PrinterEVM(AbstractPrinter):
                     )
                     txt += green(
                         "\t\tSource line {}: {}\n".format(
-                            node_source_line, contract_file_lines[node_source_line - 1].rstrip(),
+                            node_source_line,
+                            contract_file_lines[node_source_line - 1].rstrip(),
                         )
                     )
                     txt += magenta("\t\tEVM Instructions:\n")

@@ -49,7 +49,7 @@ contract DerivedContract is BaseContract{
     WIKI_RECOMMENDATION = "Remove the state variable shadowing."
 
     def _detect(self):
-        """ Detect shadowing
+        """Detect shadowing
 
         Recursively visit the calls
         Returns:

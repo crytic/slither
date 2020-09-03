@@ -22,11 +22,11 @@ class PrinterInheritance(AbstractPrinter):
 
     def output(self, filename):
         """
-            Output the inheritance relation
+        Output the inheritance relation
 
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
         info = "Inheritance\n"
 

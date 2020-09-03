@@ -32,11 +32,11 @@ class VariableDeclarationSolc:
         self, variable: Variable, variable_data: Dict
     ):  # pylint: disable=too-many-branches
         """
-            A variable can be declared through a statement, or directly.
-            If it is through a statement, the following children may contain
-            the init value.
-            It may be possible that the variable is declared through a statement,
-            but the init value is declared at the VariableDeclaration children level
+        A variable can be declared through a statement, or directly.
+        If it is through a statement, the following children may contain
+        the init value.
+        It may be possible that the variable is declared through a statement,
+        but the init value is declared at the VariableDeclaration children level
         """
 
         self._variable = variable
@@ -97,8 +97,8 @@ class VariableDeclarationSolc:
     @property
     def reference_id(self) -> int:
         """
-            Return the solc id. It can be compared with the referencedDeclaration attr
-            Returns None if it was not parsed (legacy AST)
+        Return the solc id. It can be compared with the referencedDeclaration attr
+        Returns None if it was not parsed (legacy AST)
         """
         return self._reference_id
 

@@ -16,8 +16,8 @@ class LocalVariableSolc(VariableDeclarationSolc):
 
     def _analyze_variable_attributes(self, attributes: Dict):
         """'
-            Variable Location
-            Can be storage/memory or default
+        Variable Location
+        Can be storage/memory or default
         """
         if "storageLocation" in attributes:
             location = attributes["storageLocation"]

@@ -35,7 +35,7 @@ Bob calls `kill` and destructs the contract."""
 
     @staticmethod
     def detect_suicidal_func(func):
-        """ Detect if the function is suicidal
+        """Detect if the function is suicidal
 
         Detect the public functions calling suicide/selfdestruct without protection
         Returns:
@@ -65,8 +65,7 @@ Bob calls `kill` and destructs the contract."""
         return ret
 
     def _detect(self):
-        """ Detect the suicidal functions
-        """
+        """Detect the suicidal functions"""
         results = []
         for c in self.contracts:
             functions = self.detect_suicidal(c)

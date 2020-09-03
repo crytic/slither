@@ -43,8 +43,7 @@ class Assembly(AbstractDetector):
         return ret
 
     def _detect(self):
-        """ Detect the functions that use inline assembly
-        """
+        """Detect the functions that use inline assembly"""
         results = []
         for c in self.contracts:
             values = self.detect_assembly(c)

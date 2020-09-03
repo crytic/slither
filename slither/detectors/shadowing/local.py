@@ -48,7 +48,7 @@ contract Bug {
     OVERSHADOWED_EVENT = "event"
 
     def detect_shadowing_definitions(self, contract):  # pylint: disable=too-many-branches
-        """ Detects if functions, access modifiers, events, state variables, and local variables are named after
+        """Detects if functions, access modifiers, events, state variables, and local variables are named after
         reserved keywords. Any such definitions are returned in a list.
 
         Returns:
@@ -91,7 +91,7 @@ contract Bug {
         return result
 
     def _detect(self):
-        """ Detect shadowing local variables
+        """Detect shadowing local variables
 
         Recursively visit the calls
         Returns:

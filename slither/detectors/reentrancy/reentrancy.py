@@ -127,7 +127,8 @@ class AbstractState:
                 )
                 self._reads = union_dict(self._reads, father.context[detector.KEY].reads)
                 self._reads_prior_calls = union_dict(
-                    self.reads_prior_calls, father.context[detector.KEY].reads_prior_calls,
+                    self.reads_prior_calls,
+                    father.context[detector.KEY].reads_prior_calls,
                 )
 
     def analyze_node(self, node, detector):
@@ -191,14 +192,14 @@ class AbstractState:
 
 def _filter_if(node):
     """
-        Check if the node is a condtional node where
-        there is an external call checked
-        Heuristic:
-            - The call is a IF node
-            - It contains a, external call
-            - The condition is the negation (!)
+    Check if the node is a condtional node where
+    there is an external call checked
+    Heuristic:
+        - The call is a IF node
+        - It contains a, external call
+        - The condition is the negation (!)
 
-        This will work only on naive implementation
+    This will work only on naive implementation
     """
     return (
         isinstance(node.expression, UnaryOperation)
@@ -215,12 +216,12 @@ class Reentrancy(AbstractDetector):
     @staticmethod
     def can_callback(ir):
         """
-            Detect if the node contains a call that can
-            be used to re-entrance
+        Detect if the node contains a call that can
+        be used to re-entrance
 
-            Consider as valid target:
-            - low level call
-            - high level call
+        Consider as valid target:
+        - low level call
+        - high level call
 
 
         """
@@ -229,20 +230,20 @@ class Reentrancy(AbstractDetector):
     @staticmethod
     def can_send_eth(ir):
         """
-            Detect if the node can send eth
+        Detect if the node can send eth
         """
         return isinstance(ir, Call) and ir.can_send_eth()
 
     def _explore(self, node, visited, skip_father=None):
         """
-            Explore the CFG and look for re-entrancy
-            Heuristic: There is a re-entrancy if a state variable is written
-                        after an external call
+        Explore the CFG and look for re-entrancy
+        Heuristic: There is a re-entrancy if a state variable is written
+                    after an external call
 
-            node.context will contains the external calls executed
-            It contains the calls executed in father nodes
+        node.context will contains the external calls executed
+        It contains the calls executed in father nodes
 
-            if node.context is not empty, and variables are written, a re-entrancy is possible
+        if node.context is not empty, and variables are written, a re-entrancy is possible
         """
         if node in visited:
             return
@@ -289,8 +290,7 @@ class Reentrancy(AbstractDetector):
                 function.context[self.KEY] = True
 
     def _detect(self):
-        """
-        """
+        """"""
         # if a node was already visited by another path
         # we will only explore it if the traversal brings
         # new variables written

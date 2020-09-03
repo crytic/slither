@@ -27,7 +27,7 @@ class ExternalFunction(AbstractDetector):
 
     @staticmethod
     def detect_functions_called(contract):
-        """ Returns a list of InternallCall, SolidityCall
+        """Returns a list of InternallCall, SolidityCall
             calls made in a function
 
         Returns:

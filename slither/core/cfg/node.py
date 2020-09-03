@@ -236,7 +236,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     @property
     def type(self) -> NodeType:
         """
-            NodeType: type of the node
+        NodeType: type of the node
         """
         return self._node_type
 
@@ -262,49 +262,49 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     @property
     def variables_read(self) -> List[Variable]:
         """
-            list(Variable): Variables read (local/state/solidity)
+        list(Variable): Variables read (local/state/solidity)
         """
         return list(self._vars_read)
 
     @property
     def state_variables_read(self) -> List[StateVariable]:
         """
-            list(StateVariable): State variables read
+        list(StateVariable): State variables read
         """
         return list(self._state_vars_read)
 
     @property
     def local_variables_read(self) -> List[LocalVariable]:
         """
-            list(LocalVariable): Local variables read
+        list(LocalVariable): Local variables read
         """
         return list(self._local_vars_read)
 
     @property
     def solidity_variables_read(self) -> List[SolidityVariable]:
         """
-            list(SolidityVariable): State variables read
+        list(SolidityVariable): State variables read
         """
         return list(self._solidity_vars_read)
 
     @property
     def ssa_variables_read(self) -> List["SlithIRVariable"]:
         """
-            list(Variable): Variables read (local/state/solidity)
+        list(Variable): Variables read (local/state/solidity)
         """
         return list(self._ssa_vars_read)
 
     @property
     def ssa_state_variables_read(self) -> List[StateIRVariable]:
         """
-            list(StateVariable): State variables read
+        list(StateVariable): State variables read
         """
         return list(self._ssa_state_vars_read)
 
     @property
     def ssa_local_variables_read(self) -> List[LocalIRVariable]:
         """
-            list(LocalVariable): Local variables read
+        list(LocalVariable): Local variables read
         """
         return list(self._ssa_local_vars_read)
 
@@ -323,42 +323,42 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     @property
     def variables_written(self) -> List[Variable]:
         """
-            list(Variable): Variables written (local/state/solidity)
+        list(Variable): Variables written (local/state/solidity)
         """
         return list(self._vars_written)
 
     @property
     def state_variables_written(self) -> List[StateVariable]:
         """
-            list(StateVariable): State variables written
+        list(StateVariable): State variables written
         """
         return list(self._state_vars_written)
 
     @property
     def local_variables_written(self) -> List[LocalVariable]:
         """
-            list(LocalVariable): Local variables written
+        list(LocalVariable): Local variables written
         """
         return list(self._local_vars_written)
 
     @property
     def ssa_variables_written(self) -> List["SlithIRVariable"]:
         """
-            list(Variable): Variables written (local/state/solidity)
+        list(Variable): Variables written (local/state/solidity)
         """
         return list(self._ssa_vars_written)
 
     @property
     def ssa_state_variables_written(self) -> List[StateIRVariable]:
         """
-            list(StateVariable): State variables written
+        list(StateVariable): State variables written
         """
         return list(self._ssa_state_vars_written)
 
     @property
     def ssa_local_variables_written(self) -> List[LocalIRVariable]:
         """
-            list(LocalVariable): Local variables written
+        list(LocalVariable): Local variables written
         """
         return list(self._ssa_local_vars_written)
 
@@ -380,49 +380,49 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     @property
     def internal_calls(self) -> List["InternalCallType"]:
         """
-            list(Function or SolidityFunction): List of internal/soldiity function calls
+        list(Function or SolidityFunction): List of internal/soldiity function calls
         """
         return list(self._internal_calls)
 
     @property
     def solidity_calls(self) -> List[SolidityFunction]:
         """
-            list(SolidityFunction): List of Soldity calls
+        list(SolidityFunction): List of Soldity calls
         """
         return list(self._solidity_calls)
 
     @property
     def high_level_calls(self) -> List["HighLevelCallType"]:
         """
-            list((Contract, Function|Variable)):
-            List of high level calls (external calls).
-            A variable is called in case of call to a public state variable
-            Include library calls
+        list((Contract, Function|Variable)):
+        List of high level calls (external calls).
+        A variable is called in case of call to a public state variable
+        Include library calls
         """
         return list(self._high_level_calls)
 
     @property
     def library_calls(self) -> List["LibraryCallType"]:
         """
-            list((Contract, Function)):
-            Include library calls
+        list((Contract, Function)):
+        Include library calls
         """
         return list(self._library_calls)
 
     @property
     def low_level_calls(self) -> List["LowLevelCallType"]:
         """
-            list((Variable|SolidityVariable, str)): List of low_level call
-            A low level call is defined by
-            - the variable called
-            - the name of the function (call/delegatecall/codecall)
+        list((Variable|SolidityVariable, str)): List of low_level call
+        A low level call is defined by
+        - the variable called
+        - the name of the function (call/delegatecall/codecall)
         """
         return list(self._low_level_calls)
 
     @property
     def external_calls_as_expressions(self) -> List[Expression]:
         """
-            list(CallExpression): List of message calls (that creates a transaction)
+        list(CallExpression): List of message calls (that creates a transaction)
         """
         return self._external_calls_as_expressions
 
@@ -433,7 +433,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     @property
     def internal_calls_as_expressions(self) -> List[Expression]:
         """
-            list(CallExpression): List of internal calls (that dont create a transaction)
+        list(CallExpression): List of internal calls (that dont create a transaction)
         """
         return self._internal_calls_as_expressions
 
@@ -497,7 +497,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     @property
     def expression(self) -> Optional[Expression]:
         """
-            Expression: Expression of the node
+        Expression: Expression of the node
         """
         return self._expression
 
@@ -588,7 +588,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     ###################################################################################
 
     def add_father(self, father: "Node"):
-        """ Add a father node
+        """Add a father node
 
         Args:
             father: father to add
@@ -596,7 +596,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._fathers.append(father)
 
     def set_fathers(self, fathers: List["Node"]):
-        """ Set the father nodes
+        """Set the father nodes
 
         Args:
             fathers: list of fathers to add
@@ -605,7 +605,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
     @property
     def fathers(self) -> List["Node"]:
-        """ Returns the father nodes
+        """Returns the father nodes
 
         Returns:
             list(Node): list of fathers
@@ -613,7 +613,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         return list(self._fathers)
 
     def remove_father(self, father: "Node"):
-        """ Remove the father node. Do nothing if the node is not a father
+        """Remove the father node. Do nothing if the node is not a father
 
         Args:
             :param father:
@@ -621,7 +621,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._fathers = [x for x in self._fathers if x.node_id != father.node_id]
 
     def remove_son(self, son: "Node"):
-        """ Remove the son node. Do nothing if the node is not a son
+        """Remove the son node. Do nothing if the node is not a son
 
         Args:
             :param son:
@@ -629,7 +629,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._sons = [x for x in self._sons if x.node_id != son.node_id]
 
     def add_son(self, son: "Node"):
-        """ Add a son node
+        """Add a son node
 
         Args:
             son: son to add
@@ -637,7 +637,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._sons.append(son)
 
     def set_sons(self, sons: List["Node"]):
-        """ Set the son nodes
+        """Set the son nodes
 
         Args:
             sons: list of fathers to add
@@ -646,7 +646,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
     @property
     def sons(self) -> List["Node"]:
-        """ Returns the son nodes
+        """Returns the son nodes
 
         Returns:
             list(Node): list of sons
@@ -674,7 +674,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
     @property
     def irs(self) -> List[Operation]:
-        """ Returns the slithIR representation
+        """Returns the slithIR representation
 
         return
             list(slithIR.Operation)
@@ -683,7 +683,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
     @property
     def irs_ssa(self) -> List[Operation]:
-        """ Returns the slithIR representation with SSA
+        """Returns the slithIR representation with SSA
 
         return
             list(slithIR.Operation)
@@ -696,7 +696,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
     def add_ssa_ir(self, ir: Operation):
         """
-            Use to place phi operation
+        Use to place phi operation
         """
         ir.set_node(self)
         self._irs_ssa.append(ir)
@@ -733,8 +733,8 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     @property
     def dominators(self) -> Set["Node"]:
         """
-            Returns:
-                set(Node)
+        Returns:
+            set(Node)
         """
         return self._dominators
 
@@ -745,8 +745,8 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     @property
     def immediate_dominator(self) -> Optional["Node"]:
         """
-            Returns:
-                Node or None
+        Returns:
+            Node or None
         """
         return self._immediate_dominator
 
@@ -757,16 +757,16 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     @property
     def dominance_frontier(self) -> Set["Node"]:
         """
-            Returns:
-                set(Node)
+        Returns:
+            set(Node)
         """
         return self._dominance_frontier
 
     @dominance_frontier.setter
     def dominance_frontier(self, doms: Set["Node"]):
         """
-            Returns:
-                set(Node)
+        Returns:
+            set(Node)
         """
         self._dominance_frontier = doms
 
@@ -798,11 +798,15 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     ###################################################################################
 
     @property
-    def phi_origins_local_variables(self,) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
+    def phi_origins_local_variables(
+        self,
+    ) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
         return self._phi_origins_local_variables
 
     @property
-    def phi_origins_state_variables(self,) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
+    def phi_origins_state_variables(
+        self,
+    ) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
         return self._phi_origins_state_variables
 
     # @property

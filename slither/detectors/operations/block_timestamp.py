@@ -36,7 +36,9 @@ def _timestamp(func: Function) -> List[Node]:
     return sorted(list(ret), key=lambda x: x.node_id)
 
 
-def _detect_dangerous_timestamp(contract: Contract,) -> List[Tuple[Function, List[Node]]]:
+def _detect_dangerous_timestamp(
+    contract: Contract,
+) -> List[Tuple[Function, List[Node]]]:
     """
     Args:
         contract (Contract)
@@ -68,8 +70,7 @@ class Timestamp(AbstractDetector):
     WIKI_RECOMMENDATION = "Avoid relying on `block.timestamp`."
 
     def _detect(self):
-        """
-        """
+        """"""
         results = []
 
         for c in self.contracts:

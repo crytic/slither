@@ -142,8 +142,11 @@ def json_serializable(cls):
     # TODO: the next line is a quick workaround to prevent pylint from crashing
     # It can be removed once https://github.com/PyCQA/pylint/pull/3810 is merged
     my_super = super
+
     def as_dict(self):
-        yield {name: value for name, value in zip(self._fields, iter(my_super(cls, self).__iter__()))}
+        yield {
+            name: value for name, value in zip(self._fields, iter(my_super(cls, self).__iter__()))
+        }
 
     cls.__iter__ = as_dict
     return cls
@@ -331,11 +334,11 @@ class Echidna(AbstractPrinter):
 
     def output(self, filename):  # pylint: disable=too-many-locals
         """
-            Output the inheritance relation
+        Output the inheritance relation
 
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
 
         payable = _extract_payable(self.slither)

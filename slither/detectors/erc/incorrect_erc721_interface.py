@@ -81,7 +81,7 @@ contract Token{
 
     @staticmethod
     def detect_incorrect_erc721_interface(contract):
-        """ Detect incorrect ERC721 interface
+        """Detect incorrect ERC721 interface
 
         Returns:
             list(str) : list of incorrect function signatures
@@ -100,7 +100,7 @@ contract Token{
         return functions
 
     def _detect(self):
-        """ Detect incorrect erc721 interface
+        """Detect incorrect erc721 interface
 
         Returns:
             dict: [contract name] = set(str)  events

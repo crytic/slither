@@ -132,7 +132,8 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
                 found = re.findall("mapping\(([a-zA-Z0-9\.]*) => ([a-zA-Z0-9\.\[\]]*)\)", name)
             else:
                 found = re.findall(
-                    "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)", name,
+                    "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)",
+                    name,
                 )
             assert len(found) == 1
             from_ = found[0][0]
@@ -188,7 +189,11 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     if t[key] == "UserDefinedTypeName":
         if is_compact_ast:
             return _find_from_type_name(
-                t["typeDescriptions"]["typeString"], contract, contracts, structures, enums,
+                t["typeDescriptions"]["typeString"],
+                contract,
+                contracts,
+                structures,
+                enums,
             )
 
         # Determine if we have a type node (otherwise we use the name node, as some older solc did not have 'type').

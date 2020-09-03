@@ -115,7 +115,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         ]
 
     def _detect(self):
-        """ Detect uninitialized state variables
+        """Detect uninitialized state variables
 
         Recursively visit the calls
         Returns:

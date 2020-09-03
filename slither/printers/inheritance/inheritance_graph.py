@@ -94,7 +94,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
     def _summary(self, contract):
         """
-            Build summary using HTML
+        Build summary using HTML
         """
         ret = ""
 
@@ -185,9 +185,9 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
     def output(self, filename):
         """
-            Output the graph in filename
-            Args:
-                filename(string)
+        Output the graph in filename
+        Args:
+            filename(string)
         """
 
         if filename == "":

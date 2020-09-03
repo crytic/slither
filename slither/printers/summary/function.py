@@ -24,9 +24,9 @@ class FunctionSummary(AbstractPrinter):
 
     def output(self, _filename):  # pylint: disable=too-many-locals
         """
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
 
         all_tables = []
@@ -65,11 +65,26 @@ class FunctionSummary(AbstractPrinter):
                 internal_calls = self._convert(internal_calls)
                 external_calls = self._convert(external_calls)
                 table.add_row(
-                    [f_name, visi, modifiers, read, write, internal_calls, external_calls,]
+                    [
+                        f_name,
+                        visi,
+                        modifiers,
+                        read,
+                        write,
+                        internal_calls,
+                        external_calls,
+                    ]
                 )
             txt += "\n \n" + str(table)
             table = MyPrettyTable(
-                ["Modifiers", "Visibility", "Read", "Write", "Internal Calls", "External Calls",]
+                [
+                    "Modifiers",
+                    "Visibility",
+                    "Read",
+                    "Write",
+                    "Internal Calls",
+                    "External Calls",
+                ]
             )
             for (
                 _c_name,

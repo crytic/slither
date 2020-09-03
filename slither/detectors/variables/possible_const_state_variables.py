@@ -67,8 +67,7 @@ class ConstCandidateStateVars(AbstractDetector):
         return False
 
     def _detect(self):
-        """ Detect state variables that could be const
-        """
+        """Detect state variables that could be const"""
         results = []
 
         all_variables = [c.state_variables for c in self.slither.contracts]

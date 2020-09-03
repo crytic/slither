@@ -53,7 +53,10 @@ ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
 
 class ModifierStatements:
     def __init__(
-        self, modifier: Union["Contract", "Function"], entry_point: "Node", nodes: List["Node"],
+        self,
+        modifier: Union["Contract", "Function"],
+        entry_point: "Node",
+        nodes: List["Node"],
     ):
         self._modifier = modifier
         self._entry_point = entry_point
@@ -107,7 +110,7 @@ class Function(
     ChildContract, ChildInheritance, SourceMapping
 ):  # pylint: disable=too-many-public-methods
     """
-        Function class
+    Function class
     """
 
     def __init__(self):
@@ -206,7 +209,7 @@ class Function(
     @property
     def name(self) -> str:
         """
-            str: function name
+        str: function name
         """
         if self._name == "" and self._function_type == FunctionType.CONSTRUCTOR:
             return "constructor"
@@ -241,8 +244,8 @@ class Function(
     @property
     def full_name(self) -> str:
         """
-            str: func_name(type1,type2)
-            Return the function signature without the return values
+        str: func_name(type1,type2)
+        Return the function signature without the return values
         """
         name, parameters, _ = self.signature
         return ".".join(self._scope + [name]) + "(" + ",".join(parameters) + ")"
@@ -250,8 +253,8 @@ class Function(
     @property
     def canonical_name(self) -> str:
         """
-            str: contract.func_name(type1,type2)
-            Return the function signature without the return values
+        str: contract.func_name(type1,type2)
+        Return the function signature without the return values
         """
         name, parameters, _ = self.signature
         return (
@@ -339,15 +342,15 @@ class Function(
     @property
     def is_constructor(self) -> bool:
         """
-            bool: True if the function is the constructor
+        bool: True if the function is the constructor
         """
         return self._function_type == FunctionType.CONSTRUCTOR
 
     @property
     def is_constructor_variables(self) -> bool:
         """
-            bool: True if the function is the constructor of the variables
-            Slither has inbuilt functions to hold the state variables initialization
+        bool: True if the function is the constructor of the variables
+        Slither has inbuilt functions to hold the state variables initialization
         """
         return self._function_type in [
             FunctionType.CONSTRUCTOR_VARIABLES,
@@ -382,7 +385,7 @@ class Function(
     @property
     def payable(self) -> bool:
         """
-            bool: True if the function is payable
+        bool: True if the function is payable
         """
         return self._payable
 
@@ -400,7 +403,7 @@ class Function(
     @property
     def visibility(self) -> str:
         """
-            str: Function visibility
+        str: Function visibility
         """
         assert self._visibility is not None
         return self._visibility
@@ -415,7 +418,7 @@ class Function(
     @property
     def view(self) -> bool:
         """
-            bool: True if the function is declared as view
+        bool: True if the function is declared as view
         """
         return self._view
 
@@ -426,7 +429,7 @@ class Function(
     @property
     def pure(self) -> bool:
         """
-            bool: True if the function is declared as pure
+        bool: True if the function is declared as pure
         """
         return self._pure
 
@@ -460,7 +463,7 @@ class Function(
     @property
     def is_implemented(self) -> bool:
         """
-            bool: True if the function is implemented
+        bool: True if the function is implemented
         """
         return self._is_implemented
 
@@ -471,7 +474,7 @@ class Function(
     @property
     def is_empty(self) -> bool:
         """
-            bool: True if the function is empty, None if the function is an interface
+        bool: True if the function is empty, None if the function is an interface
         """
         return self._is_empty
 
@@ -489,7 +492,7 @@ class Function(
     @property
     def nodes(self) -> List["Node"]:
         """
-            list(Node): List of the nodes
+        list(Node): List of the nodes
         """
         return list(self._nodes)
 
@@ -500,7 +503,7 @@ class Function(
     @property
     def entry_point(self) -> "Node":
         """
-            Node: Entry point of the function
+        Node: Entry point of the function
         """
         return self._entry_point
 
@@ -548,7 +551,7 @@ class Function(
     @property
     def parameters(self) -> List["LocalVariable"]:
         """
-            list(LocalVariable): List of the parameters
+        list(LocalVariable): List of the parameters
         """
         return list(self._parameters)
 
@@ -558,7 +561,7 @@ class Function(
     @property
     def parameters_ssa(self) -> List["LocalIRVariable"]:
         """
-            list(LocalIRVariable): List of the parameters (SSA form)
+        list(LocalIRVariable): List of the parameters (SSA form)
         """
         return list(self._parameters_ssa)
 
@@ -575,8 +578,8 @@ class Function(
     @property
     def return_type(self) -> Optional[List[Type]]:
         """
-            Return the list of return type
-            If no return, return None
+        Return the list of return type
+        If no return, return None
         """
         returns = self.returns
         if returns:
@@ -586,16 +589,16 @@ class Function(
     @property
     def type(self) -> Optional[List[Type]]:
         """
-            Return the list of return type
-            If no return, return None
-            Alias of return_type
+        Return the list of return type
+        If no return, return None
+        Alias of return_type
         """
         return self.return_type
 
     @property
     def returns(self) -> List["LocalVariable"]:
         """
-            list(LocalVariable): List of the return variables
+        list(LocalVariable): List of the return variables
         """
         return list(self._returns)
 
@@ -605,7 +608,7 @@ class Function(
     @property
     def returns_ssa(self) -> List["LocalIRVariable"]:
         """
-            list(LocalIRVariable): List of the return variables (SSA form)
+        list(LocalIRVariable): List of the return variables (SSA form)
         """
         return list(self._returns_ssa)
 
@@ -622,8 +625,8 @@ class Function(
     @property
     def modifiers(self) -> List[Union["Contract", "Function"]]:
         """
-            list(Modifier): List of the modifiers
-            Can be contract for constructor's calls
+        list(Modifier): List of the modifiers
+        Can be contract for constructor's calls
 
         """
         return [c.modifier for c in self._modifiers]
@@ -634,17 +637,17 @@ class Function(
     @property
     def modifiers_statements(self) -> List[ModifierStatements]:
         """
-            list(ModifierCall): List of the modifiers call (include expression and irs)
+        list(ModifierCall): List of the modifiers call (include expression and irs)
         """
         return list(self._modifiers)
 
     @property
     def explicit_base_constructor_calls(self) -> List["Function"]:
         """
-            list(Function): List of the base constructors called explicitly by this presumed constructor definition.
+        list(Function): List of the base constructors called explicitly by this presumed constructor definition.
 
-                            Base constructors implicitly or explicitly called by the contract definition will not be
-                            included.
+                        Base constructors implicitly or explicitly called by the contract definition will not be
+                        included.
         """
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
         return [
@@ -656,7 +659,7 @@ class Function(
     @property
     def explicit_base_constructor_calls_statements(self) -> List[ModifierStatements]:
         """
-            list(ModifierCall): List of the base constructors called explicitly by this presumed constructor definition.
+        list(ModifierCall): List of the base constructors called explicitly by this presumed constructor definition.
 
         """
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
@@ -675,15 +678,15 @@ class Function(
     @property
     def variables(self) -> List[LocalVariable]:
         """
-            Return all local variables
-            Include paramters and return values
+        Return all local variables
+        Include paramters and return values
         """
         return list(self._variables.values())
 
     @property
     def local_variables(self) -> List[LocalVariable]:
         """
-            Return all local variables (dont include paramters and return values)
+        Return all local variables (dont include paramters and return values)
         """
         return list(set(self.variables) - set(self.returns) - set(self.parameters))
 
@@ -694,42 +697,42 @@ class Function(
     @property
     def variables_read(self) -> List["Variable"]:
         """
-            list(Variable): Variables read (local/state/solidity)
+        list(Variable): Variables read (local/state/solidity)
         """
         return list(self._vars_read)
 
     @property
     def variables_written(self) -> List["Variable"]:
         """
-            list(Variable): Variables written (local/state/solidity)
+        list(Variable): Variables written (local/state/solidity)
         """
         return list(self._vars_written)
 
     @property
     def state_variables_read(self) -> List["StateVariable"]:
         """
-            list(StateVariable): State variables read
+        list(StateVariable): State variables read
         """
         return list(self._state_vars_read)
 
     @property
     def solidity_variables_read(self) -> List["SolidityVariable"]:
         """
-            list(SolidityVariable): Solidity variables read
+        list(SolidityVariable): Solidity variables read
         """
         return list(self._solidity_vars_read)
 
     @property
     def state_variables_written(self) -> List["StateVariable"]:
         """
-            list(StateVariable): State variables written
+        list(StateVariable): State variables written
         """
         return list(self._state_vars_written)
 
     @property
     def variables_read_or_written(self) -> List["Variable"]:
         """
-            list(Variable): Variables read or written (local/state/solidity)
+        list(Variable): Variables read or written (local/state/solidity)
         """
         return list(self._vars_read_or_written)
 
@@ -744,7 +747,7 @@ class Function(
     @property
     def slithir_variables(self) -> List["SlithIRVariable"]:
         """
-            Temporary and Reference Variables (not SSA form)
+        Temporary and Reference Variables (not SSA form)
         """
 
         return list(self._slithir_variables)
@@ -759,48 +762,48 @@ class Function(
     @property
     def internal_calls(self) -> List["InternalCallType"]:
         """
-            list(Function or SolidityFunction): List of function calls (that does not create a transaction)
+        list(Function or SolidityFunction): List of function calls (that does not create a transaction)
         """
         return list(self._internal_calls)
 
     @property
     def solidity_calls(self) -> List[SolidityFunction]:
         """
-            list(SolidityFunction): List of Soldity calls
+        list(SolidityFunction): List of Soldity calls
         """
         return list(self._solidity_calls)
 
     @property
     def high_level_calls(self) -> List["HighLevelCallType"]:
         """
-            list((Contract, Function|Variable)):
-            List of high level calls (external calls).
-            A variable is called in case of call to a public state variable
-            Include library calls
+        list((Contract, Function|Variable)):
+        List of high level calls (external calls).
+        A variable is called in case of call to a public state variable
+        Include library calls
         """
         return list(self._high_level_calls)
 
     @property
     def library_calls(self) -> List["LibraryCallType"]:
         """
-            list((Contract, Function)):
+        list((Contract, Function)):
         """
         return list(self._library_calls)
 
     @property
     def low_level_calls(self) -> List["LowLevelCallType"]:
         """
-            list((Variable|SolidityVariable, str)): List of low_level call
-            A low level call is defined by
-            - the variable called
-            - the name of the function (call/delegatecall/codecall)
+        list((Variable|SolidityVariable, str)): List of low_level call
+        A low level call is defined by
+        - the variable called
+        - the name of the function (call/delegatecall/codecall)
         """
         return list(self._low_level_calls)
 
     @property
     def external_calls_as_expressions(self) -> List["Expression"]:
         """
-            list(ExpressionCall): List of message calls (that creates a transaction)
+        list(ExpressionCall): List of message calls (that creates a transaction)
         """
         return list(self._external_calls_as_expressions)
 
@@ -818,7 +821,7 @@ class Function(
     @property
     def expressions(self) -> List["Expression"]:
         """
-            list(Expression): List of the expressions
+        list(Expression): List of the expressions
         """
         if self._expressions is None:
             expressionss = [n.expression for n in self.nodes]
@@ -829,7 +832,7 @@ class Function(
     @property
     def return_values(self) -> List["SlithIRVariable"]:
         """
-            list(Return Values): List of the return values
+        list(Return Values): List of the return values
         """
         from slither.core.cfg.node import NodeType
         from slither.slithir.operations import Return
@@ -850,7 +853,7 @@ class Function(
     @property
     def return_values_ssa(self) -> List["SlithIRVariable"]:
         """
-            list(Return Values in SSA form): List of the return values in ssa form
+        list(Return Values in SSA form): List of the return values in ssa form
         """
         from slither.core.cfg.node import NodeType
         from slither.slithir.operations import Return
@@ -880,7 +883,7 @@ class Function(
     @property
     def slithir_operations(self) -> List["Operation"]:
         """
-            list(Operation): List of the slithir operations
+        list(Operation): List of the slithir operations
         """
         if self._slithir_operations is None:
             operationss = [n.irs for n in self.nodes]
@@ -891,7 +894,7 @@ class Function(
     @property
     def slithir_ssa_operations(self) -> List["Operation"]:
         """
-            list(Operation): List of the slithir operations (SSA)
+        list(Operation): List of the slithir operations (SSA)
         """
         if self._slithir_ssa_operations is None:
             operationss = [n.irs_ssa for n in self.nodes]
@@ -927,8 +930,8 @@ class Function(
     @property
     def signature(self) -> Tuple[str, List[str], List[str]]:
         """
-            (str, list(str), list(str)): Function signature as
-            (name, list parameters type, list return values type)
+        (str, list(str), list(str)): Function signature as
+        (name, list parameters type, list return values type)
         """
         return (
             self.name,
@@ -939,8 +942,8 @@ class Function(
     @property
     def signature_str(self) -> str:
         """
-            str: func_name(type1,type2) returns (type3)
-            Return the function signature as a str (contains the return values)
+        str: func_name(type1,type2) returns (type3)
+        Return the function signature as a str (contains the return values)
         """
         name, parameters, returnVars = self.signature
         return name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
@@ -974,8 +977,8 @@ class Function(
     @property
     def reachable_from_nodes(self) -> Set[ReacheableNode]:
         """
-            Return
-                ReacheableNode
+        Return
+            ReacheableNode
         """
         return self._reachable_from_nodes
 
@@ -1029,8 +1032,7 @@ class Function(
         return list(set(values))
 
     def all_state_variables_read(self) -> List["StateVariable"]:
-        """ recursive version of variables_read
-        """
+        """recursive version of variables_read"""
         if self._all_state_variables_read is None:
             self._all_state_variables_read = self._explore_functions(
                 lambda x: x.state_variables_read
@@ -1038,8 +1040,7 @@ class Function(
         return self._all_state_variables_read
 
     def all_solidity_variables_read(self) -> List[SolidityVariable]:
-        """ recursive version of solidity_read
-        """
+        """recursive version of solidity_read"""
         if self._all_solidity_variables_read is None:
             self._all_solidity_variables_read = self._explore_functions(
                 lambda x: x.solidity_variables_read
@@ -1047,22 +1048,19 @@ class Function(
         return self._all_solidity_variables_read
 
     def all_slithir_variables(self) -> List["SlithIRVariable"]:
-        """ recursive version of slithir_variables
-        """
+        """recursive version of slithir_variables"""
         if self._all_slithir_variables is None:
             self._all_slithir_variables = self._explore_functions(lambda x: x.slithir_variables)
         return self._all_slithir_variables
 
     def all_nodes(self) -> List["Node"]:
-        """ recursive version of nodes
-        """
+        """recursive version of nodes"""
         if self._all_nodes is None:
             self._all_nodes = self._explore_functions(lambda x: x.nodes)
         return self._all_nodes
 
     def all_expressions(self) -> List["Expression"]:
-        """ recursive version of variables_read
-        """
+        """recursive version of variables_read"""
         if self._all_expressions is None:
             self._all_expressions = self._explore_functions(lambda x: x.expressions)
         return self._all_expressions
@@ -1073,8 +1071,7 @@ class Function(
         return self._all_slithir_operations
 
     def all_state_variables_written(self) -> List[StateVariable]:
-        """ recursive version of variables_written
-        """
+        """recursive version of variables_written"""
         if self._all_state_variables_written is None:
             self._all_state_variables_written = self._explore_functions(
                 lambda x: x.state_variables_written
@@ -1082,36 +1079,31 @@ class Function(
         return self._all_state_variables_written
 
     def all_internal_calls(self) -> List["InternalCallType"]:
-        """ recursive version of internal_calls
-        """
+        """recursive version of internal_calls"""
         if self._all_internals_calls is None:
             self._all_internals_calls = self._explore_functions(lambda x: x.internal_calls)
         return self._all_internals_calls
 
     def all_low_level_calls(self) -> List["LowLevelCallType"]:
-        """ recursive version of low_level calls
-        """
+        """recursive version of low_level calls"""
         if self._all_low_level_calls is None:
             self._all_low_level_calls = self._explore_functions(lambda x: x.low_level_calls)
         return self._all_low_level_calls
 
     def all_high_level_calls(self) -> List["HighLevelCallType"]:
-        """ recursive version of high_level calls
-        """
+        """recursive version of high_level calls"""
         if self._all_high_level_calls is None:
             self._all_high_level_calls = self._explore_functions(lambda x: x.high_level_calls)
         return self._all_high_level_calls
 
     def all_library_calls(self) -> List["LibraryCallType"]:
-        """ recursive version of library calls
-        """
+        """recursive version of library calls"""
         if self._all_library_calls is None:
             self._all_library_calls = self._explore_functions(lambda x: x.library_calls)
         return self._all_library_calls
 
     def all_solidity_calls(self) -> List[SolidityFunction]:
-        """ recursive version of solidity calls
-        """
+        """recursive version of solidity calls"""
         if self._all_solidity_calls is None:
             self._all_solidity_calls = self._explore_functions(lambda x: x.solidity_calls)
         return self._all_solidity_calls
@@ -1123,10 +1115,10 @@ class Function(
 
     def all_conditional_state_variables_read(self, include_loop=True) -> List["StateVariable"]:
         """
-            Return the state variable used in a condition
+        Return the state variable used in a condition
 
-            Over approximate and also return index access
-            It won't work if the variable is assigned to a temp variable
+        Over approximate and also return index access
+        It won't work if the variable is assigned to a temp variable
         """
         if include_loop:
             if self._all_conditional_state_variables_read_with_loop is None:
@@ -1152,18 +1144,20 @@ class Function(
 
     @staticmethod
     def _explore_func_conditional(
-        func: "Function", f: Callable[["Node"], List[SolidityVariable]], include_loop: bool,
+        func: "Function",
+        f: Callable[["Node"], List[SolidityVariable]],
+        include_loop: bool,
     ):
         ret = [f(n) for n in func.nodes if n.is_conditional(include_loop)]
         return [item for sublist in ret for item in sublist]
 
     def all_conditional_solidity_variables_read(self, include_loop=True) -> List[SolidityVariable]:
         """
-            Return the Soldiity variables directly used in a condtion
+        Return the Soldiity variables directly used in a condtion
 
-            Use of the IR to filter index access
-            Assumption: the solidity vars are used directly in the conditional node
-            It won't work if the variable is assigned to a temp variable
+        Use of the IR to filter index access
+        Assumption: the solidity vars are used directly in the conditional node
+        It won't work if the variable is assigned to a temp variable
         """
         if include_loop:
             if self._all_conditional_solidity_variables_read_with_loop is None:
@@ -1199,10 +1193,10 @@ class Function(
 
     def all_solidity_variables_used_as_args(self) -> List[SolidityVariable]:
         """
-            Return the Soldiity variables directly used in a call
+        Return the Soldiity variables directly used in a call
 
-            Use of the IR to filter index access
-            Used to catch check(msg.sender)
+        Use of the IR to filter index access
+        Used to catch check(msg.sender)
         """
         if self._all_solidity_variables_used_as_args is None:
             self._all_solidity_variables_used_as_args = self._explore_functions(
@@ -1432,9 +1426,7 @@ class Function(
     ###################################################################################
 
     def _analyze_read_write(self):
-        """ Compute variables read/written/...
-
-        """
+        """Compute variables read/written/..."""
         write_var = [x.variables_written_as_expression for x in self.nodes]
         write_var = [x for x in write_var if x]
         write_var = [item for sublist in write_var for item in sublist]
@@ -1610,10 +1602,14 @@ class Function(
 
         return ret
 
-    def get_last_ssa_state_variables_instances(self,) -> Dict[str, Set["SlithIRVariable"]]:
+    def get_last_ssa_state_variables_instances(
+        self,
+    ) -> Dict[str, Set["SlithIRVariable"]]:
         return self._get_last_ssa_variable_instances(target_state=True, target_local=False)
 
-    def get_last_ssa_local_variables_instances(self,) -> Dict[str, Set["SlithIRVariable"]]:
+    def get_last_ssa_local_variables_instances(
+        self,
+    ) -> Dict[str, Set["SlithIRVariable"]]:
         return self._get_last_ssa_variable_instances(target_state=False, target_local=True)
 
     @staticmethod

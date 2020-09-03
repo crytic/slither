@@ -28,14 +28,14 @@ class Variable(SourceMapping):
     @property
     def expression(self) -> Optional["Expression"]:
         """
-            Expression: Expression of the node (if initialized)
-            Initial expression may be different than the expression of the node
-            where the variable is declared, if its used ternary operator
-            Ex: uint a = b?1:2
-            The expression associated to a is uint a = b?1:2
-            But two nodes are created,
-            one where uint a = 1,
-            and one where uint a = 2
+        Expression: Expression of the node (if initialized)
+        Initial expression may be different than the expression of the node
+        where the variable is declared, if its used ternary operator
+        Ex: uint a = b?1:2
+        The expression associated to a is uint a = b?1:2
+        But two nodes are created,
+        one where uint a = 1,
+        and one where uint a = 2
 
         """
         return self._initial_expression
@@ -47,7 +47,7 @@ class Variable(SourceMapping):
     @property
     def initialized(self) -> Optional[bool]:
         """
-            boolean: True if the variable is initialized at construction
+        boolean: True if the variable is initialized at construction
         """
         return self._initialized
 
@@ -58,14 +58,14 @@ class Variable(SourceMapping):
     @property
     def uninitialized(self) -> bool:
         """
-            boolean: True if the variable is not initialized
+        boolean: True if the variable is not initialized
         """
         return not self._initialized
 
     @property
     def name(self) -> str:
         """
-            str: variable name
+        str: variable name
         """
         return self._name
 
@@ -92,7 +92,7 @@ class Variable(SourceMapping):
     @property
     def visibility(self) -> Optional[str]:
         """
-            str: variable visibility
+        str: variable visibility
         """
         return self._visibility
 
