@@ -710,10 +710,15 @@ def extract_tmp_call(ins, contract):
     assert isinstance(ins, TmpCall)
 
     if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
-        call = InternalDynamicCall(ins.lvalue, ins.called, ins.called.type)
-        call.set_expression(ins.expression)
-        call.call_id = ins.call_id
-        return call
+        # If the call is made to a variable member, where the member is this
+        # We need to convert it to a HighLelelCall and not an internal dynamic call
+        if isinstance(ins.ori, Member) and ins.ori.variable_left == SolidityVariable("this"):
+            pass
+        else:
+            call = InternalDynamicCall(ins.lvalue, ins.called, ins.called.type)
+            call.set_expression(ins.expression)
+            call.call_id = ins.call_id
+            return call
     if isinstance(ins.ori, Member):
         # If there is a call on an inherited contract, it is an internal call or an event
         if ins.ori.variable_left in contract.inheritance + [contract]:
