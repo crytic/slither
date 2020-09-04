@@ -32,7 +32,7 @@ jobs:
           mkdir -p .github/linters
           cp pyproject.toml .github/linters
 
-      - name: Lint everything
+      - name: Pylint
         uses: docker://github/super-linter:v3
         if: always()
         env:
@@ -40,8 +40,36 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Run only pylint
+          VALIDATE_PYTHON: true
+          VALIDATE_PYTHON_PYLINT: true
           PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
+
+      - name: Black
+        uses: docker://github/super-linter:v3
+        if: always()
+        env:
+          # run linter on everything to catch preexisting problems
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Run only black
+          VALIDATE_PYTHON_BLACK: true
           PYTHON_BLACK_CONFIG_FILE: pyproject.toml
+
+      - name: Lint everything else
+        uses: docker://github/super-linter:v3
+        if: always()
+        env:
+          # run linter on everything to catch preexisting problems
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Always false
+          VALIDATE_PYTHON: false
+          VALIDATE_PYTHON_PYLINT: false
+          VALIDATE_PYTHON_BLACK: false
+          # Always false
           VALIDATE_JSON: false
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_PYTHON_FLAKE8: false
