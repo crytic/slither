@@ -1053,7 +1053,16 @@ def convert_to_push(ir, node):
     ret.append(ir_assign_element_to_add)
 
     if len(ir.arguments) > 0:
-        ir_assign_value = Assignment(element_to_add, ir.arguments[0], ir.arguments[0].type)
+        assign_value = ir.arguments[0]
+        if isinstance(assign_value, list):
+            assign_value = TemporaryVariable(node)
+            assign_value.set_type(element_to_add.type)
+            ir_assign_value = InitArray(ir.arguments[0], assign_value)
+            ir_assign_value.set_expression(ir.expression)
+            ir_assign_value.set_node(ir.node)
+            ret.append(ir_assign_value)
+
+        ir_assign_value = Assignment(element_to_add, assign_value, assign_value.type)
         ir_assign_value.set_expression(ir.expression)
         ir_assign_value.set_node(ir.node)
         ret.append(ir_assign_value)
