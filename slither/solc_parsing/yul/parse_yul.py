@@ -679,13 +679,16 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
 
 
 def parse_yul_literal(_root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
-    type_ = ast["type"]
+    kind = ast["kind"]
     value = ast["value"]
 
-    if not type_:
-        type_ = "bool" if value in ["true", "false"] else "uint256"
+    if not kind:
+        kind = "bool" if value in ["true", "false"] else "uint256"
 
-    return Literal(value, ElementaryType(type_))
+    if kind == "number":
+        kind = "uint256"
+
+    return Literal(value, ElementaryType(kind))
 
 
 def parse_yul_typed_name(root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
