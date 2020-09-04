@@ -654,12 +654,12 @@ def parse_yul_identifier(root: YulScope, node: YulNode, ast: Dict) -> Optional[E
     raise SlitherException(f"unresolved reference to identifier {name}")
 
 
-def parse_yul_literal(root: YulScope, node: YulNode, ast: Dict) -> Optional[Expression]:
+def parse_yul_literal(_root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
     kind = ast["kind"]
     value = ast["value"]
 
     if not kind:
-        type_ = "bool" if value in ["true", "false"] else "uint256"
+        kind = "bool" if value in ["true", "false"] else "uint256"
 
     if kind == "number":
         kind = "uint256"
