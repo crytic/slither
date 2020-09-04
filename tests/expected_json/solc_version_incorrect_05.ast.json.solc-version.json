@@ -30,9 +30,9 @@
             }
           }
         ],
-        "description": "Pragma version^0.5.5 (None) is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)\n",
-        "markdown": "Pragma version[^0.5.5](None) is known to contain severe issue (https://solidity.readthedocs.io/en/v0.5.8/bugs.html)\n",
-        "id": "fa84bcbd40d52d8846dcd54be4cada287e43c5461898c9acbf089ca8a478f6e5",
+        "description": "Pragma version^0.5.5 (None) is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)\n",
+        "markdown": "Pragma version[^0.5.5](None) is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)\n",
+        "id": "b27987b5c734b3ac9a18d3aef5c96a20911b71fb0ffd8d222a1052252fea4151",
         "check": "solc-version",
         "impact": "Informational",
         "confidence": "High"

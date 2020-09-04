@@ -17,10 +17,10 @@ def intersection_predecessor(node: "Node"):
 
 def compute_dominators(nodes: List["Node"]):
     """
-        Naive implementation of Cooper, Harvey, Kennedy algo
-        See 'A Simple,Fast Dominance Algorithm'
+    Naive implementation of Cooper, Harvey, Kennedy algo
+    See 'A Simple,Fast Dominance Algorithm'
 
-        Compute strict domniators
+    Compute strict domniators
     """
     changed = True
 
@@ -43,6 +43,7 @@ def compute_dominators(nodes: List["Node"]):
 
         for dominator in node.dominators:
             if dominator != node:
+                # pylint: disable=expression-not-assigned
                 [
                     idom_candidates.remove(d)
                     for d in dominator.dominators
@@ -58,10 +59,10 @@ def compute_dominators(nodes: List["Node"]):
 
 def compute_dominance_frontier(nodes: List["Node"]):
     """
-        Naive implementation of Cooper, Harvey, Kennedy algo
-        See 'A Simple,Fast Dominance Algorithm'
+    Naive implementation of Cooper, Harvey, Kennedy algo
+    See 'A Simple,Fast Dominance Algorithm'
 
-        Compute dominance frontier
+    Compute dominance frontier
     """
     for node in nodes:
         if len(node.fathers) >= 2:

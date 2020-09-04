@@ -7,8 +7,8 @@ from crytic_compile.cryticparser.defaults import (
 )
 
 from slither.detectors.abstract_detector import classification_txt
-from .colors import yellow, red
-from .myprettytable import MyPrettyTable
+from slither.utils.colors import yellow, red
+from slither.utils.myprettytable import MyPrettyTable
 
 logger = logging.getLogger("Slither")
 
@@ -171,7 +171,8 @@ def output_wiki(detector_classes, filter_wiki):
 
     # Sort by impact, confidence, and name
     detectors_list = sorted(
-        detector_classes, key=lambda element: (element.IMPACT, element.CONFIDENCE, element.ARGUMENT)
+        detector_classes,
+        key=lambda element: (element.IMPACT, element.CONFIDENCE, element.ARGUMENT),
     )
 
     for detector in detectors_list:
@@ -227,7 +228,7 @@ def output_detectors(detector_classes):
     print(table)
 
 
-def output_detectors_json(detector_classes):
+def output_detectors_json(detector_classes):  # pylint: disable=too-many-locals
     detectors_list = []
     for detector in detector_classes:
         argument = detector.ARGUMENT

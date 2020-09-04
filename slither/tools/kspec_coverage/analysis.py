@@ -10,8 +10,11 @@ logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger("Slither.kspec")
 
 
-def _refactor_type(type):
-    return {"uint": "uint256", "int": "int256"}.get(type, type)
+# pylint: disable=anomalous-backslash-in-string
+
+
+def _refactor_type(targeted_type):
+    return {"uint": "uint256", "int": "int256"}.get(targeted_type, targeted_type)
 
 
 def _get_all_covered_kspec_functions(target):
@@ -35,7 +38,10 @@ def _get_all_covered_kspec_functions(target):
             match = INTERFACE_PATTERN.match(lines[i + 1])
             if match:
                 function_full_name = match.groups()[0]
-                start, end = function_full_name.index("(") + 1, function_full_name.index(")")
+                start, end = (
+                    function_full_name.index("(") + 1,
+                    function_full_name.index(")"),
+                )
                 function_arguments = function_full_name[start:end].split(",")
                 function_arguments = [
                     _refactor_type(arg.strip().split(" ")[0]) for arg in function_arguments
@@ -62,7 +68,7 @@ def _get_slither_functions(slither):
     # Use list(set()) because same state variable instances can be shared accross contracts
     # TODO: integrate state variables
     all_functions_declared += list(
-        set([s for s in slither.state_variables if s.visibility in ["public", "external"]])
+        {s for s in slither.state_variables if s.visibility in ["public", "external"]}
     )
     slither_functions = {
         (function.contract.name, function.full_name): function
@@ -152,15 +158,15 @@ def _run_coverage_analysis(args, slither, kspec_functions):
         )
 
 
-def run_analysis(args, slither, kspec):
+def run_analysis(args, slither, kspec_arg):
     # Get all of our kspec'd functions (tuple(contract_name, function_name)).
-    if "," in kspec:
-        kspecs = kspec.split(",")
+    if "," in kspec_arg:
+        kspecs = kspec_arg.split(",")
         kspec_functions = set()
         for kspec in kspecs:
             kspec_functions |= _get_all_covered_kspec_functions(kspec)
     else:
-        kspec_functions = _get_all_covered_kspec_functions(kspec)
+        kspec_functions = _get_all_covered_kspec_functions(kspec_arg)
 
     # Run coverage analysis
     _run_coverage_analysis(args, slither, kspec_functions)

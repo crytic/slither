@@ -9,32 +9,38 @@ from slither.utils.myprettytable import MyPrettyTable
 
 
 def _get(v, c):
-    return list(set([d.name for d in get_dependencies(v, c) if not isinstance(d, (TemporaryVariable,
-                                                                               ReferenceVariable))]))
+    return list(
+        {
+            d.name
+            for d in get_dependencies(v, c)
+            if not isinstance(d, (TemporaryVariable, ReferenceVariable))
+        }
+    )
+
 
 class DataDependency(AbstractPrinter):
 
-    ARGUMENT = 'data-dependency'
-    HELP = 'Print the data dependencies of the variables'
+    ARGUMENT = "data-dependency"
+    HELP = "Print the data dependencies of the variables"
 
-    WIKI = 'https://github.com/trailofbits/slither/wiki/Printer-documentation#data-dependencies'
+    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#data-dependencies"
 
     def output(self, _filename):
         """
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
 
         all_tables = []
-        all_txt = ''
+        all_txt = ""
 
-        txt = ''
+        txt = ""
         for c in self.contracts:
             if c.is_top_level:
                 continue
-            txt += "\nContract %s\n"%c.name
-            table = MyPrettyTable(['Variable', 'Dependencies'])
+            txt += "\nContract %s\n" % c.name
+            table = MyPrettyTable(["Variable", "Dependencies"])
             for v in c.state_variables:
                 table.add_row([v.name, _get(v, c)])
 
@@ -42,8 +48,8 @@ class DataDependency(AbstractPrinter):
 
             txt += "\n"
             for f in c.functions_and_modifiers_declared:
-                txt += "\nFunction %s\n"%f.full_name
-                table = MyPrettyTable(['Variable', 'Dependencies'])
+                txt += "\nFunction %s\n" % f.full_name
+                table = MyPrettyTable(["Variable", "Dependencies"])
                 for v in f.variables:
                     table.add_row([v.name, _get(v, f)])
                 for v in c.state_variables:

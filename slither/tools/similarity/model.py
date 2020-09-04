@@ -1,6 +1,7 @@
 import sys
 
 try:
+    # pylint: disable=unused-import
     from fastText import load_model
     from fastText import train_unsupervised
 except ImportError:

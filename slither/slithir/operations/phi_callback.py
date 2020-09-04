@@ -1,13 +1,12 @@
 from slither.slithir.utils.utils import is_valid_lvalue
-from .phi import Phi
+from slither.slithir.operations.phi import Phi
 
 
 class PhiCallback(Phi):
-
     def __init__(self, left_variable, nodes, call_ir, rvalue):
         assert is_valid_lvalue(left_variable)
         assert isinstance(nodes, set)
-        super(PhiCallback, self).__init__(left_variable, nodes)
+        super().__init__(left_variable, nodes)
         self._call_ir = call_ir
         self._rvalues = [rvalue]
         self._rvalue_no_callback = rvalue
@@ -26,9 +25,9 @@ class PhiCallback(Phi):
 
     @property
     def rvalue_no_callback(self):
-        '''
-            rvalue if callback are not considered
-        '''
+        """
+        rvalue if callback are not considered
+        """
         return self._rvalue_no_callback
 
     @rvalues.setter
@@ -40,4 +39,6 @@ class PhiCallback(Phi):
         return self._nodes
 
     def __str__(self):
-        return '{}({}) := \u03D5({})'.format(self.lvalue, self.lvalue.type, [v.ssa_name for v in self._rvalues])
+        return "{}({}) := \u03D5({})".format(
+            self.lvalue, self.lvalue.type, [v.ssa_name for v in self._rvalues]
+        )

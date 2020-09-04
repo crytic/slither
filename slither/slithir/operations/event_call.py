@@ -1,10 +1,9 @@
-
 from slither.slithir.operations.call import Call
 
 
 class EventCall(Call):
     def __init__(self, name):
-        super(EventCall, self).__init__()
+        super().__init__()
         self._name = name
         # todo add instance of the Event
 
@@ -18,4 +17,4 @@ class EventCall(Call):
 
     def __str__(self):
         args = [str(a) for a in self.arguments]
-        return 'Emit {}({})'.format(self.name, '.'.join(args))
+        return "Emit {}({})".format(self.name, ".".join(args))

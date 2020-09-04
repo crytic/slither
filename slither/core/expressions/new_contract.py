@@ -1,9 +1,9 @@
-from .expression import Expression
+from slither.core.expressions.expression import Expression
 
 
 class NewContract(Expression):
     def __init__(self, contract_name):
-        super(NewContract, self).__init__()
+        super().__init__()
         self._contract_name: str = contract_name
         self._gas = None
         self._value = None

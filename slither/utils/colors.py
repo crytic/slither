@@ -2,7 +2,7 @@ from functools import partial
 import platform
 
 
-class Colors:
+class Colors:  # pylint: disable=too-few-public-methods
     COLORIZATION_ENABLED = True
     RED = "\033[91m"
     GREEN = "\033[92m"
@@ -15,8 +15,7 @@ class Colors:
 def colorize(color: Colors, txt: str) -> str:
     if Colors.COLORIZATION_ENABLED:
         return "{}{}{}".format(color, txt, Colors.END)
-    else:
-        return txt
+    return txt
 
 
 def enable_windows_virtual_terminal_sequences() -> bool:
@@ -26,6 +25,7 @@ def enable_windows_virtual_terminal_sequences() -> bool:
     """
 
     try:
+        # pylint: disable=import-outside-toplevel
         from ctypes import windll, byref
         from ctypes.wintypes import DWORD, HANDLE
 
@@ -55,7 +55,7 @@ def enable_windows_virtual_terminal_sequences() -> bool:
                     current_handle, current_mode.value | virtual_terminal_flag
                 ):
                     return False
-    except:
+    except Exception:  # pylint: disable=broad-except
         # Any generic failure (possibly from calling these methods on older Windows builds where they do not exist)
         # will fall back onto disabling colorization.
         return False

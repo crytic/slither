@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .variable import Variable
+from slither.core.variables.variable import Variable
 from slither.core.children.child_function import ChildFunction
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.solidity_types.array_type import ArrayType
@@ -12,7 +12,7 @@ from slither.core.declarations.structure import Structure
 
 class LocalVariable(ChildFunction, Variable):
     def __init__(self):
-        super(LocalVariable, self).__init__()
+        super().__init__()
         self._location: Optional[str] = None
 
     def set_location(self, loc: str):

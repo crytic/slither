@@ -1,9 +1,9 @@
 from slither.core.variables.variable import Variable
 
-class SlithIRVariable(Variable):
 
+class SlithIRVariable(Variable):
     def __init__(self):
-        super(SlithIRVariable, self).__init__()
+        super().__init__()
         self._index = 0
 
     @property

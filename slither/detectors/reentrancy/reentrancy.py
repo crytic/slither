@@ -26,7 +26,10 @@ def dict_are_equal(d1, d2):
     return all(set(d1[k]) == set(d2[k]) for k in d1.keys())
 
 
-def is_subset(new_info: Dict[Union[Variable, Node], Set[Node]], old_info: Dict[Union[Variable, Node], Set[Node]]):
+def is_subset(
+    new_info: Dict[Union[Variable, Node], Set[Node]],
+    old_info: Dict[Union[Variable, Node], Set[Node]],
+):
     for k in new_info.keys():
         if k not in old_info:
             return False
@@ -36,11 +39,13 @@ def is_subset(new_info: Dict[Union[Variable, Node], Set[Node]], old_info: Dict[U
 
 
 def to_hashable(d: Dict[Node, Set[Node]]):
-    list_tuple = list(tuple((k, tuple(sorted(values, key=lambda x: x.node_id)))) for k, values in d.items())
+    list_tuple = list(
+        tuple((k, tuple(sorted(values, key=lambda x: x.node_id)))) for k, values in d.items()
+    )
     return tuple(sorted(list_tuple, key=lambda x: x[0].node_id))
 
-class AbstractState:
 
+class AbstractState:
     def __init__(self):
         # send_eth returns the list of calls sending value
         # calls returns the list of calls that can callback
@@ -104,23 +109,37 @@ class AbstractState:
     def merge_fathers(self, node, skip_father, detector):
         for father in node.fathers:
             if detector.KEY in father.context:
-                self._send_eth = union_dict(self._send_eth,
-                                            {key: values for key, values in father.context[detector.KEY].send_eth.items() if
-                                             key != skip_father})
-                self._calls = union_dict(self._calls,
-                                         {key: values for key, values in father.context[detector.KEY].calls.items() if
-                                          key != skip_father})
+                self._send_eth = union_dict(
+                    self._send_eth,
+                    {
+                        key: values
+                        for key, values in father.context[detector.KEY].send_eth.items()
+                        if key != skip_father
+                    },
+                )
+                self._calls = union_dict(
+                    self._calls,
+                    {
+                        key: values
+                        for key, values in father.context[detector.KEY].calls.items()
+                        if key != skip_father
+                    },
+                )
                 self._reads = union_dict(self._reads, father.context[detector.KEY].reads)
-                self._reads_prior_calls = union_dict(self.reads_prior_calls,
-                                                     father.context[detector.KEY].reads_prior_calls)
+                self._reads_prior_calls = union_dict(
+                    self.reads_prior_calls,
+                    father.context[detector.KEY].reads_prior_calls,
+                )
 
     def analyze_node(self, node, detector):
-        state_vars_read: Dict[Variable, Set[Node]] = defaultdict(set,
-                                                                 {v: {node} for v in node.state_variables_read})
+        state_vars_read: Dict[Variable, Set[Node]] = defaultdict(
+            set, {v: {node} for v in node.state_variables_read}
+        )
 
         # All the state variables written
-        state_vars_written: Dict[Variable, Set[Node]] = defaultdict(set,
-                                                                    {v: {node} for v in node.state_variables_written})
+        state_vars_written: Dict[Variable, Set[Node]] = defaultdict(
+            set, {v: {node} for v in node.state_variables_written}
+        )
         slithir_operations = []
         # Add the state variables written in internal calls
         for internal_call in node.internal_calls:
@@ -139,9 +158,11 @@ class AbstractState:
         for ir in node.irs + slithir_operations:
             if detector.can_callback(ir):
                 self._calls[node] |= {ir.node}
-                self._reads_prior_calls[node] = set(self._reads_prior_calls.get(node, set()) |
-                                                    set(node.context[detector.KEY].reads.keys()) |
-                                                    set(state_vars_read.keys()))
+                self._reads_prior_calls[node] = set(
+                    self._reads_prior_calls.get(node, set())
+                    | set(node.context[detector.KEY].reads.keys())
+                    | set(state_vars_read.keys())
+                )
                 contains_call = True
 
             if detector.can_send_eth(ir):
@@ -151,7 +172,6 @@ class AbstractState:
                 self._events[ir] |= {ir.node, node}
 
         self._reads = union_dict(self._reads, state_vars_read)
-
 
         return contains_call
 
@@ -167,10 +187,28 @@ class AbstractState:
                 if is_subset(new_info.reads, self.reads):
                     if dict_are_equal(new_info.reads_prior_calls, self.reads_prior_calls):
                         return True
+        return False
+
+
+def _filter_if(node):
+    """
+    Check if the node is a condtional node where
+    there is an external call checked
+    Heuristic:
+        - The call is a IF node
+        - It contains a, external call
+        - The condition is the negation (!)
+
+    This will work only on naive implementation
+    """
+    return (
+        isinstance(node.expression, UnaryOperation)
+        and node.expression.type == UnaryOperationType.BANG
+    )
 
 
 class Reentrancy(AbstractDetector):
-    KEY = 'REENTRANCY'
+    KEY = "REENTRANCY"
 
     # can_callback and can_send_eth are static method
     # allowing inherited classes to define different behaviors
@@ -178,12 +216,12 @@ class Reentrancy(AbstractDetector):
     @staticmethod
     def can_callback(ir):
         """
-            Detect if the node contains a call that can
-            be used to re-entrance
+        Detect if the node contains a call that can
+        be used to re-entrance
 
-            Consider as valid target:
-            - low level call
-            - high level call
+        Consider as valid target:
+        - low level call
+        - high level call
 
 
         """
@@ -192,33 +230,20 @@ class Reentrancy(AbstractDetector):
     @staticmethod
     def can_send_eth(ir):
         """
-            Detect if the node can send eth
+        Detect if the node can send eth
         """
         return isinstance(ir, Call) and ir.can_send_eth()
 
-    def _filter_if(self, node):
-        """
-            Check if the node is a condtional node where
-            there is an external call checked
-            Heuristic:
-                - The call is a IF node
-                - It contains a, external call
-                - The condition is the negation (!)
-
-            This will work only on naive implementation
-        """
-        return isinstance(node.expression, UnaryOperation) and node.expression.type == UnaryOperationType.BANG
-
     def _explore(self, node, visited, skip_father=None):
         """
-            Explore the CFG and look for re-entrancy
-            Heuristic: There is a re-entrancy if a state variable is written
-                        after an external call
+        Explore the CFG and look for re-entrancy
+        Heuristic: There is a re-entrancy if a state variable is written
+                    after an external call
 
-            node.context will contains the external calls executed
-            It contains the calls executed in father nodes
+        node.context will contains the external calls executed
+        It contains the calls executed in father nodes
 
-            if node.context is not empty, and variables are written, a re-entrancy is possible
+        if node.context is not empty, and variables are written, a re-entrancy is possible
         """
         if node in visited:
             return
@@ -244,7 +269,7 @@ class Reentrancy(AbstractDetector):
 
         sons = node.sons
         if contains_call and node.type in [NodeType.IF, NodeType.IFLOOP]:
-            if self._filter_if(node):
+            if _filter_if(node):
                 son = sons[0]
                 self._explore(son, visited, node)
                 sons = sons[1:]
@@ -257,8 +282,6 @@ class Reentrancy(AbstractDetector):
             self._explore(son, visited)
 
     def detect_reentrancy(self, contract):
-        """
-        """
         for function in contract.functions_and_modifiers_declared:
             if function.is_implemented:
                 if self.KEY in function.context:
@@ -267,14 +290,13 @@ class Reentrancy(AbstractDetector):
                 function.context[self.KEY] = True
 
     def _detect(self):
-        """
-        """
+        """"""
         # if a node was already visited by another path
         # we will only explore it if the traversal brings
         # new variables written
         # This speedup the exploration through a light fixpoint
         # Its particular useful on 'complex' functions with several loops and conditions
-        self.visited_all_paths = {}
+        self.visited_all_paths = {}  # pylint: disable=attribute-defined-outside-init
 
         for c in self.contracts:
             self.detect_reentrancy(c)

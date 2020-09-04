@@ -8,7 +8,7 @@ class IncorrectCheckInitialization(Exception):
     pass
 
 
-class CheckClassification:
+class CheckClassification:  # pylint: disable=too-few-public-methods
     HIGH = 0
     MEDIUM = 1
     LOW = 2
@@ -129,7 +129,7 @@ class AbstractCheck(metaclass=abc.ABCMeta):
         if all_results:
             if self.logger:
                 info = "\n"
-                for idx, result in enumerate(all_results):
+                for result in all_results:
                     info += result["description"]
                 info += "Reference: {}".format(self.WIKI)
                 self._log(info)

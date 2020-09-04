@@ -7,12 +7,14 @@ from slither.slithir.variables import TupleVariable, ReferenceVariable
 
 logger = logging.getLogger("AssignmentOperationIR")
 
-class Assignment(OperationWithLValue):
 
+class Assignment(OperationWithLValue):
     def __init__(self, left_variable, right_variable, variable_return_type):
         assert is_valid_lvalue(left_variable)
-        assert is_valid_rvalue(right_variable) or isinstance(right_variable, (Function, TupleVariable))
-        super(Assignment, self).__init__()
+        assert is_valid_rvalue(right_variable) or isinstance(
+            right_variable, (Function, TupleVariable)
+        )
+        super().__init__()
         self._variables = [left_variable, right_variable]
         self._lvalue = left_variable
         self._rvalue = right_variable
@@ -39,5 +41,7 @@ class Assignment(OperationWithLValue):
             points = self.lvalue.points_to
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
-            return '{} (->{}) := {}({})'.format(self.lvalue, points, self.rvalue, self.rvalue.type)
-        return '{}({}) := {}({})'.format(self.lvalue, self.lvalue.type, self.rvalue, self.rvalue.type)
+            return "{} (->{}) := {}({})".format(self.lvalue, points, self.rvalue, self.rvalue.type)
+        return "{}({}) := {}({})".format(
+            self.lvalue, self.lvalue.type, self.rvalue, self.rvalue.type
+        )

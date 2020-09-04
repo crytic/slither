@@ -7,7 +7,7 @@ USER_ADDRESS = "0xf17f52151EbEF6C7334FAD080c5704D77216b732"
 ATTACKER_ADDRESS = "0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef"
 
 
-class Addresses:
+class Addresses:  # pylint: disable=too-few-public-methods
     def __init__(
         self,
         owner: Optional[str] = None,

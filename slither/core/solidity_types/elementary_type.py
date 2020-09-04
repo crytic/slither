@@ -134,7 +134,7 @@ class ElementaryType(Type):
     def __init__(self, t):
         if t not in ElementaryTypeName:
             raise NonElementaryType
-        super(ElementaryType, self).__init__()
+        super().__init__()
         if t == "uint":
             t = "uint256"
         elif t == "int":
@@ -174,7 +174,7 @@ class ElementaryType(Type):
 
     @property
     def storage_size(self) -> Tuple[int, bool]:
-        if self._type == 'string' or self._type == 'bytes':
+        if self._type == "string" or self._type == "bytes":
             return 32, True
 
         return int(self.size / 8), False

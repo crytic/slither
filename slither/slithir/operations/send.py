@@ -6,11 +6,10 @@ from slither.slithir.utils.utils import is_valid_lvalue
 
 
 class Send(Call, OperationWithLValue):
-
     def __init__(self, destination, value, result):
         assert is_valid_lvalue(result)
         assert isinstance(destination, (Variable, SolidityVariable))
-        super(Send, self).__init__()
+        super().__init__()
         self._destination = destination
         self._lvalue = result
 
@@ -32,6 +31,8 @@ class Send(Call, OperationWithLValue):
         return self._destination
 
     def __str__(self):
-        value = 'value:{}'.format(self.call_value)
-        return str(self.lvalue) + ' = SEND dest:{} {}'.format(self.destination, value)
+        value = "value:{}".format(self.call_value)
+        return str(self.lvalue) + " = SEND dest:{} {}".format(self.destination, value)
+
+
 #

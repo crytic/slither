@@ -15,11 +15,11 @@ class UnaryType(Enum):
     @staticmethod
     def get_type(operation_type, isprefix):
         if isprefix:
-            if operation_type == '!':
+            if operation_type == "!":
                 return UnaryType.BANG
-            if operation_type == '~':
+            if operation_type == "~":
                 return UnaryType.TILD
-        raise SlithIRError('get_type: Unknown operation type {}'.format(operation_type))
+        raise SlithIRError("get_type: Unknown operation type {}".format(operation_type))
 
     def __str__(self):
         if self == UnaryType.BANG:
@@ -31,11 +31,10 @@ class UnaryType(Enum):
 
 
 class Unary(OperationWithLValue):
-
     def __init__(self, result, variable, operation_type):
         assert is_valid_rvalue(variable)
         assert is_valid_lvalue(result)
-        super(Unary, self).__init__()
+        super().__init__()
         self._variable = variable
         self._type = operation_type
         self._lvalue = result

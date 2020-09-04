@@ -2,9 +2,8 @@ from slither.slithir.operations.operation import Operation
 
 
 class Call(Operation):
-
     def __init__(self):
-        super(Call, self).__init__()
+        super().__init__()
         self._arguments = []
 
     @property
@@ -15,16 +14,16 @@ class Call(Operation):
     def arguments(self, v):
         self._arguments = v
 
-    def can_reenter(self, callstack=None):
-        '''
+    def can_reenter(self, _callstack=None):  # pylint: disable=no-self-use
+        """
         Must be called after slithIR analysis pass
         :return: bool
-        '''
+        """
         return False
 
-    def can_send_eth(self):
-        '''
+    def can_send_eth(self):  # pylint: disable=no-self-use
+        """
         Must be called after slithIR analysis pass
         :return: bool
-        '''
+        """
         return False

@@ -35,13 +35,15 @@ def parse_args():
     parser.add_argument(
         "--strategy",
         help=f"Flatenning strategy: {STRATEGIES_NAMES} (default: MostDerived).",
-        default=Strategy.MostDerived.name,
+        default=Strategy.MostDerived.name,  # pylint: disable=no-member
     )
 
     group_export = parser.add_argument_group("Export options")
 
     group_export.add_argument(
-        "--dir", help=f"Export directory (default: {DEFAULT_EXPORT_PATH}).", default=None
+        "--dir",
+        help=f"Export directory (default: {DEFAULT_EXPORT_PATH}).",
+        default=None,
     )
 
     group_export.add_argument(
@@ -52,7 +54,10 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--zip", help="Export all the files to a zip file", action="store", default=None,
+        "--zip",
+        help="Export all the files to a zip file",
+        action="store",
+        default=None,
     )
 
     parser.add_argument(
@@ -69,7 +74,9 @@ def parse_args():
     )
 
     group_patching.add_argument(
-        "--convert-private", help="Convert private variables to internal.", action="store_true"
+        "--convert-private",
+        help="Convert private variables to internal.",
+        action="store_true",
     )
 
     group_patching.add_argument(
@@ -77,7 +84,10 @@ def parse_args():
     )
 
     group_patching.add_argument(
-        "--pragma-solidity", help="Set the solidity pragma with a given version.", action="store", default=None
+        "--pragma-solidity",
+        help="Set the solidity pragma with a given version.",
+        action="store",
+        default=None,
     )
 
     # Add default arguments from crytic-compile
@@ -100,15 +110,14 @@ def main():
         remove_assert=args.remove_assert,
         private_to_internal=args.convert_private,
         export_path=args.dir,
-        pragma_solidity=args.pragma_solidity
+        pragma_solidity=args.pragma_solidity,
     )
 
     try:
         strategy = Strategy[args.strategy]
     except KeyError:
-        logger.error(
-            f"{args.strategy} is not a valid strategy, use: {STRATEGIES_NAMES} (default MostDerived)"
-        )
+        to_log = f"{args.strategy} is not a valid strategy, use: {STRATEGIES_NAMES} (default MostDerived)"
+        logger.error(to_log)
         return
     flat.export(
         strategy=strategy,

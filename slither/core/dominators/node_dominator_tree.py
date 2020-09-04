@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
 
-class DominatorNode(object):
+class DominatorNode:
     def __init__(self):
         self._succ: Set["Node"] = set()
         self._nodes: List["Node"] = []

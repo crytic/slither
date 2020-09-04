@@ -8,7 +8,7 @@ class ConditionalExpression(Expression):
         assert isinstance(if_expression, Expression)
         assert isinstance(then_expression, Expression)
         assert isinstance(else_expression, Expression)
-        super(ConditionalExpression, self).__init__()
+        super().__init__()
         self._if_expression: Expression = if_expression
         self._then_expression: Expression = then_expression
         self._else_expression: Expression = else_expression

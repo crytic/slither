@@ -38,7 +38,7 @@ class ExpressionVisitor:
 
     # visit an expression
     # call pre_visit, visit_expression_name, post_visit
-    def _visit_expression(self, expression: Expression):
+    def _visit_expression(self, expression: Expression):  # pylint: disable=too-many-branches
         self._pre_visit(expression)
 
         if isinstance(expression, AssignmentOperation):
@@ -159,7 +159,7 @@ class ExpressionVisitor:
 
     # pre visit
 
-    def _pre_visit(self, expression):
+    def _pre_visit(self, expression):  # pylint: disable=too-many-branches
         if isinstance(expression, AssignmentOperation):
             self._pre_assignement_operation(expression)
 
@@ -260,7 +260,7 @@ class ExpressionVisitor:
 
     # post visit
 
-    def _post_visit(self, expression):
+    def _post_visit(self, expression):  # pylint: disable=too-many-branches
         if isinstance(expression, AssignmentOperation):
             self._post_assignement_operation(expression)
 

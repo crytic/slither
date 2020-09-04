@@ -33,59 +33,61 @@ class BinaryType(Enum):
 
     @staticmethod
     def return_bool(operation_type):
-        return operation_type in [BinaryType.OROR,
-                                  BinaryType.ANDAND,
-                                  BinaryType.LESS,
-                                  BinaryType.GREATER,
-                                  BinaryType.LESS_EQUAL,
-                                  BinaryType.GREATER_EQUAL,
-                                  BinaryType.EQUAL,
-                                  BinaryType.NOT_EQUAL]
+        return operation_type in [
+            BinaryType.OROR,
+            BinaryType.ANDAND,
+            BinaryType.LESS,
+            BinaryType.GREATER,
+            BinaryType.LESS_EQUAL,
+            BinaryType.GREATER_EQUAL,
+            BinaryType.EQUAL,
+            BinaryType.NOT_EQUAL,
+        ]
 
     @staticmethod
-    def get_type(operation_type):
-        if operation_type == '**':
+    def get_type(operation_type):  # pylint: disable=too-many-branches
+        if operation_type == "**":
             return BinaryType.POWER
-        if operation_type == '*':
+        if operation_type == "*":
             return BinaryType.MULTIPLICATION
-        if operation_type == '/':
+        if operation_type == "/":
             return BinaryType.DIVISION
-        if operation_type == '%':
+        if operation_type == "%":
             return BinaryType.MODULO
-        if operation_type == '+':
+        if operation_type == "+":
             return BinaryType.ADDITION
-        if operation_type == '-':
+        if operation_type == "-":
             return BinaryType.SUBTRACTION
-        if operation_type == '<<':
+        if operation_type == "<<":
             return BinaryType.LEFT_SHIFT
-        if operation_type == '>>':
+        if operation_type == ">>":
             return BinaryType.RIGHT_SHIFT
-        if operation_type == '&':
+        if operation_type == "&":
             return BinaryType.AND
-        if operation_type == '^':
+        if operation_type == "^":
             return BinaryType.CARET
-        if operation_type == '|':
+        if operation_type == "|":
             return BinaryType.OR
-        if operation_type == '<':
+        if operation_type == "<":
             return BinaryType.LESS
-        if operation_type == '>':
+        if operation_type == ">":
             return BinaryType.GREATER
-        if operation_type == '<=':
+        if operation_type == "<=":
             return BinaryType.LESS_EQUAL
-        if operation_type == '>=':
+        if operation_type == ">=":
             return BinaryType.GREATER_EQUAL
-        if operation_type == '==':
+        if operation_type == "==":
             return BinaryType.EQUAL
-        if operation_type == '!=':
+        if operation_type == "!=":
             return BinaryType.NOT_EQUAL
-        if operation_type == '&&':
+        if operation_type == "&&":
             return BinaryType.ANDAND
-        if operation_type == '||':
+        if operation_type == "||":
             return BinaryType.OROR
 
-        raise SlithIRError('get_type: Unknown operation type {})'.format(operation_type))
+        raise SlithIRError("get_type: Unknown operation type {})".format(operation_type))
 
-    def __str__(self):
+    def __str__(self):  # pylint: disable=too-many-branches
         if self == BinaryType.POWER:
             return "**"
         if self == BinaryType.MULTIPLICATION:
@@ -128,18 +130,17 @@ class BinaryType(Enum):
 
 
 class Binary(OperationWithLValue):
-
     def __init__(self, result, left_variable, right_variable, operation_type):
         assert is_valid_rvalue(left_variable)
         assert is_valid_rvalue(right_variable)
         assert is_valid_lvalue(result)
         assert isinstance(operation_type, BinaryType)
-        super(Binary, self).__init__()
+        super().__init__()
         self._variables = [left_variable, right_variable]
         self._type = operation_type
         self._lvalue = result
         if BinaryType.return_bool(operation_type):
-            result.set_type(ElementaryType('bool'))
+            result.set_type(ElementaryType("bool"))
         else:
             result.set_type(left_variable.type)
 
@@ -172,13 +173,17 @@ class Binary(OperationWithLValue):
             points = self.lvalue.points_to
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
-            return '{}(-> {}) = {} {} {}'.format(str(self.lvalue),
-                                                 points,
-                                                 self.variable_left,
-                                                 self.type_str,
-                                                 self.variable_right)
-        return '{}({}) = {} {} {}'.format(str(self.lvalue),
-                                          self.lvalue.type,
-                                          self.variable_left,
-                                          self.type_str,
-                                          self.variable_right)
+            return "{}(-> {}) = {} {} {}".format(
+                str(self.lvalue),
+                points,
+                self.variable_left,
+                self.type_str,
+                self.variable_right,
+            )
+        return "{}({}) = {} {} {}".format(
+            str(self.lvalue),
+            self.lvalue.type,
+            self.variable_left,
+            self.type_str,
+            self.variable_right,
+        )

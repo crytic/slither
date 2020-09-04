@@ -1,12 +1,12 @@
 from typing import Dict
 
-from .variable_declaration import VariableDeclarationSolc
+from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 from slither.core.variables.event_variable import EventVariable
 
 
 class EventVariableSolc(VariableDeclarationSolc):
     def __init__(self, variable: EventVariable, variable_data: Dict):
-        super(EventVariableSolc, self).__init__(variable, variable_data)
+        super().__init__(variable, variable_data)
 
     @property
     def underlying_variable(self) -> EventVariable:
@@ -25,4 +25,4 @@ class EventVariableSolc(VariableDeclarationSolc):
         if "indexed" in attributes:
             self.underlying_variable.indexed = attributes["indexed"]
 
-        super(EventVariableSolc, self)._analyze_variable_attributes(attributes)
+        super()._analyze_variable_attributes(attributes)

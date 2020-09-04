@@ -1,24 +1,21 @@
-import argparse
 import logging
+import os
 import sys
 import traceback
-import operator
-import os
 
-from .model import train_unsupervised
-from .encode import encode_contract, load_contracts
-from .cache import save_cache
+from slither.tools.similarity.cache import save_cache
+from slither.tools.similarity.encode import encode_contract, load_contracts
+from slither.tools.similarity.model import train_unsupervised
 
 logger = logging.getLogger("Slither-simil")
 
 
-def train(args):
+def train(args):  # pylint: disable=too-many-locals
 
     try:
         last_data_train_filename = "last_data_train.txt"
         model_filename = args.model
         dirname = args.input
-        nsamples = args.nsamples
 
         if dirname is None:
             logger.error("The train mode requires the input parameter.")
@@ -30,13 +27,13 @@ def train(args):
         with open(last_data_train_filename, "w") as f:
             for filename in contracts:
                 # cache[filename] = dict()
-                for (filename, contract, function), ir in encode_contract(
+                for (filename_inner, contract, function), ir in encode_contract(
                     filename, **vars(args)
                 ).items():
                     if ir != []:
                         x = " ".join(ir)
                         f.write(x + "\n")
-                        cache.append((os.path.split(filename)[-1], contract, function, x))
+                        cache.append((os.path.split(filename_inner)[-1], contract, function, x))
 
         logger.info("Starting training")
         model = train_unsupervised(input=last_data_train_filename, model="skipgram")
@@ -51,7 +48,7 @@ def train(args):
         save_cache(cache, "cache.npz")
         logger.info("Done!")
 
-    except Exception:
+    except Exception:  # pylint: disable=broad-except
         logger.error("Error in %s" % args.filename)
         logger.error(traceback.format_exc())
         sys.exit(-1)
