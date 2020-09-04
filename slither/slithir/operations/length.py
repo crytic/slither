@@ -5,6 +5,7 @@ from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 
 class Length(OperationWithLValue):
     def __init__(self, value, lvalue):
+        super().__init__()
         assert is_valid_rvalue(value)
         assert is_valid_lvalue(lvalue)
         self._value = value

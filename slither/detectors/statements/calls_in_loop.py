@@ -1,13 +1,15 @@
-"""
-"""
 from slither.core.cfg.node import NodeType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import HighLevelCall, LibraryCall, LowLevelCall, Send, Transfer
+from slither.slithir.operations import (
+    HighLevelCall,
+    LibraryCall,
+    LowLevelCall,
+    Send,
+    Transfer,
+)
 
 
 class MultipleCallsInLoop(AbstractDetector):
-    """
-    """
 
     ARGUMENT = "calls-loop"
     HELP = "Multiple calls in a loop"
@@ -72,8 +74,7 @@ If one of the destinations has a fallback function that reverts, `bad` will alwa
         return ret
 
     def _detect(self):
-        """
-        """
+        """"""
         results = []
         for c in self.slither.contracts_derived:
             values = self.detect_call_in_loop(c)

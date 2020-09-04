@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 class Identifier(ExpressionTyped):
     def __init__(self, value):
-        super(Identifier, self).__init__()
+        super().__init__()
         self._value: "Variable" = value
 
     @property

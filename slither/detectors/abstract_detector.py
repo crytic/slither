@@ -11,7 +11,7 @@ class IncorrectDetectorInitialization(Exception):
     pass
 
 
-class DetectorClassification:
+class DetectorClassification:  # pylint: disable=too-few-public-methods
     HIGH = 0
     MEDIUM = 1
     LOW = 2
@@ -131,12 +131,14 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         """TODO Documentation"""
         return []
 
+    # pylint: disable=too-many-branches
     def detect(self):
         all_results = self._detect()
         # Keep only dictionaries
         all_results = [r.data for r in all_results]
         results = []
         # only keep valid result, and remove dupplicate
+        # pylint: disable=expression-not-assigned
         [
             results.append(r)
             for r in all_results
@@ -180,8 +182,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                         else:
                             result["patches_diff"][file] = diff
 
-                except FormatImpossible as e:
-                    self._log(f'\nImpossible to patch:\n\t{result["description"]}\t{e}')
+                except FormatImpossible as exception:
+                    self._log(f'\nImpossible to patch:\n\t{result["description"]}\t{exception}')
 
         if results and self.slither.triage_mode:
             while True:
@@ -228,6 +230,6 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return output
 
     @staticmethod
-    def _format(slither, result):
+    def _format(_slither, _result):
         """Implement format"""
         return

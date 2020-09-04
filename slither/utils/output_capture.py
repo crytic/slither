@@ -9,7 +9,7 @@ class CapturingStringIO(io.StringIO):
     """
 
     def __init__(self, original_io=None):
-        super(CapturingStringIO, self).__init__()
+        super().__init__()
         self.original_io = original_io
 
     def write(self, s):

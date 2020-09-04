@@ -4,9 +4,9 @@ from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 
 
-class InternalCall(Call, OperationWithLValue):
+class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     def __init__(self, function, nbr_arguments, result, type_call):
-        super(InternalCall, self).__init__()
+        super().__init__()
         if isinstance(function, Function):
             self._function = function
             self._function_name = function.name

@@ -1,16 +1,20 @@
 from typing import Optional, TYPE_CHECKING
 
-from .expression import Expression
+from slither.core.expressions.expression import Expression
 
 if TYPE_CHECKING:
-    from ..solidity_types.type import Type
+    from slither.core.solidity_types.type import Type
 
 
-class ExpressionTyped(Expression):
+class ExpressionTyped(Expression):  # pylint: disable=too-few-public-methods
     def __init__(self):
-        super(ExpressionTyped, self).__init__()
+        super().__init__()
         self._type: Optional["Type"] = None
 
     @property
     def type(self):
         return self._type
+
+    @type.setter
+    def type(self, new_type: "Type"):
+        self._type = new_type

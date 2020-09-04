@@ -3,7 +3,7 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 
 class TmpNewStructure(OperationWithLValue):
     def __init__(self, contract_name, lvalue):
-        super(TmpNewStructure, self).__init__()
+        super().__init__()
         self._contract_name = contract_name
         self._lvalue = lvalue
 

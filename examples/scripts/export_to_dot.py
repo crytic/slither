@@ -4,7 +4,7 @@ from slither.slither import Slither
 
 if len(sys.argv) != 2:
     print("python function_called.py contract.sol")
-    exit(-1)
+    sys.exit(-1)
 
 # Init slither
 slither = Slither(sys.argv[1])

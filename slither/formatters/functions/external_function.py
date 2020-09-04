@@ -2,7 +2,7 @@ import re
 from slither.formatters.utils.patches import create_patch
 
 
-def format(slither, result):
+def custom_format(slither, result):
     elements = result["elements"]
     for element in elements:
         target_contract = slither.get_contract_from_name(

@@ -6,7 +6,7 @@ from slither.core.expressions.expression import Expression
 class TupleExpression(Expression):
     def __init__(self, expressions):
         assert all(isinstance(x, Expression) for x in expressions if x)
-        super(TupleExpression, self).__init__()
+        super().__init__()
         self._expressions = expressions
 
     @property

@@ -1,13 +1,14 @@
-from .variable import SlithIRVariable
 from slither.core.variables.state_variable import StateVariable
-from slither.core.children.child_node import ChildNode
+from slither.slithir.variables.variable import SlithIRVariable
 
 
-class StateIRVariable(StateVariable, SlithIRVariable):
+class StateIRVariable(
+    StateVariable, SlithIRVariable
+):  # pylint: disable=too-many-instance-attributes
     def __init__(self, state_variable):
         assert isinstance(state_variable, StateVariable)
 
-        super(StateVariable, self).__init__()
+        super().__init__()
 
         # initiate ChildContract
         self.set_contract(state_variable.contract)

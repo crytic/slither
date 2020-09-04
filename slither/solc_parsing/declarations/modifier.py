@@ -84,4 +84,4 @@ class ModifierSolc(FunctionSolc):
             placeholder_node = self._new_node(NodeType.PLACEHOLDER, statement["src"])
             link_nodes(node.underlying_node, placeholder_node.underlying_node)
             return placeholder_node
-        return super(ModifierSolc, self)._parse_statement(statement, node)
+        return super()._parse_statement(statement, node)

@@ -8,7 +8,7 @@ class Unpack(OperationWithLValue):
         assert is_valid_lvalue(result)
         assert isinstance(tuple_var, TupleVariable)
         assert isinstance(idx, int)
-        super(Unpack, self).__init__()
+        super().__init__()
         self._tuple = tuple_var
         self._idx = idx
         self._lvalue = result

@@ -6,12 +6,21 @@
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
 from slither.core.declarations import Function
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Assignment, Balance, Binary, BinaryType, HighLevelCall
+from slither.slithir.operations import (
+    Assignment,
+    Balance,
+    Binary,
+    BinaryType,
+    HighLevelCall,
+)
 
 from slither.core.solidity_types import MappingType, ElementaryType
 
 from slither.core.variables.state_variable import StateVariable
-from slither.core.declarations.solidity_variables import SolidityVariable, SolidityVariableComposed
+from slither.core.declarations.solidity_variables import (
+    SolidityVariable,
+    SolidityVariableComposed,
+)
 
 
 class IncorrectStrictEquality(AbstractDetector):
@@ -133,7 +142,7 @@ contract Crowdsale{
 
                 # Output each node with the function info header as a separate result.
                 for node in nodes:
-                    node_info = func_info + [f"\t- ", node, "\n"]
+                    node_info = func_info + ["\t- ", node, "\n"]
 
                     res = self.generate_result(node_info)
                     results.append(res)

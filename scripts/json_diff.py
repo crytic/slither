@@ -1,11 +1,12 @@
 import sys
 import json
-from deepdiff import DeepDiff  # pip install deepdiff
 from pprint import pprint
+from deepdiff import DeepDiff  # pip install deepdiff
+
 
 if len(sys.argv) != 3:
     print("Usage: python json_diff.py 1.json 2.json")
-    exit(-1)
+    sys.exit(-1)
 
 with open(sys.argv[1], encoding="utf8") as f:
     d1 = json.load(f)

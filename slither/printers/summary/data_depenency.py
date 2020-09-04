@@ -10,13 +10,11 @@ from slither.utils.myprettytable import MyPrettyTable
 
 def _get(v, c):
     return list(
-        set(
-            [
-                d.name
-                for d in get_dependencies(v, c)
-                if not isinstance(d, (TemporaryVariable, ReferenceVariable))
-            ]
-        )
+        {
+            d.name
+            for d in get_dependencies(v, c)
+            if not isinstance(d, (TemporaryVariable, ReferenceVariable))
+        }
     )
 
 
@@ -29,9 +27,9 @@ class DataDependency(AbstractPrinter):
 
     def output(self, _filename):
         """
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
 
         all_tables = []

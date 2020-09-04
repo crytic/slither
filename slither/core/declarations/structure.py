@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class Structure(ChildContract, SourceMapping):
     def __init__(self):
-        super(Structure, self).__init__()
+        super().__init__()
         self._name = None
         self._canonical_name = None
         self._elems: Dict[str, "StructureVariable"] = dict()

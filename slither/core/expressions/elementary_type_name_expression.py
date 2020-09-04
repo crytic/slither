@@ -8,7 +8,7 @@ from slither.core.solidity_types.type import Type
 class ElementaryTypeNameExpression(Expression):
     def __init__(self, t):
         assert isinstance(t, Type)
-        super(ElementaryTypeNameExpression, self).__init__()
+        super().__init__()
         self._type = t
 
     @property

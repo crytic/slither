@@ -1,5 +1,5 @@
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 import re
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
 class RightToLeftOverride(AbstractDetector):
@@ -65,25 +65,25 @@ contract Token
                 # If we couldn't find the character in the remainder of source, stop.
                 if result_index == -1:
                     break
-                else:
-                    # We found another instance of the character, define our output
-                    idx = start_index + result_index
 
-                    relative = self.slither.crytic_compile.filename_lookup(filename).relative
-                    info = f"{relative} contains a unicode right-to-left-override character at byte offset {idx}:\n"
+                # We found another instance of the character, define our output
+                idx = start_index + result_index
 
-                    # We have a patch, so pattern.find will return at least one result
+                relative = self.slither.crytic_compile.filename_lookup(filename).relative
+                info = f"{relative} contains a unicode right-to-left-override character at byte offset {idx}:\n"
 
-                    info += f"\t- {pattern.findall(source_encoded)[0]}\n"
-                    res = self.generate_result(info)
-                    res.add_other(
-                        "rtlo-character",
-                        (filename, idx, len(self.RTLO_CHARACTER_ENCODED)),
-                        self.slither,
-                    )
-                    results.append(res)
+                # We have a patch, so pattern.find will return at least one result
 
-                    # Advance the start index for the next iteration
-                    start_index = result_index + 1
+                info += f"\t- {pattern.findall(source_encoded)[0]}\n"
+                res = self.generate_result(info)
+                res.add_other(
+                    "rtlo-character",
+                    (filename, idx, len(self.RTLO_CHARACTER_ENCODED)),
+                    self.slither,
+                )
+                results.append(res)
+
+                # Advance the start index for the next iteration
+                start_index = result_index + 1
 
         return results

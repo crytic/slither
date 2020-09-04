@@ -1,14 +1,15 @@
-from .variable import SlithIRVariable
-from .temporary import TemporaryVariable
 from slither.core.variables.local_variable import LocalVariable
-from slither.core.children.child_node import ChildNode
+from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.variables.variable import SlithIRVariable
 
 
-class LocalIRVariable(LocalVariable, SlithIRVariable):
+class LocalIRVariable(
+    LocalVariable, SlithIRVariable
+):  # pylint: disable=too-many-instance-attributes
     def __init__(self, local_variable):
         assert isinstance(local_variable, LocalVariable)
 
-        super(LocalIRVariable, self).__init__()
+        super().__init__()
 
         # initiate ChildContract
         self.set_function(local_variable.function)

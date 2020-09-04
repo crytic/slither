@@ -5,13 +5,13 @@ from slither.slithir.utils.utils import is_valid_rvalue
 
 class Condition(Operation):
     """
-       Condition
-       Only present as last operation in conditional node
+    Condition
+    Only present as last operation in conditional node
     """
 
     def __init__(self, value):
         assert is_valid_rvalue(value)
-        super(Condition, self).__init__()
+        super().__init__()
         self._value = value
 
     @property

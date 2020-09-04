@@ -65,8 +65,7 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
         return ret
 
     def _detect(self):
-        """ Detect the functions that use tx.origin in a conditional node
-        """
+        """Detect the functions that use tx.origin in a conditional node"""
         results = []
         for c in self.contracts:
             values = self.detect_tx_origin(c)

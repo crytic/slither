@@ -1,14 +1,11 @@
-import argparse
 import logging
+import operator
 import sys
 import traceback
-import operator
-import numpy as np
 
-from .model import load_model
-from .encode import encode_contract, load_and_encode, parse_target
-from .cache import save_cache
-from .similarity import similarity
+from slither.tools.similarity.encode import encode_contract, load_and_encode, parse_target
+from slither.tools.similarity.model import load_model
+from slither.tools.similarity.similarity import similarity
 
 logger = logging.getLogger("Slither-simil")
 
@@ -49,7 +46,7 @@ def test(args):
             score = str(round(score, 3))
             logger.info(format_table.format(*(list(x) + [score])))
 
-    except Exception:
+    except Exception:  # pylint: disable=broad-except
         logger.error("Error in %s" % args.filename)
         logger.error(traceback.format_exc())
         sys.exit(-1)

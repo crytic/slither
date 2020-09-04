@@ -2,8 +2,8 @@ import argparse
 import logging
 from collections import defaultdict
 
-from slither import Slither
 from crytic_compile import cryticparser
+from slither import Slither
 from slither.utils.erc import ERCS
 from slither.utils.output import output_to_json
 from .erc.ercs import generic_erc_checks
@@ -31,7 +31,8 @@ def parse_args():
     :return: Returns the arguments for the program.
     """
     parser = argparse.ArgumentParser(
-        description="Check the ERC 20 conformance", usage="slither-check-erc project contractName"
+        description="Check the ERC 20 conformance",
+        usage="slither-check-erc project contractName",
     )
 
     parser.add_argument("project", help="The codebase to be tested.")

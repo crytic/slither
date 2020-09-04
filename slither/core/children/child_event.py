@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 class ChildEvent:
     def __init__(self):
-        super(ChildEvent, self).__init__()
+        super().__init__()
         self._event = None
 
     def set_event(self, event: "Event"):

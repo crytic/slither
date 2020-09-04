@@ -7,7 +7,10 @@ from typing import List, Tuple
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, Contract
-from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityVariable
+from slither.core.declarations.solidity_variables import (
+    SolidityVariableComposed,
+    SolidityVariable,
+)
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Binary, BinaryType
 
@@ -33,7 +36,9 @@ def _timestamp(func: Function) -> List[Node]:
     return sorted(list(ret), key=lambda x: x.node_id)
 
 
-def _detect_dangerous_timestamp(contract: Contract) -> List[Tuple[Function, List[Node]]]:
+def _detect_dangerous_timestamp(
+    contract: Contract,
+) -> List[Tuple[Function, List[Node]]]:
     """
     Args:
         contract (Contract)
@@ -49,8 +54,6 @@ def _detect_dangerous_timestamp(contract: Contract) -> List[Tuple[Function, List
 
 
 class Timestamp(AbstractDetector):
-    """
-    """
 
     ARGUMENT = "timestamp"
     HELP = "Dangerous usage of `block.timestamp`"
@@ -67,8 +70,7 @@ class Timestamp(AbstractDetector):
     WIKI_RECOMMENDATION = "Avoid relying on `block.timestamp`."
 
     def _detect(self):
-        """
-        """
+        """"""
         results = []
 
         for c in self.contracts:

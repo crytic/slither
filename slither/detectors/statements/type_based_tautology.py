@@ -8,6 +8,56 @@ from slither.slithir.variables import Constant
 from slither.core.solidity_types.elementary_type import Int, Uint
 
 
+def typeRange(t):
+    bits = int(t.split("int")[1])
+    if t in Uint:
+        return 0, (2 ** bits) - 1
+    if t in Int:
+        v = (2 ** (bits - 1)) - 1
+        return -v, v
+    return None
+
+
+def _detect_tautology_or_contradiction(low, high, cval, op):
+    """
+    Return true if "[low high] op cval " is always true or always false
+    :param low:
+    :param high:
+    :param cval:
+    :param op:
+    :return:
+    """
+    if op == BinaryType.LESS:
+        # a < cval
+        # its a tautology if
+        # high(a) < cval
+        # its a contradiction if
+        # low(a) >= cval
+        return high < cval or low >= cval
+    if op == BinaryType.GREATER:
+        # a > cval
+        # its a tautology if
+        # low(a) > cval
+        # its a contradiction if
+        # high(a) <= cval
+        return low > cval or high <= cval
+    if op == BinaryType.LESS_EQUAL:
+        # a <= cval
+        # its a tautology if
+        # high(a) <= cval
+        # its a contradiction if
+        # low(a) > cval
+        return (high <= cval) or (low > cval)
+    if op == BinaryType.GREATER_EQUAL:
+        # a >= cval
+        # its a tautology if
+        # low(a) >= cval
+        # its a contradiction if
+        # high(a) < cval
+        return (low >= cval) or (high < cval)
+    return False
+
+
 class TypeBasedTautology(AbstractDetector):
     """
     Type-based tautology or contradiction
@@ -50,59 +100,12 @@ contract A {
         """Fix the incorrect comparison by changing the value type or the comparison."""
     )
 
-    def typeRange(self, t):
-        bits = int(t.split("int")[1])
-        if t in Uint:
-            return (0, (2 ** bits) - 1)
-        if t in Int:
-            v = (2 ** (bits - 1)) - 1
-            return (-v, v)
-
     flip_table = {
         BinaryType.GREATER: BinaryType.LESS,
         BinaryType.GREATER_EQUAL: BinaryType.LESS_EQUAL,
         BinaryType.LESS: BinaryType.GREATER,
         BinaryType.LESS_EQUAL: BinaryType.GREATER_EQUAL,
     }
-
-    def _detect_tautology_or_contradiction(self, low, high, cval, op):
-        """
-        Return true if "[low high] op cval " is always true or always false
-        :param low:
-        :param high:
-        :param cval:
-        :param op:
-        :return:
-        """
-        if op == BinaryType.LESS:
-            # a < cval
-            # its a tautology if
-            # high(a) < cval
-            # its a contradiction if
-            # low(a) >= cval
-            return high < cval or low >= cval
-        elif op == BinaryType.GREATER:
-            # a > cval
-            # its a tautology if
-            # low(a) > cval
-            # its a contradiction if
-            # high(a) <= cval
-            return low > cval or high <= cval
-        elif op == BinaryType.LESS_EQUAL:
-            # a <= cval
-            # its a tautology if
-            # high(a) <= cval
-            # its a contradiction if
-            # low(a) > cval
-            return (high <= cval) or (low > cval)
-        elif op == BinaryType.GREATER_EQUAL:
-            # a >= cval
-            # its a tautology if
-            # low(a) >= cval
-            # its a contradiction if
-            # high(a) < cval
-            return (low >= cval) or (high < cval)
-        return False
 
     def detect_type_based_tautologies(self, contract):
         """
@@ -116,7 +119,7 @@ contract A {
         allInts = Int + Uint
 
         # Loop for each function and modifier.
-        for function in contract.functions_declared:
+        for function in contract.functions_declared:  # pylint: disable=too-many-nested-blocks
             f_results = set()
 
             for node in function.nodes:
@@ -127,8 +130,8 @@ contract A {
                             cval = ir.variable_left.value
                             rtype = str(ir.variable_right.type)
                             if rtype in allInts:
-                                (low, high) = self.typeRange(rtype)
-                                if self._detect_tautology_or_contradiction(
+                                (low, high) = typeRange(rtype)
+                                if _detect_tautology_or_contradiction(
                                     low, high, cval, self.flip_table[ir.type]
                                 ):
                                     f_results.add(node)
@@ -137,10 +140,8 @@ contract A {
                             cval = ir.variable_right.value
                             ltype = str(ir.variable_left.type)
                             if ltype in allInts:
-                                (low, high) = self.typeRange(ltype)
-                                if self._detect_tautology_or_contradiction(
-                                    low, high, cval, ir.type
-                                ):
+                                (low, high) = typeRange(ltype)
+                                if _detect_tautology_or_contradiction(low, high, cval, ir.type):
                                     f_results.add(node)
             results.append((function, f_results))
 

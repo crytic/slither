@@ -58,7 +58,7 @@ def check_call(func, taints):
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("python taint_mapping.py taint.sol")
-        exit(-1)
+        sys.exit(-1)
 
     # Init slither
     slither = Slither(sys.argv[1])
@@ -79,11 +79,11 @@ if __name__ == "__main__":
                 visit_node(function.entry_point, [])
                 print("All variables tainted : {}".format([str(v) for v in slither.context[KEY]]))
 
+            for function in contract.functions:
+                check_call(function, slither.context[KEY])
+
     print(
         "All state variables tainted : {}".format(
             [str(v) for v in prev_taints if isinstance(v, StateVariable)]
         )
     )
-
-    for function in contract.functions:
-        check_call(function, slither.context[KEY])

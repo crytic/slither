@@ -22,16 +22,16 @@ class PrinterInheritance(AbstractPrinter):
 
     def output(self, filename):
         """
-            Output the inheritance relation
+        Output the inheritance relation
 
-            _filename is not used
-            Args:
-                _filename(string)
+        _filename is not used
+        Args:
+            _filename(string)
         """
         info = "Inheritance\n"
 
         if not self.contracts:
-            return
+            return []
 
         info += blue("Child_Contract -> ") + green("Immediate_Base_Contracts")
         info += green(" [Not_Immediate_Base_Contracts]")

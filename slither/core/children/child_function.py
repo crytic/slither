@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 class ChildFunction:
     def __init__(self):
-        super(ChildFunction, self).__init__()
+        super().__init__()
         self._function = None
 
     def set_function(self, function: "Function"):

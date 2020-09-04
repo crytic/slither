@@ -6,7 +6,7 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 class SolidityCall(Call, OperationWithLValue):
     def __init__(self, function, nbr_arguments, result, type_call):
         assert isinstance(function, SolidityFunction)
-        super(SolidityCall, self).__init__()
+        super().__init__()
         self._function = function
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call

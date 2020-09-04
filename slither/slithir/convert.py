@@ -1,6 +1,7 @@
 import logging
 from typing import List
 
+# pylint: disable= too-many-lines,import-outside-toplevel,too-many-branches,too-many-statements,too-many-nested-blocks
 from slither.core.declarations import (
     Contract,
     Enum,
@@ -87,7 +88,10 @@ def convert_expression(expression, node):
         cond.set_node(node)
         result = [cond]
         return result
-    if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
+    if isinstance(expression, Identifier) and node.type in [
+        NodeType.IF,
+        NodeType.IFLOOP,
+    ]:
         cond = Condition(expression.value)
         cond.set_expression(expression)
         cond.set_node(node)
@@ -202,8 +206,23 @@ def convert_arguments(arguments):
 
 def is_temporary(ins):
     return isinstance(
-        ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure)
+        ins,
+        (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure),
     )
+
+
+def _make_function_type(func: Function) -> FunctionType:
+    parameters = []
+    returns = []
+    for parameter in func.parameters:
+        v = FunctionTypeVariable()
+        v.name = parameter.name
+        parameters.append(v)
+    for return_var in func.returns:
+        v = FunctionTypeVariable()
+        v.name = return_var.name
+        returns.append(v)
+    return FunctionType(parameters, returns)
 
 
 # endregion
@@ -216,7 +235,7 @@ def is_temporary(ins):
 
 def integrate_value_gas(result):
     """
-        Integrate value and gas temporary arguments to call instruction
+    Integrate value and gas temporary arguments to call instruction
     """
     was_changed = True
 
@@ -240,8 +259,7 @@ def integrate_value_gas(result):
         variable_to_replace = {}
 
         # Replace call to value, gas to an argument of the real call
-        for idx in range(len(result)):
-            ins = result[idx]
+        for idx, ins in enumerate(result):
             # value can be shadowed, so we check that the prev ins
             # is an Argument
             if is_value(ins) and isinstance(result[idx - 1], Argument):
@@ -276,7 +294,7 @@ def integrate_value_gas(result):
                     was_changed = True
                     ins.call_id = variable_to_replace[ins.call_id].name
 
-    calls = list(set([str(c) for c in calls]))
+    calls = list({str(c) for c in calls})
     idx = 0
     calls_d = {}
     for call in calls:
@@ -296,7 +314,7 @@ def integrate_value_gas(result):
 
 def propagate_type_and_convert_call(result, node):
     """
-        Propagate the types variables and convert tmp call to real call operation
+    Propagate the types variables and convert tmp call to real call operation
     """
     calls_value = {}
     calls_gas = {}
@@ -333,6 +351,9 @@ def propagate_type_and_convert_call(result, node):
                 ins.call_gas = calls_gas[ins.call_id]
 
         if isinstance(ins, (Call, NewContract, NewStructure)):
+            # We might have stored some arguments for libraries
+            if ins.arguments:
+                call_data = ins.arguments + call_data
             ins.arguments = call_data
             call_data = []
 
@@ -420,7 +441,7 @@ def _convert_type_contract(ir, slither):
             interfaceId = interfaceId ^ get_function_id(entry_point.full_name)
         assignment = Assignment(
             ir.lvalue,
-            Constant(str(interfaceId), type=ElementaryType("bytes4")),
+            Constant(str(interfaceId), constant_type=ElementaryType("bytes4")),
             ElementaryType("bytes4"),
         )
         assignment.set_expression(ir.expression)
@@ -438,7 +459,7 @@ def _convert_type_contract(ir, slither):
     raise SlithIRError(f"type({contract.name}).{ir.variable_right} is unknown")
 
 
-def propagate_types(ir, node):
+def propagate_types(ir, node):  # pylint: disable=too-many-locals
     # propagate the type
     using_for = node.function.contract.using_for
     if isinstance(ir, OperationWithLValue):
@@ -461,7 +482,7 @@ def propagate_types(ir, node):
 
                 # Temporary operation (they are removed later)
                 if t is None:
-                    return
+                    return None
 
                 if isinstance(t, ElementaryType) and t.name == "address":
                     if can_be_solidity_func(ir):
@@ -599,17 +620,7 @@ def propagate_types(ir, node):
                             if x.name == str(ir.variable_right)
                         )
                     )
-                    parameters = []
-                    returns = []
-                    for parameter in targeted_function.parameters:
-                        v = FunctionTypeVariable()
-                        v.name = parameter.name
-                        parameters.append(v)
-                    for return_var in targeted_function.returns:
-                        v = FunctionTypeVariable()
-                        v.name = return_var.name
-                        returns.append(v)
-                    t = FunctionType(parameters, returns)
+                    t = _make_function_type(targeted_function)
                     ir.lvalue.set_type(t)
                 elif isinstance(left, (Variable, SolidityVariable)):
                     t = ir.variable_left.type
@@ -635,7 +646,8 @@ def propagate_types(ir, node):
                             # We dont need to check for function collision, as solc prevents the use of selector
                             # if there are multiple functions with the same name
                             f = next(
-                                (f for f in type_t.functions if f.name == ir.variable_right), None
+                                (f for f in type_t.functions if f.name == ir.variable_right),
+                                None,
                             )
                             if f:
                                 ir.lvalue.set_type(f)
@@ -697,17 +709,23 @@ def propagate_types(ir, node):
                 # temporary operation; they will be removed
                 pass
             else:
-                raise SlithIRError("Not handling {} during type propgation".format(type(ir)))
+                raise SlithIRError("Not handling {} during type propagation".format(type(ir)))
+    return None
 
 
-def extract_tmp_call(ins, contract):
+def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
     assert isinstance(ins, TmpCall)
 
     if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
-        call = InternalDynamicCall(ins.lvalue, ins.called, ins.called.type)
-        call.set_expression(ins.expression)
-        call.call_id = ins.call_id
-        return call
+        # If the call is made to a variable member, where the member is this
+        # We need to convert it to a HighLelelCall and not an internal dynamic call
+        if isinstance(ins.ori, Member) and ins.ori.variable_left == SolidityVariable("this"):
+            pass
+        else:
+            call = InternalDynamicCall(ins.lvalue, ins.called, ins.called.type)
+            call.set_expression(ins.expression)
+            call.call_id = ins.call_id
+            return call
     if isinstance(ins.ori, Member):
         # If there is a call on an inherited contract, it is an internal call or an event
         if ins.ori.variable_left in contract.inheritance + [contract]:
@@ -743,6 +761,73 @@ def extract_tmp_call(ins, contract):
             libcall.set_expression(ins.expression)
             libcall.call_id = ins.call_id
             return libcall
+        if isinstance(ins.ori.variable_left, Function):
+            # Support for library call where the parameter is a function
+            # We could merge this with the standard library handling
+            # Except that we will have some troubles with using_for
+            # As the type of the funciton will not match function()
+            # Additionally we do not have a correct view on the parameters of the tmpcall
+            # At this level
+            #
+            # library FunctionExtensions {
+            #     function h(function() internal _t, uint8) internal {  }
+            # }
+            # contract FunctionMembers {
+            #     using FunctionExtensions for function();
+            #
+            #     function f() public {
+            #         f.h(1);
+            #     }
+            # }
+            using_for = ins.node.function.contract.using_for
+
+            targeted_libraries = (
+                [] + using_for.get("*", []) + using_for.get(FunctionType([], []), [])
+            )
+            lib_contract: Contract
+            candidates = []
+            for lib_contract_type in targeted_libraries:
+                if not isinstance(lib_contract_type, UserDefinedType) and isinstance(
+                    lib_contract_type.type, Contract
+                ):
+                    continue
+                lib_contract = lib_contract_type.type
+                for lib_func in lib_contract.functions:
+                    if lib_func.name == ins.ori.variable_right:
+                        candidates.append(lib_func)
+
+            if len(candidates) == 1:
+                lib_func = candidates[0]
+                lib_call = LibraryCall(
+                    lib_func.contract,
+                    Constant(lib_func.name),
+                    len(lib_func.parameters),
+                    ins.lvalue,
+                    "d",
+                )
+                lib_call.set_expression(ins.expression)
+                lib_call.set_node(ins.node)
+                lib_call.call_gas = ins.call_gas
+                lib_call.call_id = ins.call_id
+                lib_call.set_node(ins.node)
+                lib_call.function = lib_func
+                lib_call.arguments.append(ins.ori.variable_left)
+                return lib_call
+            # We do not support something lik
+            # library FunctionExtensions {
+            #     function h(function() internal _t, uint8) internal {  }
+            #     function h(function() internal _t, bool) internal {  }
+            # }
+            # contract FunctionMembers {
+            #     using FunctionExtensions for function();
+            #
+            #     function f() public {
+            #         f.h(1);
+            #     }
+            # }
+            to_log = "Slither does not support dynamic functions to libraries if functions have the same name"
+            to_log += f"{[candidate.full_name for candidate in candidates]}"
+            raise SlithIRError(to_log)
         msgcall = HighLevelCall(
             ins.ori.variable_left,
             ins.ori.variable_right,
@@ -769,7 +854,10 @@ def extract_tmp_call(ins, contract):
             ins.called = SolidityFunction("blockhash(uint256)")
         elif str(ins.called) == "this.balance":
             s = SolidityCall(
-                SolidityFunction("this.balance()"), ins.nbr_arguments, ins.lvalue, ins.type_call
+                SolidityFunction("this.balance()"),
+                ins.nbr_arguments,
+                ins.lvalue,
+                ins.type_call,
             )
             s.set_expression(ins.expression)
             return s
@@ -854,11 +942,11 @@ def can_be_low_level(ir):
 
 def convert_to_low_level(ir):
     """
-        Convert to a transfer/send/or low level call
-        The funciton assume to receive a correct IR
-        The checks must be done by the caller
+    Convert to a transfer/send/or low level call
+    The funciton assume to receive a correct IR
+    The checks must be done by the caller
 
-        Must be called after can_be_low_level
+    Must be called after can_be_low_level
     """
     if ir.function_name == "transfer":
         assert len(ir.arguments) == 1
@@ -867,7 +955,7 @@ def convert_to_low_level(ir):
         ir.set_expression(prev_ir.expression)
         ir.set_node(prev_ir.node)
         return ir
-    elif ir.function_name == "send":
+    if ir.function_name == "send":
         assert len(ir.arguments) == 1
         prev_ir = ir
         ir = Send(ir.destination, ir.arguments[0], ir.lvalue)
@@ -875,7 +963,7 @@ def convert_to_low_level(ir):
         ir.set_node(prev_ir.node)
         ir.lvalue.set_type(ElementaryType("bool"))
         return ir
-    elif ir.function_name in ["call", "delegatecall", "callcode", "staticcall"]:
+    if ir.function_name in ["call", "delegatecall", "callcode", "staticcall"]:
         new_ir = LowLevelCall(
             ir.destination, ir.function_name, ir.nbr_arguments, ir.lvalue, ir.type_call
         )
@@ -921,7 +1009,7 @@ def convert_to_solidity_func(ir):
         and len(new_ir.arguments) == 2
         and isinstance(new_ir.arguments[1], list)
     ):
-        types = [x for x in new_ir.arguments[1]]
+        types = list(new_ir.arguments[1])
         new_ir.lvalue.set_type(types)
     # abi.decode where the type to decode is a singleton
     # abi.decode(a, (uint))
@@ -1055,12 +1143,16 @@ def convert_to_pop(ir, node):
     return ret
 
 
-def look_for_library(contract, ir, node, using_for, t):
+def look_for_library(contract, ir, using_for, t):
     for destination in using_for[t]:
         lib_contract = contract.slither.get_contract_from_name(str(destination))
         if lib_contract:
             lib_call = LibraryCall(
-                lib_contract, ir.function_name, ir.nbr_arguments, ir.lvalue, ir.type_call
+                lib_contract,
+                ir.function_name,
+                ir.nbr_arguments,
+                ir.lvalue,
+                ir.type_call,
             )
             lib_call.set_expression(ir.expression)
             lib_call.set_node(ir.node)
@@ -1080,12 +1172,12 @@ def convert_to_library(ir, node, using_for):
     contract = node.function.contract_declarer
     t = ir.destination.type
     if t in using_for:
-        new_ir = look_for_library(contract, ir, node, using_for, t)
+        new_ir = look_for_library(contract, ir, using_for, t)
         if new_ir:
             return new_ir
 
     if "*" in using_for:
-        new_ir = look_for_library(contract, ir, node, using_for, "*")
+        new_ir = look_for_library(contract, ir, using_for, "*")
         if new_ir:
             return new_ir
 
@@ -1094,8 +1186,8 @@ def convert_to_library(ir, node, using_for):
 
 def get_type(t):
     """
-        Convert a type to a str
-        If the instance is a Contract, return 'address' instead
+    Convert a type to a str
+    If the instance is a Contract, return 'address' instead
     """
     if isinstance(t, UserDefinedType):
         if isinstance(t.type, Contract):
@@ -1217,7 +1309,8 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
         if can_be_solidity_func(ir):
             return convert_to_solidity_func(ir)
     if not func:
-        logger.error("Function not found {}".format(sig))
+        to_log = "Function not found {}".format(sig)
+        logger.error(to_log)
     ir.function = func
     if isinstance(func, Function):
         return_type = func.return_type
@@ -1271,8 +1364,8 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
 
 def find_references_origin(irs):
     """
-        Make lvalue of each Index, Member operation
-        points to the left variable
+    Make lvalue of each Index, Member operation
+    points to the left variable
     """
     for ir in irs:
         if isinstance(ir, (Index, Member)):
@@ -1292,7 +1385,14 @@ def remove_temporary(result):
         ins
         for ins in result
         if not isinstance(
-            ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure)
+            ins,
+            (
+                Argument,
+                TmpNewElementaryType,
+                TmpNewContract,
+                TmpNewArray,
+                TmpNewStructure,
+            ),
         )
     ]
 
@@ -1356,13 +1456,12 @@ def convert_constant_types(irs):
                     if ir.lvalue.type.type in ElementaryTypeInt:
                         if isinstance(ir.rvalue, Function):
                             continue
-                        elif isinstance(ir.rvalue, TupleVariable):
+                        if isinstance(ir.rvalue, TupleVariable):
                             # TODO: fix missing Unpack conversion
                             continue
-                        else:
-                            if ir.rvalue.type.type != "int256":
-                                ir.rvalue.set_type(ElementaryType("int256"))
-                                was_changed = True
+                        if ir.rvalue.type.type != "int256":
+                            ir.rvalue.set_type(ElementaryType("int256"))
+                            was_changed = True
             if isinstance(ir, Binary):
                 if isinstance(ir.lvalue.type, ElementaryType):
                     if ir.lvalue.type.type in ElementaryTypeInt:
@@ -1436,7 +1535,7 @@ def convert_delete(irs):
 
 def apply_ir_heuristics(irs, node):
     """
-        Apply a set of heuristic to improve slithIR
+    Apply a set of heuristic to improve slithIR
     """
 
     irs = integrate_value_gas(irs)

@@ -2,12 +2,15 @@
 Module detecting deprecated standards.
 """
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.visitors.expression.export_values import ExportValues
-from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction
 from slither.core.cfg.node import NodeType
+from slither.core.declarations.solidity_variables import (
+    SolidityVariableComposed,
+    SolidityFunction,
+)
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall
-from slither.solc_parsing.variables.state_variable import StateVariableSolc, StateVariable
+from slither.visitors.expression.export_values import ExportValues
+
 
 # Reference: https://smartcontractsecurity.github.io/SWC-registry/docs/SWC-111
 class DeprecatedStandards(AbstractDetector):
@@ -68,7 +71,7 @@ contract ContractWithDeprecatedReferences {
     DEPRECATED_LOW_LEVEL_CALLS = [("callcode", "callcode", "delegatecall")]
 
     def detect_deprecation_in_expression(self, expression):
-        """ Detects if an expression makes use of any deprecated standards.
+        """Detects if an expression makes use of any deprecated standards.
 
         Returns:
             list of tuple: (detecting_signature, original_text, recommended_text)"""
@@ -90,7 +93,7 @@ contract ContractWithDeprecatedReferences {
         return results
 
     def detect_deprecated_references_in_node(self, node):
-        """ Detects if a node makes use of any deprecated standards.
+        """Detects if a node makes use of any deprecated standards.
 
         Returns:
             list of tuple: (detecting_signature, original_text, recommended_text)"""
@@ -109,7 +112,7 @@ contract ContractWithDeprecatedReferences {
         return results
 
     def detect_deprecated_references_in_contract(self, contract):
-        """ Detects the usage of any deprecated built-in symbols.
+        """Detects the usage of any deprecated built-in symbols.
 
         Returns:
             list of tuple: (state_variable | node, (detecting_signature, original_text, recommended_text))"""
@@ -124,6 +127,7 @@ contract ContractWithDeprecatedReferences {
                     results.append((state_variable, deprecated_results))
 
         # Loop through all functions + modifiers in this contract.
+        # pylint: disable=too-many-nested-blocks
         for function in contract.functions_and_modifiers_declared:
             # Loop through each node in this function.
             for node in function.nodes:
@@ -144,7 +148,7 @@ contract ContractWithDeprecatedReferences {
         return results
 
     def _detect(self):
-        """ Detects if an expression makes use of any deprecated standards.
+        """Detects if an expression makes use of any deprecated standards.
 
         Recursively visit the calls
         Returns:
@@ -160,7 +164,7 @@ contract ContractWithDeprecatedReferences {
                     deprecated_entries = deprecated_reference[1]
                     info = ["Deprecated standard detected ", source_object, ":\n"]
 
-                    for (dep_id, original_desc, recommended_disc) in deprecated_entries:
+                    for (_dep_id, original_desc, recommended_disc) in deprecated_entries:
                         info += [
                             f'\t- Usage of "{original_desc}" should be replaced with "{recommended_disc}"\n'
                         ]

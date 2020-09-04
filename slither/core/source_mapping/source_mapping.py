@@ -6,7 +6,7 @@ from slither.core.context.context import Context
 
 class SourceMapping(Context):
     def __init__(self):
-        super(SourceMapping, self).__init__()
+        super().__init__()
         # TODO create a namedtuple for the source mapping rather than a dict
         self._source_mapping: Optional[Dict] = None
 
@@ -17,10 +17,10 @@ class SourceMapping(Context):
     @staticmethod
     def _compute_line(source_code, start, length):
         """
-            Compute line(s) numbers and starting/ending columns
-            from a start/end offset. All numbers start from 1.
+        Compute line(s) numbers and starting/ending columns
+        from a start/end offset. All numbers start from 1.
 
-            Not done in an efficient way
+        Not done in an efficient way
         """
         source_code = source_code.encode("utf-8")
         total_length = len(source_code)
@@ -58,7 +58,7 @@ class SourceMapping(Context):
         return lines, starting_column, ending_column
 
     @staticmethod
-    def _convert_source_mapping(offset: str, slither):
+    def _convert_source_mapping(offset: str, slither):  # pylint: disable=too-many-locals
         """
         Convert a text offset to a real offset
         see https://solidity.readthedocs.io/en/develop/miscellaneous.html#source-mappings
@@ -145,7 +145,7 @@ class SourceMapping(Context):
         elif len(lines) == 1:
             lines = "#{}{}".format(line_descr, lines[0])
         else:
-            lines = "#{}{}-{}{}".format(line_descr, lines[0], line_descr, lines[-1])
+            lines = f"#{line_descr}{lines[0]}-{line_descr}{lines[-1]}"
         return lines
 
     def source_mapping_to_markdown(self, markdown_root: str) -> str:

@@ -1,8 +1,5 @@
-from .variable import SlithIRVariable
-from slither.core.variables.variable import Variable
 from slither.core.children.child_node import ChildNode
-
-from slither.core.solidity_types.type import Type
+from slither.slithir.variables.variable import SlithIRVariable
 
 
 class TupleVariable(ChildNode, SlithIRVariable):
@@ -10,7 +7,7 @@ class TupleVariable(ChildNode, SlithIRVariable):
     COUNTER = 0
 
     def __init__(self, node, index=None):
-        super(TupleVariable, self).__init__()
+        super().__init__()
         if index is None:
             self._index = TupleVariable.COUNTER
             TupleVariable.COUNTER += 1
