@@ -3,7 +3,7 @@ from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, Fau
 from slither.tools.mutator.utils.generic_patching import remove_assignement
 
 
-class MVIE(AbstractMutator):
+class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "MVIV"
     HELP = "variable initialization using an expression"
     FAULTCLASS = FaulClass.Assignement

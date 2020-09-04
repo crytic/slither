@@ -3,7 +3,7 @@ from slither.formatters.utils.patches import create_patch
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaulClass
 
 
-class MIA(AbstractMutator):
+class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "MIA"
     HELP = '"if" construct around statement'
     FAULTCLASS = FaulClass.Checking

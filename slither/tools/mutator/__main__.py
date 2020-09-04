@@ -6,9 +6,9 @@ import sys
 from crytic_compile import cryticparser
 
 from slither import Slither
+from slither.tools.mutator.mutators import all_mutators
 from .mutators.abstract_mutator import AbstractMutator
 from .utils.command_line import output_mutators
-from slither.tools.mutator.mutators import all_mutators
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -54,8 +54,8 @@ def _get_mutators():
     return detectors
 
 
-class ListMutators(argparse.Action):
-    def __call__(self, parser, *args, **kwargs):
+class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
+    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
         checks = _get_mutators()
         output_mutators(checks)
         parser.exit()

@@ -28,7 +28,7 @@ class FaultNature(Enum):
     Undefined = 100
 
 
-class AbstractMutator(metaclass=abc.ABCMeta):
+class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-methods
     NAME = ""
     HELP = ""
     FAULTCLASS = FaulClass.Undefined
