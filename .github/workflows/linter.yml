@@ -40,10 +40,10 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
           # Run only pylint
           VALIDATE_PYTHON: true
           VALIDATE_PYTHON_PYLINT: true
+          PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
 
       - name: Black
         uses: docker://github/super-linter:v3
@@ -53,9 +53,9 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
           # Run only black
           VALIDATE_PYTHON_BLACK: true
+          PYTHON_BLACK_CONFIG_FILE: pyproject.toml
 
       - name: Lint everything else
         uses: docker://github/super-linter:v3
@@ -65,8 +65,6 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
-          PYTHON_BLACK_CONFIG_FILE: pyproject.toml
           # Always false
           VALIDATE_PYTHON: false
           VALIDATE_PYTHON_PYLINT: false
