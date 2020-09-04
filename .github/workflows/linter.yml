@@ -32,7 +32,137 @@ jobs:
           mkdir -p .github/linters
           cp pyproject.toml .github/linters
 
-      - name: Lint everything
+      - name: Pylint
+        uses: docker://github/super-linter:v3
+        if: always()
+        env:
+          # run linter on everything to catch preexisting problems
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
+          # Run only pylint
+          VALIDATE_PYTHON: true
+          VALIDATE_PYTHON_PYLINT: true
+          # Disable the other
+          VALIDATE_ANSIBLE: false
+          VALIDATE_ARM: false
+          VALIDATE_BASH: false
+          VALIDATE_BASH_EXEC: false
+          VALIDATE_CLOJURE: false
+          VALIDATE_CLOUDFORMATION: false
+          VALIDATE_COFFEE: false
+          VALIDATE_CSHARP: false
+          VALIDATE_CSS: false
+          VALIDATE_DART: false
+          VALIDATE_ENV: false
+          VALIDATE_GO: false
+          VALIDATE_GROOVY: false
+          VALIDATE_HTML: false
+          VALIDATE_JAVA: false
+          VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_JSX: false
+          VALIDATE_KOTLIN: false
+          VALIDATE_LATEX: false
+          VALIDATE_LUA: false
+          VALIDATE_MD: false
+          VALIDATE_OPENAPI: false
+          VALIDATE_PERL: false
+          VALIDATE_PHP: false
+          VALIDATE_PHP_BUILTIN: false
+          VALIDATE_PHP_PHPCS: false
+          VALIDATE_PHP_PHPSTAN: false
+          VALIDATE_PHP_PSALM: false
+          VALIDATE_PROTOBUF: false
+          VALIDATE_PYTHON_BLACK: false
+          VALIDATE_POWERSHELL: false
+          VALIDATE_R: false
+          VALIDATE_RAKU: false
+          VALIDATE_RUBY: false
+          VALIDATE_SHELL_SHFMT: false
+          VALIDATE_STATES: false
+          VALIDATE_SQL: false
+          VALIDATE_TERRAFORM: false
+          VALIDATE_TERRAFORM_TERRASCAN: false
+          VALIDATE_TSX: false
+          VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_TYPESCRIPT_STANDARD: false
+          VALIDATE_XML: false
+          VALIDATE_YAML: false
+          # Always false
+          VALIDATE_JSON: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
+          VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_DOCKERFILE: false
+          VALIDATE_DOCKERFILE_HADOLINT: false
+          VALIDATE_EDITORCONFIG: false
+
+      - name: Black
+        uses: docker://github/super-linter:v3
+        if: always()
+        env:
+          # run linter on everything to catch preexisting problems
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
+          # Run only black
+          VALIDATE_PYTHON_BLACK: false
+          # Disable the other
+          VALIDATE_ANSIBLE: false
+          VALIDATE_ARM: false
+          VALIDATE_BASH: false
+          VALIDATE_BASH_EXEC: false
+          VALIDATE_CLOJURE: false
+          VALIDATE_CLOUDFORMATION: false
+          VALIDATE_COFFEE: false
+          VALIDATE_CSHARP: false
+          VALIDATE_CSS: false
+          VALIDATE_DART: false
+          VALIDATE_ENV: false
+          VALIDATE_GO: false
+          VALIDATE_GROOVY: false
+          VALIDATE_HTML: false
+          VALIDATE_JAVA: false
+          VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_JSX: false
+          VALIDATE_KOTLIN: false
+          VALIDATE_LATEX: false
+          VALIDATE_LUA: false
+          VALIDATE_MD: false
+          VALIDATE_OPENAPI: false
+          VALIDATE_PERL: false
+          VALIDATE_PHP: false
+          VALIDATE_PHP_BUILTIN: false
+          VALIDATE_PHP_PHPCS: false
+          VALIDATE_PHP_PHPSTAN: false
+          VALIDATE_PHP_PSALM: false
+          VALIDATE_PROTOBUF: false
+          VALIDATE_PYTHON: false
+          VALIDATE_PYTHON_PYLINT: false
+          VALIDATE_POWERSHELL: false
+          VALIDATE_R: false
+          VALIDATE_RAKU: false
+          VALIDATE_RUBY: false
+          VALIDATE_SHELL_SHFMT: false
+          VALIDATE_STATES: false
+          VALIDATE_SQL: false
+          VALIDATE_TERRAFORM: false
+          VALIDATE_TERRAFORM_TERRASCAN: false
+          VALIDATE_TSX: false
+          VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_TYPESCRIPT_STANDARD: false
+          VALIDATE_XML: false
+          VALIDATE_YAML: false
+          # Always false
+          VALIDATE_JSON: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
+          VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_DOCKERFILE: false
+          VALIDATE_DOCKERFILE_HADOLINT: false
+          VALIDATE_EDITORCONFIG: false
+
+      - name: Lint everything else
         uses: docker://github/super-linter:v3
         if: always()
         env:
@@ -42,6 +172,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
           PYTHON_BLACK_CONFIG_FILE: pyproject.toml
+          # Always false
           VALIDATE_JSON: false
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_PYTHON_FLAKE8: false
