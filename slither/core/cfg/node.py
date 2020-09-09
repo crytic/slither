@@ -103,6 +103,9 @@ class NodeType(Enum):
     # Use for state variable declaration
     OTHER_ENTRYPOINT = 0x50
 
+    # TODO: remove me
+    OVERLAY = 0x99
+
     #    @staticmethod
     def __str__(self):
         if self == NodeType.ENTRYPOINT:
@@ -137,6 +140,8 @@ class NodeType(Enum):
             return "BEGIN_LOOP"
         if self == NodeType.ENDLOOP:
             return "END_LOOP"
+        if self == NodeType.OVERLAY:
+            return "OVERLAY"
         return "Unknown type {}".format(hex(self.value))
 
 
