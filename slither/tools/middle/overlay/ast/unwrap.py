@@ -11,9 +11,10 @@ class OverlayUnwrap(OverlayNode):
     unwrap node will unwind the call stack until it finds a loop enter call.
     This is semantically equivalent to exiting a loop early.
     """
+
     def __init__(self, node: NodeSolc):
         if node.type != NodeType.BREAK:
-            print('Error: invalid construction of OverlayUnwrap')
+            print("Error: invalid construction of OverlayUnwrap")
             exit(-1)
         super().__init__(node.type, node)
 

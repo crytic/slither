@@ -1,11 +1,26 @@
-from slither.tools.middle.framework.tokens import Variable, Equals, Literal, Keyword, NewLine, CallSite, Indent
-from slither.core.cfg.node import (Node, NodeType)
+from slither.tools.middle.framework.tokens import (
+    Variable,
+    Equals,
+    Literal,
+    Keyword,
+    NewLine,
+    CallSite,
+    Indent,
+)
+from slither.core.cfg.node import Node, NodeType
 from itertools import count
 
-from slither.slithir.operations import Assignment, Binary, Return, Condition, Phi, InternalCall, NewContract, \
-    HighLevelCall, SolidityCall
-
-
+from slither.slithir.operations import (
+    Assignment,
+    Binary,
+    Return,
+    Condition,
+    Phi,
+    InternalCall,
+    NewContract,
+    HighLevelCall,
+    SolidityCall,
+)
 
 
 class OverlayNode:

@@ -71,19 +71,25 @@ class OverlayGraph:
         """
         Returns the text representation (dot-file) of the graph.
         """
-        g = Digraph('Overlay CFG')
+        g = Digraph("Overlay CFG")
         for function in self.functions:
-            with g.subgraph(name='cluster_{}'.format(function.__hash__())) as c:
-                c.attr('node', shape='record')
+            with g.subgraph(name="cluster_{}".format(function.__hash__())) as c:
+                c.attr("node", shape="record")
                 c.attr(label=function.name)
                 for statement in function.statements:
                     # Construct the label
                     newline = '<br align="left"/>'
-                    label = '<B>' + custom_html_escape(str(statement)).replace('\n', newline) + '</B>' \
-                            + newline + newline + newline
+                    label = (
+                        "<B>"
+                        + custom_html_escape(str(statement)).replace("\n", newline)
+                        + "</B>"
+                        + newline
+                        + newline
+                        + newline
+                    )
                     for ir in statement.ir:
                         label += custom_html_escape(str(ir)) + newline
-                    label = '<' + label + '>'
+                    label = "<" + label + ">"
 
                     current = str(statement.__hash__())
                     c.node(current, label)
@@ -97,7 +103,7 @@ class OverlayGraph:
 
     def save_digraph(self):
         g = self.get_digraph()
-        g.render(filename='save{}'.format(next(self.counter)))
+        g.render(filename="save{}".format(next(self.counter)))
         g.view()
 
     def get_bfs_ordering(self, function: OverlayFunction) -> List[OverlayNode]:
@@ -134,9 +140,9 @@ class OverlayGraph:
             # also need to get rid of any number identifiers on the end of our
             # overlay functions because they interact badly with pytest.
             cleaned_name = function.name.rstrip(string.digits)
-            ret += '{}\n'.format(cleaned_name)
+            ret += "{}\n".format(cleaned_name)
             for statement in topological_ordering:
-                ret += '    {}\n'.format(NodeType.str(statement.type))
+                ret += "    {}\n".format(NodeType.str(statement.type))
 
         return ret
 
@@ -145,6 +151,6 @@ def custom_html_escape(s: str) -> str:
     s = html.escape(s)
 
     # OR symbol
-    s = s.replace('||', 'OR')
+    s = s.replace("||", "OR")
 
     return s

@@ -11,8 +11,12 @@ from slither.tools.middle.imports.graphivz import Digraph
 from slither.tools.middle.overlay.ast.call import OverlayCall
 from slither.tools.middle.overlay.ast.function import OverlayFunction
 from slither.tools.middle.overlay.ast.graph import OverlayGraph
-from slither.tools.middle.overlay.transform import outline_all_conditionals, compress_all_phi_nodes, get_all_call_sites_in_function, \
-    create_hashable
+from slither.tools.middle.overlay.transform import (
+    outline_all_conditionals,
+    compress_all_phi_nodes,
+    get_all_call_sites_in_function,
+    create_hashable,
+)
 from slither.tools.middle.overlay.util import get_all_call_sites
 
 from slither import Slither
@@ -141,7 +145,9 @@ class Analyzer:
         SymVar.counter = count()
 
     def get_symvar_from_id(self, symvar_id) -> SymVar:
-        symvar = next((x for x in self.symvars_union_find.parent.keys() if x.id == int(symvar_id)), None)
+        symvar = next(
+            (x for x in self.symvars_union_find.parent.keys() if x.id == int(symvar_id)), None
+        )
         if symvar is None:
             print("ERROR: no symvar with id - {}".format(symvar_id))
         else:
@@ -218,8 +224,11 @@ class Analyzer:
         # Check if there is already a value for this variable.
         rep: SymVar = self.symvars_union_find.find(symvar)
         if rep in self._symvar_data and self._symvar_data[rep] != value:
-            raise InconsistentStateError("Trying to assign {} which has value {} to {}"
-                                         .format(symvar, self._symvar_data[rep], value))
+            raise InconsistentStateError(
+                "Trying to assign {} which has value {} to {}".format(
+                    symvar, self._symvar_data[rep], value
+                )
+            )
         self._symvar_data[rep] = value
 
     def set_equal(self, a, a_func, b, b_func):
@@ -237,8 +246,11 @@ class Analyzer:
             val_a = self.get_sym_var_value(sym_a)
             val_b = self.get_sym_var_value(sym_b)
             if val_a != val_b:
-                print("ERROR: values for {} and {} are different: {} and {}"
-                      .format(sym_a, sym_b, val_a, val_b))
+                print(
+                    "ERROR: values for {} and {} are different: {} and {}".format(
+                        sym_a, sym_b, val_a, val_b
+                    )
+                )
             self.symvars_union_find.union(sym_a, sym_b)
         else:
             # Neither variable is resolved so it really doesn't matter the order
@@ -274,22 +286,30 @@ class Analyzer:
             # In the InternalCall case, things are a bit more complicated
             # because we want to link the argument and return variables which
             # are often represented by physically different variables in the IR.
-            assert (len(callsite.arguments) == len(callsite.function.parameters_ssa))
+            assert len(callsite.arguments) == len(callsite.function.parameters_ssa)
             for i in range(len(callsite.arguments)):
                 if isinstance(callsite.arguments[i], Constant):
                     # We may have to add constants to a new_function
                     if callsite.arguments[i] not in new_function.var_to_symvar_local:
-                        symvar = new_function.analyzer.symbolize_var(callsite.arguments[i], new_function)
+                        symvar = new_function.analyzer.symbolize_var(
+                            callsite.arguments[i], new_function
+                        )
                         new_function.set_sym_var_local(callsite.arguments[i], symvar)
-                self.set_equal(callsite.arguments[i], caller_function,
-                               # callsite.function.parameters_ssa[i],
-                               callsite.arguments[i],
-                               new_function)
+                self.set_equal(
+                    callsite.arguments[i],
+                    caller_function,
+                    # callsite.function.parameters_ssa[i],
+                    callsite.arguments[i],
+                    new_function,
+                )
 
             if len(callsite.function.return_values_ssa) == 1:
-                self.set_equal(callsite.lvalue, caller_function,
-                               callsite.function.return_values_ssa[0],
-                               new_function)
+                self.set_equal(
+                    callsite.lvalue,
+                    caller_function,
+                    callsite.function.return_values_ssa[0],
+                    new_function,
+                )
         else:
             print("ERROR: Unhandled callsite type in link_args_and_returns")
             exit(-1)
@@ -337,7 +357,11 @@ class Analyzer:
         self.link_args_and_returns(callsite, caller_function, new_function)
         self.link_state_variables(callsite, caller_function, new_function)
 
-    def prepend(self, ancestor: Union[OverlayFunction, InternalCall], callsite: Union[InternalCall, OverlayCall]):
+    def prepend(
+        self,
+        ancestor: Union[OverlayFunction, InternalCall],
+        callsite: Union[InternalCall, OverlayCall],
+    ):
         """
         Prepends a function to this graph. This is a utility function that is
         used by the up call function and is the equivalent of up calling to
@@ -374,7 +398,6 @@ class Analyzer:
         # If the callsite is an OverlayCall, then set the condition to True
         if isinstance(callsite, OverlayCall) and not self.strategy.command_fixpoint:
             self.set_var_value(callsite.cond, our_function, True)
-
 
     def up_call_choose(self, func, callsite):
         self.prepend(func, callsite)
@@ -416,8 +439,9 @@ class Analyzer:
 
         return new_analyzers
 
-    def find_up_call_sites(self, root: AnalysisFunction) -> \
-            List[Tuple[OverlayFunction, Union[OverlayCall, InternalCall]]]:
+    def find_up_call_sites(
+        self, root: AnalysisFunction
+    ) -> List[Tuple[OverlayFunction, Union[OverlayCall, InternalCall]]]:
         """
         Finds the call sites where you could have been called from.
         """
@@ -449,10 +473,10 @@ class Analyzer:
 
         # TODO: change the fact that they are all in the same cluster but this
         #   is okay for a small example because it looks better
-        g = Digraph(name='c')
+        g = Digraph(name="c")
         # g = Digraph(name='cluster_{}'.format(next(self.counter)))
-        g.attr('node', shape='record')
-        g.graph_attr.update({'rankdir': 'LR', 'newrank': 'true'})
+        g.attr("node", shape="record")
+        g.graph_attr.update({"rankdir": "LR", "newrank": "true"})
 
         # Maps AnalysisFunction objects to digraph handles.
         digraph_function_handles = {}
@@ -474,10 +498,10 @@ class Analyzer:
                         g.edge(call_node_handle, function_handle)
                         continue
                     else:
-                        stub_label = '{}_stub'.format(stmt.dest.name)
-                        stub_handle = '{}_stub_{}'.format(stmt.dest.name, id(func))
+                        stub_label = "{}_stub".format(stmt.dest.name)
+                        stub_handle = "{}_stub_{}".format(stmt.dest.name, id(func))
                         g.node(stub_handle, label=stub_label)
-                        g.edge('{}:target'.format(call_node_handle), stub_handle)
+                        g.edge("{}:target".format(call_node_handle), stub_handle)
                 for ir in stmt.ir:
                     if isinstance(ir, InternalCall):
                         call_node_handle = func.call_node_digraph_handles[ir]
@@ -491,7 +515,7 @@ class Analyzer:
         for symvar, neighbors in self.drawn_equalities.items():
             for neighbor in neighbors:
                 if (symvar, neighbor) not in do_not_add:
-                    g.edge(str(symvar), str(neighbor), color='red', dir='none')
+                    g.edge(str(symvar), str(neighbor), color="red", dir="none")
                     do_not_add.add((neighbor, symvar))
 
         return g
@@ -559,8 +583,11 @@ class Analyzer:
                 print("Error, could not find callsite for function")
                 exit(-1)
             if isinstance(callsite, OverlayCall):
-                self.set_var_value(callsite.cond, parent,
-                                   True if not callsite.cond_complement else False,
-                                   deduce=False)
+                self.set_var_value(
+                    callsite.cond,
+                    parent,
+                    True if not callsite.cond_complement else False,
+                    deduce=False,
+                )
 
             current = parent

@@ -10,7 +10,7 @@ from slither.tools.middle.overlay.ast.graph import OverlayGraph
 from slither.tools.middle.overlay.ast.function import overlay_function_from_basic_block
 from slither.tools.middle.overlay.util import *
 
-logger = logging.getLogger('transform')
+logger = logging.getLogger("transform")
 # logger.setLevel(logging.DEBUG)
 
 # Counter needed to name new SSA vars. This is necessary to avoid violating SSA
@@ -20,7 +20,7 @@ dup_ssa_var_counter = count()
 
 def main():
     if len(sys.argv) != 2:
-        print('Usage: python transform.py contract.sol')
+        print("Usage: python transform.py contract.sol")
         exit(-1)
     slither = Slither(sys.argv[1])
     graph = OverlayGraph(slither)
@@ -61,17 +61,16 @@ def outline_all_conditionals(graph: OverlayGraph):
         order = list(reversed(graph.get_bfs_ordering(function).copy()))
         for statement in order:
             if statement.type == NodeType.IF:
-                logger.debug('Outlining IF..')
+                logger.debug("Outlining IF..")
                 outline_conditional_if(graph, function, statement)
                 # graph.save_digraph()
             if statement.type == NodeType.IFLOOP:
-                logger.debug('Outlining LOOP..')
+                logger.debug("Outlining LOOP..")
                 outline_conditional_loop(graph, function, statement)
                 # graph.save_digraph()
 
 
-def outline_conditional_if(graph: OverlayGraph, function: OverlayFunction,
-                           statement: OverlayNode):
+def outline_conditional_if(graph: OverlayGraph, function: OverlayFunction, statement: OverlayNode):
     assert statement.type == NodeType.IF
     assert len(statement.node.sons) == 2
 
@@ -173,8 +172,9 @@ def outline_conditional_if(graph: OverlayGraph, function: OverlayFunction,
         remove_edge(prev_node, end_statement)
 
 
-def outline_new_function(graph: OverlayGraph, function: OverlayFunction,
-                         bb: List[OverlayNode], cond=None) -> Tuple[OverlayFunction, OverlayCall]:
+def outline_new_function(
+    graph: OverlayGraph, function: OverlayFunction, bb: List[OverlayNode], cond=None
+) -> Tuple[OverlayFunction, OverlayCall]:
     # Create the new function and call site.
     f = overlay_function_from_basic_block(bb, function.contract)
     c = OverlayCall(f, cond)
@@ -198,8 +198,7 @@ def outline_new_function(graph: OverlayGraph, function: OverlayFunction,
     return f, c
 
 
-def outline_conditional_loop(graph: OverlayGraph, function: OverlayFunction,
-                             stmt: OverlayNode):
+def outline_conditional_loop(graph: OverlayGraph, function: OverlayFunction, stmt: OverlayNode):
     assert stmt.type == NodeType.IFLOOP
 
     # Try to detect whether this is a do-while structure or just a normal loop
@@ -232,11 +231,11 @@ def outline_conditional_loop(graph: OverlayGraph, function: OverlayFunction,
     cont_call = None
     if not is_do_while:
         # Coalesce the CALL and the IF.
-        logger.debug('WHILE')
+        logger.debug("WHILE")
         try:
             coalesce_nodes(stmt, c)
         except (AssertionError):
-            print('Encountered an assertion error')
+            print("Encountered an assertion error")
             # graph.save_digraph()
             exit(-1)
 
@@ -258,7 +257,7 @@ def outline_conditional_loop(graph: OverlayGraph, function: OverlayFunction,
         # the end of the body and loop back into the top of the body (DO WHILE).
         # We need to copy the call from the body and turn this back edge into a
         # recursive call instead.
-        logger.debug('DO WHILE')
+        logger.debug("DO WHILE")
 
         # Remove the back edge from the IF.
         assert len(stmt.succ) == 1
@@ -310,9 +309,14 @@ def outline_conditional_loop(graph: OverlayGraph, function: OverlayFunction,
         c.ret_as_map[str(saved)].append(y)
 
 
-def resolve_ssa_data_dependencies(graph: OverlayGraph, bb: List[OverlayNode],
-                                  c: OverlayCall, original: OverlayFunction,
-                                  f: OverlayFunction, arguments_only=False):
+def resolve_ssa_data_dependencies(
+    graph: OverlayGraph,
+    bb: List[OverlayNode],
+    c: OverlayCall,
+    original: OverlayFunction,
+    f: OverlayFunction,
+    arguments_only=False,
+):
     """
     Resolve argument and return dependencies for the new function. The
     basic block might have had some data reads and writes that made its
@@ -413,8 +417,7 @@ def gather_basic_block(start: OverlayNode, ends: List[NodeType] = None) -> List[
     return bb
 
 
-def yank_and_replace_basic_block(graph: OverlayGraph, bb: List[OverlayNode],
-                                 replace: OverlayNode):
+def yank_and_replace_basic_block(graph: OverlayGraph, bb: List[OverlayNode], replace: OverlayNode):
     """Yanks the basic block in question out of its context and replaces it."""
     assert len(bb) >= 1
 
@@ -470,8 +473,9 @@ def coalesce_nodes(a: OverlayNode, b: OverlayNode):
     add_edge(a, b)
 
 
-def duplicate_basic_block_after(bb: List[OverlayNode], anchor: OverlayNode,
-                                function: OverlayFunction) -> Tuple[OverlayNode, Dict[str, Any]]:
+def duplicate_basic_block_after(
+    bb: List[OverlayNode], anchor: OverlayNode, function: OverlayFunction
+) -> Tuple[OverlayNode, Dict[str, Any]]:
     """
     Inline a basic block out of context after the anchor node. Returns the new
     last node attached along with a dictionary that maps any nodes we have
@@ -497,7 +501,9 @@ def duplicate_basic_block_after(bb: List[OverlayNode], anchor: OverlayNode,
                 # now I don't think there will be any overlap with those. So
                 # only perform this operation if we are not dealing with temp
                 # variables.
-                if not isinstance(lvalue, TemporaryVariableSSA) and not isinstance(lvalue, ReferenceVariableSSA):
+                if not isinstance(lvalue, TemporaryVariableSSA) and not isinstance(
+                    lvalue, ReferenceVariableSSA
+                ):
                     old_name = lvalue.name
                     new_name = "{}_dup".format(old_name)
                     old_to_dup_ssa[str(ir.lvalue)] = lvalue
@@ -519,16 +525,24 @@ def duplicate_basic_block_after(bb: List[OverlayNode], anchor: OverlayNode,
                 ir.rvalues = [old_to_dup_ssa[x] if x in old_to_dup_ssa else x for x in ir.rvalues]
 
             elif isinstance(ir, Binary):
-                ir.variable_left = old_to_dup_ssa[str(ir.variable_left)] if str(
-                    ir.variable_left) in old_to_dup_ssa else ir.variable_left
-                ir.variable_right = old_to_dup_ssa[str(ir.variable_left)] if str(
-                    ir.variable_right) in old_to_dup_ssa else ir.variable_right
+                ir.variable_left = (
+                    old_to_dup_ssa[str(ir.variable_left)]
+                    if str(ir.variable_left) in old_to_dup_ssa
+                    else ir.variable_left
+                )
+                ir.variable_right = (
+                    old_to_dup_ssa[str(ir.variable_left)]
+                    if str(ir.variable_right) in old_to_dup_ssa
+                    else ir.variable_right
+                )
 
             elif isinstance(ir, Condition) or isinstance(ir, Length):
                 continue
 
             else:
-                print("ERROR: Unhandled ir type trying to duplicate basic block: {}".format(type(ir)))
+                print(
+                    "ERROR: Unhandled ir type trying to duplicate basic block: {}".format(type(ir))
+                )
                 exit(-1)
 
     first, last = bb[0], bb[-1]
@@ -544,6 +558,7 @@ def duplicate_basic_block_after(bb: List[OverlayNode], anchor: OverlayNode,
 ################################################################################
 # Post Transformation Processing
 ################################################################################
+
 
 def compress_all_phi_nodes(graph: OverlayGraph):
     for function in graph.functions:
@@ -645,10 +660,12 @@ def try_compress_phi_node(graph: OverlayGraph, function: OverlayFunction) -> boo
                 assert len(resolved) == 1
 
                 new_lvalue = copy.copy(ir.lvalue)
-                new_lvalue.name = '{}_dup'.format(ir.lvalue.name)
+                new_lvalue.name = "{}_dup".format(ir.lvalue.name)
                 if true_false_mapping[0] is not None and true_false_mapping[1] is not None:
                     # There is an if-else construct
-                    new_node = OverlayITE(new_lvalue, cond, true_false_mapping[0], true_false_mapping[1])
+                    new_node = OverlayITE(
+                        new_lvalue, cond, true_false_mapping[0], true_false_mapping[1]
+                    )
                     add_node_before(function, stmt, new_node)
                     rewrite_variable_in_all_successors(nodes[node_num], str(ir.lvalue), new_lvalue)
                 elif true_false_mapping[0] is not None:
@@ -697,8 +714,11 @@ def try_compress_phi_node(graph: OverlayGraph, function: OverlayFunction) -> boo
                                 new_lvalue = copy.copy(could_be[ret])
                                 new_lvalue.name = "{}_dup".format(old_lvalue.name)
                                 old_lvalue_to_new_lvalue[old_lvalue] = new_lvalue
-                                add_node_after(function, loop_call,
-                                               OverlayITE(new_lvalue, loop_call.cond, ret, old_lvalue))
+                                add_node_after(
+                                    function,
+                                    loop_call,
+                                    OverlayITE(new_lvalue, loop_call.cond, ret, old_lvalue),
+                                )
                         loop_call_idx = idx
                         break
 
@@ -732,11 +752,16 @@ def try_compress_phi_node(graph: OverlayGraph, function: OverlayFunction) -> boo
                 #     print("ERROR: more than one branch evaluated in Phi Node")
                 #     exit(-1)
 
-        used.update([str(x) for x in
-                     get_ssa_variables_used(stmt, phi_read=True, all_vars=True) | get_ssa_variables_defined(stmt)])
+        used.update(
+            [
+                str(x)
+                for x in get_ssa_variables_used(stmt, phi_read=True, all_vars=True)
+                | get_ssa_variables_defined(stmt)
+            ]
+        )
 
     return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

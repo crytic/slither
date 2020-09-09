@@ -5,13 +5,19 @@ from collections import defaultdict
 from slither.slithir.variables import Constant
 
 from slither.tools.middle.framework.analyzer import Analyzer
-from slither.tools.middle.framework.strategy import ConcreteStrategy, SymbolicStrategy, ConstraintStrategy
+from slither.tools.middle.framework.strategy import (
+    ConcreteStrategy,
+    SymbolicStrategy,
+    ConstraintStrategy,
+)
 from slither.tools.middle.framework.tokens import NewLine, Variable, Indent
-from slither.tools.middle.framework.util import pickle_object, unpickle_object, InconsistentStateError
+from slither.tools.middle.framework.util import (
+    pickle_object,
+    unpickle_object,
+    InconsistentStateError,
+)
 from slither.tools.middle.overlay.util import resolve_nearest_concrete_parent
 from slither.tools.middle.imports.tkinter import tk, ttk
-
-
 
 
 class GUI:
@@ -53,7 +59,8 @@ class GUI:
                 self.selected_strategy = SymbolicStrategy
             elif name == "Constraint":
                 self.selected_strategy = ConstraintStrategy
-        bx_strat.bind('<Double-Button>', bind_strategy)
+
+        bx_strat.bind("<Double-Button>", bind_strategy)
 
         self.note = note = ttk.Notebook(top)
         note.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
@@ -71,7 +78,7 @@ class GUI:
             self.instances.append(gui)
             note.add(parent, text=str(self.instances.index(gui)))
 
-        bx_func.bind('<Double-Button>', bind_start_func)
+        bx_func.bind("<Double-Button>", bind_start_func)
 
     def add_analyzer(self, analyzer):
         parent = ttk.Frame(self.note)
@@ -85,6 +92,7 @@ class GUI:
 
         self.instances.remove(analysis_gui)
 
+
 class AnalysisGUI:
     def __init__(self, gui, parent, analyzer, name):
 
@@ -94,27 +102,55 @@ class AnalysisGUI:
         self.analyzer.add_function(name)
 
         self.frm_toolbar = frm_toolbar = tk.Frame(top, padx=5, pady=5)
-        self.btn_graph = tk.Button(frm_toolbar, text="Graph", padx=5, pady=5, width=10, command=lambda: self.analyzer.view_digraph())
+        self.btn_graph = tk.Button(
+            frm_toolbar,
+            text="Graph",
+            padx=5,
+            pady=5,
+            width=10,
+            command=lambda: self.analyzer.view_digraph(),
+        )
         self.btn_graph.pack(side=tk.LEFT, fill=tk.X)
-        self.btn_graph = tk.Button(frm_toolbar, text="Original", padx=5, pady=5, width=10, command = lambda: self.analyzer.overlay_graph.view_digraph())
+        self.btn_graph = tk.Button(
+            frm_toolbar,
+            text="Original",
+            padx=5,
+            pady=5,
+            width=10,
+            command=lambda: self.analyzer.overlay_graph.view_digraph(),
+        )
         self.btn_graph.pack(side=tk.LEFT, fill=tk.X)
-        self.btn_refresh = tk.Button(frm_toolbar, text="Refresh", padx=5, pady=5, width=10, command=lambda: self.refresh())
+        self.btn_refresh = tk.Button(
+            frm_toolbar, text="Refresh", padx=5, pady=5, width=10, command=lambda: self.refresh()
+        )
         self.btn_refresh.pack(side=tk.LEFT, fill=tk.X)
-        self.btn_solve = tk.Button(frm_toolbar, text="Simplify", padx=5, pady=5, width=10, command=self.solve)
+        self.btn_solve = tk.Button(
+            frm_toolbar, text="Simplify", padx=5, pady=5, width=10, command=self.solve
+        )
         self.btn_solve.pack(side=tk.LEFT, fill=tk.X)
-        self.btn_upcall = tk.Button(frm_toolbar, text="Up Call", padx=5, pady=5, width=10, command=self.do_up_call)
+        self.btn_upcall = tk.Button(
+            frm_toolbar, text="Up Call", padx=5, pady=5, width=10, command=self.do_up_call
+        )
         self.btn_upcall.pack(side=tk.LEFT, fill=tk.X)
-        self.btn_break = tk.Button(frm_toolbar, text="Break", padx=5, pady=5, width=10, command=self.br)
+        self.btn_break = tk.Button(
+            frm_toolbar, text="Break", padx=5, pady=5, width=10, command=self.br
+        )
         self.btn_break.pack(side=tk.LEFT, fill=tk.X)
-        self.btn_close = tk.Button(frm_toolbar, text="Close", padx=5, pady=5, width=10, command=self.close_analysis)
+        self.btn_close = tk.Button(
+            frm_toolbar, text="Close", padx=5, pady=5, width=10, command=self.close_analysis
+        )
         self.btn_close.pack(side=tk.RIGHT, fill=tk.X)
         self.frm_toolbar.pack(side=tk.BOTTOM, fill=tk.X)
 
         if isinstance(self.analyzer.strategy, ConstraintStrategy):
-            self.btn_constrain = tk.Button(frm_toolbar, text="Constrain", padx=5, pady=5, width=10, command=self.constrain)
+            self.btn_constrain = tk.Button(
+                frm_toolbar, text="Constrain", padx=5, pady=5, width=10, command=self.constrain
+            )
             self.btn_constrain.pack(side=tk.LEFT, fill=tk.X)
         elif isinstance(self.analyzer.strategy, ConcreteStrategy):
-            self.btn_annotate = tk.Button(frm_toolbar, text="Annotate", padx=5, pady=5, width=10, command=self.toggle_annotate)
+            self.btn_annotate = tk.Button(
+                frm_toolbar, text="Annotate", padx=5, pady=5, width=10, command=self.toggle_annotate
+            )
             self.btn_annotate.pack(side=tk.RIGHT, fill=tk.X)
 
         # Create the source frame
@@ -128,11 +164,16 @@ class AnalysisGUI:
         self.vbar_source = vbar_source = tk.Scrollbar(frm_source, orient=tk.VERTICAL)
         vbar_source.grid(row=0, column=1, sticky=tk.N + tk.S)
 
-        self.canv_source = canv_source = SourceCanvas(self.analyzer, self,
-                                                      frm_source,
-                                                      width=400, height=400, bd=0,
-                                                      xscrollcommand=hbar_source.set,
-                                                      yscrollcommand=vbar_source.set)
+        self.canv_source = canv_source = SourceCanvas(
+            self.analyzer,
+            self,
+            frm_source,
+            width=400,
+            height=400,
+            bd=0,
+            xscrollcommand=hbar_source.set,
+            yscrollcommand=vbar_source.set,
+        )
         canv_source.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
 
         self.lbl_source = lbl_source = tk.Label(frm_source, text="Source")
@@ -157,9 +198,16 @@ class AnalysisGUI:
         vbar_ir.grid(row=0, column=1, sticky=tk.N + tk.S)
 
         self.lbl_ir = lbl_ir = tk.Label(frm_ir, text="IR")
-        self.canv_ir = canv_ir = ExploreCanvas(self.analyzer, self, frm_ir, width=400, height=400, bd=0,
-                        xscrollcommand=hbar_ir.set,
-                        yscrollcommand=vbar_ir.set)
+        self.canv_ir = canv_ir = ExploreCanvas(
+            self.analyzer,
+            self,
+            frm_ir,
+            width=400,
+            height=400,
+            bd=0,
+            xscrollcommand=hbar_ir.set,
+            yscrollcommand=vbar_ir.set,
+        )
         canv_ir.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
 
         frm_ir.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
@@ -186,11 +234,11 @@ class AnalysisGUI:
             else:
                 self.analyzer.run_to_fixpoint()
         except InconsistentStateError as e:
-            msg = str(e) + '\n'
+            msg = str(e) + "\n"
             msg += "Trying to roll back..."
             if self.analyzer.strategy.command_fixpoint:
                 msg = "WARN: cannot assure roll back due to ctypes dependency, trying best effort.."
-                tk.messagebox.showerror(title="Error", message=str(e) + '\n' + msg)
+                tk.messagebox.showerror(title="Error", message=str(e) + "\n" + msg)
                 return
 
             tk.messagebox.showerror(title="Error", message=msg)
@@ -210,7 +258,9 @@ class AnalysisGUI:
         self.canv_ir.analyzer = analyzer
 
     def refresh_source_with_xref(self, xref_var):
-        self.canv_source.render_source_mappings(self.get_live_source_mappings(), xref_ir_var=xref_var)
+        self.canv_source.render_source_mappings(
+            self.get_live_source_mappings(), xref_ir_var=xref_var
+        )
 
     def refresh_ir_with_xref(self, xref_var):
         self.canv_ir.render_token_list(self.get_token_list(), xref_var=xref_var)
@@ -239,6 +289,7 @@ class AnalysisGUI:
         self.analyzer.strategy.hide_resolved = not self.analyzer.strategy.hide_resolved
         self.refresh()
 
+
 class Lexeme:
     def __init__(self, filename, curr_char, curr_line, literal):
         self.filename: str = filename
@@ -249,6 +300,7 @@ class Lexeme:
     def __str__(self):
         return self.literal
 
+
 class SourceInfo:
     def __init__(self, analyzer):
         self.analyzer = analyzer
@@ -258,13 +310,13 @@ class SourceInfo:
         for filename, source in analyzer.slither.source_code.items():
             current_char = 0
             current_line = 1
-            for lexeme in list(filter(lambda x: x != '', re.split(r"(\W)", source))):
+            for lexeme in list(filter(lambda x: x != "", re.split(r"(\W)", source))):
                 l = Lexeme(filename, current_char, current_line, lexeme)
                 self.files[filename].append(l)
                 self.lexemes.append(l)
                 current_char += len(lexeme)
                 for c in lexeme:
-                    if c == '\n':
+                    if c == "\n":
                         current_line += 1
                 # TODO: handle tabs here
 
@@ -288,7 +340,7 @@ class SourceCanvas(tk.Canvas):
         self.var_item_to_var = {}
         self.xref_item_to_bg = {}
 
-        self.bind('<Button-1>', self.single_click)
+        self.bind("<Button-1>", self.single_click)
 
         self.files = {}
 
@@ -310,28 +362,38 @@ class SourceCanvas(tk.Canvas):
             # Create the filename as a comment
             self.add_new_line()
             self.add_new_line()
-            self.create_text(self.current_width, self.current_height,
-                             text='   {}'.format(filename), anchor='nw')
+            self.create_text(
+                self.current_width, self.current_height, text="   {}".format(filename), anchor="nw"
+            )
             self.add_new_line()
             self.add_new_line()
 
             for line_num in sorted(set([x.curr_line for x in file_lexemes])):
                 # Create the line number
-                line_num_item = self.create_text(self.current_width, self.current_height,
-                                                 text='{}:'.format(str(line_num).rjust(3)), anchor='nw')
+                line_num_item = self.create_text(
+                    self.current_width,
+                    self.current_height,
+                    text="{}:".format(str(line_num).rjust(3)),
+                    anchor="nw",
+                )
                 _, _, self.current_width, _ = self.bbox(line_num_item)
                 self.addtag(line_num_item, self.TAG_LINENUM)
                 self.add_space()
 
                 # Everything in this line will be tagged with the line tag.
-                line_tag = 'line_{}'.format(line_num)
+                line_tag = "line_{}".format(line_num)
 
                 # Get the lexemes referring to the current line
-                lexemes = sorted([x for x in file_lexemes if x.curr_line == line_num and x.literal != '\n'], key=lambda x: x.curr_char)
+                lexemes = sorted(
+                    [x for x in file_lexemes if x.curr_line == line_num and x.literal != "\n"],
+                    key=lambda x: x.curr_char,
+                )
 
                 for lexeme in lexemes:
                     # Create the lexeme on the canvas.
-                    item = self.create_text(self.current_width, self.current_height, text=lexeme.literal, anchor='nw')
+                    item = self.create_text(
+                        self.current_width, self.current_height, text=lexeme.literal, anchor="nw"
+                    )
                     _, _, self.current_width, _ = self.bbox(item)
                     self.addtag(item, line_tag)
 
@@ -339,9 +401,15 @@ class SourceCanvas(tk.Canvas):
                     # if there is a function associated with this line.
                     if line_num in line_num_to_func:
                         function = line_num_to_func[line_num]
-                        assoc_stmt = function.find_stmt_containing_source_mapping(filename, lexeme.curr_char)
+                        assoc_stmt = function.find_stmt_containing_source_mapping(
+                            filename, lexeme.curr_char
+                        )
                         if assoc_stmt is not None:
-                            vars = assoc_stmt.node.variables_read + assoc_stmt.node.variables_written + [assoc_stmt.node.variable_declaration]
+                            vars = (
+                                assoc_stmt.node.variables_read
+                                + assoc_stmt.node.variables_written
+                                + [assoc_stmt.node.variable_declaration]
+                            )
                             v = next((v for v in vars if str(v) == lexeme.literal), None)
                             if v is not None:
                                 # It is a variable
@@ -349,13 +417,15 @@ class SourceCanvas(tk.Canvas):
                                 self.var_item_to_var[item] = v
 
                                 # Add and xref tag if it is an xref
-                                if xref_ir_var is not None and str(v) == str(xref_ir_var.non_ssa_version):
+                                if xref_ir_var is not None and str(v) == str(
+                                    xref_ir_var.non_ssa_version
+                                ):
                                     self.addtag(item, self.TAG_XREF)
 
                 self.add_new_line()
 
             for line_num in line_num_to_func.keys():
-                for item in self.find_withtag('line_{}'.format(line_num)):
+                for item in self.find_withtag("line_{}".format(line_num)):
                     self.addtag(item, self.TAG_ACTIVE)
 
         # Highlight all the line numbers.
@@ -397,14 +467,14 @@ class SourceCanvas(tk.Canvas):
         self.current_height = self.current_height + 20
 
     def add_space(self, tags=None):
-        item = self.create_text(self.current_width, self.current_height, text=' ', anchor='nw')
+        item = self.create_text(self.current_width, self.current_height, text=" ", anchor="nw")
         _, _, self.current_width, _ = self.bbox(item)
 
         if tags is not None:
             self.addtag(item, tags)
 
     def add_tab(self, tags=None):
-        item = self.create_text(self.current_width, self.current_height, text='    ', anchor='nw')
+        item = self.create_text(self.current_width, self.current_height, text="    ", anchor="nw")
         _, _, self.current_width, _ = self.bbox(item)
 
         if tags is not None:
@@ -412,7 +482,7 @@ class SourceCanvas(tk.Canvas):
 
     def single_click(self, event):
         try:
-            item = event.widget.find_withtag('current')[0]
+            item = event.widget.find_withtag("current")[0]
         except IndexError:
             return
         tags = self.gettags(item)
@@ -429,7 +499,7 @@ class SourceCanvas(tk.Canvas):
         self.delete(self.xref_item_to_bg[item])
 
     def send_xref_request(self, event):
-        item = event.widget.find_withtag('current')[0]
+        item = event.widget.find_withtag("current")[0]
         var = self.var_item_to_var[item]
 
         # Remove all the xref formatting
@@ -460,8 +530,8 @@ class ExploreCanvas(tk.Canvas):
         self.id_map = {}
         self.xref_item_to_bg = {}
 
-        self.bind('<Double-1>', self.double_click)
-        self.bind('<Button-1>', self.single_click)
+        self.bind("<Double-1>", self.double_click)
+        self.bind("<Button-1>", self.single_click)
 
     def render_token_list(self, tok_list, xref_var=None):
         self.clear_canvas()
@@ -476,7 +546,7 @@ class ExploreCanvas(tk.Canvas):
                 self.add_indent()
                 continue
 
-            item = self.create_text(self.current_width, self.current_height, text=text, anchor='nw')
+            item = self.create_text(self.current_width, self.current_height, text=text, anchor="nw")
             _, _, self.current_width, _ = self.bbox(item)
             self.id_map[item] = token
             self.add_space()
@@ -484,7 +554,9 @@ class ExploreCanvas(tk.Canvas):
 
             if not self.analyzer.strategy.hide_resolved and token.annotation is not None:
                 annot_text = token.annotation.render()
-                annot_item = self.create_text(self.current_width, self.current_height, text=annot_text, anchor='nw')
+                annot_item = self.create_text(
+                    self.current_width, self.current_height, text=annot_text, anchor="nw"
+                )
                 _, _, self.current_width, _ = self.bbox(annot_item)
                 self.id_map[annot_item] = token.annotation
                 self.add_space()
@@ -542,14 +614,14 @@ class ExploreCanvas(tk.Canvas):
 
     def double_click(self, event):
         try:
-            item = event.widget.find_withtag('current')[0]
+            item = event.widget.find_withtag("current")[0]
         except IndexError:
             return
         tags = self.gettags(item)
 
-        if 'Variable' in tags:
+        if "Variable" in tags:
             self.set_var_value(event)
-        if 'CallSite' in tags:
+        if "CallSite" in tags:
             self.inline_call(event)
 
         # Automatically simplify
@@ -558,16 +630,16 @@ class ExploreCanvas(tk.Canvas):
 
     def single_click(self, event):
         try:
-            item = event.widget.find_withtag('current')[0]
+            item = event.widget.find_withtag("current")[0]
         except IndexError:
             return
         tags = self.gettags(item)
 
-        if 'Variable' in tags:
+        if "Variable" in tags:
             self.send_xref_request(event)
 
     def send_xref_request(self, event):
-        item = event.widget.find_withtag('current')[0]
+        item = event.widget.find_withtag("current")[0]
         token = self.id_map[item]
 
         # Remove all the xref formatting
@@ -582,7 +654,7 @@ class ExploreCanvas(tk.Canvas):
         self.gui.refresh_source_with_xref(token.var)
 
     def set_var_value(self, event):
-        item = event.widget.find_withtag('current')[0]
+        item = event.widget.find_withtag("current")[0]
         token = self.id_map[item]
         window = SetValueDialog(self.parent, self.analyzer, token)
         self.parent.wait_window(window)
@@ -590,7 +662,7 @@ class ExploreCanvas(tk.Canvas):
     def inline_call(self, event):
         if not self.analyzer.strategy.command_fixpoint:
             save_analyzer(self.analyzer)
-        item = event.widget.find_withtag('current')[0]
+        item = event.widget.find_withtag("current")[0]
         token = self.id_map[item]
 
         self.analyzer.down_call(token.func, token.assoc_stmt)
@@ -643,19 +715,21 @@ class SetValueDialog(tk.Toplevel):
         val = self.entry.get()
         type_str = str(self.variable.var.type)
 
-        if 'int' in type_str:
+        if "int" in type_str:
             try:
                 self.value = int(val)
             except ValueError:
-                tk.messagebox.showerror("Error", "\"{}\" is not a valid integer".format(val))
+                tk.messagebox.showerror("Error", '"{}" is not a valid integer'.format(val))
                 return
-        elif type_str == 'bool':
-            if val == 'True':
+        elif type_str == "bool":
+            if val == "True":
                 self.value = True
-            elif val == 'False':
+            elif val == "False":
                 self.value = False
             else:
-                tk.messagebox.showerror("Error", "\"{}\" is not a valid boolean. Try True or False".format(val))
+                tk.messagebox.showerror(
+                    "Error", '"{}" is not a valid boolean. Try True or False'.format(val)
+                )
                 return
 
         if not self.analyzer.strategy.command_fixpoint:
@@ -663,9 +737,13 @@ class SetValueDialog(tk.Toplevel):
 
         try:
             if self.analyzer.strategy.set_value_in_strategy:
-                self.analyzer.strategy.set_value(self.analyzer.get_var_value(self.variable.var, self.variable.func), self.value)
+                self.analyzer.strategy.set_value(
+                    self.analyzer.get_var_value(self.variable.var, self.variable.func), self.value
+                )
             else:
-                self.analyzer.set_var_value(self.variable.var, self.variable.func, self.value, deduce=True)
+                self.analyzer.set_var_value(
+                    self.variable.var, self.variable.func, self.value, deduce=True
+                )
         except InconsistentStateError as e:
             tk.messagebox.showerror("Error", str(e))
             if not self.analyzer.strategy.command_fixpoint:
@@ -744,17 +822,16 @@ class UpCallDialog(tk.Toplevel):
             self.gui.solve()
             self.cancel()
 
-        callsites.bind('<Double-Button>', bind_select_callsite)
+        callsites.bind("<Double-Button>", bind_select_callsite)
 
     def cancel(self):
         self.grab_release()
         self.destroy()
 
+
 def save_analyzer(analyzer):
-    pickle_object(analyzer, 'save_analyzer.pickle')
+    pickle_object(analyzer, "save_analyzer.pickle")
 
 
 def restore_analyzer() -> Analyzer:
-    return unpickle_object('save_analyzer.pickle')
-
-
+    return unpickle_object("save_analyzer.pickle")

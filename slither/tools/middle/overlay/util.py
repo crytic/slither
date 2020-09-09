@@ -6,10 +6,26 @@ from slither.tools.middle.overlay.ast.function import OverlayFunction
 from slither.tools.middle.overlay.ast.ite import OverlayITE
 from slither.tools.middle.overlay.ast.node import OverlayNode
 from slither.core.cfg.node import NodeType
-from slither.slithir.operations import Phi, OperationWithLValue, Return, Binary, Condition, Index, TypeConversion, \
-    Assignment, Length, InternalCall, HighLevelCall
-from slither.slithir.variables import LocalIRVariable, StateIRVariable, TemporaryVariableSSA, Constant, \
-    ReferenceVariableSSA
+from slither.slithir.operations import (
+    Phi,
+    OperationWithLValue,
+    Return,
+    Binary,
+    Condition,
+    Index,
+    TypeConversion,
+    Assignment,
+    Length,
+    InternalCall,
+    HighLevelCall,
+)
+from slither.slithir.variables import (
+    LocalIRVariable,
+    StateIRVariable,
+    TemporaryVariableSSA,
+    Constant,
+    ReferenceVariableSSA,
+)
 
 
 def is_loop_begin(node: OverlayNode) -> bool:
@@ -118,8 +134,7 @@ def get_ssa_variables_used_in_ir(ir, phi_read=True):
         ret.add(ir.lvalue)
         return ret
     ret.update([x for x in ir.read])
-    ret.update([x for x in ir.used if
-                isinstance(x, (LocalIRVariable, StateIRVariable))])
+    ret.update([x for x in ir.used if isinstance(x, (LocalIRVariable, StateIRVariable))])
     return ret
 
 
@@ -146,8 +161,9 @@ def get_ssa_variables_used(n: OverlayNode, phi_read=True, all_vars=False):
             if all_vars:
                 ret.update([x for x in ir.read])
             else:
-                ret.update([x for x in ir.used if
-                            isinstance(x, (LocalIRVariable, StateIRVariable))])
+                ret.update(
+                    [x for x in ir.used if isinstance(x, (LocalIRVariable, StateIRVariable))]
+                )
     return ret
 
 
@@ -174,8 +190,9 @@ def get_ssa_variables_read(n: OverlayNode, phi_read=True, constants=False):
             if not phi_read and isinstance(ir, Phi):
                 continue
             if not constants:
-                ret.update([x for x in ir.read if
-                            isinstance(x, (LocalIRVariable, StateIRVariable))])
+                ret.update(
+                    [x for x in ir.read if isinstance(x, (LocalIRVariable, StateIRVariable))]
+                )
             else:
                 ret.update([x for x in ir.read])
     return ret
@@ -200,6 +217,7 @@ def get_ssa_variables_defined(n: OverlayNode, phi_read=True):
                 ret.update([ir.lvalue])
     return ret
 
+
 def get_ssa_variables_in_function(f: OverlayFunction):
     """
     A function to get all the variables defined in a function
@@ -211,6 +229,7 @@ def get_ssa_variables_in_function(f: OverlayFunction):
         vars.update(get_ssa_variables_defined(stmt))
     return vars
 
+
 def get_state_argument_variables_defined(n: OverlayNode):
     """
     Returns the implicit argument exports if applicable
@@ -221,7 +240,6 @@ def get_state_argument_variables_defined(n: OverlayNode):
         return n.node.state_variables_read + n.node.state_variables_written
     else:
         return set()
-
 
 
 def remove_edge(a: OverlayNode, b: OverlayNode):
@@ -337,7 +355,13 @@ def resolve_nearest_concrete_parent(graph, func):
         current = func.func
         while current is None:
             callsites = get_all_call_sites_to(graph, func)
-            callsites = [(y, x) for (y, x) in callsites if not isinstance(x, OverlayCall) or isinstance(x, OverlayCall) and not x.loop_continue]
+            callsites = [
+                (y, x)
+                for (y, x) in callsites
+                if not isinstance(x, OverlayCall)
+                or isinstance(x, OverlayCall)
+                and not x.loop_continue
+            ]
             assert len(callsites) == 1
             current, _ = callsites[0]
         return current

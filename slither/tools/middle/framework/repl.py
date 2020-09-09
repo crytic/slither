@@ -4,17 +4,23 @@ import sys
 
 from slither.tools.middle.framework.analyzer import Analyzer, GroupAnalyzer
 from slither.tools.middle.framework.strategy import ConcreteStrategy
-from slither.tools.middle.framework.util import InconsistentStateError, pickle_analyzer, unpickle_analyzer, pickle_object, unpickle_object
+from slither.tools.middle.framework.util import (
+    InconsistentStateError,
+    pickle_analyzer,
+    unpickle_analyzer,
+    pickle_object,
+    unpickle_object,
+)
 
 
 def main():
-    down_pattern = re.compile(r'call\s+(\d+)')
-    data_pattern = re.compile(r'let\s+(\d+)\s*=\s*(\d+)')
-    query_pattern = re.compile(r'query\s+(\d+)')
-    init_pattern = re.compile(r'init\s+(\w+)')
-    show_pattern = re.compile(r'show\s+(\d+)')
-    source_pattern = re.compile(r'source\s+(\d+)')
-    switch_pattern = re.compile(f'switch\s+(\d+)')
+    down_pattern = re.compile(r"call\s+(\d+)")
+    data_pattern = re.compile(r"let\s+(\d+)\s*=\s*(\d+)")
+    query_pattern = re.compile(r"query\s+(\d+)")
+    init_pattern = re.compile(r"init\s+(\w+)")
+    show_pattern = re.compile(r"show\s+(\d+)")
+    source_pattern = re.compile(r"source\s+(\d+)")
+    switch_pattern = re.compile(f"switch\s+(\d+)")
 
     group_analyzer = GroupAnalyzer()
     analyzer = Analyzer(ConcreteStrategy(), sys.argv[1])
@@ -63,7 +69,7 @@ def main():
             analyzer.get_digraph()
 
         elif info == "begin":
-            pickle_analyzer(analyzer, 'previous.pickle')
+            pickle_analyzer(analyzer, "previous.pickle")
 
             commands = []
             while True:
@@ -74,9 +80,11 @@ def main():
 
             for command in commands:
                 if data_pattern.match(command) is None:
-                    print("ERROR: cannot process {} because it is not a let binding".format(command))
+                    print(
+                        "ERROR: cannot process {} because it is not a let binding".format(command)
+                    )
                     print("Rolling back...")
-                    analyzer = unpickle_analyzer('previous.pickle')
+                    analyzer = unpickle_analyzer("previous.pickle")
                     break
 
                 symvar_id, value = data_pattern.match(command).group(1, 2)
@@ -89,11 +97,11 @@ def main():
                 except InconsistentStateError as e:
                     print("ERROR: {}".format(e))
                     print("Rolling back...")
-                    analyzer = unpickle_analyzer('previous.pickle')
+                    analyzer = unpickle_analyzer("previous.pickle")
                     break
 
         elif match_down_pattern is not None:
-            pickle_analyzer(analyzer, 'previous.pickle')
+            pickle_analyzer(analyzer, "previous.pickle")
 
             # Down call the given function by id number.
             callsite_id = match_down_pattern.group(1)
@@ -104,10 +112,10 @@ def main():
             except InconsistentStateError as e:
                 print("ERROR: {}".format(e))
                 print("Rolling back...")
-                analyzer = unpickle_analyzer('previous.pickle')
+                analyzer = unpickle_analyzer("previous.pickle")
 
         elif match_data_pattern is not None:
-            pickle_analyzer(analyzer, 'previous.pickle')
+            pickle_analyzer(analyzer, "previous.pickle")
 
             # Provide new data for a certain labeled symbolic variable.
             #   e.g. let [id] = [value]
@@ -121,7 +129,7 @@ def main():
             except InconsistentStateError as e:
                 print("ERROR: {}".format(e))
                 print("Rolling back...")
-                analyzer = unpickle_analyzer('previous.pickle')
+                analyzer = unpickle_analyzer("previous.pickle")
 
         elif match_query_pattern is not None:
             # Query the value of a certain labeled symbolic variable.
@@ -149,13 +157,13 @@ def main():
 
         # Right now we only allow a single state to be saved.
         elif info == "save":
-            pickle_object(group_analyzer, 'save_group.pickle')
-            pickle_object(analyzer, 'save_analyzer.pickle')
+            pickle_object(group_analyzer, "save_group.pickle")
+            pickle_object(analyzer, "save_analyzer.pickle")
             continue
 
         elif info == "load":
-            group_analyzer = unpickle_object('save_group.pickle')
-            analyzer = unpickle_object('save_analyzer.pickle')
+            group_analyzer = unpickle_object("save_group.pickle")
+            analyzer = unpickle_object("save_analyzer.pickle")
             continue
 
         elif info == "list":
@@ -184,5 +192,5 @@ def main():
             print("ERROR: did not recognize command")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

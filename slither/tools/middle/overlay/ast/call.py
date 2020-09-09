@@ -2,9 +2,19 @@ from collections import defaultdict
 from typing import List
 
 from slither.core.cfg.node import NodeType
-from slither.tools.middle.framework.tokens import Keyword, LeftParen, Variable, Not, LeftBrace, RightBrace, NewLine, \
-    RightParen, Literal, \
-    Indent, Token
+from slither.tools.middle.framework.tokens import (
+    Keyword,
+    LeftParen,
+    Variable,
+    Not,
+    LeftBrace,
+    RightBrace,
+    NewLine,
+    RightParen,
+    Literal,
+    Indent,
+    Token,
+)
 from slither.tools.middle.overlay.ast.node import OverlayNode
 
 
@@ -26,32 +36,41 @@ class OverlayCall(OverlayNode):
         super().__init__(NodeType.OVERLAY)
 
     def __str__(self):
-        return "{}{}CALL {} if{} {}\n    Arguments {}\n    Returns {}" \
-            .format("LOOP " if self.loop_call else "",
-                    "CONT " if self.loop_continue else "",
-                    self.dest.name,
-                    " NOT" if self.cond_complement else "",
-                    self.cond if self.cond is not None else "TRUE",
-                    self.get_argument_str(),
-                    self.get_return_str())
+        return "{}{}CALL {} if{} {}\n    Arguments {}\n    Returns {}".format(
+            "LOOP " if self.loop_call else "",
+            "CONT " if self.loop_continue else "",
+            self.dest.name,
+            " NOT" if self.cond_complement else "",
+            self.cond if self.cond is not None else "TRUE",
+            self.get_argument_str(),
+            self.get_return_str(),
+        )
 
     def get_argument_str(self) -> str:
         fragments = []
         for imported in self.arguments:
             if str(imported) in self.arg_as_map:
-                fragments.append("{} as {}".format(str([str(x) for x in self.arg_as_map[str(imported)]]), str(imported)))
+                fragments.append(
+                    "{} as {}".format(
+                        str([str(x) for x in self.arg_as_map[str(imported)]]), str(imported)
+                    )
+                )
             else:
                 fragments.append(str(imported))
-        return ','.join(fragments)
+        return ",".join(fragments)
 
     def get_return_str(self) -> str:
         fragments = []
         for exported in self.returns:
             if str(exported) in self.ret_as_map:
-                fragments.append("{} as {}".format(str([str(x) for x in self.ret_as_map[str(exported)]]), str(exported)))
+                fragments.append(
+                    "{} as {}".format(
+                        str([str(x) for x in self.ret_as_map[str(exported)]]), str(exported)
+                    )
+                )
             else:
                 fragments.append(str(exported))
-        return ','.join(fragments)
+        return ",".join(fragments)
 
     def to_tokens(self, func, body: List[Token] = None, indent=0):
         def append_with_indent(l, element):

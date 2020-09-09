@@ -12,25 +12,25 @@ class Token(ABC):
         self.annotation = None
 
     def single_click(self):
-        if self.bindings['single-click'] is not None:
-            self.bindings['single-click']()
+        if self.bindings["single-click"] is not None:
+            self.bindings["single-click"]()
 
     def double_click(self):
-        if self.bindings['double-click'] is not None:
-            self.bindings['double-click']()
+        if self.bindings["double-click"] is not None:
+            self.bindings["double-click"]()
 
     def right_click(self):
-        if self.bindings['right-click'] is not None:
-            self.bindings['right-click']()
+        if self.bindings["right-click"] is not None:
+            self.bindings["right-click"]()
 
     def set_binding_single_click(self, callback: Callable):
-        self.bindings['single-click'] = callback
+        self.bindings["single-click"] = callback
 
     def set_binding_double_click(self, callback: Callable):
-        self.bindings['double-click'] = callback
+        self.bindings["double-click"] = callback
 
     def set_binding_right_click(self, callback: Callable):
-        self.bindings['right-click'] = callback
+        self.bindings["right-click"] = callback
 
     def render_annotation(self):
         return "" if self.annotation is None else self.annotation.render()
@@ -61,7 +61,7 @@ class LeftParen(Token):
         super().__init__(assoc_stmt, func)
 
     def render(self):
-        return '('
+        return "("
 
 
 class RightParen(Token):
@@ -69,7 +69,7 @@ class RightParen(Token):
         super().__init__(assoc_stmt, func)
 
     def render(self):
-        return ')'
+        return ")"
 
 
 class LeftBrace(Token):
@@ -77,7 +77,7 @@ class LeftBrace(Token):
         super().__init__(assoc_stmt, func)
 
     def render(self):
-        return '{'
+        return "{"
 
 
 class RightBrace(Token):
@@ -85,7 +85,7 @@ class RightBrace(Token):
         super().__init__(assoc_stmt, func)
 
     def render(self):
-        return '}'
+        return "}"
 
 
 class Not(Token):
@@ -93,7 +93,7 @@ class Not(Token):
         super().__init__(assoc_stmt, func)
 
     def render(self):
-        return '!'
+        return "!"
 
 
 class Variable(Token):
@@ -120,7 +120,7 @@ class NewLine(Token):
         super().__init__(assoc_stmt, func)
 
     def render(self):
-        return str('\n')
+        return str("\n")
 
 
 class Equals(Token):
@@ -128,7 +128,7 @@ class Equals(Token):
         super().__init__(assoc_stmt, func)
 
     def render(self):
-        return str('=')
+        return str("=")
 
 
 class Indent(Token):
@@ -167,12 +167,15 @@ class CallSite(Token):
         if not isinstance(other, CallSite):
             return False
         # Use referential equality for constituents.
-        return isinstance(self, CallSite) and isinstance(self, CallSite) and \
-               self.assoc_stmt == other.assoc_stmt \
-               and self.func == other.func
+        return (
+            isinstance(self, CallSite)
+            and isinstance(self, CallSite)
+            and self.assoc_stmt == other.assoc_stmt
+            and self.func == other.func
+        )
 
 
-class Annotation():
+class Annotation:
     def __init__(self, value):
         self.value = value
 

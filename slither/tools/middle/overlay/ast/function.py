@@ -26,7 +26,7 @@ class OverlayFunction:
         if func is not None:
             self.name = func.name
         else:
-            self.name = 'OVERLAY_FUNCTION_{}'.format(self.counter.__next__())
+            self.name = "OVERLAY_FUNCTION_{}".format(self.counter.__next__())
 
         # Try to construct overlays for all the statements in the function
         if func:
@@ -41,8 +41,8 @@ class OverlayFunction:
         filename = None
 
         if self.func is not None:
-            filename = self.func.source_mapping['filename_absolute']
-            source_mapping_lines.update(self.func.source_mapping['lines'])
+            filename = self.func.source_mapping["filename_absolute"]
+            source_mapping_lines.update(self.func.source_mapping["lines"])
         else:
             for stmt in self.statements:
                 if stmt.node is None:
@@ -51,15 +51,15 @@ class OverlayFunction:
                     # Entry points have a bunch of source mappings for some reason.
                     continue
                 if filename is None:
-                    filename = stmt.node.source_mapping['filename_absolute']
-                source_mapping_lines.update(stmt.node.source_mapping['lines'])
+                    filename = stmt.node.source_mapping["filename_absolute"]
+                source_mapping_lines.update(stmt.node.source_mapping["lines"])
 
         lines = None
-        with open(filename, 'r') as f:
+        with open(filename, "r") as f:
             lines = f.readlines()
         min_line, max_line = min(source_mapping_lines) - 1, max(source_mapping_lines)
         lines = lines[min_line:max_line]
-        return ''.join(lines)
+        return "".join(lines)
 
     def get_ir(self) -> str:
         lines = []
@@ -70,7 +70,7 @@ class OverlayFunction:
                 lines.append(str(stmt).strip())
             for ir in stmt.ir:
                 lines.append(str(ir).strip())
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def get_topological_ordering(self) -> List[OverlayNode]:
         indegree = {stmt: 0 for stmt in self.statements}

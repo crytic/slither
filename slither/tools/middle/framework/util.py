@@ -9,6 +9,7 @@ class InconsistentStateError(Exception):
     An Exception to be raised when the user leads the engine to a state in which
     we get an inconsistent execution state.
     """
+
     pass
 
 
@@ -16,6 +17,7 @@ class UnionFindSymVar:
     """
     Implements the Union-Find algorithm on SymVars.
     """
+
     # Maps each SymVar to its parent
     parent = Dict[SymVar, SymVar]
 
@@ -52,10 +54,10 @@ class UnionFindSymVar:
 
 
 def pickle_object(obj, filename):
-    with open(filename, 'wb') as f:
+    with open(filename, "wb") as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 
 def unpickle_object(filename):
-    with open(filename, 'rb') as f:
+    with open(filename, "rb") as f:
         return pickle.load(f)
