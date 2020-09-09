@@ -355,7 +355,7 @@ class FunctionSolc:
             condition_node.add_unparsed_expression(condition)
             link_underlying_nodes(node, condition_node)
             trueStatement = self._parse_statement(if_statement["trueBody"], condition_node)
-            if if_statement["falseBody"]:
+            if "falseBody" in if_statement and if_statement["falseBody"]:
                 falseStatement = self._parse_statement(if_statement["falseBody"], condition_node)
         else:
             children = if_statement[self.get_children("children")]
