@@ -8,7 +8,7 @@ class CFG(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#cfg"
 
-    def output(self, filename):
+    def output(self, filename_origin):
         """
         _filename is not used
         Args:
@@ -21,8 +21,8 @@ class CFG(AbstractPrinter):
             if contract.is_top_level:
                 continue
             for function in contract.functions + contract.modifiers:
-                if filename:
-                    filename = "{}-{}-{}.dot".format(filename, contract.name, function.full_name)
+                if filename_origin:
+                    filename = "{}-{}-{}.dot".format(filename_origin, contract.name, function.full_name)
                 else:
                     filename = "{}-{}.dot".format(contract.name, function.full_name)
                 info += "Export {}\n".format(filename)
