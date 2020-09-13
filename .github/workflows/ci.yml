@@ -36,6 +36,7 @@ jobs:
                "slither_config", 
                "truffle", 
                "upgradability", 
+               "ast",
                "prop"]
     steps:
     - uses: actions/checkout@v1

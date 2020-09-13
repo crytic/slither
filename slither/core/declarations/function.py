@@ -1298,7 +1298,7 @@ class Function(
         with open(filename, "w", encoding="utf8") as f:
             f.write(content)
 
-    def slithir_cfg_to_dot_str(self) -> str:
+    def slithir_cfg_to_dot_str(self, skip_expressions=False) -> str:
         """
         Export the CFG to a DOT format. The nodes includes the Solidity expressions and the IRs
         :return: the DOT content
@@ -1310,9 +1310,9 @@ class Function(
         content += "digraph{\n"
         for node in self.nodes:
             label = "Node Type: {} {}\n".format(str(node.type), node.node_id)
-            if node.expression:
+            if node.expression and not skip_expressions:
                 label += "\nEXPRESSION:\n{}\n".format(node.expression)
-            if node.irs:
+            if node.irs and not skip_expressions:
                 label += "\nIRs:\n" + "\n".join([str(ir) for ir in node.irs])
             content += '{}[label="{}"];\n'.format(node.node_id, label)
             if node.type in [NodeType.IF, NodeType.IFLOOP]:
