@@ -31,6 +31,8 @@ jobs:
         run: |
           pip install .
           pip install deepdiff numpy
+          # to be removed once https://github.com/github/super-linter/issues/722 is fixed
+          pip install black==20.8b1
 
           mkdir -p .github/linters
           cp pyproject.toml .github/linters
