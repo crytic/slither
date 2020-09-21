@@ -63,8 +63,7 @@ class DivideBeforeMultiply(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#divide-before-multiply"
 
     WIKI_TITLE = "Divide before multiply"
-    WIKI_DESCRIPTION = """Solidity only supports integers, so division will often truncate; performing a multiply before a divison can sometimes avoid loss of precision."""
-    WIKI_DESCRIPTION = """Solidity integer division might truncate. As a result, performing multiplication before divison might reduce precision."""
+    WIKI_DESCRIPTION = """Solidity integer division might truncate. As a result, performing multiplication before division can sometimes avoid loss of precision."""
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
