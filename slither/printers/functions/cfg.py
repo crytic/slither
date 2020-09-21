@@ -22,7 +22,9 @@ class CFG(AbstractPrinter):
                 continue
             for function in contract.functions + contract.modifiers:
                 if filename:
-                    new_filename = "{}-{}-{}.dot".format(filename, contract.name, function.full_name)
+                    new_filename = "{}-{}-{}.dot".format(
+                        filename, contract.name, function.full_name
+                    )
                 else:
                     new_filename = "{}-{}.dot".format(contract.name, function.full_name)
                 info += "Export {}\n".format(new_filename)
