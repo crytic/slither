@@ -367,8 +367,8 @@ def propagate_type_and_convert_call(result, node):
                 for new_ins_ in new_ins:
                     new_ins_.set_node(ins.node)
                 del result[idx]
-                for i in range(len(new_ins)):
-                    result.insert(idx + i, new_ins[i])
+                for i, ins in enumerate(new_ins):
+                    result.insert(idx + i, ins)
                 idx = idx + len(new_ins) - 1
             else:
                 new_ins.set_node(ins.node)
@@ -999,20 +999,7 @@ def convert_to_solidity_func(ir):
     return new_ir
 
 
-def convert_to_push(ir, node):
-    """
-    Convert a call to a series of operations to push a new value onto the array
-
-    The function assume to receive a correct IR
-    The checks must be done by the caller
-
-    May necessitate to create an intermediate operation (InitArray)
-    Necessitate to return the length (see push documentation)
-    As a result, the function return may return a list
-    """
-
-    ret = []
-
+def convert_to_push_expand_arr(ir, node, ret):
     arr = ir.destination
 
     length = ReferenceVariable(node)
@@ -1032,7 +1019,9 @@ def convert_to_push(ir, node):
     ret.append(ir_get_length)
 
     new_length_val = TemporaryVariable(node)
-    ir_add_1 = Binary(new_length_val, length_val, Constant("1", ElementaryType("uint256")), BinaryType.ADDITION)
+    ir_add_1 = Binary(
+        new_length_val, length_val, Constant("1", ElementaryType("uint256")), BinaryType.ADDITION
+    )
     ir_add_1.set_expression(ir.expression)
     ir_add_1.set_node(ir.node)
     ret.append(ir_add_1)
@@ -1042,12 +1031,17 @@ def convert_to_push(ir, node):
     ir_assign_length.set_node(ir.node)
     ret.append(ir_assign_length)
 
+    return length_val
+
+
+def convert_to_push_set_val(ir, node, length_val, ret):
+    arr = ir.destination
+
     new_type = ir.destination.type.type
 
     element_to_add = ReferenceVariable(node)
     element_to_add.set_type(new_type)
     ir_assign_element_to_add = Index(element_to_add, arr, length_val, ElementaryType("uint256"))
-    ir_length.lvalue.points_to = arr
     ir_assign_element_to_add.set_expression(ir.expression)
     ir_assign_element_to_add.set_node(ir.node)
     ret.append(ir_assign_element_to_add)
@@ -1073,6 +1067,24 @@ def convert_to_push(ir, node):
         ir_assign_value.set_expression(ir.expression)
         ir_assign_value.set_node(ir.node)
         ret.append(ir_assign_value)
+
+
+def convert_to_push(ir, node):
+    """
+    Convert a call to a series of operations to push a new value onto the array
+
+    The function assume to receive a correct IR
+    The checks must be done by the caller
+
+    May necessitate to create an intermediate operation (InitArray)
+    Necessitate to return the length (see push documentation)
+    As a result, the function return may return a list
+    """
+
+    ret = []
+
+    length_val = convert_to_push_expand_arr(ir, node, ret)
+    convert_to_push_set_val(ir, node, length_val, ret)
 
     return ret
 
