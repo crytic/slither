@@ -205,7 +205,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     if t[key] == "ArrayTypeName":
         length = None
         if is_compact_ast:
-            if t["length"]:
+            if t.get("length", None):
                 length = parse_expression(t["length"], caller_context)
             array_type = parse_type(t["baseType"], contract_parser)
         else:

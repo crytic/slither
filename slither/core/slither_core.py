@@ -273,7 +273,7 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
             - The --exclude-dependencies flag is set and results are only related to dependencies
         """
         source_mapping_elements = [
-            elem["source_mapping"]["filename_absolute"]
+            elem["source_mapping"].get("filename_absolute", "unknown")
             for elem in r["elements"]
             if "source_mapping" in elem
         ]
