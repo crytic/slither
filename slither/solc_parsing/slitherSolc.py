@@ -155,7 +155,7 @@ class SlitherSolc:
                 if self.is_compact_ast:
                     import_directive = Import(contract_data["absolutePath"])
                 else:
-                    import_directive = Import(contract_data["attributes"]["absolutePath"])
+                    import_directive = Import(contract_data["attributes"].get("absolutePath", ""))
                 import_directive.set_offset(contract_data["src"], self._core)
                 self._core.import_directives.append(import_directive)
 

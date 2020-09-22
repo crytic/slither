@@ -405,7 +405,7 @@ class FunctionSolc:
 
     def _parse_for_compact_ast(self, statement: Dict, node: NodeSolc) -> NodeSolc:
         body = statement["body"]
-        init_expression = statement["initializationExpression"]
+        init_expression = statement.get("initializationExpression", None)
         condition = statement["condition"]
         loop_expression = statement["loopExpression"]
 
