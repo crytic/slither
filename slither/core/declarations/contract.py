@@ -1097,6 +1097,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
                             v.node_initialization = next_node
                             prev_node.add_son(next_node)
                             next_node.add_father(prev_node)
+                            prev_node = next_node
                             counter += 1
                     break
 
@@ -1124,6 +1125,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
                             v.node_initialization = next_node
                             prev_node.add_son(next_node)
                             next_node.add_father(prev_node)
+                            prev_node = next_node
                             counter += 1
 
                     break
