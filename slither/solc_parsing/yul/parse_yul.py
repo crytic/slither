@@ -6,7 +6,6 @@ from slither.core.cfg.node import NodeType, Node, link_nodes
 from slither.core.declarations import (
     Function,
     SolidityFunction,
-    SolidityVariable,
     Contract,
 )
 from slither.core.expressions import (
