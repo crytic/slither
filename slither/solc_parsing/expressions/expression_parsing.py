@@ -768,7 +768,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         if is_compact_ast:
             called = parse_expression(expression["modifierName"], caller_context)
             arguments = []
-            if expression["arguments"]:
+            if expression.get("arguments", None):
                 arguments = [parse_expression(a, caller_context) for a in expression["arguments"]]
         else:
             children = expression["children"]

@@ -276,7 +276,7 @@ class FunctionSolc:
         self._content_was_analyzed = True
 
         if self.is_compact_ast:
-            body = self._functionNotParsed["body"]
+            body = self._functionNotParsed.get("body", None)
 
             if body and body[self.get_key()] == "Block":
                 self._function.is_implemented = True
@@ -405,9 +405,9 @@ class FunctionSolc:
 
     def _parse_for_compact_ast(self, statement: Dict, node: NodeSolc) -> NodeSolc:
         body = statement["body"]
-        init_expression = statement["initializationExpression"]
-        condition = statement["condition"]
-        loop_expression = statement["loopExpression"]
+        init_expression = statement.get("initializationExpression", None)
+        condition = statement.get("condition", None)
+        loop_expression = statement.get("loopExpression", None)
 
         node_startLoop = self._new_node(NodeType.STARTLOOP, statement["src"])
         node_endLoop = self._new_node(NodeType.ENDLOOP, statement["src"])
@@ -606,7 +606,7 @@ class FunctionSolc:
         link_underlying_nodes(node, try_node)
 
         if self.is_compact_ast:
-            params = statement["parameters"]
+            params = statement.get("parameters", None)
         else:
             params = statement[self.get_children("children")]
 
