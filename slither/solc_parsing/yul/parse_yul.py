@@ -6,7 +6,6 @@ from slither.core.cfg.node import NodeType, Node, link_nodes
 from slither.core.declarations import (
     Function,
     SolidityFunction,
-    SolidityVariable,
     Contract,
 )
 from slither.core.expressions import (
@@ -668,12 +667,15 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         potential_name = name[:-5]
         var = root.function.contract.get_state_variable_from_name(potential_name)
         if var:
-            return Identifier(SolidityVariable(name))
+            return Identifier(var)
+        var = root.function.get_local_variable_from_name(potential_name)
+        if var and var.is_storage:
+            return Identifier(var)
     if name.endswith("_offset"):
         potential_name = name[:-7]
         var = root.function.contract.get_state_variable_from_name(potential_name)
         if var:
-            return Identifier(SolidityVariable(name))
+            return Identifier(var)
 
     raise SlitherException(f"unresolved reference to identifier {name}")
 
