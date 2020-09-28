@@ -59,6 +59,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         self._parser: SlitherSolc  #  This could be another parser, like SlitherVyper, interface needs to be determined
 
         self._disallow_partial: bool = kwargs.get("disallow_partial", False)
+        self._skip_assembly: bool = kwargs.get("skip_assembly", False)
 
         # list of files provided (see --splitted option)
         if isinstance(target, list):

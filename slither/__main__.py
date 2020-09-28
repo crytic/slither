@@ -482,6 +482,13 @@ def parse_args(detector_classes, printer_classes):
     )
 
     parser.add_argument(
+        "--skip-assembly",
+        help=argparse.SUPPRESS,
+        action="store_true",
+        default=defaults_flag_in_config["skip_assembly"],
+    )
+
+    parser.add_argument(
         "--ignore-return-value",
         help=argparse.SUPPRESS,
         action="store_true",
