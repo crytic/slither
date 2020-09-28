@@ -849,8 +849,6 @@ class FunctionSolc:
                 asm_node = self._new_node(NodeType.ASSEMBLY, statement["src"])
                 self._function.contains_assembly = True
                 # Added with solc 0.4.12
-                if "AST" in statement:
-                    asm_node.underlying_node.add_inline_asm(statement["AST"])
                 if "operations" in statement:
                     asm_node.underlying_node.add_inline_asm(statement["operations"])
                 link_underlying_nodes(node, asm_node)
