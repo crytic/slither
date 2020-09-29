@@ -121,6 +121,7 @@ XFAIL = [
     "for_0.6.12_legacy",
     "for_0.7.0_legacy",
     "for_0.7.1_legacy",
+    "for_0.7.2_legacy",
     "function_0.6.0_legacy",
     "function_0.6.1_legacy",
     "function_0.6.2_legacy",
@@ -137,6 +138,8 @@ XFAIL = [
     "function_0.7.0_legacy",
     "function_0.7.1_legacy",
     "function_0.7.1_compact",
+    "function_0.7.2_legacy",
+    "function_0.7.2_compact",
     "functioncall_0.4.0_legacy",
     "functioncall_0.4.1_legacy",
     "functioncall_0.4.2_legacy",
@@ -225,6 +228,8 @@ XFAIL = [
     "functioncall_0.7.0_compact",
     "functioncall_0.7.1_legacy",
     "functioncall_0.7.1_compact",
+    "functioncall_0.7.2_legacy",
+    "functioncall_0.7.2_compact",
     "import_0.4.0_legacy",
     "import_0.4.1_legacy",
     "import_0.4.2_legacy",
@@ -333,6 +338,8 @@ XFAIL = [
     "import_0.7.0_compact",
     "import_0.7.1_legacy",
     "import_0.7.1_compact",
+    "import_0.7.2_legacy",
+    "import_0.7.2_compact",
     "indexrangeaccess_0.6.1_legacy",
     "indexrangeaccess_0.6.2_legacy",
     "indexrangeaccess_0.6.3_legacy",
@@ -347,10 +354,13 @@ XFAIL = [
     "indexrangeaccess_0.6.12_legacy",
     "indexrangeaccess_0.7.0_legacy",
     "indexrangeaccess_0.7.1_legacy",
+    "indexrangeaccess_0.7.2_legacy",
     "literal_0.7.0_legacy",
     "literal_0.7.0_compact",
     "literal_0.7.1_legacy",
     "literal_0.7.1_compact",
+    "literal_0.7.2_legacy",
+    "literal_0.7.2_compact",
     "memberaccess_0.6.8_legacy",
     "memberaccess_0.6.9_legacy",
     "memberaccess_0.6.10_legacy",
@@ -358,6 +368,7 @@ XFAIL = [
     "memberaccess_0.6.12_legacy",
     "memberaccess_0.7.0_legacy",
     "memberaccess_0.7.1_legacy",
+    "memberaccess_0.7.2_legacy",
     "struct_0.6.0_legacy",
     "struct_0.6.1_legacy",
     "struct_0.6.2_legacy",
@@ -373,6 +384,7 @@ XFAIL = [
     "struct_0.6.12_legacy",
     "struct_0.7.0_legacy",
     "struct_0.7.1_legacy",
+    "struct_0.7.2_legacy",
     "trycatch_0.6.0_legacy",
     "trycatch_0.6.1_legacy",
     "trycatch_0.6.2_legacy",
@@ -388,6 +400,7 @@ XFAIL = [
     "trycatch_0.6.12_legacy",
     "trycatch_0.7.0_legacy",
     "trycatch_0.7.1_legacy",
+    "trycatch_0.7.2_legacy",
     "variable_0.6.5_legacy",
     "variable_0.6.5_compact",
     "variable_0.6.6_legacy",
@@ -483,6 +496,7 @@ XFAIL = [
     "variabledeclaration_0.6.12_legacy",
     "variabledeclaration_0.7.0_legacy",
     "variabledeclaration_0.7.1_legacy",
+    "variabledeclaration_0.7.2_legacy",
 ]
 
 
@@ -646,4 +660,4 @@ def test_parsing(test_item: Item):
 
     diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2)
 
-    assert not diff
+    assert not diff, diff.pretty()
