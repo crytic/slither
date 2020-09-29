@@ -1,5 +1,5 @@
 ---
-name: Lint Code Base
+name: Parser tests
 
 defaults:
   run:
@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    name: Lint Code Base
+    name: Parser tests
     runs-on: ubuntu-latest
 
     steps:
@@ -32,6 +32,11 @@ jobs:
           pip install .
           pip install deepdiff
           pip install pytest
+
+          git clone https://github.com/crytic/solc-select.git
+          ./solc-select/scripts/install.sh
+          export PATH=/home/runner/.solc-select:$PATH
+          echo "export PATH=/home/runner/.solc-select:$PATH" >> ~/.bashrc
 
       - name: Test with pytest
         run: |
