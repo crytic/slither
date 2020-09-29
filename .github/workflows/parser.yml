@@ -29,7 +29,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install .
+          python setup.py install
           pip install deepdiff
           pip install pytest
 
