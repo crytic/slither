@@ -103,6 +103,7 @@ def _name_to_yul_name(variable_name: str, yul_id: List[str]) -> str:
     """
     return variable_name + f"_{'_'.join(yul_id)}"
 
+
 class YulScope(metaclass=abc.ABCMeta):
     __slots__ = [
         "_contract",
@@ -149,7 +150,11 @@ class YulScope(metaclass=abc.ABCMeta):
 
     def get_yul_local_variable_from_name(self, variable_name):
         return next(
-            (v for v in self._yul_local_variables if v.underlying.name == _name_to_yul_name(variable_name, self.id)),
+            (
+                v
+                for v in self._yul_local_variables
+                if v.underlying.name == _name_to_yul_name(variable_name, self.id)
+            ),
             None,
         )
 
