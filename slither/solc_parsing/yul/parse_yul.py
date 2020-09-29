@@ -89,6 +89,21 @@ def link_underlying_nodes(node1: YulNode, node2: YulNode):
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
+def _name_to_yul_name(variable_name: str, yul_id: List[str]) -> str:
+    """
+    Translate the variable name to a unique yul name
+    Within the same function, yul blocks can declare
+    different variables with the same name
+    We need to create unique name per variable
+    to prevent collision during the SSA generation
+
+    :param var:
+    :param yul_id:
+    :return:
+    """
+    return variable_name + f"_{'_'.join(yul_id)}"
+
+
 class YulScope(metaclass=abc.ABCMeta):
     __slots__ = [
         "_contract",
@@ -135,7 +150,11 @@ class YulScope(metaclass=abc.ABCMeta):
 
     def get_yul_local_variable_from_name(self, variable_name):
         return next(
-            (v for v in self._yul_local_variables if v.underlying.name == variable_name),
+            (
+                v
+                for v in self._yul_local_variables
+                if v.underlying.name == _name_to_yul_name(variable_name, self.id)
+            ),
             None,
         )
 
@@ -162,7 +181,7 @@ class YulLocalVariable:  # pylint: disable=too-few-public-methods
         var.set_function(root.function)
         var.set_offset(ast["src"], root.slither)
 
-        var.name = ast["name"]
+        var.name = _name_to_yul_name(ast["name"], root.id)
         var.set_type(ElementaryType("uint256"))
         var.set_location("memory")
 
@@ -516,7 +535,6 @@ def convert_yul_typed_name(root: YulScope, parent: YulNode, ast: Dict) -> YulNod
     local_var = LocalVariable()
 
     var = YulLocalVariable(local_var, root, ast)
-
     root.add_yul_local_variable(var)
 
     node = root.new_node(NodeType.VARIABLE, ast["src"])
