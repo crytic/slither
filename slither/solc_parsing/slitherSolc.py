@@ -20,7 +20,7 @@ logger.setLevel(logging.INFO)
 
 
 class SlitherSolc:
-    # pylint: disable=no-self-use
+    # pylint: disable=no-self-use,too-many-instance-attributes
     def __init__(self, filename: str, core: SlitherCore):
         super().__init__()
         core.filename = filename
