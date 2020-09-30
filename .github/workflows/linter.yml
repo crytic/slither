@@ -30,6 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           python setup.py install
+          rm build
           pip install deepdiff numpy
 
           mkdir -p .github/linters
