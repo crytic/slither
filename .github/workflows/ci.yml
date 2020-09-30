@@ -35,7 +35,7 @@ jobs:
                "simil", 
                "slither_config", 
                "truffle", 
-               "upgradability", 
+               "upgradability",
                "prop"]
     steps:
     - uses: actions/checkout@v1
