@@ -403,7 +403,7 @@ class FunctionSolc:
 
         return node_endWhile
 
-    def _parse_for_compact_ast(
+    def _parse_for_compact_ast(  # pylint: disable=no-self-use
         self, statement: Dict
     ) -> (Optional[Dict], Optional[Dict], Optional[Dict], Dict):
         body = statement["body"]
@@ -472,10 +472,7 @@ class FunctionSolc:
 
                 # VariableDefinitionStatement is used by solc 0.4.0-0.4.6
                 # it's changed in 0.4.7 to VariableDeclarationStatement
-                if (
-                    first_type == "VariableDefinitionStatement"
-                    or first_type == "VariableDeclarationStatement"
-                ):
+                if first_type in ["VariableDefinitionStatement", "VariableDeclarationStatement"]:
                     # only the pre statement can be a variable declaration
 
                     if len(children) == 2:
@@ -558,7 +555,7 @@ class FunctionSolc:
             node_loopexpression = self._parse_statement(post, node_body)
             link_underlying_nodes(node_loopexpression, node_beforeBody)
         else:
-            node_loopexpression = None
+            # node_loopexpression = None
             link_underlying_nodes(node_body, node_beforeBody)
 
         if node_condition:
@@ -1174,7 +1171,7 @@ class FunctionSolc:
         # this step needs to happen after all of the break statements are fixed
         # really, we should be passing some sort of context down so the break statement doesn't
         # need to be fixed out-of-band in the first place
-        for node in self._node_to_nodesolc.keys():
+        for node in self._node_to_nodesolc:
             if node.type in [NodeType.STARTLOOP]:
                 # can we prune? only if after pruning, we have at least one son that isn't itself
                 if (
