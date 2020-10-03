@@ -1,5 +1,7 @@
 import abc
 import re
+from enum import Enum
+from typing import Optional
 
 from slither.utils.colors import green, yellow, red
 from slither.formatters.exceptions import FormatImpossible
@@ -11,7 +13,7 @@ class IncorrectDetectorInitialization(Exception):
     pass
 
 
-class DetectorClassification:  # pylint: disable=too-few-public-methods
+class DetectorClassification(Enum):  # pylint: disable=too-few-public-methods
     HIGH = 0
     MEDIUM = 1
     LOW = 2
@@ -39,8 +41,8 @@ classification_txt = {
 class AbstractDetector(metaclass=abc.ABCMeta):
     ARGUMENT = ""  # run the detector with slither.py --ARGUMENT
     HELP = ""  # help information
-    IMPACT = None
-    CONFIDENCE = None
+    IMPACT: Optional[DetectorClassification] = None
+    CONFIDENCE: Optional[DetectorClassification] = None
 
     WIKI = ""
 

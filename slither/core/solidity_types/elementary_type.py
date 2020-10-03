@@ -176,7 +176,8 @@ class ElementaryType(Type):
     def storage_size(self) -> Tuple[int, bool]:
         if self._type == "string" or self._type == "bytes":
             return 32, True
-
+        if self.size is None:
+            return 32, True
         return int(self.size / 8), False
 
     def __str__(self):

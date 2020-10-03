@@ -51,8 +51,8 @@ class ContractSolc:
         # use to remap inheritance id
         self._remapping: Dict[str, str] = {}
 
-        self.baseContracts = []
-        self.baseConstructorContractsCalled = []
+        self.baseContracts: List[str] = []
+        self.baseConstructorContractsCalled: List[str] = []
         self._linearized_base_contracts: List[int]
 
         self._variables_parser: List[StateVariableSolc] = []

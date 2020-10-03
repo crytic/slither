@@ -1,4 +1,6 @@
 import abc
+from enum import Enum
+from typing import Optional
 
 from slither.utils.colors import green, yellow, red
 from slither.utils.output import Output
@@ -8,7 +10,7 @@ class IncorrectCheckInitialization(Exception):
     pass
 
 
-class CheckClassification:  # pylint: disable=too-few-public-methods
+class CheckClassification(Enum):  # pylint: disable=too-few-public-methods
     HIGH = 0
     MEDIUM = 1
     LOW = 2
@@ -33,7 +35,7 @@ classification_txt = {
 class AbstractCheck(metaclass=abc.ABCMeta):
     ARGUMENT = ""
     HELP = ""
-    IMPACT = None
+    IMPACT: Optional[CheckClassification] = None
 
     WIKI = ""
 

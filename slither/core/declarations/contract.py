@@ -24,7 +24,7 @@ from slither.utils.tests_pattern import is_test_contract
 
 # pylint: disable=too-many-lines,too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks
 if TYPE_CHECKING:
-    from slither.utils.type_helpers import LibraryCallType, HighLevelCallType
+    from slither.utils.type_helpers import LibraryCallType, HighLevelCallType, InternalCallType
     from slither.core.declarations import Enum, Event, Modifier
     from slither.core.declarations import Structure
     from slither.slithir.variables.variable import SlithIRVariable
@@ -282,8 +282,8 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         """
         List all of the slithir variables (non SSA)
         """
-        slithir_variables = [f.slithir_variables for f in self.functions + self.modifiers]  # type: ignore
-        slithir_variables = [item for sublist in slithir_variables for item in sublist]
+        slithir_variabless = [f.slithir_variables for f in self.functions + self.modifiers]  # type: ignore
+        slithir_variables = [item for sublist in slithir_variabless for item in sublist]
         return list(set(slithir_variables))
 
     # endregion
@@ -726,20 +726,20 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
     ###################################################################################
 
     @property
-    def all_functions_called(self) -> List["Function"]:
+    def all_functions_called(self) -> List["InternalCallType"]:
         """
         list(Function): List of functions reachable from the contract
         Includes super, and private/internal functions not shadowed
         """
-        all_calls = [f for f in self.functions + self.modifiers if not f.is_shadowed]  # type: ignore
-        all_callss = [f.all_internal_calls() for f in all_calls] + [all_calls]
+        all_functions = [f for f in self.functions + self.modifiers if not f.is_shadowed]  # type: ignore
+        all_callss = [f.all_internal_calls() for f in all_functions] + [list(all_functions)]
         all_calls = [item for sublist in all_callss for item in sublist]
         all_calls = list(set(all_calls))
 
         all_constructors = [c.constructor for c in self.inheritance if c.constructor]
         all_constructors = list(set(all_constructors))
 
-        set_all_calls = set(all_calls + all_constructors)
+        set_all_calls = set(all_calls + list(all_constructors))
 
         return [c for c in set_all_calls if isinstance(c, Function)]
 
@@ -748,11 +748,11 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         """
         list(StateVariable): List all of the state variables written
         """
-        all_state_variables_written = [
+        all_state_variables_writtens = [
             f.all_state_variables_written() for f in self.functions + self.modifiers  # type: ignore
         ]
         all_state_variables_written = [
-            item for sublist in all_state_variables_written for item in sublist
+            item for sublist in all_state_variables_writtens for item in sublist
         ]
         return list(set(all_state_variables_written))
 
@@ -761,11 +761,11 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         """
         list(StateVariable): List all of the state variables read
         """
-        all_state_variables_read = [
+        all_state_variables_reads = [
             f.all_state_variables_read() for f in self.functions + self.modifiers  # type: ignore
         ]
         all_state_variables_read = [
-            item for sublist in all_state_variables_read for item in sublist
+            item for sublist in all_state_variables_reads for item in sublist
         ]
         return list(set(all_state_variables_read))
 
@@ -774,8 +774,8 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         """
         list((Contract, Function): List all of the libraries func called
         """
-        all_high_level_calls = [f.all_library_calls() for f in self.functions + self.modifiers]  # type: ignore
-        all_high_level_calls = [item for sublist in all_high_level_calls for item in sublist]
+        all_high_level_callss = [f.all_library_calls() for f in self.functions + self.modifiers]  # type: ignore
+        all_high_level_calls = [item for sublist in all_high_level_callss for item in sublist]
         return list(set(all_high_level_calls))
 
     @property
@@ -783,8 +783,8 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         """
         list((Contract, Function|Variable)): List all of the external high level calls
         """
-        all_high_level_calls = [f.all_high_level_calls() for f in self.functions + self.modifiers]  # type: ignore
-        all_high_level_calls = [item for sublist in all_high_level_calls for item in sublist]
+        all_high_level_callss = [f.all_high_level_calls() for f in self.functions + self.modifiers]  # type: ignore
+        all_high_level_calls = [item for sublist in all_high_level_callss for item in sublist]
         return list(set(all_high_level_calls))
 
     # endregion
@@ -794,9 +794,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
     ###################################################################################
     ###################################################################################
 
-    def get_summary(
-        self, include_shadowed=True
-    ) -> Tuple[str, List[str], List[str], List[str], List[str]]:
+    def get_summary(self, include_shadowed=True) -> Tuple[str, List[str], List[str], List, List]:
         """Return the function summary
 
         :param include_shadowed: boolean to indicate if shadowed functions should be included (default True)
@@ -1143,6 +1141,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         node.set_offset(variable.source_mapping, self.slither)
         node.set_function(func)
         func.add_node(node)
+        assert variable.expression
         expression = AssignmentOperation(
             Identifier(variable),
             variable.expression,

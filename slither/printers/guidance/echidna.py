@@ -76,8 +76,9 @@ def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
     :return:
     """
     if f.view or f.pure:
-        if not f.contract.slither.crytic_compile.compiler_version.version.startswith("0.4"):
-            return True
+        if f.contract.slither.crytic_compile and f.contract.slither.crytic_compile.compiler_version:
+            if not f.contract.slither.crytic_compile.compiler_version.version.startswith("0.4"):
+                return True
     if f.payable:
         return False
     if not f.is_implemented:
@@ -99,8 +100,12 @@ def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
         if isinstance(ir, HighLevelCall):
             if isinstance(ir.function, Variable) or ir.function.view or ir.function.pure:
                 # External call to constant functions are ensured to be constant only for solidity >= 0.5
-                if f.contract.slither.crytic_compile.compiler_version.version.startswith("0.4"):
-                    return False
+                if (
+                    f.contract.slither.crytic_compile
+                    and f.contract.slither.crytic_compile.compiler_version
+                ):
+                    if f.contract.slither.crytic_compile.compiler_version.version.startswith("0.4"):
+                        return False
             else:
                 return False
         if isinstance(ir, InternalCall):

@@ -14,7 +14,7 @@ if len(sys.argv) != 2:
 slither = Slither(sys.argv[1])
 
 contract = slither.get_contract_from_name("Simple")
-
+assert contract
 destination = contract.get_state_variable_from_name("destination")
 source = contract.get_state_variable_from_name("source")
 
@@ -36,9 +36,11 @@ print("{} is tainted {}".format(destination, is_tainted(destination, contract)))
 assert is_tainted(destination, contract)
 
 contract = slither.get_contract_from_name("Reference")
-
+assert contract
 destination = contract.get_state_variable_from_name("destination")
+assert destination
 source = contract.get_state_variable_from_name("source")
+assert source
 
 print("Reference contract")
 print(
@@ -72,9 +74,11 @@ assert is_tainted(destination_indirect_2, contract)
 print("SolidityVar contract")
 
 contract = slither.get_contract_from_name("SolidityVar")
-
+assert contract
 addr_1 = contract.get_state_variable_from_name("addr_1")
+assert addr_1
 addr_2 = contract.get_state_variable_from_name("addr_2")
+assert addr_2
 msgsender = SolidityVariableComposed("msg.sender")
 print(
     "{} is dependent of {}: {}".format(addr_1, msgsender, is_dependent(addr_1, msgsender, contract))
@@ -88,8 +92,11 @@ assert not is_dependent(addr_2, msgsender, contract)
 
 print("Intermediate contract")
 contract = slither.get_contract_from_name("Intermediate")
+assert contract
 destination = contract.get_state_variable_from_name("destination")
+assert destination
 source = contract.get_state_variable_from_name("source")
+assert source
 
 print(
     "{} is dependent of {}: {}".format(
@@ -119,11 +126,16 @@ assert is_dependent(destination, source, contract_derived)
 
 print("PropagateThroughArguments contract")
 contract = slither.get_contract_from_name("PropagateThroughArguments")
+assert contract
 var_tainted = contract.get_state_variable_from_name("var_tainted")
+assert var_tainted
 var_not_tainted = contract.get_state_variable_from_name("var_not_tainted")
+assert var_not_tainted
 var_dependant = contract.get_state_variable_from_name("var_dependant")
+assert var_dependant
 
 f = contract.get_function_from_signature("f(uint256)")
+assert f
 user_input = f.parameters[0]
 f2 = contract.get_function_from_signature("f2(uint256,uint256)")
 

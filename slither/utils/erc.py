@@ -85,7 +85,7 @@ ERC223_signatures = erc_to_signatures(ERC223)
 # Final
 # https://eips.ethereum.org/EIPS/eip-165
 
-ERC165_EVENTS = []
+ERC165_EVENTS: List = []
 
 ERC165 = [ERC("supportsInterface", ["bytes4"], "bool", True, True, [])]
 ERC165_signatures = erc_to_signatures(ERC165)
@@ -157,7 +157,7 @@ ERC721_signatures = erc_to_signatures(ERC721)
 
 # Final
 # https://eips.ethereum.org/EIPS/eip-1820
-ERC1820_EVENTS = []
+ERC1820_EVENTS: List = []
 ERC1820 = [
     ERC(
         "canImplementInterfaceForAddress",
