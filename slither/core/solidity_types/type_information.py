@@ -13,7 +13,6 @@ class TypeInformation(Type):
         # pylint: disable=import-outside-toplevel
         from slither.core.declarations.contract import Contract
 
-        assert isinstance(c, Contract)
         super().__init__()
         self._type = c
 
@@ -34,7 +33,7 @@ class TypeInformation(Type):
         return 32, True
 
     def __str__(self):
-        return f"type({self.type.name})"
+        return f"type({str(self.type)})"
 
     def __eq__(self, other):
         if not isinstance(other, TypeInformation):

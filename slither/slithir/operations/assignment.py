@@ -1,6 +1,7 @@
 import logging
 
 from slither.core.declarations.function import Function
+from slither.core.solidity_types import ArrayType
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.slithir.variables import TupleVariable, ReferenceVariable
@@ -12,7 +13,7 @@ class Assignment(OperationWithLValue):
     def __init__(self, left_variable, right_variable, variable_return_type):
         assert is_valid_lvalue(left_variable)
         assert is_valid_rvalue(right_variable) or isinstance(
-            right_variable, (Function, TupleVariable)
+            right_variable, (Function, TupleVariable, ArrayType)
         )
         super().__init__()
         self._variables = [left_variable, right_variable]

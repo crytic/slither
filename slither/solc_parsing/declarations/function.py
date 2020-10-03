@@ -715,6 +715,7 @@ class FunctionSolc:
                     link_underlying_nodes(node, new_node)
 
             else:
+
                 count = 0
                 children = statement[self.get_children("children")]
                 child = children[0]
@@ -726,11 +727,23 @@ class FunctionSolc:
                 tuple_vars = children[count]
 
                 variables_declaration = children[0:count]
+                if "assignments" in statement["attributes"]:
+                    # handle skipped tuples
+                    var_map = {variable["id"]: variable for variable in variables_declaration}
+                    variables_declaration = [
+                        var_map[assign] if assign in var_map else None
+                        for assign in statement["attributes"]["assignments"]
+                    ]
+
                 i = 0
                 new_node = node
                 if tuple_vars[self.get_key()] == "TupleExpression":
-                    assert len(tuple_vars[self.get_children("children")]) == count
+                    assert len(tuple_vars[self.get_children("children")]) == len(
+                        variables_declaration
+                    )
                     for variable in variables_declaration:
+                        if variable is None:
+                            continue
                         init = tuple_vars[self.get_children("children")][i]
                         src = variable["src"]
                         i = i + 1

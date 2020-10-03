@@ -2,6 +2,7 @@ import logging
 import re
 from typing import List, TYPE_CHECKING, Union, Dict
 
+from slither.core.solidity_types import TypeInformation
 from slither.core.solidity_types.elementary_type import (
     ElementaryType,
     ElementaryTypeName,
@@ -143,6 +144,10 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
             to_type = _find_from_type_name(to_, contract, contracts, structures, enums)
 
             return MappingType(from_type, to_type)
+    if not var_type:
+        if name.startswith("type("):
+            nested_type = _find_from_type_name(name[5:-1], contract, contracts, structures, enums)
+            return TypeInformation(nested_type)
 
     if not var_type:
         raise ParsingError("Type not found " + str(name))
