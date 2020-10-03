@@ -76,6 +76,7 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
 
         # If set to true, slither will not catch errors during parsing
         self._disallow_partial: bool = False
+        self._skip_assembly: bool = False
 
     ###################################################################################
     ###################################################################################
@@ -389,6 +390,10 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
         :return:
         """
         return self._disallow_partial
+
+    @property
+    def skip_assembly(self) -> bool:
+        return self._skip_assembly
 
     # endregion
     ###################################################################################

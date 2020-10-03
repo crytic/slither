@@ -835,7 +835,7 @@ class FunctionSolc:
             node = self._parse_block(statement, node)
         elif name == "InlineAssembly":
             # Added with solc 0.6 - the yul code is an AST
-            if "AST" in statement:
+            if "AST" in statement and not self.slither.skip_assembly:
                 self._function.contains_assembly = True
                 yul_object = self._new_yul_block(statement["src"])
                 entrypoint = yul_object.entrypoint
