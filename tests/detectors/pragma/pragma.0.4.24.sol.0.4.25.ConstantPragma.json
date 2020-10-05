@@ -8,9 +8,9 @@
                     "source_mapping": {
                         "start": 0,
                         "length": 24,
-                        "filename_used": "/home/monty/tob/tools/slither/tests/detectors/pragma/pragma.0.4.23.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/pragma/pragma.0.4.23.sol",
-                        "filename_absolute": "/home/monty/tob/tools/slither/tests/detectors/pragma/pragma.0.4.23.sol",
+                        "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/pragma/pragma.0.4.23.sol",
                         "is_dependency": false,
                         "lines": [

@@ -3,7 +3,7 @@ import os
 import pathlib
 import sys
 from pprint import pprint
-from typing import Type
+from typing import Type, Optional, List
 
 import pytest
 from deepdiff import DeepDiff  # pip install deepdiff
@@ -52,11 +52,30 @@ from slither.detectors.variables.unused_state_variables import UnusedStateVars
 
 
 class Test:  # pylint: disable=too-few-public-methods
-    def __init__(self, detector: Type[AbstractDetector], test_file: str, solc_ver: str):
+    def __init__(
+        self,
+        detector: Type[AbstractDetector],
+        test_file: str,
+        solc_ver: str,
+        additional_files: Optional[List[str]] = None,
+    ):
+        """
+
+
+        :param detector:
+        :param test_file:
+        :param solc_ver:
+        :param additional_files: If the test changes additional files, list them here to allow the
+        test to update the source mapping
+        """
         self.detector = detector
         self.test_file = test_file
         self.expected_result = test_file + "." + solc_ver + "." + detector.__name__ + ".json"
         self.solc_ver = solc_ver
+        if additional_files is None:
+            self.additional_files = []
+        else:
+            self.additional_files = additional_files
 
 
 def set_solc(test_item: Test):
@@ -71,10 +90,13 @@ def id_test(test_item: Test):
     return f"{test_item.detector}: {test_item.test_file}"
 
 
-
 ALL_TESTS = [
     Test(UncheckedLowLevel, "tests/detectors/unchecked-lowlevel/unchecked_lowlevel.sol", "0.4.25"),
-    Test(UncheckedLowLevel, "tests/detectors/unchecked-lowlevel/unchecked_lowlevel-0.5.1.sol", "0.5.1"),
+    Test(
+        UncheckedLowLevel,
+        "tests/detectors/unchecked-lowlevel/unchecked_lowlevel-0.5.1.sol",
+        "0.5.1",
+    ),
     Test(
         UncheckedLowLevel,
         "tests/detectors/unchecked-lowlevel/unchecked_lowlevel-0.5.1.sol",
@@ -107,7 +129,12 @@ ALL_TESTS = [
     Test(Backdoor, "tests/detectors/backdoor/backdoor.sol", "0.5.1"),
     Test(Suicidal, "tests/detectors/backdoor/backdoor.sol", "0.4.25"),
     Test(Suicidal, "tests/detectors/backdoor/backdoor.sol", "0.5.1"),
-    Test(ConstantPragma, "tests/detectors/pragma/pragma.0.4.24.sol", "0.4.25"),
+    Test(
+        ConstantPragma,
+        "tests/detectors/pragma/pragma.0.4.24.sol",
+        "0.4.25",
+        ["tests/detectors/pragma/pragma.0.4.23.sol"],
+    ),
     Test(IncorrectSolc, "tests/detectors/solc-version/old_solc.sol", "0.4.21"),
     Test(IncorrectSolc, "tests/detectors/solc-version/solc_version_incorrect.sol", "0.4.25"),
     Test(IncorrectSolc, "tests/detectors/solc-version/solc_version_incorrect_05.sol", "0.5.7"),
@@ -186,21 +213,15 @@ ALL_TESTS = [
     ),
     Test(LocalShadowing, "tests/detectors/shadowing-local/shadowing_local_variable.sol", "0.4.25"),
     Test(RightToLeftOverride, "tests/detectors/rtlo/right_to_left_override.sol", "0.4.25"),
-    Test(VoidConstructor,
-         "tests/detectors/void-cst/void-cst.sol",
-         "0.5.1"),
-    Test(UncheckedSend,
-         "tests/detectors/unchecked-send/unchecked_send-0.5.1.sol",
-         "0.5.1"),
-    Test(ReentrancyEvent,
-         "tests/detectors/reentrancy-events/reentrancy-0.5.1-events.sol",
-         "0.5.1"),
-    Test(IncorrectStrictEquality,
-         "tests/detectors/incorrect-equality/incorrect_equality.sol",
-         "0.5.1"),
-    Test(TooManyDigits,
-         "tests/detectors/too-many-digits/too_many_digits.sol",
-         "0.5.1"),
+    Test(VoidConstructor, "tests/detectors/void-cst/void-cst.sol", "0.5.1"),
+    Test(UncheckedSend, "tests/detectors/unchecked-send/unchecked_send-0.5.1.sol", "0.5.1"),
+    Test(ReentrancyEvent, "tests/detectors/reentrancy-events/reentrancy-0.5.1-events.sol", "0.5.1"),
+    Test(
+        IncorrectStrictEquality,
+        "tests/detectors/incorrect-equality/incorrect_equality.sol",
+        "0.5.1",
+    ),
+    Test(TooManyDigits, "tests/detectors/too-many-digits/too_many_digits.sol", "0.5.1"),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 
@@ -217,6 +238,9 @@ def test_detector(test_item: Test):
 
     results_as_string = json.dumps(results)
     current_path = str(pathlib.Path(pathlib.Path().absolute(), test_item.test_file).absolute())
+    for additional_file in test_item.additional_files:
+        additional_path = str(pathlib.Path(pathlib.Path().absolute(), additional_file).absolute())
+        results_as_string = results_as_string.replace(additional_path, str(pathlib.Path(GENERIC_PATH)))
     results_as_string = results_as_string.replace(current_path, str(pathlib.Path(GENERIC_PATH)))
     results = json.loads(results_as_string)
 
@@ -247,6 +271,11 @@ def _generate_test(test_item: Test):
     results_as_string = json.dumps(results)
     current_path = str(pathlib.Path(pathlib.Path().absolute(), test_item.test_file).absolute())
     results_as_string = results_as_string.replace(current_path, str(pathlib.Path(GENERIC_PATH)))
+
+    for additional_file in test_item.additional_files:
+        additional_path = str(pathlib.Path(pathlib.Path().absolute(), additional_file).absolute())
+        results_as_string = results_as_string.replace(additional_path, str(pathlib.Path(GENERIC_PATH)))
+
     results = json.loads(results_as_string)
 
     with open(test_item.expected_result, "w") as f:
@@ -255,8 +284,8 @@ def _generate_test(test_item: Test):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print('To generate the json artifacts run\n\tpython tests/test_detectors.py --generate')
-        print('This will overwrite the previous json files')
+        print("To generate the json artifacts run\n\tpython tests/test_detectors.py --generate")
+        print("This will overwrite the previous json files")
     elif sys.argv[1] == "--generate":
         for test in ALL_TESTS:
             _generate_test(test)
