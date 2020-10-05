@@ -20,11 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        type: ["detectors_4", 
-               "detectors_5", 
-               "detectors_6", 
-               "detectors_7", 
-               "cli", 
+        type: ["cli",
                "data_dependency", 
                "embark", 
                "erc", 
