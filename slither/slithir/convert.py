@@ -334,11 +334,11 @@ def propagate_type_and_convert_call(result, node):
                 result[idx] = ins
 
         if isinstance(ins, Argument):
+            # In case of dupplicate arguments we overwrite the value
+            # This can happen because of addr.call.value(1).value(2)
             if ins.get_type() in [ArgumentType.GAS]:
-                assert not ins.call_id in calls_gas
                 calls_gas[ins.call_id] = ins.argument
             elif ins.get_type() in [ArgumentType.VALUE]:
-                assert not ins.call_id in calls_value
                 calls_value[ins.call_id] = ins.argument
             else:
                 assert ins.get_type() == ArgumentType.CALL

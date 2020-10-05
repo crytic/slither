@@ -102,11 +102,13 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     if not var_type:
         if name.startswith("function "):
             found = re.findall(
-                "function \(([ ()a-zA-Z0-9\.,]*)\) returns \(([a-zA-Z0-9\.,]*)\)", name
+                "function \(([ ()a-zA-Z0-9\.,]*?)\)(?: returns \(([a-zA-Z0-9() \.,]*)\))?", name
             )
             assert len(found) == 1
-            params = found[0][0].split(",")
-            return_values = found[0][1].split(",")
+            params = [v for v in found[0][0].split(",") if v != ""]
+            return_values = (
+                [v for v in found[0][1].split(",") if v != ""] if len(found[0]) > 1 else []
+            )
             params = [
                 _find_from_type_name(p, contract, contracts, structures, enums) for p in params
             ]

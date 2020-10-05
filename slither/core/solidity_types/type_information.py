@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Tuple
 
+from slither.core.solidity_types import ElementaryType
 from slither.core.solidity_types.type import Type
 
 if TYPE_CHECKING:
@@ -13,7 +14,7 @@ class TypeInformation(Type):
         # pylint: disable=import-outside-toplevel
         from slither.core.declarations.contract import Contract
 
-        assert isinstance(c, Contract)
+        assert isinstance(c, (Contract, ElementaryType))
         super().__init__()
         self._type = c
 

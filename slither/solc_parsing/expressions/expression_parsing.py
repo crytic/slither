@@ -399,8 +399,10 @@ def _parse_elementary_type_name_expression(
     if is_compact_ast:
         value = expression["typeName"]
     else:
-        assert "children" not in expression
-        value = expression["attributes"]["value"]
+        if "children" in expression:
+            value = expression["children"][0]["attributes"]["name"]
+        else:
+            value = expression["attributes"]["value"]
     if isinstance(value, dict):
         t = parse_type(value, caller_context)
     else:
@@ -484,8 +486,11 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
 
     if name == "FunctionCallOptions":
         # call/gas info are handled in parse_call
-        called = parse_expression(expression["expression"], caller_context)
-        assert isinstance(called, (MemberAccess, NewContract))
+        if is_compact_ast:
+            called = parse_expression(expression["expression"], caller_context)
+        else:
+            called = parse_expression(expression["children"][0], caller_context)
+        assert isinstance(called, (MemberAccess, NewContract, Identifier, TupleExpression))
         return called
 
     if name == "TupleExpression":
@@ -650,13 +655,12 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         if is_compact_ast:
             index_type = expression["typeDescriptions"]["typeString"]
             left = expression["baseExpression"]
-            right = expression["indexExpression"]
+            right = expression.get("indexExpression", None)
         else:
             index_type = expression["attributes"]["type"]
             children = expression["children"]
-            assert len(children) == 2
             left = children[0]
-            right = children[1]
+            right = children[1] if len(children) > 1 else None
         # IndexAccess is used to describe ElementaryTypeNameExpression
         # if abi.decode is used
         # For example, abi.decode(data, ...(uint[]) )
