@@ -50,7 +50,9 @@ ERC20_PROPERTIES = {
 }
 
 
-def generate_erc20(contract: Contract, type_property: str, addresses: Addresses):
+def generate_erc20(
+    contract: Contract, type_property: str, addresses: Addresses
+):  # pylint: disable=too-many-locals
     """
     Generate the ERC20 tests
     Files generated:
@@ -67,6 +69,9 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
     :param type_property: One of ERC20_PROPERTIES.keys()
     :return:
     """
+    if contract.slither.crytic_compile is None:
+        logging.error("Please compile with crytic-compile")
+        return
     if contract.slither.crytic_compile.type not in [
         PlatformType.TRUFFLE,
         PlatformType.SOLC,
@@ -80,11 +85,11 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
         logger.error(red(errors))
         return
 
-    properties = ERC20_PROPERTIES.get(type_property, None)
-    if properties is None:
+    erc_properties = ERC20_PROPERTIES.get(type_property, None)
+    if erc_properties is None:
         logger.error(f"{type_property} unknown. Types available {ERC20_PROPERTIES.keys()}")
         return
-    properties = properties.properties
+    properties = erc_properties.properties
 
     # Generate the output directory
     output_dir = _platform_to_output_dir(contract.slither.crytic_compile.platform)

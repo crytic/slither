@@ -8,7 +8,7 @@ from slither.tools.slither_format.slither_format import slither_format
 
 
 logging.basicConfig()
-logger = logging.getLogger("Slither").setLevel(logging.INFO)
+logging.getLogger("Slither").setLevel(logging.INFO)
 
 # Slither detectors for which slither-format currently works
 available_detectors = [
@@ -21,8 +21,6 @@ available_detectors = [
     "constant-function-asm",
     "constatnt-function-state",
 ]
-
-detectors_to_run = []
 
 
 def parse_args():

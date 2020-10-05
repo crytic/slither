@@ -124,9 +124,9 @@ def find_variable(  # pylint: disable=too-many-locals,too-many-statements
 
     if function:
         # We look for variable declared with the referencedDeclaration attr
-        func_variables = function.variables_renamed
-        if referenced_declaration and referenced_declaration in func_variables:
-            return func_variables[referenced_declaration].underlying_variable
+        func_variables_renamed = function.variables_renamed
+        if referenced_declaration and referenced_declaration in func_variables_renamed:
+            return func_variables_renamed[referenced_declaration].underlying_variable
         # If not found, check for name
         func_variables = function.underlying_function.variables_as_dict
         if var_name in func_variables:
@@ -209,8 +209,8 @@ def find_variable(  # pylint: disable=too-many-locals,too-many-statements
         return enums[var_name]
 
     # Could refer to any enum
-    all_enums = [c.enums_as_dict for c in contract.slither.contracts]
-    all_enums = {k: v for d in all_enums for k, v in d.items()}
+    all_enumss = [c.enums_as_dict for c in contract.slither.contracts]
+    all_enums = {k: v for d in all_enumss for k, v in d.items()}
     if var_name in all_enums:
         return all_enums[var_name]
 
@@ -696,9 +696,9 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         member_access = MemberAccess(member_name, member_type, member_expression)
         member_access.set_offset(src, caller_context.slither)
         if str(member_access) in SOLIDITY_VARIABLES_COMPOSED:
-            idx = Identifier(SolidityVariableComposed(str(member_access)))
-            idx.set_offset(src, caller_context.slither)
-            return idx
+            id_idx = Identifier(SolidityVariableComposed(str(member_access)))
+            id_idx.set_offset(src, caller_context.slither)
+            return id_idx
         return member_access
 
     if name == "ElementaryTypeNameExpression":

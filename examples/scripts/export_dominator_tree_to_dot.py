@@ -10,7 +10,7 @@ if len(sys.argv) != 2:
 slither = Slither(sys.argv[1])
 
 for contract in slither.contracts:
-    for function in contract.functions + contract.modifiers:
+    for function in list(contract.functions) + list(contract.modifiers):
         filename = "{}-{}-{}_dom.dot".format(sys.argv[1], contract.name, function.full_name)
         print("Export {}".format(filename))
         function.dominator_tree_to_dot(filename)
