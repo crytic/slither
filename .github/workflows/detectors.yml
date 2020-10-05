@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    name: Parser tests
+    name: Detectors tests
     runs-on: ubuntu-latest
 
     steps:
