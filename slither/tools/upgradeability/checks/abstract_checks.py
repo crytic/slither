@@ -1,8 +1,8 @@
 import abc
-from enum import Enum
 from typing import Optional
 
 from slither.utils.colors import green, yellow, red
+from slither.utils.comparable_enum import ComparableEnum
 from slither.utils.output import Output
 
 
@@ -10,7 +10,7 @@ class IncorrectCheckInitialization(Exception):
     pass
 
 
-class CheckClassification(Enum):  # pylint: disable=too-few-public-methods
+class CheckClassification(ComparableEnum):
     HIGH = 0
     MEDIUM = 1
     LOW = 2

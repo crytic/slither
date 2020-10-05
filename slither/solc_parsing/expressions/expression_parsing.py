@@ -2,7 +2,7 @@ import logging
 import re
 from typing import Dict, TYPE_CHECKING, Optional, Union
 
-from slither.core.declarations import Event, Enum, Structure, Modifier
+from slither.core.declarations import Event, Enum, Structure
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function
 from slither.core.declarations.solidity_variables import (

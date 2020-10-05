@@ -50,7 +50,9 @@ ERC20_PROPERTIES = {
 }
 
 
-def generate_erc20(contract: Contract, type_property: str, addresses: Addresses):
+def generate_erc20(
+    contract: Contract, type_property: str, addresses: Addresses
+):  # pylint: disable=too-many-locals
     """
     Generate the ERC20 tests
     Files generated:
@@ -68,7 +70,7 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
     :return:
     """
     if contract.slither.crytic_compile is None:
-        logging.error(f"Please compile with crytic-compile")
+        logging.error("Please compile with crytic-compile")
         return
     if contract.slither.crytic_compile.type not in [
         PlatformType.TRUFFLE,

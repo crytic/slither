@@ -1,11 +1,11 @@
 import abc
 import re
-from enum import Enum
 from typing import Optional
 
 from slither.utils.colors import green, yellow, red
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
+from slither.utils.comparable_enum import ComparableEnum
 from slither.utils.output import Output
 
 
@@ -13,7 +13,7 @@ class IncorrectDetectorInitialization(Exception):
     pass
 
 
-class DetectorClassification(Enum):  # pylint: disable=too-few-public-methods
+class DetectorClassification(ComparableEnum):
     HIGH = 0
     MEDIUM = 1
     LOW = 2
