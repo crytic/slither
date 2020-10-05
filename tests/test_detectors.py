@@ -240,7 +240,9 @@ def test_detector(test_item: Test):
     current_path = str(pathlib.Path(pathlib.Path().absolute(), test_item.test_file).absolute())
     for additional_file in test_item.additional_files:
         additional_path = str(pathlib.Path(pathlib.Path().absolute(), additional_file).absolute())
-        results_as_string = results_as_string.replace(additional_path, str(pathlib.Path(GENERIC_PATH)))
+        results_as_string = results_as_string.replace(
+            additional_path, str(pathlib.Path(GENERIC_PATH))
+        )
     results_as_string = results_as_string.replace(current_path, str(pathlib.Path(GENERIC_PATH)))
     results = json.loads(results_as_string)
 
@@ -274,7 +276,9 @@ def _generate_test(test_item: Test):
 
     for additional_file in test_item.additional_files:
         additional_path = str(pathlib.Path(pathlib.Path().absolute(), additional_file).absolute())
-        results_as_string = results_as_string.replace(additional_path, str(pathlib.Path(GENERIC_PATH)))
+        results_as_string = results_as_string.replace(
+            additional_path, str(pathlib.Path(GENERIC_PATH))
+        )
 
     results = json.loads(results_as_string)
 
