@@ -16,7 +16,7 @@ from slither.core.expressions import (
     CallExpression,
     TupleExpression,
     BinaryOperation,
-    UnaryOperation,
+    UnaryOperation, TypeConversion,
 )
 from slither.core.expressions.expression import Expression
 from slither.core.slither_core import SlitherCore
@@ -601,6 +601,9 @@ def _parse_yul_assignment_common(
     lhs = [parse_yul(root, node, arg) for arg in ast[key]]
     rhs = parse_yul(root, node, ast["value"])
 
+    if isinstance(rhs, Identifier) and isinstance(rhs.value, Contract):
+        rhs = TypeConversion(rhs, ElementaryType("address"))
+
     return AssignmentOperation(
         vars_to_val(lhs), rhs, AssignmentOperationType.ASSIGN, vars_to_typestr(lhs)
     )
@@ -681,7 +684,7 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         return Identifier(func.underlying)
 
     # check for magic suffixes
-    if name.endswith("_slot"):
+    if name.endswith("_slot") or name.endswith(".slot"):
         potential_name = name[:-5]
         var = root.function.contract.get_state_variable_from_name(potential_name)
         if var:
@@ -689,11 +692,15 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         var = root.function.get_local_variable_from_name(potential_name)
         if var and var.is_storage:
             return Identifier(var)
-    if name.endswith("_offset"):
+    if name.endswith("_offset") or name.endswith(".offset"):
         potential_name = name[:-7]
         var = root.function.contract.get_state_variable_from_name(potential_name)
         if var:
             return Identifier(var)
+
+    if name in root.slither.contracts_as_dict:
+        contract = root.slither.contracts_as_dict[name]
+        return Identifier(contract)
 
     raise SlitherException(f"unresolved reference to identifier {name}")
 

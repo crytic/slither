@@ -407,22 +407,6 @@ XFAIL = [
     "variabledeclaration_0.7.0_legacy",
     "variabledeclaration_0.7.1_legacy",
     "variabledeclaration_0.7.2_legacy",
-    "yul_0.6.0_compact",
-    "yul_0.6.1_compact",
-    "yul_0.6.2_compact",
-    "yul_0.6.3_compact",
-    "yul_0.6.4_compact",
-    "yul_0.6.5_compact",
-    "yul_0.6.6_compact",
-    "yul_0.6.7_compact",
-    "yul_0.6.8_compact",
-    "yul_0.6.9_compact",
-    "yul_0.6.10_compact",
-    "yul_0.6.11_compact",
-    "yul_0.6.12_compact",
-    "yul_0.7.0_compact",
-    "yul_0.7.1_compact",
-    "yul_0.7.2_compact",
 ]
 
 
@@ -501,6 +485,7 @@ def get_all_test() -> List[Item]:
     ret = []
 
     for test, base_vers in tests.items():
+        if test != "yul": continue
         print(f"generating testcases id={test} vers={base_vers}")
 
         base_ver_idx = 0
