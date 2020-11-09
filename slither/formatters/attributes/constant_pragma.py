@@ -70,10 +70,5 @@ def _patch(
     in_file_str = slither.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     create_patch(
-        result,
-        in_file,
-        int(modify_loc_start),
-        int(modify_loc_end),
-        old_str_of_interest,
-        pragma,
+        result, in_file, int(modify_loc_start), int(modify_loc_end), old_str_of_interest, pragma,
     )

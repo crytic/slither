@@ -105,9 +105,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--address-attacker",
-        help=f"Attacker address. Default {ATTACKER_ADDRESS}",
-        default=None,
+        "--address-attacker", help=f"Attacker address. Default {ATTACKER_ADDRESS}", default=None,
     )
 
     # Add default arguments from crytic-compile
