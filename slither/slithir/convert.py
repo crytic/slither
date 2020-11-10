@@ -455,6 +455,9 @@ def _convert_type_contract(ir, slither):
         assignment.lvalue.set_type(ElementaryType("string"))
         return assignment
 
+    if isinstance(contract, ElementaryType):
+        print(contract.type)
+
     raise SlithIRError(f"type({contract.name}).{ir.variable_right} is unknown")
 
 
@@ -1411,6 +1414,12 @@ def remove_unused(result):
                 if not ins.lvalue.name in to_keep and ins != last_elem:
                     to_remove.append(ins)
                     removed = True
+            # Remove type(X) if X is an elementary type
+            # This assume that type(X) is only used with min/max
+            # If Solidity introduces other operation, we might remove this removal
+            if isinstance(ins, SolidityCall) and ins.function == SolidityFunction("type()"):
+                if isinstance(ins.arguments[0], ElementaryType):
+                    to_remove.append(ins)
 
         result = [i for i in result if not i in to_remove]
     return result
