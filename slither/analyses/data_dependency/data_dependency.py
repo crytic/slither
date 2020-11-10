@@ -135,9 +135,7 @@ def is_tainted_ssa(variable, context, only_unprotected=False, ignore_generic_tai
 
 
 def get_dependencies(
-    variable: Variable,
-    context: Union[Contract, Function],
-    only_unprotected: bool = False,
+    variable: Variable, context: Union[Contract, Function], only_unprotected: bool = False,
 ) -> Set[Variable]:
     """
     Return the variables for which `variable` depends on.
@@ -172,9 +170,7 @@ def get_all_dependencies(
 
 
 def get_dependencies_ssa(
-    variable: Variable,
-    context: Union[Contract, Function],
-    only_unprotected: bool = False,
+    variable: Variable, context: Union[Contract, Function], only_unprotected: bool = False,
 ) -> Set[Variable]:
     """
     Return the variables for which `variable` depends on (SSA version).
@@ -380,16 +376,7 @@ def convert_variable_to_non_ssa(v):
         return v.non_ssa_version
     assert isinstance(
         v,
-        (
-            Constant,
-            SolidityVariable,
-            Contract,
-            Enum,
-            SolidityFunction,
-            Structure,
-            Function,
-            Type,
-        ),
+        (Constant, SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function, Type,),
     )
     return v
 

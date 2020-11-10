@@ -380,9 +380,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_first_part(
-        self,
-        contracts_to_be_analyzed: List[ContractSolc],
-        libraries: List[ContractSolc],
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc],
     ):
         for lib in libraries:
             self._parse_struct_var_modifiers_functions(lib)
@@ -407,9 +405,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_second_part(
-        self,
-        contracts_to_be_analyzed: List[ContractSolc],
-        libraries: List[ContractSolc],
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc],
     ):
         for lib in libraries:
             self._analyze_struct_events(lib)
@@ -434,9 +430,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_third_part(
-        self,
-        contracts_to_be_analyzed: List[ContractSolc],
-        libraries: List[ContractSolc],
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc],
     ):
         for lib in libraries:
             self._analyze_variables_modifiers_functions(lib)

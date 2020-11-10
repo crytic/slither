@@ -127,8 +127,7 @@ class AbstractState:
                 )
                 self._reads = union_dict(self._reads, father.context[detector.KEY].reads)
                 self._reads_prior_calls = union_dict(
-                    self.reads_prior_calls,
-                    father.context[detector.KEY].reads_prior_calls,
+                    self.reads_prior_calls, father.context[detector.KEY].reads_prior_calls,
                 )
 
     def analyze_node(self, node, detector):

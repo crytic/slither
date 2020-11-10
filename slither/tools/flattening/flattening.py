@@ -108,10 +108,7 @@ class Flattening:
                     regex = re.search(r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes)
                     if regex:
                         to_patch.append(
-                            Patch(
-                                attributes_start + regex.span()[0] + 1,
-                                "public_to_external",
-                            )
+                            Patch(attributes_start + regex.span()[0] + 1, "public_to_external",)
                         )
                     else:
                         raise SlitherException(f"External keyword not found {f.name} {attributes}")
@@ -122,10 +119,7 @@ class Flattening:
                             calldata_end = calldata_start + var.source_mapping["length"]
                             calldata_idx = content[calldata_start:calldata_end].find(" calldata ")
                             to_patch.append(
-                                Patch(
-                                    calldata_start + calldata_idx + 1,
-                                    "calldata_to_memory",
-                                )
+                                Patch(calldata_start + calldata_idx + 1, "calldata_to_memory",)
                             )
 
         if self._private_to_internal:
@@ -139,10 +133,7 @@ class Flattening:
                     regex = re.search(r" private ", attributes)
                     if regex:
                         to_patch.append(
-                            Patch(
-                                attributes_start + regex.span()[0] + 1,
-                                "private_to_internal",
-                            )
+                            Patch(attributes_start + regex.span()[0] + 1, "private_to_internal",)
                         )
                     else:
                         raise SlitherException(

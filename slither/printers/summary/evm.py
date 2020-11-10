@@ -101,8 +101,7 @@ class PrinterEVM(AbstractPrinter):
                     )
                     txt += green(
                         "\t\tSource line {}: {}\n".format(
-                            node_source_line,
-                            contract_file_lines[node_source_line - 1].rstrip(),
+                            node_source_line, contract_file_lines[node_source_line - 1].rstrip(),
                         )
                     )
                     txt += magenta("\t\tEVM Instructions:\n")
@@ -124,8 +123,7 @@ class PrinterEVM(AbstractPrinter):
                     )
                     txt += green(
                         "\t\tSource line {}: {}\n".format(
-                            node_source_line,
-                            contract_file_lines[node_source_line - 1].rstrip(),
+                            node_source_line, contract_file_lines[node_source_line - 1].rstrip(),
                         )
                     )
                     txt += magenta("\t\tEVM Instructions:\n")
