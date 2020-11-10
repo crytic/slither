@@ -5,6 +5,7 @@ from slither.core.solidity_types.type import Type
 
 
 # see https://solidity.readthedocs.io/en/v0.4.24/miscellaneous.html?highlight=grammar
+from slither.exceptions import SlitherException
 
 Int = [
     "int",
@@ -42,6 +43,9 @@ Int = [
     "int256",
 ]
 
+Max_Int = {k: 2 ** (8 * i - 1) - 1 if i > 0 else 2 ** 255 - 1 for i, k in enumerate(Int)}
+Min_Int = {k: -(2 ** (8 * i - 1)) if i > 0 else -(2 ** 255) for i, k in enumerate(Int)}
+
 Uint = [
     "uint",
     "uint8",
@@ -77,6 +81,12 @@ Uint = [
     "uint248",
     "uint256",
 ]
+
+Max_Uint = {k: 2 ** (8 * i) - 1 if i > 0 else 2 ** 256 - 1 for i, k in enumerate(Uint)}
+Min_Uint = {k: 0 for k in Uint}
+
+MaxValues = dict(Max_Int, **Max_Uint)
+MinValues = dict(Min_Int, **Min_Uint)
 
 Byte = [
     "byte",
@@ -179,6 +189,18 @@ class ElementaryType(Type):
         if self.size is None:
             return 32, True
         return int(self.size / 8), False
+
+    @property
+    def min(self) -> int:
+        if self.name in MinValues:
+            return MinValues[self.name]
+        raise SlitherException(f"{self.name} does not have a min value")
+
+    @property
+    def max(self) -> int:
+        if self.name in MaxValues:
+            return MaxValues[self.name]
+        raise SlitherException(f"{self.name} does not have a max value")
 
     def __str__(self):
         return self._type
