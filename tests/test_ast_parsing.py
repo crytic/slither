@@ -575,8 +575,12 @@ def _generate_test(test_item: Item, skip_existing=False):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2 or sys.argv[1] not in ["--generate", "--overwrite"]:
-        print("To generate the missing json artifacts run\n\tpython tests/test_ast_parsing.py --generate")
-        print("To re-generate all the json artifacts run\n\tpython tests/test_ast_parsing.py --overwrite")
+        print(
+            "To generate the missing json artifacts run\n\tpython tests/test_ast_parsing.py --generate"
+        )
+        print(
+            "To re-generate all the json artifacts run\n\tpython tests/test_ast_parsing.py --overwrite"
+        )
         print("\tThis will overwrite the previous json files")
     elif sys.argv[1] == "--generate":
         for next_test in ALL_TESTS:
