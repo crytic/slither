@@ -1,7 +1,7 @@
-import errno
 import json
 import os
 import subprocess
+import sys
 from collections import namedtuple
 from distutils.version import StrictVersion
 from typing import List, Dict
@@ -19,48 +19,6 @@ TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "ast-parsing")
 
 # these are tests that are currently failing right now
 XFAIL = [
-    "emit_0.4.0_legacy",
-    "emit_0.4.1_legacy",
-    "emit_0.4.2_legacy",
-    "emit_0.4.3_legacy",
-    "emit_0.4.4_legacy",
-    "emit_0.4.5_legacy",
-    "emit_0.4.6_legacy",
-    "emit_0.4.7_legacy",
-    "emit_0.4.8_legacy",
-    "emit_0.4.9_legacy",
-    "emit_0.4.10_legacy",
-    "emit_0.4.11_legacy",
-    "emit_0.4.12_legacy",
-    "emit_0.4.12_compact",
-    "emit_0.4.13_legacy",
-    "emit_0.4.13_compact",
-    "emit_0.4.14_legacy",
-    "emit_0.4.14_compact",
-    "emit_0.4.15_legacy",
-    "emit_0.4.15_compact",
-    "emit_0.4.16_legacy",
-    "emit_0.4.16_compact",
-    "emit_0.4.17_legacy",
-    "emit_0.4.17_compact",
-    "emit_0.4.18_legacy",
-    "emit_0.4.18_compact",
-    "emit_0.4.19_legacy",
-    "emit_0.4.19_compact",
-    "emit_0.4.20_legacy",
-    "emit_0.4.20_compact",
-    "emit_0.4.21_legacy",
-    "emit_0.4.21_compact",
-    "emit_0.4.22_legacy",
-    "emit_0.4.22_compact",
-    "emit_0.4.23_legacy",
-    "emit_0.4.23_compact",
-    "emit_0.4.24_legacy",
-    "emit_0.4.24_compact",
-    "emit_0.4.25_legacy",
-    "emit_0.4.25_compact",
-    "emit_0.4.26_legacy",
-    "emit_0.4.26_compact",
     "for_0.4.0_legacy",
     "for_0.4.1_legacy",
     "for_0.4.2_legacy",
@@ -122,6 +80,8 @@ XFAIL = [
     "for_0.7.0_legacy",
     "for_0.7.1_legacy",
     "for_0.7.2_legacy",
+    "for_0.7.3_legacy",
+    "for_0.7.4_legacy",
     "function_0.6.0_legacy",
     "function_0.6.1_legacy",
     "function_0.6.2_legacy",
@@ -140,6 +100,10 @@ XFAIL = [
     "function_0.7.1_compact",
     "function_0.7.2_legacy",
     "function_0.7.2_compact",
+    "function_0.7.3_legacy",
+    "function_0.7.3_compact",
+    "function_0.7.4_legacy",
+    "function_0.7.4_compact",
     "import_0.4.0_legacy",
     "import_0.4.1_legacy",
     "import_0.4.2_legacy",
@@ -250,6 +214,10 @@ XFAIL = [
     "import_0.7.1_compact",
     "import_0.7.2_legacy",
     "import_0.7.2_compact",
+    "import_0.7.3_legacy",
+    "import_0.7.3_compact",
+    "import_0.7.4_legacy",
+    "import_0.7.4_compact",
     "indexrangeaccess_0.6.1_legacy",
     "indexrangeaccess_0.6.2_legacy",
     "indexrangeaccess_0.6.3_legacy",
@@ -265,12 +233,18 @@ XFAIL = [
     "indexrangeaccess_0.7.0_legacy",
     "indexrangeaccess_0.7.1_legacy",
     "indexrangeaccess_0.7.2_legacy",
+    "indexrangeaccess_0.7.3_legacy",
+    "indexrangeaccess_0.7.4_legacy",
     "literal_0.7.0_legacy",
     "literal_0.7.0_compact",
     "literal_0.7.1_legacy",
     "literal_0.7.1_compact",
     "literal_0.7.2_legacy",
     "literal_0.7.2_compact",
+    "literal_0.7.3_legacy",
+    "literal_0.7.3_compact",
+    "literal_0.7.4_legacy",
+    "literal_0.7.4_compact",
     "memberaccess_0.6.8_legacy",
     "memberaccess_0.6.9_legacy",
     "memberaccess_0.6.10_legacy",
@@ -295,6 +269,8 @@ XFAIL = [
     "struct_0.7.0_legacy",
     "struct_0.7.1_legacy",
     "struct_0.7.2_legacy",
+    "struct_0.7.3_legacy",
+    "struct_0.7.4_legacy",
     "trycatch_0.6.0_legacy",
     "trycatch_0.6.1_legacy",
     "trycatch_0.6.2_legacy",
@@ -311,6 +287,8 @@ XFAIL = [
     "trycatch_0.7.0_legacy",
     "trycatch_0.7.1_legacy",
     "trycatch_0.7.2_legacy",
+    "trycatch_0.7.3_legacy",
+    "trycatch_0.7.4_legacy",
     "variable_0.6.5_legacy",
     "variable_0.6.5_compact",
     "variable_0.6.6_legacy",
@@ -407,6 +385,8 @@ XFAIL = [
     "variabledeclaration_0.7.0_legacy",
     "variabledeclaration_0.7.1_legacy",
     "variabledeclaration_0.7.2_legacy",
+    "variabledeclaration_0.7.3_legacy",
+    "variabledeclaration_0.7.4_legacy",
     "yul_0.6.0_compact",
     "yul_0.6.1_compact",
     "yul_0.6.2_compact",
@@ -423,6 +403,8 @@ XFAIL = [
     "yul_0.7.0_compact",
     "yul_0.7.1_compact",
     "yul_0.7.2_compact",
+    "yul_0.7.3_compact",
+    "yul_0.7.4_compact",
 ]
 
 
@@ -479,15 +461,7 @@ def get_tests(solc_versions) -> Dict[str, List[str]]:
     return tests
 
 
-Item = namedtuple(
-    "TestItem",
-    [
-        "test_id",
-        "base_ver",
-        "solc_ver",
-        "is_legacy",
-    ],
-)
+Item = namedtuple("TestItem", ["test_id", "base_ver", "solc_ver", "is_legacy",],)
 
 
 def get_all_test() -> List[Item]:
@@ -546,6 +520,14 @@ def generate_output(sl: Slither) -> Dict[str, Dict[str, str]]:
 ALL_TESTS = get_all_test()
 
 
+def set_solc(test_item: Item):
+    # hacky hack hack to pick the solc version we want
+    env = dict(os.environ)
+    env["SOLC_VERSION"] = test_item.solc_ver
+    os.environ.clear()
+    os.environ.update(env)
+
+
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
 def test_parsing(test_item: Item):
     flavor = "legacy" if test_item.is_legacy else "compact"
@@ -557,11 +539,7 @@ def test_parsing(test_item: Item):
     if id_test(test_item) in XFAIL:
         pytest.xfail("this test needs to be fixed")
 
-    # hacky hack hack to pick the solc version we want
-    env = dict(os.environ)
-    env["SOLC_VERSION"] = test_item.solc_ver
-    os.environ.clear()
-    os.environ.update(env)
+    set_solc(test_item)
 
     sl = Slither(
         test_file,
@@ -575,15 +553,56 @@ def test_parsing(test_item: Item):
     try:
         with open(expected_file, "r") as f:
             expected = json.load(f)
-    except OSError as e:
-        if e.errno != errno.ENOENT:
-            raise
-
-        # if the expected output doesn't exist, make it
-        with open(expected_file, "w") as f:
-            json.dump(actual, f, indent="  ")
-            expected = actual
+    except OSError:
+        pytest.xfail("the file for this test was not generated")
+        raise
 
     diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2)
 
     assert not diff, diff.pretty()
+
+
+def _generate_test(test_item: Item, skip_existing=False):
+    flavor = "legacy" if test_item.is_legacy else "compact"
+    test_file = os.path.join(TEST_ROOT, f"{test_item.test_id}-{test_item.base_ver}.sol")
+    expected_file = os.path.join(
+        TEST_ROOT, "expected", f"{test_item.test_id}-{test_item.solc_ver}-{flavor}.json"
+    )
+
+    if skip_existing:
+        if os.path.isfile(expected_file):
+            return
+
+    if id_test(test_item) in XFAIL:
+        return
+
+    set_solc(test_item)
+
+    sl = Slither(
+        test_file,
+        solc_force_legacy_json=test_item.is_legacy,
+        disallow_partial=True,
+        skip_analyze=True,
+    )
+
+    actual = generate_output(sl)
+
+    with open(expected_file, "w") as f:
+        json.dump(actual, f, ident="  ")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2 or sys.argv[1] not in ["--generate", "--overwrite"]:
+        print(
+            "To generate the missing json artifacts run\n\tpython tests/test_ast_parsing.py --generate"
+        )
+        print(
+            "To re-generate all the json artifacts run\n\tpython tests/test_ast_parsing.py --overwrite"
+        )
+        print("\tThis will overwrite the previous json files")
+    elif sys.argv[1] == "--generate":
+        for next_test in ALL_TESTS:
+            _generate_test(next_test, skip_existing=True)
+    elif sys.argv[1] == "--overwrite":
+        for next_test in ALL_TESTS:
+            _generate_test(next_test)
