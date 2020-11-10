@@ -1417,7 +1417,7 @@ def remove_unused(result):
             # Remove type(X) if X is an elementary type
             # This assume that type(X) is only used with min/max
             # If Solidity introduces other operation, we might remove this removal
-            if isinstance(ins, SolidityCall) and ins.function == SolidityFunction('type()'):
+            if isinstance(ins, SolidityCall) and ins.function == SolidityFunction("type()"):
                 if isinstance(ins.arguments[0], ElementaryType):
                     to_remove.append(ins)
 

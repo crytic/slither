@@ -502,6 +502,7 @@ def generate_output(sl: Slither) -> Dict[str, Dict[str, str]]:
 
 ALL_TESTS = get_all_test()
 
+
 def set_solc(test_item: Item):
     # hacky hack hack to pick the solc version we want
     env = dict(os.environ)

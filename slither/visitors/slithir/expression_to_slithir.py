@@ -370,17 +370,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
                     assert isinstance(type_expression_found, ElementaryTypeNameExpression)
                     type_found = type_expression_found.type
                     if expression.member_name == "min:":
-                        op = Assignment(
-                            val,
-                            Constant(str(type_found.min), type_found),
-                            type_found,
-                        )
+                        op = Assignment(val, Constant(str(type_found.min), type_found), type_found,)
                     else:
-                        op = Assignment(
-                            val,
-                            Constant(str(type_found.max), type_found),
-                            type_found,
-                        )
+                        op = Assignment(val, Constant(str(type_found.max), type_found), type_found,)
                     self._result.append(op)
                     set_val(expression, val)
                     return
