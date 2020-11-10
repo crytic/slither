@@ -33,6 +33,7 @@ To run them locally:
 - `pylint slither --rconfig pyproject.toml`
 - `black slither --config pyproject.toml`
 
+We use black `19.10b0`.
 ## Detectors regression tests
 
 For each new detector, at least one regression tests must be present.

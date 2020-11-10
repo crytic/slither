@@ -57,10 +57,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--markdown-root",
-        help="URL for markdown generation",
-        action="store",
-        default="",
+        "--markdown-root", help="URL for markdown generation", action="store", default="",
     )
 
     parser.add_argument(

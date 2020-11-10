@@ -441,15 +441,10 @@ class ContractSolc:
                     elem.set_contract(self._contract)
                     elem.set_contract_declarer(element_parser.underlying_function.contract_declarer)
                     elem.set_offset(
-                        element_parser.function_not_parsed["src"],
-                        self._contract.slither,
+                        element_parser.function_not_parsed["src"], self._contract.slither,
                     )
 
-                    elem_parser = Cls_parser(
-                        elem,
-                        element_parser.function_not_parsed,
-                        self,
-                    )
+                    elem_parser = Cls_parser(elem, element_parser.function_not_parsed, self,)
                     elem_parser.analyze_params()
                     if isinstance(elem, Modifier):
                         self._contract.slither.add_modifier(elem)
