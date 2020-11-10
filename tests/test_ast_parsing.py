@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import subprocess
 import sys
 from collections import namedtuple
@@ -19,69 +20,48 @@ TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "ast-parsing")
 
 # these are tests that are currently failing right now
 XFAIL = [
-    "for_0.4.0_legacy",
-    "for_0.4.1_legacy",
-    "for_0.4.2_legacy",
-    "for_0.4.3_legacy",
-    "for_0.4.4_legacy",
-    "for_0.4.5_legacy",
-    "for_0.4.6_legacy",
-    "for_0.4.7_legacy",
-    "for_0.4.8_legacy",
-    "for_0.4.9_legacy",
-    "for_0.4.10_legacy",
-    "for_0.4.11_legacy",
-    "for_0.4.12_legacy",
-    "for_0.4.13_legacy",
-    "for_0.4.14_legacy",
-    "for_0.4.15_legacy",
-    "for_0.4.16_legacy",
-    "for_0.4.17_legacy",
-    "for_0.4.18_legacy",
-    "for_0.4.19_legacy",
-    "for_0.4.20_legacy",
-    "for_0.4.21_legacy",
-    "for_0.4.22_legacy",
-    "for_0.4.23_legacy",
-    "for_0.4.24_legacy",
-    "for_0.4.25_legacy",
-    "for_0.4.26_legacy",
-    "for_0.5.0_legacy",
-    "for_0.5.1_legacy",
-    "for_0.5.2_legacy",
-    "for_0.5.3_legacy",
-    "for_0.5.4_legacy",
-    "for_0.5.5_legacy",
-    "for_0.5.6_legacy",
-    "for_0.5.7_legacy",
-    "for_0.5.8_legacy",
-    "for_0.5.9_legacy",
-    "for_0.5.10_legacy",
-    "for_0.5.11_legacy",
-    "for_0.5.12_legacy",
-    "for_0.5.13_legacy",
-    "for_0.5.14_legacy",
-    "for_0.5.15_legacy",
-    "for_0.5.16_legacy",
-    "for_0.5.17_legacy",
-    "for_0.6.0_legacy",
-    "for_0.6.1_legacy",
-    "for_0.6.2_legacy",
-    "for_0.6.3_legacy",
-    "for_0.6.4_legacy",
-    "for_0.6.5_legacy",
-    "for_0.6.6_legacy",
-    "for_0.6.7_legacy",
-    "for_0.6.8_legacy",
-    "for_0.6.9_legacy",
-    "for_0.6.10_legacy",
-    "for_0.6.11_legacy",
-    "for_0.6.12_legacy",
-    "for_0.7.0_legacy",
-    "for_0.7.1_legacy",
-    "for_0.7.2_legacy",
-    "for_0.7.3_legacy",
-    "for_0.7.4_legacy",
+    "emit_0.4.0_legacy",
+    "emit_0.4.1_legacy",
+    "emit_0.4.2_legacy",
+    "emit_0.4.3_legacy",
+    "emit_0.4.4_legacy",
+    "emit_0.4.5_legacy",
+    "emit_0.4.6_legacy",
+    "emit_0.4.7_legacy",
+    "emit_0.4.8_legacy",
+    "emit_0.4.9_legacy",
+    "emit_0.4.10_legacy",
+    "emit_0.4.11_legacy",
+    "emit_0.4.12_legacy",
+    "emit_0.4.12_compact",
+    "emit_0.4.13_legacy",
+    "emit_0.4.13_compact",
+    "emit_0.4.14_legacy",
+    "emit_0.4.14_compact",
+    "emit_0.4.15_legacy",
+    "emit_0.4.15_compact",
+    "emit_0.4.16_legacy",
+    "emit_0.4.16_compact",
+    "emit_0.4.17_legacy",
+    "emit_0.4.17_compact",
+    "emit_0.4.18_legacy",
+    "emit_0.4.18_compact",
+    "emit_0.4.19_legacy",
+    "emit_0.4.19_compact",
+    "emit_0.4.20_legacy",
+    "emit_0.4.20_compact",
+    "emit_0.4.21_legacy",
+    "emit_0.4.21_compact",
+    "emit_0.4.22_legacy",
+    "emit_0.4.22_compact",
+    "emit_0.4.23_legacy",
+    "emit_0.4.23_compact",
+    "emit_0.4.24_legacy",
+    "emit_0.4.24_compact",
+    "emit_0.4.25_legacy",
+    "emit_0.4.25_compact",
+    "emit_0.4.26_legacy",
+    "emit_0.4.26_compact",
     "function_0.6.0_legacy",
     "function_0.6.1_legacy",
     "function_0.6.2_legacy",
@@ -520,6 +500,12 @@ def generate_output(sl: Slither) -> Dict[str, Dict[str, str]]:
 
 ALL_TESTS = get_all_test()
 
+# create the output folder if needed
+try:
+    os.mkdir("test_artifacts")
+except OSError:
+    pass
+
 
 def set_solc(test_item: Item):
     # hacky hack hack to pick the solc version we want
@@ -558,7 +544,16 @@ def test_parsing(test_item: Item):
         pytest.xfail("the file for this test was not generated")
         raise
 
-    diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2)
+    diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")
+
+    if diff:
+        for change in diff["values_changed"]:
+            path_list = re.findall(r"\['(.*?)'\]", change.path())
+            path = "_".join(path_list)
+            with open(f"test_artifacts/{id_test(test_item)}_{path}_expected.dot", "w") as f:
+                f.write(change.t1)
+            with open(f"test_artifacts/{id_test(test_item)}_{path}_actual.dot", "w") as f:
+                f.write(change.t2)
 
     assert not diff, diff.pretty()
 
