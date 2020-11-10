@@ -525,7 +525,7 @@ def test_parsing(test_item: Item):
         pytest.xfail("the file for this test was not generated")
         raise
 
-    diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view='tree')
+    diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")
 
     if diff:
         for change in diff["values_changed"]:
