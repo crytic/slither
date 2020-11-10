@@ -836,15 +836,15 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: list of string
         """
         all_erc = [
-            ("ERC20", lambda x: x.is_erc20()),
-            ("ERC165", lambda x: x.is_erc165()),
-            ("ERC1820", lambda x: x.is_erc1820()),
-            ("ERC223", lambda x: x.is_erc223()),
-            ("ERC721", lambda x: x.is_erc721()),
-            ("ERC777", lambda x: x.is_erc777()),
+            ("ERC20", self.is_erc20),
+            ("ERC165", self.is_erc165),
+            ("ERC1820", self.is_erc1820),
+            ("ERC223", self.is_erc223),
+            ("ERC721", self.is_erc721),
+            ("ERC777", self.is_erc777),
         ]
 
-        return [erc[0] for erc in all_erc if erc[1](self)]
+        return [erc for erc, is_erc in all_erc if is_erc()]
 
     def is_erc20(self) -> bool:
         """
@@ -854,7 +854,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: Returns a true if the contract is an erc20
         """
         full_names = self.functions_signatures
-        return all((s in full_names for s in ERC20_signatures))
+        return all(s in full_names for s in ERC20_signatures)
 
     def is_erc165(self) -> bool:
         """
@@ -864,7 +864,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: Returns a true if the contract is an erc165
         """
         full_names = self.functions_signatures
-        return all((s in full_names for s in ERC165_signatures))
+        return all(s in full_names for s in ERC165_signatures)
 
     def is_erc1820(self) -> bool:
         """
@@ -874,7 +874,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: Returns a true if the contract is an erc165
         """
         full_names = self.functions_signatures
-        return all((s in full_names for s in ERC1820_signatures))
+        return all(s in full_names for s in ERC1820_signatures)
 
     def is_erc223(self) -> bool:
         """
@@ -884,7 +884,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: Returns a true if the contract is an erc223
         """
         full_names = self.functions_signatures
-        return all((s in full_names for s in ERC223_signatures))
+        return all(s in full_names for s in ERC223_signatures)
 
     def is_erc721(self) -> bool:
         """
@@ -894,7 +894,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: Returns a true if the contract is an erc721
         """
         full_names = self.functions_signatures
-        return all((s in full_names for s in ERC721_signatures))
+        return all(s in full_names for s in ERC721_signatures)
 
     def is_erc777(self) -> bool:
         """
@@ -904,7 +904,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: Returns a true if the contract is an erc165
         """
         full_names = self.functions_signatures
-        return all((s in full_names for s in ERC777_signatures))
+        return all(s in full_names for s in ERC777_signatures)
 
     @property
     def is_token(self) -> bool:

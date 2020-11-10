@@ -4,11 +4,15 @@ from slither.core.declarations import (
     Function,
     SolidityVariable,
     SolidityVariableComposed,
+    SolidityFunction,
 )
 from slither.core.expressions import (
     AssignmentOperationType,
     UnaryOperationType,
     BinaryOperationType,
+    ElementaryTypeNameExpression,
+    CallExpression,
+    Identifier,
 )
 from slither.core.solidity_types import ArrayType, ElementaryType
 from slither.core.solidity_types.type import Type
@@ -350,6 +354,29 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
     def _post_member_access(self, expression):
         expr = get(expression.expression)
+
+        # Look for type(X).max / min
+        # Because we looked at the AST structure, we need to look into the nested expression
+        # Hopefully this is always on a direct sub field, and there is no weird construction
+        if isinstance(expression.expression, CallExpression) and expression.member_name in [
+            "min",
+            "max",
+        ]:
+            if isinstance(expression.expression.called, Identifier):
+                if expression.expression.called.value == SolidityFunction("type()"):
+                    assert len(expression.expression.arguments) == 1
+                    val = TemporaryVariable(self._node)
+                    type_expression_found = expression.expression.arguments[0]
+                    assert isinstance(type_expression_found, ElementaryTypeNameExpression)
+                    type_found = type_expression_found.type
+                    if expression.member_name == "min:":
+                        op = Assignment(val, Constant(str(type_found.min), type_found), type_found,)
+                    else:
+                        op = Assignment(val, Constant(str(type_found.max), type_found), type_found,)
+                    self._result.append(op)
+                    set_val(expression, val)
+                    return
+
         val = ReferenceVariable(self._node)
         member = Member(expr, Constant(expression.member_name), val)
         member.set_expression(expression)

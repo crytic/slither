@@ -387,6 +387,24 @@ XFAIL = [
     "variabledeclaration_0.7.2_legacy",
     "variabledeclaration_0.7.3_legacy",
     "variabledeclaration_0.7.4_legacy",
+    "yul_0.6.0_compact",
+    "yul_0.6.1_compact",
+    "yul_0.6.2_compact",
+    "yul_0.6.3_compact",
+    "yul_0.6.4_compact",
+    "yul_0.6.5_compact",
+    "yul_0.6.6_compact",
+    "yul_0.6.7_compact",
+    "yul_0.6.8_compact",
+    "yul_0.6.9_compact",
+    "yul_0.6.10_compact",
+    "yul_0.6.11_compact",
+    "yul_0.6.12_compact",
+    "yul_0.7.0_compact",
+    "yul_0.7.1_compact",
+    "yul_0.7.2_compact",
+    "yul_0.7.3_compact",
+    "yul_0.7.4_compact",
 ]
 
 
@@ -462,6 +480,7 @@ def get_all_test() -> List[Item]:
         base_ver_idx = 0
 
         for solc_ver in solc_versions:
+
             # if it's time to move to the next base version, do it now
             if base_ver_idx + 1 < len(base_vers) and base_vers[base_ver_idx + 1] == solc_ver:
                 base_ver_idx += 1
@@ -559,7 +578,6 @@ def _generate_test(test_item: Item, skip_existing=False):
         return
 
     set_solc(test_item)
-
     sl = Slither(
         test_file,
         solc_force_legacy_json=test_item.is_legacy,
@@ -568,9 +586,9 @@ def _generate_test(test_item: Item, skip_existing=False):
     )
 
     actual = generate_output(sl)
-
+    print(f"Generate {expected_file}")
     with open(expected_file, "w") as f:
-        json.dump(actual, f, ident="  ")
+        json.dump(actual, f, indent="  ")
 
 
 if __name__ == "__main__":
