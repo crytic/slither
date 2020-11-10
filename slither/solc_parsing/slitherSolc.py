@@ -129,7 +129,6 @@ class SlitherSolc:
             return
 
         for contract_data in data_loaded[self.get_children()]:
-
             assert contract_data[self.get_key()] in [
                 "ContractDefinition",
                 "PragmaDirective",
