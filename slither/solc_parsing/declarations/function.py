@@ -437,10 +437,7 @@ class FunctionSolc:
                 return key in attributes and not attributes[key]
 
             if attributes and any(
-                map(
-                    has_hint,
-                    ["condition", "initializationExpression", "loopExpression"],
-                )
+                map(has_hint, ["condition", "initializationExpression", "loopExpression"],)
             ):
                 # if we have attribute hints, rely on those
 
