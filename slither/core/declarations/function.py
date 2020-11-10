@@ -53,10 +53,7 @@ ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
 
 class ModifierStatements:
     def __init__(
-        self,
-        modifier: Union["Contract", "Function"],
-        entry_point: "Node",
-        nodes: List["Node"],
+        self, modifier: Union["Contract", "Function"], entry_point: "Node", nodes: List["Node"],
     ):
         self._modifier = modifier
         self._entry_point = entry_point
@@ -1144,9 +1141,7 @@ class Function(
 
     @staticmethod
     def _explore_func_conditional(
-        func: "Function",
-        f: Callable[["Node"], List[SolidityVariable]],
-        include_loop: bool,
+        func: "Function", f: Callable[["Node"], List[SolidityVariable]], include_loop: bool,
     ):
         ret = [f(n) for n in func.nodes if n.is_conditional(include_loop)]
         return [item for sublist in ret for item in sublist]
@@ -1298,7 +1293,7 @@ class Function(
         with open(filename, "w", encoding="utf8") as f:
             f.write(content)
 
-    def slithir_cfg_to_dot_str(self) -> str:
+    def slithir_cfg_to_dot_str(self, skip_expressions=False) -> str:
         """
         Export the CFG to a DOT format. The nodes includes the Solidity expressions and the IRs
         :return: the DOT content
@@ -1310,9 +1305,9 @@ class Function(
         content += "digraph{\n"
         for node in self.nodes:
             label = "Node Type: {} {}\n".format(str(node.type), node.node_id)
-            if node.expression:
+            if node.expression and not skip_expressions:
                 label += "\nEXPRESSION:\n{}\n".format(node.expression)
-            if node.irs:
+            if node.irs and not skip_expressions:
                 label += "\nIRs:\n" + "\n".join([str(ir) for ir in node.irs])
             content += '{}[label="{}"];\n'.format(node.node_id, label)
             if node.type in [NodeType.IF, NodeType.IFLOOP]:
@@ -1602,14 +1597,10 @@ class Function(
 
         return ret
 
-    def get_last_ssa_state_variables_instances(
-        self,
-    ) -> Dict[str, Set["SlithIRVariable"]]:
+    def get_last_ssa_state_variables_instances(self,) -> Dict[str, Set["SlithIRVariable"]]:
         return self._get_last_ssa_variable_instances(target_state=True, target_local=False)
 
-    def get_last_ssa_local_variables_instances(
-        self,
-    ) -> Dict[str, Set["SlithIRVariable"]]:
+    def get_last_ssa_local_variables_instances(self,) -> Dict[str, Set["SlithIRVariable"]]:
         return self._get_last_ssa_variable_instances(target_state=False, target_local=True)
 
     @staticmethod

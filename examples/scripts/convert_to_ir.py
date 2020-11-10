@@ -12,10 +12,10 @@ slither = Slither(sys.argv[1])
 
 # Get the contract
 contract = slither.get_contract_from_name("Test")
-
+assert contract
 # Get the variable
 test = contract.get_function_from_signature("one()")
-
+assert test
 nodes = test.nodes
 
 for node in nodes:

@@ -1,0 +1,96 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "owner",
+                    "source_mapping": {
+                        "start": 92,
+                        "length": 13,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-abstract/shadowing_abstract.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-abstract/shadowing_abstract.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 18
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "DerivedContract",
+                            "source_mapping": {
+                                "start": 46,
+                                "length": 63,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-abstract/shadowing_abstract.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-abstract/shadowing_abstract.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "owner",
+                    "source_mapping": {
+                        "start": 27,
+                        "length": 13,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-abstract/shadowing_abstract.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-abstract/shadowing_abstract.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            2
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 18
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "BaseContract",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 44,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-abstract/shadowing_abstract.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-abstract/shadowing_abstract.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "DerivedContract.owner (tests/detectors/shadowing-abstract/shadowing_abstract.sol#7) shadows:\n\t- BaseContract.owner (tests/detectors/shadowing-abstract/shadowing_abstract.sol#2)\n",
+            "markdown": "[DerivedContract.owner](tests/detectors/shadowing-abstract/shadowing_abstract.sol#L7) shadows:\n\t- [BaseContract.owner](tests/detectors/shadowing-abstract/shadowing_abstract.sol#L2)\n",
+            "id": "9c5c3fc5091b9ecd6ec271fdbb3036d9d3426cdf9a09d6cc293fd7de9240e4ab",
+            "check": "shadowing-abstract",
+            "impact": "Medium",
+            "confidence": "High"
+        }
+    ]
+]

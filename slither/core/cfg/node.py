@@ -101,7 +101,7 @@ class NodeType(Enum):
 
     # Node not related to the CFG
     # Use for state variable declaration
-    OTHER_ENTRYPOINT = 0x50
+    OTHER_ENTRYPOINT = 0x60
 
     #    @staticmethod
     def __str__(self):
@@ -137,6 +137,8 @@ class NodeType(Enum):
             return "BEGIN_LOOP"
         if self == NodeType.ENDLOOP:
             return "END_LOOP"
+        if self == NodeType.OTHER_ENTRYPOINT:
+            return "OTHER_ENTRYPOINT"
         return "Unknown type {}".format(hex(self.value))
 
 
@@ -798,15 +800,11 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     ###################################################################################
 
     @property
-    def phi_origins_local_variables(
-        self,
-    ) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
+    def phi_origins_local_variables(self,) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
         return self._phi_origins_local_variables
 
     @property
-    def phi_origins_state_variables(
-        self,
-    ) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
+    def phi_origins_state_variables(self,) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
         return self._phi_origins_state_variables
 
     # @property

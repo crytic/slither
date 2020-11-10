@@ -41,9 +41,7 @@ def parse_args():
     group_export = parser.add_argument_group("Export options")
 
     group_export.add_argument(
-        "--dir",
-        help=f"Export directory (default: {DEFAULT_EXPORT_PATH}).",
-        default=None,
+        "--dir", help=f"Export directory (default: {DEFAULT_EXPORT_PATH}).", default=None,
     )
 
     group_export.add_argument(
@@ -54,10 +52,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--zip",
-        help="Export all the files to a zip file",
-        action="store",
-        default=None,
+        "--zip", help="Export all the files to a zip file", action="store", default=None,
     )
 
     parser.add_argument(
@@ -74,9 +69,7 @@ def parse_args():
     )
 
     group_patching.add_argument(
-        "--convert-private",
-        help="Convert private variables to internal.",
-        action="store_true",
+        "--convert-private", help="Convert private variables to internal.", action="store_true",
     )
 
     group_patching.add_argument(

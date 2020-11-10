@@ -6,7 +6,6 @@ from slither.core.cfg.node import NodeType, Node, link_nodes
 from slither.core.declarations import (
     Function,
     SolidityFunction,
-    SolidityVariable,
     Contract,
 )
 from slither.core.expressions import (
@@ -90,6 +89,21 @@ def link_underlying_nodes(node1: YulNode, node2: YulNode):
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
+def _name_to_yul_name(variable_name: str, yul_id: List[str]) -> str:
+    """
+    Translate the variable name to a unique yul name
+    Within the same function, yul blocks can declare
+    different variables with the same name
+    We need to create unique name per variable
+    to prevent collision during the SSA generation
+
+    :param var:
+    :param yul_id:
+    :return:
+    """
+    return variable_name + f"_{'_'.join(yul_id)}"
+
+
 class YulScope(metaclass=abc.ABCMeta):
     __slots__ = [
         "_contract",
@@ -136,7 +150,11 @@ class YulScope(metaclass=abc.ABCMeta):
 
     def get_yul_local_variable_from_name(self, variable_name):
         return next(
-            (v for v in self._yul_local_variables if v.underlying.name == variable_name),
+            (
+                v
+                for v in self._yul_local_variables
+                if v.underlying.name == _name_to_yul_name(variable_name, self.id)
+            ),
             None,
         )
 
@@ -144,10 +162,7 @@ class YulScope(metaclass=abc.ABCMeta):
         self._yul_local_functions.append(func)
 
     def get_yul_local_function_from_name(self, func_name):
-        return next(
-            (v for v in self._yul_local_functions if v.underlying.name == func_name),
-            None,
-        )
+        return next((v for v in self._yul_local_functions if v.underlying.name == func_name), None,)
 
 
 class YulLocalVariable:  # pylint: disable=too-few-public-methods
@@ -163,7 +178,7 @@ class YulLocalVariable:  # pylint: disable=too-few-public-methods
         var.set_function(root.function)
         var.set_offset(ast["src"], root.slither)
 
-        var.name = ast["name"]
+        var.name = _name_to_yul_name(ast["name"], root.id)
         var.set_type(ElementaryType("uint256"))
         var.set_location("memory")
 
@@ -438,11 +453,7 @@ def convert_yul_switch(root: YulScope, parent: YulNode, ast: Dict) -> YulNode:
                     "name": "eq",
                 },
                 "arguments": [
-                    {
-                        "nodeType": "YulIdentifier",
-                        "src": case_ast["src"],
-                        "name": switch_expr_var,
-                    },
+                    {"nodeType": "YulIdentifier", "src": case_ast["src"], "name": switch_expr_var,},
                     value_ast,
                 ],
             },
@@ -517,7 +528,6 @@ def convert_yul_typed_name(root: YulScope, parent: YulNode, ast: Dict) -> YulNod
     local_var = LocalVariable()
 
     var = YulLocalVariable(local_var, root, ast)
-
     root.add_yul_local_variable(var)
 
     node = root.new_node(NodeType.VARIABLE, ast["src"])
@@ -668,12 +678,15 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         potential_name = name[:-5]
         var = root.function.contract.get_state_variable_from_name(potential_name)
         if var:
-            return Identifier(SolidityVariable(name))
+            return Identifier(var)
+        var = root.function.get_local_variable_from_name(potential_name)
+        if var and var.is_storage:
+            return Identifier(var)
     if name.endswith("_offset"):
         potential_name = name[:-7]
         var = root.function.contract.get_state_variable_from_name(potential_name)
         if var:
-            return Identifier(SolidityVariable(name))
+            return Identifier(var)
 
     raise SlitherException(f"unresolved reference to identifier {name}")
 

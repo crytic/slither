@@ -102,11 +102,13 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     if not var_type:
         if name.startswith("function "):
             found = re.findall(
-                "function \(([ ()a-zA-Z0-9\.,]*)\) returns \(([a-zA-Z0-9\.,]*)\)", name
+                "function \(([ ()a-zA-Z0-9\.,]*?)\)(?: returns \(([a-zA-Z0-9() \.,]*)\))?", name
             )
             assert len(found) == 1
-            params = found[0][0].split(",")
-            return_values = found[0][1].split(",")
+            params = [v for v in found[0][0].split(",") if v != ""]
+            return_values = (
+                [v for v in found[0][1].split(",") if v != ""] if len(found[0]) > 1 else []
+            )
             params = [
                 _find_from_type_name(p, contract, contracts, structures, enums) for p in params
             ]
@@ -132,8 +134,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
                 found = re.findall("mapping\(([a-zA-Z0-9\.]*) => ([a-zA-Z0-9\.\[\]]*)\)", name)
             else:
                 found = re.findall(
-                    "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)",
-                    name,
+                    "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)", name,
                 )
             assert len(found) == 1
             from_ = found[0][0]
@@ -189,11 +190,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     if t[key] == "UserDefinedTypeName":
         if is_compact_ast:
             return _find_from_type_name(
-                t["typeDescriptions"]["typeString"],
-                contract,
-                contracts,
-                structures,
-                enums,
+                t["typeDescriptions"]["typeString"], contract, contracts, structures, enums,
             )
 
         # Determine if we have a type node (otherwise we use the name node, as some older solc did not have 'type').
@@ -205,7 +202,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     if t[key] == "ArrayTypeName":
         length = None
         if is_compact_ast:
-            if t["length"]:
+            if t.get("length", None):
                 length = parse_expression(t["length"], caller_context)
             array_type = parse_type(t["baseType"], contract_parser)
         else:

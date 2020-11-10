@@ -150,9 +150,9 @@ class SourceMapping(Context):
 
     def source_mapping_to_markdown(self, markdown_root: str) -> str:
         lines = self._get_lines_str(line_descr="L")
-        return f'{markdown_root}{self.source_mapping["filename_relative"]}{lines}'
+        return f'{markdown_root}{self.source_mapping.get("filename_relative", "")}{lines}'
 
     @property
     def source_mapping_str(self) -> str:
         lines = self._get_lines_str()
-        return f'{self.source_mapping["filename_short"]}{lines}'
+        return f'{self.source_mapping.get("filename_short", "")}{lines}'

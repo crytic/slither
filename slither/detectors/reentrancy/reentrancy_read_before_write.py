@@ -58,9 +58,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                                 continue
                             read_then_written |= {
                                 FindingValue(
-                                    v,
-                                    node,
-                                    tuple(sorted(nodes, key=lambda x: x.node_id)),
+                                    v, node, tuple(sorted(nodes, key=lambda x: x.node_id)),
                                 )
                                 for (v, nodes) in node.context[self.KEY].written.items()
                                 if v in node.context[self.KEY].reads_prior_calls[c]
@@ -116,8 +114,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
                         res.add(
-                            call_list_info,
-                            {"underlying_type": "external_calls_sending_eth"},
+                            call_list_info, {"underlying_type": "external_calls_sending_eth"},
                         )
 
             # Add all variables written via nodes which write them.

@@ -36,9 +36,7 @@ def _timestamp(func: Function) -> List[Node]:
     return sorted(list(ret), key=lambda x: x.node_id)
 
 
-def _detect_dangerous_timestamp(
-    contract: Contract,
-) -> List[Tuple[Function, List[Node]]]:
+def _detect_dangerous_timestamp(contract: Contract,) -> List[Tuple[Function, List[Node]]]:
     """
     Args:
         contract (Contract)

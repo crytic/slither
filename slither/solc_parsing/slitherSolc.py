@@ -20,11 +20,12 @@ logger.setLevel(logging.INFO)
 
 
 class SlitherSolc:
-    # pylint: disable=no-self-use
+    # pylint: disable=no-self-use,too-many-instance-attributes
     def __init__(self, filename: str, core: SlitherCore):
         super().__init__()
         core.filename = filename
         self._contracts_by_id: Dict[int, ContractSolc] = {}
+        self._parsed = False
         self._analyzed = False
 
         self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = dict()
@@ -128,7 +129,6 @@ class SlitherSolc:
             return
 
         for contract_data in data_loaded[self.get_children()]:
-
             assert contract_data[self.get_key()] in [
                 "ContractDefinition",
                 "PragmaDirective",
@@ -155,7 +155,7 @@ class SlitherSolc:
                 if self.is_compact_ast:
                     import_directive = Import(contract_data["absolutePath"])
                 else:
-                    import_directive = Import(contract_data["attributes"]["absolutePath"])
+                    import_directive = Import(contract_data["attributes"].get("absolutePath", ""))
                 import_directive.set_offset(contract_data["src"], self._core)
                 self._core.import_directives.append(import_directive)
 
@@ -234,15 +234,19 @@ class SlitherSolc:
     ###################################################################################
 
     @property
+    def parsed(self) -> bool:
+        return self._parsed
+
+    @property
     def analyzed(self) -> bool:
         return self._analyzed
 
-    def analyze_contracts(self):  # pylint: disable=too-many-statements,too-many-branches
+    def parse_contracts(self):  # pylint: disable=too-many-statements,too-many-branches
         if not self._underlying_contract_to_parser:
             logger.info(
                 f"No contract were found in {self._core.filename}, check the correct compilation"
             )
-        if self._analyzed:
+        if self._parsed:
             raise Exception("Contract analysis can be run only once!")
 
         # First we save all the contracts in a dict
@@ -348,12 +352,16 @@ Please rename it, this name is reserved for Slither's internals"""
         # Then we analyse state variables, functions and modifiers
         self._analyze_third_part(contracts_to_be_analyzed, libraries)
 
-        self._analyzed = True
+        self._parsed = True
 
+    def analyze_contracts(self):  # pylint: disable=too-many-statements,too-many-branches
+        if not self._parsed:
+            raise SlitherException("Parse the contract before running analyses")
         self._convert_to_slithir()
 
         compute_dependency(self._core)
         self._core.compute_storage_layout()
+        self._analyzed = True
 
     def _analyze_all_enums(self, contracts_to_be_analyzed: List[ContractSolc]):
         while contracts_to_be_analyzed:
@@ -371,9 +379,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_first_part(
-        self,
-        contracts_to_be_analyzed: List[ContractSolc],
-        libraries: List[ContractSolc],
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc],
     ):
         for lib in libraries:
             self._parse_struct_var_modifiers_functions(lib)
@@ -398,9 +404,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_second_part(
-        self,
-        contracts_to_be_analyzed: List[ContractSolc],
-        libraries: List[ContractSolc],
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc],
     ):
         for lib in libraries:
             self._analyze_struct_events(lib)
@@ -425,9 +429,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_third_part(
-        self,
-        contracts_to_be_analyzed: List[ContractSolc],
-        libraries: List[ContractSolc],
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc],
     ):
         for lib in libraries:
             self._analyze_variables_modifiers_functions(lib)

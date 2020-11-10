@@ -48,10 +48,7 @@ class FunctionSolc:
     # elems = [(type, name)]
 
     def __init__(
-        self,
-        function: Function,
-        function_data: Dict,
-        contract_parser: "ContractSolc",
+        self, function: Function, function_data: Dict, contract_parser: "ContractSolc",
     ):
         self._slither_parser: "SlitherSolc" = contract_parser.slither_parser
         self._contract_parser = contract_parser
@@ -276,7 +273,7 @@ class FunctionSolc:
         self._content_was_analyzed = True
 
         if self.is_compact_ast:
-            body = self._functionNotParsed["body"]
+            body = self._functionNotParsed.get("body", None)
 
             if body and body[self.get_key()] == "Block":
                 self._function.is_implemented = True
@@ -405,9 +402,9 @@ class FunctionSolc:
 
     def _parse_for_compact_ast(self, statement: Dict, node: NodeSolc) -> NodeSolc:
         body = statement["body"]
-        init_expression = statement["initializationExpression"]
-        condition = statement["condition"]
-        loop_expression = statement["loopExpression"]
+        init_expression = statement.get("initializationExpression", None)
+        condition = statement.get("condition", None)
+        loop_expression = statement.get("loopExpression", None)
 
         node_startLoop = self._new_node(NodeType.STARTLOOP, statement["src"])
         node_endLoop = self._new_node(NodeType.ENDLOOP, statement["src"])
@@ -575,8 +572,7 @@ class FunctionSolc:
             link_underlying_nodes(node_startDoWhile, node_condition)
         else:
             link_nodes(
-                node_startDoWhile.underlying_node,
-                node_condition.underlying_node.sons[0],
+                node_startDoWhile.underlying_node, node_condition.underlying_node.sons[0],
             )
         link_underlying_nodes(statement, node_condition)
         link_underlying_nodes(node_condition, node_endDoWhile)
@@ -606,7 +602,7 @@ class FunctionSolc:
         link_underlying_nodes(node, try_node)
 
         if self.is_compact_ast:
-            params = statement["parameters"]
+            params = statement.get("parameters", None)
         else:
             params = statement[self.get_children("children")]
 
@@ -835,7 +831,7 @@ class FunctionSolc:
             node = self._parse_block(statement, node)
         elif name == "InlineAssembly":
             # Added with solc 0.6 - the yul code is an AST
-            if "AST" in statement:
+            if "AST" in statement and not self.slither.skip_assembly:
                 self._function.contains_assembly = True
                 yul_object = self._new_yul_block(statement["src"])
                 entrypoint = yul_object.entrypoint
