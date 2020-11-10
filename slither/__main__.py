@@ -402,10 +402,7 @@ def parse_args(detector_classes, printer_classes):
     )
 
     group_misc.add_argument(
-        "--markdown-root",
-        help="URL for markdown generation",
-        action="store",
-        default="",
+        "--markdown-root", help="URL for markdown generation", action="store", default="",
     )
 
     group_misc.add_argument(
@@ -440,10 +437,7 @@ def parse_args(detector_classes, printer_classes):
     )
 
     group_misc.add_argument(
-        "--solc-ast",
-        help="Provide the contract as a json AST",
-        action="store_true",
-        default=False,
+        "--solc-ast", help="Provide the contract as a json AST", action="store_true", default=False,
     )
 
     group_misc.add_argument(

@@ -18,8 +18,7 @@ def resolve_function(slither, contract_name, function_name):
 
     # Obtain the target function
     target_function = next(
-        (function for function in contract.functions if function.name == function_name),
-        None,
+        (function for function in contract.functions if function.name == function_name), None,
     )
 
     # Verify we have resolved the function specified.

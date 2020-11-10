@@ -25,12 +25,5 @@ def is_valid_rvalue(v):
 
 def is_valid_lvalue(v):
     return isinstance(
-        v,
-        (
-            StateVariable,
-            LocalVariable,
-            TemporaryVariable,
-            ReferenceVariable,
-            TupleVariable,
-        ),
+        v, (StateVariable, LocalVariable, TemporaryVariable, ReferenceVariable, TupleVariable,),
     )

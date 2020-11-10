@@ -158,7 +158,7 @@ def json_serializable(cls):
 
 
 @json_serializable
-class ConstantValue(NamedTuple):
+class ConstantValue(NamedTuple):  # pylint: disable=inherit-non-class,too-few-public-methods
     # Here value should be  Union[str, int, bool]
     # But the json lib in Echidna does not handle large integer in json
     # So we convert everything to string
