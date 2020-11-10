@@ -24,7 +24,7 @@ class PropertyCaller(Enum):
     ANY = 5  # If the caller does not matter
 
 
-class Property(NamedTuple):
+class Property(NamedTuple):  # pylint: disable=inherit-non-class,too-few-public-methods
     name: str
     content: str
     type: PropertyType

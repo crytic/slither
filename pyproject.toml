@@ -17,5 +17,6 @@ too-many-ancestors,
 logging-fstring-interpolation,
 logging-not-lazy,
 duplicate-code,
-import-error
+import-error,
+unsubscriptable-object
 """
