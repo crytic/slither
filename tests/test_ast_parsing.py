@@ -1,4 +1,3 @@
-import errno
 import json
 import os
 import subprocess
@@ -536,7 +535,7 @@ def test_parsing(test_item: Item):
     try:
         with open(expected_file, "r") as f:
             expected = json.load(f)
-    except OSError as e:
+    except OSError:
         pytest.xfail("the file for this test was not generated")
         raise
 
@@ -580,8 +579,8 @@ if __name__ == "__main__":
         print("To re-generate all the json artifacts run\n\tpython tests/test_ast_parsing.py --overwrite")
         print("\tThis will overwrite the previous json files")
     elif sys.argv[1] == "--generate":
-        for test in ALL_TESTS:
-            _generate_test(test, skip_existing=True)
+        for next_test in ALL_TESTS:
+            _generate_test(next_test, skip_existing=True)
     elif sys.argv[1] == "--overwrite":
-        for test in ALL_TESTS:
-            _generate_test(test)
+        for next_test in ALL_TESTS:
+            _generate_test(next_test)
