@@ -48,10 +48,7 @@ class FunctionSolc:
     # elems = [(type, name)]
 
     def __init__(
-        self,
-        function: Function,
-        function_data: Dict,
-        contract_parser: "ContractSolc",
+        self, function: Function, function_data: Dict, contract_parser: "ContractSolc",
     ):
         self._slither_parser: "SlitherSolc" = contract_parser.slither_parser
         self._contract_parser = contract_parser
@@ -591,8 +588,7 @@ class FunctionSolc:
             link_underlying_nodes(node_startDoWhile, node_condition)
         else:
             link_nodes(
-                node_startDoWhile.underlying_node,
-                node_condition.underlying_node.sons[0],
+                node_startDoWhile.underlying_node, node_condition.underlying_node.sons[0],
             )
         link_underlying_nodes(statement, node_condition)
         link_underlying_nodes(node_condition, node_endDoWhile)

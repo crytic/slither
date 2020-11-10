@@ -72,6 +72,7 @@ jobs:
           VALIDATE_PYTHON: false
           VALIDATE_PYTHON_PYLINT: false
           VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_ISORT: false
           # Always false
           VALIDATE_JSON: false
           VALIDATE_JAVASCRIPT_STANDARD: false

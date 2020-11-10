@@ -23,6 +23,7 @@ Some pull request guidelines:
 ## Development Environment
 Instructions for installing a development version of Slither can be found in our [wiki](https://github.com/crytic/slither/wiki/Developer-installation).
 
+To run the unit tests, you need `deepdiff` installed (`pip install deepdiff`).
 ## Linters
 
 Several linters and security checkers are run on the PRs.
@@ -32,6 +33,7 @@ To run them locally:
 - `pylint slither --rconfig pyproject.toml`
 - `black slither --config pyproject.toml`
 
+We use black `19.10b0`.
 ## Detectors regression tests
 
 For each new detector, at least one regression tests must be present.

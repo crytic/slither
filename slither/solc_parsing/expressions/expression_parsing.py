@@ -84,14 +84,7 @@ def find_variable(  # pylint: disable=too-many-locals,too-many-statements
     referenced_declaration: Optional[int] = None,
     is_super=False,
 ) -> Union[
-    Variable,
-    Function,
-    Contract,
-    SolidityVariable,
-    SolidityFunction,
-    Event,
-    Enum,
-    Structure,
+    Variable, Function, Contract, SolidityVariable, SolidityFunction, Event, Enum, Structure,
 ]:
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
@@ -124,9 +117,9 @@ def find_variable(  # pylint: disable=too-many-locals,too-many-statements
 
     if function:
         # We look for variable declared with the referencedDeclaration attr
-        func_variables = function.variables_renamed
-        if referenced_declaration and referenced_declaration in func_variables:
-            return func_variables[referenced_declaration].underlying_variable
+        func_variables_renamed = function.variables_renamed
+        if referenced_declaration and referenced_declaration in func_variables_renamed:
+            return func_variables_renamed[referenced_declaration].underlying_variable
         # If not found, check for name
         func_variables = function.underlying_function.variables_as_dict
         if var_name in func_variables:
@@ -209,8 +202,8 @@ def find_variable(  # pylint: disable=too-many-locals,too-many-statements
         return enums[var_name]
 
     # Could refer to any enum
-    all_enums = [c.enums_as_dict for c in contract.slither.contracts]
-    all_enums = {k: v for d in all_enums for k, v in d.items()}
+    all_enumss = [c.enums_as_dict for c in contract.slither.contracts]
+    all_enums = {k: v for d in all_enumss for k, v in d.items()}
     if var_name in all_enums:
         return all_enums[var_name]
 
@@ -399,8 +392,10 @@ def _parse_elementary_type_name_expression(
     if is_compact_ast:
         value = expression["typeName"]
     else:
-        assert "children" not in expression
-        value = expression["attributes"]["value"]
+        if "children" in expression:
+            value = expression["children"][0]["attributes"]["name"]
+        else:
+            value = expression["attributes"]["value"]
     if isinstance(value, dict):
         t = parse_type(value, caller_context)
     else:
@@ -484,8 +479,11 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
 
     if name == "FunctionCallOptions":
         # call/gas info are handled in parse_call
-        called = parse_expression(expression["expression"], caller_context)
-        assert isinstance(called, (MemberAccess, NewContract))
+        if is_compact_ast:
+            called = parse_expression(expression["expression"], caller_context)
+        else:
+            called = parse_expression(expression["children"][0], caller_context)
+        assert isinstance(called, (MemberAccess, NewContract, Identifier, TupleExpression))
         return called
 
     if name == "TupleExpression":
@@ -650,13 +648,12 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         if is_compact_ast:
             index_type = expression["typeDescriptions"]["typeString"]
             left = expression["baseExpression"]
-            right = expression["indexExpression"]
+            right = expression.get("indexExpression", None)
         else:
             index_type = expression["attributes"]["type"]
             children = expression["children"]
-            assert len(children) == 2
             left = children[0]
-            right = children[1]
+            right = children[1] if len(children) > 1 else None
         # IndexAccess is used to describe ElementaryTypeNameExpression
         # if abi.decode is used
         # For example, abi.decode(data, ...(uint[]) )
@@ -696,9 +693,9 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         member_access = MemberAccess(member_name, member_type, member_expression)
         member_access.set_offset(src, caller_context.slither)
         if str(member_access) in SOLIDITY_VARIABLES_COMPOSED:
-            idx = Identifier(SolidityVariableComposed(str(member_access)))
-            idx.set_offset(src, caller_context.slither)
-            return idx
+            id_idx = Identifier(SolidityVariableComposed(str(member_access)))
+            id_idx.set_offset(src, caller_context.slither)
+            return id_idx
         return member_access
 
     if name == "ElementaryTypeNameExpression":

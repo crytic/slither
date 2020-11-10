@@ -110,27 +110,21 @@ class SplitTernaryExpression:
                 if self.apply_copy(next_expr, true_expression, false_expression, f_call):
                     # always on last arguments added
                     self.copy_expression(
-                        next_expr,
-                        true_expression.arguments[-1],
-                        false_expression.arguments[-1],
+                        next_expr, true_expression.arguments[-1], false_expression.arguments[-1],
                     )
 
         elif isinstance(expression, TypeConversion):
             next_expr = expression.expression
             if self.apply_copy(next_expr, true_expression, false_expression, f_expression):
                 self.copy_expression(
-                    expression.expression,
-                    true_expression.expression,
-                    false_expression.expression,
+                    expression.expression, true_expression.expression, false_expression.expression,
                 )
 
         elif isinstance(expression, UnaryOperation):
             next_expr = expression.expression
             if self.apply_copy(next_expr, true_expression, false_expression, f_expression):
                 self.copy_expression(
-                    expression.expression,
-                    true_expression.expression,
-                    false_expression.expression,
+                    expression.expression, true_expression.expression, false_expression.expression,
                 )
 
         else:

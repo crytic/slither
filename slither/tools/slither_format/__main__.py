@@ -8,7 +8,7 @@ from slither.tools.slither_format.slither_format import slither_format
 
 
 logging.basicConfig()
-logger = logging.getLogger("Slither").setLevel(logging.INFO)
+logging.getLogger("Slither").setLevel(logging.INFO)
 
 # Slither detectors for which slither-format currently works
 available_detectors = [
@@ -21,8 +21,6 @@ available_detectors = [
     "constant-function-asm",
     "constatnt-function-state",
 ]
-
-detectors_to_run = []
 
 
 def parse_args():
@@ -43,17 +41,10 @@ def parse_args():
         default=False,
     )
     parser.add_argument(
-        "--verbose-json",
-        "-j",
-        help="verbose json output",
-        action="store_true",
-        default=False,
+        "--verbose-json", "-j", help="verbose json output", action="store_true", default=False,
     )
     parser.add_argument(
-        "--version",
-        help="displays the current version",
-        version="0.1.0",
-        action="version",
+        "--version", help="displays the current version", version="0.1.0", action="version",
     )
 
     parser.add_argument(

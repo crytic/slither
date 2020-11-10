@@ -1,0 +1,185 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "at",
+                    "source_mapping": {
+                        "start": 119,
+                        "length": 700,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/assembly/inline_assembly_contract.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/assembly/inline_assembly_contract.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "GetCode",
+                            "source_mapping": {
+                                "start": 97,
+                                "length": 724,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/assembly/inline_assembly_contract.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/assembly/inline_assembly_contract.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "at(address)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "",
+                    "source_mapping": {
+                        "start": 191,
+                        "length": 628,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/assembly/inline_assembly_contract.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/assembly/inline_assembly_contract.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "at",
+                            "source_mapping": {
+                                "start": 119,
+                                "length": 700,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/assembly/inline_assembly_contract.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/assembly/inline_assembly_contract.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "GetCode",
+                                    "source_mapping": {
+                                        "start": 97,
+                                        "length": 724,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/assembly/inline_assembly_contract.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/assembly/inline_assembly_contract.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "at(address)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "GetCode.at(address) (tests/detectors/assembly/inline_assembly_contract.sol#6-20) uses assembly\n\t- INLINE ASM (tests/detectors/assembly/inline_assembly_contract.sol#7-20)\n",
+            "markdown": "[GetCode.at(address)](tests/detectors/assembly/inline_assembly_contract.sol#L6-L20) uses assembly\n\t- [INLINE ASM](tests/detectors/assembly/inline_assembly_contract.sol#L7-L20)\n",
+            "id": "076a663af9edac0ed5fd4b04bb521be77206cde70d71f430b80d13896d7ad54d",
+            "check": "assembly",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]

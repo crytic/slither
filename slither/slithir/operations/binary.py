@@ -1,6 +1,7 @@
 import logging
 from enum import Enum
 
+from slither.core.declarations import Function
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -131,8 +132,8 @@ class BinaryType(Enum):
 
 class Binary(OperationWithLValue):
     def __init__(self, result, left_variable, right_variable, operation_type):
-        assert is_valid_rvalue(left_variable)
-        assert is_valid_rvalue(right_variable)
+        assert is_valid_rvalue(left_variable) or isinstance(left_variable, Function)
+        assert is_valid_rvalue(right_variable) or isinstance(right_variable, Function)
         assert is_valid_lvalue(result)
         assert isinstance(operation_type, BinaryType)
         super().__init__()
@@ -174,11 +175,7 @@ class Binary(OperationWithLValue):
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
             return "{}(-> {}) = {} {} {}".format(
-                str(self.lvalue),
-                points,
-                self.variable_left,
-                self.type_str,
-                self.variable_right,
+                str(self.lvalue), points, self.variable_left, self.type_str, self.variable_right,
             )
         return "{}({}) = {} {} {}".format(
             str(self.lvalue),
