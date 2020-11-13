@@ -264,7 +264,12 @@ def test_detector(test_item: Test):
         assert False
 
 
-def _generate_test(test_item: Test):
+def _generate_test(test_item: Test, skip_existing=False):
+
+    if skip_existing:
+        if os.path.isfile(test_item.expected_result):
+            return
+
     set_solc(test_item)
     sl = Slither(test_item.test_file)
     sl.register_detector(test_item.detector)
@@ -289,7 +294,9 @@ def _generate_test(test_item: Test):
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("To generate the json artifacts run\n\tpython tests/test_detectors.py --generate")
-        print("This will overwrite the previous json files")
     elif sys.argv[1] == "--generate":
-        for test in ALL_TESTS:
-            _generate_test(test)
+        for next_test in ALL_TESTS:
+            _generate_test(next_test, skip_existing=True)
+    elif sys.argv[1] == "--overwrite":
+        for next_test in ALL_TESTS:
+            _generate_test(next_test)

@@ -23,8 +23,12 @@ Some pull request guidelines:
 ## Development Environment
 Instructions for installing a development version of Slither can be found in our [wiki](https://github.com/crytic/slither/wiki/Developer-installation).
 
-To run the unit tests, you need `deepdiff` installed (`pip install deepdiff`).
-## Linters
+To run the unit tests, you need
+- `deepdiff` installed (`pip install deepdiff`).
+- `pycov` installed (`pip install pytest-cov`).
+- [`solc-select`](https://github.com/crytic/solc-select) installed.
+
+### Linters
 
 Several linters and security checkers are run on the PRs.
 
@@ -34,15 +38,20 @@ To run them locally:
 - `black slither --config pyproject.toml`
 
 We use black `19.10b0`.
-## Detectors regression tests
+### Detectors tests
 
 For each new detector, at least one regression tests must be present.
-To generate the following scripts, you must have [`solc-select`](https://github.com/crytic/solc-select) installed.
 
 - Create a test in `tests`
-- Update `script/ci_test_detectors_[solc_version].sh`, and add `generate_expected_json tests/YOUR_FILENAME.sol "DETECTOR_NAME"`. Be sure that all the other lines are commented (otherwise you will regenerate the tests for all the detectores)
-- Run `./script/ci_test_detectors_[solc_version].sh`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git.
-- Update `scripts/ci_test_detectors_[solc_version].sh` with your new tests.
-- Run `scripts/ci_test_detectors_[solc_version].sh` and check that everything worked.
+- Update `ALL_TEST` in `tests/test_detectors.py`
+- Run `python ./test/test_detectors.py --generate`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git.
+- Run `pytest ./test/test_detectors.py` and check that everything worked.
 
+To see the tests coverage, run `pytest  tests/test_detectors.py  --cov=slither/detectors --cov-branch --cov-report html`
 
+### Parser tests
+- Create a test in `tests/ast-parsing`
+- Run `python ./test/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git.
+- Run `pytest ./test/test_ast_parsing.py` and check that everything worked.
+
+To see the tests coverage, run `pytest  tests/test_ast_parsing.py  --cov=slither/solc_parsing --cov-branch --cov-report html`
