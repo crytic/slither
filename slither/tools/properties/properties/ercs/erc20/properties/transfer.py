@@ -155,10 +155,10 @@ ERC20_Transferable = [
         description="Cannot transfer more than the balance.",
         content="""
 \t\tuint balance = this.balanceOf(msg.sender);
-\t\tif (balance == (2 ** 256 - 1))
-\t\t\treturn true;
-\t\tbool transfer_other = transfer(crytic_user, balance+1);
-\t\treturn transfer_other;""",
+\t\tif (balance == (uint(-1)))
+\t\t\trevert();
+\t\ttransfer(crytic_user, balance+1);
+\t\treturn true;""",
         type=PropertyType.HIGH_SEVERITY,
         return_type=PropertyReturn.FAIL_OR_THROW,
         is_unit_test=True,
