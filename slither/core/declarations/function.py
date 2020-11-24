@@ -197,6 +197,14 @@ class Function(
 
         self._counter_nodes = 0
 
+        # Memoize parameters:
+        # TODO: identify all the memoize parameters and add a way to undo the memoization
+        self._full_name: Optional[str] = None
+        self._signature: Optional[Tuple[str, List[str], List[str]]] = None
+        self._solidity_signature: Optional[str] = None
+        self._signature_str: Optional[str] = None
+        self._canonical_name: Optional[str] = None
+
     ###################################################################################
     ###################################################################################
     # region General properties
@@ -244,8 +252,11 @@ class Function(
         str: func_name(type1,type2)
         Return the function signature without the return values
         """
-        name, parameters, _ = self.signature
-        return ".".join(self._scope + [name]) + "(" + ",".join(parameters) + ")"
+        if self._full_name is None:
+            name, parameters, _ = self.signature
+            full_name = ".".join(self._scope + [name]) + "(" + ",".join(parameters) + ")"
+            self._full_name = full_name
+        return self._full_name
 
     @property
     def canonical_name(self) -> str:
@@ -253,13 +264,15 @@ class Function(
         str: contract.func_name(type1,type2)
         Return the function signature without the return values
         """
-        name, parameters, _ = self.signature
-        return (
-            ".".join([self.contract_declarer.name] + self._scope + [name])
-            + "("
-            + ",".join(parameters)
-            + ")"
-        )
+        if self._canonical_name is None:
+            name, parameters, _ = self.signature
+            self._canonical_name = (
+                ".".join([self.contract_declarer.name] + self._scope + [name])
+                + "("
+                + ",".join(parameters)
+                + ")"
+            )
+        return self._canonical_name
 
     @property
     def contains_assembly(self) -> bool:
@@ -921,8 +934,10 @@ class Function(
         Contract and converted into address
         :return: the solidity signature
         """
-        parameters = [self._convert_type_for_solidity_signature(x.type) for x in self.parameters]
-        return self.name + "(" + ",".join(parameters) + ")"
+        if self._solidity_signature is None:
+            parameters = [self._convert_type_for_solidity_signature(x.type) for x in self.parameters]
+            self._solidity_signature =  self.name + "(" + ",".join(parameters) + ")"
+        return self._solidity_signature
 
     @property
     def signature(self) -> Tuple[str, List[str], List[str]]:
@@ -930,11 +945,14 @@ class Function(
         (str, list(str), list(str)): Function signature as
         (name, list parameters type, list return values type)
         """
-        return (
-            self.name,
-            [str(x.type) for x in self.parameters],
-            [str(x.type) for x in self.returns],
-        )
+        if self._signature is None:
+            signature =  (
+                self.name,
+                [str(x.type) for x in self.parameters],
+                [str(x.type) for x in self.returns],
+            )
+            self._signature = signature
+        return self._signature
 
     @property
     def signature_str(self) -> str:
@@ -942,8 +960,10 @@ class Function(
         str: func_name(type1,type2) returns (type3)
         Return the function signature as a str (contains the return values)
         """
-        name, parameters, returnVars = self.signature
-        return name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
+        if self._signature_str is None:
+            name, parameters, returnVars = self.signature
+            self._signature_str = name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
+        return self._signature_str
 
     # endregion
     ###################################################################################
