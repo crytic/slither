@@ -4,8 +4,6 @@ from typing import Dict, Union, Optional, List, Tuple
 from slither.core.context.context import Context
 
 
-
-
 class SourceMapping(Context):
     def __init__(self):
         super().__init__()
@@ -35,8 +33,10 @@ class SourceMapping(Context):
         Not done in an efficient way
         """
         start_line, starting_column = slither.crytic_compile.get_line_from_offset(filename, start)
-        end_line, ending_column = slither.crytic_compile.get_line_from_offset(filename, start+length)
-        return list(range(start_line, end_line+1)), starting_column, ending_column
+        end_line, ending_column = slither.crytic_compile.get_line_from_offset(
+            filename, start + length
+        )
+        return list(range(start_line, end_line + 1)), starting_column, ending_column
 
     def _convert_source_mapping(self, offset: str, slither):  # pylint: disable=too-many-locals
         """
