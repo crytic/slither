@@ -493,10 +493,7 @@ def parse_args(detector_classes, printer_classes):
     )
 
     parser.add_argument(
-        "--perf",
-        help=argparse.SUPPRESS,
-        action="store_true",
-        default=False,
+        "--perf", help=argparse.SUPPRESS, action="store_true", default=False,
     )
 
     # if the json is splitted in different files
@@ -790,7 +787,7 @@ def main_impl(all_detector_classes, all_printer_classes):
 
     if args.perf:
         cp.disable()
-        stats = pstats.Stats(cp).sort_stats('cumtime')
+        stats = pstats.Stats(cp).sort_stats("cumtime")
         stats.print_stats()
 
     # Exit with the appropriate status code
