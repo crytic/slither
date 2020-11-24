@@ -71,7 +71,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         self._is_upgradeable: Optional[bool] = None
         self._is_upgradeable_proxy: Optional[bool] = None
 
-        self.is_top_level = False # heavily used, so no @property
+        self.is_top_level = False  # heavily used, so no @property
 
         self._initial_state_variables: List["StateVariable"] = []  # ssa
 
@@ -396,7 +396,9 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
 
     def available_functions_as_dict(self) -> Dict[str, "Function"]:
         if self._available_functions_as_dict is None:
-            self._available_functions_as_dict = {f.full_name: f for f in self._functions.values() if not f.is_shadowed}
+            self._available_functions_as_dict = {
+                f.full_name: f for f in self._functions.values() if not f.is_shadowed
+            }
         return self._available_functions_as_dict
 
     def add_function(self, func: "Function"):
@@ -1206,7 +1208,6 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
 
         for func in self.functions + self.modifiers:
             func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
-
 
     # endregion
     ###################################################################################

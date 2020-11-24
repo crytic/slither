@@ -936,8 +936,10 @@ class Function(
         :return: the solidity signature
         """
         if self._solidity_signature is None:
-            parameters = [self._convert_type_for_solidity_signature(x.type) for x in self.parameters]
-            self._solidity_signature =  self.name + "(" + ",".join(parameters) + ")"
+            parameters = [
+                self._convert_type_for_solidity_signature(x.type) for x in self.parameters
+            ]
+            self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
         return self._solidity_signature
 
     @property
@@ -947,7 +949,7 @@ class Function(
         (name, list parameters type, list return values type)
         """
         if self._signature is None:
-            signature =  (
+            signature = (
                 self.name,
                 [str(x.type) for x in self.parameters],
                 [str(x.type) for x in self.returns],
@@ -963,7 +965,9 @@ class Function(
         """
         if self._signature_str is None:
             name, parameters, returnVars = self.signature
-            self._signature_str = name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
+            self._signature_str = (
+                name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
+            )
         return self._signature_str
 
     # endregion
@@ -1434,7 +1438,9 @@ class Function(
                 return True
             conditional_vars = self.all_conditional_solidity_variables_read(include_loop=False)
             args_vars = self.all_solidity_variables_used_as_args()
-            self._is_protected = SolidityVariableComposed("msg.sender") in conditional_vars + args_vars
+            self._is_protected = (
+                SolidityVariableComposed("msg.sender") in conditional_vars + args_vars
+            )
         return self._is_protected
 
     # endregion
