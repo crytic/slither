@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 
 import argparse
+import cProfile
 import glob
 import inspect
 import json
 import logging
 import os
+import pstats
 import sys
 import traceback
+from typing import Optional
 
 from pkg_resources import iter_entry_points, require
 
@@ -489,6 +492,13 @@ def parse_args(detector_classes, printer_classes):
         default=defaults_flag_in_config["ignore_return_value"],
     )
 
+    parser.add_argument(
+        "--perf",
+        help=argparse.SUPPRESS,
+        action="store_true",
+        default=False,
+    )
+
     # if the json is splitted in different files
     parser.add_argument("--splitted", help=argparse.SUPPRESS, action="store_true", default=False)
 
@@ -597,6 +607,11 @@ def main_impl(all_detector_classes, all_printer_classes):
     # Set logger of Slither to info, to catch warnings related to the arg parsing
     logger.setLevel(logging.INFO)
     args = parse_args(all_detector_classes, all_printer_classes)
+
+    cp: Optional[cProfile.Profile] = None
+    if args.perf:
+        cp = cProfile.Profile()
+        cp.enable()
 
     # Set colorization option
     set_colorization_enabled(not args.disable_color)
@@ -772,6 +787,11 @@ def main_impl(all_detector_classes, all_printer_classes):
 
     if outputting_zip:
         output_to_zip(args.zip, output_error, json_results, args.zip_type)
+
+    if args.perf:
+        cp.disable()
+        stats = pstats.Stats(cp).sort_stats('cumtime')
+        stats.print_stats()
 
     # Exit with the appropriate status code
     if output_error:
