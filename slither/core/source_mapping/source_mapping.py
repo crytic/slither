@@ -9,16 +9,16 @@ class SourceMapping(Context):
         super().__init__()
         # TODO create a namedtuple for the source mapping rather than a dict
         self._source_mapping: Optional[Dict] = None
-        self._start: Optional[int] = None
-        self._length: Optional[int] = None
-        self._filename_used: Optional[str] = None
-        self._filename_relative: Optional[str] = None
-        self._filename_absolute: Optional[str] = None
-        self._filename_short: Optional[str] = None
-        self._is_dependency: Optional[bool] = None
-        self._lines: Optional[List[int]] = None
-        self._starting_column: Optional[int] = None
-        self._ending_column: Optional[int] = None
+        # self._start: Optional[int] = None
+        # self._length: Optional[int] = None
+        # self._filename_used: Optional[str] = None
+        # self._filename_relative: Optional[str] = None
+        # self._filename_absolute: Optional[str] = None
+        # self._filename_short: Optional[str] = None
+        # self._is_dependency: Optional[bool] = None
+        # self._lines: Optional[List[int]] = None
+        # self._starting_column: Optional[int] = None
+        # self._ending_column: Optional[int] = None
 
     @property
     def source_mapping(self) -> Optional[Dict]:
