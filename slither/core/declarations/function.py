@@ -204,6 +204,7 @@ class Function(
         self._solidity_signature: Optional[str] = None
         self._signature_str: Optional[str] = None
         self._canonical_name: Optional[str] = None
+        self._is_protected: Optional[bool] = None
 
     ###################################################################################
     ###################################################################################
@@ -1427,11 +1428,14 @@ class Function(
             (bool)
         """
 
-        if self.is_constructor:
-            return True
-        conditional_vars = self.all_conditional_solidity_variables_read(include_loop=False)
-        args_vars = self.all_solidity_variables_used_as_args()
-        return SolidityVariableComposed("msg.sender") in conditional_vars + args_vars
+        if self._is_protected is None:
+            if self.is_constructor:
+                self._is_protected = True
+                return True
+            conditional_vars = self.all_conditional_solidity_variables_read(include_loop=False)
+            args_vars = self.all_solidity_variables_used_as_args()
+            self._is_protected = SolidityVariableComposed("msg.sender") in conditional_vars + args_vars
+        return self._is_protected
 
     # endregion
     ###################################################################################

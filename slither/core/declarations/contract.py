@@ -71,7 +71,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         self._is_upgradeable: Optional[bool] = None
         self._is_upgradeable_proxy: Optional[bool] = None
 
-        self._is_top_level = False
+        self.is_top_level = False # heavily used, so no @property
 
         self._initial_state_variables: List["StateVariable"] = []  # ssa
 
@@ -1207,18 +1207,6 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         for func in self.functions + self.modifiers:
             func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
 
-    @property
-    def is_top_level(self) -> bool:
-        """
-        The "TopLevel" contract is used to hold structures and enums defined at the top level
-        ie. structures and enums that are represented outside of any contract
-        :return:
-        """
-        return self._is_top_level
-
-    @is_top_level.setter
-    def is_top_level(self, t: bool):
-        self._is_top_level = t
 
     # endregion
     ###################################################################################
