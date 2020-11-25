@@ -15,17 +15,8 @@ def intersection_predecessor(node: "Node"):
     return ret
 
 
-def compute_dominators(nodes: List["Node"]):
-    """
-    Naive implementation of Cooper, Harvey, Kennedy algo
-    See 'A Simple,Fast Dominance Algorithm'
-
-    Compute strict domniators
-    """
+def _compute_dominators(nodes: List["Node"]):
     changed = True
-
-    for n in nodes:
-        n.dominators = set(nodes)
 
     while changed:
         changed = False
@@ -36,25 +27,51 @@ def compute_dominators(nodes: List["Node"]):
                 node.dominators = new_set
                 changed = True
 
-    # compute immediate dominator
+
+def _compute_immediate_dominators(nodes: List["Node"]):
     for node in nodes:
         idom_candidates = set(node.dominators)
         idom_candidates.remove(node)
 
-        for dominator in node.dominators:
-            if dominator != node:
-                # pylint: disable=expression-not-assigned
-                [
-                    idom_candidates.remove(d)
-                    for d in dominator.dominators
-                    if d in idom_candidates and d != dominator
-                ]
+        if len(idom_candidates) == 1:
+            idom = idom_candidates.pop()
+            node.immediate_dominator = idom
+            idom.dominator_successors.add(node)
+            continue
 
+        # all_dominators contain all the dominators of all the node's dominators
+        # But self inclusion is removed
+        # The idom is then the only node that in idom_candidate that is not in all_dominators
+        all_dominators = set()
+        for d in idom_candidates:
+            # optimization: if a node is already in all_dominators, then
+            # its dominators are already in too
+            if d in all_dominators:
+                continue
+            all_dominators |= d.dominators - {d}
+
+        idom_candidates = all_dominators.symmetric_difference(idom_candidates)
         assert len(idom_candidates) <= 1
         if idom_candidates:
             idom = idom_candidates.pop()
             node.immediate_dominator = idom
             idom.dominator_successors.add(node)
+
+
+def compute_dominators(nodes: List["Node"]):
+    """
+    Naive implementation of Cooper, Harvey, Kennedy algo
+    See 'A Simple,Fast Dominance Algorithm'
+
+    Compute strict domniators
+    """
+
+    for n in nodes:
+        n.dominators = set(nodes)
+
+    _compute_dominators(nodes)
+
+    _compute_immediate_dominators(nodes)
 
 
 def compute_dominance_frontier(nodes: List["Node"]):
