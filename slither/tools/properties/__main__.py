@@ -111,6 +111,10 @@ def parse_args():
         "--address-attacker", help=f"Attacker address. Default {ATTACKER_ADDRESS}", default=None,
     )
 
+    parser.add_argument(
+        "--max-balance", help=f"Max balance for the auto-generation of token properties", default=None,
+    )
+
     # Add default arguments from crytic-compile
     cryticparser.init(parser)
 
@@ -133,7 +137,7 @@ def main():
             if v == True and v is not None:
                 crytic_args.append("--"+arg.replace("_","-"))
 
-        generate_auto(slither, args.txs, addresses, crytic_args)
+        generate_auto(slither, args.txs, addresses, args.max_balance, crytic_args)
         return 
 
     contract = slither.get_contract_from_name(args.contract)

@@ -81,7 +81,7 @@ def AUTO_token_max(attacker_address, tokens):
         ps.append(Property(
             name="crytic_attacker_cannot_get_tokens_from_" + token.replace("0x","") + "()",
             description="The attacker address should not receive tokens.",
-            content="\n\t\treturn HasBalance(address("+ str(int(token,16)) +")).balanceOf(" + attacker_address + ") <= " + str(max_balance) + " ;",
+            content="\n\t\treturn HasBalance(address("+ str(int(token,16)) +")).balanceOf(address(" + attacker_address + ")) <= " + str(max_balance) + " ;",
             type=PropertyType.CODE_QUALITY,
             return_type=PropertyReturn.SUCCESS,
             is_unit_test=False,
@@ -107,11 +107,14 @@ def encode_transfer(sig, f, t, c, v):
     return ({"event": "FunctionCall", "from": f, "to": c, "gas_used": "0x1", "gas_price": "0x1", "data": data, "value": "0x0"})
 
 
-def detect_token_props(slither, txs, attacker_address):
+def detect_token_props(slither, txs, attacker_address, max_balance):
 
     accounts = set()
     contracts = dict()
     last_create = None
+
+    if max_balance is None:
+        max_balance = 0
 
     # obtain the list of contracts and accounts used
     for i,tx in enumerate(txs):
@@ -162,33 +165,35 @@ def detect_token_props(slither, txs, attacker_address):
     print("Echidna should generate transactions from accounts", list(accounts), "as well as the ones controlled by an attacker")
     print("List of detected properties:")
     tokens = dict()
-    max_tokens = 100000
     itxs = []
 
     for (addr,contract) in contracts.items():
         if contract is None:
             continue
         if 'balanceOf(address)' in contract.functions_signatures:
-            tokens[addr] = 0
+            print("Found one token-like contract at", addr, "(", str(contract) ,")")
+            tokens[addr] = max_balance
+            """
             sig = 'transfer(address,uint256)'            
-            if sig in contract.functions_signatures:
+            if sig in contract.functions_signatures and max_balance > 0:
 
                 for account in accounts:
-                    itxs.append(encode_transfer(sig, account, attacker_address, addr, max_tokens))
+                    itxs.append(encode_transfer(sig, account, attacker_address, addr, max_balance))
 
                 tokens[addr] = max_tokens
                 print("Attacker should have no more than", max_tokens, "tokens in", addr)
 
             sig = 'approve(address,uint256)'
-            if sig in contract.functions_signatures:
+            if sig in contract.functions_signatures and max_balance > 0:
                 for (spender, _) in contracts.items():
                     itxs.append(encode_transfer(sig, attacker_address, spender, addr, 2**255))
                 print("The attacker allows any contract to take its tokens")
+            """
 
     return (accounts, tokens, txs[:last_create+1]+itxs, txs[last_create+1:])
 
 def generate_auto(
-    slither, filename, addresses, crytic_args
+    slither, filename, addresses, max_balance, crytic_args
     #contract: Contract, type_propertyi: str, addresses: Addresses
 ):  # pylint: disable=too-many-locals
     """
@@ -208,7 +213,7 @@ def generate_auto(
     :return:
     """
     txs = json.load(open(filename))
-    (accounts, tokens, init_txs, samples_txs) = detect_token_props(slither, txs, addresses.attacker)
+    (accounts, tokens, init_txs, samples_txs) = detect_token_props(slither, txs, addresses.attacker, max_balance)
     
     properties = AUTO_token_max(addresses.attacker, tokens)
     #print(properties)
