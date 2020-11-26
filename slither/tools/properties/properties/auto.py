@@ -260,7 +260,7 @@ def _initialization_recommendation(type_property: str) -> str:
 def _platform_to_output_dir(platform: AbstractPlatform) -> Path:
     if platform.TYPE == PlatformType.TRUFFLE:
         return Path(platform.target, "contracts", "crytic")
-    elif platform.TYPE == PlatformType.BUIDLER:
+    elif platform.TYPE == PlatformType.BUILDER:
         return Path(platform.target, "contracts", "crytic")
     elif platform.TYPE == PlatformType.SOLC:
         return Path(platform.target).parent
