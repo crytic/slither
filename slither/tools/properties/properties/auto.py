@@ -81,7 +81,7 @@ def AUTO_token_max(attacker_address, tokens):
         ps.append(Property(
             name="crytic_attacker_cannot_get_tokens_from_" + token.replace("0x","") + "()",
             description="The attacker address should not receive tokens.",
-            content="\n\t\treturn HasBalance(address("+ str(int(token,16)) +")).balanceOf(" + attacker_address + ") > 0 ;",
+            content="\n\t\treturn HasBalance(address("+ str(int(token,16)) +")).balanceOf(" + attacker_address + ") <= " + str(max_balance) + " ;",
             type=PropertyType.CODE_QUALITY,
             return_type=PropertyReturn.SUCCESS,
             is_unit_test=False,
@@ -91,9 +91,9 @@ def AUTO_token_max(attacker_address, tokens):
         )
     return ps
 
-def encode_transfer(f, t, c, v): 
+def encode_transfer(sig, f, t, c, v): 
 
-    sel = get_function_id("transfer(address,uint256)")
+    sel = get_function_id(sig)
     sel = hex(sel).replace("0x","")
     sel = "0"*(8-len(sel)) + sel 
 
@@ -162,7 +162,7 @@ def detect_token_props(slither, txs, attacker_address):
     print("Echidna should generate transactions from accounts", list(accounts), "as well as the ones controlled by an attacker")
     print("List of detected properties:")
     tokens = dict()
-    max_tokens = 10
+    max_tokens = 100000
     itxs = []
 
     for (addr,contract) in contracts.items():
@@ -170,18 +170,25 @@ def detect_token_props(slither, txs, attacker_address):
             continue
         if 'balanceOf(address)' in contract.functions_signatures:
             tokens[addr] = 0
-            if 'transfer(address,uint256)' in contract.functions_signatures:
+            sig = 'transfer(address,uint256)'            
+            if sig in contract.functions_signatures:
 
                 for account in accounts:
-                    itxs.append(encode_transfer(account, attacker_address, addr, max_tokens))
+                    itxs.append(encode_transfer(sig, account, attacker_address, addr, max_tokens))
 
                 tokens[addr] = max_tokens
                 print("Attacker should have no more than", max_tokens, "tokens in", addr)
 
+            sig = 'approve(address,uint256)'
+            if sig in contract.functions_signatures:
+                for (spender, _) in contracts.items():
+                    itxs.append(encode_transfer(sig, attacker_address, spender, addr, 2**255))
+                print("The attacker allows any contract to take its tokens")
+
     return (accounts, tokens, txs[:last_create+1]+itxs, txs[last_create+1:])
 
 def generate_auto(
-    slither, filename, addresses
+    slither, filename, addresses, crytic_args
     #contract: Contract, type_propertyi: str, addresses: Addresses
 ):  # pylint: disable=too-many-locals
     """
@@ -242,7 +249,7 @@ def generate_auto(
     # Add attacker address to the list of accounts
     accounts.add(addresses.attacker)
     # Generate Echidna config file
-    echidna_config_filename = generate_echidna_auto_config(".", list(accounts), init_file, samples_file)
+    echidna_config_filename = generate_echidna_auto_config(".", list(accounts), init_file, samples_file, crytic_args)
 
     #unit_test_info = ""
 

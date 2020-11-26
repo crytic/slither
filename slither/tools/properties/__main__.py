@@ -128,7 +128,12 @@ def main():
     addresses = Addresses(args.address_owner, args.address_user, args.address_attacker)
 
     if args.txs is not None:
-        generate_auto(slither, args.txs, addresses)
+        crytic_args = []
+        for (arg,v) in args.__dict__.items():
+            if v == True and v is not None:
+                crytic_args.append("--"+arg.replace("_","-"))
+
+        generate_auto(slither, args.txs, addresses, crytic_args)
         return 
 
     contract = slither.get_contract_from_name(args.contract)
