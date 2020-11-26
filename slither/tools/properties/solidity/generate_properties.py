@@ -28,6 +28,23 @@ def generate_solidity_properties(
 
     return Path(filename)
 
+def generate_solidity_properties_no_contract(
+    type_property: str, solidity_properties: str, output_dir: Path
+) -> Path:
+
+    solidity_import = 'import "./interfaces.sol";\n'
+
+    test_contract_name = f"Properties{type_property}"
+
+    solidity_content = (
+        f"{solidity_import}\ncontract {test_contract_name} is CryticInterface"
+    )
+    solidity_content += f"{{\n\n{solidity_properties}\n}}\n"
+
+    filename = f"{test_contract_name}.sol"
+    write_file(output_dir, filename, solidity_content)
+
+    return Path(filename)
 
 def generate_test_contract(
     contract: Contract,
@@ -65,6 +82,25 @@ def generate_test_contract(
     return filename, test_contract_name
 
 
+def generate_test_contract_no_contract(
+    type_property: str,
+    output_dir: Path,
+    property_file: Path,
+) -> Tuple[str, str]:
+    test_contract_name = f"Test{type_property}"
+    properties_name = f"Properties{type_property}"
+
+    content = ""
+    content += f'import "./{property_file}";\n'
+    content += f"contract {test_contract_name} is {properties_name} {{\n"
+    content += "\tconstructor() public{\n"
+    content += "\t}\n}\n"
+
+    filename = f"{test_contract_name}.sol"
+    write_file(output_dir, filename, content, allow_overwrite=False)
+
+    return filename, test_contract_name
+
 def generate_solidity_interface(output_dir: Path, addresses: Addresses):
     content = f"""
 contract CryticInterface{{
@@ -75,7 +111,11 @@ contract CryticInterface{{
     uint internal initialBalance_owner;
     uint internal initialBalance_user;
     uint internal initialBalance_attacker;
-}}"""
+}}
+contract HasBalance{{
+    function balanceOf(address) external returns (uint256);
+}}
+"""
 
     # Static file, we discard if it exists as it should never change
     write_file(output_dir, "interfaces.sol", content, discard_if_exist=True)

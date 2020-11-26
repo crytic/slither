@@ -6,6 +6,8 @@ from crytic_compile import cryticparser
 
 from slither import Slither
 from slither.tools.properties.properties.erc20 import generate_erc20, ERC20_PROPERTIES
+from slither.tools.properties.properties.auto import generate_auto 
+
 from slither.tools.properties.addresses.address import (
     Addresses,
     OWNER_ADDRESS,
@@ -73,6 +75,7 @@ def parse_args():
     )
 
     parser.add_argument("--contract", help="The targeted contract.")
+    parser.add_argument("--txs", help="JSON file with transactions.")
 
     parser.add_argument(
         "--scenario",
@@ -117,12 +120,16 @@ def parse_args():
 
     return parser.parse_args()
 
-
 def main():
     args = parse_args()
 
     # Perform slither analysis on the given filename
     slither = Slither(args.filename, **vars(args))
+    addresses = Addresses(args.address_owner, args.address_user, args.address_attacker)
+
+    if args.txs is not None:
+        generate_auto(slither, args.txs, addresses)
+        return 
 
     contract = slither.get_contract_from_name(args.contract)
     if not contract:
@@ -135,8 +142,6 @@ def main():
                 to_log = f"{args.contract} not found"
             logger.error(to_log)
             return
-
-    addresses = Addresses(args.address_owner, args.address_user, args.address_attacker)
 
     generate_erc20(contract, args.scenario, addresses)
 

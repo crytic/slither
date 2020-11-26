@@ -34,8 +34,12 @@ from slither.slithir.variables import Constant
 
 
 def _get_name(f: Function) -> str:
+   
+    if 'StateVariable' in str(type(f)):
+       return "()" 
     if f.is_fallback or f.is_receive:
-        return "()"
+       return "()"
+
     return f.solidity_signature
 
 
