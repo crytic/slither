@@ -112,7 +112,7 @@ contract CryticInterface{{
     uint internal initialBalance_user;
     uint internal initialBalance_attacker;
 }}
-contract HasBalance{{
+interface HasBalance{{
     function balanceOf(address) external returns (uint256);
 }}
 """
