@@ -75,24 +75,39 @@ def checksum_encode(hex_addr): # Takes a 20-byte binary address as input
 
     return "0x" + checksummed_buffer
 
-def AUTO_token_max(attacker_address, tokens, max_balance): 
-    #print(checksum_encode(attacker_address)) 
+def AUTO_token_max(attacker_address, tokens): 
     ps = []
-    for token in tokens:
+    for token,max_balance in tokens.items():
         ps.append(Property(
-          name="crytic_attacker_cannot_get_tokens_from_" + token.replace("0x","") + "()",
-          description="The attacker address should not receive tokens.",
-          content="\n\t\treturn HasBalance("+ checksum_encode(token) +").balanceOf(" + attacker_address + ") <= "+ str(max_balance) + ";",
-          type=PropertyType.CODE_QUALITY,
-          return_type=PropertyReturn.SUCCESS,
-          is_unit_test=False,
-          is_property_test=True,
-          caller=PropertyCaller.ANY,
-          )
+            name="crytic_attacker_cannot_get_tokens_from_" + token.replace("0x","") + "()",
+            description="The attacker address should not receive tokens.",
+            content="\n\t\treturn HasBalance(address("+ str(int(token,16)) +")).balanceOf(" + attacker_address + ") > 0 ;",
+            type=PropertyType.CODE_QUALITY,
+            return_type=PropertyReturn.SUCCESS,
+            is_unit_test=False,
+            is_property_test=True,
+            caller=PropertyCaller.ANY,
+            )
         )
     return ps
 
-def detect_token_props(slither, txs):
+def encode_transfer(f, t, c, v): 
+
+    sel = get_function_id("transfer(address,uint256)")
+    sel = hex(sel).replace("0x","")
+    sel = "0"*(8-len(sel)) + sel 
+
+    t = t.lower().replace("0x", "")
+    t = "0"*(64-len(t)) + t
+
+    v = hex(v).replace("0x","")
+    v = "0"*(64-len(v)) + v
+
+    data = "0x" + sel + t + v
+    return ({"event": "FunctionCall", "from": f, "to": c, "gas_used": "0x1", "gas_price": "0x1", "data": data, "value": "0x0"})
+
+
+def detect_token_props(slither, txs, attacker_address):
 
     accounts = set()
     contracts = dict()
@@ -146,15 +161,24 @@ def detect_token_props(slither, txs):
     #print("accounts", accounts)
     print("Echidna should generate transactions from accounts", list(accounts), "as well as the ones controlled by an attacker")
     print("List of detected properties:")
-    tokens = []
+    tokens = dict()
+    max_tokens = 10
+    itxs = []
+
     for (addr,contract) in contracts.items():
         if contract is None:
             continue
         if 'balanceOf(address)' in contract.functions_signatures:
-            print("Attacker should have no more than X tokens in", addr)
-            tokens.append(addr)
+            tokens[addr] = 0
+            if 'transfer(address,uint256)' in contract.functions_signatures:
 
-    return (accounts, tokens, txs[:last_create+1], txs[last_create+1:])
+                for account in accounts:
+                    itxs.append(encode_transfer(account, attacker_address, addr, max_tokens))
+
+                tokens[addr] = max_tokens
+                print("Attacker should have no more than", max_tokens, "tokens in", addr)
+
+    return (accounts, tokens, txs[:last_create+1]+itxs, txs[last_create+1:])
 
 def generate_auto(
     slither, filename, addresses
@@ -177,9 +201,9 @@ def generate_auto(
     :return:
     """
     txs = json.load(open(filename))
-    (accounts, tokens, init_txs, samples_txs) = detect_token_props(slither, txs)
+    (accounts, tokens, init_txs, samples_txs) = detect_token_props(slither, txs, addresses.attacker)
     
-    properties = AUTO_token_max(addresses.attacker, tokens, 0)
+    properties = AUTO_token_max(addresses.attacker, tokens)
     #print(properties)
  
     # Generate the output directory
