@@ -81,7 +81,7 @@ def AUTO_token_max(attacker_address, tokens):
         ps.append(Property(
             name="crytic_attacker_cannot_get_tokens_from_" + token.replace("0x","") + "()",
             description="The attacker address should not receive tokens.",
-            content="\n\t\treturn HasBalance(address("+ str(int(token,16)) +")).balanceOf(address(" + attacker_address + ")) <= " + str(max_balance) + " ;",
+            content="\n\t\treturn HasBalance(address("+ token +")).balanceOf(address(" + attacker_address + ")) <= " + str(max_balance) + " ;",
             type=PropertyType.CODE_QUALITY,
             return_type=PropertyReturn.SUCCESS,
             is_unit_test=False,
@@ -131,6 +131,7 @@ def detect_token_props(slither, txs, attacker_address, max_balance):
             if int(selector,16) in erc20_sigs: 
                 tokens[addr] = max_balance
 
+    print("Found the following accounts:", ",".join(accounts))
     for (addr, _) in tokens.items():
         print("Found one token-like contract at", addr)
  
