@@ -2,7 +2,7 @@ import logging
 import json
 import hashlib
 
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 from pathlib import Path
 from typing import Tuple, List
 
@@ -111,7 +111,7 @@ def detect_token_props(slither, txs, attacker_address, max_balance):
 
     accounts = set()
     last_create = None
-    tokens = dict()
+    tokens = OrderedDict()
     erc20_sigs = [get_function_id("transfer(address,uint256)"), get_function_id("balanceOf(address)"), get_function_id("approve(address,uint256)")]
 
     if max_balance is None:
@@ -131,7 +131,7 @@ def detect_token_props(slither, txs, attacker_address, max_balance):
             if int(selector,16) in erc20_sigs: 
                 tokens[addr] = max_balance
 
-    print("Found the following accounts:", ",".join(accounts))
+    print("Found the following accounts:", ", ".join(accounts))
     for (addr, _) in tokens.items():
         print("Found one token-like contract at", addr)
  
