@@ -110,8 +110,9 @@ def encode_transfer(sig, f, t, c, v):
 def detect_token_props(slither, txs, attacker_address, max_balance):
 
     accounts = set()
-    contracts = dict()
     last_create = None
+    tokens = dict()
+    erc20_sigs = [get_function_id("transfer(address,uint256)"), get_function_id("balanceOf(address)"), get_function_id("approve(address,uint256)")]
 
     if max_balance is None:
         max_balance = 0
@@ -120,77 +121,20 @@ def detect_token_props(slither, txs, attacker_address, max_balance):
     for i,tx in enumerate(txs):
         if tx["event"] == "ContractCreated":
             accounts.add(tx["from"])
-            contracts[tx["contract_address"]] = None
             last_create = i
 
         elif tx["event"] == "FunctionCall":
-            if tx["to"] not in contracts:
-                contracts[tx["to"]] = None
 
+            addr = tx["to"]
             accounts.add(tx["from"])
             selector = tx["data"][:10]
-            found = False
-            #print(selector)
-            for contract in slither.contracts_derived:
-                #if str(contract) == "BFactory":
-                #    for signature in contract.functions_signatures:
-                #        print(signature, hex(get_function_id(signature)))
-                #    #assert(False)
+            if int(selector,16) in erc20_sigs: 
+                tokens[addr] = max_balance
 
-                for signature in contract.functions_signatures:
-                    fid = get_function_id(signature)
-                    if int(selector,16) == fid:
-                        found = True
-                        #print(contracts[tx["to"]], contract)
-                        assert(tx["to"] in contracts)
-                        if (contracts[tx["to"]] is not None and contracts[tx["to"]] != contract):
-                            if set( contracts[tx["to"]].functions_signatures ).issubset( contract.functions_signatures ):
-                                #print("upgrading", contracts[tx["to"]], "to", contract)
-                                contracts[tx["to"]] = contract
-                            else:
-                                pass     
-                                #print("not upgrading", contracts[tx["to"]], "to", contract)
-
-                            #assert(False)
-                        else:
-                            contracts[tx["to"]] = contract
-                        #print(tx, "was parsed as", signature, "from contract", contract) 
-                        break
-             
-            if not found:
-                print(tx, "from contract", contracts[tx["to"]], "not parsed")
-                #assert(False) 
-
-    #print("accounts", accounts)
-    print("Echidna should generate transactions from accounts", list(accounts), "as well as the ones controlled by an attacker")
-    print("List of detected properties:")
-    tokens = dict()
-    itxs = []
-
-    for (addr,contract) in contracts.items():
-        if contract is None:
-            continue
-        if 'balanceOf(address)' in contract.functions_signatures:
-            print("Found one token-like contract at", addr, "(", str(contract) ,")")
-            tokens[addr] = max_balance
-            """
-            sig = 'transfer(address,uint256)'            
-            if sig in contract.functions_signatures and max_balance > 0:
-
-                for account in accounts:
-                    itxs.append(encode_transfer(sig, account, attacker_address, addr, max_balance))
-
-                tokens[addr] = max_tokens
-                print("Attacker should have no more than", max_tokens, "tokens in", addr)
-
-            sig = 'approve(address,uint256)'
-            if sig in contract.functions_signatures and max_balance > 0:
-                for (spender, _) in contracts.items():
-                    itxs.append(encode_transfer(sig, attacker_address, spender, addr, 2**255))
-                print("The attacker allows any contract to take its tokens")
-            """
-
-    return (accounts, tokens, txs[:last_create+1]+itxs, txs[last_create+1:])
+    for (addr, _) in tokens.items():
+        print("Found one token-like contract at", addr)
+ 
+    return (accounts, tokens, txs[:last_create+1], txs[last_create+1:])
 
 def generate_auto(
     slither, filename, addresses, max_balance, crytic_args
