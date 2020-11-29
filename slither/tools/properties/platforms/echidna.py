@@ -28,6 +28,7 @@ def generate_echidna_auto_config(output_dir: Path, addresses: List[str], init_fi
     :return:
     """
     content = "prefix: crytic_\n"
+    content += "seqLen: 250\n"
     content += "testLimit: 1000000\n"
     content += f'sender: [' + ','.join(map(repr,addresses)) + ']\n'
     content += "coverage: true\n"

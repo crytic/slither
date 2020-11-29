@@ -79,9 +79,9 @@ def AUTO_token_max(attacker_address, tokens):
     ps = []
     for token,max_balance in tokens.items():
         ps.append(Property(
-            name="crytic_attacker_cannot_get_tokens_from_" + token.replace("0x","") + "()",
+            name="crytic_attacker_cannot_get_tokens_more_than_" + str(max_balance) + "_from_" + token.replace("0x","") + "()",
             description="The attacker address should not receive tokens.",
-            content="\n\t\treturn HasBalance(address("+ token +")).balanceOf(address(" + attacker_address + ")) <= " + str(max_balance) + " ;",
+            content="\n\t\treturn HasBalance(address("+ int(token,16) +")).balanceOf(address(" + int(attacker_address,16) + ")) <= " + str(max_balance) + " ;",
             type=PropertyType.CODE_QUALITY,
             return_type=PropertyReturn.SUCCESS,
             is_unit_test=False,
