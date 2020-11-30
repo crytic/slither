@@ -75,6 +75,7 @@ def generate_erc20(
     if contract.slither.crytic_compile.type not in [
         PlatformType.TRUFFLE,
         PlatformType.SOLC,
+        PlatformType.BUILDER
     ]:
         logging.error(f"{contract.slither.crytic_compile.type} not yet supported by slither-prop")
         return
@@ -153,7 +154,7 @@ def _initialization_recommendation(type_property: str) -> str:
 
 # TODO: move this to crytic-compile
 def _platform_to_output_dir(platform: AbstractPlatform) -> Path:
-    if platform.TYPE == PlatformType.TRUFFLE:
+    if platform.TYPE == PlatformType.TRUFFLE or platform.TYPE == PlatformType.BUILDER:
         return Path(platform.target, "contracts", "crytic")
     if platform.TYPE == PlatformType.SOLC:
         return Path(platform.target).parent
