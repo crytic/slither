@@ -20,7 +20,7 @@ def generate_echidna_config(output_dir: Path, addresses: Addresses) -> str:
     write_file(output_dir, filename, content)
     return filename
 
-def generate_echidna_auto_config(output_dir: Path, addresses: List[str], init_file: str, samples_file: str, crytic_args: List[str]) -> str:
+def generate_echidna_auto_config(output_dir: Path, addresses: List[str], init_file: str, crytic_args: List[str]) -> str:
     """
     Generate the echidna configuration file
     :param output_dir:
@@ -34,7 +34,6 @@ def generate_echidna_auto_config(output_dir: Path, addresses: List[str], init_fi
     content += "coverage: true\n"
     content += "corpusDir: 'corpus'\n" 
     content += "initialize: " +  init_file + "\n"
-    content += "testSamples: " +  samples_file + "\n"
     content += "multi-abi: true\n"
     content += 'cryticArgs: [' + ','.join(map(repr,crytic_args)) + ']\n'
     filename = "echidna_config.yaml"

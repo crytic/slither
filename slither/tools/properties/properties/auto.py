@@ -44,37 +44,6 @@ logger = logging.getLogger("Slither")
 
 PropertyDescription = namedtuple("PropertyDescription", ["properties", "description"])
 
-def checksum_encode(hex_addr): # Takes a 20-byte binary address as input
-    #hex_addr = addr.hex()
-    hex_addr = hex_addr.lower().replace("0x","")
-    checksummed_buffer = ""
-
-    # Treat the hex address as ascii/utf-8 for keccak256 hashing
-    hashed_address = hashlib.sha3_512(hex_addr.encode("utf-8")).hexdigest()
-    #print(hex_addr.encode("utf-8"), hashlib.sha3_512(hex_addr.encode("utf-8")), hashed_address)
-
-    # Iterate over each character in the hex address
-    for nibble_index, character in enumerate(hex_addr):
-
-        if character in "0123456789":
-            # We can't upper-case the decimal digits
-            checksummed_buffer += character
-        elif character in "abcdef":
-            # Check if the corresponding hex digit (nibble) in the hash is 8 or higher
-            hashed_address_nibble = int(hashed_address[nibble_index], 16)
-            if hashed_address_nibble > 7:
-                checksummed_buffer += character.upper()
-            else:
-                checksummed_buffer += character
-        else:
-            print(f"Unrecognized hex character {character!r} at position {nibble_index}")
-            assert(False)
-            #raise eth_utils.ValidationError(
-            #    f"Unrecognized hex character {character!r} at position {nibble_index}"
-            #)
-
-    return "0x" + checksummed_buffer
-
 def AUTO_token_max(attacker_address, tokens): 
     ps = []
     for token,max_balance in tokens.items():
@@ -135,7 +104,7 @@ def detect_token_props(slither, txs, attacker_address, max_balance):
     for (addr, _) in tokens.items():
         print("Found one token-like contract at", addr)
  
-    return (accounts, tokens, txs[:last_create+1], txs[last_create+1:])
+    return (accounts, tokens) #, txs[:last_create+1], txs[last_create+1:])
 
 def generate_auto(
     slither, filename, addresses, max_balance, crytic_args
@@ -158,7 +127,8 @@ def generate_auto(
     :return:
     """
     txs = json.load(open(filename))
-    (accounts, tokens, init_txs, samples_txs) = detect_token_props(slither, txs, addresses.attacker, max_balance)
+    #(accounts, tokens, init_txs, samples_txs ) = detect_token_props(slither, txs, addresses.attacker, max_balance)
+    (accounts, tokens) = detect_token_props(slither, txs, addresses.attacker, max_balance)
     
     properties = AUTO_token_max(addresses.attacker, tokens)
     #print(properties)
@@ -186,56 +156,25 @@ def generate_auto(
         type_property, output_dir, property_file
     )
 
-    print("Saving JSON with init transactions")
-    init_file = filename + ".init"
-    with open(init_file, 'w') as outfile:
-        json.dump(init_txs, outfile)
+    #print("Saving JSON with init transactions")
+    #init_file = filename + ".init"
+    #with open(init_file, 'w') as outfile:
+    #    json.dump(init_txs, outfile)
 
-    print("Saving JSON with sample transactions")
-    samples_file = filename + ".samples"
-    with open(samples_file, 'w') as outfile:
-        json.dump(samples_txs, outfile)
+    #print("Saving JSON with sample transactions")
+    #samples_file = filename + ".samples"
+    #with open(samples_file, 'w') as outfile:
+    #    json.dump(samples_txs, outfile)
 
     # Add attacker address to the list of accounts
-    accounts.add(addresses.attacker)
+    # accounts.add(addresses.attacker)
     # Generate Echidna config file
-    echidna_config_filename = generate_echidna_auto_config(".", list(accounts), init_file, samples_file, crytic_args)
-
-    #unit_test_info = ""
-
-    # If truffle, generate unit tests
-    #if contract.slither.crytic_compile.type == PlatformType.TRUFFLE:
-    #    unit_test_info = generate_truffle_test(contract, type_property, unit_tests, addresses)
-
-    #logger.info("################################################")
-    #logger.info(green(f"Update the constructor in {Path(output_dir, contract_filename)}"))
-
-    #if unit_test_info:
-    #    logger.info(green(unit_test_info))
+    echidna_config_filename = generate_echidna_auto_config(".", [addresses.attacker], filename, crytic_args)
 
     logger.info(green("To run Echidna:"))
     txt = f"\t echidna-test {slither.crytic_compile.target} "
     txt += f"--contract {contract_name} --config {echidna_config_filename}"
     logger.info(green(txt))
-
-
-def _initialization_recommendation(type_property: str) -> str:
-    content = ""
-    content += "\t\t// Add below a minimal configuration:\n"
-    content += "\t\t// - crytic_owner must have some tokens \n"
-    content += "\t\t// - crytic_user must have some tokens \n"
-    content += "\t\t// - crytic_attacker must have some tokens \n"
-    if type_property in ["Pausable"]:
-        content += "\t\t// - The contract must be paused \n"
-    if type_property in ["NotMintable", "NotMintableNotBurnable"]:
-        content += "\t\t// - The contract must not be mintable \n"
-    if type_property in ["NotBurnable", "NotMintableNotBurnable"]:
-        content += "\t\t// - The contract must not be burnable \n"
-    content += "\n"
-    content += "\n"
-
-    return content
-
 
 # TODO: move this to crytic-compile
 def _platform_to_output_dir(platform: AbstractPlatform) -> Path:
@@ -246,33 +185,6 @@ def _platform_to_output_dir(platform: AbstractPlatform) -> Path:
     elif platform.TYPE == PlatformType.SOLC:
         return Path(platform.target).parent
     return Path()
-
-
-def _check_compatibility(contract):
-    errors = ""
-    if not contract.is_erc20():
-        errors = f"{contract} is not ERC20 compliant. Consider checking the contract with slither-check-erc"
-        return errors
-
-    transfer = contract.get_function_from_signature("transfer(address,uint256)")
-
-    if transfer.visibility != "public":
-        errors = f"slither-prop requires {transfer.canonical_name} to be public. Please change the visibility"
-
-    transfer_from = contract.get_function_from_signature("transferFrom(address,address,uint256)")
-    if transfer_from.visibility != "public":
-        if errors:
-            errors += "\n"
-        errors += f"slither-prop requires {transfer_from.canonical_name} to be public. Please change the visibility"
-
-    approve = contract.get_function_from_signature("approve(address,uint256)")
-    if approve.visibility != "public":
-        if errors:
-            errors += "\n"
-        errors += f"slither-prop requires {approve.canonical_name} to be public. Please change the visibility"
-
-    return errors
-
 
 def _get_properties(slither, properties: List[Property]) -> Tuple[str, List[Property]]:
     solidity_properties = ""
