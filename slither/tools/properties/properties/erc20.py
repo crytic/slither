@@ -75,7 +75,7 @@ def generate_erc20(
     if contract.slither.crytic_compile.type not in [
         PlatformType.TRUFFLE,
         PlatformType.SOLC,
-        PlatformType.BUILDER
+        PlatformType.BUILDER,
     ]:
         logging.error(f"{contract.slither.crytic_compile.type} not yet supported by slither-prop")
         return
