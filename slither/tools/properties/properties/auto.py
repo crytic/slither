@@ -87,8 +87,10 @@ def detect_token_props(slither, txs, attacker_address, max_balance):
         max_balance = 0
 
     # obtain the list of contracts and accounts used
+    print("List of transactions:")
     for i,tx in enumerate(txs):
         if tx["event"] == "ContractCreated":
+            print("CREATE")
             accounts.add(tx["from"])
             last_create = i
 
@@ -97,6 +99,18 @@ def detect_token_props(slither, txs, attacker_address, max_balance):
             addr = tx["to"]
             accounts.add(tx["from"])
             selector = tx["data"][:10]
+            found = False
+            for contract in slither.contracts_derived:
+                if found:
+                    break
+                for signature in contract.functions_signatures:
+                    if found:
+                        break
+                    fid = get_function_id(signature)
+                    if int(selector,16) == fid:
+                        print(tx["from"], "called", signature, "in", addr)
+                        found = True
+
             if int(selector,16) in erc20_sigs: 
                 tokens[addr] = max_balance
 
