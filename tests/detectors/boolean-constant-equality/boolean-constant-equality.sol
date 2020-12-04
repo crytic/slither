@@ -1,12 +1,11 @@
 contract MyConc {
-    function bad0() public pure returns (bool) {
-        if (false) {
+    function bad0(bool foo) public pure returns (bool) {
+        if (foo) {
             return true;
         }
     }
-
     function bad1(bool b) public pure returns (bool) {
-        return (b || true);
+        return (b == true);
     }
 
     function bad2(bool x, uint8 y) public pure returns (bool) {
@@ -21,7 +20,8 @@ contract MyConc {
             return true;
         }
     }
-    function good(uint8 a) public pure returns (bool) { 
+
+    function good(uint8 a) public pure returns (bool) {
         return a >= 1;
     }
 }

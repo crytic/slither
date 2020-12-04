@@ -12,7 +12,7 @@ from slither.slithir.variables import Constant
 
 class BooleanEquality(AbstractDetector):
     """
-    Boolean constant misuse
+    Boolean constant equality 
     """
 
     ARGUMENT = "boolean-equal"
