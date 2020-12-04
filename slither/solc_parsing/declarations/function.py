@@ -263,7 +263,9 @@ class FunctionSolc:
             # returns = children[1]
             # But from Solidity 0.6.3 to 0.6.10 (included)
             # Comment above a function might be added in the children
-            child_iter = iter([child for child in children if child[self.get_key()] == "ParameterList"])
+            child_iter = iter(
+                [child for child in children if child[self.get_key()] == "ParameterList"]
+            )
             params = next(child_iter)
             returns = next(child_iter)
 
