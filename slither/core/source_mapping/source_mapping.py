@@ -1,5 +1,5 @@
 import re
-from typing import Dict, Union, Optional
+from typing import Dict, Union, Optional, List, Tuple
 
 from slither.core.context.context import Context
 
@@ -9,56 +9,36 @@ class SourceMapping(Context):
         super().__init__()
         # TODO create a namedtuple for the source mapping rather than a dict
         self._source_mapping: Optional[Dict] = None
+        # self._start: Optional[int] = None
+        # self._length: Optional[int] = None
+        # self._filename_used: Optional[str] = None
+        # self._filename_relative: Optional[str] = None
+        # self._filename_absolute: Optional[str] = None
+        # self._filename_short: Optional[str] = None
+        # self._is_dependency: Optional[bool] = None
+        # self._lines: Optional[List[int]] = None
+        # self._starting_column: Optional[int] = None
+        # self._ending_column: Optional[int] = None
 
     @property
     def source_mapping(self) -> Optional[Dict]:
         return self._source_mapping
 
     @staticmethod
-    def _compute_line(source_code, start, length):
+    def _compute_line(slither, filename, start: int, length: int) -> Tuple[List[int], int, int]:
         """
         Compute line(s) numbers and starting/ending columns
         from a start/end offset. All numbers start from 1.
 
         Not done in an efficient way
         """
-        source_code = source_code.encode("utf-8")
-        total_length = len(source_code)
-        source_code = source_code.splitlines(True)
-        counter = 0
-        i = 0
-        lines = []
-        starting_column = None
-        ending_column = None
-        while counter < total_length:
-            # Determine the length of the line, and advance the line number
-            line_content = source_code[i]
-            line_length = len(line_content)
-            i = i + 1
+        start_line, starting_column = slither.crytic_compile.get_line_from_offset(filename, start)
+        end_line, ending_column = slither.crytic_compile.get_line_from_offset(
+            filename, start + length
+        )
+        return list(range(start_line, end_line + 1)), starting_column, ending_column
 
-            # Determine our column numbers.
-            if starting_column is None and counter + line_length > start:
-                starting_column = (start - counter) + 1
-            if (
-                starting_column is not None
-                and ending_column is None
-                and counter + line_length > start + length
-            ):
-                ending_column = ((start + length) - counter) + 1
-
-            # Advance the current position counter, and determine line numbers.
-            counter += line_length
-            if counter > start:
-                lines.append(i)
-
-            # If our advanced position for the next line is out of range, stop.
-            if counter > start + length:
-                break
-
-        return lines, starting_column, ending_column
-
-    @staticmethod
-    def _convert_source_mapping(offset: str, slither):  # pylint: disable=too-many-locals
+    def _convert_source_mapping(self, offset: str, slither):  # pylint: disable=too-many-locals
         """
         Convert a text offset to a real offset
         see https://solidity.readthedocs.io/en/develop/miscellaneous.html#source-mappings
@@ -85,8 +65,6 @@ class SourceMapping(Context):
 
         is_dependency = False
 
-        lines = []
-
         # If possible, convert the filename to its absolute/relative version
         if slither.crytic_compile:
             filenames = slither.crytic_compile.filename_lookup(filename_used)
@@ -110,12 +88,8 @@ class SourceMapping(Context):
         else:
             filename = filename_used
 
-        if slither.crytic_compile and filename in slither.crytic_compile.src_content:
-            source_code = slither.crytic_compile.src_content[filename]
-            (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code, s, l)
-        elif filename in slither.source_code:
-            source_code = slither.source_code[filename]
-            (lines, starting_column, ending_column) = SourceMapping._compute_line(source_code, s, l)
+        if slither.crytic_compile:
+            (lines, starting_column, ending_column) = self._compute_line(slither, filename, s, l)
         else:
             (lines, starting_column, ending_column) = ([], None, None)
 
