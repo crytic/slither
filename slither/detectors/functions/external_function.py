@@ -195,6 +195,9 @@ class ExternalFunction(AbstractDetector):
                     if f.visibility == "public" and f.contract == f.contract_declarer
                 ]
                 if all_function_definitions:
+                    all_function_definitions = sorted(
+                        all_function_definitions, key=lambda x: x.canonical_name
+                    )
                     function_definition = all_function_definitions[0]
                     all_function_definitions = all_function_definitions[1:]
 
