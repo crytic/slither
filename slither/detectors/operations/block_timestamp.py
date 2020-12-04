@@ -78,6 +78,10 @@ class Timestamp(AbstractDetector):
                 info = [func, " uses timestamp for comparisons\n"]
 
                 info += ["\tDangerous comparisons:\n"]
+
+                # sort the nodes to get deterministic results
+                nodes.sort(key=lambda x: x.node_id)
+
                 for node in nodes:
                     info += ["\t- ", node, "\n"]
 

@@ -71,11 +71,14 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         self._is_upgradeable: Optional[bool] = None
         self._is_upgradeable_proxy: Optional[bool] = None
 
-        self._is_top_level = False
+        self.is_top_level = False  # heavily used, so no @property
 
         self._initial_state_variables: List["StateVariable"] = []  # ssa
 
         self._is_incorrectly_parsed: bool = False
+
+        self._available_functions_as_dict: Optional[Dict[str, "Function"]] = None
+        self._all_functions_called: Optional[List["InternalCallType"]] = None
 
     ###################################################################################
     ###################################################################################
@@ -392,7 +395,11 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         return list(self._functions.values())
 
     def available_functions_as_dict(self) -> Dict[str, "Function"]:
-        return {f.full_name: f for f in self._functions.values() if not f.is_shadowed}
+        if self._available_functions_as_dict is None:
+            self._available_functions_as_dict = {
+                f.full_name: f for f in self._functions.values() if not f.is_shadowed
+            }
+        return self._available_functions_as_dict
 
     def add_function(self, func: "Function"):
         self._functions[func.canonical_name] = func
@@ -731,17 +738,19 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         list(Function): List of functions reachable from the contract
         Includes super, and private/internal functions not shadowed
         """
-        all_functions = [f for f in self.functions + self.modifiers if not f.is_shadowed]  # type: ignore
-        all_callss = [f.all_internal_calls() for f in all_functions] + [list(all_functions)]
-        all_calls = [item for sublist in all_callss for item in sublist]
-        all_calls = list(set(all_calls))
+        if self._all_functions_called is None:
+            all_functions = [f for f in self.functions + self.modifiers if not f.is_shadowed]  # type: ignore
+            all_callss = [f.all_internal_calls() for f in all_functions] + [list(all_functions)]
+            all_calls = [item for sublist in all_callss for item in sublist]
+            all_calls = list(set(all_calls))
 
-        all_constructors = [c.constructor for c in self.inheritance if c.constructor]
-        all_constructors = list(set(all_constructors))
+            all_constructors = [c.constructor for c in self.inheritance if c.constructor]
+            all_constructors = list(set(all_constructors))
 
-        set_all_calls = set(all_calls + list(all_constructors))
+            set_all_calls = set(all_calls + list(all_constructors))
 
-        return [c for c in set_all_calls if isinstance(c, Function)]
+            self._all_functions_called = [c for c in set_all_calls if isinstance(c, Function)]
+        return self._all_functions_called
 
     @property
     def all_state_variables_written(self) -> List["StateVariable"]:
@@ -1199,19 +1208,6 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
 
         for func in self.functions + self.modifiers:
             func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
-
-    @property
-    def is_top_level(self) -> bool:
-        """
-        The "TopLevel" contract is used to hold structures and enums defined at the top level
-        ie. structures and enums that are represented outside of any contract
-        :return:
-        """
-        return self._is_top_level
-
-    @is_top_level.setter
-    def is_top_level(self, t: bool):
-        self._is_top_level = t
 
     # endregion
     ###################################################################################
