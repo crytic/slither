@@ -44,14 +44,14 @@ For each new detector, at least one regression tests must be present.
 
 - Create a test in `tests`
 - Update `ALL_TEST` in `tests/test_detectors.py`
-- Run `python ./test/test_detectors.py --generate`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git.
-- Run `pytest ./test/test_detectors.py` and check that everything worked.
+- Run `python ./tests/test_detectors.py --generate`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git.
+- Run `pytest ./tests/test_detectors.py` and check that everything worked.
 
 To see the tests coverage, run `pytest  tests/test_detectors.py  --cov=slither/detectors --cov-branch --cov-report html`
 
 ### Parser tests
 - Create a test in `tests/ast-parsing`
-- Run `python ./test/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git.
-- Run `pytest ./test/test_ast_parsing.py` and check that everything worked.
+- Run `python ./tests/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git.
+- Run `pytest ./tests/test_ast_parsing.py` and check that everything worked.
 
 To see the tests coverage, run `pytest  tests/test_ast_parsing.py  --cov=slither/solc_parsing --cov-branch --cov-report html`
