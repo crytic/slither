@@ -12,7 +12,7 @@ from slither.slithir.variables import Constant
 
 class BooleanEquality(AbstractDetector):
     """
-    Boolean constant misuse
+    Boolean constant equality
     """
 
     ARGUMENT = "boolean-equal"
@@ -72,17 +72,16 @@ Boolean constants can be used directly and do not need to be compare to `true` o
         results = []
         for contract in self.contracts:
             boolean_constant_misuses = self._detect_boolean_equality(contract)
-            if boolean_constant_misuses:
-                for (func, nodes) in boolean_constant_misuses:
-                    for node in nodes:
-                        info = [
-                            func,
-                            " compares to a boolean constant:\n\t-",
-                            node,
-                            "\n",
-                        ]
+            for (func, nodes) in boolean_constant_misuses:
+                for node in nodes:
+                    info = [
+                        func,
+                        " compares to a boolean constant:\n\t-",
+                        node,
+                        "\n",
+                    ]
 
-                        res = self.generate_result(info)
-                        results.append(res)
+                    res = self.generate_result(info)
+                    results.append(res)
 
         return results
