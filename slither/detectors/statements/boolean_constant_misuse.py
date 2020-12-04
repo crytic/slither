@@ -86,10 +86,10 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
                         # It's ok to use a bare boolean constant in these contexts
                         continue
                     if isinstance(ir, Binary) and ir.type in [
-                            BinaryType.ADDITION,
-                            BinaryType.EQUAL,
-                            BinaryType.NOT_EQUAL,
-                        ]:
+                        BinaryType.ADDITION,
+                        BinaryType.EQUAL,
+                        BinaryType.NOT_EQUAL,
+                    ]:
                         # Comparing to a Boolean constant is dubious style, but harmless
                         # Equal is catch by another detector (informational severity)
                         continue

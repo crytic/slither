@@ -98,7 +98,11 @@ ALL_TESTS = [
         "tests/detectors/boolean-constant-equality/boolean-constant-equality.sol",
         "0.4.25",
     ),
-    Test(BooleanConstantMisuse, "tests/detectors/boolean-constant-misuse/boolean-constant-misuse.sol", "0.6.0"),
+    Test(
+        BooleanConstantMisuse,
+        "tests/detectors/boolean-constant-misuse/boolean-constant-misuse.sol",
+        "0.6.0",
+    ),
     Test(UncheckedLowLevel, "tests/detectors/unchecked-lowlevel/unchecked_lowlevel.sol", "0.4.25"),
     Test(
         UncheckedLowLevel,
