@@ -67,39 +67,35 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
         results = []
 
         # Loop for each function and modifier.
-        for function in contract.functions_declared:  # pylint: disable=too-many-nested-blocks
+        for function in contract.functions_declared:
             f_results = set()
 
             # Loop for every node in this function, looking for boolean constants
             for node in function.nodes:
 
                 # Do not report "while(true)"
-                if node.type == NodeType.IFLOOP:
-                    if node.irs:
-                        if len(node.irs) == 1:
-                            ir = node.irs[0]
-                            if isinstance(ir, Condition) and ir.value == Constant(
-                                "True", ElementaryType("bool")
-                            ):
-                                continue
+                if node.type == NodeType.IFLOOP and node.irs and len(node.irs) == 1:
+                    ir = node.irs[0]
+                    if isinstance(ir, Condition) and ir.value == Constant(
+                        "True", ElementaryType("bool")
+                    ):
+                        continue
 
                 for ir in node.irs:
                     if isinstance(ir, (Assignment, Call, Return, InitArray)):
                         # It's ok to use a bare boolean constant in these contexts
                         continue
-                    if isinstance(ir, Binary):
-                        if ir.type in [
+                    if isinstance(ir, Binary) and ir.type in [
                             BinaryType.ADDITION,
                             BinaryType.EQUAL,
                             BinaryType.NOT_EQUAL,
                         ]:
-                            # Comparing to a Boolean constant is dubious style, but harmless
-                            # Equal is catch by another detector (informational severity)
-                            continue
+                        # Comparing to a Boolean constant is dubious style, but harmless
+                        # Equal is catch by another detector (informational severity)
+                        continue
                     for r in ir.read:
-                        if isinstance(r, Constant):
-                            if isinstance(r.value, bool):
-                                f_results.add(node)
+                        if isinstance(r, Constant) and isinstance(r.value, bool):
+                            f_results.add(node)
                 results.append((function, f_results))
 
         # Return the resulting set of nodes with improper uses of Boolean constants
@@ -112,17 +108,16 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
         results = []
         for contract in self.contracts:
             boolean_constant_misuses = self._detect_boolean_constant_misuses(contract)
-            if boolean_constant_misuses:
-                for (func, nodes) in boolean_constant_misuses:
-                    for node in nodes:
-                        info = [
-                            func,
-                            " uses a Boolean constant improperly:\n\t-",
-                            node,
-                            "\n",
-                        ]
+            for (func, nodes) in boolean_constant_misuses:
+                for node in nodes:
+                    info = [
+                        func,
+                        " uses a Boolean constant improperly:\n\t-",
+                        node,
+                        "\n",
+                    ]
 
-                        res = self.generate_result(info)
-                        results.append(res)
+                    res = self.generate_result(info)
+                    results.append(res)
 
         return results
