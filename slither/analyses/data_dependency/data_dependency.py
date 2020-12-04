@@ -1,6 +1,7 @@
 """
     Compute the data depenency between all the SSA variables
 """
+from collections import defaultdict
 from typing import Union, Set, Dict
 
 from slither.core.declarations import (
@@ -297,18 +298,23 @@ def propagate_function(contract, function, context_key, context_key_non_ssa):
 def transitive_close_dependencies(context, context_key, context_key_non_ssa):
     # transitive closure
     changed = True
-    while changed:  # pylint: disable=too-many-nested-blocks
+    keys = context.context[context_key].keys()
+    while changed:
         changed = False
-        # Need to create new set() as its changed during iteration
-        data_depencencies = {k: set(values) for k, values in context.context[context_key].items()}
-        for key, items in data_depencencies.items():
-            for item in items:
-                if item in data_depencencies:
-                    additional_items = context.context[context_key][item]
-                    for additional_item in additional_items:
-                        if not additional_item in items and additional_item != key:
-                            changed = True
-                            context.context[context_key][key].add(additional_item)
+        to_add = defaultdict(set)
+        [  # pylint: disable=expression-not-assigned
+            [
+                to_add[key].update(context.context[context_key][item] - {key} - items)
+                for item in items & keys
+            ]
+            for key, items in context.context[context_key].items()
+        ]
+        for k, v in to_add.items():
+            # Because we dont have any check on the update operation
+            # We might update an empty set with an empty set
+            if v:
+                changed = True
+                context.context[context_key][k] |= v
     context.context[context_key_non_ssa] = convert_to_non_ssa(context.context[context_key])
 
 

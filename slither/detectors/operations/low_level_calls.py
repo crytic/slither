@@ -48,6 +48,9 @@ class LowLevelCalls(AbstractDetector):
             for func, nodes in values:
                 info = ["Low level call in ", func, ":\n"]
 
+                # sort the nodes to get deterministic results
+                nodes.sort(key=lambda x: x.node_id)
+
                 for node in nodes:
                     info += ["\t- ", node, "\n"]
 
