@@ -182,6 +182,9 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
                         " performs a multiplication on the result of a division:\n",
                     ]
 
+                    # sort the nodes to get deterministic results
+                    nodes.sort(key=lambda x: x.node_id)
+
                     for node in nodes:
                         info += ["\t-", node, "\n"]
 
