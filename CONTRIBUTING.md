@@ -34,7 +34,7 @@ Several linters and security checkers are run on the PRs.
 
 To run them locally:
 
-- `pylint slither --rconfig pyproject.toml`
+- `pylint slither --rcfile pyproject.toml`
 - `black slither --config pyproject.toml`
 
 We use black `19.10b0`.
