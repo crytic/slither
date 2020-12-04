@@ -92,7 +92,11 @@ def id_test(test_item: Test):
 
 
 ALL_TESTS = [
-    Test(BooleanEquality, "tests/detectors/boolean-constant-equality/boolean-constant-equality.sol", "0.4.25"),
+    Test(
+        BooleanEquality,
+        "tests/detectors/boolean-constant-equality/boolean-constant-equality.sol",
+        "0.4.25",
+    ),
     Test(UncheckedLowLevel, "tests/detectors/unchecked-lowlevel/unchecked_lowlevel.sol", "0.4.25"),
     Test(
         UncheckedLowLevel,
