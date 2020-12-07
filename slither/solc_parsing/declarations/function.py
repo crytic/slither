@@ -258,8 +258,16 @@ class FunctionSolc:
             returns = self._functionNotParsed["returnParameters"]
         else:
             children = self._functionNotParsed[self.get_children("children")]
-            params = children[0]
-            returns = children[1]
+            # It uses to be
+            # params = children[0]
+            # returns = children[1]
+            # But from Solidity 0.6.3 to 0.6.10 (included)
+            # Comment above a function might be added in the children
+            child_iter = iter(
+                [child for child in children if child[self.get_key()] == "ParameterList"]
+            )
+            params = next(child_iter)
+            returns = next(child_iter)
 
         if params:
             self._parse_params(params)

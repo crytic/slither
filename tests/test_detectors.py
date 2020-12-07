@@ -37,6 +37,8 @@ from slither.detectors.shadowing.local import LocalShadowing
 from slither.detectors.shadowing.state import StateShadowing
 from slither.detectors.source.rtlo import RightToLeftOverride
 from slither.detectors.statements.assembly import Assembly
+from slither.detectors.statements.boolean_constant_misuse import BooleanConstantMisuse
+from slither.detectors.statements.boolean_constant_equality import BooleanEquality
 from slither.detectors.statements.calls_in_loop import MultipleCallsInLoop
 from slither.detectors.statements.controlled_delegatecall import ControlledDelegateCall
 from slither.detectors.statements.incorrect_strict_equality import IncorrectStrictEquality
@@ -91,6 +93,16 @@ def id_test(test_item: Test):
 
 
 ALL_TESTS = [
+    Test(
+        BooleanEquality,
+        "tests/detectors/boolean-constant-equality/boolean-constant-equality.sol",
+        "0.4.25",
+    ),
+    Test(
+        BooleanConstantMisuse,
+        "tests/detectors/boolean-constant-misuse/boolean-constant-misuse.sol",
+        "0.6.0",
+    ),
     Test(UncheckedLowLevel, "tests/detectors/unchecked-lowlevel/unchecked_lowlevel.sol", "0.4.25"),
     Test(
         UncheckedLowLevel,

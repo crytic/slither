@@ -37,7 +37,11 @@ class ModifierSolc(FunctionSolc):
             params = self._functionNotParsed["parameters"]
         else:
             children = self._functionNotParsed["children"]
-            params = children[0]
+            # It uses to be
+            # params = children[0]
+            # But from Solidity 0.6.3 to 0.6.10 (included)
+            # Comment above a function might be added in the children
+            params = next(child for child in children if child[self.get_key()] == "ParameterList")
 
         if params:
             self._parse_params(params)
@@ -60,9 +64,11 @@ class ModifierSolc(FunctionSolc):
 
             self._function.is_implemented = False
             if len(children) > 1:
-                assert len(children) == 2
-                block = children[1]
-                assert block["name"] == "Block"
+                # It uses to be
+                # params = children[1]
+                # But from Solidity 0.6.3 to 0.6.10 (included)
+                # Comment above a function might be added in the children
+                block = next(child for child in children if child[self.get_key()] == "Block")
                 self._function.is_implemented = True
                 self._parse_cfg(block)
 
