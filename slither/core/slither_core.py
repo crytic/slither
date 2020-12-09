@@ -265,6 +265,37 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
     ###################################################################################
     ###################################################################################
 
+    def has_ignore_comment(self, r: Dict) -> bool:
+        """
+        Check if the result has an ignore comment on the proceeding line, in which case, it is not valid
+        """
+        mapping_elements_with_lines = [
+            dict(
+                file=os.path.normpath(elem["source_mapping"]["filename_absolute"]),
+                lines=elem["source_mapping"]["lines"],
+            )
+            for elem in r["elements"]
+            if "source_mapping" in elem
+            and "filename_absolute" in elem["source_mapping"]
+            and "lines" in elem["source_mapping"]
+            and len(elem["source_mapping"]["lines"]) > 0
+        ]
+
+        for ele in mapping_elements_with_lines:
+            ignore_line_index = min(ele["lines"]) - 1
+            code_lines = self.source_code[ele["file"]].splitlines()
+            if len(code_lines) < ignore_line_index + 1 or ignore_line_index - 1 < 0:
+                return False
+            ignore_line_text = code_lines[ignore_line_index - 1]
+            match = re.match(r"^\s*//\s*slither-disable-next-line\s*", ignore_line_text)
+            if match:
+                ignored_checks = [x.strip() for x in ignore_line_text[match.span()[1] :].split(",")]
+                matched_ignores = list(filter(lambda c: r["check"] == c, ignored_checks))
+                if len(matched_ignores) > 0:
+                    return True
+
+        return False
+
     def valid_result(self, r: Dict) -> bool:
         """
         Check if the result is valid
@@ -272,6 +303,7 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
             - All its source paths belong to the source path filtered
             - Or a similar result was reported and saved during a previous run
             - The --exclude-dependencies flag is set and results are only related to dependencies
+            - There is an ignore comment on the preceding line
         """
         source_mapping_elements = [
             elem["source_mapping"].get("filename_absolute", "unknown")
@@ -303,6 +335,8 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
         if r["elements"] and self._exclude_dependencies:
             return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
         if r["id"] in self._previous_results_ids:
+            return False
+        if self.has_ignore_comment(r):
             return False
         # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
         return not r["description"] in [pr["description"] for pr in self._previous_results]
