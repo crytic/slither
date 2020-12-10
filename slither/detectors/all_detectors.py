@@ -46,6 +46,7 @@ from .statements.type_based_tautology import TypeBasedTautology
 from .statements.boolean_constant_equality import BooleanEquality
 from .statements.boolean_constant_misuse import BooleanConstantMisuse
 from .statements.divide_before_multiply import DivideBeforeMultiply
+from .statements.unprotected_upgradeable import UnprotectedUpgradeable
 from .slither.name_reused import NameReused
 
 #

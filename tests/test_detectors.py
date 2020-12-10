@@ -44,6 +44,7 @@ from slither.detectors.statements.controlled_delegatecall import ControlledDeleg
 from slither.detectors.statements.incorrect_strict_equality import IncorrectStrictEquality
 from slither.detectors.statements.too_many_digits import TooManyDigits
 from slither.detectors.statements.tx_origin import TxOrigin
+from slither.detectors.statements.unprotected_upgradeable import UnprotectedUpgradeable
 from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
 from slither.detectors.variables.uninitialized_local_variables import UninitializedLocalVars
 from slither.detectors.variables.uninitialized_state_variables import (
@@ -234,6 +235,8 @@ ALL_TESTS = [
         "0.5.1",
     ),
     Test(TooManyDigits, "tests/detectors/too-many-digits/too_many_digits.sol", "0.5.1"),
+    Test(UnprotectedUpgradeable, "tests/detectors/unprotected-upgrade/Buggy.sol", "0.6.12",),
+    Test(UnprotectedUpgradeable, "tests/detectors/unprotected-upgrade/Fixed.sol", "0.6.12",),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 
