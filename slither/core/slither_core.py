@@ -269,17 +269,17 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
         """
         Check if the result has an ignore comment on the proceeding line, in which case, it is not valid
         """
-        mapping_elements_with_lines = [
-            dict(
-                file=os.path.normpath(elem["source_mapping"]["filename_absolute"]),
-                lines=elem["source_mapping"]["lines"],
-            )
+        mapping_elements_with_lines = (
+            {
+                "file": os.path.normpath(elem["source_mapping"]["filename_absolute"]),
+                "lines": elem["source_mapping"]["lines"],
+            }
             for elem in r["elements"]
             if "source_mapping" in elem
             and "filename_absolute" in elem["source_mapping"]
             and "lines" in elem["source_mapping"]
             and len(elem["source_mapping"]["lines"]) > 0
-        ]
+        )
 
         for ele in mapping_elements_with_lines:
             ignore_line_index = min(ele["lines"]) - 1
@@ -289,10 +289,9 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
             ignore_line_text = code_lines[ignore_line_index - 1]
             match = re.match(r"^\s*//\s*slither-disable-next-line\s*", ignore_line_text)
             if match:
-                ignored_checks = [x.strip() for x in ignore_line_text[match.span()[1] :].split(",")]
-                matched_ignores = list(filter(lambda c: r["check"] == c, ignored_checks))
-                if len(matched_ignores) > 0:
-                    return True
+                ignored_checks = (x.strip() for x in ignore_line_text[match.span()[1] :].split(","))
+                matched_ignores = filter(lambda c: r["check"] == c, ignored_checks)
+                return any(matched_ignores)
 
         return False
 
