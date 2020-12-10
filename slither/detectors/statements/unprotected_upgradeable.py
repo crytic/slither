@@ -1,6 +1,5 @@
 from typing import List
 
-from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.declarations import SolidityFunction, Function
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall, SolidityCall
