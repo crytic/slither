@@ -22,17 +22,13 @@ def _can_be_destroyed(contract) -> List[Function]:
 
 
 class UnprotectedUpgradeable(AbstractDetector):
-    """
-    """
 
     ARGUMENT = "unprotected-upgrade"
     HELP = "Unprotected upgradeable contract"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#unprotected-upgradeable-contract"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unprotected-upgradeable-contract"
 
     WIKI_TITLE = "Unprotected upgradeable contract"
     WIKI_DESCRIPTION = """Detects logic contract that can be destructed."""
@@ -53,7 +49,9 @@ class UnprotectedUpgradeable(AbstractDetector):
     ```
     Buggy is an upgradeable contract. Anyone can call initialize on the logic contract, and destruct the contract."""
 
-    WIKI_RECOMMENDATION = """Add a constructor to ensure `initialize` cannot be called on the logic contract."""
+    WIKI_RECOMMENDATION = (
+        """Add a constructor to ensure `initialize` cannot be called on the logic contract."""
+    )
 
     def _detect(self):
         results = []
