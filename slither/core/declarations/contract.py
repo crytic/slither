@@ -1027,6 +1027,8 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
     def is_upgradeable(self) -> bool:
         if self._is_upgradeable is None:
             self._is_upgradeable = False
+            if self.is_upgradeable_proxy:
+                return False
             initializable = self.slither.get_contract_from_name("Initializable")
             if initializable:
                 if initializable in self.inheritance:
@@ -1034,7 +1036,11 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
             else:
                 for c in self.inheritance + [self]:
                     # This might lead to false positive
-                    if "upgradeable" in c.name.lower() or "upgradable" in c.name.lower():
+                    lower_name = c.name.lower()
+                    if "upgradeable" in lower_name or "upgradable" in lower_name:
+                        self._is_upgradeable = True
+                        break
+                    if "initializable" in lower_name:
                         self._is_upgradeable = True
                         break
         return self._is_upgradeable
@@ -1046,6 +1052,9 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
 
         if self._is_upgradeable_proxy is None:
             self._is_upgradeable_proxy = False
+            if "Proxy" in self.name:
+                self._is_upgradeable_proxy = True
+                return True
             for f in self.functions:
                 if f.is_fallback:
                     for node in f.all_nodes():
