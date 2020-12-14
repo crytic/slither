@@ -1,11 +1,11 @@
 """
     Structure module
 """
-from typing import List, TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict
 
+from slither.core.declarations.structure import Structure
 from slither.core.variables.structure_variable import StructureVariable
 from slither.solc_parsing.variables.structure_variable import StructureVariableSolc
-from slither.core.declarations.structure import Structure
 
 if TYPE_CHECKING:
     from slither.solc_parsing.slitherSolc import SlitherSolc

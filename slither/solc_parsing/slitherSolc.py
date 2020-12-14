@@ -110,7 +110,7 @@ class SlitherSolc:
                 return True
             return False
 
-    def _parse_enum(self, top_level_data:Dict):
+    def _parse_enum(self, top_level_data: Dict):
         if self.is_compact_ast:
             name = top_level_data["name"]
             canonicalName = top_level_data["canonicalName"]
