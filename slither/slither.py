@@ -74,7 +74,6 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
                 else:
                     crytic_compile = CryticCompile(target, **kwargs)
                 self._crytic_compile = crytic_compile
-                self.filename = crytic_compile.target
             except InvalidCompilation as e:
                 # pylint: disable=raise-missing-from
                 raise SlitherError(f"Invalid compilation: \n{str(e)}")
@@ -189,7 +188,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         :return: List of registered printers outputs.
         """
 
-        return [p.output(self.filename).data for p in self._printers]
+        return [p.output(self._crytic_compile.target).data for p in self._printers]
 
     @property
     def triage_mode(self):
