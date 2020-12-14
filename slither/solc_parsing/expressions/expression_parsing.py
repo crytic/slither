@@ -178,7 +178,7 @@ def find_variable(  # pylint: disable=too-many-locals,too-many-statements
     if var_name in structures:
         return structures[var_name]
 
-    structures_top_level = contract.slither.top_level_structures
+    structures_top_level = contract.slither.structures_top_level
     for st in structures_top_level:
         if st.name == var_name:
             return st
@@ -191,7 +191,7 @@ def find_variable(  # pylint: disable=too-many-locals,too-many-statements
     if var_name in enums:
         return enums[var_name]
 
-    enums_top_level = contract.slither.top_level_enums
+    enums_top_level = contract.slither.enums_top_level
     for enum in enums_top_level:
         if enum.name == var_name:
             return enum

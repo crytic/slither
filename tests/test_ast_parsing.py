@@ -558,7 +558,7 @@ def test_parsing(test_item: Item):
     diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")
 
     if diff:
-        for change in diff["values_changed"]:
+        for change in diff.get("values_changed", []):
             path_list = re.findall(r"\['(.*?)'\]", change.path())
             path = "_".join(path_list)
             with open(f"test_artifacts/{id_test(test_item)}_{path}_expected.dot", "w") as f:

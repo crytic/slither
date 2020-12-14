@@ -1,15 +1,14 @@
 import logging
 from typing import List, Dict, Callable, TYPE_CHECKING, Union
 
-from slither.core.declarations import Modifier, Structure, Event
+from slither.core.declarations import Modifier, Event, EnumContract, StructureContract
 from slither.core.declarations.contract import Contract
-from slither.core.declarations.enum import Enum
 from slither.core.declarations.function import Function
 from slither.core.variables.state_variable import StateVariable
 from slither.solc_parsing.declarations.event import EventSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.modifier import ModifierSolc
-from slither.solc_parsing.declarations.structure import StructureSolc
+from slither.solc_parsing.declarations.structure_contract import StructureContractSolc
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
@@ -44,7 +43,7 @@ class ContractSolc:
 
         self._functions_parser: List[FunctionSolc] = []
         self._modifiers_parser: List[ModifierSolc] = []
-        self._structures_parser: List[StructureSolc] = []
+        self._structures_parser: List[StructureContractSolc] = []
 
         self._is_analyzed: bool = False
 
@@ -252,28 +251,13 @@ class ContractSolc:
         return
 
     def _parse_struct(self, struct: Dict):
-        if self.is_compact_ast:
-            name = struct["name"]
-            attributes = struct
-        else:
-            name = struct["attributes"][self.get_key()]
-            attributes = struct["attributes"]
-        if "canonicalName" in attributes:
-            canonicalName = attributes["canonicalName"]
-        else:
-            canonicalName = self._contract.name + "." + name
 
-        if self.get_children("members") in struct:
-            children = struct[self.get_children("members")]
-        else:
-            children = []  # empty struct
-
-        st = Structure()
+        st = StructureContract()
         st.set_contract(self._contract)
         st.set_offset(struct["src"], self._contract.slither)
 
-        st_parser = StructureSolc(st, name, canonicalName, children, self)
-        self._contract.structures_as_dict[name] = st
+        st_parser = StructureContractSolc(st, struct, self)
+        self._contract.structures_as_dict[st.name] = st
         self._structures_parser.append(st_parser)
 
     def parse_structs(self):
@@ -573,12 +557,12 @@ class ContractSolc:
             else:
                 values.append(child["attributes"][self.get_key()])
 
-        new_enum = Enum(name, canonicalName, values)
+        new_enum = EnumContract(name, canonicalName, values)
         new_enum.set_contract(self._contract)
         new_enum.set_offset(enum["src"], self._contract.slither)
         self._contract.enums_as_dict[canonicalName] = new_enum
 
-    def _analyze_struct(self, struct: StructureSolc):  # pylint: disable=no-self-use
+    def _analyze_struct(self, struct: StructureContractSolc):  # pylint: disable=no-self-use
         struct.analyze()
 
     def analyze_structs(self):

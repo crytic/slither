@@ -1,11 +1,11 @@
 """
     Main module
 """
-import os
-import logging
 import json
-import re
+import logging
 import math
+import os
+import re
 from collections import defaultdict
 from typing import Optional, Dict, List, Set, Union, Tuple
 
@@ -18,9 +18,9 @@ from slither.core.declarations import (
     Import,
     Function,
     Modifier,
-    Structure,
-    Enum,
 )
+from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import InternalCall
 from slither.slithir.variables import Constant
@@ -44,12 +44,17 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
 
     def __init__(self):
         super().__init__()
+
+        # Top level object
         self._contracts: Dict[str, Contract] = {}
+        self._structures_top_level: List[StructureTopLevel] = []
+        self._enums_top_level: List[EnumTopLevel] = []
+        self._pragma_directives: List[Pragma] = []
+        self._import_directives: List[Import] = []
+
         self._filename: Optional[str] = None
         self._source_units: Dict[int, str] = {}
         self._solc_version: Optional[str] = None  # '0.3' or '0.4':!
-        self._pragma_directives: List[Pragma] = []
-        self._import_directives: List[Import] = []
         self._raw_source_code: Dict[str, str] = {}
         self._all_functions: Set[Function] = set()
         self._all_modifiers: Set[Modifier] = set()
@@ -234,14 +239,12 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
     ###################################################################################
 
     @property
-    def top_level_structures(self) -> List[Structure]:
-        top_level_structures = [c.structures for c in self.contracts if c.is_top_level]
-        return [st for sublist in top_level_structures for st in sublist]
+    def structures_top_level(self) -> List[StructureTopLevel]:
+        return self._structures_top_level
 
     @property
-    def top_level_enums(self) -> List[Enum]:
-        top_level_enums = [c.enums for c in self.contracts if c.is_top_level]
-        return [st for sublist in top_level_enums for st in sublist]
+    def enums_top_level(self) -> List[EnumTopLevel]:
+        return self._enums_top_level
 
     # endregion
     ###################################################################################

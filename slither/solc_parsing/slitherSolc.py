@@ -5,6 +5,8 @@ import re
 from typing import List, Dict
 
 from slither.core.declarations import Contract
+from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.exceptions import SlitherException
 
 from slither.solc_parsing.declarations.contract import ContractSolc
@@ -13,6 +15,7 @@ from slither.core.slither_core import SlitherCore
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.import_directive import Import
 from slither.analyses.data_dependency.data_dependency import compute_dependency
+from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
 
 logging.basicConfig()
 logger = logging.getLogger("SlitherSolcParsing")
@@ -29,6 +32,7 @@ class SlitherSolc:
         self._analyzed = False
 
         self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = dict()
+        self._structures_top_level_parser: List[StructureTopLevelSolc] = []
 
         self._is_compact_ast = False
         self._core: SlitherCore = core
@@ -79,19 +83,19 @@ class SlitherSolc:
     ###################################################################################
     ###################################################################################
 
-    def parse_contracts_from_json(self, json_data: str) -> bool:
+    def parse_top_level_from_json(self, json_data: str) -> bool:
         try:
             data_loaded = json.loads(json_data)
             # Truffle AST
             if "ast" in data_loaded:
-                self.parse_contracts_from_loaded_json(data_loaded["ast"], data_loaded["sourcePath"])
+                self.parse_top_level_from_loaded_json(data_loaded["ast"], data_loaded["sourcePath"])
                 return True
             # solc AST, where the non-json text was removed
             if "attributes" in data_loaded:
                 filename = data_loaded["attributes"]["absolutePath"]
             else:
                 filename = data_loaded["absolutePath"]
-            self.parse_contracts_from_loaded_json(data_loaded, filename)
+            self.parse_top_level_from_loaded_json(data_loaded, filename)
             return True
         except ValueError:
 
@@ -102,11 +106,38 @@ class SlitherSolc:
                 json_data = json_data[first:last]
 
                 data_loaded = json.loads(json_data)
-                self.parse_contracts_from_loaded_json(data_loaded, filename)
+                self.parse_top_level_from_loaded_json(data_loaded, filename)
                 return True
             return False
 
-    def parse_contracts_from_loaded_json(
+    def _parse_enum(self, top_level_data:Dict):
+        if self.is_compact_ast:
+            name = top_level_data["name"]
+            canonicalName = top_level_data["canonicalName"]
+        else:
+            name = top_level_data["attributes"][self.get_key()]
+            if "canonicalName" in top_level_data["attributes"]:
+                canonicalName = top_level_data["attributes"]["canonicalName"]
+            else:
+                canonicalName = name
+        values = []
+        children = (
+            top_level_data["members"]
+            if "members" in top_level_data
+            else top_level_data.get("children", [])
+        )
+        for child in children:
+            assert child[self.get_key()] == "EnumValue"
+            if self.is_compact_ast:
+                values.append(child["name"])
+            else:
+                values.append(child["attributes"][self.get_key()])
+
+        enum = EnumTopLevel(name, canonicalName, values)
+        enum.set_offset(top_level_data["src"], self._core)
+        self.core.enums_top_level.append(enum)
+
+    def parse_top_level_from_loaded_json(
         self, data_loaded: Dict, filename: str
     ):  # pylint: disable=too-many-branches
         if "nodeType" in data_loaded:
@@ -128,68 +159,48 @@ class SlitherSolc:
             logger.error("solc version is not supported")
             return
 
-        for contract_data in data_loaded[self.get_children()]:
-            assert contract_data[self.get_key()] in [
+        for top_level_data in data_loaded[self.get_children()]:
+            assert top_level_data[self.get_key()] in [
                 "ContractDefinition",
                 "PragmaDirective",
                 "ImportDirective",
                 "StructDefinition",
                 "EnumDefinition",
             ]
-            if contract_data[self.get_key()] == "ContractDefinition":
+            if top_level_data[self.get_key()] == "ContractDefinition":
                 contract = Contract()
-                contract_parser = ContractSolc(self, contract, contract_data)
-                if "src" in contract_data:
-                    contract.set_offset(contract_data["src"], self._core)
+                contract_parser = ContractSolc(self, contract, top_level_data)
+                if "src" in top_level_data:
+                    contract.set_offset(top_level_data["src"], self._core)
 
                 self._underlying_contract_to_parser[contract] = contract_parser
 
-            elif contract_data[self.get_key()] == "PragmaDirective":
+            elif top_level_data[self.get_key()] == "PragmaDirective":
                 if self._is_compact_ast:
-                    pragma = Pragma(contract_data["literals"])
+                    pragma = Pragma(top_level_data["literals"])
                 else:
-                    pragma = Pragma(contract_data["attributes"]["literals"])
-                pragma.set_offset(contract_data["src"], self._core)
+                    pragma = Pragma(top_level_data["attributes"]["literals"])
+                pragma.set_offset(top_level_data["src"], self._core)
                 self._core.pragma_directives.append(pragma)
-            elif contract_data[self.get_key()] == "ImportDirective":
+            elif top_level_data[self.get_key()] == "ImportDirective":
                 if self.is_compact_ast:
-                    import_directive = Import(contract_data["absolutePath"])
+                    import_directive = Import(top_level_data["absolutePath"])
                 else:
-                    import_directive = Import(contract_data["attributes"].get("absolutePath", ""))
-                import_directive.set_offset(contract_data["src"], self._core)
+                    import_directive = Import(top_level_data["attributes"].get("absolutePath", ""))
+                import_directive.set_offset(top_level_data["src"], self._core)
                 self._core.import_directives.append(import_directive)
 
-            elif contract_data[self.get_key()] in [
-                "StructDefinition",
-                "EnumDefinition",
-            ]:
-                # This can only happen for top-level structure and enum
-                # They were introduced with 0.6.5
-                assert self._is_compact_ast  # Do not support top level definition for legacy AST
-                fake_contract_data = {
-                    "name": f"SlitherInternalTopLevelContract{self._top_level_contracts_counter}",
-                    "id": -1000
-                    + self._top_level_contracts_counter,  # TODO: determine if collission possible
-                    "linearizedBaseContracts": [],
-                    "fullyImplemented": True,
-                    "contractKind": "SLitherInternal",
-                }
-                self._top_level_contracts_counter += 1
-                contract = Contract()
-                top_level_contract = ContractSolc(self, contract, fake_contract_data)
-                contract.is_top_level = True
-                contract.set_offset(contract_data["src"], self._core)
+            elif top_level_data[self.get_key()] == "StructDefinition":
+                st = StructureTopLevel()
+                st.set_offset(top_level_data["src"], self._core)
+                st_parser = StructureTopLevelSolc(st, top_level_data, self)
 
-                if contract_data[self.get_key()] == "StructDefinition":
-                    top_level_contract.structures_not_parsed.append(
-                        contract_data
-                    )  # Todo add proper setters
-                else:
-                    top_level_contract.enums_not_parsed.append(
-                        contract_data
-                    )  # Todo add proper setters
+                self._core.structures_top_level.append(st)
+                self._structures_top_level_parser.append(st_parser)
 
-                self._underlying_contract_to_parser[contract] = top_level_contract
+            elif top_level_data[self.get_key()] == "EnumDefinition":
+                # Note enum don't need a complex parser, so everything is directly done
+                self._parse_enum(top_level_data)
 
     def _parse_source_unit(self, data: Dict, filename: str):
         if data[self.get_key()] != "SourceUnit":

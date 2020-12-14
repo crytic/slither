@@ -73,6 +73,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
             enum_name = enum_name[len("enum ") :]
         all_enums = [c.enums for c in contracts]
         all_enums = [item for sublist in all_enums for item in sublist]
+        all_enums += contract.slither.enums_top_level
         var_type = next((e for e in all_enums if e.name == enum_name), None)
         if not var_type:
             var_type = next((e for e in all_enums if e.canonical_name == enum_name), None)
@@ -84,6 +85,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
             name_struct = name_struct.split(" ")[0]  # remove stuff like storage pointer at the end
         all_structures = [c.structures for c in contracts]
         all_structures = [item for sublist in all_structures for item in sublist]
+        all_structures += contract.slither.structures_top_level
         var_type = next((st for st in all_structures if st.name == name_struct), None)
         if not var_type:
             var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
@@ -175,8 +177,8 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     else:
         key = "name"
 
-    structures = contract.structures + contract.slither.top_level_structures
-    enums = contract.enums + contract.slither.top_level_enums
+    structures = contract.structures + contract.slither.structures_top_level
+    enums = contract.enums + contract.slither.enums_top_level
     contracts = contract.slither.contracts
 
     if isinstance(t, UnknownType):
