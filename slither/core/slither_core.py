@@ -22,6 +22,7 @@ from slither.core.declarations import (
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.operations import InternalCall
 from slither.slithir.variables import Constant
 from slither.utils.colors import red
@@ -49,6 +50,7 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
         self._contracts: Dict[str, Contract] = {}
         self._structures_top_level: List[StructureTopLevel] = []
         self._enums_top_level: List[EnumTopLevel] = []
+        self._variables_top_level: List[TopLevelVariable] = []
         self._pragma_directives: List[Pragma] = []
         self._import_directives: List[Import] = []
 
@@ -245,6 +247,10 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
     @property
     def enums_top_level(self) -> List[EnumTopLevel]:
         return self._enums_top_level
+
+    @property
+    def variables_top_level(self) -> List[TopLevelVariable]:
+        return self._variables_top_level
 
     # endregion
     ###################################################################################

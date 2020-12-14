@@ -7,6 +7,7 @@ from typing import List, Dict
 from slither.core.declarations import Contract
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
+from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.exceptions import SlitherException
 
 from slither.solc_parsing.declarations.contract import ContractSolc
@@ -16,6 +17,8 @@ from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.import_directive import Import
 from slither.analyses.data_dependency.data_dependency import compute_dependency
 from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
+from slither.solc_parsing.exceptions import VariableNotFound
+from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
 
 logging.basicConfig()
 logger = logging.getLogger("SlitherSolcParsing")
@@ -33,6 +36,7 @@ class SlitherSolc:
 
         self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = dict()
         self._structures_top_level_parser: List[StructureTopLevelSolc] = []
+        self._variables_top_level_parser: List[TopLevelVariableSolc] = []
 
         self._is_compact_ast = False
         self._core: SlitherCore = core
@@ -160,13 +164,6 @@ class SlitherSolc:
             return
 
         for top_level_data in data_loaded[self.get_children()]:
-            assert top_level_data[self.get_key()] in [
-                "ContractDefinition",
-                "PragmaDirective",
-                "ImportDirective",
-                "StructDefinition",
-                "EnumDefinition",
-            ]
             if top_level_data[self.get_key()] == "ContractDefinition":
                 contract = Contract()
                 contract_parser = ContractSolc(self, contract, top_level_data)
@@ -201,6 +198,17 @@ class SlitherSolc:
             elif top_level_data[self.get_key()] == "EnumDefinition":
                 # Note enum don't need a complex parser, so everything is directly done
                 self._parse_enum(top_level_data)
+
+            elif top_level_data[self.get_key()] == "VariableDeclaration":
+                var = TopLevelVariable()
+                var_parser = TopLevelVariableSolc(var, top_level_data)
+                var.set_offset(top_level_data["src"], self._core)
+
+                self._core.variables_top_level.append(var)
+                self._variables_top_level_parser.append(var_parser)
+
+            else:
+                raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
 
     def _parse_source_unit(self, data: Dict, filename: str):
         if data[self.get_key()] != "SourceUnit":
@@ -420,6 +428,8 @@ Please rename it, this name is reserved for Slither's internals"""
         for lib in libraries:
             self._analyze_struct_events(lib)
 
+        self._analyze_top_level_structures()
+
         # Start with the contracts without inheritance
         # Analyze a contract only if all its fathers
         # Were analyzed
@@ -488,6 +498,20 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.analyze_using_for()
 
         contract.set_is_analyzed(True)
+
+    def _analyze_top_level_structures(self):
+        try:
+            for struct in self._structures_top_level_parser:
+                struct.analyze()
+        except (VariableNotFound, KeyError) as e:
+            raise SlitherException(f"Missing struct {e} during top level structure analyze")
+
+    def _analyze_top_level_variables(self):
+        try:
+            for var in self._variables_top_level_parser:
+                var.analyze(self)
+        except (VariableNotFound, KeyError) as e:
+            raise SlitherException(f"Missing struct {e} during top level structure analyze")
 
     def _analyze_variables_modifiers_functions(self, contract: ContractSolc):
         # State variables, modifiers and functions can refer to anything
