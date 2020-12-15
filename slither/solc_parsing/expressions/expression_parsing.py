@@ -674,7 +674,9 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
     if name == "MemberAccess":
         if caller_context.is_compact_ast:
             member_name = expression["memberName"]
-            member_type = parse_type(UnknownType(expression["typeDescriptions"]["typeString"]), caller_context)
+            member_type = parse_type(
+                UnknownType(expression["typeDescriptions"]["typeString"]), caller_context
+            )
             member_expression = parse_expression(expression["expression"], caller_context)
         else:
             member_name = expression["attributes"]["member_name"]
