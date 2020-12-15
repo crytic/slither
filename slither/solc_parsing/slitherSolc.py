@@ -504,14 +504,14 @@ Please rename it, this name is reserved for Slither's internals"""
             for struct in self._structures_top_level_parser:
                 struct.analyze()
         except (VariableNotFound, KeyError) as e:
-            raise SlitherException(f"Missing struct {e} during top level structure analyze")
+            raise SlitherException(f"Missing struct {e} during top level structure analyze") from e
 
     def _analyze_top_level_variables(self):
         try:
             for var in self._variables_top_level_parser:
                 var.analyze(self)
         except (VariableNotFound, KeyError) as e:
-            raise SlitherException(f"Missing struct {e} during top level structure analyze")
+            raise SlitherException(f"Missing struct {e} during top level structure analyze") from e
 
     def _analyze_variables_modifiers_functions(self, contract: ContractSolc):
         # State variables, modifiers and functions can refer to anything

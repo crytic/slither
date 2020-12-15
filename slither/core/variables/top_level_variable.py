@@ -1,13 +1,10 @@
-from typing import Optional, TYPE_CHECKING, Tuple, List
+from typing import Optional, TYPE_CHECKING
 
 from slither.core.declarations.top_level import TopLevel
 from slither.core.variables.variable import Variable
-from slither.core.children.child_contract import ChildContract
-from slither.utils.type import export_nested_types_from_variable
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
-    from slither.core.declarations import Contract
 
 
 class TopLevelVariable(TopLevel, Variable):

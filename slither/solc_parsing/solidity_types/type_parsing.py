@@ -14,7 +14,6 @@ from slither.core.solidity_types.function_type import FunctionType
 
 from slither.core.variables.function_type_variable import FunctionTypeVariable
 
-from slither.core.declarations.contract import Contract
 
 from slither.core.expressions.literal import Literal
 
@@ -22,6 +21,7 @@ from slither.solc_parsing.exceptions import ParsingError
 
 if TYPE_CHECKING:
     from slither.core.declarations import Structure, Enum
+    from slither.core.declarations.contract import Contract
 
 logger = logging.getLogger("TypeParsing")
 
@@ -37,7 +37,7 @@ class UnknownType:  # pylint: disable=too-few-public-methods
         return self._name
 
 
-def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-many-arguments
     name: str,
     functions_direct_access: List["Function"],
     contracts_direct_access: List["Contract"],
@@ -235,8 +235,6 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
         key = "nodeType"
     else:
         key = "name"
-
-
 
     if isinstance(t, UnknownType):
         return _find_from_type_name(
