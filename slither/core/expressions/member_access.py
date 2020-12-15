@@ -1,5 +1,3 @@
-from typing import TYPE_CHECKING
-
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.expression_typed import ExpressionTyped
 
