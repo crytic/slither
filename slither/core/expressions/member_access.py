@@ -9,7 +9,7 @@ class MemberAccess(ExpressionTyped):
         assert isinstance(member_type, Type)
         assert isinstance(expression, Expression)
         super().__init__()
-        self._type: "Type" = member_type
+        self._type: Type = member_type
         self._member_name: str = member_name
         self._expression: Expression = expression
 
@@ -22,7 +22,7 @@ class MemberAccess(ExpressionTyped):
         return self._member_name
 
     @property
-    def type(self) -> "Type":
+    def type(self) -> Type:
         return self._type
 
     def __str__(self):
