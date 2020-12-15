@@ -3,14 +3,12 @@ from typing import TYPE_CHECKING
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.expression_typed import ExpressionTyped
 
-if TYPE_CHECKING:
-    from slither.core.solidity_types.type import Type
+from slither.core.solidity_types.type import Type
 
 
 class MemberAccess(ExpressionTyped):
     def __init__(self, member_name, member_type, expression):
-        # assert isinstance(member_type, Type)
-        # TODO member_type is not always a Type
+        assert isinstance(member_type, Type)
         assert isinstance(expression, Expression)
         super().__init__()
         self._type: "Type" = member_type
