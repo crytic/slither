@@ -104,7 +104,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     if not var_type:
         if name.startswith("function "):
             found = re.findall(
-                "function \(([ ()a-zA-Z0-9\.,]*?)\)(?: payable)?(?: (?:external|internal|pure|view))?(?: returns \(([a-zA-Z0-9() \.,]*)\))?", name
+                "function \(([ ()\[\]a-zA-Z0-9\.,]*?)\)(?: payable)?(?: (?:external|internal|pure|view))?(?: returns \(([a-zA-Z0-9() \.,]*)\))?", name
             )
             assert len(found) == 1
             params = [v for v in found[0][0].split(",") if v != ""]
