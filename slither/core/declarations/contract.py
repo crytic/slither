@@ -1089,11 +1089,13 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         self._is_incorrectly_parsed = incorrect
 
     def add_constructor_variables(self):
+        from slither.core.declarations.function_contract import FunctionContract
+
         if self.state_variables:
             for (idx, variable_candidate) in enumerate(self.state_variables):
                 if variable_candidate.expression and not variable_candidate.is_constant:
 
-                    constructor_variable = Function()
+                    constructor_variable = FunctionContract(self.slither)
                     constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
                     constructor_variable.set_contract(self)
                     constructor_variable.set_contract_declarer(self)
@@ -1119,7 +1121,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
             for (idx, variable_candidate) in enumerate(self.state_variables):
                 if variable_candidate.expression and variable_candidate.is_constant:
 
-                    constructor_variable = Function()
+                    constructor_variable = FunctionContract(self.slither)
                     constructor_variable.set_function_type(
                         FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES
                     )

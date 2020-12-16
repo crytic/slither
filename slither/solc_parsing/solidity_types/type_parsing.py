@@ -1,7 +1,8 @@
 import logging
 import re
-from typing import List, TYPE_CHECKING, Union, Dict
+from typing import List, TYPE_CHECKING, Union, Dict, Optional
 
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.solidity_types.elementary_type import (
     ElementaryType,
     ElementaryTypeName,
@@ -197,13 +198,39 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.slitherSolc import SlitherSolc
 
-    if isinstance(caller_context, (ContractSolc, FunctionSolc)):
+    # Note: for convenicence top level functions use the same parser than function in contract
+    # but contract_parser is set to None
+    if isinstance(caller_context, SlitherSolc) or (
+        isinstance(caller_context, FunctionSolc) and caller_context.contract_parser is None
+    ):
+        if isinstance(caller_context, SlitherSolc):
+            sl = caller_context.core
+            next_context = caller_context
+        else:
+            assert isinstance(caller_context, FunctionSolc)
+            sl = caller_context.underlying_function.slither
+            next_context = caller_context.slither_parser
+        structures_direct_access = sl.structures_top_level
+        all_structuress = [c.structures for c in sl.contracts]
+        all_structures = [item for sublist in all_structuress for item in sublist]
+        all_structures += structures_direct_access
+        enums_direct_access = sl.enums_top_level
+        all_enumss = [c.enums for c in sl.contracts]
+        all_enums = [item for sublist in all_enumss for item in sublist]
+        all_enums += enums_direct_access
+        contracts = sl.contracts
+        functions = []
+    elif isinstance(caller_context, (ContractSolc, FunctionSolc)):
         if isinstance(caller_context, FunctionSolc):
-            contract = caller_context.underlying_function.contract
-            contract_parser = caller_context.contract_parser
+            underlying_func = caller_context.underlying_function
+            # If contract_parser is set to None, then underlying_function is a functionContract
+            # See note above
+            assert isinstance(underlying_func, FunctionContract)
+            contract = underlying_func.contract
+            next_context = caller_context.contract_parser
         else:
             contract = caller_context.underlying_contract
-            contract_parser = caller_context
+            next_context = caller_context
 
         structures_direct_access = contract.structures + contract.slither.structures_top_level
         all_structuress = [c.structures for c in contract.slither.contracts]
@@ -215,18 +242,6 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
         all_enums += contract.slither.enums_top_level
         contracts = contract.slither.contracts
         functions = contract.functions
-
-    elif isinstance(caller_context, SlitherSolc):
-        structures_direct_access = caller_context.core.structures_top_level
-        all_structuress = [c.structures for c in caller_context.core.contracts]
-        all_structures = [item for sublist in all_structuress for item in sublist]
-        all_structures += structures_direct_access
-        enums_direct_access = caller_context.core.enums_top_level
-        all_enumss = [c.enums for c in caller_context.core.contracts]
-        all_enums = [item for sublist in all_enumss for item in sublist]
-        all_enums += enums_direct_access
-        contracts = caller_context.core.contracts
-        functions = []
     else:
         raise ParsingError(f"Incorrect caller context: {type(caller_context)}")
 
@@ -281,25 +296,25 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
         if is_compact_ast:
             if t.get("length", None):
                 length = parse_expression(t["length"], caller_context)
-            array_type = parse_type(t["baseType"], contract_parser)
+            array_type = parse_type(t["baseType"], next_context)
         else:
             if len(t["children"]) == 2:
                 length = parse_expression(t["children"][1], caller_context)
             else:
                 assert len(t["children"]) == 1
-            array_type = parse_type(t["children"][0], contract_parser)
+            array_type = parse_type(t["children"][0], next_context)
         return ArrayType(array_type, length)
 
     if t[key] == "Mapping":
 
         if is_compact_ast:
-            mappingFrom = parse_type(t["keyType"], contract_parser)
-            mappingTo = parse_type(t["valueType"], contract_parser)
+            mappingFrom = parse_type(t["keyType"], next_context)
+            mappingTo = parse_type(t["valueType"], next_context)
         else:
             assert len(t["children"]) == 2
 
-            mappingFrom = parse_type(t["children"][0], contract_parser)
-            mappingTo = parse_type(t["children"][1], contract_parser)
+            mappingFrom = parse_type(t["children"][0], next_context)
+            mappingTo = parse_type(t["children"][1], next_context)
 
         return MappingType(mappingFrom, mappingTo)
 

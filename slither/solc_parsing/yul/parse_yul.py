@@ -8,6 +8,7 @@ from slither.core.declarations import (
     SolidityFunction,
     Contract,
 )
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import (
     Literal,
     AssignmentOperation,
@@ -113,7 +114,9 @@ class YulScope(metaclass=abc.ABCMeta):
         "_parent_func",
     ]
 
-    def __init__(self, contract: Contract, yul_id: List[str], parent_func: Function = None):
+    def __init__(
+        self, contract: Optional[Contract], yul_id: List[str], parent_func: Function = None
+    ):
         self._contract = contract
         self._id: List[str] = yul_id
         self._yul_local_variables: List[YulLocalVariable] = []
@@ -125,7 +128,7 @@ class YulScope(metaclass=abc.ABCMeta):
         return self._id
 
     @property
-    def contract(self) -> Contract:
+    def contract(self) -> Optional[Contract]:
         return self._contract
 
     @property
@@ -205,6 +208,7 @@ class YulFunction(YulScope):
         func.set_visibility("private")
         func.set_offset(ast["src"], root.slither)
         func.set_contract(root.contract)
+        func.slither = root.slither
         func.set_contract_declarer(root.contract)
         func.scope = root.id
         func.is_implemented = True
@@ -267,7 +271,7 @@ class YulBlock(YulScope):
 
     __slots__ = ["_entrypoint", "_parent_func", "_nodes"]
 
-    def __init__(self, contract: Contract, entrypoint: Node, yul_id: List[str], **kwargs):
+    def __init__(self, contract: Optional[Contract], entrypoint: Node, yul_id: List[str], **kwargs):
         super().__init__(contract, yul_id, **kwargs)
 
         self._entrypoint: YulNode = YulNode(entrypoint, self)
@@ -329,7 +333,7 @@ def convert_yul_block(root: YulScope, parent: YulNode, ast: Dict) -> YulNode:
 
 
 def convert_yul_function_definition(root: YulScope, parent: YulNode, ast: Dict) -> YulNode:
-    func = Function()
+    func = FunctionContract(root.slither)
     yul_function = YulFunction(func, root, ast)
 
     root.contract.add_function(func)

@@ -6,6 +6,7 @@ from typing import List, Dict
 
 from slither.core.declarations import Contract
 from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.exceptions import SlitherException
@@ -37,6 +38,7 @@ class SlitherSolc:
         self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = dict()
         self._structures_top_level_parser: List[StructureTopLevelSolc] = []
         self._variables_top_level_parser: List[TopLevelVariableSolc] = []
+        self._functions_top_level_parser: List[FunctionSolc] = []
 
         self._is_compact_ast = False
         self._core: SlitherCore = core
@@ -143,7 +145,7 @@ class SlitherSolc:
 
     def parse_top_level_from_loaded_json(
         self, data_loaded: Dict, filename: str
-    ):  # pylint: disable=too-many-branches
+    ):  # pylint: disable=too-many-branches,too-many-statements
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
 
@@ -182,6 +184,9 @@ class SlitherSolc:
             elif top_level_data[self.get_key()] == "ImportDirective":
                 if self.is_compact_ast:
                     import_directive = Import(top_level_data["absolutePath"])
+                    # TODO investigate unitAlias in version < 0.7 and legacy ast
+                    if "unitAlias" in top_level_data:
+                        import_directive.alias = top_level_data["unitAlias"]
                 else:
                     import_directive = Import(top_level_data["attributes"].get("absolutePath", ""))
                 import_directive.set_offset(top_level_data["src"], self._core)
@@ -206,6 +211,13 @@ class SlitherSolc:
 
                 self._core.variables_top_level.append(var)
                 self._variables_top_level_parser.append(var_parser)
+            elif top_level_data[self.get_key()] == "FunctionDefinition":
+                func = FunctionTopLevel(self.core)
+                func_parser = FunctionSolc(func, top_level_data, None, self)
+
+                self._core.functions_top_level.append(func)
+                self._functions_top_level_parser.append(func_parser)
+                self.add_functions_parser(func_parser)
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
@@ -513,16 +525,30 @@ Please rename it, this name is reserved for Slither's internals"""
         except (VariableNotFound, KeyError) as e:
             raise SlitherException(f"Missing struct {e} during top level structure analyze") from e
 
+    def _analyze_params_top_level_function(self):
+        for func_parser in self._functions_top_level_parser:
+            func_parser.analyze_params()
+            self.core.add_function(func_parser.underlying_function)
+
+    def _analyze_content_top_level_function(self):
+        try:
+            for func_parser in self._functions_top_level_parser:
+                func_parser.analyze_content()
+        except (VariableNotFound, KeyError) as e:
+            raise SlitherException(f"Missing {e} during top level function analyze") from e
+
     def _analyze_variables_modifiers_functions(self, contract: ContractSolc):
         # State variables, modifiers and functions can refer to anything
 
         contract.analyze_params_modifiers()
         contract.analyze_params_functions()
+        self._analyze_params_top_level_function()
 
         contract.analyze_state_variables()
 
         contract.analyze_content_modifiers()
         contract.analyze_content_functions()
+        self._analyze_content_top_level_function()
 
         contract.set_is_analyzed(True)
 
@@ -543,6 +569,10 @@ Please rename it, this name is reserved for Slither's internals"""
                     )
 
             contract.convert_expression_to_slithir_ssa()
+
+        for func in self.core.functions_top_level:
+            func.generate_slithir_and_analyze()
+            func.generate_slithir_ssa(dict())
         self._core.propagate_function_calls()
         for contract in self._core.contracts:
             contract.fix_phi()

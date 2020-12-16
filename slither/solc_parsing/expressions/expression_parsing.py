@@ -1,10 +1,11 @@
 import logging
 import re
-from typing import Dict, TYPE_CHECKING, Optional, Union
+from typing import Dict, TYPE_CHECKING, Optional, Union, List
 
 from slither.core.declarations import Event, Enum, Structure
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.solidity_variables import (
     SOLIDITY_FUNCTIONS,
     SOLIDITY_VARIABLES,
@@ -12,6 +13,7 @@ from slither.core.declarations.solidity_variables import (
     SolidityFunction,
     SolidityVariable,
     SolidityVariableComposed,
+    SolidityImportPlaceHolder,
 )
 from slither.core.expressions.assignment_operation import (
     AssignmentOperation,
@@ -36,6 +38,7 @@ from slither.core.expressions.super_identifier import SuperIdentifier
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
 from slither.core.expressions.unary_operation import UnaryOperation, UnaryOperationType
+from slither.core.slither_core import SlitherCore
 from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
@@ -78,62 +81,82 @@ def get_pointer_name(variable: Variable):
     return None
 
 
-def find_variable(  # pylint: disable=too-many-locals,too-many-statements
+def _find_variable_from_ref_declaration(
+    referenced_declaration: Optional[int],
+    all_contracts: List["Contract"],
+    all_functions_parser: List["FunctionSolc"],
+) -> Optional[Union[Contract, Function]]:
+    if referenced_declaration is None:
+        return None
+    # id of the contracts is the referenced declaration
+    # This is not true for the functions, as we dont always have the referenced_declaration
+    # But maybe we could? (TODO)
+    for contract_candidate in all_contracts:
+        if contract_candidate.id == referenced_declaration:
+            return contract_candidate
+    for function_candidate in all_functions_parser:
+        if function_candidate.referenced_declaration == referenced_declaration:
+            return function_candidate.underlying_function
+    return None
+
+
+def _find_variable_in_function_parser(
     var_name: str,
-    caller_context: CallerContext,
+    function_parser: Optional["FunctionSolc"],
     referenced_declaration: Optional[int] = None,
-    is_super=False,
-) -> Union[
-    Variable, Function, Contract, SolidityVariable, SolidityFunction, Event, Enum, Structure,
-]:
-    from slither.solc_parsing.declarations.contract import ContractSolc
-    from slither.solc_parsing.declarations.function import FunctionSolc
+) -> Optional[Variable]:
+    if function_parser is None:
+        return None
+    # We look for variable declared with the referencedDeclaration attr
+    func_variables_renamed = function_parser.variables_renamed
+    if referenced_declaration and referenced_declaration in func_variables_renamed:
+        return func_variables_renamed[referenced_declaration].underlying_variable
+    # If not found, check for name
+    func_variables = function_parser.underlying_function.variables_as_dict
+    if var_name in func_variables:
+        return func_variables[var_name]
+    # A local variable can be a pointer
+    # for example
+    # function test(function(uint) internal returns(bool) t) interna{
+    # Will have a local variable t which will match the signature
+    # t(uint256)
+    func_variables_ptr = {
+        get_pointer_name(f): f for f in function_parser.underlying_function.variables
+    }
+    if var_name and var_name in func_variables_ptr:
+        return func_variables_ptr[var_name]
 
-    # variable are looked from the contract declarer
-    # functions can be shadowed, but are looked from the contract instance, rather than the contract declarer
-    # the difference between function and variable come from the fact that an internal call, or an variable access
-    # in a function does not behave similariy, for example in:
-    # contract C{
-    #   function f(){
-    #     state_var = 1
-    #     f2()
-    #  }
-    # state_var will refer to C.state_var, no mater if C is inherited
-    # while f2() will refer to the function definition of the inherited contract (C.f2() in the context of C, or
-    # the contract inheriting from C)
-    # for events it's unclear what should be the behavior, as they can be shadowed, but there is not impact
-    # structure/enums cannot be shadowed
+    return None
 
-    if isinstance(caller_context, ContractSolc):
-        function: Optional[FunctionSolc] = None
-        contract = caller_context.underlying_contract
-        contract_declarer = caller_context.underlying_contract
-    elif isinstance(caller_context, FunctionSolc):
-        function = caller_context
-        contract = function.underlying_function.contract
-        contract_declarer = function.underlying_function.contract_declarer
-    else:
-        raise ParsingError("Incorrect caller context")
 
-    if function:
-        # We look for variable declared with the referencedDeclaration attr
-        func_variables_renamed = function.variables_renamed
-        if referenced_declaration and referenced_declaration in func_variables_renamed:
-            return func_variables_renamed[referenced_declaration].underlying_variable
-        # If not found, check for name
-        func_variables = function.underlying_function.variables_as_dict
-        if var_name in func_variables:
-            return func_variables[var_name]
-        # A local variable can be a pointer
-        # for example
-        # function test(function(uint) internal returns(bool) t) interna{
-        # Will have a local variable t which will match the signature
-        # t(uint256)
-        func_variables_ptr = {
-            get_pointer_name(f): f for f in function.underlying_function.variables
-        }
-        if var_name and var_name in func_variables_ptr:
-            return func_variables_ptr[var_name]
+def _find_top_level(
+    var_name: str, sl: "SlitherCore"
+) -> Optional[Union[Enum, Structure, SolidityVariable]]:
+    structures_top_level = sl.structures_top_level
+    for st in structures_top_level:
+        if st.name == var_name:
+            return st
+
+    enums_top_level = sl.enums_top_level
+    for enum in enums_top_level:
+        if enum.name == var_name:
+            return enum
+
+    for import_directive in sl.import_directives:
+        if import_directive.alias == var_name:
+            return SolidityImportPlaceHolder(import_directive)
+
+    return None
+
+
+def _find_in_contract(
+    var_name: str,
+    contract: Optional[Contract],
+    contract_declarer: Optional[Contract],
+    is_super: bool,
+) -> Optional[Union[Variable, Function, Contract, Event, Enum, Structure,]]:
+    if contract is None or contract_declarer is None:
+        return None
 
     # variable are looked from the contract declarer
     contract_variables = contract_declarer.variables_as_dict
@@ -178,11 +201,6 @@ def find_variable(  # pylint: disable=too-many-locals,too-many-statements
     if var_name in structures:
         return structures[var_name]
 
-    structures_top_level = contract.slither.structures_top_level
-    for st in structures_top_level:
-        if st.name == var_name:
-            return st
-
     events = contract.events_as_dict
     if var_name in events:
         return events[var_name]
@@ -191,42 +209,98 @@ def find_variable(  # pylint: disable=too-many-locals,too-many-statements
     if var_name in enums:
         return enums[var_name]
 
-    enums_top_level = contract.slither.enums_top_level
-    for enum in enums_top_level:
-        if enum.name == var_name:
-            return enum
-
     # If the enum is refered as its name rather than its canonicalName
     enums = {e.name: e for e in contract.enums}
     if var_name in enums:
         return enums[var_name]
 
+    return None
+
+
+def find_variable(
+    var_name: str,
+    caller_context: CallerContext,
+    referenced_declaration: Optional[int] = None,
+    is_super=False,
+) -> Union[
+    Variable, Function, Contract, SolidityVariable, SolidityFunction, Event, Enum, Structure,
+]:
+    from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.declarations.function import FunctionSolc
+    from slither.solc_parsing.slitherSolc import SlitherSolc
+
+    # variable are looked from the contract declarer
+    # functions can be shadowed, but are looked from the contract instance, rather than the contract declarer
+    # the difference between function and variable come from the fact that an internal call, or an variable access
+    # in a function does not behave similariy, for example in:
+    # contract C{
+    #   function f(){
+    #     state_var = 1
+    #     f2()
+    #  }
+    # state_var will refer to C.state_var, no mater if C is inherited
+    # while f2() will refer to the function definition of the inherited contract (C.f2() in the context of C, or
+    # the contract inheriting from C)
+    # for events it's unclear what should be the behavior, as they can be shadowed, but there is not impact
+    # structure/enums cannot be shadowed
+
+    sl: SlitherCore = caller_context.core if isinstance(
+        caller_context, SlitherSolc
+    ) else caller_context.slither
+    sl_parser: SlitherSolc = caller_context if isinstance(
+        caller_context, SlitherSolc
+    ) else caller_context.slither_parser
+    all_contracts = sl.contracts
+    all_functions_parser = sl_parser.all_functions_parser
+
+    ret = _find_variable_from_ref_declaration(
+        referenced_declaration, all_contracts, all_functions_parser
+    )
+    if ret:
+        return ret
+
+    function_parser: Optional[FunctionSolc] = caller_context if isinstance(
+        caller_context, FunctionSolc
+    ) else None
+    ret = _find_variable_in_function_parser(var_name, function_parser, referenced_declaration)
+    if ret:
+        return ret
+
+    ret = _find_top_level(var_name, sl)
+    if ret:
+        return ret
+
+    contract: Optional[Contract] = None
+    contract_declarer: Optional[Contract] = None
+    if isinstance(caller_context, ContractSolc):
+        contract = caller_context.underlying_contract
+        contract_declarer = caller_context.underlying_contract
+    elif isinstance(caller_context, FunctionSolc):
+        underlying_func = caller_context.underlying_function
+        # If contract_parser is set to None, then underlying_function is a functionContract
+        assert isinstance(underlying_func, FunctionContract)
+        contract = underlying_func.contract
+        contract_declarer = underlying_func.contract_declarer
+
+    ret = _find_in_contract(var_name, contract, contract_declarer, is_super)
+    if ret:
+        return ret
+
     # Could refer to any enum
-    all_enumss = [c.enums_as_dict for c in contract.slither.contracts]
+    all_enumss = [c.enums_as_dict for c in sl.contracts]
     all_enums = {k: v for d in all_enumss for k, v in d.items()}
     if var_name in all_enums:
         return all_enums[var_name]
+
+    contracts = sl.contracts_as_dict
+    if var_name in contracts:
+        return contracts[var_name]
 
     if var_name in SOLIDITY_VARIABLES:
         return SolidityVariable(var_name)
 
     if var_name in SOLIDITY_FUNCTIONS:
         return SolidityFunction(var_name)
-
-    contracts = contract.slither.contracts_as_dict
-    if var_name in contracts:
-        return contracts[var_name]
-
-    if referenced_declaration:
-        # id of the contracts is the referenced declaration
-        # This is not true for the functions, as we dont always have the referenced_declaration
-        # But maybe we could? (TODO)
-        for contract_candidate in contract.slither.contracts:
-            if contract_candidate.id == referenced_declaration:
-                return contract_candidate
-        for function_candidate in caller_context.slither_parser.all_functions_parser:
-            if function_candidate.referenced_declaration == referenced_declaration:
-                return function_candidate.underlying_function
 
     raise VariableNotFound("Variable not found: {} (context {})".format(var_name, caller_context))
 

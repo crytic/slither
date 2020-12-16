@@ -396,9 +396,14 @@ XFAIL = [
     "yul_0.7.3_compact",
     "yul_0.7.4_compact",
     "yul_0.7.5_compact",
+    "top-level-import_0.7.1_legacy",
+    "top-level-import_0.7.2_legacy",
+    "top-level-import_0.7.3_legacy",
+    "top-level-import_0.7.4_legacy",
+    "top-level-import_0.7.5_legacy",
 ]
 
-
+TESTED_SOLC_07 = ["0.7.0", "0.7.1", "0.7.2", "0.7.3", "0.7.4", "0.7.5"]
 def get_solc_versions() -> List[str]:
     """
     get a list of all the supported versions of solidity, sorted from earliest to latest
@@ -409,6 +414,8 @@ def get_solc_versions() -> List[str]:
 
     # there's an extra newline so just remove all empty strings
     solc_versions = [version for version in solc_versions if version != ""]
+
+    solc_versions = [version for version in solc_versions if (not version.startswith('0.7.')) or (version in TESTED_SOLC_07)]
     solc_versions.reverse()
     return solc_versions
 
@@ -579,10 +586,8 @@ def _generate_test(test_item: Item, skip_existing=False):
     if skip_existing:
         if os.path.isfile(expected_file):
             return
-
     if id_test(test_item) in XFAIL:
         return
-
     set_solc(test_item)
     sl = Slither(
         test_file,

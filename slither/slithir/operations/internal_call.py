@@ -1,5 +1,6 @@
 from slither.core.declarations import Modifier
 from slither.core.declarations.function import Function
+from slither.core.declarations.function_contract import FunctionContract
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 
@@ -7,10 +8,12 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     def __init__(self, function, nbr_arguments, result, type_call):
         super().__init__()
+        self._contract_name = ""
         if isinstance(function, Function):
             self._function = function
             self._function_name = function.name
-            self._contract_name = function.contract_declarer.name
+            if isinstance(function, FunctionContract):
+                self._contract_name = function.contract_declarer.name
         else:
             self._function = None
             self._function_name, self._contract_name = function

@@ -6,6 +6,7 @@ from slither.core.declarations import (
     SolidityVariableComposed,
     SolidityFunction,
 )
+from slither.core.declarations.solidity_variables import SolidityImportPlaceHolder
 from slither.core.expressions import (
     AssignmentOperationType,
     UnaryOperationType,
