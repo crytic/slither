@@ -422,7 +422,7 @@ def get_solc_versions() -> List[str]:
     solc_versions = [
         version
         for version in solc_versions
-        if ((not version.startswith("0.7.") or version.startswith("0.8.")))
+        if (not version.startswith("0.7.") and not version.startswith("0.8."))
         or (version in TESTED_SOLC_07)
     ]
     solc_versions.reverse()
