@@ -70,6 +70,8 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
         enum_name = name
         if enum_name.startswith("enum "):
             enum_name = enum_name[len("enum ") :]
+        elif enum_name.startswith("type(enum"):
+            enum_name = enum_name[len("type(enum ") : -1]
         # all_enums = [c.enums for c in contracts]
         # all_enums = [item for sublist in all_enums for item in sublist]
         # all_enums += contract.slither.enums_top_level
@@ -103,7 +105,8 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     if not var_type:
         if name.startswith("function "):
             found = re.findall(
-                "function \(([ ()a-zA-Z0-9\.,]*?)\)(?: returns \(([a-zA-Z0-9() \.,]*)\))?", name
+                "function \(([ ()\[\]a-zA-Z0-9\.,]*?)\)(?: payable)?(?: (?:external|internal|pure|view))?(?: returns \(([a-zA-Z0-9() \.,]*)\))?",
+                name,
             )
             assert len(found) == 1
             params = [v for v in found[0][0].split(",") if v != ""]
@@ -149,7 +152,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
         if name.startswith("mapping("):
             # nested mapping declared with var
             if name.count("mapping(") == 1:
-                found = re.findall("mapping\(([a-zA-Z0-9\.]*) => ([a-zA-Z0-9\.\[\]]*)\)", name)
+                found = re.findall("mapping\(([a-zA-Z0-9\.]*) => ([ a-zA-Z0-9\.\[\]]*)\)", name)
             else:
                 found = re.findall(
                     "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)", name,
