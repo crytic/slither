@@ -60,6 +60,7 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
         self._source_units: Dict[int, str] = {}
         self._solc_version: Optional[str] = None  # '0.3' or '0.4':!
         self._raw_source_code: Dict[str, str] = {}
+        self._source_code_to_line: Optional[Dict[str, List[str]]] = None
         self._all_functions: Set[Function] = set()
         self._all_modifiers: Set[Modifier] = set()
         # Memoize
@@ -86,6 +87,8 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
         # If set to true, slither will not catch errors during parsing
         self._disallow_partial: bool = False
         self._skip_assembly: bool = False
+
+        self._show_ignored_findings = False
 
     ###################################################################################
     ###################################################################################
@@ -280,6 +283,39 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
     ###################################################################################
     ###################################################################################
 
+    def has_ignore_comment(self, r: Dict) -> bool:
+        """
+        Check if the result has an ignore comment on the proceeding line, in which case, it is not valid
+        """
+        if not self.crytic_compile:
+            return False
+        mapping_elements_with_lines = (
+            (
+                os.path.normpath(elem["source_mapping"]["filename_absolute"]),
+                elem["source_mapping"]["lines"],
+            )
+            for elem in r["elements"]
+            if "source_mapping" in elem
+            and "filename_absolute" in elem["source_mapping"]
+            and "lines" in elem["source_mapping"]
+            and len(elem["source_mapping"]["lines"]) > 0
+        )
+
+        for file, lines in mapping_elements_with_lines:
+            ignore_line_index = min(lines) - 1
+            ignore_line_text = self.crytic_compile.get_code_from_line(file, ignore_line_index)
+            if ignore_line_text:
+                match = re.findall(
+                    r"^\s*//\s*slither-disable-next-line\s*([a-zA-Z0-9_,-]*)",
+                    ignore_line_text.decode("utf8"),
+                )
+                if match:
+                    ignored = match[0].split(",")
+                    if ignored and ("all" in ignored or any(r["check"] == c for c in ignored)):
+                        return True
+
+        return False
+
     def valid_result(self, r: Dict) -> bool:
         """
         Check if the result is valid
@@ -287,6 +323,7 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
             - All its source paths belong to the source path filtered
             - Or a similar result was reported and saved during a previous run
             - The --exclude-dependencies flag is set and results are only related to dependencies
+            - There is an ignore comment on the preceding line
         """
         source_mapping_elements = [
             elem["source_mapping"].get("filename_absolute", "unknown")
@@ -317,7 +354,11 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
             return False
         if r["elements"] and self._exclude_dependencies:
             return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
+        if self._show_ignored_findings:
+            return True
         if r["id"] in self._previous_results_ids:
+            return False
+        if self.has_ignore_comment(r):
             return False
         # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
         return not r["description"] in [pr["description"] for pr in self._previous_results]
@@ -409,6 +450,10 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
     @property
     def skip_assembly(self) -> bool:
         return self._skip_assembly
+
+    @property
+    def show_ignore_findings(self) -> bool:
+        return self.show_ignore_findings
 
     # endregion
     ###################################################################################

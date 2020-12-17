@@ -44,6 +44,7 @@ defaults_flag_in_config = {
     "ignore_return_value": False,
     "zip": None,
     "zip_type": "lzma",
+    "show_ignored_findings": False,
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 }
 
