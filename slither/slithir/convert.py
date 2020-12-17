@@ -13,7 +13,6 @@ from slither.core.declarations import (
     Structure,
 )
 from slither.core.declarations.function_contract import FunctionContract
-from slither.core.declarations.solidity_variables import SolidityImportPlaceHolder
 from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types import (
     ArrayType,
@@ -26,10 +25,9 @@ from slither.core.solidity_types import (
 from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
 from slither.core.solidity_types.type import Type
 from slither.core.variables.function_type_variable import FunctionTypeVariable
-from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
-from slither.slithir.operations.codesize import CodeSize
-from slither.slithir.variables import TupleVariable
+from slither.core.variables.variable import Variable
+from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
     Assignment,
     Balance,
@@ -63,6 +61,7 @@ from slither.slithir.operations import (
     Unpack,
     Nop,
 )
+from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -70,10 +69,10 @@ from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElementaryType
 from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable
-from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
+from slither.slithir.variables import TupleVariable
 from slither.utils.function import get_function_id
 from slither.utils.type import export_nested_types_from_variable
-from slither.slithir.exceptions import SlithIRError
+from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
@@ -432,7 +431,6 @@ def _convert_type_contract(ir, slither):
         assignment.set_node(ir.node)
         assignment.lvalue.set_type(ElementaryType("string"))
         return assignment
-
 
     raise SlithIRError(f"type({contract.name}).{ir.variable_right} is unknown")
 

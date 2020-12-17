@@ -43,7 +43,7 @@ class SlitherSolc:
         self._is_compact_ast = False
         self._core: SlitherCore = core
 
-        self._all_functions_parser: List[FunctionSolc] = []
+        self._all_functions_and_modifier_parser: List[FunctionSolc] = []
 
         self._top_level_contracts_counter = 0
 
@@ -52,11 +52,11 @@ class SlitherSolc:
         return self._core
 
     @property
-    def all_functions_parser(self) -> List[FunctionSolc]:
-        return self._all_functions_parser
+    def all_functions_and_modifiers_parser(self) -> List[FunctionSolc]:
+        return self._all_functions_and_modifier_parser
 
-    def add_functions_parser(self, f: FunctionSolc):
-        self._all_functions_parser.append(f)
+    def add_function_or_modifier_parser(self, f: FunctionSolc):
+        self._all_functions_and_modifier_parser.append(f)
 
     @property
     def underlying_contract_to_parser(self) -> Dict[Contract, ContractSolc]:
@@ -217,7 +217,7 @@ class SlitherSolc:
 
                 self._core.functions_top_level.append(func)
                 self._functions_top_level_parser.append(func_parser)
-                self.add_functions_parser(func_parser)
+                self.add_function_or_modifier_parser(func_parser)
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")

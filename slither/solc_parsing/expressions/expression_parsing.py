@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Dict, TYPE_CHECKING, Optional, Union, List
+from typing import Dict, TYPE_CHECKING, Optional, Union, List, Tuple
 
 from slither.core.declarations import Event, Enum, Structure
 from slither.core.declarations.contract import Contract
@@ -38,7 +38,6 @@ from slither.core.expressions.super_identifier import SuperIdentifier
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
 from slither.core.expressions.unary_operation import UnaryOperation, UnaryOperationType
-from slither.core.slither_core import SlitherCore
 from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
@@ -46,6 +45,7 @@ from slither.core.solidity_types import (
     MappingType,
 )
 from slither.core.variables.variable import Variable
+from slither.exceptions import SlitherError
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
 
@@ -53,6 +53,8 @@ if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.core.slither_core import SlitherCore
+    from slither.solc_parsing.slitherSolc import SlitherSolc
 
 logger = logging.getLogger("ExpressionParsing")
 
@@ -95,7 +97,10 @@ def _find_variable_from_ref_declaration(
         if contract_candidate.id == referenced_declaration:
             return contract_candidate
     for function_candidate in all_functions_parser:
-        if function_candidate.referenced_declaration == referenced_declaration:
+        if (
+            function_candidate.referenced_declaration == referenced_declaration
+            and not function_candidate.underlying_function.is_shadowed
+        ):
             return function_candidate.underlying_function
     return None
 
@@ -217,6 +222,47 @@ def _find_in_contract(
     return None
 
 
+def _find_variable_init(
+    caller_context: CallerContext,
+) -> Tuple[List[Contract], Union[List["FunctionSolc"]], "SlitherCore", "SlitherSolc"]:
+    from slither.solc_parsing.slitherSolc import SlitherSolc
+    from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.declarations.function import FunctionSolc
+
+    direct_contracts: List[Contract]
+    direct_functions_parser: List[FunctionSolc]
+
+    if isinstance(caller_context, SlitherSolc):
+        direct_contracts = []
+        direct_functions_parser = []
+        sl = caller_context.core
+        sl_parser = caller_context
+    elif isinstance(caller_context, ContractSolc):
+        direct_contracts = [caller_context.underlying_contract]
+        direct_functions_parser = caller_context.functions_parser + caller_context.modifiers_parser
+        sl = caller_context.slither
+        sl_parser = caller_context.slither_parser
+    elif isinstance(caller_context, FunctionSolc):
+        if caller_context.contract_parser:
+            direct_contracts = [caller_context.contract_parser.underlying_contract]
+            direct_functions_parser = (
+                caller_context.contract_parser.functions_parser
+                + caller_context.contract_parser.modifiers_parser
+            )
+        else:
+            # Top level functions
+            direct_contracts = []
+            direct_functions_parser = []
+        sl = caller_context.slither
+        sl_parser = caller_context.slither_parser
+    else:
+        raise SlitherError(
+            f"{type(caller_context)} ({caller_context} is not valid for find_variable"
+        )
+
+    return direct_contracts, direct_functions_parser, sl, sl_parser
+
+
 def find_variable(
     var_name: str,
     caller_context: CallerContext,
@@ -225,9 +271,8 @@ def find_variable(
 ) -> Union[
     Variable, Function, Contract, SolidityVariable, SolidityFunction, Event, Enum, Structure,
 ]:
-    from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
-    from slither.solc_parsing.slitherSolc import SlitherSolc
+    from slither.solc_parsing.declarations.contract import ContractSolc
 
     # variable are looked from the contract declarer
     # functions can be shadowed, but are looked from the contract instance, rather than the contract declarer
@@ -244,14 +289,22 @@ def find_variable(
     # for events it's unclear what should be the behavior, as they can be shadowed, but there is not impact
     # structure/enums cannot be shadowed
 
-    sl: SlitherCore = caller_context.core if isinstance(
-        caller_context, SlitherSolc
-    ) else caller_context.slither
-    sl_parser: SlitherSolc = caller_context if isinstance(
-        caller_context, SlitherSolc
-    ) else caller_context.slither_parser
+    direct_contracts, direct_functions_parser, sl, sl_parser = _find_variable_init(caller_context)
+
     all_contracts = sl.contracts
-    all_functions_parser = sl_parser.all_functions_parser
+    all_functions_parser = sl_parser.all_functions_and_modifiers_parser
+
+    # Look for all references delcaration
+    # First look only in the context of function/contract
+    # Then look everywhere
+    # Because functions are copied between contracts, two functions can have the same ref
+    # So we need to first look with respect to the direct context
+
+    ret = _find_variable_from_ref_declaration(
+        referenced_declaration, direct_contracts, direct_functions_parser
+    )
+    if ret:
+        return ret
 
     ret = _find_variable_from_ref_declaration(
         referenced_declaration, all_contracts, all_functions_parser
@@ -263,10 +316,6 @@ def find_variable(
         caller_context, FunctionSolc
     ) else None
     ret = _find_variable_in_function_parser(var_name, function_parser, referenced_declaration)
-    if ret:
-        return ret
-
-    ret = _find_top_level(var_name, sl)
     if ret:
         return ret
 
@@ -301,6 +350,11 @@ def find_variable(
 
     if var_name in SOLIDITY_FUNCTIONS:
         return SolidityFunction(var_name)
+
+    # Top level must be at the end, if nothing else was found
+    ret = _find_top_level(var_name, sl)
+    if ret:
+        return ret
 
     raise VariableNotFound("Variable not found: {} (context {})".format(var_name, caller_context))
 

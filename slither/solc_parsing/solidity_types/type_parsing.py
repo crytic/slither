@@ -1,23 +1,19 @@
 import logging
 import re
-from typing import List, TYPE_CHECKING, Union, Dict, Optional
+from typing import List, TYPE_CHECKING, Union, Dict
 
 from slither.core.declarations.function_contract import FunctionContract
+from slither.core.expressions.literal import Literal
+from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.elementary_type import (
     ElementaryType,
     ElementaryTypeName,
 )
+from slither.core.solidity_types.function_type import FunctionType
+from slither.core.solidity_types.mapping_type import MappingType
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.user_defined_type import UserDefinedType
-from slither.core.solidity_types.array_type import ArrayType
-from slither.core.solidity_types.mapping_type import MappingType
-from slither.core.solidity_types.function_type import FunctionType
-
 from slither.core.variables.function_type_variable import FunctionTypeVariable
-
-
-from slither.core.expressions.literal import Literal
-
 from slither.solc_parsing.exceptions import ParsingError
 
 if TYPE_CHECKING:
@@ -241,7 +237,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
         all_enums = [item for sublist in all_enumss for item in sublist]
         all_enums += contract.slither.enums_top_level
         contracts = contract.slither.contracts
-        functions = contract.functions
+        functions = contract.functions + contract.modifiers
     else:
         raise ParsingError(f"Incorrect caller context: {type(caller_context)}")
 

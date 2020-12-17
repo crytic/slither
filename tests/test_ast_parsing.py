@@ -404,6 +404,8 @@ XFAIL = [
 ]
 
 TESTED_SOLC_07 = ["0.7.0", "0.7.1", "0.7.2", "0.7.3", "0.7.4", "0.7.5"]
+
+
 def get_solc_versions() -> List[str]:
     """
     get a list of all the supported versions of solidity, sorted from earliest to latest
@@ -415,7 +417,14 @@ def get_solc_versions() -> List[str]:
     # there's an extra newline so just remove all empty strings
     solc_versions = [version for version in solc_versions if version != ""]
 
-    solc_versions = [version for version in solc_versions if (not version.startswith('0.7.')) or (version in TESTED_SOLC_07)]
+    # Dont test for newer 0.7 versions until explicity updated
+    # Dont test for 0.8 yet
+    solc_versions = [
+        version
+        for version in solc_versions
+        if ((not version.startswith("0.7.") or version.startswith("0.8.")))
+        or (version in TESTED_SOLC_07)
+    ]
     solc_versions.reverse()
     return solc_versions
 
