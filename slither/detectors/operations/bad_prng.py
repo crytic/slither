@@ -85,9 +85,7 @@ class BadPRNG(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#weak-PRNG"
-    )
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#weak-PRNG"
 
     WIKI_TITLE = "Weak PRNG"
     WIKI_DESCRIPTION = "Weak PRNG due to a modulo on `block.timestamp`, `now` or `blockhash`. These can be influenced by miners to some extent so they should be avoided."

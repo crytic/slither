@@ -55,7 +55,9 @@ class StorageSignedIntegerArray(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#storage-signed-integer-array"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#storage-signed-integer-array"
+    )
     WIKI_TITLE = "Storage Signed Integer Array"
     WIKI_DESCRIPTION = """`solc` versions `0.4.7`-`0.5.10` contain [a compiler bug](https://blog.ethereum.org/2019/06/25/solidity-storage-array-bugs)
 leading to incorrect values in signed integer arrays."""

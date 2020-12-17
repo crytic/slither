@@ -57,7 +57,9 @@ class ABIEncoderV2Array(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#storage-abiencoderv2-array"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#storage-abiencoderv2-array"
+    )
     WIKI_TITLE = "Storage ABIEncoderV2 Array"
     WIKI_DESCRIPTION = """`solc` versions `0.4.7`-`0.5.10` contain a [compiler bug](https://blog.ethereum.org/2019/06/25/solidity-storage-array-bugs.) leading to incorrect ABI encoder usage."""
     WIKI_EXPLOIT_SCENARIO = """

@@ -12,6 +12,7 @@ from slither import Slither
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors import all_detectors
 
+
 class Test:  # pylint: disable=too-few-public-methods
     def __init__(
         self,
@@ -62,11 +63,10 @@ ALL_TESTS = [
         "tests/detectors/boolean-constant-misuse/boolean-constant-misuse.sol",
         "0.6.0",
     ),
-    Test(all_detectors.UncheckedLowLevel, "tests/detectors/unchecked-lowlevel/unchecked_lowlevel.sol", "0.4.25"),
     Test(
         all_detectors.UncheckedLowLevel,
-        "tests/detectors/unchecked-lowlevel/unchecked_lowlevel-0.5.1.sol",
-        "0.5.1",
+        "tests/detectors/unchecked-lowlevel/unchecked_lowlevel.sol",
+        "0.4.25",
     ),
     Test(
         all_detectors.UncheckedLowLevel,
@@ -74,7 +74,14 @@ ALL_TESTS = [
         "0.5.1",
     ),
     Test(
-        all_detectors.UnindexedERC20EventParameters, "tests/detectors/erc20-indexed/erc20_indexed.sol", "0.4.25"
+        all_detectors.UncheckedLowLevel,
+        "tests/detectors/unchecked-lowlevel/unchecked_lowlevel-0.5.1.sol",
+        "0.5.1",
+    ),
+    Test(
+        all_detectors.UnindexedERC20EventParameters,
+        "tests/detectors/erc20-indexed/erc20_indexed.sol",
+        "0.4.25",
     ),
     Test(
         all_detectors.IncorrectERC20InterfaceDetection,
@@ -107,11 +114,25 @@ ALL_TESTS = [
         ["tests/detectors/pragma/pragma.0.4.23.sol"],
     ),
     Test(all_detectors.IncorrectSolc, "tests/detectors/solc-version/old_solc.sol", "0.4.21"),
-    Test(all_detectors.IncorrectSolc, "tests/detectors/solc-version/solc_version_incorrect.sol", "0.4.25"),
-    Test(all_detectors.IncorrectSolc, "tests/detectors/solc-version/solc_version_incorrect_05.sol", "0.5.7"),
+    Test(
+        all_detectors.IncorrectSolc,
+        "tests/detectors/solc-version/solc_version_incorrect.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.IncorrectSolc,
+        "tests/detectors/solc-version/solc_version_incorrect_05.sol",
+        "0.5.7",
+    ),
     Test(all_detectors.ReentrancyEth, "tests/detectors/reentrancy-eth/reentrancy.sol", "0.4.25"),
-    Test(all_detectors.ReentrancyEth, "tests/detectors/reentrancy-eth/reentrancy_indirect.sol", "0.4.25"),
-    Test(all_detectors.ReentrancyEth, "tests/detectors/reentrancy-eth/reentrancy-0.5.1.sol", "0.5.1"),
+    Test(
+        all_detectors.ReentrancyEth,
+        "tests/detectors/reentrancy-eth/reentrancy_indirect.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ReentrancyEth, "tests/detectors/reentrancy-eth/reentrancy-0.5.1.sol", "0.5.1"
+    ),
     Test(
         all_detectors.UninitializedStorageVars,
         "tests/detectors/uninitialized-storage/uninitialized_storage_pointer.sol",
@@ -123,14 +144,32 @@ ALL_TESTS = [
     Test(all_detectors.UnusedStateVars, "tests/detectors/unused-state/unused_state.sol", "0.5.1"),
     Test(all_detectors.LockedEther, "tests/detectors/locked-ether/locked_ether.sol", "0.4.25"),
     Test(all_detectors.LockedEther, "tests/detectors/locked-ether/locked_ether-0.5.1.sol", "0.5.1"),
-    Test(all_detectors.ArbitrarySend, "tests/detectors/arbitrary-send/arbitrary_send.sol", "0.4.25"),
-    Test(all_detectors.ArbitrarySend, "tests/detectors/arbitrary-send/arbitrary_send-0.5.1.sol", "0.5.1"),
+    Test(
+        all_detectors.ArbitrarySend, "tests/detectors/arbitrary-send/arbitrary_send.sol", "0.4.25"
+    ),
+    Test(
+        all_detectors.ArbitrarySend,
+        "tests/detectors/arbitrary-send/arbitrary_send-0.5.1.sol",
+        "0.5.1",
+    ),
     Test(all_detectors.Assembly, "tests/detectors/assembly/inline_assembly_contract.sol", "0.4.25"),
     Test(all_detectors.Assembly, "tests/detectors/assembly/inline_assembly_library.sol", "0.4.25"),
-    Test(all_detectors.Assembly, "tests/detectors/assembly/inline_assembly_contract-0.5.1.sol", "0.5.1"),
-    Test(all_detectors.Assembly, "tests/detectors/assembly/inline_assembly_library-0.5.1.sol", "0.5.1"),
-    Test(all_detectors.LowLevelCalls, "tests/detectors/low-level-calls/low_level_calls.sol", "0.4.25"),
-    Test(all_detectors.LowLevelCalls, "tests/detectors/low-level-calls/low_level_calls.sol", "0.5.1"),
+    Test(
+        all_detectors.Assembly,
+        "tests/detectors/assembly/inline_assembly_contract-0.5.1.sol",
+        "0.5.1",
+    ),
+    Test(
+        all_detectors.Assembly,
+        "tests/detectors/assembly/inline_assembly_library-0.5.1.sol",
+        "0.5.1",
+    ),
+    Test(
+        all_detectors.LowLevelCalls, "tests/detectors/low-level-calls/low_level_calls.sol", "0.4.25"
+    ),
+    Test(
+        all_detectors.LowLevelCalls, "tests/detectors/low-level-calls/low_level_calls.sol", "0.5.1"
+    ),
     Test(
         all_detectors.ConstCandidateStateVars,
         "tests/detectors/constable-states/const_state_variables.sol",
@@ -141,12 +180,36 @@ ALL_TESTS = [
         "tests/detectors/constable-states/const_state_variables.sol",
         "0.5.1",
     ),
-    Test(all_detectors.ExternalFunction, "tests/detectors/external-function/external_function.sol", "0.4.25"),
-    Test(all_detectors.ExternalFunction, "tests/detectors/external-function/external_function_2.sol", "0.4.25"),
-    Test(all_detectors.ExternalFunction, "tests/detectors/external-function/external_function.sol", "0.5.1"),
-    Test(all_detectors.ExternalFunction, "tests/detectors/external-function/external_function_2.sol", "0.5.1"),
-    Test(all_detectors.NamingConvention, "tests/detectors/naming-convention/naming_convention.sol", "0.4.25"),
-    Test(all_detectors.NamingConvention, "tests/detectors/naming-convention/naming_convention.sol", "0.5.1"),
+    Test(
+        all_detectors.ExternalFunction,
+        "tests/detectors/external-function/external_function.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ExternalFunction,
+        "tests/detectors/external-function/external_function_2.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ExternalFunction,
+        "tests/detectors/external-function/external_function.sol",
+        "0.5.1",
+    ),
+    Test(
+        all_detectors.ExternalFunction,
+        "tests/detectors/external-function/external_function_2.sol",
+        "0.5.1",
+    ),
+    Test(
+        all_detectors.NamingConvention,
+        "tests/detectors/naming-convention/naming_convention.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.NamingConvention,
+        "tests/detectors/naming-convention/naming_convention.sol",
+        "0.5.1",
+    ),
     Test(
         all_detectors.ControlledDelegateCall,
         "tests/detectors/controlled-delegatecall/controlled_delegatecall.sol",
@@ -164,43 +227,86 @@ ALL_TESTS = [
     ),
     Test(all_detectors.ConstantFunctionsAsm, "tests/detectors/constant/constant.sol", "0.4.25"),
     Test(all_detectors.ConstantFunctionsState, "tests/detectors/constant/constant.sol", "0.4.25"),
-    Test(all_detectors.ConstantFunctionsAsm, "tests/detectors/constant/constant-0.5.1.sol", "0.5.1"),
-    Test(all_detectors.ConstantFunctionsState, "tests/detectors/constant/constant-0.5.1.sol", "0.5.1"),
-    Test(all_detectors.UnusedReturnValues, "tests/detectors/unused-return/unused_return.sol", "0.4.25"),
-    Test(all_detectors.UnusedReturnValues, "tests/detectors/unused-return/unused_return.sol", "0.5.1"),
+    Test(
+        all_detectors.ConstantFunctionsAsm, "tests/detectors/constant/constant-0.5.1.sol", "0.5.1"
+    ),
+    Test(
+        all_detectors.ConstantFunctionsState, "tests/detectors/constant/constant-0.5.1.sol", "0.5.1"
+    ),
+    Test(
+        all_detectors.UnusedReturnValues,
+        "tests/detectors/unused-return/unused_return.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.UnusedReturnValues, "tests/detectors/unused-return/unused_return.sol", "0.5.1"
+    ),
     Test(
         all_detectors.ShadowingAbstractDetection,
         "tests/detectors/shadowing-abstract/shadowing_abstract.sol",
         "0.4.25",
     ),
-    Test(all_detectors.StateShadowing, "tests/detectors/shadowing-state/shadowing_state_variable.sol", "0.4.25"),
+    Test(
+        all_detectors.StateShadowing,
+        "tests/detectors/shadowing-state/shadowing_state_variable.sol",
+        "0.4.25",
+    ),
     Test(all_detectors.Timestamp, "tests/detectors/timestamp/timestamp.sol", "0.4.25"),
     Test(all_detectors.Timestamp, "tests/detectors/timestamp/timestamp.sol", "0.5.1"),
-    Test(all_detectors.MultipleCallsInLoop, "tests/detectors/calls-loop/multiple_calls_in_loop.sol", "0.4.25"),
+    Test(
+        all_detectors.MultipleCallsInLoop,
+        "tests/detectors/calls-loop/multiple_calls_in_loop.sol",
+        "0.4.25",
+    ),
     Test(
         all_detectors.BuiltinSymbolShadowing,
         "tests/detectors/shadowing-builtin/shadowing_builtin_symbols.sol",
         "0.4.25",
     ),
-    Test(all_detectors.LocalShadowing, "tests/detectors/shadowing-local/shadowing_local_variable.sol", "0.4.25"),
-    Test(all_detectors.RightToLeftOverride, "tests/detectors/rtlo/right_to_left_override.sol", "0.4.25"),
+    Test(
+        all_detectors.LocalShadowing,
+        "tests/detectors/shadowing-local/shadowing_local_variable.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.RightToLeftOverride,
+        "tests/detectors/rtlo/right_to_left_override.sol",
+        "0.4.25",
+    ),
     Test(all_detectors.VoidConstructor, "tests/detectors/void-cst/void-cst.sol", "0.5.1"),
-    Test(all_detectors.UncheckedSend, "tests/detectors/unchecked-send/unchecked_send-0.5.1.sol", "0.5.1"),
-    Test(all_detectors.ReentrancyEvent, "tests/detectors/reentrancy-events/reentrancy-0.5.1-events.sol", "0.5.1"),
+    Test(
+        all_detectors.UncheckedSend,
+        "tests/detectors/unchecked-send/unchecked_send-0.5.1.sol",
+        "0.5.1",
+    ),
+    Test(
+        all_detectors.ReentrancyEvent,
+        "tests/detectors/reentrancy-events/reentrancy-0.5.1-events.sol",
+        "0.5.1",
+    ),
     Test(
         all_detectors.IncorrectStrictEquality,
         "tests/detectors/incorrect-equality/incorrect_equality.sol",
         "0.5.1",
     ),
-    Test(all_detectors.TooManyDigits, "tests/detectors/too-many-digits/too_many_digits.sol", "0.5.1"),
-    Test(all_detectors.UnprotectedUpgradeable, "tests/detectors/unprotected-upgrade/Buggy.sol", "0.6.12",),
-    Test(all_detectors.UnprotectedUpgradeable, "tests/detectors/unprotected-upgrade/Fixed.sol", "0.6.12",),
+    Test(
+        all_detectors.TooManyDigits, "tests/detectors/too-many-digits/too_many_digits.sol", "0.5.1"
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "tests/detectors/unprotected-upgrade/Buggy.sol",
+        "0.6.12",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "tests/detectors/unprotected-upgrade/Fixed.sol",
+        "0.6.12",
+    ),
     Test(
         all_detectors.NamingConvention,
         "tests/detectors/naming-convention/naming_convention_ignore.sol",
         "0.4.25",
     ),
-
     Test(
         all_detectors.ABIEncoderV2Array,
         "tests/detectors/abiencoderv2-array/storage_ABIEncoderV2_array.sol",

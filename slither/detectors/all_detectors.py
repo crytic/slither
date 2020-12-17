@@ -64,11 +64,12 @@ from .compiler_bugs.storage_signed_integer_array import StorageSignedIntegerArra
 from .compiler_bugs.uninitialized_function_ptr_in_constructor import (
     UninitializedFunctionPtrsConstructor,
 )
-from .compiler_bugs.storage_ABIEncoderV2_array import   ABIEncoderV2Array
+from .compiler_bugs.storage_ABIEncoderV2_array import ABIEncoderV2Array
 from .compiler_bugs.array_by_reference import ArrayByReference
 from .compiler_bugs.enum_conversion import EnumConversion
 from .compiler_bugs.multiple_constructor_schemes import MultipleConstructorSchemes
 from .compiler_bugs.public_mapping_nested import PublicMappingNested
 from .compiler_bugs.reused_base_constructor import ReusedBaseConstructor
+
 #
 #

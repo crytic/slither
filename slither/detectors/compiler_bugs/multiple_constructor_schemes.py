@@ -12,7 +12,9 @@ class MultipleConstructorSchemes(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#multiple-constructor-schemes"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#multiple-constructor-schemes"
+    )
 
     WIKI_TITLE = "Multiple constructor schemes"
     WIKI_DESCRIPTION = (
