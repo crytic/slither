@@ -237,7 +237,11 @@ ALL_TESTS = [
     Test(TooManyDigits, "tests/detectors/too-many-digits/too_many_digits.sol", "0.5.1"),
     Test(UnprotectedUpgradeable, "tests/detectors/unprotected-upgrade/Buggy.sol", "0.6.12",),
     Test(UnprotectedUpgradeable, "tests/detectors/unprotected-upgrade/Fixed.sol", "0.6.12",),
-    Test(NamingConvention, "tests/detectors/naming-convention/naming_convention_ignore.sol", "0.4.25"),
+    Test(
+        NamingConvention,
+        "tests/detectors/naming-convention/naming_convention_ignore.sol",
+        "0.4.25",
+    ),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 
