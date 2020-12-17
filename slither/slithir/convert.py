@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, TYPE_CHECKING
 
 # pylint: disable= too-many-lines,import-outside-toplevel,too-many-branches,too-many-statements,too-many-nested-blocks
 from slither.core.declarations import (
@@ -12,6 +12,7 @@ from slither.core.declarations import (
     SolidityVariableComposed,
     Structure,
 )
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types import (
     ArrayType,
@@ -24,10 +25,9 @@ from slither.core.solidity_types import (
 from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
 from slither.core.solidity_types.type import Type
 from slither.core.variables.function_type_variable import FunctionTypeVariable
-from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
-from slither.slithir.operations.codesize import CodeSize
-from slither.slithir.variables import TupleVariable
+from slither.core.variables.variable import Variable
+from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
     Assignment,
     Balance,
@@ -61,6 +61,7 @@ from slither.slithir.operations import (
     Unpack,
     Nop,
 )
+from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
 from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
@@ -68,10 +69,13 @@ from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElementaryType
 from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable
-from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
+from slither.slithir.variables import TupleVariable
 from slither.utils.function import get_function_id
 from slither.utils.type import export_nested_types_from_variable
-from slither.slithir.exceptions import SlithIRError
+from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
+
+if TYPE_CHECKING:
+    from slither.core.cfg.node import Node
 
 logger = logging.getLogger("ConvertToIR")
 
@@ -428,15 +432,15 @@ def _convert_type_contract(ir, slither):
         assignment.lvalue.set_type(ElementaryType("string"))
         return assignment
 
-    if isinstance(contract, ElementaryType):
-        print(contract.type)
-
     raise SlithIRError(f"type({contract.name}).{ir.variable_right} is unknown")
 
 
-def propagate_types(ir, node):  # pylint: disable=too-many-locals
+def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
     # propagate the type
-    using_for = node.function.contract.using_for
+    node_function = node.function
+    using_for = (
+        node_function.contract.using_for if isinstance(node_function, FunctionContract) else dict()
+    )
     if isinstance(ir, OperationWithLValue):
         # Force assignment in case of missing previous correct type
         if not ir.lvalue.type:
@@ -478,9 +482,11 @@ def propagate_types(ir, node):  # pylint: disable=too-many-locals
 
                 # Convert HighLevelCall to LowLevelCall
                 if isinstance(t, ElementaryType) and t.name == "address":
+                    # Cannot be a top level function with this.
+                    assert isinstance(node_function, FunctionContract)
                     if ir.destination.name == "this":
                         return convert_type_of_high_and_internal_level_call(
-                            ir, node.function.contract
+                            ir, node_function.contract
                         )
                     if can_be_low_level(ir):
                         return convert_to_low_level(ir)
@@ -578,22 +584,20 @@ def propagate_types(ir, node):  # pylint: disable=too-many-locals
                     return _convert_type_contract(ir, node.function.slither)
                 left = ir.variable_left
                 t = None
+                ir_func = ir.function
                 # Handling of this.function_name usage
                 if (
                     left == SolidityVariable("this")
                     and isinstance(ir.variable_right, Constant)
-                    and str(ir.variable_right) in [x.name for x in ir.function.contract.functions]
+                    and isinstance(ir_func, FunctionContract)
+                    and str(ir.variable_right) in [x.name for x in ir_func.contract.functions]
                 ):
                     # Assumption that this.function_name can only compile if
                     # And the contract does not have two functions starting with function_name
                     # Otherwise solc raises:
                     # Error: Member "f" not unique after argument-dependent lookup in contract
                     targeted_function = next(
-                        (
-                            x
-                            for x in ir.function.contract.functions
-                            if x.name == str(ir.variable_right)
-                        )
+                        (x for x in ir_func.contract.functions if x.name == str(ir.variable_right))
                     )
                     t = _make_function_type(targeted_function)
                     ir.lvalue.set_type(t)
@@ -689,7 +693,6 @@ def propagate_types(ir, node):  # pylint: disable=too-many-locals
 
 def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
     assert isinstance(ins, TmpCall)
-
     if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
         # If the call is made to a variable member, where the member is this
         # We need to convert it to a HighLelelCall and not an internal dynamic call
@@ -753,7 +756,10 @@ def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
             #         f.h(1);
             #     }
             # }
-            using_for = ins.node.function.contract.using_for
+            node_func = ins.node.function
+            using_for = (
+                node_func.contract.using_for if isinstance(node_func, FunctionContract) else dict()
+            )
 
             targeted_libraries = (
                 [] + using_for.get("*", []) + using_for.get(FunctionType([], []), [])
@@ -772,6 +778,8 @@ def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
 
             if len(candidates) == 1:
                 lib_func = candidates[0]
+                # Library must be from a contract
+                assert isinstance(lib_func, FunctionContract)
                 lib_call = LibraryCall(
                     lib_func.contract,
                     Constant(lib_func.name),

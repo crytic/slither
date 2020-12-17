@@ -78,7 +78,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
                 # pylint: disable=raise-missing-from
                 raise SlitherError(f"Invalid compilation: \n{str(e)}")
             for path, ast in crytic_compile.asts.items():
-                self._parser.parse_contracts_from_loaded_json(ast, path)
+                self._parser.parse_top_level_from_loaded_json(ast, path)
                 self.add_source_code(path)
 
         if kwargs.get("generate_patches", False):
@@ -120,7 +120,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         self._parser = SlitherSolc(filename, self)
 
         for c in contracts_json:
-            self._parser.parse_contracts_from_json(c)
+            self._parser.parse_top_level_from_json(c)
 
     def _init_from_list(self, contract):
         self._parser = SlitherSolc("", self)
@@ -129,7 +129,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
                 path = c["absolutePath"]
             else:
                 path = c["attributes"]["absolutePath"]
-            self._parser.parse_contracts_from_loaded_json(c, path)
+            self._parser.parse_top_level_from_loaded_json(c, path)
 
     @property
     def detectors(self):

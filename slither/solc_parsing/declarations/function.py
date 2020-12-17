@@ -8,6 +8,7 @@ from slither.core.declarations.function import (
     ModifierStatements,
     FunctionType,
 )
+from slither.core.declarations.function_contract import FunctionContract
 
 from slither.core.expressions import AssignmentOperation
 from slither.core.variables.local_variable import LocalVariable
@@ -48,9 +49,13 @@ class FunctionSolc:
     # elems = [(type, name)]
 
     def __init__(
-        self, function: Function, function_data: Dict, contract_parser: "ContractSolc",
+        self,
+        function: Function,
+        function_data: Dict,
+        contract_parser: Optional["ContractSolc"],
+        slither_parser: "SlitherSolc",
     ):
-        self._slither_parser: "SlitherSolc" = contract_parser.slither_parser
+        self._slither_parser: "SlitherSolc" = slither_parser
         self._contract_parser = contract_parser
         self._function = function
 
@@ -95,7 +100,7 @@ class FunctionSolc:
         return self._function
 
     @property
-    def contract_parser(self) -> "ContractSolc":
+    def contract_parser(self) -> Optional["ContractSolc"]:
         return self._contract_parser
 
     @property
@@ -200,8 +205,9 @@ class FunctionSolc:
         else:
             self._function.function_type = FunctionType.NORMAL
 
-        if self._function.name == self._function.contract_declarer.name:
-            self._function.function_type = FunctionType.CONSTRUCTOR
+        if isinstance(self._function, FunctionContract):
+            if self._function.name == self._function.contract_declarer.name:
+                self._function.function_type = FunctionType.CONSTRUCTOR
 
     def _analyze_attributes(self):
         if self.is_compact_ast:
@@ -332,8 +338,11 @@ class FunctionSolc:
 
     def _new_yul_block(self, src: Union[str, Dict]) -> YulBlock:
         node = self._function.new_node(NodeType.ASSEMBLY, src)
+        contract = None
+        if isinstance(self._function, FunctionContract):
+            contract = self._function.contract
         yul_object = YulBlock(
-            self._function.contract,
+            contract,
             node,
             [self._function.name, f"asm_{len(self._node_to_yulobject)}"],
             parent_func=self._function,

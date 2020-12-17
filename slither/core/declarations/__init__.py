@@ -11,3 +11,5 @@ from .solidity_variables import (
     SolidityFunction,
 )
 from .structure import Structure
+from .enum_contract import EnumContract
+from .structure_contract import StructureContract
