@@ -60,6 +60,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
 
         self._disallow_partial: bool = kwargs.get("disallow_partial", False)
         self._skip_assembly: bool = kwargs.get("skip_assembly", False)
+        self._show_ignored_findings: bool = kwargs.get("show_ignored_findings", False)
 
         # list of files provided (see --splitted option)
         if isinstance(target, list):

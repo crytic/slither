@@ -269,7 +269,7 @@ def parse_filter_paths(args):
     return []
 
 
-def parse_args(detector_classes, printer_classes):
+def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-statements
     parser = argparse.ArgumentParser(
         description="Slither. For usage information, see https://github.com/crytic/slither/wiki/Usage",
         usage="slither.py contract.sol [flag]",
@@ -372,6 +372,13 @@ def parse_args(detector_classes, printer_classes):
         help="Exclude high impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_high"],
+    )
+
+    group_detector.add_argument(
+        "--show-ignored-findings",
+        help="Show all the findings",
+        action="store_true",
+        default=defaults_flag_in_config["show_ignored_findings"],
     )
 
     group_misc.add_argument(

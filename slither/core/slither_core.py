@@ -51,6 +51,7 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
         self._pragma_directives: List[Pragma] = []
         self._import_directives: List[Import] = []
         self._raw_source_code: Dict[str, str] = {}
+        self._source_code_to_line: Optional[Dict[str, List[str]]] = None
         self._all_functions: Set[Function] = set()
         self._all_modifiers: Set[Modifier] = set()
         # Memoize
@@ -77,6 +78,8 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
         # If set to true, slither will not catch errors during parsing
         self._disallow_partial: bool = False
         self._skip_assembly: bool = False
+
+        self._show_ignored_findings = False
 
     ###################################################################################
     ###################################################################################
@@ -269,11 +272,13 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
         """
         Check if the result has an ignore comment on the proceeding line, in which case, it is not valid
         """
+        if not self.crytic_compile:
+            return False
         mapping_elements_with_lines = (
-            {
-                "file": os.path.normpath(elem["source_mapping"]["filename_absolute"]),
-                "lines": elem["source_mapping"]["lines"],
-            }
+            (
+                os.path.normpath(elem["source_mapping"]["filename_absolute"]),
+                elem["source_mapping"]["lines"],
+            )
             for elem in r["elements"]
             if "source_mapping" in elem
             and "filename_absolute" in elem["source_mapping"]
@@ -281,17 +286,17 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
             and len(elem["source_mapping"]["lines"]) > 0
         )
 
-        for ele in mapping_elements_with_lines:
-            ignore_line_index = min(ele["lines"]) - 1
-            code_lines = self.source_code[ele["file"]].splitlines()
-            if len(code_lines) < ignore_line_index + 1 or ignore_line_index - 1 < 0:
-                return False
-            ignore_line_text = code_lines[ignore_line_index - 1]
-            match = re.match(r"^\s*//\s*slither-disable-next-line\s*", ignore_line_text)
-            if match:
-                ignored_checks = (x.strip() for x in ignore_line_text[match.span()[1] :].split(","))
-                matched_ignores = filter(lambda c: r["check"] == c, ignored_checks)
-                return any(matched_ignores)
+        for file, lines in mapping_elements_with_lines:
+            ignore_line_index = min(lines) - 1
+            ignore_line_text = self.crytic_compile.get_code_from_line(file, ignore_line_index)
+            if ignore_line_text:
+                match = re.findall(
+                    b"^\s*//\s*slither-disable-next-line\s*([a-zA-Z0-9_,-]*)", ignore_line_text
+                )
+                if match:
+                    ignored = match[0].decode("utf8").split(",")
+                    if ignored and ("all" in ignored or any(r["check"] == c for c in ignored)):
+                        return True
 
         return False
 
@@ -333,6 +338,8 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
             return False
         if r["elements"] and self._exclude_dependencies:
             return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
+        if self._show_ignored_findings:
+            return True
         if r["id"] in self._previous_results_ids:
             return False
         if self.has_ignore_comment(r):
@@ -427,6 +434,10 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
     @property
     def skip_assembly(self) -> bool:
         return self._skip_assembly
+
+    @property
+    def show_ignore_findings(self) -> bool:
+        return self.show_ignore_findings
 
     # endregion
     ###################################################################################
