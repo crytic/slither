@@ -2,13 +2,12 @@
     Function module
 """
 import logging
+from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 from enum import Enum
 from itertools import groupby
 from typing import Dict, TYPE_CHECKING, List, Optional, Set, Union, Callable, Tuple
 
-from slither.core.children.child_contract import ChildContract
-from slither.core.children.child_inheritance import ChildInheritance
 from slither.core.declarations.solidity_variables import (
     SolidityFunction,
     SolidityVariable,
@@ -24,7 +23,6 @@ from slither.core.solidity_types import UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
-
 from slither.core.variables.state_variable import StateVariable
 from slither.utils.utils import unroll
 
@@ -46,6 +44,7 @@ if TYPE_CHECKING:
     from slither.slithir.operations import Operation
     from slither.slither import Slither
     from slither.core.cfg.node import NodeType
+    from slither.core.slither_core import SlitherCore
 
 LOGGER = logging.getLogger("Function")
 ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
@@ -103,14 +102,12 @@ def _filter_state_variables_written(expressions: List["Expression"]):
     return ret
 
 
-class Function(
-    ChildContract, ChildInheritance, SourceMapping
-):  # pylint: disable=too-many-public-methods
+class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
     """
     Function class
     """
 
-    def __init__(self):
+    def __init__(self, slither: "SlitherCore"):
         super().__init__()
         self._scope: List[str] = []
         self._name: Optional[str] = None
@@ -206,6 +203,8 @@ class Function(
         self._canonical_name: Optional[str] = None
         self._is_protected: Optional[bool] = None
 
+        self._slither: "SlitherCore" = slither
+
     ###################################################################################
     ###################################################################################
     # region General properties
@@ -260,20 +259,13 @@ class Function(
         return self._full_name
 
     @property
+    @abstractmethod
     def canonical_name(self) -> str:
         """
         str: contract.func_name(type1,type2)
         Return the function signature without the return values
         """
-        if self._canonical_name is None:
-            name, parameters, _ = self.signature
-            self._canonical_name = (
-                ".".join([self.contract_declarer.name] + self._scope + [name])
-                + "("
-                + ",".join(parameters)
-                + ")"
-            )
-        return self._canonical_name
+        return ""
 
     @property
     def contains_assembly(self) -> bool:
@@ -320,16 +312,12 @@ class Function(
         return self._can_reenter
 
     @property
-    def slither(self) -> "Slither":
-        return self.contract.slither
+    def slither(self) -> "SlitherCore":
+        return self._slither
 
-    def is_declared_by(self, contract: "Contract") -> bool:
-        """
-        Check if the element is declared by the contract
-        :param contract:
-        :return:
-        """
-        return self.contract_declarer == contract
+    @slither.setter
+    def slither(self, sl: "SlitherCore"):
+        self._slither = sl
 
     # endregion
     ###################################################################################
@@ -978,16 +966,9 @@ class Function(
     ###################################################################################
 
     @property
+    @abstractmethod
     def functions_shadowed(self) -> List["Function"]:
-        """
-            Return the list of functions shadowed
-        Returns:
-            list(core.Function)
-
-        """
-        candidates = [c.functions_declared for c in self.contract.inheritance]
-        candidates = [candidate for sublist in candidates for candidate in sublist]
-        return [f for f in candidates if f.full_name == self.full_name]
+        pass
 
     # endregion
     ###################################################################################
@@ -1400,25 +1381,11 @@ class Function(
         """
         return variable in self.variables_written
 
+    @abstractmethod
     def get_summary(
         self,
     ) -> Tuple[str, str, str, List[str], List[str], List[str], List[str], List[str]]:
-        """
-            Return the function summary
-        Returns:
-            (str, str, str, list(str), list(str), listr(str), list(str), list(str);
-            contract_name, name, visibility, modifiers, vars read, vars written, internal_calls, external_calls_as_expressions
-        """
-        return (
-            self.contract_declarer.name,
-            self.full_name,
-            self.visibility,
-            [str(x) for x in self.modifiers],
-            [str(x) for x in self.state_variables_read + self.solidity_variables_read],
-            [str(x) for x in self.state_variables_written],
-            [str(x) for x in self.internal_calls],
-            [str(x) for x in self.external_calls_as_expressions],
-        )
+        pass
 
     def is_protected(self) -> bool:
         """
@@ -1684,18 +1651,9 @@ class Function(
         self._analyze_read_write()
         self._analyze_calls()
 
+    @abstractmethod
     def generate_slithir_ssa(self, all_ssa_state_variables_instances):
-        from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
-        from slither.core.dominators.utils import (
-            compute_dominance_frontier,
-            compute_dominators,
-        )
-
-        compute_dominators(self.nodes)
-        compute_dominance_frontier(self.nodes)
-        transform_slithir_vars_to_ssa(self)
-        if not self.contract.is_incorrectly_constructed:
-            add_ssa_ir(self, all_ssa_state_variables_instances)
+        pass
 
     def update_read_write_using_ssa(self):
         for node in self.nodes:

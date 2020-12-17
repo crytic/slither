@@ -1,15 +1,14 @@
 import logging
-from typing import List, Dict, Callable, TYPE_CHECKING, Union
+from typing import List, Dict, Callable, TYPE_CHECKING, Union, Set
 
-from slither.core.declarations import Modifier, Structure, Event
+from slither.core.declarations import Modifier, Event, EnumContract, StructureContract, Function
 from slither.core.declarations.contract import Contract
-from slither.core.declarations.enum import Enum
-from slither.core.declarations.function import Function
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.state_variable import StateVariable
 from slither.solc_parsing.declarations.event import EventSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.modifier import ModifierSolc
-from slither.solc_parsing.declarations.structure import StructureSolc
+from slither.solc_parsing.declarations.structure_contract import StructureContractSolc
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
@@ -44,7 +43,7 @@ class ContractSolc:
 
         self._functions_parser: List[FunctionSolc] = []
         self._modifiers_parser: List[ModifierSolc] = []
-        self._structures_parser: List[StructureSolc] = []
+        self._structures_parser: List[StructureContractSolc] = []
 
         self._is_analyzed: bool = False
 
@@ -252,28 +251,13 @@ class ContractSolc:
         return
 
     def _parse_struct(self, struct: Dict):
-        if self.is_compact_ast:
-            name = struct["name"]
-            attributes = struct
-        else:
-            name = struct["attributes"][self.get_key()]
-            attributes = struct["attributes"]
-        if "canonicalName" in attributes:
-            canonicalName = attributes["canonicalName"]
-        else:
-            canonicalName = self._contract.name + "." + name
 
-        if self.get_children("members") in struct:
-            children = struct[self.get_children("members")]
-        else:
-            children = []  # empty struct
-
-        st = Structure()
+        st = StructureContract()
         st.set_contract(self._contract)
         st.set_offset(struct["src"], self._contract.slither)
 
-        st_parser = StructureSolc(st, name, canonicalName, children, self)
-        self._contract.structures_as_dict[name] = st
+        st_parser = StructureContractSolc(st, struct, self)
+        self._contract.structures_as_dict[st.name] = st
         self._structures_parser.append(st_parser)
 
     def parse_structs(self):
@@ -307,17 +291,17 @@ class ContractSolc:
             self._contract.add_variables_ordered([var])
 
     def _parse_modifier(self, modifier_data: Dict):
-        modif = Modifier()
+        modif = Modifier(self.slither)
         modif.set_offset(modifier_data["src"], self._contract.slither)
         modif.set_contract(self._contract)
         modif.set_contract_declarer(self._contract)
 
-        modif_parser = ModifierSolc(modif, modifier_data, self)
+        modif_parser = ModifierSolc(modif, modifier_data, self, self.slither_parser)
         self._contract.slither.add_modifier(modif)
         self._modifiers_no_params.append(modif_parser)
         self._modifiers_parser.append(modif_parser)
 
-        self._slither_parser.add_functions_parser(modif_parser)
+        self._slither_parser.add_function_or_modifier_parser(modif_parser)
 
     def parse_modifiers(self):
         for modifier in self._modifiersNotParsed:
@@ -325,17 +309,17 @@ class ContractSolc:
         self._modifiersNotParsed = None
 
     def _parse_function(self, function_data: Dict):
-        func = Function()
+        func = FunctionContract(self.slither)
         func.set_offset(function_data["src"], self._contract.slither)
         func.set_contract(self._contract)
         func.set_contract_declarer(self._contract)
 
-        func_parser = FunctionSolc(func, function_data, self)
+        func_parser = FunctionSolc(func, function_data, self, self._slither_parser)
         self._contract.slither.add_function(func)
         self._functions_no_params.append(func_parser)
         self._functions_parser.append(func_parser)
 
-        self._slither_parser.add_functions_parser(func_parser)
+        self._slither_parser.add_function_or_modifier_parser(func_parser)
 
     def parse_functions(self):
 
@@ -396,7 +380,7 @@ class ContractSolc:
             elements_no_params = self._functions_no_params
             getter = lambda c: c.functions_parser
             getter_available = lambda c: c.functions_declared
-            Cls = Function
+            Cls = FunctionContract
             Cls_parser = FunctionSolc
             functions = self._analyze_params_elements(
                 elements_no_params,
@@ -411,15 +395,56 @@ class ContractSolc:
             self.log_incorrect_parsing(f"Missing params {e}")
         self._functions_no_params = []
 
+    def _analyze_params_element(  # pylint: disable=too-many-arguments
+        self,
+        Cls: Callable,
+        Cls_parser: Callable,
+        element_parser: FunctionSolc,
+        explored_reference_id: Set[int],
+        parser: List[FunctionSolc],
+        all_elements: Dict[str, Function],
+    ):
+        elem = Cls(self.slither)
+        elem.set_contract(self._contract)
+        underlying_function = element_parser.underlying_function
+        # TopLevel function are not analyzed here
+        assert isinstance(underlying_function, FunctionContract)
+        elem.set_contract_declarer(underlying_function.contract_declarer)
+        elem.set_offset(
+            element_parser.function_not_parsed["src"], self._contract.slither,
+        )
+
+        elem_parser = Cls_parser(
+            elem, element_parser.function_not_parsed, self, self.slither_parser
+        )
+        if (
+            element_parser.referenced_declaration
+            and element_parser.referenced_declaration in explored_reference_id
+        ):
+            # Already added from other fathers
+            return
+        if element_parser.referenced_declaration:
+            explored_reference_id.add(element_parser.referenced_declaration)
+        elem_parser.analyze_params()
+        if isinstance(elem, Modifier):
+            self._contract.slither.add_modifier(elem)
+        else:
+            self._contract.slither.add_function(elem)
+
+        self._slither_parser.add_function_or_modifier_parser(elem_parser)
+
+        all_elements[elem.canonical_name] = elem
+        parser.append(elem_parser)
+
     def _analyze_params_elements(  # pylint: disable=too-many-arguments,too-many-locals
         self,
         elements_no_params: List[FunctionSolc],
         getter: Callable[["ContractSolc"], List[FunctionSolc]],
-        getter_available: Callable[[Contract], List[Function]],
+        getter_available: Callable[[Contract], List[FunctionContract]],
         Cls: Callable,
         Cls_parser: Callable,
         parser: List[FunctionSolc],
-    ) -> Dict[str, Union[Function, Modifier]]:
+    ) -> Dict[str, Union[FunctionContract, Modifier]]:
         """
         Analyze the parameters of the given elements (Function or Modifier).
         The function iterates over the inheritance to create an instance or inherited elements (Function or Modifier)
@@ -433,28 +458,14 @@ class ContractSolc:
         """
         all_elements = {}
 
+        explored_reference_id = set()
         try:
             for father in self._contract.inheritance:
                 father_parser = self._slither_parser.underlying_contract_to_parser[father]
                 for element_parser in getter(father_parser):
-                    elem = Cls()
-                    elem.set_contract(self._contract)
-                    elem.set_contract_declarer(element_parser.underlying_function.contract_declarer)
-                    elem.set_offset(
-                        element_parser.function_not_parsed["src"], self._contract.slither,
+                    self._analyze_params_element(
+                        Cls, Cls_parser, element_parser, explored_reference_id, parser, all_elements
                     )
-
-                    elem_parser = Cls_parser(elem, element_parser.function_not_parsed, self,)
-                    elem_parser.analyze_params()
-                    if isinstance(elem, Modifier):
-                        self._contract.slither.add_modifier(elem)
-                    else:
-                        self._contract.slither.add_function(elem)
-
-                    self._slither_parser.add_functions_parser(elem_parser)
-
-                    all_elements[elem.canonical_name] = elem
-                    parser.append(elem_parser)
 
             accessible_elements = self._contract.available_elements_from_inheritances(
                 all_elements, getter_available
@@ -573,12 +584,12 @@ class ContractSolc:
             else:
                 values.append(child["attributes"][self.get_key()])
 
-        new_enum = Enum(name, canonicalName, values)
+        new_enum = EnumContract(name, canonicalName, values)
         new_enum.set_contract(self._contract)
         new_enum.set_offset(enum["src"], self._contract.slither)
         self._contract.enums_as_dict[canonicalName] = new_enum
 
-    def _analyze_struct(self, struct: StructureSolc):  # pylint: disable=no-self-use
+    def _analyze_struct(self, struct: StructureContractSolc):  # pylint: disable=no-self-use
         struct.analyze()
 
     def analyze_structs(self):

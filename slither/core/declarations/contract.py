@@ -25,8 +25,7 @@ from slither.utils.tests_pattern import is_test_contract
 # pylint: disable=too-many-lines,too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks
 if TYPE_CHECKING:
     from slither.utils.type_helpers import LibraryCallType, HighLevelCallType, InternalCallType
-    from slither.core.declarations import Enum, Event, Modifier
-    from slither.core.declarations import Structure
+    from slither.core.declarations import Enum, Event, Modifier, EnumContract, StructureContract
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.core.variables.variable import Variable
     from slither.core.variables.state_variable import StateVariable
@@ -51,8 +50,8 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         # contract B is A(1) { ..
         self._explicit_base_constructor_calls: List["Contract"] = []
 
-        self._enums: Dict[str, "Enum"] = {}
-        self._structures: Dict[str, "Structure"] = {}
+        self._enums: Dict[str, "EnumContract"] = {}
+        self._structures: Dict[str, "StructureContract"] = {}
         self._events: Dict[str, "Event"] = {}
         self._variables: Dict[str, "StateVariable"] = {}
         self._variables_ordered: List["StateVariable"] = []
@@ -135,28 +134,28 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
     ###################################################################################
 
     @property
-    def structures(self) -> List["Structure"]:
+    def structures(self) -> List["StructureContract"]:
         """
         list(Structure): List of the structures
         """
         return list(self._structures.values())
 
     @property
-    def structures_inherited(self) -> List["Structure"]:
+    def structures_inherited(self) -> List["StructureContract"]:
         """
         list(Structure): List of the inherited structures
         """
         return [s for s in self.structures if s.contract != self]
 
     @property
-    def structures_declared(self) -> List["Structure"]:
+    def structures_declared(self) -> List["StructureContract"]:
         """
         list(Structues): List of the structures declared within the contract (not inherited)
         """
         return [s for s in self.structures if s.contract == self]
 
     @property
-    def structures_as_dict(self) -> Dict[str, "Structure"]:
+    def structures_as_dict(self) -> Dict[str, "StructureContract"]:
         return self._structures
 
     # endregion
@@ -167,25 +166,25 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
     ###################################################################################
 
     @property
-    def enums(self) -> List["Enum"]:
+    def enums(self) -> List["EnumContract"]:
         return list(self._enums.values())
 
     @property
-    def enums_inherited(self) -> List["Enum"]:
+    def enums_inherited(self) -> List["EnumContract"]:
         """
         list(Enum): List of the inherited enums
         """
         return [e for e in self.enums if e.contract != self]
 
     @property
-    def enums_declared(self) -> List["Enum"]:
+    def enums_declared(self) -> List["EnumContract"]:
         """
         list(Enum): List of the enums declared within the contract (not inherited)
         """
         return [e for e in self.enums if e.contract == self]
 
     @property
-    def enums_as_dict(self) -> Dict[str, "Enum"]:
+    def enums_as_dict(self) -> Dict[str, "EnumContract"]:
         return self._enums
 
     # endregion
@@ -1090,11 +1089,13 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         self._is_incorrectly_parsed = incorrect
 
     def add_constructor_variables(self):
+        from slither.core.declarations.function_contract import FunctionContract
+
         if self.state_variables:
             for (idx, variable_candidate) in enumerate(self.state_variables):
                 if variable_candidate.expression and not variable_candidate.is_constant:
 
-                    constructor_variable = Function()
+                    constructor_variable = FunctionContract(self.slither)
                     constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
                     constructor_variable.set_contract(self)
                     constructor_variable.set_contract_declarer(self)
@@ -1120,7 +1121,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
             for (idx, variable_candidate) in enumerate(self.state_variables):
                 if variable_candidate.expression and variable_candidate.is_constant:
 
-                    constructor_variable = Function()
+                    constructor_variable = FunctionContract(self.slither)
                     constructor_variable.set_function_type(
                         FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES
                     )
