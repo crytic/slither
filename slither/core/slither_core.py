@@ -306,10 +306,11 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
             ignore_line_text = self.crytic_compile.get_code_from_line(file, ignore_line_index)
             if ignore_line_text:
                 match = re.findall(
-                    b"^\s*//\s*slither-disable-next-line\s*([a-zA-Z0-9_,-]*)", ignore_line_text
+                    r"^\s*//\s*slither-disable-next-line\s*([a-zA-Z0-9_,-]*)",
+                    ignore_line_text.decode("utf8"),
                 )
                 if match:
-                    ignored = match[0].decode("utf8").split(",")
+                    ignored = match[0].split(",")
                     if ignored and ("all" in ignored or any(r["check"] == c for c in ignored)):
                         return True
 
