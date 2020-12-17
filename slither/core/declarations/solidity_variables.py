@@ -204,6 +204,13 @@ class SolidityImportPlaceHolder(SolidityVariable):
     def type(self) -> ElementaryType:
         return ElementaryType("string")
 
+    def __eq__(self, other):
+        return (
+            self.__class__ == other.__class__
+            and self.name == other.name
+            and self._import_directive.filename == self._import_directive.filename
+        )
+
     @property
     def import_directive(self) -> "Import":
         return self._import_directive
