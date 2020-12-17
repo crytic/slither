@@ -396,7 +396,14 @@ XFAIL = [
     "yul_0.7.3_compact",
     "yul_0.7.4_compact",
     "yul_0.7.5_compact",
+    "top-level-import_0.7.1_legacy",
+    "top-level-import_0.7.2_legacy",
+    "top-level-import_0.7.3_legacy",
+    "top-level-import_0.7.4_legacy",
+    "top-level-import_0.7.5_legacy",
 ]
+
+TESTED_SOLC_07 = ["0.7.0", "0.7.1", "0.7.2", "0.7.3", "0.7.4", "0.7.5"]
 
 
 def get_solc_versions() -> List[str]:
@@ -409,6 +416,15 @@ def get_solc_versions() -> List[str]:
 
     # there's an extra newline so just remove all empty strings
     solc_versions = [version for version in solc_versions if version != ""]
+
+    # Dont test for newer 0.7 versions until explicity updated
+    # Dont test for 0.8 yet
+    solc_versions = [
+        version
+        for version in solc_versions
+        if (not version.startswith("0.7.") and not version.startswith("0.8."))
+        or (version in TESTED_SOLC_07)
+    ]
     solc_versions.reverse()
     return solc_versions
 
@@ -558,7 +574,7 @@ def test_parsing(test_item: Item):
     diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")
 
     if diff:
-        for change in diff["values_changed"]:
+        for change in diff.get("values_changed", []):
             path_list = re.findall(r"\['(.*?)'\]", change.path())
             path = "_".join(path_list)
             with open(f"test_artifacts/{id_test(test_item)}_{path}_expected.dot", "w") as f:
@@ -579,10 +595,8 @@ def _generate_test(test_item: Item, skip_existing=False):
     if skip_existing:
         if os.path.isfile(expected_file):
             return
-
     if id_test(test_item) in XFAIL:
         return
-
     set_solc(test_item)
     sl = Slither(
         test_file,

@@ -11,11 +11,18 @@ from slither.solc_parsing.declarations.function import FunctionSolc
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.slitherSolc import SlitherSolc
 
 
 class ModifierSolc(FunctionSolc):
-    def __init__(self, modifier: Modifier, function_data: Dict, contract_parser: "ContractSolc"):
-        super().__init__(modifier, function_data, contract_parser)
+    def __init__(
+        self,
+        modifier: Modifier,
+        function_data: Dict,
+        contract_parser: "ContractSolc",
+        slither_parser: "SlitherSolc",
+    ):
+        super().__init__(modifier, function_data, contract_parser, slither_parser)
         # _modifier is equal to _function, but keep it here to prevent
         # confusion for mypy in underlying_function
         self._modifier = modifier

@@ -1,11 +1,11 @@
 """
     Main module
 """
-import os
-import logging
 import json
-import re
+import logging
 import math
+import os
+import re
 from collections import defaultdict
 from typing import Optional, Dict, List, Set, Union, Tuple
 
@@ -18,10 +18,12 @@ from slither.core.declarations import (
     Import,
     Function,
     Modifier,
-    Structure,
-    Enum,
 )
+from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.function_top_level import FunctionTopLevel
+from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.operations import InternalCall
 from slither.slithir.variables import Constant
 from slither.utils.colors import red
@@ -44,13 +46,21 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
 
     def __init__(self):
         super().__init__()
+
+        # Top level object
         self._contracts: Dict[str, Contract] = {}
+        self._structures_top_level: List[StructureTopLevel] = []
+        self._enums_top_level: List[EnumTopLevel] = []
+        self._variables_top_level: List[TopLevelVariable] = []
+        self._functions_top_level: List[FunctionTopLevel] = []
+        self._pragma_directives: List[Pragma] = []
+        self._import_directives: List[Import] = []
+
         self._filename: Optional[str] = None
         self._source_units: Dict[int, str] = {}
         self._solc_version: Optional[str] = None  # '0.3' or '0.4':!
-        self._pragma_directives: List[Pragma] = []
-        self._import_directives: List[Import] = []
         self._raw_source_code: Dict[str, str] = {}
+        self._source_code_to_line: Optional[Dict[str, List[str]]] = None
         self._all_functions: Set[Function] = set()
         self._all_modifiers: Set[Modifier] = set()
         # Memoize
@@ -77,6 +87,8 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
         # If set to true, slither will not catch errors during parsing
         self._disallow_partial: bool = False
         self._skip_assembly: bool = False
+
+        self._show_ignored_findings = False
 
     ###################################################################################
     ###################################################################################
@@ -234,14 +246,20 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
     ###################################################################################
 
     @property
-    def top_level_structures(self) -> List[Structure]:
-        top_level_structures = [c.structures for c in self.contracts if c.is_top_level]
-        return [st for sublist in top_level_structures for st in sublist]
+    def structures_top_level(self) -> List[StructureTopLevel]:
+        return self._structures_top_level
 
     @property
-    def top_level_enums(self) -> List[Enum]:
-        top_level_enums = [c.enums for c in self.contracts if c.is_top_level]
-        return [st for sublist in top_level_enums for st in sublist]
+    def enums_top_level(self) -> List[EnumTopLevel]:
+        return self._enums_top_level
+
+    @property
+    def variables_top_level(self) -> List[TopLevelVariable]:
+        return self._variables_top_level
+
+    @property
+    def functions_top_level(self) -> List[FunctionTopLevel]:
+        return self._functions_top_level
 
     # endregion
     ###################################################################################
@@ -265,6 +283,39 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
     ###################################################################################
     ###################################################################################
 
+    def has_ignore_comment(self, r: Dict) -> bool:
+        """
+        Check if the result has an ignore comment on the proceeding line, in which case, it is not valid
+        """
+        if not self.crytic_compile:
+            return False
+        mapping_elements_with_lines = (
+            (
+                os.path.normpath(elem["source_mapping"]["filename_absolute"]),
+                elem["source_mapping"]["lines"],
+            )
+            for elem in r["elements"]
+            if "source_mapping" in elem
+            and "filename_absolute" in elem["source_mapping"]
+            and "lines" in elem["source_mapping"]
+            and len(elem["source_mapping"]["lines"]) > 0
+        )
+
+        for file, lines in mapping_elements_with_lines:
+            ignore_line_index = min(lines) - 1
+            ignore_line_text = self.crytic_compile.get_code_from_line(file, ignore_line_index)
+            if ignore_line_text:
+                match = re.findall(
+                    r"^\s*//\s*slither-disable-next-line\s*([a-zA-Z0-9_,-]*)",
+                    ignore_line_text.decode("utf8"),
+                )
+                if match:
+                    ignored = match[0].split(",")
+                    if ignored and ("all" in ignored or any(r["check"] == c for c in ignored)):
+                        return True
+
+        return False
+
     def valid_result(self, r: Dict) -> bool:
         """
         Check if the result is valid
@@ -272,6 +323,7 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
             - All its source paths belong to the source path filtered
             - Or a similar result was reported and saved during a previous run
             - The --exclude-dependencies flag is set and results are only related to dependencies
+            - There is an ignore comment on the preceding line
         """
         source_mapping_elements = [
             elem["source_mapping"].get("filename_absolute", "unknown")
@@ -302,7 +354,11 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
             return False
         if r["elements"] and self._exclude_dependencies:
             return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
+        if self._show_ignored_findings:
+            return True
         if r["id"] in self._previous_results_ids:
+            return False
+        if self.has_ignore_comment(r):
             return False
         # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
         return not r["description"] in [pr["description"] for pr in self._previous_results]
@@ -394,6 +450,10 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
     @property
     def skip_assembly(self) -> bool:
         return self._skip_assembly
+
+    @property
+    def show_ignore_findings(self) -> bool:
+        return self.show_ignore_findings
 
     # endregion
     ###################################################################################
