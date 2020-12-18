@@ -49,5 +49,33 @@ from .statements.divide_before_multiply import DivideBeforeMultiply
 from .statements.unprotected_upgradeable import UnprotectedUpgradeable
 from .slither.name_reused import NameReused
 
+from .functions.unimplemented import UnimplementedFunctionDetection
+from .statements.mapping_deletion import MappingDeletionDetection
+from .statements.array_length_assignment import ArrayLengthAssignment
+from .variables.similar_variables import SimilarVarsDetection
+from .variables.function_init_state_variables import FunctionInitializedState
+from .statements.redundant_statements import RedundantStatements
+from .operations.bad_prng import BadPRNG
+from .statements.costly_operations_in_loop import CostlyOperationsInLoop
+from .statements.assert_state_change import AssertStateChange
+from .attributes.unimplemented_interface import MissingInheritance
+from .assembly.shift_parameter_mixup import ShiftParameterMixup
+from .compiler_bugs.storage_signed_integer_array import StorageSignedIntegerArray
+from .compiler_bugs.uninitialized_function_ptr_in_constructor import (
+    UninitializedFunctionPtrsConstructor,
+)
+from .compiler_bugs.storage_ABIEncoderV2_array import ABIEncoderV2Array
+from .compiler_bugs.array_by_reference import ArrayByReference
+from .compiler_bugs.enum_conversion import EnumConversion
+from .compiler_bugs.multiple_constructor_schemes import MultipleConstructorSchemes
+from .compiler_bugs.public_mapping_nested import PublicMappingNested
+from .compiler_bugs.reused_base_constructor import ReusedBaseConstructor
+from .operations.missing_events_access_control import MissingEventsAccessControl
+from .operations.missing_events_arithmetic import MissingEventsArithmetic
+from .functions.modifier import ModifierDefaultDetection
+from .variables.predeclaration_usage_local import PredeclarationUsageLocal
+from .statements.unary import IncorrectUnaryExpressionDetection
+from .operations.missing_zero_address_validation import MissingZeroAddressValidation
+
 #
 #

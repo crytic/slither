@@ -15,7 +15,7 @@ npm i -g etherlime
 etherlime init
 slither .
 
-if [ $? -eq 7 ]
+if [ $? -eq 8 ]
 then
     exit 0
 fi
