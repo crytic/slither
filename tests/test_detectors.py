@@ -383,6 +383,36 @@ ALL_TESTS = [
         "0.5.8",
     ),
     Test(all_detectors.BadPRNG, "tests/detectors/weak-prng/bad_prng.sol", "0.4.25"),
+    Test(
+        all_detectors.MissingEventsArithmetic,
+        "tests/detectors/events-access/missing_events_access_control.sol",
+        "0.5.12",
+    ),
+    Test(
+        all_detectors.MissingEventsArithmetic,
+        "tests/detectors/events-maths/missing_events_arithmetic.sol",
+        "0.5.12",
+    ),
+    Test(
+        all_detectors.ModifierDefaultDetection,
+        "tests/detectors/incorrect-modifier/modifier_default.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.IncorrectUnaryExpressionDetection,
+        "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.MissingZeroAddressValidation,
+        "tests/detectors/missing-zero-check/missing_zero_address_validation.sol",
+        "0.5.12",
+    ),
+    Test(
+        all_detectors.PredeclarationUsageLocal,
+        "tests/detectors/variable-scope/predeclaration_usage_local.sol",
+        "0.4.25",
+    ),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 

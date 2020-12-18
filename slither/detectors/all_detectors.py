@@ -70,6 +70,12 @@ from .compiler_bugs.enum_conversion import EnumConversion
 from .compiler_bugs.multiple_constructor_schemes import MultipleConstructorSchemes
 from .compiler_bugs.public_mapping_nested import PublicMappingNested
 from .compiler_bugs.reused_base_constructor import ReusedBaseConstructor
+from .operations.missing_events_access_control import MissingEventsAccessControl
+from .operations.missing_events_arithmetic import MissingEventsArithmetic
+from .functions.modifier import ModifierDefaultDetection
+from .variables.predeclaration_usage_local import PredeclarationUsageLocal
+from .statements.unary import IncorrectUnaryExpressionDetection
+from .operations.missing_zero_address_validation import MissingZeroAddressValidation
 
 #
 #
