@@ -42,7 +42,7 @@ def generate_solidity_properties_no_contract(
     solidity_content += f"{{\n\n{solidity_properties}\n}}\n"
 
     filename = f"{test_contract_name}.sol"
-    write_file(output_dir, filename, solidity_content)
+    write_file(output_dir, filename, solidity_content, allow_overwrite=False)
 
     return Path(filename)
 

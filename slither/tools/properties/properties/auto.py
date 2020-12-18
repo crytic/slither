@@ -79,6 +79,7 @@ def encode_transfer(sig, f, t, c, v):
 def detect_token_props(slither, txs, attacker_address, max_balance):
 
     accounts = set()
+    contracts = dict()
     last_create = None
     tokens = OrderedDict()
     erc20_sigs = [get_function_id("transfer(address,uint256)"), get_function_id("balanceOf(address)"), get_function_id("approve(address,uint256)")]
@@ -86,11 +87,19 @@ def detect_token_props(slither, txs, attacker_address, max_balance):
     if max_balance is None:
         max_balance = 0
 
+    for contract in slither.contracts:
+        bc = slither.crytic_compile.bytecode_init(contract.name)
+        contracts[bc] = contract
+
     # obtain the list of contracts and accounts used
     print("List of transactions:")
     for i,tx in enumerate(txs):
         if tx["event"] == "ContractCreated":
-            print("CREATE")
+            bytecode = tx["data"].replace("0x","")
+            if bytecode in contracts: 
+                print("DEPLOYED", contracts[bytecode], "at", tx["contract_address"])
+            else:
+                print("CREATE", "at", tx["contract_address"])
             accounts.add(tx["from"])
             last_create = i
 
@@ -118,11 +127,10 @@ def detect_token_props(slither, txs, attacker_address, max_balance):
     for (addr, _) in tokens.items():
         print("Found one token-like contract at", addr)
  
-    return (accounts, tokens) #, txs[:last_create+1], txs[last_create+1:])
+    return (accounts, tokens)
 
 def generate_auto(
     slither, filename, addresses, max_balance, crytic_args
-    #contract: Contract, type_propertyi: str, addresses: Addresses
 ):  # pylint: disable=too-many-locals
     """
     Generate the AUTO tests
@@ -165,20 +173,9 @@ def generate_auto(
     )
 
     # Generate the Test contract
-    #initialization_recommendation = _initialization_recommendation(type_property)
     contract_filename, contract_name = generate_test_contract_no_contract(
         type_property, output_dir, property_file
     )
-
-    #print("Saving JSON with init transactions")
-    #init_file = filename + ".init"
-    #with open(init_file, 'w') as outfile:
-    #    json.dump(init_txs, outfile)
-
-    #print("Saving JSON with sample transactions")
-    #samples_file = filename + ".samples"
-    #with open(samples_file, 'w') as outfile:
-    #    json.dump(samples_txs, outfile)
 
     # Add attacker address to the list of accounts
     # accounts.add(addresses.attacker)
