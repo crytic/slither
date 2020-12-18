@@ -36,7 +36,9 @@ class IncorrectUnaryExpressionDetection(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-unary-expressions"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-unary-expressions"
+    )
 
     WIKI_TITLE = "Dangerous unary expressions"
     WIKI_DESCRIPTION = "Unary expressions such as `x=+1` probably typos."

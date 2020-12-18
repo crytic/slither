@@ -76,5 +76,6 @@ from .functions.modifier import ModifierDefaultDetection
 from .variables.predeclaration_usage_local import PredeclarationUsageLocal
 from .statements.unary import IncorrectUnaryExpressionDetection
 from .operations.missing_zero_address_validation import MissingZeroAddressValidation
+
 #
 #
