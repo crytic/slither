@@ -186,7 +186,7 @@
             "id": "a4f5ea904ad28f8c83aa1bab8284b485e1fe638545b500ca0c8a0fa8e442203e",
             "check": "assert-state-change",
             "impact": "Informational",
-            "confidence": "Informational"
+            "confidence": "High"
         },
         {
             "elements": [
@@ -374,7 +374,7 @@
             "id": "2b42e9f701ebd94656a026702bf90f31c62710a301600e0c05cfed04bfefabf9",
             "check": "assert-state-change",
             "impact": "Informational",
-            "confidence": "Informational"
+            "confidence": "High"
         },
         {
             "elements": [
@@ -562,7 +562,7 @@
             "id": "a72f3e7eef408be55123fbf5c290bfd20aed4f095d659f5df0857d64d61df011",
             "check": "assert-state-change",
             "impact": "Informational",
-            "confidence": "Informational"
+            "confidence": "High"
         }
     ]
 ]

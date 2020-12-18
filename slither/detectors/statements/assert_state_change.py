@@ -45,7 +45,7 @@ class AssertStateChange(AbstractDetector):
     ARGUMENT = "assert-state-change"
     HELP = "Assert state change"
     IMPACT = DetectorClassification.INFORMATIONAL
-    CONFIDENCE = DetectorClassification.INFORMATIONAL
+    CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#assert-state-change"
     WIKI_TITLE = "Assert state shange"
