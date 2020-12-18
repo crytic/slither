@@ -1,0 +1,534 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "c",
+                    "source_mapping": {
+                        "start": 42,
+                        "length": 13,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 16
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 204,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.c (tests/detectors/incorrect-unary/invalid_unary_expression.sol#4) uses an dangerous unary operator: (b = + 1)\n",
+            "markdown": "[C.c](tests/detectors/incorrect-unary/invalid_unary_expression.sol#L4) uses an dangerous unary operator: (b = + 1)\n",
+            "id": "98d05a4acbe13ff0e6fa795af35dc2002541cc7607f3f4d7ffb356f9d33681bd",
+            "check": "incorrect-unary",
+            "impact": "Low",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "f",
+                    "source_mapping": {
+                        "start": 60,
+                        "length": 142,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 4
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 204,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "f()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "x = + 144444",
+                    "source_mapping": {
+                        "start": 104,
+                        "length": 26,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 31
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "f",
+                            "source_mapping": {
+                                "start": 60,
+                                "length": 142,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14
+                                ],
+                                "starting_column": 3,
+                                "ending_column": 4
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 204,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "f()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.f() (tests/detectors/incorrect-unary/invalid_unary_expression.sol#6-14) uses an dangerous unary operator: x = + 144444 (tests/detectors/incorrect-unary/invalid_unary_expression.sol#8)\n",
+            "markdown": "[C.f()](tests/detectors/incorrect-unary/invalid_unary_expression.sol#L6-L14) uses an dangerous unary operator: [x = + 144444](tests/detectors/incorrect-unary/invalid_unary_expression.sol#L8)\n",
+            "id": "7595a3dac85785e5438d50c6b51b74329ce67fb73e71db0557eddd7fe0b20a75",
+            "check": "incorrect-unary",
+            "impact": "Low",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "f",
+                    "source_mapping": {
+                        "start": 60,
+                        "length": 142,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 4
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 204,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "f()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "x = (x = + 1)",
+                    "source_mapping": {
+                        "start": 136,
+                        "length": 10,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 15
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "f",
+                            "source_mapping": {
+                                "start": 60,
+                                "length": 142,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14
+                                ],
+                                "starting_column": 3,
+                                "ending_column": 4
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 204,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "f()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.f() (tests/detectors/incorrect-unary/invalid_unary_expression.sol#6-14) uses an dangerous unary operator: x = (x = + 1) (tests/detectors/incorrect-unary/invalid_unary_expression.sol#9)\n",
+            "markdown": "[C.f()](tests/detectors/incorrect-unary/invalid_unary_expression.sol#L6-L14) uses an dangerous unary operator: [x = (x = + 1)](tests/detectors/incorrect-unary/invalid_unary_expression.sol#L9)\n",
+            "id": "2a34e309de20d52cb8b386d6f5f166ae6847f1abfe840f0fe50f5801799f2425",
+            "check": "incorrect-unary",
+            "impact": "Low",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "slitherConstructorVariables",
+                    "source_mapping": {
+                        "start": 0,
+                        "length": 204,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 204,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "slitherConstructorVariables()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "c = (b = + 1)",
+                    "source_mapping": {
+                        "start": 42,
+                        "length": 13,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 16
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "slitherConstructorVariables",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 204,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 204,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/incorrect-unary/invalid_unary_expression.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "slitherConstructorVariables()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.slitherConstructorVariables() (tests/detectors/incorrect-unary/invalid_unary_expression.sol#1-15) uses an dangerous unary operator: c = (b = + 1) (tests/detectors/incorrect-unary/invalid_unary_expression.sol#4)\n",
+            "markdown": "[C.slitherConstructorVariables()](tests/detectors/incorrect-unary/invalid_unary_expression.sol#L1-L15) uses an dangerous unary operator: [c = (b = + 1)](tests/detectors/incorrect-unary/invalid_unary_expression.sol#L4)\n",
+            "id": "44f9cc4f47d5a925b4aceeff067e3d849153ee6577a1f41fb25b329156050b80",
+            "check": "incorrect-unary",
+            "impact": "Low",
+            "confidence": "Medium"
+        }
+    ]
+]
