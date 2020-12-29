@@ -5,7 +5,7 @@ from slither.utils.myprettytable import MyPrettyTable
 class EthReceivePrinter(AbstractPrinter):
 
     ARGUMENT = "eth-receive"
-    HELP = "Print all functions that can receive ether"
+    HELP = "Print all functions that can receive ETH"
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#eth-receive"
 
