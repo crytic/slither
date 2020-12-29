@@ -1,5 +1,6 @@
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.myprettytable import MyPrettyTable
+from slither.utils.output import Output
 
 
 class EthReceivePrinter(AbstractPrinter):
@@ -9,7 +10,7 @@ class EthReceivePrinter(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#eth-receive"
 
-    def output(self, _filename: str):
+    def output(self, _filename: str) -> Output:
         txt = ""
         all_tables = []
         for contract in self.slither.contracts:
