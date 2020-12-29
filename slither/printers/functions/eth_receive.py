@@ -2,12 +2,12 @@ from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.myprettytable import MyPrettyTable
 
 
-class Payable(AbstractPrinter):
+class EthReceivePrinter(AbstractPrinter):
 
-    ARGUMENT = "payable"
-    HELP = "Print all functions which can receive ether"
+    ARGUMENT = "eth-receive"
+    HELP = "Print all functions that can receive ether"
 
-    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#payable"
+    WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#eth-receive"
 
     def output(self, _filename: str):
         txt = ""

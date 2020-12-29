@@ -17,4 +17,4 @@ from .summary.require_calls import RequireOrAssert
 from .summary.constructor_calls import ConstructorPrinter
 from .guidance.echidna import Echidna
 from .summary.evm import PrinterEVM
-from .functions.payable import Payable
+from .functions.eth_receive import EthReceivePrinter
