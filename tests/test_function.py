@@ -3,9 +3,9 @@ from slither.core.declarations.function import FunctionType
 from slither.core.solidity_types.elementary_type import ElementaryType
 
 """
-tests for slither.core.declarations.Function.
-tests that `tests/functions.sol` gets translated into correct
-slither.core.declarations.Function objects or its subclasses
+tests for `slither.core.declarations.Function`.
+tests that `tests/test_function.sol` gets translated into correct
+`slither.core.declarations.Function` objects or its subclasses
 and that these objects behave correctly.
 """
 
