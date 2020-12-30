@@ -382,7 +382,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     @property
     def internal_calls(self) -> List["InternalCallType"]:
         """
-        list(Function or SolidityFunction): List of internal/soldiity function calls
+        list(Function or SolidityFunction): List of internal/solidity function calls
         """
         return list(self._internal_calls)
 
