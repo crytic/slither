@@ -4,7 +4,7 @@ from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.myprettytable import MyPrettyTable
 from slither.utils.output import Output
 from slither.slithir.operations import Operation, Call
-from slither.core.declarations import Function, Contract
+from slither.core.declarations import Function
 
 
 def operations_that_send_ether(function: Function) -> Iterator[Operation]:
