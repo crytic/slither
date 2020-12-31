@@ -150,3 +150,92 @@ def test_functions():
     assert f.is_empty
     assert not f.parameters
     assert not f.return_type
+
+    f = functions["receive()"]
+    assert f.name == "receive"
+    assert f.full_name == "receive()"
+    assert f.canonical_name == "TestFunction.receive()"
+    assert f.solidity_signature == "receive()"
+    assert f.signature_str == "receive() returns()"
+    assert f.function_type == FunctionType.RECEIVE
+    assert not f.contains_assembly
+    assert not f.can_reenter()
+    assert not f.can_send_eth()
+    assert not f.is_constructor
+    assert not f.is_fallback
+    assert f.is_receive
+    assert f.payable
+    assert f.visibility == "external"
+    assert not f.view
+    assert not f.pure
+    assert f.is_implemented
+    assert f.is_empty
+    assert not f.parameters
+    assert not f.return_type
+
+    f = functions["constructor(address)"]
+    assert f.name == "constructor"
+    assert f.full_name == "constructor(address)"
+    assert f.canonical_name == "TestFunction.constructor(address)"
+    assert f.solidity_signature == "constructor(address)"
+    assert f.signature_str == "constructor(address) returns()"
+    assert f.function_type == FunctionType.CONSTRUCTOR
+    assert not f.contains_assembly
+    assert not f.can_reenter()
+    assert not f.can_send_eth()
+    assert f.is_constructor
+    assert not f.is_fallback
+    assert not f.is_receive
+    assert f.payable
+    assert f.visibility == "public"
+    assert not f.view
+    assert not f.pure
+    assert f.is_implemented
+    assert f.is_empty
+    assert f.parameters[0].name == "_e"
+    assert f.parameters[0].type == ElementaryType("address")
+    assert not f.return_type
+
+    f = functions["private_view()"]
+    assert f.name == "private_view"
+    assert f.full_name == "private_view()"
+    assert f.canonical_name == "TestFunction.private_view()"
+    assert f.solidity_signature == "private_view()"
+    assert f.signature_str == "private_view() returns(bool)"
+    assert f.function_type == FunctionType.NORMAL
+    assert not f.contains_assembly
+    assert not f.can_reenter()
+    assert not f.can_send_eth()
+    assert not f.is_constructor
+    assert not f.is_fallback
+    assert not f.is_receive
+    assert not f.payable
+    assert f.visibility == "private"
+    assert f.view
+    assert not f.pure
+    assert f.is_implemented
+    assert not f.is_empty
+    assert not f.parameters
+    assert f.return_type[0] == ElementaryType("bool")
+
+    f = functions["public_pure()"]
+    assert f.name == "public_pure"
+    assert f.full_name == "public_pure()"
+    assert f.canonical_name == "TestFunction.public_pure()"
+    assert f.solidity_signature == "public_pure()"
+    assert f.signature_str == "public_pure() returns(bool)"
+    assert f.function_type == FunctionType.NORMAL
+    assert not f.contains_assembly
+    assert not f.can_reenter()
+    assert not f.can_send_eth()
+    assert not f.is_constructor
+    assert not f.is_fallback
+    assert not f.is_receive
+    assert not f.payable
+    assert f.visibility == "public"
+    assert f.view
+    assert f.pure
+    assert f.is_implemented
+    assert not f.is_empty
+    assert not f.parameters
+    assert f.return_type[0] == ElementaryType("bool")
