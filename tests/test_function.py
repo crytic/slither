@@ -9,6 +9,7 @@ tests that `tests/test_function.sol` gets translated into correct
 and that these objects behave correctly.
 """
 
+
 def test_functions():
     slither = Slither("tests/test_function.sol")
     functions = slither.contracts_as_dict["TestFunction"].available_functions_as_dict()
