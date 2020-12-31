@@ -1,7 +1,3 @@
-from slither import Slither
-from slither.core.declarations.function import FunctionType
-from slither.core.solidity_types.elementary_type import ElementaryType
-
 """
 tests for `slither.core.declarations.Function`.
 tests that `tests/test_function.sol` gets translated into correct
@@ -9,8 +5,13 @@ tests that `tests/test_function.sol` gets translated into correct
 and that these objects behave correctly.
 """
 
+from slither import Slither
+from slither.core.declarations.function import FunctionType
+from slither.core.solidity_types.elementary_type import ElementaryType
+
 
 def test_functions():
+    # pylint: disable=too-many-statements
     slither = Slither("tests/test_function.sol")
     functions = slither.contracts_as_dict["TestFunction"].available_functions_as_dict()
 
