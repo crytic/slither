@@ -2,12 +2,20 @@ from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.myprettytable import MyPrettyTable
 from slither.utils.output import Output
 from slither.slithir.operations import Operation
+from slither.core.cfg.node import Node
 
-MSG_SENDER_AND_VALUE = set(["msg.sender", "msg.value"])
+
+# TODO requirements
+
+MSG_VALUE_OR_SENDER = set(["msg.value", "msg.sender"])
+
+def is_reading_msg_value_or_sender(node: Node) -> bool:
+    return any(v.name in MSG_VALUE_OR_SENDER for v in node.solidity_variables_read)
 
 
-def reads_msg_sender_or_value(ir: Operation) -> bool:
-    return any(str(var) in MSG_SENDER_AND_VALUE for var in ir.read)
+def is_dominated_by_msg_value_or_sender(node: Node) -> bool:
+    return any(is_reading_msg_value_or_sender(n) for n in node.dominators)
+
 
 
 class EthReceivePrinter(AbstractPrinter):
@@ -26,17 +34,20 @@ class EthReceivePrinter(AbstractPrinter):
             payable_functions = [f for f in contract.functions if f.payable]
             if payable_functions:
                 txt += f"\n{contract.name}:\n"
-                table = MyPrettyTable(["Name", "Relevant Expressions"])
+                table = MyPrettyTable(["Name", "Side effects dependent on msg.value or msg.sender", "Requirements"])
                 for function in payable_functions:
-                    relevant_expressions = [
-                        ir
-                        for ir in function.all_slithir_operations()
-                        if reads_msg_sender_or_value(ir)
+                    dominated_by_msg_value_or_sender = [
+                        n for n in function.nodes if is_dominated_by_msg_value_or_sender(n) if n.expression and not n.contains_require_or_assert()
                     ]
+                    requirements = [
+                        n for n in function.nodes if n.contains_require_or_assert() and is_dominated_by_msg_value_or_sender(n)
+                    ]
+
                     table.add_row(
                         [
                             function.solidity_signature,
-                            "\n".join(str(ir.expression) for ir in relevant_expressions),
+                            "\n".join(str(n.expression) for n in dominated_by_msg_value_or_sender),
+                            "\n".join(str(n.expression) for n in requirements),
                         ]
                     )
                 txt += str(table) + "\n"
