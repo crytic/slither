@@ -305,6 +305,7 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
         from slither.slithir.operations import Call
 
         if self._can_send_eth is None:
+            self._can_send_eth = False
             for ir in self.all_slithir_operations():
                 if isinstance(ir, Call) and ir.can_send_eth():
                     self._can_send_eth = True
