@@ -309,7 +309,7 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
                 if isinstance(ir, Call) and ir.can_send_eth():
                     self._can_send_eth = True
                     return True
-        return self._can_reenter
+        return self._can_send_eth
 
     @property
     def slither(self) -> "SlitherCore":
