@@ -22,18 +22,18 @@ def test_functions():
     assert f.solidity_signature == "external_payable(uint256)"
     assert f.signature_str == "external_payable(uint256) returns(uint256)"
     assert f.function_type == FunctionType.NORMAL
-    assert not f.contains_assembly
-    assert not f.can_reenter()
-    assert not f.can_send_eth()
-    assert not f.is_constructor
-    assert not f.is_fallback
-    assert not f.is_receive
-    assert f.payable
+    assert f.contains_assembly is False
+    assert f.can_reenter() is False
+    assert f.can_send_eth() is False
+    assert f.is_constructor is False
+    assert f.is_fallback is False
+    assert f.is_receive is False
+    assert f.payable is True
     assert f.visibility == "external"
-    assert not f.view
-    assert not f.pure
-    assert f.is_implemented
-    assert not f.is_empty
+    assert f.view is False
+    assert f.pure is False
+    assert f.is_implemented is True
+    assert f.is_empty is False
     assert f.parameters[0].name == "_a"
     assert f.parameters[0].type == ElementaryType("uint256")
     assert f.return_type[0] == ElementaryType("uint256")
@@ -45,20 +45,20 @@ def test_functions():
     assert f.solidity_signature == "public_reenter()"
     assert f.signature_str == "public_reenter() returns()"
     assert f.function_type == FunctionType.NORMAL
-    assert not f.contains_assembly
-    assert f.can_reenter()
-    assert not f.can_send_eth()
-    assert not f.is_constructor
-    assert not f.is_fallback
-    assert not f.is_receive
-    assert not f.payable
+    assert f.contains_assembly is False
+    assert f.can_reenter() is True
+    assert f.can_send_eth() is False
+    assert f.is_constructor is False
+    assert f.is_fallback is False
+    assert f.is_receive is False
+    assert f.payable is False
     assert f.visibility == "public"
-    assert not f.view
-    assert not f.pure
-    assert f.is_implemented
-    assert not f.is_empty
-    assert not f.parameters
-    assert not f.return_type
+    assert f.view is False
+    assert f.pure is False
+    assert f.is_implemented is True
+    assert f.is_empty is False
+    assert f.parameters == []
+    assert f.return_type is None
 
     f = functions["public_payable_reenter_send(bool)"]
     assert f.name == "public_payable_reenter_send"
@@ -67,21 +67,21 @@ def test_functions():
     assert f.solidity_signature == "public_payable_reenter_send(bool)"
     assert f.signature_str == "public_payable_reenter_send(bool) returns()"
     assert f.function_type == FunctionType.NORMAL
-    assert not f.contains_assembly
-    assert f.can_reenter()
-    assert f.can_send_eth()
-    assert not f.is_constructor
-    assert not f.is_fallback
-    assert not f.is_receive
-    assert f.payable
+    assert f.contains_assembly is False
+    assert f.can_reenter() is True
+    assert f.can_send_eth() is True
+    assert f.is_constructor is False
+    assert f.is_fallback is False
+    assert f.is_receive is False
+    assert f.payable is True
     assert f.visibility == "public"
-    assert not f.view
-    assert not f.pure
-    assert f.is_implemented
-    assert not f.is_empty
+    assert f.view is False
+    assert f.pure is False
+    assert f.is_implemented is True
+    assert f.is_empty is False
     assert f.parameters[0].name == "_b"
     assert f.parameters[0].type == ElementaryType("bool")
-    assert not f.return_type
+    assert f.return_type is None
 
     f = functions["external_send(uint8)"]
     assert f.name == "external_send"
@@ -90,21 +90,21 @@ def test_functions():
     assert f.solidity_signature == "external_send(uint8)"
     assert f.signature_str == "external_send(uint8) returns()"
     assert f.function_type == FunctionType.NORMAL
-    assert not f.contains_assembly
-    assert f.can_reenter()
-    assert f.can_send_eth()
-    assert not f.is_constructor
-    assert not f.is_fallback
-    assert not f.is_receive
-    assert not f.payable
+    assert f.contains_assembly is False
+    assert f.can_reenter() is True
+    assert f.can_send_eth() is True
+    assert f.is_constructor is False
+    assert f.is_fallback is False
+    assert f.is_receive is False
+    assert f.payable is False
     assert f.visibility == "external"
-    assert not f.view
-    assert not f.pure
-    assert f.is_implemented
-    assert not f.is_empty
+    assert f.view is False
+    assert f.pure is False
+    assert f.is_implemented is True
+    assert f.is_empty is False
     assert f.parameters[0].name == "_c"
     assert f.parameters[0].type == ElementaryType("uint8")
-    assert not f.return_type
+    assert f.return_type is None
 
     f = functions["internal_assembly(bytes)"]
     assert f.name == "internal_assembly"
@@ -113,18 +113,18 @@ def test_functions():
     assert f.solidity_signature == "internal_assembly(bytes)"
     assert f.signature_str == "internal_assembly(bytes) returns(uint256)"
     assert f.function_type == FunctionType.NORMAL
-    assert f.contains_assembly
-    assert not f.can_reenter()
-    assert not f.can_send_eth()
-    assert not f.is_constructor
-    assert not f.is_fallback
-    assert not f.is_receive
-    assert not f.payable
+    assert f.contains_assembly is True
+    assert f.can_reenter() is False
+    assert f.can_send_eth() is False
+    assert f.is_constructor is False
+    assert f.is_fallback is False
+    assert f.is_receive is False
+    assert f.payable is False
     assert f.visibility == "internal"
-    assert not f.view
-    assert not f.pure
-    assert f.is_implemented
-    assert not f.is_empty
+    assert f.view is False
+    assert f.pure is False
+    assert f.is_implemented is True
+    assert f.is_empty is False
     assert f.parameters[0].name == "_d"
     assert f.parameters[0].type == ElementaryType("bytes")
     assert f.return_type[0] == ElementaryType("uint256")
@@ -136,20 +136,20 @@ def test_functions():
     assert f.solidity_signature == "fallback()"
     assert f.signature_str == "fallback() returns()"
     assert f.function_type == FunctionType.FALLBACK
-    assert not f.contains_assembly
-    assert not f.can_reenter()
-    assert not f.can_send_eth()
-    assert not f.is_constructor
-    assert f.is_fallback
-    assert not f.is_receive
-    assert not f.payable
+    assert f.contains_assembly is False
+    assert f.can_reenter() is False
+    assert f.can_send_eth() is False
+    assert f.is_constructor is False
+    assert f.is_fallback is True
+    assert f.is_receive is False
+    assert f.payable is False
     assert f.visibility == "external"
-    assert not f.view
-    assert not f.pure
-    assert f.is_implemented
-    assert f.is_empty
-    assert not f.parameters
-    assert not f.return_type
+    assert f.view is False
+    assert f.pure is False
+    assert f.is_implemented is True
+    assert f.is_empty is True
+    assert f.parameters == []
+    assert f.return_type is None
 
     f = functions["receive()"]
     assert f.name == "receive"
@@ -158,20 +158,20 @@ def test_functions():
     assert f.solidity_signature == "receive()"
     assert f.signature_str == "receive() returns()"
     assert f.function_type == FunctionType.RECEIVE
-    assert not f.contains_assembly
-    assert not f.can_reenter()
-    assert not f.can_send_eth()
-    assert not f.is_constructor
-    assert not f.is_fallback
-    assert f.is_receive
-    assert f.payable
+    assert f.contains_assembly is False
+    assert f.can_reenter() is False
+    assert f.can_send_eth() is False
+    assert f.is_constructor is False
+    assert f.is_fallback is False
+    assert f.is_receive is True
+    assert f.payable is True
     assert f.visibility == "external"
-    assert not f.view
-    assert not f.pure
-    assert f.is_implemented
-    assert f.is_empty
-    assert not f.parameters
-    assert not f.return_type
+    assert f.view is False
+    assert f.pure is False
+    assert f.is_implemented is True
+    assert f.is_empty is True
+    assert f.parameters == []
+    assert f.return_type is None
 
     f = functions["constructor(address)"]
     assert f.name == "constructor"
@@ -180,21 +180,21 @@ def test_functions():
     assert f.solidity_signature == "constructor(address)"
     assert f.signature_str == "constructor(address) returns()"
     assert f.function_type == FunctionType.CONSTRUCTOR
-    assert not f.contains_assembly
-    assert not f.can_reenter()
-    assert not f.can_send_eth()
+    assert f.contains_assembly is False
+    assert f.can_reenter() is False
+    assert f.can_send_eth() is False
     assert f.is_constructor
-    assert not f.is_fallback
-    assert not f.is_receive
-    assert f.payable
+    assert f.is_fallback is False
+    assert f.is_receive is False
+    assert f.payable is True
     assert f.visibility == "public"
-    assert not f.view
-    assert not f.pure
-    assert f.is_implemented
-    assert f.is_empty
+    assert f.view is False
+    assert f.pure is False
+    assert f.is_implemented is True
+    assert f.is_empty is True
     assert f.parameters[0].name == "_e"
     assert f.parameters[0].type == ElementaryType("address")
-    assert not f.return_type
+    assert f.return_type is None
 
     f = functions["private_view()"]
     assert f.name == "private_view"
@@ -203,19 +203,19 @@ def test_functions():
     assert f.solidity_signature == "private_view()"
     assert f.signature_str == "private_view() returns(bool)"
     assert f.function_type == FunctionType.NORMAL
-    assert not f.contains_assembly
-    assert not f.can_reenter()
-    assert not f.can_send_eth()
-    assert not f.is_constructor
-    assert not f.is_fallback
-    assert not f.is_receive
-    assert not f.payable
+    assert f.contains_assembly is False
+    assert f.can_reenter() is False
+    assert f.can_send_eth() is False
+    assert f.is_constructor is False
+    assert f.is_fallback is False
+    assert f.is_receive is False
+    assert f.payable is False
     assert f.visibility == "private"
-    assert f.view
-    assert not f.pure
-    assert f.is_implemented
-    assert not f.is_empty
-    assert not f.parameters
+    assert f.view is True
+    assert f.pure is False
+    assert f.is_implemented is True
+    assert f.is_empty is False
+    assert f.parameters == []
     assert f.return_type[0] == ElementaryType("bool")
 
     f = functions["public_pure()"]
@@ -225,17 +225,17 @@ def test_functions():
     assert f.solidity_signature == "public_pure()"
     assert f.signature_str == "public_pure() returns(bool)"
     assert f.function_type == FunctionType.NORMAL
-    assert not f.contains_assembly
-    assert not f.can_reenter()
-    assert not f.can_send_eth()
-    assert not f.is_constructor
-    assert not f.is_fallback
-    assert not f.is_receive
-    assert not f.payable
+    assert f.contains_assembly is False
+    assert f.can_reenter() is False
+    assert f.can_send_eth() is False
+    assert f.is_constructor is False
+    assert f.is_fallback is False
+    assert f.is_receive is False
+    assert f.payable is False
     assert f.visibility == "public"
-    assert f.view
-    assert f.pure
-    assert f.is_implemented
-    assert not f.is_empty
-    assert not f.parameters
+    assert f.view is True
+    assert f.pure is True
+    assert f.is_implemented is True
+    assert f.is_empty is False
+    assert f.parameters == []
     assert f.return_type[0] == ElementaryType("bool")
