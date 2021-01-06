@@ -298,7 +298,7 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
 
     def can_send_eth(self) -> bool:
         """
-        Check if the function can send eth
+        Check if the function or any internal (not external) functions called by it can send eth
         :return bool:
         """
         from slither.slithir.operations import Call
