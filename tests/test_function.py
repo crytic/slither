@@ -239,3 +239,23 @@ def test_functions():
     assert f.is_empty is False
     assert f.parameters == []
     assert f.return_type[0] == ElementaryType("bool")
+
+
+def test_function_can_send_eth():
+    slither = Slither("tests/test_function.sol")
+    functions = slither.contracts_as_dict["TestFunctionCanSendEth"].available_functions_as_dict()
+
+    assert functions["send_direct()"].can_send_eth() is True
+    assert functions["transfer_direct()"].can_send_eth() is True
+    assert functions["call_direct()"].can_send_eth() is True
+    assert functions["highlevel_call_direct()"].can_send_eth() is True
+
+    assert functions["send_via_internal()"].can_send_eth() is True
+    assert functions["transfer_via_internal()"].can_send_eth() is True
+    assert functions["call_via_internal()"].can_send_eth() is True
+    assert functions["highlevel_call_via_internal()"].can_send_eth() is True
+
+    assert functions["send_via_external()"].can_send_eth() is False
+    assert functions["transfer_via_external()"].can_send_eth() is False
+    assert functions["call_via_external()"].can_send_eth() is False
+    assert functions["highlevel_call_via_external()"].can_send_eth() is False
