@@ -43,7 +43,6 @@ if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.slithir.operations import Operation
     from slither.slither import Slither
-    from slither.core.cfg.node import NodeType
     from slither.core.slither_core import SlitherCore
 
 LOGGER = logging.getLogger("Function")
