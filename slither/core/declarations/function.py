@@ -43,7 +43,6 @@ if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.slithir.operations import Operation
     from slither.slither import Slither
-    from slither.core.cfg.node import NodeType
     from slither.core.slither_core import SlitherCore
 
 LOGGER = logging.getLogger("Function")
@@ -299,17 +298,18 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
 
     def can_send_eth(self) -> bool:
         """
-        Check if the function can send eth
+        Check if the function or any internal (not external) functions called by it can send eth
         :return bool:
         """
         from slither.slithir.operations import Call
 
         if self._can_send_eth is None:
+            self._can_send_eth = False
             for ir in self.all_slithir_operations():
                 if isinstance(ir, Call) and ir.can_send_eth():
                     self._can_send_eth = True
                     return True
-        return self._can_reenter
+        return self._can_send_eth
 
     @property
     def slither(self) -> "SlitherCore":

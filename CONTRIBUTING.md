@@ -32,10 +32,10 @@ To run the unit tests, you need
 
 Several linters and security checkers are run on the PRs.
 
-To run them locally:
+To run them locally in the root dir of the repository:
 
-- `pylint slither --rcfile pyproject.toml`
-- `black slither --config pyproject.toml`
+- `pylint slither tests --rcfile pyproject.toml`
+- `black . --config pyproject.toml`
 
 We use black `19.10b0`.
 ### Detectors tests
