@@ -214,3 +214,6 @@ class SolidityImportPlaceHolder(SolidityVariable):
     @property
     def import_directive(self) -> "Import":
         return self._import_directive
+
+    def __hash__(self):
+        return hash(str(self.import_directive))
