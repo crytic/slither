@@ -4,7 +4,7 @@ The following lists security vulnerabilities that were found by Slither. If you 
 
 - October 2018 - [Basis](https://github.com/trailofbits/publications/blob/master/reviews/basis.pdf)
   - Missing return value check
--  November 2018- [Origin protocol](https://github.com/trailofbits/publications/blob/master/reviews/origin.pdf)
+-  November 2018 - [Origin protocol](https://github.com/trailofbits/publications/blob/master/reviews/origin.pdf)
    - Reentrancy
 - July 2019 - [Numerai](https://github.com/trailofbits/publications/blob/master/reviews/numerai.pdf)
   - Deletion of a mapping with structure
