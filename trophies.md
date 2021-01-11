@@ -65,6 +65,8 @@ The following lists security vulnerabilities that were found by Slither. If you 
   - Uninitialized state variable
 - [Cryptex](https://certificate.quantstamp.com/full/cryptex)
   - Lack of return value check
+- [Unoswap](https://www.unos.finance/wp-content/uploads/2020/11/block-audit.pdf)
+  - Contract locking ethers
 ## December 2020
 - [Idle](https://certificate.quantstamp.com/full/idle-finance)
   - Dangerous divide before multiply operations
