@@ -189,7 +189,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         Args:
             filename(string)
         """
-        if filename == "" or filename == ".":
+        if filename in ("", "."):
             filename = "inheritance-graph.dot"
         if not filename.endswith(".dot"):
             filename += ".inheritance-graph.dot"
