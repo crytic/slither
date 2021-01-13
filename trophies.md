@@ -1,11 +1,13 @@
 # Slither Trophies
-The following lists security vulnerabilities that were found by Slither. If you found a security vulnerability using Slither, please submit a PR with the relevant information.
 
+The following lists security vulnerabilities that were found by Slither.
+If you found a security vulnerability using Slither,
+please submit a PR with the relevant information.
 
 - October 2018 - [Basis](https://github.com/trailofbits/publications/blob/master/reviews/basis.pdf)
   - Missing return value check
--  November 2018 - [Origin protocol](https://github.com/trailofbits/publications/blob/master/reviews/origin.pdf)
-   - Reentrancy
+- November 2018 - [Origin protocol](https://github.com/trailofbits/publications/blob/master/reviews/origin.pdf)
+  - Reentrancy
 - July 2019 - [Numerai](https://github.com/trailofbits/publications/blob/master/reviews/numerai.pdf)
   - Deletion of a mapping with structure
   - Missing return value
@@ -26,7 +28,7 @@ The following lists security vulnerabilities that were found by Slither. If you 
   - Modifier can return the default value
   - Dangerous strict equality allows the contract to be trapped
 - May 2020 - [DOSnetwork](https://blog.trailofbits.com/2020/05/15/bug-hunting-with-crytic/)
-  - Abi `encodedPacked `collision
+  - Abi `encodedPacked` collision
 - May 2020 - [EthKids](https://blog.trailofbits.com/2020/05/15/bug-hunting-with-crytic/)
   - `msg.value` is used two times to compute a price
 - May 2020 - [HQ20](https://blog.trailofbits.com/2020/05/15/bug-hunting-with-crytic/)
@@ -61,10 +63,8 @@ The following lists security vulnerabilities that were found by Slither. If you 
   - Uninitialized state variable
 - December 2020 - [wfil-factory](https://github.com/wfil/wfil-factory/commit/a43c1ddf52cf1191ccf1e71a637df02d78b98cc0)
   - Reentrancy
-- January 2021 - [Origin Dollar](https://github.com/trailofbits/publications/blob/master/reviews/OriginDollar.pdf) 
+- January 2021 - [Origin Dollar](https://github.com/trailofbits/publications/blob/master/reviews/OriginDollar.pdf)
   - Reentrancy
   - Variable shadowing
 - January 2021 - [OriginTrait](https://github.com/OriginTrail/starfleet-boarding-contract/commit/6481b12abc3cfd0d782abd0e32eabd103d8f6953)
   - Reentrancy
-
-
