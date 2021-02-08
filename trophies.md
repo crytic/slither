@@ -35,6 +35,7 @@ please submit a PR with the relevant information.
 [Linkswap](https://certificate.quantstamp.com/full/linkswap) | Lack of return value check | Nov 2020
 [Linkswap](https://certificate.quantstamp.com/full/linkswap) | Uninitialized state variable | Nov 2020
 [Cryptex](https://certificate.quantstamp.com/full/cryptex) | Lack of return value check | Nov 2020
+[Hermez](https://github.com/trailofbits/publications/blob/master/reviews/hermez.pdf) | Reentrancy | Nov 2020
 [Unoswap](https://www.unos.finance/wp-content/uploads/2020/11/block-audit.pdf) | Contract locking ethers | Nov 2020
 [Idle](https://certificate.quantstamp.com/full/idle-finance) | Dangerous divide before multiply operations | Dec 2020
 [RariCapital](https://certificate.quantstamp.com/full/rari-capital) | Lack of return value check | Dec 2020
