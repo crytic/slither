@@ -25,7 +25,6 @@ please submit a PR with the relevant information.
 [DOSnetwork](https://blog.trailofbits.com/2020/05/15/bug-hunting-with-crytic/) | Abi `encodedPacked` collision | May 2020
 [EthKids](https://blog.trailofbits.com/2020/05/15/bug-hunting-with-crytic/) | `msg.value` is used two times to compute a price | May 2020
 [HQ20](https://blog.trailofbits.com/2020/05/15/bug-hunting-with-crytic/) | Reentrancy | May 2020
-[88mph](https://certificate.quantstamp.com/full/88-mph) | Dangerous `block.timestamp` usage | Jun 2020
 [Dloop](https://certificate.quantstamp.com/full/dloop-art-registry-smart-contract) | Dangerous `block.timestamp` usage | Jun 2020
 [Atomic Loans](https://certificate.quantstamp.com/full/atomic-loans) | Uninitialized state variable | Jul 2020
 [Atomic Loans](https://certificate.quantstamp.com/full/atomic-loans) | State variable shadowing | Jul 2020
