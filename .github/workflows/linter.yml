@@ -80,4 +80,5 @@ jobs:
           VALIDATE_DOCKERFILE: false
           VALIDATE_DOCKERFILE_HADOLINT: false
           VALIDATE_EDITORCONFIG: false
+          VALIDATE_JSCPD: false
           SHELLCHECK_OPTS: "-e SC1090"
