@@ -46,7 +46,8 @@ jobs:
         pip install deepdiff
 
         pip install solc-select
-        solc use 0.5.1
+        solc-select install all
+        solc-select use 0.5.1
 
     - name: Run Tests
       env:

@@ -33,6 +33,8 @@ jobs:
           pip install deepdiff
           pip install pytest
           pip install solc-select
+          solc-select install all
+          solc-select use 0.7.3
 
       - name: Test with pytest
         run: |
