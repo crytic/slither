@@ -411,7 +411,7 @@ def get_solc_versions() -> List[str]:
     get a list of all the supported versions of solidity, sorted from earliest to latest
     :return: ascending list of versions, for example ["0.4.0", "0.4.1", ...]
     """
-    result = subprocess.run(["solc-select", "versions"], stdout=subprocess.PIPE, check=True)
+    result = subprocess.run(["solc", "--versions"], stdout=subprocess.PIPE, check=True)
     solc_versions = result.stdout.decode("utf-8").split("\n")
 
     # there's an extra newline so just remove all empty strings
