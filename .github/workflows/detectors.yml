@@ -33,11 +33,9 @@ jobs:
           pip install deepdiff
           pip install pytest
 
-          git clone https://github.com/crytic/solc-select.git
-          ./solc-select/scripts/install.sh
-          export PATH=/home/runner/.solc-select:$PATH
-          echo "export PATH=/home/runner/.solc-select:$PATH" >> ~/.bashrc
-
+          pip install solc-select
+          solc-select install all
+          solc-select use 0.7.3
       - name: Test with pytest
         run: |
           pytest tests/test_detectors.py

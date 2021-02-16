@@ -2,7 +2,7 @@
 
 ### Test
 
-solc use 0.7.0
+solc-select use 0.7.0
 
 if ! slither "tests/config/test.sol" --solc-ast --ignore-return-value; then
     echo "--solc-ast failed"

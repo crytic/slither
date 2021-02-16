@@ -17,7 +17,7 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 
 ## Features
 
-* Detects vulnerable Solidity code with low false positives
+* Detects vulnerable Solidity code with low false positives (see the list of [trophies](./trophies.md))
 * Identifies where the error condition occurs in the source code
 * Easily integrates into continuous integration and Truffle builds
 * Built-in 'printers' quickly report crucial contract information
@@ -30,7 +30,7 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 
 ## Bugs and Optimizations Detection
 
-Run Slither on a Truffle/Embark/Dapp/Etherlime application:
+Run Slither on a Truffle/Embark/Dapp/Etherlime/Hardhat application:
 ```bash
 slither .
 ```
@@ -217,5 +217,6 @@ Slither is licensed and distributed under the AGPLv3 license. [Contact us](mailt
 - [ETHPLOIT: From Fuzzing to Efficient Exploit Generation against Smart Contracts](https://wcventure.github.io/FuzzingPaper/Paper/SANER20_ETHPLOIT.pdf), Qingzhao Zhang, Yizhuo Wang, Juanru Li, Siqi Ma - SANER 20
 - [Verification of Ethereum Smart Contracts: A Model Checking Approach](http://www.ijmlc.org/vol10/977-AM0059.pdf), Tam Bang, Hoang H Nguyen, Dung Nguyen, Toan Trieu, Tho Quan - IJMLC 20
 - [Smart Contract Repair](https://arxiv.org/pdf/1912.05823.pdf), Xiao Liang Yu, Omar Al-Bataineh, David Lo, Abhik Roychoudhury - TOSEM 20
+- [Demystifying Loops in Smart Contracts](https://www.microsoft.com/en-us/research/uploads/prod/2020/08/loops_solidity__camera_ready-5f3fec3f15c69.pdf), Ben Mariano, Yanju Chen, Yu Feng, Shuvendu Lahiri, Isil Dillig - ASE 20
 
 If you are using Slither on an academic work, consider applying to the [Crytic $10k Research Prize](https://blog.trailofbits.com/2019/11/13/announcing-the-crytic-10k-research-prize/).
