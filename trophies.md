@@ -43,3 +43,6 @@ please submit a PR with the relevant information.
 [Origin Dollar](https://github.com/trailofbits/publications/blob/master/reviews/OriginDollar.pdf) | Reentrancy | Jan 2021
 [Origin Dollar](https://github.com/trailofbits/publications/blob/master/reviews/OriginDollar.pdf) | Variable shadowing | Jan 2021
 [OriginTrait](https://github.com/OriginTrail/starfleet-boarding-contract/commit/6481b12abc3cfd0d782abd0e32eabd103d8f6953) | Reentrancy | Jan 2021
+[AlphaHomoraV2](https://certificate.quantstamp.com/full/alpha-homora-v-2) | Dangerous divide before multiply operations | Jan 2021
+[Mimo Defi](https://certificate.quantstamp.com/full/ten-x-titan) | Lack of return value check | Jan 2021
+[OriginTrail](https://certificate.quantstamp.com/full/origin-trail-starfleet-staking) | Lack of return value check | Feb 2021
