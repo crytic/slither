@@ -895,7 +895,7 @@ class FunctionSolc:
             return_node = self._new_node(NodeType.RETURN, statement["src"])
             link_underlying_nodes(node, return_node)
             if self.is_compact_ast:
-                if statement["expression"]:
+                if statement.get("expression", None):
                     return_node.add_unparsed_expression(statement["expression"])
             else:
                 if (
