@@ -647,7 +647,16 @@ def parse_yul_function_call(root: YulScope, node: YulNode, ast: Dict) -> Optiona
         if name in unary_ops:
             return UnaryOperation(args[0], unary_ops[name])
 
-        ident = Identifier(SolidityFunction(format_function_descriptor(ident.value.name)))
+        if name == "stop":
+            name = "return"
+            ident = Identifier(SolidityFunction(format_function_descriptor(name)))
+            args = [
+                Literal("0", ElementaryType("uint256")),
+                Literal("0", ElementaryType("uint256")),
+            ]
+
+        else:
+            ident = Identifier(SolidityFunction(format_function_descriptor(ident.value.name)))
 
     if isinstance(ident.value, Function):
         return CallExpression(ident, args, vars_to_typestr(ident.value.returns))
