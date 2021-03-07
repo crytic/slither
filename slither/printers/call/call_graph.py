@@ -33,21 +33,39 @@ def _edge(from_node, to_node):
 
 # return dot language string to add graph node (with optional label)
 def _node(node, label=None):
-    return " ".join((f'"{node}"', f'[label="{label}"]' if label is not None else "",))
+    return " ".join(
+        (
+            f'"{node}"',
+            f'[label="{label}"]' if label is not None else "",
+        )
+    )
 
 
 # pylint: disable=too-many-arguments
 def _process_internal_call(
-    contract, function, internal_call, contract_calls, solidity_functions, solidity_calls,
+    contract,
+    function,
+    internal_call,
+    contract_calls,
+    solidity_functions,
+    solidity_calls,
 ):
     if isinstance(internal_call, (Function)):
         contract_calls[contract].add(
-            _edge(_function_node(contract, function), _function_node(contract, internal_call),)
+            _edge(
+                _function_node(contract, function),
+                _function_node(contract, internal_call),
+            )
         )
     elif isinstance(internal_call, (SolidityFunction)):
-        solidity_functions.add(_node(_solidity_function_node(internal_call)),)
+        solidity_functions.add(
+            _node(_solidity_function_node(internal_call)),
+        )
         solidity_calls.add(
-            _edge(_function_node(contract, function), _solidity_function_node(internal_call),)
+            _edge(
+                _function_node(contract, function),
+                _solidity_function_node(internal_call),
+            )
         )
 
 
@@ -84,7 +102,12 @@ def _render_solidity_calls(solidity_functions, solidity_calls):
 
 
 def _process_external_call(
-    contract, function, external_call, contract_functions, external_calls, all_contracts,
+    contract,
+    function,
+    external_call,
+    contract_functions,
+    external_calls,
+    all_contracts,
 ):
     external_contract, external_function = external_call
 
@@ -94,7 +117,10 @@ def _process_external_call(
     # add variable as node to respective contract
     if isinstance(external_function, (Variable)):
         contract_functions[external_contract].add(
-            _node(_function_node(external_contract, external_function), external_function.name,)
+            _node(
+                _function_node(external_contract, external_function),
+                external_function.name,
+            )
         )
 
     external_calls.add(
@@ -116,15 +142,27 @@ def _process_function(
     external_calls,
     all_contracts,
 ):
-    contract_functions[contract].add(_node(_function_node(contract, function), function.name),)
+    contract_functions[contract].add(
+        _node(_function_node(contract, function), function.name),
+    )
 
     for internal_call in function.internal_calls:
         _process_internal_call(
-            contract, function, internal_call, contract_calls, solidity_functions, solidity_calls,
+            contract,
+            function,
+            internal_call,
+            contract_calls,
+            solidity_functions,
+            solidity_calls,
         )
     for external_call in function.high_level_calls:
         _process_external_call(
-            contract, function, external_call, contract_functions, external_calls, all_contracts,
+            contract,
+            function,
+            external_call,
+            contract_functions,
+            external_calls,
+            all_contracts,
         )
 
 

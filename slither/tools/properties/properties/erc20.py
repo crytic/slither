@@ -107,7 +107,11 @@ def generate_erc20(
     # Generate the Test contract
     initialization_recommendation = _initialization_recommendation(type_property)
     contract_filename, contract_name = generate_test_contract(
-        contract, type_property, output_dir, property_file, initialization_recommendation,
+        contract,
+        type_property,
+        output_dir,
+        property_file,
+        initialization_recommendation,
     )
 
     # Generate Echidna config file

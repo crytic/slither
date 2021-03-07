@@ -575,7 +575,12 @@ def _explore_irs(slither, irs, result, target, convert):
                     loc_end = loc_start + len(old_str)
 
                     create_patch(
-                        result, filename_source_code, loc_start, loc_end, old_str, new_str,
+                        result,
+                        filename_source_code,
+                        loc_start,
+                        loc_end,
+                        old_str,
+                        new_str,
                     )
 
 
