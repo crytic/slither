@@ -5,9 +5,8 @@ from enum import Enum as PythonEnum
 from pathlib import Path
 from typing import List, Set, Dict, Optional
 
-from slither.core.declarations import SolidityFunction, Enum
+from slither.core.declarations import SolidityFunction, EnumContract, StructureContract
 from slither.core.declarations.contract import Contract
-from slither.core.declarations.structure import Structure
 from slither.core.solidity_types import MappingType, ArrayType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.exceptions import SlitherException
@@ -100,10 +99,10 @@ class Flattening:
                     continue
                 if f.visibility == "external":
                     attributes_start = (
-                        f.parameters_src.source_mapping["start"]
-                        + f.parameters_src.source_mapping["length"]
+                        f.parameters_src().source_mapping["start"]
+                        + f.parameters_src().source_mapping["length"]
                     )
-                    attributes_end = f.returns_src.source_mapping["start"]
+                    attributes_end = f.returns_src().source_mapping["start"]
                     attributes = content[attributes_start:attributes_end]
                     regex = re.search(r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes)
                     if regex:
@@ -197,7 +196,7 @@ class Flattening:
 
     def _export_from_type(self, t, contract, exported, list_contract):
         if isinstance(t, UserDefinedType):
-            if isinstance(t.type, (Enum, Structure)):
+            if isinstance(t.type, (EnumContract, StructureContract)):
                 if t.type.contract != contract and t.type.contract not in exported:
                     self._export_list_used_contracts(t.type.contract, exported, list_contract)
             else:

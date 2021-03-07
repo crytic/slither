@@ -127,10 +127,10 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
         self._slithir_variables: Set["SlithIRVariable"] = set()
         self._parameters: List["LocalVariable"] = []
         self._parameters_ssa: List["LocalIRVariable"] = []
-        self._parameters_src: Optional[SourceMapping] = None
+        self._parameters_src: SourceMapping = SourceMapping()
         self._returns: List["LocalVariable"] = []
         self._returns_ssa: List["LocalIRVariable"] = []
-        self._returns_src: Optional[SourceMapping] = None
+        self._returns_src: SourceMapping = SourceMapping()
         self._return_values: Optional[List["SlithIRVariable"]] = None
         self._return_values_ssa: Optional[List["SlithIRVariable"]] = None
         self._vars_read: List["Variable"] = []
@@ -570,6 +570,9 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
     def add_parameter_ssa(self, var: "LocalIRVariable"):
         self._parameters_ssa.append(var)
 
+    def parameters_src(self) -> SourceMapping:
+        return self._parameters_src
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -587,6 +590,9 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
         if returns:
             return [r.type for r in returns]
         return None
+
+    def returns_src(self) -> SourceMapping:
+        return self._returns_src
 
     @property
     def type(self) -> Optional[List[Type]]:

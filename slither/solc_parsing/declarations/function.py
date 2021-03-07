@@ -26,7 +26,6 @@ from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
 from slither.solc_parsing.exceptions import ParsingError
-from slither.core.source_mapping.source_mapping import SourceMapping
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
@@ -84,9 +83,6 @@ class FunctionSolc:
         ] = {}
 
         self._analyze_type()
-
-        self.parameters_src = SourceMapping()
-        self.returns_src = SourceMapping()
 
         self._node_to_nodesolc: Dict[Node, NodeSolc] = dict()
         self._node_to_yulobject: Dict[Node, YulBlock] = dict()
@@ -1089,7 +1085,7 @@ class FunctionSolc:
     def _parse_params(self, params: Dict):
         assert params[self.get_key()] == "ParameterList"
 
-        self.parameters_src.set_offset(params["src"], self._function.slither)
+        self._function.parameters_src().set_offset(params["src"], self._function.slither)
 
         if self.is_compact_ast:
             params = params["parameters"]
@@ -1105,7 +1101,7 @@ class FunctionSolc:
 
         assert returns[self.get_key()] == "ParameterList"
 
-        self.returns_src.set_offset(returns["src"], self._function.slither)
+        self._function.returns_src().set_offset(returns["src"], self._function.slither)
 
         if self.is_compact_ast:
             returns = returns["parameters"]
