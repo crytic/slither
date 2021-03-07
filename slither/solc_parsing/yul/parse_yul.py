@@ -650,7 +650,10 @@ def parse_yul_function_call(root: YulScope, node: YulNode, ast: Dict) -> Optiona
         if name == "stop":
             name = "return"
             ident = Identifier(SolidityFunction(format_function_descriptor(name)))
-            args = [Literal("0", ElementaryType("uint256")), Literal("0", ElementaryType("uint256"))]
+            args = [
+                Literal("0", ElementaryType("uint256")),
+                Literal("0", ElementaryType("uint256")),
+            ]
 
         else:
             ident = Identifier(SolidityFunction(format_function_descriptor(ident.value.name)))
