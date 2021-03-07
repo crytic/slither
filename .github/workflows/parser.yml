@@ -34,9 +34,13 @@ jobs:
           pip install pytest
 
           git clone https://github.com/crytic/solc-select.git
+          cd solc-select
+          git checkout 857d6fa883d9283454be1cb2d869a8f9962b27b8
+          cd ..
           ./solc-select/scripts/install.sh
           export PATH=/home/runner/.solc-select:$PATH
           echo "export PATH=/home/runner/.solc-select:$PATH" >> ~/.bashrc
+          solc use 0.7.3
 
       - name: Test with pytest
         run: |

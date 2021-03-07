@@ -269,7 +269,14 @@ def find_variable(
     referenced_declaration: Optional[int] = None,
     is_super=False,
 ) -> Union[
-    Variable, Function, Contract, SolidityVariable, SolidityFunction, Event, Enum, Structure,
+    Variable,
+    Function,
+    Contract,
+    SolidityVariable,
+    SolidityFunction,
+    Event,
+    Enum,
+    Structure,
 ]:
     from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
@@ -312,9 +319,9 @@ def find_variable(
     if ret:
         return ret
 
-    function_parser: Optional[FunctionSolc] = caller_context if isinstance(
-        caller_context, FunctionSolc
-    ) else None
+    function_parser: Optional[FunctionSolc] = (
+        caller_context if isinstance(caller_context, FunctionSolc) else None
+    )
     ret = _find_variable_in_function_parser(var_name, function_parser, referenced_declaration)
     if ret:
         return ret

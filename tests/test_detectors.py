@@ -54,6 +54,11 @@ def id_test(test_item: Test):
 
 ALL_TESTS = [
     Test(
+        all_detectors.ReentrancyBenign,
+        "tests/detectors/reentrancy-benign/reentrancy-benign.sol",
+        "0.4.26",
+    ),
+    Test(
         all_detectors.ReentrancyReadBeforeWritten,
         "tests/detectors/reentrancy-before-write/reentrancy-write.sol",
         "0.4.26",

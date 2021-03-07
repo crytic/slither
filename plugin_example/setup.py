@@ -9,5 +9,7 @@ setup(
     packages=find_packages(),
     python_requires=">=3.6",
     install_requires=["slither-analyzer==0.1"],
-    entry_points={"slither_analyzer.plugin": "slither my-plugin=slither_my_plugin:make_plugin",},
+    entry_points={
+        "slither_analyzer.plugin": "slither my-plugin=slither_my_plugin:make_plugin",
+    },
 )

@@ -210,7 +210,8 @@ def convert_arguments(arguments):
 
 def is_temporary(ins):
     return isinstance(
-        ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure),
+        ins,
+        (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure),
     )
 
 
@@ -624,7 +625,8 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                             # We dont need to check for function collision, as solc prevents the use of selector
                             # if there are multiple functions with the same name
                             f = next(
-                                (f for f in type_t.functions if f.name == ir.variable_right), None,
+                                (f for f in type_t.functions if f.name == ir.variable_right),
+                                None,
                             )
                             if f:
                                 ir.lvalue.set_type(f)
@@ -835,7 +837,10 @@ def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
             ins.called = SolidityFunction("blockhash(uint256)")
         elif str(ins.called) == "this.balance":
             s = SolidityCall(
-                SolidityFunction("this.balance()"), ins.nbr_arguments, ins.lvalue, ins.type_call,
+                SolidityFunction("this.balance()"),
+                ins.nbr_arguments,
+                ins.lvalue,
+                ins.type_call,
             )
             s.set_expression(ins.expression)
             return s
@@ -1153,7 +1158,11 @@ def look_for_library(contract, ir, using_for, t):
         lib_contract = contract.slither.get_contract_from_name(str(destination))
         if lib_contract:
             lib_call = LibraryCall(
-                lib_contract, ir.function_name, ir.nbr_arguments, ir.lvalue, ir.type_call,
+                lib_contract,
+                ir.function_name,
+                ir.nbr_arguments,
+                ir.lvalue,
+                ir.type_call,
             )
             lib_call.set_expression(ir.expression)
             lib_call.set_node(ir.node)
@@ -1386,7 +1395,14 @@ def remove_temporary(result):
         ins
         for ins in result
         if not isinstance(
-            ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure,),
+            ins,
+            (
+                Argument,
+                TmpNewElementaryType,
+                TmpNewContract,
+                TmpNewArray,
+                TmpNewStructure,
+            ),
         )
     ]
 

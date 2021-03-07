@@ -60,13 +60,13 @@ contract Crowdsale{
         return isinstance(ir, Binary) and ir.type == BinaryType.EQUAL
 
     @staticmethod
-    def is_any_tainted(variables, taints, function):
+    def is_any_tainted(variables, taints, function) -> bool:
         return any(
-            [
+            (
                 is_dependent_ssa(var, taint, function.contract)
                 for var in variables
                 for taint in taints
-            ]
+            )
         )
 
     def taint_balance_equalities(self, functions):

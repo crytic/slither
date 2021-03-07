@@ -470,7 +470,15 @@ def get_tests(solc_versions) -> Dict[str, List[str]]:
     return tests
 
 
-Item = namedtuple("TestItem", ["test_id", "base_ver", "solc_ver", "is_legacy",],)
+Item = namedtuple(
+    "TestItem",
+    [
+        "test_id",
+        "base_ver",
+        "solc_ver",
+        "is_legacy",
+    ],
+)
 
 
 def get_all_test() -> List[Item]:

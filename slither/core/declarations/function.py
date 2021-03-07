@@ -43,7 +43,6 @@ if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.slithir.operations import Operation
     from slither.slither import Slither
-    from slither.core.cfg.node import NodeType
     from slither.core.slither_core import SlitherCore
 
 LOGGER = logging.getLogger("Function")
@@ -52,7 +51,10 @@ ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
 
 class ModifierStatements:
     def __init__(
-        self, modifier: Union["Contract", "Function"], entry_point: "Node", nodes: List["Node"],
+        self,
+        modifier: Union["Contract", "Function"],
+        entry_point: "Node",
+        nodes: List["Node"],
     ):
         self._modifier = modifier
         self._entry_point = entry_point
@@ -299,17 +301,18 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
 
     def can_send_eth(self) -> bool:
         """
-        Check if the function can send eth
+        Check if the function or any internal (not external) functions called by it can send eth
         :return bool:
         """
         from slither.slithir.operations import Call
 
         if self._can_send_eth is None:
+            self._can_send_eth = False
             for ir in self.all_slithir_operations():
                 if isinstance(ir, Call) and ir.can_send_eth():
                     self._can_send_eth = True
                     return True
-        return self._can_reenter
+        return self._can_send_eth
 
     @property
     def slither(self) -> "SlitherCore":
@@ -1147,7 +1150,9 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def _explore_func_conditional(
-        func: "Function", f: Callable[["Node"], List[SolidityVariable]], include_loop: bool,
+        func: "Function",
+        f: Callable[["Node"], List[SolidityVariable]],
+        include_loop: bool,
     ):
         ret = [f(n) for n in func.nodes if n.is_conditional(include_loop)]
         return [item for sublist in ret for item in sublist]
@@ -1594,10 +1599,14 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
 
         return ret
 
-    def get_last_ssa_state_variables_instances(self,) -> Dict[str, Set["SlithIRVariable"]]:
+    def get_last_ssa_state_variables_instances(
+        self,
+    ) -> Dict[str, Set["SlithIRVariable"]]:
         return self._get_last_ssa_variable_instances(target_state=True, target_local=False)
 
-    def get_last_ssa_local_variables_instances(self,) -> Dict[str, Set["SlithIRVariable"]]:
+    def get_last_ssa_local_variables_instances(
+        self,
+    ) -> Dict[str, Set["SlithIRVariable"]]:
         return self._get_last_ssa_variable_instances(target_state=False, target_local=True)
 
     @staticmethod

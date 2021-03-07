@@ -53,7 +53,8 @@ Every Ether sent to `Locked` will be lost."""
                 for node in function.nodes:
                     for ir in node.irs:
                         if isinstance(
-                            ir, (Send, Transfer, HighLevelCall, LowLevelCall, NewContract),
+                            ir,
+                            (Send, Transfer, HighLevelCall, LowLevelCall, NewContract),
                         ):
                             if ir.call_value and ir.call_value != 0:
                                 return False

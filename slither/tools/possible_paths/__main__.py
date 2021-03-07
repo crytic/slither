@@ -21,7 +21,8 @@ def parse_args():
     :return: Returns the arguments for the program.
     """
     parser = argparse.ArgumentParser(
-        description="PossiblePaths", usage="possible_paths.py filename [contract.function targets]",
+        description="PossiblePaths",
+        usage="possible_paths.py filename [contract.function targets]",
     )
 
     parser.add_argument(

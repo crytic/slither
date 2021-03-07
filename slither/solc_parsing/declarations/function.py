@@ -454,7 +454,10 @@ class FunctionSolc:
                 return key in attributes and not attributes[key]
 
             if attributes and any(
-                map(has_hint, ["condition", "initializationExpression", "loopExpression"],)
+                map(
+                    has_hint,
+                    ["condition", "initializationExpression", "loopExpression"],
+                )
             ):
                 # if we have attribute hints, rely on those
 
@@ -602,7 +605,8 @@ class FunctionSolc:
             link_underlying_nodes(node_startDoWhile, node_condition)
         else:
             link_nodes(
-                node_startDoWhile.underlying_node, node_condition.underlying_node.sons[0],
+                node_startDoWhile.underlying_node,
+                node_condition.underlying_node.sons[0],
             )
         link_underlying_nodes(statement, node_condition)
         link_underlying_nodes(node_condition, node_endDoWhile)
