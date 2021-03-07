@@ -5,7 +5,7 @@ from slither.exceptions import SlitherException
 
 def convert_subdenomination(
     value: str, sub: str
-) -> int:  # pylint: disable=too-many-return-statements
+) -> int:  # pylint: disable=too-many-return-statements, too-many-branches
 
     # to allow 0.1 ether conversion
     if value[0:2] == "0x":
