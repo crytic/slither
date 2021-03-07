@@ -35,7 +35,10 @@ class State:  # pylint: disable=too-few-public-methods
 
 # pylint: disable=too-many-branches
 def _visit(
-    node: Node, state: State, variables_written: Set[Variable], variables_to_write: List[Variable],
+    node: Node,
+    state: State,
+    variables_written: Set[Variable],
+    variables_to_write: List[Variable],
 ):
     """
     Explore all the nodes to look for values not written when the node's function return

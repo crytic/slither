@@ -65,7 +65,10 @@ def slither_format(slither, **kwargs):  # pylint: disable=too-many-locals
         logger.info(f"Issue: {one_line_description}")
         logger.info(f"Generated: ({export_result})")
 
-        for (_, diff,) in result["patches_diff"].items():
+        for (
+            _,
+            diff,
+        ) in result["patches_diff"].items():
             filename = f"fix_{counter}.patch"
             path = Path(export_result, filename)
             logger.info(f"\t- {filename}")

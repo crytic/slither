@@ -155,7 +155,8 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
                 found = re.findall("mapping\(([a-zA-Z0-9\.]*) => ([ a-zA-Z0-9\.\[\]]*)\)", name)
             else:
                 found = re.findall(
-                    "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)", name,
+                    "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)",
+                    name,
                 )
             assert len(found) == 1
             from_ = found[0][0]

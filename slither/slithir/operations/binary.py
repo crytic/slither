@@ -175,7 +175,11 @@ class Binary(OperationWithLValue):
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
             return "{}(-> {}) = {} {} {}".format(
-                str(self.lvalue), points, self.variable_left, self.type_str, self.variable_right,
+                str(self.lvalue),
+                points,
+                self.variable_left,
+                self.type_str,
+                self.variable_right,
             )
         return "{}({}) = {} {} {}".format(
             str(self.lvalue),

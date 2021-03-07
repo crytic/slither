@@ -15,7 +15,10 @@ logger = logging.getLogger("Slither")
 
 
 def generate_truffle_test(
-    contract: Contract, type_property: str, unit_tests: List[Property], addresses: Addresses,
+    contract: Contract,
+    type_property: str,
+    unit_tests: List[Property],
+    addresses: Addresses,
 ) -> str:
     test_contract = f"Test{contract.name}{type_property}"
     filename_init = f"Initialization{test_contract}.js"
@@ -35,7 +38,11 @@ def generate_truffle_test(
     )
 
     generate_unit_test(
-        test_contract, filename, unit_tests, output_dir, addresses,
+        test_contract,
+        filename,
+        unit_tests,
+        output_dir,
+        addresses,
     )
 
     log_info = "\n"
