@@ -39,8 +39,7 @@ def _get_name(f: Union[Function, Variable]) -> str:
         if f.is_fallback or f.is_receive:
             return "()"
         return f.solidity_signature
-    else:
-        return f.function_name
+    return f.function_name
 
 
 def _extract_payable(slither: SlitherCore) -> Dict[str, List[str]]:
@@ -66,6 +65,7 @@ def _extract_solidity_variable_usage(
         if functions_using_sol_var:
             ret[contract.name] = functions_using_sol_var
     return ret
+
 
 def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
     """
