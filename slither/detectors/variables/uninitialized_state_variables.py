@@ -41,7 +41,7 @@ contract Uninitialized{
 Bob calls `transfer`. As a result, the Ether are sent to the address `0x0` and are lost.
 """
     WIKI_RECOMMENDATION = """
-Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero.
+Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero to improve code readability.
 """
 
     @staticmethod
