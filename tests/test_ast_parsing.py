@@ -11,8 +11,10 @@ import pytest
 from deepdiff import DeepDiff
 
 from slither import Slither
+from slither.printers.guidance.echidna import Echidna
 
 # these solc versions only support legacy ast format
+
 LEGACY_SOLC_VERS = [f"0.4.{v}" for v in range(12)]
 
 SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -591,6 +593,13 @@ def test_parsing(test_item: Item):
                 f.write(change.t2)
 
     assert not diff, diff.pretty()
+    # Currently top level call are covnerted to high level call, which makes
+    # The IR buggy
+    if test_item.test_id == "top-level-import":
+        return
+    sl = Slither(test_file, solc_force_legacy_json=test_item.is_legacy, disallow_partial=True)
+    sl.register_printer(Echidna)
+    sl.run_printers()
 
 
 def _generate_test(test_item: Item, skip_existing=False):

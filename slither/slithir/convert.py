@@ -459,7 +459,6 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                 return convert_type_library_call(ir, ir.destination)
             elif isinstance(ir, HighLevelCall):
                 t = ir.destination.type
-
                 # Temporary operation (they are removed later)
                 if t is None:
                     return None

@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from typing import Dict, List, Set, Tuple, NamedTuple
+from typing import Dict, List, Set, Tuple, NamedTuple, Union
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
@@ -33,10 +33,13 @@ from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
 
 
-def _get_name(f: Function) -> str:
-    if f.is_fallback or f.is_receive:
-        return "()"
-    return f.solidity_signature
+def _get_name(f: Union[Function, Variable]) -> str:
+    # Return the name of the function or variable
+    if isinstance(f, Function):
+        if f.is_fallback or f.is_receive:
+            return "()"
+        return f.solidity_signature
+    return f.function_name
 
 
 def _extract_payable(slither: SlitherCore) -> Dict[str, List[str]]:
