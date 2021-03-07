@@ -78,7 +78,9 @@ def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: 
         logger.info(yellow(f"{filename} exists already, the overwrite is prevented"))
     else:
         with ZipFile(
-            filename, "w", compression=ZIP_TYPES_ACCEPTED.get(zip_type, zipfile.ZIP_LZMA),
+            filename,
+            "w",
+            compression=ZIP_TYPES_ACCEPTED.get(zip_type, zipfile.ZIP_LZMA),
         ) as file_desc:
             file_desc.writestr("slither_results.json", json.dumps(json_result).encode("utf8"))
 
@@ -355,7 +357,11 @@ class Output:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(enum)}
         element = _create_base_element(
-            "enum", enum.name, enum.source_mapping, type_specific_fields, additional_fields,
+            "enum",
+            enum.name,
+            enum.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
         self._data["elements"].append(element)
 
@@ -371,7 +377,11 @@ class Output:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(struct)}
         element = _create_base_element(
-            "struct", struct.name, struct.source_mapping, type_specific_fields, additional_fields,
+            "struct",
+            struct.name,
+            struct.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
         self._data["elements"].append(element)
 
@@ -390,7 +400,11 @@ class Output:
             "signature": event.full_name,
         }
         element = _create_base_element(
-            "event", event.name, event.source_mapping, type_specific_fields, additional_fields,
+            "event",
+            event.name,
+            event.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
 
         self._data["elements"].append(element)
@@ -410,7 +424,11 @@ class Output:
         }
         node_name = str(node.expression) if node.expression else ""
         element = _create_base_element(
-            "node", node_name, node.source_mapping, type_specific_fields, additional_fields,
+            "node",
+            node_name,
+            node.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
         self._data["elements"].append(element)
 
@@ -461,7 +479,10 @@ class Output:
     ###################################################################################
 
     def add_pretty_table(
-        self, content: MyPrettyTable, name: str, additional_fields: Optional[Dict] = None,
+        self,
+        content: MyPrettyTable,
+        name: str,
+        additional_fields: Optional[Dict] = None,
     ):
         if additional_fields is None:
             additional_fields = {}
@@ -478,7 +499,11 @@ class Output:
     ###################################################################################
 
     def add_other(
-        self, name: str, source_mapping, slither, additional_fields: Optional[Dict] = None,
+        self,
+        name: str,
+        source_mapping,
+        slither,
+        additional_fields: Optional[Dict] = None,
     ):
         # If this a tuple with (filename, start, end), convert it to a source mapping.
         if additional_fields is None:
@@ -489,7 +514,10 @@ class Output:
             source_id = next(
                 (
                     source_unit_id
-                    for (source_unit_id, source_unit_filename,) in slither.source_units.items()
+                    for (
+                        source_unit_id,
+                        source_unit_filename,
+                    ) in slither.source_units.items()
                     if source_unit_filename == filename
                 ),
                 -1,

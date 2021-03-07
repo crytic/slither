@@ -19,7 +19,10 @@ class StructureContractSolc:  # pylint: disable=too-few-public-methods
     # elems = [(type, name)]
 
     def __init__(  # pylint: disable=too-many-arguments
-        self, st: Structure, struct: Dict, contract_parser: "ContractSolc",
+        self,
+        st: Structure,
+        struct: Dict,
+        contract_parser: "ContractSolc",
     ):
 
         if contract_parser.is_compact_ast:

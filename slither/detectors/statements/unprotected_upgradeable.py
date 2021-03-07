@@ -79,7 +79,9 @@ class UnprotectedUpgradeable(AbstractDetector):
                                 " is an upgradeable contract that does not protect its initiliaze functions: ",
                             ]
                             + initiliaze_functions
-                            + [". Anyone can delete the contract with: ",]
+                            + [
+                                ". Anyone can delete the contract with: ",
+                            ]
                             + functions_that_can_destroy
                         )
 
