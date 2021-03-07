@@ -14,6 +14,8 @@ def convert_subdenomination(
         decimal_value = Decimal(value)
     if sub == "wei":
         return int(decimal_value)
+    if sub == "gwei":
+        return int(decimal_value * int(1e9))
     if sub == "szabo":
         return int(decimal_value * int(1e12))
     if sub == "finney":
