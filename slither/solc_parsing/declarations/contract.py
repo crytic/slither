@@ -411,7 +411,8 @@ class ContractSolc:
         assert isinstance(underlying_function, FunctionContract)
         elem.set_contract_declarer(underlying_function.contract_declarer)
         elem.set_offset(
-            element_parser.function_not_parsed["src"], self._contract.slither,
+            element_parser.function_not_parsed["src"],
+            self._contract.slither,
         )
 
         elem_parser = Cls_parser(

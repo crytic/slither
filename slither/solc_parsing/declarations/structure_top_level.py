@@ -19,7 +19,10 @@ class StructureTopLevelSolc:  # pylint: disable=too-few-public-methods
     # elems = [(type, name)]
 
     def __init__(  # pylint: disable=too-many-arguments
-        self, st: Structure, struct: Dict, slither_parser: "SlitherSolc",
+        self,
+        st: Structure,
+        struct: Dict,
+        slither_parser: "SlitherSolc",
     ):
 
         if slither_parser.is_compact_ast:

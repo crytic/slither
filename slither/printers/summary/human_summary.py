@@ -379,7 +379,14 @@ class PrinterHumanSummary(AbstractPrinter):
             )
 
             table.add_row(
-                [contract.name, number_functions, ercs, erc20_info, is_complex, features,]
+                [
+                    contract.name,
+                    number_functions,
+                    ercs,
+                    erc20_info,
+                    is_complex,
+                    features,
+                ]
             )
 
         self.info(txt + "\n" + str(table))
