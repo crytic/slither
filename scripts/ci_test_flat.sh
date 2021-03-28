@@ -3,12 +3,10 @@
 ### Test slither-prop
 
 cd examples/flat || exit 1
-slither-flat b.sol
 
-if [ $? -eq 0 ]
-then
-    exit 0
+if ! slither-flat b.sol; then
+    echo "slither-flat failed"
+    exit 1
 fi
 
-echo "slither-flat failed"
-exit -1
+exit 0
