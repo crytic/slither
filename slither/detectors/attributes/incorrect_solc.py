@@ -35,10 +35,9 @@ class IncorrectSolc(AbstractDetector):
 We also recommend avoiding complex `pragma` statement."""
     WIKI_RECOMMENDATION = """
 Deploy with any of the following Solidity versions:
-- 0.5.11 - 0.5.13,
-- 0.5.15 - 0.5.17,
-- 0.6.8,
-- 0.6.10 - 0.6.11.
+- 0.5.16 - 0.5.17
+- 0.6.11 - 0.6.12
+- 0.7.5 - 0.7.6
 Use a simple pragma version that allows any of these versions.
 Consider using the latest version of Solidity for testing."""
 
@@ -47,7 +46,7 @@ Consider using the latest version of Solidity for testing."""
     LESS_THAN_TXT = "uses lesser than"
 
     TOO_RECENT_VERSION_TXT = (
-        "necessitates a version too recent to be trusted. Consider deploying with 0.6.11"
+        "necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6"
     )
     BUGGY_VERSION_TXT = (
         "is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
@@ -55,15 +54,12 @@ Consider using the latest version of Solidity for testing."""
 
     # Indicates the allowed versions. Must be formatted in increasing order.
     ALLOWED_VERSIONS = [
-        "0.5.11",
-        "0.5.12",
-        "0.5.13",
-        "0.5.15",
         "0.5.16",
         "0.5.17",
-        "0.6.8",
-        "0.6.10",
         "0.6.11",
+        "0.6.12",
+        "0.7.5",
+        "0.7.6",
     ]
 
     # Indicates the versions that should not be used.
