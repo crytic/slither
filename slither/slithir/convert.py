@@ -1475,15 +1475,15 @@ def convert_constant_types(irs):
                         if isinstance(ir.rvalue, TupleVariable):
                             # TODO: fix missing Unpack conversion
                             continue
-                        if ir.rvalue.type.type != "int256":
-                            ir.rvalue.set_type(ElementaryType("int256"))
+                        if ir.rvalue.type.type not in ElementaryTypeInt:
+                            ir.rvalue.set_type(ElementaryType(ir.lvalue.type.type))
                             was_changed = True
             if isinstance(ir, Binary):
                 if isinstance(ir.lvalue.type, ElementaryType):
                     if ir.lvalue.type.type in ElementaryTypeInt:
                         for r in ir.read:
-                            if r.type.type != "int256":
-                                r.set_type(ElementaryType("int256"))
+                            if r.type.type not in ElementaryTypeInt:
+                                r.set_type(ElementaryType(ir.lvalue.type.type))
                                 was_changed = True
             if isinstance(ir, (HighLevelCall, InternalCall)):
                 func = ir.function
@@ -1498,8 +1498,8 @@ def convert_constant_types(irs):
                     t = types[idx]
                     if isinstance(t, ElementaryType):
                         if t.type in ElementaryTypeInt:
-                            if arg.type.type != "int256":
-                                arg.set_type(ElementaryType("int256"))
+                            if arg.type.type not in ElementaryTypeInt:
+                                arg.set_type(ElementaryType(t.type))
                                 was_changed = True
             if isinstance(ir, NewStructure):
                 st = ir.structure
@@ -1507,16 +1507,16 @@ def convert_constant_types(irs):
                     e = st.elems_ordered[idx]
                     if isinstance(e.type, ElementaryType):
                         if e.type.type in ElementaryTypeInt:
-                            if arg.type.type != "int256":
-                                arg.set_type(ElementaryType("int256"))
+                            if arg.type.type not in ElementaryTypeInt:
+                                arg.set_type(ElementaryType(e.type.type))
                                 was_changed = True
             if isinstance(ir, InitArray):
                 if isinstance(ir.lvalue.type, ArrayType):
                     if isinstance(ir.lvalue.type.type, ElementaryType):
                         if ir.lvalue.type.type.type in ElementaryTypeInt:
                             for r in ir.read:
-                                if r.type.type != "int256":
-                                    r.set_type(ElementaryType("int256"))
+                                if r.type.type not in ElementaryTypeInt:
+                                    r.set_type(ElementaryType(ir.lvalue.type.type.type))
                                     was_changed = True
 
 

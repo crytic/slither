@@ -39,7 +39,7 @@ class PrinterSlithIR(AbstractPrinter):
                 continue
             txt += "Contract {}\n".format(contract.name)
             for function in contract.functions:
-                txt = f'\tFunction {function.canonical_name} {"" if function.is_shadowed else "(*)"}\n'
+                txt += f'\tFunction {function.canonical_name} {"" if function.is_shadowed else "(*)"}\n'
                 txt += _print_function(function)
             for modifier in contract.modifiers:
                 txt += "\tModifier {}\n".format(modifier.canonical_name)
