@@ -898,8 +898,8 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
 
             # TODO explore more the changes introduced in 0.8 and the usage of pathNode/IdentifierPath
             if "name" not in type_name:
-                assert 'pathNode' in type_name and 'name' in type_name['pathNode']
-                contract_name = type_name['pathNode']['name']
+                assert "pathNode" in type_name and "name" in type_name["pathNode"]
+                contract_name = type_name["pathNode"]["name"]
             else:
                 contract_name = type_name["name"]
         else:
@@ -950,6 +950,6 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
             identifier.set_offset(src, caller_context.slither)
             return identifier
 
-        raise ParsingError('IdentifierPath not currently supported for the legacy ast')
+        raise ParsingError("IdentifierPath not currently supported for the legacy ast")
 
     raise ParsingError("Expression not parsed %s" % name)
