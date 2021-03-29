@@ -892,7 +892,16 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         assert type_name[caller_context.get_key()] == "UserDefinedTypeName"
 
         if is_compact_ast:
-            contract_name = type_name["name"]
+
+            # Changed introduced in Solidity 0.8
+            # see https://github.com/crytic/slither/issues/794
+
+            # TODO explore more the changes introduced in 0.8 and the usage of pathNode/IdentifierPath
+            if "name" not in type_name:
+                assert "pathNode" in type_name and "name" in type_name["pathNode"]
+                contract_name = type_name["pathNode"]["name"]
+            else:
+                contract_name = type_name["name"]
         else:
             contract_name = type_name["attributes"]["name"]
         new = NewContract(contract_name)
@@ -923,5 +932,24 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         # TODO: Investigate array slices usage and implication for the IR
         base = parse_expression(expression["baseExpression"], caller_context)
         return base
+
+    # Introduced with solc 0.8
+    if name == "IdentifierPath":
+
+        if caller_context.is_compact_ast:
+            value = expression["name"]
+
+            if "referencedDeclaration" in expression:
+                referenced_declaration = expression["referencedDeclaration"]
+            else:
+                referenced_declaration = None
+
+            var = find_variable(value, caller_context, referenced_declaration)
+
+            identifier = Identifier(var)
+            identifier.set_offset(src, caller_context.slither)
+            return identifier
+
+        raise ParsingError("IdentifierPath not currently supported for the legacy ast")
 
     raise ParsingError("Expression not parsed %s" % name)
