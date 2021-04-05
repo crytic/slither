@@ -14,6 +14,7 @@ from slither.core.solidity_types.mapping_type import MappingType
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.variables.function_type_variable import FunctionTypeVariable
+from slither.exceptions import SlitherError
 from slither.solc_parsing.exceptions import ParsingError
 
 if TYPE_CHECKING:
@@ -290,6 +291,21 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
             enums_direct_access,
             all_enums,
         )
+
+    # Introduced with Solidity 0.8
+    if t[key] == "IdentifierPath":
+        if is_compact_ast:
+            return _find_from_type_name(
+                t["name"],
+                functions,
+                contracts,
+                structures_direct_access,
+                all_structures,
+                enums_direct_access,
+                all_enums,
+            )
+
+        raise SlitherError("Solidity 0.8 not supported with the legacy AST")
 
     if t[key] == "ArrayTypeName":
         length = None
