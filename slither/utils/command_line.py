@@ -147,25 +147,29 @@ def convert_result_to_markdown(txt):
 
 def output_results_to_markdown(all_results):
     checks = defaultdict(list)
+    info = defaultdict(dict)
     for results in all_results:
-        checks[results["check"]].append(results["description"])
+        checks[results["check"]].append(results)
+        info[results["check"]] = {"impact" : results["impact"], "confidence": results["confidence"]}
 
     print("Summary")
     for check in checks:
         print(f" - [{check}](#{check}) ({len(checks[check])} results)")
 
+    counter = 0
     for (check, results) in checks.items():
         print(f"## {check}")
-        print(
-            """
-| Analyzed         | Description |
-|----------------|-----------|"""
-        )
+        print(f'Impact: {info[check]["impact"]}')
+        print(f'Confidence: {info[check]["confidence"]}')
         for result in results:
-            result_markdown = convert_result_to_markdown(result)
             print(
-                f"| <ul><li>[ ] TP</li><li>[ ] FP</li><li>[ ] Unknown</li></ul>  | {result_markdown}"
+                " - [ ] ID-"+f"{counter}"
             )
+            counter = counter + 1
+            print(result["markdown"])
+            if result["first_markdown_element"]:
+                print(result["first_markdown_element"])
+                print('\n')
 
 
 def output_wiki(detector_classes, filter_wiki):
