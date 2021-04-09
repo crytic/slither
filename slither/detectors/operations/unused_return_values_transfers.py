@@ -20,7 +20,7 @@ class UnusedReturnValuesTransfers(AbstractDetector):
 
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return-transfers"
 
-    WIKI_TITLE = "Unused return"
+    WIKI_TITLE = "Unused return transfers"
     WIKI_DESCRIPTION = (
         "The return value of an external transfer/transferFrom call is not used"
     )
