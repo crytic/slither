@@ -1,5 +1,5 @@
 """
-Module detecting unused return values from external calls
+Module detecting unused transfer/transferFrom return values from external calls
 """
 
 from slither.core.variables.state_variable import StateVariable
@@ -8,43 +8,49 @@ from slither.slithir.operations import HighLevelCall
 from slither.core.declarations import Function
 
 
-class UnusedReturnValues(AbstractDetector):
+class UnusedReturnValuesTransfers(AbstractDetector):
     """
-    If the return value of a function is never used, it's likely to be bug
+    If the return value of a transfer/transferFrom function is never used, it's likely to be bug
     """
 
-    ARGUMENT = "unused-return"
-    HELP = "Unused return values"
-    IMPACT = DetectorClassification.MEDIUM
+    ARGUMENT = "unused-return-transfers"
+    HELP = "Unused transfer/transferFrom return values"
+    IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return-transfers"
 
     WIKI_TITLE = "Unused return"
     WIKI_DESCRIPTION = (
-        "The return value of an external call is not stored in a local or state variable."
+        "The return value of an external transfer/transferFrom call is not used"
     )
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
-contract MyConc{
-    using SafeMath for uint;   
-    function my_func(uint a, uint b) public{
-        a.add(b);
+contract Token {
+    function transfer(address _to, uint256 _value) public returns (bool success);
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
+}
+contract MyConc{  
+    function my_func1(Token tok, address to) public{
+        tok.transfer(to, 1 ether);
+    }
+    function my_func2(Token tok, address to) public{
+        tok.transferFrom(address(this), to, 1 ether);
     }
 }
 ```
-`MyConc` calls `add` of `SafeMath`, but does not store the result in `a`. As a result, the computation has no effect."""
+`MyConc` calls `transfer` or `transferFrom` on a token contract but does not check the return value. As a result, transfers that do not revert on failure will appear to have succeeded."""
 
-    WIKI_RECOMMENDATION = "Ensure that all the return values of the function calls are used."
+    WIKI_RECOMMENDATION = "Ensure that the returned boolean of all transfer and transferFrom function calls is checked."
 
-    _txt_description = "external calls"
+    _txt_description = "external transfer calls"
 
     def _is_instance(self, ir):  # pylint: disable=no-self-use
         return (
             isinstance(ir, HighLevelCall)
             and isinstance(ir.function, Function)
             and ir.function.solidity_signature
-            not in ["transfer(address,uint256)", "transferFrom(address,address,uint256)"]
+            in ["transfer(address,uint256)", "transferFrom(address,address,uint256)"]
         )
 
     def detect_unused_return_values(self, f):  # pylint: disable=no-self-use
@@ -71,7 +77,7 @@ contract MyConc{
         return [nodes_origin[value].node for value in values_returned]
 
     def _detect(self):
-        """Detect high level calls which return a value that are never used"""
+        """Detect external transfer/transferFrom calls whose return value is not checked"""
         results = []
         for c in self.slither.contracts:
             for f in c.functions + c.modifiers:
@@ -81,7 +87,7 @@ contract MyConc{
                 if unused_return:
 
                     for node in unused_return:
-                        info = [f, " ignores return value by ", node, "\n"]
+                        info = [f, " ignores return value of ", node, "\n"]
 
                         res = self.generate_result(info)
 

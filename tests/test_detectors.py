@@ -252,6 +252,16 @@ ALL_TESTS = [
         all_detectors.UnusedReturnValues, "tests/detectors/unused-return/unused_return.sol", "0.5.1"
     ),
     Test(
+        all_detectors.UnusedReturnValues,
+        "tests/detectors/unused-return/unused_return-sol7.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.UnusedReturnValuesTransfers,
+        "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+        "0.7.6",
+    ),
+    Test(
         all_detectors.ShadowingAbstractDetection,
         "tests/detectors/shadowing-abstract/shadowing_abstract.sol",
         "0.4.25",
