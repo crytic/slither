@@ -139,7 +139,7 @@ class AbstractCheck(metaclass=abc.ABCMeta):
 
     def generate_result(self, info, additional_fields=None):
         output = Output(
-            info, additional_fields, markdown_root=self.contract.compilation_unit.markdown_root
+            info, additional_fields, markdown_root=self.contract.compilation_unit.core.markdown_root
         )
 
         output.data["check"] = self.ARGUMENT

@@ -387,26 +387,14 @@ def _convert_type_contract(ir, compilation_unit: "SlitherCompilationUnit"):
     contract = ir.variable_left.type.type
 
     if ir.variable_right == "creationCode":
-        if compilation_unit.crytic_compile:
-            bytecode = compilation_unit.crytic_compile.bytecode_init(contract.name)
-        else:
-            logger.info(
-                "The codebase uses type(x).creationCode, but crytic-compile was not used. As a result, the bytecode cannot be found"
-            )
-            bytecode = "MISSING_BYTECODE"
+        bytecode = compilation_unit.crytic_compile_compilation_unit.bytecode_init(contract.name)
         assignment = Assignment(ir.lvalue, Constant(str(bytecode)), ElementaryType("bytes"))
         assignment.set_expression(ir.expression)
         assignment.set_node(ir.node)
         assignment.lvalue.set_type(ElementaryType("bytes"))
         return assignment
     if ir.variable_right == "runtimeCode":
-        if compilation_unit.crytic_compile:
-            bytecode = compilation_unit.crytic_compile.bytecode_runtime(contract.name)
-        else:
-            logger.info(
-                "The codebase uses type(x).runtimeCode, but crytic-compile was not used. As a result, the bytecode cannot be found"
-            )
-            bytecode = "MISSING_BYTECODE"
+        bytecode = compilation_unit.crytic_compile_compilation_unit.bytecode_runtime(contract.name)
         assignment = Assignment(ir.lvalue, Constant(str(bytecode)), ElementaryType("bytes"))
         assignment.set_expression(ir.expression)
         assignment.set_node(ir.node)

@@ -38,8 +38,12 @@ def _extract_evm_info(slither):
             contract.source_mapping["filename_absolute"],
         )
 
-        contract_bytecode_init = slither.crytic_compile.bytecode_init(contract.name)
-        contract_srcmap_init = slither.crytic_compile.srcmap_init(contract.name)
+        contract_bytecode_init = (
+            contract.compilation_unit.crytic_compile_compilation_unit.bytecode_init(contract.name)
+        )
+        contract_srcmap_init = (
+            contract.compilation_unit.crytic_compile_compilation_unit.srcmap_init(contract.name)
+        )
         cfg_init = CFG(contract_bytecode_init)
 
         evm_info["cfg_init", contract.name] = cfg_init

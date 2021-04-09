@@ -7,6 +7,7 @@ from typing import List, Set, Dict, Optional
 
 from slither.core.declarations import SolidityFunction, EnumContract, StructureContract
 from slither.core.declarations.contract import Contract
+from slither.core.slither_core import SlitherCore
 from slither.core.solidity_types import MappingType, ArrayType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.exceptions import SlitherException
@@ -43,7 +44,7 @@ class Flattening:
     # pylint: disable=too-many-instance-attributes,too-many-arguments,too-many-locals,too-few-public-methods
     def __init__(
         self,
-        slither,
+        slither: SlitherCore,
         external_to_public=False,
         remove_assert=False,
         private_to_internal=False,
@@ -51,7 +52,7 @@ class Flattening:
         pragma_solidity: Optional[str] = None,
     ):
         self._source_codes: Dict[Contract, str] = {}
-        self._slither = slither
+        self._slither: SlitherCore = slither
         self._external_to_public = external_to_public
         self._remove_assert = remove_assert
         self._use_abi_encoder_v2 = False
@@ -188,8 +189,9 @@ class Flattening:
         ret = ""
         if self._pragma_solidity:
             ret += f"pragma solidity {self._pragma_solidity};\n"
-        elif self._slither.solc_version:
-            ret += f"pragma solidity {self._slither.solc_version};\n"
+        else:
+            # TODO support multiple compiler version
+            ret += f"pragma solidity {self._slither.crytic_compile.compilation_units[0].compiler_version.version};\n"
 
         if self._use_abi_encoder_v2:
             ret += "pragma experimental ABIEncoderV2;\n"

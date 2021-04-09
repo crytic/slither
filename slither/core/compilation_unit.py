@@ -2,7 +2,7 @@ import math
 from collections import defaultdict
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
-from crytic_compile import CompilationUnit
+from crytic_compile import CompilationUnit, CryticCompile
 from crytic_compile.compiler.compiler import CompilerVersion
 
 from slither.core.context.context import Context
@@ -80,6 +80,10 @@ class SlitherCompilationUnit(Context):
     @property
     def crytic_compile_compilation_unit(self) -> CompilationUnit:
         return self._crytic_compile_compilation_unit
+
+    @property
+    def crytic_compile(self) -> CryticCompile:
+        return self._crytic_compile_compilation_unit.crytic_compile
 
     # endregion
     ###################################################################################
