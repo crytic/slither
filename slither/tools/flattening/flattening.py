@@ -71,10 +71,11 @@ class Flattening:
         Set _use_abi_encorder_v2
         :return:
         """
-        for p in self._slither.pragma_directives:
-            if "ABIEncoderV2" in str(p.directive):
-                self._use_abi_encoder_v2 = True
-                return
+        for compilation_unit in self._slither.compilation_units:
+            for p in compilation_unit.pragma_directives:
+                if "ABIEncoderV2" in str(p.directive):
+                    self._use_abi_encoder_v2 = True
+                    return
 
     def _get_source_code(
         self, contract: Contract
