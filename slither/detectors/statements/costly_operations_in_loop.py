@@ -82,7 +82,7 @@ Incrementing `state_variable` in a loop incurs a lot of gas because of expensive
     def _detect(self):
         """"""
         results = []
-        for c in self.slither.contracts_derived:
+        for c in self.compilation_unit.contracts_derived:
             values = self.detect_costly_operations_in_loop(c)
             for node in values:
                 func = node.function

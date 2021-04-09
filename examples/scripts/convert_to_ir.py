@@ -11,8 +11,9 @@ if len(sys.argv) != 2:
 slither = Slither(sys.argv[1])
 
 # Get the contract
-contract = slither.get_contract_from_name("Test")
-assert contract
+contracts = slither.get_contract_from_name("Test")
+assert len(contracts) == 1
+contract = contracts[0]
 # Get the variable
 test = contract.get_function_from_signature("one()")
 assert test

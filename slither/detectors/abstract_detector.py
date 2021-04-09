@@ -1,12 +1,17 @@
 import abc
 import re
-from typing import Optional
+from typing import Optional, List, TYPE_CHECKING
 
+from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.core.declarations import Contract
 from slither.utils.colors import green, yellow, red
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.utils.comparable_enum import ComparableEnum
 from slither.utils.output import Output
+
+if TYPE_CHECKING:
+    from slither import Slither
 
 
 class IncorrectDetectorInitialization(Exception):
@@ -53,10 +58,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     STANDARD_JSON = True
 
-    def __init__(self, slither, logger):
-        self.slither = slither
-        self.contracts = slither.contracts
-        self.filename = slither.filename
+    def __init__(self, compilation_unit: SlitherCompilationUnit, slither, logger):
+        self.compilation_unit: SlitherCompilationUnit = compilation_unit
+        self.contracts: List[Contract] = compilation_unit.contracts
+        self.slither: "Slither" = slither
+        # self.filename = slither.filename
         self.logger = logger
 
         if not self.HELP:
@@ -135,17 +141,12 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     # pylint: disable=too-many-branches
     def detect(self):
-        all_results = self._detect()
-        # Keep only dictionaries
-        all_results = [r.data for r in all_results]
         results = []
         # only keep valid result, and remove dupplicate
-        # pylint: disable=expression-not-assigned
-        [
-            results.append(r)
-            for r in all_results
-            if self.slither.valid_result(r) and r not in results
-        ]
+        # Keep only dictionaries
+        for r in [r.data for r in self._detect()]:
+            if self.compilation_unit.core.valid_result(r) and r not in results:
+                results.append(r)
         if results:
             if self.logger:
                 info = "\n"
@@ -155,15 +156,15 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                     info += result["description"]
                 info += "Reference: {}".format(self.WIKI)
                 self._log(info)
-        if self.slither.generate_patches:
+        if self.compilation_unit.core.generate_patches:
             for result in results:
                 try:
-                    self._format(self.slither, result)
+                    self._format(self.compilation_unit, result)
                     if not "patches" in result:
                         continue
                     result["patches_diff"] = dict()
                     for file in result["patches"]:
-                        original_txt = self.slither.source_code[file].encode("utf8")
+                        original_txt = self.compilation_unit.core.source_code[file].encode("utf8")
                         patched_txt = original_txt
                         offset = 0
                         patches = result["patches"][file]
@@ -178,7 +179,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                             continue
                         for patch in patches:
                             patched_txt, offset = apply_patch(patched_txt, patch, offset)
-                        diff = create_diff(self.slither, original_txt, patched_txt, file)
+                        diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
                         if not diff:
                             self._log(f"Impossible to generate patch; empty {result}")
                         else:
@@ -232,6 +233,6 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return output
 
     @staticmethod
-    def _format(_slither, _result):
+    def _format(_compilation_unit: SlitherCompilationUnit, _result):
         """Implement format"""
         return

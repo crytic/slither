@@ -30,8 +30,10 @@ from slither.solc_parsing.exceptions import ParsingError
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.solc_parsing.declarations.contract import ContractSolc
-    from slither.solc_parsing.slitherSolc import SlitherSolc
+    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.core.slither_core import SlitherCore
+    from slither.core.compilation_unit import SlitherCompilationUnit
+
 
 LOGGER = logging.getLogger("FunctionSolc")
 
@@ -52,9 +54,9 @@ class FunctionSolc:
         function: Function,
         function_data: Dict,
         contract_parser: Optional["ContractSolc"],
-        slither_parser: "SlitherSolc",
+        slither_parser: "SlitherCompilationUnitSolc",
     ):
-        self._slither_parser: "SlitherSolc" = slither_parser
+        self._slither_parser: "SlitherCompilationUnitSolc" = slither_parser
         self._contract_parser = contract_parser
         self._function = function
 
@@ -100,12 +102,12 @@ class FunctionSolc:
         return self._contract_parser
 
     @property
-    def slither_parser(self) -> "SlitherSolc":
+    def slither_parser(self) -> "SlitherCompilationUnitSolc":
         return self._slither_parser
 
     @property
-    def slither(self) -> "SlitherCore":
-        return self._function.slither
+    def compilation_unit(self) -> "SlitherCompilationUnit":
+        return self._function.compilation_unit
 
     ###################################################################################
     ###################################################################################
@@ -647,7 +649,7 @@ class FunctionSolc:
         try:
             local_var = LocalVariable()
             local_var.set_function(self._function)
-            local_var.set_offset(statement["src"], self._function.slither)
+            local_var.set_offset(statement["src"], self._function.compilation_unit)
 
             local_var_parser = LocalVariableSolc(local_var, statement)
             self._add_local_variable(local_var_parser)
@@ -827,7 +829,7 @@ class FunctionSolc:
     ) -> NodeSolc:
         local_var = LocalVariableInitFromTuple()
         local_var.set_function(self._function)
-        local_var.set_offset(statement["src"], self._function.slither)
+        local_var.set_offset(statement["src"], self._function.compilation_unit)
 
         local_var_parser = LocalVariableInitFromTupleSolc(local_var, statement, index)
 
@@ -861,7 +863,7 @@ class FunctionSolc:
             node = self._parse_block(statement, node)
         elif name == "InlineAssembly":
             # Added with solc 0.6 - the yul code is an AST
-            if "AST" in statement and not self.slither.skip_assembly:
+            if "AST" in statement and not self.compilation_unit.core.skip_assembly:
                 self._function.contains_assembly = True
                 yul_object = self._new_yul_block(statement["src"])
                 entrypoint = yul_object.entrypoint
@@ -1069,7 +1071,7 @@ class FunctionSolc:
 
         local_var = LocalVariable()
         local_var.set_function(self._function)
-        local_var.set_offset(param["src"], self._function.slither)
+        local_var.set_offset(param["src"], self._function.compilation_unit)
 
         local_var_parser = LocalVariableSolc(local_var, param)
 
@@ -1085,7 +1087,7 @@ class FunctionSolc:
     def _parse_params(self, params: Dict):
         assert params[self.get_key()] == "ParameterList"
 
-        self._function.parameters_src().set_offset(params["src"], self._function.slither)
+        self._function.parameters_src().set_offset(params["src"], self._function.compilation_unit)
 
         if self.is_compact_ast:
             params = params["parameters"]
@@ -1101,7 +1103,7 @@ class FunctionSolc:
 
         assert returns[self.get_key()] == "ParameterList"
 
-        self._function.returns_src().set_offset(returns["src"], self._function.slither)
+        self._function.returns_src().set_offset(returns["src"], self._function.compilation_unit)
 
         if self.is_compact_ast:
             returns = returns["parameters"]

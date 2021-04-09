@@ -2,7 +2,7 @@
     Compute the data depenency between all the SSA variables
 """
 from collections import defaultdict
-from typing import Union, Set, Dict
+from typing import Union, Set, Dict, TYPE_CHECKING
 
 from slither.core.declarations import (
     Contract,
@@ -25,6 +25,9 @@ from slither.slithir.variables import (
     TupleVariableSSA,
 )
 from slither.core.solidity_types.type import Type
+
+if TYPE_CHECKING:
+    from slither.core.compilation_unit import SlitherCompilationUnit
 
 
 ###################################################################################
@@ -104,8 +107,8 @@ def is_tainted(variable, context, only_unprotected=False, ignore_generic_taint=F
     assert isinstance(only_unprotected, bool)
     if isinstance(variable, Constant):
         return False
-    slither = context.slither
-    taints = slither.context[KEY_INPUT]
+    compilation_unit = context.compilation_unit
+    taints = compilation_unit.context[KEY_INPUT]
     if not ignore_generic_taint:
         taints |= GENERIC_TAINT
     return variable in taints or any(
@@ -126,8 +129,8 @@ def is_tainted_ssa(variable, context, only_unprotected=False, ignore_generic_tai
     assert isinstance(only_unprotected, bool)
     if isinstance(variable, Constant):
         return False
-    slither = context.slither
-    taints = slither.context[KEY_INPUT_SSA]
+    compilation_unit = context.compilation_unit
+    taints = compilation_unit.context[KEY_INPUT_SSA]
     if not ignore_generic_taint:
         taints |= GENERIC_TAINT
     return variable in taints or any(
@@ -258,15 +261,15 @@ def pprint_dependency(context):
 ###################################################################################
 
 
-def compute_dependency(slither):
-    slither.context[KEY_INPUT] = set()
-    slither.context[KEY_INPUT_SSA] = set()
+def compute_dependency(compilation_unit: "SlitherCompilationUnit"):
+    compilation_unit.context[KEY_INPUT] = set()
+    compilation_unit.context[KEY_INPUT_SSA] = set()
 
-    for contract in slither.contracts:
-        compute_dependency_contract(contract, slither)
+    for contract in compilation_unit.contracts:
+        compute_dependency_contract(contract, compilation_unit)
 
 
-def compute_dependency_contract(contract, slither):
+def compute_dependency_contract(contract, compilation_unit: "SlitherCompilationUnit"):
     if KEY_SSA in contract.context:
         return
 
@@ -281,8 +284,8 @@ def compute_dependency_contract(contract, slither):
 
         # pylint: disable=expression-not-assigned
         if function.visibility in ["public", "external"]:
-            [slither.context[KEY_INPUT].add(p) for p in function.parameters]
-            [slither.context[KEY_INPUT_SSA].add(p) for p in function.parameters_ssa]
+            [compilation_unit.context[KEY_INPUT].add(p) for p in function.parameters]
+            [compilation_unit.context[KEY_INPUT_SSA].add(p) for p in function.parameters_ssa]
 
     propagate_contract(contract, KEY_SSA, KEY_NON_SSA)
     propagate_contract(contract, KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED)

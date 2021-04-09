@@ -133,7 +133,7 @@ contract A {
         Detect storage signed integer array init/assignment
         """
         results = []
-        if self.slither.solc_version not in vulnerable_solc_versions:
+        if self.compilation_unit.solc_version not in vulnerable_solc_versions:
             return results
         for contract in self.contracts:
             storage_signed_integer_arrays = self.detect_storage_signed_integer_arrays(contract)

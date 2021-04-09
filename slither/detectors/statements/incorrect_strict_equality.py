@@ -128,7 +128,7 @@ contract Crowdsale{
     def _detect(self):
         results = []
 
-        for c in self.slither.contracts_derived:
+        for c in self.compilation_unit.contracts_derived:
             ret = self.detect_strict_equality(c)
 
             # sort ret to get deterministic results

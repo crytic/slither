@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from slither import Slither
+    from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.cfg.node import Node
     from slither.core.declarations import Function, Contract
 
@@ -27,5 +27,5 @@ class ChildNode:
         return self.node.function.contract
 
     @property
-    def slither(self) -> "Slither":
-        return self.contract.slither
+    def compilation_unit(self) -> "SlitherCompilationUnit":
+        return self.contract.compilation_unit

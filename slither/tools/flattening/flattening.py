@@ -338,10 +338,11 @@ class Flattening:
             elif strategy == Strategy.LocalImport:
                 exports = self._export_with_import()
         else:
-            contract = self._slither.get_contract_from_name(target)
-            if contract is None:
+            contracts = self._slither.get_contract_from_name(target)
+            if len(contracts) != 1:
                 logger.error(f"{target} not found")
                 return
+            contract = contracts[0]
             exports = [self._export_contract_with_inheritance(contract)]
 
         if json:

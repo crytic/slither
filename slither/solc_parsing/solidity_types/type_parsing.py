@@ -20,6 +20,7 @@ from slither.solc_parsing.exceptions import ParsingError
 if TYPE_CHECKING:
     from slither.core.declarations import Structure, Enum
     from slither.core.declarations.contract import Contract
+    from slither.core.compilation_unit import SlitherCompilationUnit
 
 logger = logging.getLogger("TypeParsing")
 
@@ -197,19 +198,20 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     from slither.solc_parsing.variables.function_type_variable import FunctionTypeVariableSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
-    from slither.solc_parsing.slitherSolc import SlitherSolc
+    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
 
+    sl: "SlitherCompilationUnit"
     # Note: for convenicence top level functions use the same parser than function in contract
     # but contract_parser is set to None
-    if isinstance(caller_context, SlitherSolc) or (
+    if isinstance(caller_context, SlitherCompilationUnitSolc) or (
         isinstance(caller_context, FunctionSolc) and caller_context.contract_parser is None
     ):
-        if isinstance(caller_context, SlitherSolc):
-            sl = caller_context.core
+        if isinstance(caller_context, SlitherCompilationUnitSolc):
+            sl = caller_context.compilation_unit
             next_context = caller_context
         else:
             assert isinstance(caller_context, FunctionSolc)
-            sl = caller_context.underlying_function.slither
+            sl = caller_context.underlying_function.compilation_unit
             next_context = caller_context.slither_parser
         structures_direct_access = sl.structures_top_level
         all_structuress = [c.structures for c in sl.contracts]
@@ -233,15 +235,17 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
             contract = caller_context.underlying_contract
             next_context = caller_context
 
-        structures_direct_access = contract.structures + contract.slither.structures_top_level
-        all_structuress = [c.structures for c in contract.slither.contracts]
+        structures_direct_access = (
+            contract.structures + contract.compilation_unit.structures_top_level
+        )
+        all_structuress = [c.structures for c in contract.compilation_unit.contracts]
         all_structures = [item for sublist in all_structuress for item in sublist]
-        all_structures += contract.slither.structures_top_level
-        enums_direct_access = contract.enums + contract.slither.enums_top_level
-        all_enumss = [c.enums for c in contract.slither.contracts]
+        all_structures += contract.compilation_unit.structures_top_level
+        enums_direct_access = contract.enums + contract.compilation_unit.enums_top_level
+        all_enumss = [c.enums for c in contract.compilation_unit.contracts]
         all_enums = [item for sublist in all_enumss for item in sublist]
-        all_enums += contract.slither.enums_top_level
-        contracts = contract.slither.contracts
+        all_enums += contract.compilation_unit.enums_top_level
+        contracts = contract.compilation_unit.contracts
         functions = contract.functions + contract.modifiers
     else:
         raise ParsingError(f"Incorrect caller context: {type(caller_context)}")
@@ -353,7 +357,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
         return_values_vars: List[FunctionTypeVariable] = []
         for p in params[index]:
             var = FunctionTypeVariable()
-            var.set_offset(p["src"], caller_context.slither)
+            var.set_offset(p["src"], caller_context.compilation_unit)
 
             var_parser = FunctionTypeVariableSolc(var, p)
             var_parser.analyze(caller_context)
@@ -361,7 +365,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
             params_vars.append(var)
         for p in return_values[index]:
             var = FunctionTypeVariable()
-            var.set_offset(p["src"], caller_context.slither)
+            var.set_offset(p["src"], caller_context.compilation_unit)
 
             var_parser = FunctionTypeVariableSolc(var, p)
             var_parser.analyze(caller_context)

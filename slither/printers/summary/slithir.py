@@ -34,21 +34,22 @@ class PrinterSlithIR(AbstractPrinter):
         """
 
         txt = ""
-        for contract in self.contracts:
-            if contract.is_top_level:
-                continue
-            txt += "Contract {}\n".format(contract.name)
-            for function in contract.functions:
-                txt += f'\tFunction {function.canonical_name} {"" if function.is_shadowed else "(*)"}\n'
+        for compilation_unit in self.slither.compilation_units:
+            for contract in compilation_unit.contracts:
+                if contract.is_top_level:
+                    continue
+                txt += "Contract {}\n".format(contract.name)
+                for function in contract.functions:
+                    txt += f'\tFunction {function.canonical_name} {"" if function.is_shadowed else "(*)"}\n'
+                    txt += _print_function(function)
+                for modifier in contract.modifiers:
+                    txt += "\tModifier {}\n".format(modifier.canonical_name)
+                    txt += _print_function(modifier)
+            if compilation_unit.functions_top_level:
+                txt += "Top level functions"
+            for function in compilation_unit.functions_top_level:
+                txt += f"\tFunction {function.canonical_name}\n"
                 txt += _print_function(function)
-            for modifier in contract.modifiers:
-                txt += "\tModifier {}\n".format(modifier.canonical_name)
-                txt += _print_function(modifier)
-        if self.slither.functions_top_level:
-            txt += "Top level functions"
-        for function in self.slither.functions_top_level:
-            txt += f"\tFunction {function.canonical_name}\n"
-            txt += _print_function(function)
         self.info(txt)
         res = self.generate_output(txt)
         return res

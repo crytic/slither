@@ -76,6 +76,7 @@ from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
+    from slither.core.compilation_unit import SlitherCompilationUnit
 
 logger = logging.getLogger("ConvertToIR")
 
@@ -381,13 +382,13 @@ def propagate_type_and_convert_call(result, node):
     return result
 
 
-def _convert_type_contract(ir, slither):
+def _convert_type_contract(ir, compilation_unit: "SlitherCompilationUnit"):
     assert isinstance(ir.variable_left.type, TypeInformation)
     contract = ir.variable_left.type.type
 
     if ir.variable_right == "creationCode":
-        if slither.crytic_compile:
-            bytecode = slither.crytic_compile.bytecode_init(contract.name)
+        if compilation_unit.crytic_compile:
+            bytecode = compilation_unit.crytic_compile.bytecode_init(contract.name)
         else:
             logger.info(
                 "The codebase uses type(x).creationCode, but crytic-compile was not used. As a result, the bytecode cannot be found"
@@ -399,8 +400,8 @@ def _convert_type_contract(ir, slither):
         assignment.lvalue.set_type(ElementaryType("bytes"))
         return assignment
     if ir.variable_right == "runtimeCode":
-        if slither.crytic_compile:
-            bytecode = slither.crytic_compile.bytecode_runtime(contract.name)
+        if compilation_unit.crytic_compile:
+            bytecode = compilation_unit.crytic_compile.bytecode_runtime(contract.name)
         else:
             logger.info(
                 "The codebase uses type(x).runtimeCode, but crytic-compile was not used. As a result, the bytecode cannot be found"
@@ -477,7 +478,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     # UserdefinedType
                     t_type = t.type
                     if isinstance(t_type, Contract):
-                        contract = node.slither.get_contract_from_name(t_type.name)
+                        contract = node.compilation_unit.get_contract_from_name(t_type.name)
                         return convert_type_of_high_and_internal_level_call(ir, contract)
 
                 # Convert HighLevelCall to LowLevelCall
@@ -581,7 +582,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                 if isinstance(ir.variable_left, TemporaryVariable) and isinstance(
                     ir.variable_left.type, TypeInformation
                 ):
-                    return _convert_type_contract(ir, node.function.slither)
+                    return _convert_type_contract(ir, node.function.compilation_unit)
                 left = ir.variable_left
                 t = None
                 ir_func = ir.function
@@ -646,7 +647,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
             elif isinstance(ir, NewArray):
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):
-                contract = node.slither.get_contract_from_name(ir.contract_name)
+                contract = node.compilation_unit.get_contract_from_name(ir.contract_name)
                 ir.lvalue.set_type(UserDefinedType(contract))
             elif isinstance(ir, NewElementaryType):
                 ir.lvalue.set_type(ir.type)
@@ -953,7 +954,7 @@ def convert_to_low_level(ir):
         new_ir.call_gas = ir.call_gas
         new_ir.call_value = ir.call_value
         new_ir.arguments = ir.arguments
-        if ir.slither.solc_version >= "0.5":
+        if ir.node.compilation_unit.solc_version >= "0.5":
             new_ir.lvalue.set_type([ElementaryType("bool"), ElementaryType("bytes")])
         else:
             new_ir.lvalue.set_type(ElementaryType("bool"))
@@ -1155,7 +1156,7 @@ def convert_to_pop(ir, node):
 
 def look_for_library(contract, ir, using_for, t):
     for destination in using_for[t]:
-        lib_contract = contract.slither.get_contract_from_name(str(destination))
+        lib_contract = contract.compilation_unit.get_contract_from_name(str(destination))
         if lib_contract:
             lib_call = LibraryCall(
                 lib_contract,

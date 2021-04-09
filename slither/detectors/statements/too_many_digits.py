@@ -58,7 +58,7 @@ Use:
         results = []
 
         # iterate over all contracts
-        for contract in self.slither.contracts_derived:
+        for contract in self.compilation_unit.contracts_derived:
             # iterate over all functions
             for f in contract.functions:
                 # iterate over all the nodes

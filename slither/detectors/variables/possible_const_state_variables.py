@@ -1,7 +1,7 @@
 """
 Module detecting state variables that could be declared as constant
 """
-
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.visitors.expression.export_values import ExportValues
@@ -70,13 +70,13 @@ class ConstCandidateStateVars(AbstractDetector):
         """Detect state variables that could be const"""
         results = []
 
-        all_variables = [c.state_variables for c in self.slither.contracts]
+        all_variables = [c.state_variables for c in self.compilation_unit.contracts]
         all_variables = {item for sublist in all_variables for item in sublist}
         all_non_constant_elementary_variables = {
             v for v in all_variables if self._valid_candidate(v)
         }
 
-        all_functions = [c.all_functions_called for c in self.slither.contracts]
+        all_functions = [c.all_functions_called for c in self.compilation_unit.contracts]
         all_functions = list({item for sublist in all_functions for item in sublist})
 
         all_variables_written = [
@@ -101,5 +101,5 @@ class ConstCandidateStateVars(AbstractDetector):
         return results
 
     @staticmethod
-    def _format(slither, result):
-        custom_format(slither, result)
+    def _format(compilation_unit: SlitherCompilationUnit, result):
+        custom_format(compilation_unit, result)

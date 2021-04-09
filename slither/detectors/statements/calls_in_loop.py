@@ -76,7 +76,7 @@ If one of the destinations has a fallback function that reverts, `bad` will alwa
     def _detect(self):
         """"""
         results = []
-        for c in self.slither.contracts_derived:
+        for c in self.compilation_unit.contracts_derived:
             values = self.detect_call_in_loop(c)
             for node in values:
                 func = node.function

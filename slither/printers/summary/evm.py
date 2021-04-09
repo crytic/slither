@@ -21,8 +21,14 @@ def _extract_evm_info(slither):
     CFG = load_evm_cfg_builder()
 
     for contract in slither.contracts_derived:
-        contract_bytecode_runtime = slither.crytic_compile.bytecode_runtime(contract.name)
-        contract_srcmap_runtime = slither.crytic_compile.srcmap_runtime(contract.name)
+        contract_bytecode_runtime = (
+            contract.compilation_unit.crytic_compile_compilation_unit.bytecode_runtime(
+                contract.name
+            )
+        )
+        contract_srcmap_runtime = (
+            contract.compilation_unit.crytic_compile_compilation_unit.srcmap_runtime(contract.name)
+        )
         cfg = CFG(contract_bytecode_runtime)
         evm_info["cfg", contract.name] = cfg
         evm_info["mapping", contract.name] = generate_source_to_evm_ins_mapping(
@@ -61,7 +67,6 @@ class PrinterEVM(AbstractPrinter):
         """
 
         txt = ""
-
         if not self.slither.crytic_compile:
             txt = "The EVM printer requires to compile with crytic-compile"
             self.info(red(txt))

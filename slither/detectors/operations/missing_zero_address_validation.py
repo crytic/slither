@@ -135,7 +135,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, soBob loses ownership
 
         # Check derived contracts for missing zero address validation
         results = []
-        for contract in self.slither.contracts_derived:
+        for contract in self.compilation_unit.contracts_derived:
             missing_zero_address_validation = self._detect_missing_zero_address_validation(contract)
             for (_, var_nodes) in missing_zero_address_validation:
                 for var, nodes in var_nodes.items():

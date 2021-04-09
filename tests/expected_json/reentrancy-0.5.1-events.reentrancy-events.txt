@@ -1,9 +1,0 @@
-[92m
-Reentrancy in Test.bug(C) (tests/reentrancy-0.5.1-events.sol#14-17):
-	External calls:
-	- c.f() (tests/reentrancy-0.5.1-events.sol#15)
-	Event emitted after the call(s):
-	- E() (tests/reentrancy-0.5.1-events.sol#16)
-Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3[0m
-tests/reentrancy-0.5.1-events.sol analyzed (2 contracts with 1 detectors), 1 result(s) found
-[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

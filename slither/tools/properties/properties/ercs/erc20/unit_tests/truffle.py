@@ -24,7 +24,7 @@ def generate_truffle_test(
     filename_init = f"Initialization{test_contract}.js"
     filename = f"{test_contract}.js"
 
-    output_dir = Path(contract.slither.crytic_compile.target)
+    output_dir = Path(contract.compilation_unit.core.crytic_compile.target)
 
     generate_migration(test_contract, output_dir, addresses.owner)
 

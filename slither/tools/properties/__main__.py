@@ -126,8 +126,8 @@ def main():
     # Perform slither analysis on the given filename
     slither = Slither(args.filename, **vars(args))
 
-    contract = slither.get_contract_from_name(args.contract)
-    if not contract:
+    contracts = slither.get_contract_from_name(args.contract)
+    if len(contracts) != 1:
         if len(slither.contracts) == 1:
             contract = slither.contracts[0]
         else:
@@ -137,6 +137,8 @@ def main():
                 to_log = f"{args.contract} not found"
             logger.error(to_log)
             return
+    else:
+        contract = contracts[0]
 
     addresses = Addresses(args.address_owner, args.address_user, args.address_attacker)
 

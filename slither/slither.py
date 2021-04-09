@@ -1,14 +1,15 @@
 import logging
-import os
+from typing import Union, List
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
 # pylint: disable= no-name-in-module
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.printers.abstract_printer import AbstractPrinter
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.slither_core import SlitherCore
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.exceptions import SlitherError
-from slither.solc_parsing.slitherSolc import SlitherSolc
+from slither.printers.abstract_printer import AbstractPrinter
+from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -31,10 +32,10 @@ def _check_common_things(thing_name, cls, base_cls, instances_list):
 
 
 class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, target, **kwargs):
+    def __init__(self, target: Union[str, CryticCompile], **kwargs):
         """
         Args:
-            target (str | list(json) | CryticCompile)
+            target (str | CryticCompile)
         Keyword Args:
             solc (str): solc binary location (default 'solc')
             disable_solc_warnings (bool): True to disable solc warnings (default false)
@@ -56,30 +57,28 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
 
         """
         super().__init__()
-        self._parser: SlitherSolc  #  This could be another parser, like SlitherVyper, interface needs to be determined
 
         self._disallow_partial: bool = kwargs.get("disallow_partial", False)
         self._skip_assembly: bool = kwargs.get("skip_assembly", False)
         self._show_ignored_findings: bool = kwargs.get("show_ignored_findings", False)
 
-        # list of files provided (see --splitted option)
-        if isinstance(target, list):
-            self._init_from_list(target)
-        elif isinstance(target, str) and target.endswith(".json"):
-            self._init_from_raw_json(target)
-        else:
-            self._parser = SlitherSolc("", self)
-            try:
-                if isinstance(target, CryticCompile):
-                    crytic_compile = target
-                else:
-                    crytic_compile = CryticCompile(target, **kwargs)
-                self._crytic_compile = crytic_compile
-            except InvalidCompilation as e:
-                # pylint: disable=raise-missing-from
-                raise SlitherError(f"Invalid compilation: \n{str(e)}")
-            for path, ast in crytic_compile.asts.items():
-                self._parser.parse_top_level_from_loaded_json(ast, path)
+        self._parsers: List[SlitherCompilationUnitSolc] = []
+        try:
+            if isinstance(target, CryticCompile):
+                crytic_compile = target
+            else:
+                crytic_compile = CryticCompile(target, **kwargs)
+            self._crytic_compile = crytic_compile
+        except InvalidCompilation as e:
+            # pylint: disable=raise-missing-from
+            raise SlitherError(f"Invalid compilation: \n{str(e)}")
+        for compilation_unit in crytic_compile.compilation_units.values():
+            compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit)
+            self._compilation_units.append(compilation_unit_slither)
+            parser = SlitherCompilationUnitSolc(compilation_unit_slither)
+            self._parsers.append(parser)
+            for path, ast in compilation_unit.asts.items():
+                parser.parse_top_level_from_loaded_json(ast, path)
                 self.add_source_code(path)
 
         if kwargs.get("generate_patches", False):
@@ -99,38 +98,40 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         triage_mode = kwargs.get("triage_mode", False)
         self._triage_mode = triage_mode
 
-        self._parser.parse_contracts()
+        for parser in self._parsers:
+            parser.parse_contracts()
 
         # skip_analyze is only used for testing
         if not kwargs.get("skip_analyze", False):
-            self._parser.analyze_contracts()
+            for parser in self._parsers:
+                parser.analyze_contracts()
 
-    def _init_from_raw_json(self, filename):
-        if not os.path.isfile(filename):
-            raise SlitherError(
-                "{} does not exist (are you in the correct directory?)".format(filename)
-            )
-        assert filename.endswith("json")
-        with open(filename, encoding="utf8") as astFile:
-            stdout = astFile.read()
-            if not stdout:
-                to_log = f"Empty AST file: {filename}"
-                raise SlitherError(to_log)
-        contracts_json = stdout.split("\n=")
+    # def _init_from_raw_json(self, filename):
+    #     if not os.path.isfile(filename):
+    #         raise SlitherError(
+    #             "{} does not exist (are you in the correct directory?)".format(filename)
+    #         )
+    #     assert filename.endswith("json")
+    #     with open(filename, encoding="utf8") as astFile:
+    #         stdout = astFile.read()
+    #         if not stdout:
+    #             to_log = f"Empty AST file: {filename}"
+    #             raise SlitherError(to_log)
+    #     contracts_json = stdout.split("\n=")
+    #
+    #     self._parser = SlitherCompilationUnitSolc(filename, self)
+    #
+    #     for c in contracts_json:
+    #         self._parser.parse_top_level_from_json(c)
 
-        self._parser = SlitherSolc(filename, self)
-
-        for c in contracts_json:
-            self._parser.parse_top_level_from_json(c)
-
-    def _init_from_list(self, contract):
-        self._parser = SlitherSolc("", self)
-        for c in contract:
-            if "absolutePath" in c:
-                path = c["absolutePath"]
-            else:
-                path = c["attributes"]["absolutePath"]
-            self._parser.parse_top_level_from_loaded_json(c, path)
+    # def _init_from_list(self, contract):
+    #     self._parser = SlitherCompilationUnitSolc("", self)
+    #     for c in contract:
+    #         if "absolutePath" in c:
+    #             path = c["absolutePath"]
+    #         else:
+    #             path = c["attributes"]["absolutePath"]
+    #         self._parser.parse_top_level_from_loaded_json(c, path)
 
     @property
     def detectors(self):
@@ -162,8 +163,9 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         """
         _check_common_things("detector", detector_class, AbstractDetector, self._detectors)
 
-        instance = detector_class(self, logger_detector)
-        self._detectors.append(instance)
+        for compilation_unit in self.compilation_units:
+            instance = detector_class(compilation_unit, self, logger_detector)
+            self._detectors.append(instance)
 
     def register_printer(self, printer_class):
         """
@@ -181,6 +183,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
 
         self.load_previous_results()
         results = [d.detect() for d in self._detectors]
+
         self.write_results_to_hide()
         return results
 
