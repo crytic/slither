@@ -1,0 +1,382 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "myFriendsAddress",
+                    "source_mapping": {
+                        "start": 132,
+                        "length": 76,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 81
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 29,
+                                "length": 441,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "A.myFriendsAddress (tests/detectors/constable-states/0.7.6/const_state_variables.sol#7) should be constant\n",
+            "markdown": "[A.myFriendsAddress](tests/detectors/constable-states/0.7.6/const_state_variables.sol#L7) should be constant\n",
+            "id": "1454db80653b732bf6acbe54ff0ae4707002207a2a8216708c12d61c88a43e5f",
+            "check": "constable-states",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "test",
+                    "source_mapping": {
+                        "start": 237,
+                        "length": 20,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 25
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 29,
+                                "length": 441,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "A.test (tests/detectors/constable-states/0.7.6/const_state_variables.sol#10) should be constant\n",
+            "markdown": "[A.test](tests/detectors/constable-states/0.7.6/const_state_variables.sol#L10) should be constant\n",
+            "id": "5d9e3fb413322b71a93e90f7e89bd8c83cd4884d577d039598c681fe9db38b1d",
+            "check": "constable-states",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "text2",
+                    "source_mapping": {
+                        "start": 333,
+                        "length": 20,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 25
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 29,
+                                "length": 441,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "A.text2 (tests/detectors/constable-states/0.7.6/const_state_variables.sol#14) should be constant\n",
+            "markdown": "[A.text2](tests/detectors/constable-states/0.7.6/const_state_variables.sol#L14) should be constant\n",
+            "id": "df11e6201c4558a8c5cd90b55b134b9ca8f07203b2264d3aa93bd7745e8cb4ba",
+            "check": "constable-states",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "mySistersAddress",
+                    "source_mapping": {
+                        "start": 496,
+                        "length": 76,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 81
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "B",
+                            "source_mapping": {
+                                "start": 473,
+                                "length": 271,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "B.mySistersAddress (tests/detectors/constable-states/0.7.6/const_state_variables.sol#26) should be constant\n",
+            "markdown": "[B.mySistersAddress](tests/detectors/constable-states/0.7.6/const_state_variables.sol#L26) should be constant\n",
+            "id": "bee93a722c8eae4a48aade67d8ef537d84c106f48fc9eb738c795fce10d3bc63",
+            "check": "constable-states",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "should_be_constant",
+                    "source_mapping": {
+                        "start": 793,
+                        "length": 42,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            42
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 47
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "MyConc",
+                            "source_mapping": {
+                                "start": 746,
+                                "length": 342,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "MyConc.should_be_constant (tests/detectors/constable-states/0.7.6/const_state_variables.sol#42) should be constant\n",
+            "markdown": "[MyConc.should_be_constant](tests/detectors/constable-states/0.7.6/const_state_variables.sol#L42) should be constant\n",
+            "id": "cbcafa2a3efba4d21ac1b51b4b823e5082d556bc3d6cf3fd2ab3188f9f218fc1",
+            "check": "constable-states",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "should_be_constant_2",
+                    "source_mapping": {
+                        "start": 841,
+                        "length": 33,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            43
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 38
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "MyConc",
+                            "source_mapping": {
+                                "start": 746,
+                                "length": 342,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/constable-states/0.7.6/const_state_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "MyConc.should_be_constant_2 (tests/detectors/constable-states/0.7.6/const_state_variables.sol#43) should be constant\n",
+            "markdown": "[MyConc.should_be_constant_2](tests/detectors/constable-states/0.7.6/const_state_variables.sol#L43) should be constant\n",
+            "id": "9a48a4122de1a6a4774a9f1e0d4917bd0fa08f17b4af41b86ba07689e51bf711",
+            "check": "constable-states",
+            "impact": "Optimization",
+            "confidence": "High"
+        }
+    ]
+]

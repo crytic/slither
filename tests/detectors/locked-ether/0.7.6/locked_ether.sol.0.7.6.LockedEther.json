@@ -1,0 +1,79 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "OnlyLocked",
+                    "source_mapping": {
+                        "start": 401,
+                        "length": 32,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/locked-ether/0.7.6/locked_ether.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/locked-ether/0.7.6/locked_ether.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 33
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "receive_eth",
+                    "source_mapping": {
+                        "start": 49,
+                        "length": 76,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/locked-ether/0.7.6/locked_ether.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/locked-ether/0.7.6/locked_ether.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4,
+                            5,
+                            6
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Locked",
+                            "source_mapping": {
+                                "start": 27,
+                                "length": 101,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/locked-ether/0.7.6/locked_ether.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/locked-ether/0.7.6/locked_ether.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "receive_eth()"
+                    }
+                }
+            ],
+            "description": "Contract locking ether found in :\n\tContract OnlyLocked (tests/detectors/locked-ether/0.7.6/locked_ether.sol#26) has payable functions:\n\t - Locked.receive_eth() (tests/detectors/locked-ether/0.7.6/locked_ether.sol#4-6)\n\tBut does not have a function to withdraw the ether\n",
+            "markdown": "Contract locking ether found in :\n\tContract [OnlyLocked](tests/detectors/locked-ether/0.7.6/locked_ether.sol#L26) has payable functions:\n\t - [Locked.receive_eth()](tests/detectors/locked-ether/0.7.6/locked_ether.sol#L4-L6)\n\tBut does not have a function to withdraw the ether\n",
+            "id": "1eb31cab3df894265d213a6a2e85c7fe840a4021a598ab09f1052a86c897d886",
+            "check": "locked-ether",
+            "impact": "Medium",
+            "confidence": "High"
+        }
+    ]
+]

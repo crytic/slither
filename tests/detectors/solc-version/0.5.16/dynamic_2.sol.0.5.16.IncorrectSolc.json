@@ -1,0 +1,43 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "pragma",
+                    "name": ">=0.5.0<0.6.0",
+                    "source_mapping": {
+                        "start": 0,
+                        "length": 31,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/solc-version/0.5.16/dynamic_2.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/solc-version/0.5.16/dynamic_2.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            1
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 32
+                    },
+                    "type_specific_fields": {
+                        "directive": [
+                            "solidity",
+                            ">=",
+                            "0.5",
+                            ".0",
+                            "<",
+                            "0.6",
+                            ".0"
+                        ]
+                    }
+                }
+            ],
+            "description": "Pragma version>=0.5.0<0.6.0 (tests/detectors/solc-version/0.5.16/dynamic_2.sol#1) allows old versions\n",
+            "markdown": "Pragma version[>=0.5.0<0.6.0](tests/detectors/solc-version/0.5.16/dynamic_2.sol#L1) allows old versions\n",
+            "id": "0f9930eec9fe7848abc3ded6a5fc053e0208ffa1510b01518fb1348e0f0b01b1",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]

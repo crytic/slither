@@ -1,0 +1,61 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "i_am_a_backdoor",
+                    "source_mapping": {
+                        "start": 18,
+                        "length": 74,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/suicidal/0.4.25/suicidal.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/suicidal/0.4.25/suicidal.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4,
+                            5,
+                            6
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 1,
+                                "length": 94,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/suicidal/0.4.25/suicidal.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/suicidal/0.4.25/suicidal.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "i_am_a_backdoor()"
+                    }
+                }
+            ],
+            "description": "C.i_am_a_backdoor() (tests/detectors/suicidal/0.4.25/suicidal.sol#4-6) allows anyone to destruct the contract\n",
+            "markdown": "[C.i_am_a_backdoor()](tests/detectors/suicidal/0.4.25/suicidal.sol#L4-L6) allows anyone to destruct the contract\n",
+            "id": "bb1e4596537b6e2c29f4221e733692fd6dac8555095181718e440ca525016eb7",
+            "check": "suicidal",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]

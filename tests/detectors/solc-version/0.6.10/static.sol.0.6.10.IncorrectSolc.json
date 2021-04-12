@@ -1,0 +1,48 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "pragma",
+                    "name": "0.6.10",
+                    "source_mapping": {
+                        "start": 0,
+                        "length": 23,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/solc-version/0.6.10/static.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/solc-version/0.6.10/static.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            1
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 24
+                    },
+                    "type_specific_fields": {
+                        "directive": [
+                            "solidity",
+                            "0.6",
+                            ".10"
+                        ]
+                    }
+                }
+            ],
+            "description": "Pragma version0.6.10 (tests/detectors/solc-version/0.6.10/static.sol#1) allows old versions\n",
+            "markdown": "Pragma version[0.6.10](tests/detectors/solc-version/0.6.10/static.sol#L1) allows old versions\n",
+            "id": "f8fa962b3064cc35b3504cfbd7bd2067f90239895c1c23a55ce6666803131780",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "solc-0.6.10 is not recommended for deployment\n",
+            "markdown": "solc-0.6.10 is not recommended for deployment\n",
+            "id": "b2c2f26d29a163098673e6dcb2342e00d94996a84040bac62f7dbb2f20fa8f28",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]

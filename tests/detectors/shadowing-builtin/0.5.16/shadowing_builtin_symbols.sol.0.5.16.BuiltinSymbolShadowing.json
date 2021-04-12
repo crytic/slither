@@ -1,0 +1,764 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "blockhash",
+                    "source_mapping": {
+                        "start": 57,
+                        "length": 14,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 19
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "BaseContract",
+                            "source_mapping": {
+                                "start": 29,
+                                "length": 94,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "BaseContract.blockhash (tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#4) (state variable) shadows built-in symbol\"\n",
+            "markdown": "[BaseContract.blockhash](tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#L4) (state variable) shadows built-in symbol\"\n",
+            "id": "61d1c1452e694c321d00576decdf35c62efbe8860f664273955fadce5e063cc8",
+            "check": "shadowing-builtin",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "now",
+                    "source_mapping": {
+                        "start": 77,
+                        "length": 8,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 13
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "BaseContract",
+                            "source_mapping": {
+                                "start": 29,
+                                "length": 94,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "BaseContract.now (tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#5) (state variable) shadows built-in symbol\"\n",
+            "markdown": "[BaseContract.now](tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#L5) (state variable) shadows built-in symbol\"\n",
+            "id": "942ad0405af0bc533374dded6e2474c53892747c98d2df14d59cbb6840fa18b3",
+            "check": "shadowing-builtin",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "event",
+                    "name": "revert",
+                    "source_mapping": {
+                        "start": 92,
+                        "length": 29,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 34
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "BaseContract",
+                            "source_mapping": {
+                                "start": 29,
+                                "length": 94,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "revert(bool)"
+                    }
+                }
+            ],
+            "description": "BaseContractrevert(bool) (tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#7) (event) shadows built-in symbol\"\n",
+            "markdown": "[BaseContractrevert(bool)](tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#L7) (event) shadows built-in symbol\"\n",
+            "id": "9c428e61cb4832d899b2bb711c8d428154425dbadf5dfc2e2d857254824d8f72",
+            "check": "shadowing-builtin",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "assert",
+                    "source_mapping": {
+                        "start": 198,
+                        "length": 64,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13,
+                            14,
+                            15
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "ExtendedContract",
+                            "source_mapping": {
+                                "start": 125,
+                                "length": 139,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "assert(bool)"
+                    }
+                }
+            ],
+            "description": "ExtendedContract.assert(bool) (tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#13-15) (function) shadows built-in symbol\"\n",
+            "markdown": "[ExtendedContract.assert(bool)](tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#L13-L15) (function) shadows built-in symbol\"\n",
+            "id": "b3a1b23c1daed52b1a2ff5fb76d4fcdf2bc0b2126524303321cf8e7835116d6f",
+            "check": "shadowing-builtin",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "msg",
+                    "source_mapping": {
+                        "start": 247,
+                        "length": 8,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 17
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "assert",
+                            "source_mapping": {
+                                "start": 198,
+                                "length": 64,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "ExtendedContract",
+                                    "source_mapping": {
+                                        "start": 125,
+                                        "length": 139,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "assert(bool)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "ExtendedContract.assert(bool).msg (tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#14) (local variable) shadows built-in symbol\"\n",
+            "markdown": "[ExtendedContract.assert(bool).msg](tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#L14) (local variable) shadows built-in symbol\"\n",
+            "id": "a2a7e1e27320d38e52b51c9b1ec67cca0a403673ff6fdd59652f9cd8425d011f",
+            "check": "shadowing-builtin",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "ecrecover",
+                    "source_mapping": {
+                        "start": 173,
+                        "length": 18,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            11
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 23
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "ExtendedContract",
+                            "source_mapping": {
+                                "start": 125,
+                                "length": 139,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "ExtendedContract.ecrecover (tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#11) (state variable) shadows built-in symbol\"\n",
+            "markdown": "[ExtendedContract.ecrecover](tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#L11) (state variable) shadows built-in symbol\"\n",
+            "id": "39737925cf3bd4ebf9a1c7bbe39da8b80ba28e5a3d93a938d1a4cca78a6a436d",
+            "check": "shadowing-builtin",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "require",
+                    "source_mapping": {
+                        "start": 383,
+                        "length": 120,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "FurtherExtendedContract",
+                            "source_mapping": {
+                                "start": 266,
+                                "length": 239,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "require()"
+                    }
+                }
+            ],
+            "description": "FurtherExtendedContract.require() (tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#23-28) (modifier) shadows built-in symbol\"\n",
+            "markdown": "[FurtherExtendedContract.require()](tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#L23-L28) (modifier) shadows built-in symbol\"\n",
+            "id": "db6c26c9a7c319c1a34c486e6e625c0906a2b118f8cd72f38a38c167832aab4f",
+            "check": "shadowing-builtin",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "keccak256",
+                    "source_mapping": {
+                        "start": 452,
+                        "length": 14,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            25
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 23
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "require",
+                            "source_mapping": {
+                                "start": 383,
+                                "length": 120,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "FurtherExtendedContract",
+                                    "source_mapping": {
+                                        "start": 266,
+                                        "length": 239,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "require()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "FurtherExtendedContract.require().keccak256 (tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#25) (local variable) shadows built-in symbol\"\n",
+            "markdown": "[FurtherExtendedContract.require().keccak256](tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#L25) (local variable) shadows built-in symbol\"\n",
+            "id": "40f0453d27abf2d9ed76fe60853b6e2e0cd9a443d639e9da457460ea02b2bdc7",
+            "check": "shadowing-builtin",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "sha3",
+                    "source_mapping": {
+                        "start": 476,
+                        "length": 9,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 18
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "require",
+                            "source_mapping": {
+                                "start": 383,
+                                "length": 120,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "FurtherExtendedContract",
+                                    "source_mapping": {
+                                        "start": 266,
+                                        "length": 239,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "require()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "FurtherExtendedContract.require().sha3 (tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#26) (local variable) shadows built-in symbol\"\n",
+            "markdown": "[FurtherExtendedContract.require().sha3](tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#L26) (local variable) shadows built-in symbol\"\n",
+            "id": "c481dbbf77c99cb337740a656ebabae1c89bf13b9d7b7d315dcf54feeab1cd63",
+            "check": "shadowing-builtin",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "blockhash",
+                    "source_mapping": {
+                        "start": 325,
+                        "length": 18,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            19
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 23
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "FurtherExtendedContract",
+                            "source_mapping": {
+                                "start": 266,
+                                "length": 239,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "FurtherExtendedContract.blockhash (tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#19) (state variable) shadows built-in symbol\"\n",
+            "markdown": "[FurtherExtendedContract.blockhash](tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#L19) (state variable) shadows built-in symbol\"\n",
+            "id": "d405ccbec679f921252d475591a890a89a023b375dc4994119967693692f8da9",
+            "check": "shadowing-builtin",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "this",
+                    "source_mapping": {
+                        "start": 349,
+                        "length": 13,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 18
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "FurtherExtendedContract",
+                            "source_mapping": {
+                                "start": 266,
+                                "length": 239,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "FurtherExtendedContract.this (tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#20) (state variable) shadows built-in symbol\"\n",
+            "markdown": "[FurtherExtendedContract.this](tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#L20) (state variable) shadows built-in symbol\"\n",
+            "id": "87e1cc0cb95181dd120d3e6e55d89fdc7b5cd01da2f89cd7a3d105738f57c10b",
+            "check": "shadowing-builtin",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "abi",
+                    "source_mapping": {
+                        "start": 368,
+                        "length": 8,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            21
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 13
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "FurtherExtendedContract",
+                            "source_mapping": {
+                                "start": 266,
+                                "length": 239,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "FurtherExtendedContract.abi (tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#21) (state variable) shadows built-in symbol\"\n",
+            "markdown": "[FurtherExtendedContract.abi](tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#L21) (state variable) shadows built-in symbol\"\n",
+            "id": "4665243a2df090e3543ab26447528fa3401916f4669fe1264145891846d4bc40",
+            "check": "shadowing-builtin",
+            "impact": "Low",
+            "confidence": "High"
+        }
+    ]
+]

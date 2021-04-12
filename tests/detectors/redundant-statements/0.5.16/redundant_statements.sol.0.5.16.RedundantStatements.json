@@ -1,0 +1,733 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "node",
+                    "name": "uint256",
+                    "source_mapping": {
+                        "start": 141,
+                        "length": 4,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 13
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "constructor",
+                            "source_mapping": {
+                                "start": 110,
+                                "length": 93,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "RedundantStatementsContract",
+                                    "source_mapping": {
+                                        "start": 66,
+                                        "length": 254,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "constructor()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "RedundantStatementsContract",
+                    "source_mapping": {
+                        "start": 66,
+                        "length": 254,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                }
+            ],
+            "description": "Redundant expression \"uint256 (tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#6)\" inRedundantStatementsContract (tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#3-18)\n",
+            "markdown": "Redundant expression \"[uint256](tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#L6)\" in[RedundantStatementsContract](tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#L3-L18)\n",
+            "id": "58d73cb2126e8c76752e57c69feeed96ee7db0cc50cf33c0f92679525acc26e9",
+            "check": "redundant-statements",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "node",
+                    "name": "bool",
+                    "source_mapping": {
+                        "start": 155,
+                        "length": 4,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 13
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "constructor",
+                            "source_mapping": {
+                                "start": 110,
+                                "length": 93,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "RedundantStatementsContract",
+                                    "source_mapping": {
+                                        "start": 66,
+                                        "length": 254,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "constructor()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "RedundantStatementsContract",
+                    "source_mapping": {
+                        "start": 66,
+                        "length": 254,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                }
+            ],
+            "description": "Redundant expression \"bool (tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#7)\" inRedundantStatementsContract (tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#3-18)\n",
+            "markdown": "Redundant expression \"[bool](tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#L7)\" in[RedundantStatementsContract](tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#L3-L18)\n",
+            "id": "f57f949deb97e88dedd17864427a4941d1395be24db436d3a45945a45c53b919",
+            "check": "redundant-statements",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "node",
+                    "name": "RedundantStatementsContract",
+                    "source_mapping": {
+                        "start": 169,
+                        "length": 27,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 36
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "constructor",
+                            "source_mapping": {
+                                "start": 110,
+                                "length": 93,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "RedundantStatementsContract",
+                                    "source_mapping": {
+                                        "start": 66,
+                                        "length": 254,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "constructor()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "RedundantStatementsContract",
+                    "source_mapping": {
+                        "start": 66,
+                        "length": 254,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                }
+            ],
+            "description": "Redundant expression \"RedundantStatementsContract (tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#8)\" inRedundantStatementsContract (tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#3-18)\n",
+            "markdown": "Redundant expression \"[RedundantStatementsContract](tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#L8)\" in[RedundantStatementsContract](tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#L3-L18)\n",
+            "id": "faaa2cdb764d49e4d06709c566d903cc4b222634a27b31bbbb0217a13b84aa62",
+            "check": "redundant-statements",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "node",
+                    "name": "uint256",
+                    "source_mapping": {
+                        "start": 257,
+                        "length": 4,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            12
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 13
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "test",
+                            "source_mapping": {
+                                "start": 209,
+                                "length": 109,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "RedundantStatementsContract",
+                                    "source_mapping": {
+                                        "start": 66,
+                                        "length": 254,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "test()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "RedundantStatementsContract",
+                    "source_mapping": {
+                        "start": 66,
+                        "length": 254,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                }
+            ],
+            "description": "Redundant expression \"uint256 (tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#12)\" inRedundantStatementsContract (tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#3-18)\n",
+            "markdown": "Redundant expression \"[uint256](tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#L12)\" in[RedundantStatementsContract](tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#L3-L18)\n",
+            "id": "f21c726ae13fb80091dca415c8d15bf8999c0197b56a65bcbabc4cb86963efe7",
+            "check": "redundant-statements",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "node",
+                    "name": "assert(bool)",
+                    "source_mapping": {
+                        "start": 271,
+                        "length": 6,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 15
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "test",
+                            "source_mapping": {
+                                "start": 209,
+                                "length": 109,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "RedundantStatementsContract",
+                                    "source_mapping": {
+                                        "start": 66,
+                                        "length": 254,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "test()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "RedundantStatementsContract",
+                    "source_mapping": {
+                        "start": 66,
+                        "length": 254,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                }
+            ],
+            "description": "Redundant expression \"assert(bool) (tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#13)\" inRedundantStatementsContract (tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#3-18)\n",
+            "markdown": "Redundant expression \"[assert(bool)](tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#L13)\" in[RedundantStatementsContract](tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#L3-L18)\n",
+            "id": "342d8ac4c8c6e96ca7ca18f4bb9abed731c08b4c19a4461151ea48fc503be342",
+            "check": "redundant-statements",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "node",
+                    "name": "test",
+                    "source_mapping": {
+                        "start": 287,
+                        "length": 4,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 13
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "test",
+                            "source_mapping": {
+                                "start": 209,
+                                "length": 109,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "RedundantStatementsContract",
+                                    "source_mapping": {
+                                        "start": 66,
+                                        "length": 254,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "test()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "RedundantStatementsContract",
+                    "source_mapping": {
+                        "start": 66,
+                        "length": 254,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/redundant-statements/0.5.16/redundant_statements.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                }
+            ],
+            "description": "Redundant expression \"test (tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#14)\" inRedundantStatementsContract (tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#3-18)\n",
+            "markdown": "Redundant expression \"[test](tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#L14)\" in[RedundantStatementsContract](tests/detectors/redundant-statements/0.5.16/redundant_statements.sol#L3-L18)\n",
+            "id": "b36c497f678f32a5479ead924c310a0c86b398e465f69b0e7365f06befaef172",
+            "check": "redundant-statements",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]

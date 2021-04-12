@@ -1,0 +1,69 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "testMapping",
+                    "source_mapping": {
+                        "start": 265,
+                        "length": 47,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/public-mappings-nested/0.4.25/public_mappings_nested.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/public-mappings-nested/0.4.25/public_mappings_nested.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 52
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Bug",
+                            "source_mapping": {
+                                "start": 138,
+                                "length": 345,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/public-mappings-nested/0.4.25/public_mappings_nested.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/public-mappings-nested/0.4.25/public_mappings_nested.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Bug.testMapping (tests/detectors/public-mappings-nested/0.4.25/public_mappings_nested.sol#14) is a public mapping with nested variables\n",
+            "markdown": "[Bug.testMapping](tests/detectors/public-mappings-nested/0.4.25/public_mappings_nested.sol#L14) is a public mapping with nested variables\n",
+            "id": "100978112524def620b003331f34b2b51eb78cae6f7eb2793d9671b4b7bb858a",
+            "check": "public-mappings-nested",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]

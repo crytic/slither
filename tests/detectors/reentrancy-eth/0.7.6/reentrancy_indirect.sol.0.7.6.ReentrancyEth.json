@@ -1,0 +1,453 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "withdraw",
+                    "source_mapping": {
+                        "start": 696,
+                        "length": 286,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28,
+                            29
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Reentrancy",
+                            "source_mapping": {
+                                "start": 227,
+                                "length": 758,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "withdraw(address)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "require(bool)(Token(token).transfer(msg.sender,token_deposed[token][msg.sender]))",
+                    "source_mapping": {
+                        "start": 807,
+                        "length": 76,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            24
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 85
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "withdraw",
+                            "source_mapping": {
+                                "start": 696,
+                                "length": 286,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Reentrancy",
+                                    "source_mapping": {
+                                        "start": 227,
+                                        "length": 758,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "withdraw(address)"
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "underlying_type": "external_calls"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "msg.sender.transfer(eth_deposed[token][msg.sender])",
+                    "source_mapping": {
+                        "start": 746,
+                        "length": 51,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            23
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 60
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "withdraw",
+                            "source_mapping": {
+                                "start": 696,
+                                "length": 286,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Reentrancy",
+                                    "source_mapping": {
+                                        "start": 227,
+                                        "length": 758,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "withdraw(address)"
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "underlying_type": "external_calls_sending_eth"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "eth_deposed[token][msg.sender] = 0",
+                    "source_mapping": {
+                        "start": 894,
+                        "length": 34,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 43
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "withdraw",
+                            "source_mapping": {
+                                "start": 696,
+                                "length": 286,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Reentrancy",
+                                    "source_mapping": {
+                                        "start": 227,
+                                        "length": 758,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "withdraw(address)"
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "underlying_type": "variables_written",
+                        "variable_name": "eth_deposed"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "token_deposed[token][msg.sender] = 0",
+                    "source_mapping": {
+                        "start": 938,
+                        "length": 36,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            27
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 45
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "withdraw",
+                            "source_mapping": {
+                                "start": 696,
+                                "length": 286,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Reentrancy",
+                                    "source_mapping": {
+                                        "start": 227,
+                                        "length": 758,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "withdraw(address)"
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "underlying_type": "variables_written",
+                        "variable_name": "token_deposed"
+                    }
+                }
+            ],
+            "description": "Reentrancy in Reentrancy.withdraw(address) (tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol#22-29):\n\tExternal calls:\n\t- require(bool)(Token(token).transfer(msg.sender,token_deposed[token][msg.sender])) (tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol#24)\n\tExternal calls sending eth:\n\t- msg.sender.transfer(eth_deposed[token][msg.sender]) (tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol#23)\n\tState variables written after the call(s):\n\t- eth_deposed[token][msg.sender] = 0 (tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol#26)\n\t- token_deposed[token][msg.sender] = 0 (tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol#27)\n",
+            "markdown": "Reentrancy in [Reentrancy.withdraw(address)](tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol#L22-L29):\n\tExternal calls:\n\t- [require(bool)(Token(token).transfer(msg.sender,token_deposed[token][msg.sender]))](tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol#L24)\n\tExternal calls sending eth:\n\t- [msg.sender.transfer(eth_deposed[token][msg.sender])](tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol#L23)\n\tState variables written after the call(s):\n\t- [eth_deposed[token][msg.sender] = 0](tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol#L26)\n\t- [token_deposed[token][msg.sender] = 0](tests/detectors/reentrancy-eth/0.7.6/reentrancy_indirect.sol#L27)\n",
+            "id": "24fc47678720105e363d9594b5bcec35f854903103c3c4a4ca82d9b4fb5348c3",
+            "check": "reentrancy-eth",
+            "impact": "High",
+            "confidence": "Medium"
+        }
+    ]
+]

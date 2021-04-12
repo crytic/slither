@@ -1,0 +1,136 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad",
+                    "source_mapping": {
+                        "start": 21,
+                        "length": 96,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            2,
+                            3,
+                            4
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "MyConc",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 274,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad(address)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "dst.call{value: msg.value}()",
+                    "source_mapping": {
+                        "start": 81,
+                        "length": 29,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 38
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad",
+                            "source_mapping": {
+                                "start": 21,
+                                "length": 96,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "MyConc",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 274,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad(address)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "MyConc.bad(address) (tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol#2-4) ignores return value by dst.call{value: msg.value}() (tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol#3)\n",
+            "markdown": "[MyConc.bad(address)](tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol#L2-L4) ignores return value by [dst.call{value: msg.value}()](tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol#L3)\n",
+            "id": "55182dfa175ac27adc4625cf672f25b6b759d8f4645fed76e35bbeace0733169",
+            "check": "unchecked-lowlevel",
+            "impact": "Medium",
+            "confidence": "Medium"
+        }
+    ]
+]

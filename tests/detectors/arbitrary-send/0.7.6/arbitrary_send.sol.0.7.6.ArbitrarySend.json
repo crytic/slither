@@ -1,0 +1,388 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "direct",
+                    "source_mapping": {
+                        "start": 162,
+                        "length": 79,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            11,
+                            12,
+                            13
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Test",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 884,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "direct()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "msg.sender.send(address(this).balance)",
+                    "source_mapping": {
+                        "start": 196,
+                        "length": 38,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            12
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 47
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "direct",
+                            "source_mapping": {
+                                "start": 162,
+                                "length": 79,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    11,
+                                    12,
+                                    13
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Test",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 884,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "direct()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Test.direct() (tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol#11-13) sends eth to arbitrary user\n\tDangerous calls:\n\t- msg.sender.send(address(this).balance) (tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol#12)\n",
+            "markdown": "[Test.direct()](tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol#L11-L13) sends eth to arbitrary user\n\tDangerous calls:\n\t- [msg.sender.send(address(this).balance)](tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol#L12)\n",
+            "id": "90d9178119fb586af18c2298136d7f1af4d33a9b702b94d2ca0fcdbe6ee783c6",
+            "check": "arbitrary-send",
+            "impact": "High",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "indirect",
+                    "source_mapping": {
+                        "start": 316,
+                        "length": 82,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            19,
+                            20,
+                            21
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Test",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 884,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "indirect()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "destination.send(address(this).balance)",
+                    "source_mapping": {
+                        "start": 352,
+                        "length": 39,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 48
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "indirect",
+                            "source_mapping": {
+                                "start": 316,
+                                "length": 82,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    19,
+                                    20,
+                                    21
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Test",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 884,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "indirect()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Test.indirect() (tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol#19-21) sends eth to arbitrary user\n\tDangerous calls:\n\t- destination.send(address(this).balance) (tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol#20)\n",
+            "markdown": "[Test.indirect()](tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol#L19-L21) sends eth to arbitrary user\n\tDangerous calls:\n\t- [destination.send(address(this).balance)](tests/detectors/arbitrary-send/0.7.6/arbitrary_send.sol#L20)\n",
+            "id": "3bf41470de6f5fec21d1da5741e7d63ee1d3b63cfd2646d697274f4495e3f1a9",
+            "check": "arbitrary-send",
+            "impact": "High",
+            "confidence": "Medium"
+        }
+    ]
+]

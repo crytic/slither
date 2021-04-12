@@ -1,0 +1,124 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "send",
+                    "source_mapping": {
+                        "start": 51,
+                        "length": 112,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5,
+                            6,
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Sender",
+                            "source_mapping": {
+                                "start": 29,
+                                "length": 136,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "send(address)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "_receiver.call.value(msg.value).gas(7777)()",
+                    "source_mapping": {
+                        "start": 111,
+                        "length": 45,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 54
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "send",
+                            "source_mapping": {
+                                "start": 51,
+                                "length": 112,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    5,
+                                    6,
+                                    7
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Sender",
+                                    "source_mapping": {
+                                        "start": 29,
+                                        "length": 136,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "send(address)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Low level call in Sender.send(address) (tests/detectors/low-level-calls/0.4.25/low_level_calls.sol#5-7):\n\t- _receiver.call.value(msg.value).gas(7777)() (tests/detectors/low-level-calls/0.4.25/low_level_calls.sol#6)\n",
+            "markdown": "Low level call in [Sender.send(address)](tests/detectors/low-level-calls/0.4.25/low_level_calls.sol#L5-L7):\n\t- [_receiver.call.value(msg.value).gas(7777)()](tests/detectors/low-level-calls/0.4.25/low_level_calls.sol#L6)\n",
+            "id": "77c8d8f4e884ababeb6c197067a580529b5bbec638ebc1ac2761719de99c5ed1",
+            "check": "low-level-calls",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]
