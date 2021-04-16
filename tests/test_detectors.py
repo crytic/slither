@@ -109,6 +109,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.ReentrancyReadBeforeWritten,
+        "DAO.sol",
+        "0.4.25",
+    ),
+    Test(
         all_detectors.BooleanEquality,
         "boolean-constant-equality.sol",
         "0.4.25",
@@ -328,6 +333,11 @@ ALL_TESTS = [
         all_detectors.ReentrancyEth,
         "reentrancy_indirect.sol",
         "0.7.6",
+    ),
+    Test(
+        all_detectors.ReentrancyEth,
+        "DAO.sol",
+        "0.4.25",
     ),
     Test(
         all_detectors.UninitializedStorageVars,
