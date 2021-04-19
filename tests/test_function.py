@@ -245,7 +245,9 @@ def test_functions():
 def test_function_can_send_eth():
     slither = Slither("tests/test_function.sol")
     compilation_unit = slither.compilation_units[0]
-    functions = compilation_unit.contracts_as_dict["TestFunctionCanSendEth"].available_functions_as_dict()
+    functions = compilation_unit.contracts_as_dict[
+        "TestFunctionCanSendEth"
+    ].available_functions_as_dict()
 
     assert functions["send_direct()"].can_send_eth() is True
     assert functions["transfer_direct()"].can_send_eth() is True
