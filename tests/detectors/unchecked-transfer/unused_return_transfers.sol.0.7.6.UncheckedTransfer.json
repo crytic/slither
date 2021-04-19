@@ -9,9 +9,9 @@
                         "start": 461,
                         "length": 70,
                         "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                        "filename_relative": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                        "filename_short": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                         "is_dependency": false,
                         "lines": [
                             20,
@@ -29,9 +29,9 @@
                                 "start": 330,
                                 "length": 1456,
                                 "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                                "filename_relative": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                                "filename_short": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                                 "is_dependency": false,
                                 "lines": [
                                     12,
@@ -102,9 +102,9 @@
                         "start": 493,
                         "length": 31,
                         "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                        "filename_relative": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                        "filename_short": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                         "is_dependency": false,
                         "lines": [
                             21
@@ -120,9 +120,9 @@
                                 "start": 461,
                                 "length": 70,
                                 "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                                "filename_relative": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                                "filename_short": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                                 "is_dependency": false,
                                 "lines": [
                                     20,
@@ -140,9 +140,9 @@
                                         "start": 330,
                                         "length": 1456,
                                         "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                                        "filename_relative": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                                         "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                                        "filename_short": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                                         "is_dependency": false,
                                         "lines": [
                                             12,
@@ -209,10 +209,10 @@
                     }
                 }
             ],
-            "description": "C.bad0() (tests/detectors/unused-return-transfers/unused_return_transfers.sol#20-22) ignores return value of t.transfer(address(0),1000000000000000000) (tests/detectors/unused-return-transfers/unused_return_transfers.sol#21)\n",
-            "markdown": "[C.bad0()](tests/detectors/unused-return-transfers/unused_return_transfers.sol#L20-L22) ignores return value of [t.transfer(address(0),1000000000000000000)](tests/detectors/unused-return-transfers/unused_return_transfers.sol#L21)\n",
-            "id": "273f513954167c12160962f06a02a10088834be02327cd8d27edd32f28e6b930",
-            "check": "unused-return-transfers",
+            "description": "C.bad0() (tests/detectors/unchecked-transfer/unused_return_transfers.sol#20-22) ignores return value by t.transfer(address(0),1000000000000000000) (tests/detectors/unchecked-transfer/unused_return_transfers.sol#21)\n",
+            "markdown": "[C.bad0()](tests/detectors/unchecked-transfer/unused_return_transfers.sol#L20-L22) ignores return value by [t.transfer(address(0),1000000000000000000)](tests/detectors/unchecked-transfer/unused_return_transfers.sol#L21)\n",
+            "id": "c999626efabdf72014bbebbdecd64178176d168947ae803ebbbd873941a6ed7e",
+            "check": "unchecked-transfer",
             "impact": "High",
             "confidence": "Medium"
         },
@@ -225,9 +225,9 @@
                         "start": 1043,
                         "length": 90,
                         "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                        "filename_relative": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                        "filename_short": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                         "is_dependency": false,
                         "lines": [
                             40,
@@ -245,9 +245,9 @@
                                 "start": 330,
                                 "length": 1456,
                                 "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                                "filename_relative": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                                "filename_short": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                                 "is_dependency": false,
                                 "lines": [
                                     12,
@@ -318,9 +318,9 @@
                         "start": 1076,
                         "length": 50,
                         "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                        "filename_relative": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                        "filename_short": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                         "is_dependency": false,
                         "lines": [
                             41
@@ -336,9 +336,9 @@
                                 "start": 1043,
                                 "length": 90,
                                 "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                                "filename_relative": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                                "filename_short": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                                 "is_dependency": false,
                                 "lines": [
                                     40,
@@ -356,9 +356,9 @@
                                         "start": 330,
                                         "length": 1456,
                                         "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                                        "filename_relative": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                                         "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+                                        "filename_short": "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
                                         "is_dependency": false,
                                         "lines": [
                                             12,
@@ -425,10 +425,10 @@
                     }
                 }
             ],
-            "description": "C.bad1() (tests/detectors/unused-return-transfers/unused_return_transfers.sol#40-42) ignores return value of t.transferFrom(address(this),address(0),1000000000000000000) (tests/detectors/unused-return-transfers/unused_return_transfers.sol#41)\n",
-            "markdown": "[C.bad1()](tests/detectors/unused-return-transfers/unused_return_transfers.sol#L40-L42) ignores return value of [t.transferFrom(address(this),address(0),1000000000000000000)](tests/detectors/unused-return-transfers/unused_return_transfers.sol#L41)\n",
-            "id": "41be6c49206e7b40a8d6ac10260a60bff5f876839d951ac20b3a38ac5185c0ae",
-            "check": "unused-return-transfers",
+            "description": "C.bad1() (tests/detectors/unchecked-transfer/unused_return_transfers.sol#40-42) ignores return value by t.transferFrom(address(this),address(0),1000000000000000000) (tests/detectors/unchecked-transfer/unused_return_transfers.sol#41)\n",
+            "markdown": "[C.bad1()](tests/detectors/unchecked-transfer/unused_return_transfers.sol#L40-L42) ignores return value by [t.transferFrom(address(this),address(0),1000000000000000000)](tests/detectors/unchecked-transfer/unused_return_transfers.sol#L41)\n",
+            "id": "d4c9ecd3753df951f9b2c890f54f981285d42500cd41e5dfc2f46f2feb1dbe6e",
+            "check": "unchecked-transfer",
             "impact": "High",
             "confidence": "Medium"
         }

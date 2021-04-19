@@ -257,8 +257,8 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
-        all_detectors.UnusedReturnValuesTransfers,
-        "tests/detectors/unused-return-transfers/unused_return_transfers.sol",
+        all_detectors.UncheckedTransfer,
+        "tests/detectors/unchecked-transfer/unused_return_transfers.sol",
         "0.7.6",
     ),
     Test(

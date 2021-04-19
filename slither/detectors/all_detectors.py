@@ -21,7 +21,7 @@ from .statements.tx_origin import TxOrigin
 from .statements.assembly import Assembly
 from .operations.low_level_calls import LowLevelCalls
 from .operations.unused_return_values import UnusedReturnValues
-from .operations.unused_return_values_transfers import UnusedReturnValuesTransfers
+from .operations.unchecked_transfer import UncheckedTransfer
 from .naming_convention.naming_convention import NamingConvention
 from .functions.external_function import ExternalFunction
 from .statements.controlled_delegatecall import ControlledDelegateCall
