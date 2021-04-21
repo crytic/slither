@@ -1360,10 +1360,8 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Contra
             for f in contract.functions
             if f.name == ir.function_name
             and f.contract_declarer.name == ir.contract_name
-            and not f.is_shadowed
             and len(f.parameters) == len(ir.arguments)
         ]
-
         func = _find_function_from_parameter(ir, candidates)
 
         if not func:
