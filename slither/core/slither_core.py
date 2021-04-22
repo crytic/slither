@@ -90,6 +90,10 @@ class SlitherCore(Context):  # pylint: disable=too-many-instance-attributes,too-
 
         self._show_ignored_findings = False
 
+        self.counter_slithir_tuple = 0
+        self.counter_slithir_temporary = 0
+        self.counter_slithir_reference = 0
+
     ###################################################################################
     ###################################################################################
     # region Source code

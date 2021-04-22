@@ -1,16 +1,18 @@
+from typing import TYPE_CHECKING
+
 from slither.core.children.child_node import ChildNode
 from slither.slithir.variables.variable import SlithIRVariable
 
+if TYPE_CHECKING:
+    from slither.core.cfg.node import Node
+
 
 class TupleVariable(ChildNode, SlithIRVariable):
-
-    COUNTER = 0
-
-    def __init__(self, node, index=None):
+    def __init__(self, node: "Node", index=None):
         super().__init__()
         if index is None:
-            self._index = TupleVariable.COUNTER
-            TupleVariable.COUNTER += 1
+            self._index = node.slither.counter_slithir_tuple
+            node.slither.counter_slithir_tuple += 1
         else:
             self._index = index
 
