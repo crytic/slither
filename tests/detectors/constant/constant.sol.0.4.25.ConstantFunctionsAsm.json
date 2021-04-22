@@ -70,6 +70,7 @@
             ],
             "description": "Constant.test_assembly_bug() (tests/detectors/constant/constant.sol#22-24) is declared view but contains assembly code\n",
             "markdown": "[Constant.test_assembly_bug()](tests/detectors/constant/constant.sol#L22-L24) is declared view but contains assembly code\n",
+            "first_markdown_element": "tests/detectors/constant/constant.sol#L22-L24",
             "id": "1f892cae08b89096bdc4d6ecdf55a3adc4b4314390e054fe2547d9c8e9f76e23",
             "additional_fields": {
                 "contains_assembly": true

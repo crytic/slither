@@ -241,6 +241,7 @@
             ],
             "description": "C.bad0() (tests/detectors/unused-return/unused_return-sol7.sol#60-62) ignores return value by t.other() (tests/detectors/unused-return/unused_return-sol7.sol#61)\n",
             "markdown": "[C.bad0()](tests/detectors/unused-return/unused_return-sol7.sol#L60-L62) ignores return value by [t.other()](tests/detectors/unused-return/unused_return-sol7.sol#L61)\n",
+            "first_markdown_element": "tests/detectors/unused-return/unused_return-sol7.sol#L60-L62",
             "id": "f9924f5b012de6c1e91b68996bc7944585b0daab740b86c89cd157b0d22d0092",
             "check": "unused-return",
             "impact": "Medium",
