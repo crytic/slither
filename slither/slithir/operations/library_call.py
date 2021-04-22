@@ -1,3 +1,4 @@
+from slither.core.declarations import Function
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.core.declarations.contract import Contract
 
@@ -37,10 +38,15 @@ class LibraryCall(HighLevelCall):
         else:
             lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
         txt = "{}LIBRARY_CALL, dest:{}, function:{}, arguments:{} {}"
+
+        function_name = self.function_name
+        if self.function:
+            if isinstance(self.function, Function):
+                function_name = self.function.canonical_name
         return txt.format(
             lvalue,
             self.destination,
-            self.function_name,
+            function_name,
             [str(x) for x in arguments],
             gas,
         )
