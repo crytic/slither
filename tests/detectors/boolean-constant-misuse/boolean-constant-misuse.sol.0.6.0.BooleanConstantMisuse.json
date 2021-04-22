@@ -199,6 +199,7 @@
             ],
             "description": "MyConc.bad1(bool) (tests/detectors/boolean-constant-misuse/boolean-constant-misuse.sol#9-11) uses a Boolean constant improperly:\n\t-(b || true) (tests/detectors/boolean-constant-misuse/boolean-constant-misuse.sol#10)\n",
             "markdown": "[MyConc.bad1(bool)](tests/detectors/boolean-constant-misuse/boolean-constant-misuse.sol#L9-L11) uses a Boolean constant improperly:\n\t-[(b || true)](tests/detectors/boolean-constant-misuse/boolean-constant-misuse.sol#L10)\n",
+            "first_markdown_element": "tests/detectors/boolean-constant-misuse/boolean-constant-misuse.sol#L9-L11",
             "id": "12517fed0ec8f0a2232b467a6add9fd94a6a84325017e02e8a48794fc9112c6b",
             "check": "boolean-cst",
             "impact": "Medium",

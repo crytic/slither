@@ -216,6 +216,7 @@
             ],
             "description": "Reentrancy in Test.bug(C) (tests/detectors/reentrancy-events/reentrancy-0.5.1-events.sol#14-17):\n\tExternal calls:\n\t- c.f() (tests/detectors/reentrancy-events/reentrancy-0.5.1-events.sol#15)\n\tEvent emitted after the call(s):\n\t- E() (tests/detectors/reentrancy-events/reentrancy-0.5.1-events.sol#16)\n",
             "markdown": "Reentrancy in [Test.bug(C)](tests/detectors/reentrancy-events/reentrancy-0.5.1-events.sol#L14-L17):\n\tExternal calls:\n\t- [c.f()](tests/detectors/reentrancy-events/reentrancy-0.5.1-events.sol#L15)\n\tEvent emitted after the call(s):\n\t- [E()](tests/detectors/reentrancy-events/reentrancy-0.5.1-events.sol#L16)\n",
+            "first_markdown_element": "tests/detectors/reentrancy-events/reentrancy-0.5.1-events.sol#L14-L17",
             "id": "8b509fb9b9264baf213e2f3959b4d88d285f4591752f1cfbf0eb3c2da13e0e3e",
             "check": "reentrancy-events",
             "impact": "Low",

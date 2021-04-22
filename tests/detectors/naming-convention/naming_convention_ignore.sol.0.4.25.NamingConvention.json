@@ -67,6 +67,7 @@
             ],
             "description": "Struct naming.test3 (tests/detectors/naming-convention/naming_convention_ignore.sol#18-20) is not in CapWords\n",
             "markdown": "Struct [naming.test3](tests/detectors/naming-convention/naming_convention_ignore.sol#L18-L20) is not in CapWords\n",
+            "first_markdown_element": "tests/detectors/naming-convention/naming_convention_ignore.sol#L18-L20",
             "id": "34b66b0b5acf6c00b066dd7f5bbcdbc6f3879ab5ece850f113d00e3318eac10f",
             "check": "naming-convention",
             "impact": "Informational",

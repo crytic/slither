@@ -60,6 +60,7 @@
             ],
             "description": "Bug.testMapping (tests/detectors/public-mappings-nested/public_mappings_nested.sol#14) is a public mapping with nested variables\n",
             "markdown": "[Bug.testMapping](tests/detectors/public-mappings-nested/public_mappings_nested.sol#L14) is a public mapping with nested variables\n",
+            "first_markdown_element": "tests/detectors/public-mappings-nested/public_mappings_nested.sol#L14",
             "id": "100978112524def620b003331f34b2b51eb78cae6f7eb2793d9671b4b7bb858a",
             "check": "public-mappings-nested",
             "impact": "High",

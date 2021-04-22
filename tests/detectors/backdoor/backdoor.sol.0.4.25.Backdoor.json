@@ -52,6 +52,7 @@
             ],
             "description": "Backdoor function found in C.i_am_a_backdoor() (tests/detectors/backdoor/backdoor.sol#4-6)\n",
             "markdown": "Backdoor function found in [C.i_am_a_backdoor()](tests/detectors/backdoor/backdoor.sol#L4-L6)\n",
+            "first_markdown_element": "tests/detectors/backdoor/backdoor.sol#L4-L6",
             "id": "8a9008f2f5cd23b34feb0235dcc30ecb8d09a10eff151b522939caead117ef7a",
             "check": "backdoor",
             "impact": "High",

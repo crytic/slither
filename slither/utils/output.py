@@ -239,12 +239,6 @@ class Output:
         self._data["first_markdown_element"] = ""
         self._markdown_root = markdown_root
 
-        if info:
-            for elem in info:
-                if not isinstance(elem, str):
-                    self._data["first_markdown_element"] = elem
-                    break
-
         id_txt = "".join(_convert_to_id(d) for d in info)
         self._data["id"] = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()
 
