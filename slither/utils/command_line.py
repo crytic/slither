@@ -150,7 +150,7 @@ def output_results_to_markdown(all_results):
     info = defaultdict(dict)
     for results in all_results:
         checks[results["check"]].append(results)
-        info[results["check"]] = {"impact" : results["impact"], "confidence": results["confidence"]}
+        info[results["check"]] = {"impact": results["impact"], "confidence": results["confidence"]}
 
     print("Summary")
     for check in checks:
@@ -162,14 +162,12 @@ def output_results_to_markdown(all_results):
         print(f'Impact: {info[check]["impact"]}')
         print(f'Confidence: {info[check]["confidence"]}')
         for result in results:
-            print(
-                " - [ ] ID-"+f"{counter}"
-            )
+            print(" - [ ] ID-" + f"{counter}")
             counter = counter + 1
             print(result["markdown"])
             if result["first_markdown_element"]:
                 print(result["first_markdown_element"])
-                print('\n')
+                print("\n")
 
 
 def output_wiki(detector_classes, filter_wiki):

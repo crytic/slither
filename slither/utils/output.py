@@ -239,11 +239,11 @@ class Output:
         self._data["first_markdown_element"] = ""
         self._markdown_root = markdown_root
 
-        first_element_for_mardown = None
         if info:
             for elem in info:
                 if not isinstance(elem, str):
-                    first_element_for_mardown = elem
+                    self._data["first_markdown_element"] = elem
+                    break
 
         id_txt = "".join(_convert_to_id(d) for d in info)
         self._data["id"] = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()
@@ -259,7 +259,9 @@ class Output:
 
     def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None):
         if not self._data["first_markdown_element"]:
-            self._data["first_markdown_element"] = add.source_mapping_to_markdown(self._markdown_root)
+            self._data["first_markdown_element"] = add.source_mapping_to_markdown(
+                self._markdown_root
+            )
         if isinstance(add, Variable):
             self.add_variable(add, additional_fields=additional_fields)
         elif isinstance(add, Contract):
