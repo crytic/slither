@@ -213,6 +213,114 @@
             "elements": [
                 {
                     "type": "contract",
+                    "name": "bad2",
+                    "source_mapping": {
+                        "start": 483,
+                        "length": 199,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/uninitialized_function_ptr_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/uninitialized-fptr-cst/uninitialized_function_ptr_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28,
+                            29
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "s.a(10)",
+                    "source_mapping": {
+                        "start": 668,
+                        "length": 7,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/uninitialized_function_ptr_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/uninitialized-fptr-cst/uninitialized_function_ptr_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            27
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 12
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "constructor",
+                            "source_mapping": {
+                                "start": 625,
+                                "length": 55,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/uninitialized-fptr-cst/uninitialized_function_ptr_constructor.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/uninitialized-fptr-cst/uninitialized_function_ptr_constructor.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 3,
+                                "ending_column": 4
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "bad2",
+                                    "source_mapping": {
+                                        "start": 483,
+                                        "length": 199,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/uninitialized_function_ptr_constructor.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/uninitialized-fptr-cst/uninitialized_function_ptr_constructor.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "constructor()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Contract bad2 (tests/detectors/uninitialized-fptr-cst/uninitialized_function_ptr_constructor.sol#20-29) \n\t s.a(10) (tests/detectors/uninitialized-fptr-cst/uninitialized_function_ptr_constructor.sol#27) is an unintialized function pointer call in a constructor\n",
+            "markdown": "Contract [bad2](tests/detectors/uninitialized-fptr-cst/uninitialized_function_ptr_constructor.sol#L20-L29) \n\t [s.a(10)](tests/detectors/uninitialized-fptr-cst/uninitialized_function_ptr_constructor.sol#L27) is an unintialized function pointer call in a constructor\n",
+            "id": "1f43b676571aff0a3ce0353dc8548e252c588f7c9248c104637d500882880134",
+            "check": "uninitialized-fptr-cst",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
                     "name": "bad3",
                     "source_mapping": {
                         "start": 684,
