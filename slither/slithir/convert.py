@@ -1,5 +1,5 @@
 import logging
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Union, Optional
 
 # pylint: disable= too-many-lines,import-outside-toplevel,too-many-branches,too-many-statements,too-many-nested-blocks
 from slither.core.declarations import (
@@ -22,7 +22,12 @@ from slither.core.solidity_types import (
     UserDefinedType,
     TypeInformation,
 )
-from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
+from slither.core.solidity_types.elementary_type import (
+    Int as ElementaryTypeInt,
+    Uint,
+    Byte,
+    MaxValues,
+)
 from slither.core.solidity_types.type import Type
 from slither.core.variables.function_type_variable import FunctionTypeVariable
 from slither.core.variables.state_variable import StateVariable
@@ -60,6 +65,7 @@ from slither.slithir.operations import (
     Unary,
     Unpack,
     Nop,
+    Operation,
 )
 from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
@@ -148,64 +154,111 @@ def is_gas(ins):
     return False
 
 
-def get_sig(ir, name):
+def _fits_under_integer(val: int, can_be_int: bool, can_be_uint) -> List[str]:
     """
-        Return a list of potential signature
-        It is a list, as Constant variables can be converted to int256
-    Args:
-        ir (slithIR.operation)
-    Returns:
-        list(str)
+    Return the list of uint/int that can contain val
+
+    :param val:
+    :return:
     """
-    sig = "{}({})"
+    ret: List[str] = []
+    n = 8
+    assert can_be_int | can_be_uint
+    while n <= 256:
+        if can_be_uint:
+            if val <= 2 ** n - 1:
+                ret.append(f"uint{n}")
+        if can_be_int:
+            if val <= (2 ** n) / 2 - 1:
+                ret.append(f"int{n}")
+        n = n + 8
+    return ret
 
-    # list of list of arguments
-    argss = convert_arguments(ir.arguments)
-    return [sig.format(name, ",".join(args)) for args in argss]
 
-
-def get_canonical_names(ir, function_name, contract_name):
+def _fits_under_byte(val: Union[int, str]) -> List[str]:
     """
-        Return a list of potential signature
-        It is a list, as Constant variables can be converted to int256
-    Args:
-        ir (slithIR.operation)
-    Returns:
-        list(str)
+    Return the list of byte that can contain val
+
+    :param val:
+    :return:
     """
-    sig = "{}({})"
 
-    # list of list of arguments
-    argss = convert_arguments(ir.arguments)
-    return [sig.format(f"{contract_name}.{function_name}", ",".join(args)) for args in argss]
+    # If the value is written as an int, it can only be saved in one byte size
+    # If its a string, it can be fitted under multiple values
+
+    if isinstance(val, int):
+        hex_val = hex(val)[2:]
+        size = len(hex_val) // 2
+        return [f"byte{size}"]
+    # val is a str
+    length = len(val.encode("utf-8"))
+    return [f"byte{f}" for f in range(length, 32)]
 
 
-def convert_arguments(arguments):
-    argss = [[]]
-    for arg in arguments:
+def _find_function_from_parameter(ir: Call, candidates: List[Function]) -> Optional[Function]:
+    """
+    Look for a function in candidates that can be the target of the ir's call
+
+    Try the implicit type conversion for uint/int/bytes. Constant values can be both uint/int
+    While variables stick to their base type, but can changed the size
+
+    :param ir:
+    :param candidates:
+    :return:
+    """
+    arguments = ir.arguments
+    type_args: List[str]
+    for idx, arg in enumerate(arguments):
         if isinstance(arg, (list,)):
-            type_arg = "{}[{}]".format(get_type(arg[0].type), len(arg))
+            type_args = ["{}[{}]".format(get_type(arg[0].type), len(arg))]
         elif isinstance(arg, Function):
-            type_arg = arg.signature_str
+            type_args = [arg.signature_str]
         else:
-            type_arg = get_type(arg.type)
-        if isinstance(arg, Constant) and arg.type == ElementaryType("uint256"):
-            # If it is a constant
-            # We dupplicate the existing list
-            # And we add uint256 and int256 cases
-            # There is no potential collision, as the compiler
-            # Prevent it with a
-            # "not unique after argument-dependent loopkup" issue
-            argss_new = [list(args) for args in argss]
-            for args in argss:
-                args.append(str(ElementaryType("uint256")))
-            for args in argss_new:
-                args.append(str(ElementaryType("int256")))
-            argss = argss + argss_new
-        else:
-            for args in argss:
-                args.append(type_arg)
-    return argss
+            type_args = [get_type(arg.type)]
+
+        if (
+            isinstance(arg.type, ElementaryType)
+            and arg.type.type in ElementaryTypeInt + Uint + Byte
+        ):
+            if isinstance(arg, Constant):
+                value = arg.value
+                can_be_uint = True
+                can_be_int = True
+            else:
+                value = MaxValues[arg.type.type]
+                can_be_uint = False
+                can_be_int = False
+                if arg.type.type in ElementaryTypeInt:
+                    can_be_int = True
+                elif arg.type.type in Uint:
+                    can_be_uint = True
+
+            if arg.type.type in ElementaryTypeInt + Uint:
+                type_args = _fits_under_integer(value, can_be_int, can_be_uint)
+            else:
+                print(value)
+                type_args = _fits_under_byte(value)
+
+        not_found = True
+        candidates_kept = []
+        for type_arg in type_args:
+            if not not_found:
+                break
+            candidates_kept = []
+            for candidate in candidates:
+                param = str(candidate.parameters[idx].type)
+
+                if param == type_arg:
+                    not_found = False
+                    candidates_kept.append(candidate)
+
+            if len(candidates_kept) == 1:
+                return candidates_kept[0]
+        candidates = candidates_kept
+
+    if len(candidates) == 1:
+        return candidates[0]
+    return None
 
 
 def is_temporary(ins):
@@ -1205,17 +1258,34 @@ def get_type(t):
     return str(t)
 
 
-def convert_type_library_call(ir, lib_contract):
-    sigs = get_sig(ir, ir.function_name)
+def _can_be_implicitly_converted(source: str, target: str) -> bool:
+    if source in ElementaryTypeInt and target in ElementaryTypeInt:
+        return int(source[3:]) <= int(target[3:])
+    if source in Uint and target in Uint:
+        return int(source[4:]) <= int(target[4:])
+    return source == target
+
+
+def convert_type_library_call(ir: HighLevelCall, lib_contract: Contract):
     func = None
-    for sig in sigs:
-        func = lib_contract.get_function_from_signature(sig)
-        if not func:
-            func = lib_contract.get_state_variable_from_name(ir.function_name)
-        if func:
-            # stop to explore if func is found (prevent dupplicate issue)
-            break
+    candidates = [
+        f
+        for f in lib_contract.functions
+        if f.name == ir.function_name
+        and not f.is_shadowed
+        and len(f.parameters) == len(ir.arguments)
+    ]
+
+    if len(candidates) == 1:
+        func = candidates[0]
+    if func is None:
+        # TODO: handle collision with multiple state variables/functions
+        func = lib_contract.get_state_variable_from_name(ir.function_name)
+    if func is None and candidates:
+        func = _find_function_from_parameter(ir, candidates)
+
     # In case of multiple binding to the same type
+    # TODO: this part might not be needed with _find_function_from_parameter
     if not func:
         # specific lookup when the compiler does implicit conversion
         # for example
@@ -1282,36 +1352,39 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
     return [return_type.type]
 
 
-def convert_type_of_high_and_internal_level_call(ir, contract):
+def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Contract):
     func = None
     if isinstance(ir, InternalCall):
-        sigs = get_canonical_names(ir, ir.function_name, ir.contract_name)
-        for sig in sigs:
-            func = contract.get_function_from_canonical_name(sig)
-            if func:
-                # stop to explore if func is found (prevent dupplicate issue)
-                break
+        candidates = [
+            f
+            for f in contract.functions
+            if f.name == ir.function_name
+            and f.contract_declarer.name == ir.contract_name
+            and len(f.parameters) == len(ir.arguments)
+        ]
+        func = _find_function_from_parameter(ir, candidates)
+
         if not func:
             func = contract.get_state_variable_from_name(ir.function_name)
     else:
         assert isinstance(ir, HighLevelCall)
-        sigs = get_sig(ir, ir.function_name)
-        for sig in sigs:
-            func = contract.get_function_from_signature(sig)
-            if func:
-                # stop to explore if func is found (prevent dupplicate issue)
-                break
-        if not func:
+
+        candidates = [
+            f
+            for f in contract.functions
+            if f.name == ir.function_name
+            and not f.is_shadowed
+            and len(f.parameters) == len(ir.arguments)
+        ]
+
+        if len(candidates) == 1:
+            func = candidates[0]
+        if func is None:
+            # TODO: handle collision with multiple state variables/functions
             func = contract.get_state_variable_from_name(ir.function_name)
-    if not func:
-        # specific lookup when the compiler does implicit conversion
-        # for example
-        # myFunc(uint)
-        # can be called with an uint8
-        for function in contract.functions:
-            if function.name == ir.function_name and len(function.parameters) == len(ir.arguments):
-                func = function
-                break
+        if func is None and candidates:
+            func = _find_function_from_parameter(ir, candidates)
+
     # lowlelvel lookup needs to be done at last step
     if not func:
         if can_be_low_level(ir):
@@ -1319,7 +1392,7 @@ def convert_type_of_high_and_internal_level_call(ir, contract):
         if can_be_solidity_func(ir):
             return convert_to_solidity_func(ir)
     if not func:
-        to_log = "Function not found {}".format(sig)
+        to_log = "Function not found {}".format(ir.function_name)
         logger.error(to_log)
     ir.function = func
     if isinstance(func, Function):
