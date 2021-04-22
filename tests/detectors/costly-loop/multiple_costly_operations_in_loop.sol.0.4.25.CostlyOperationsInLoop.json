@@ -175,6 +175,7 @@
             ],
             "description": "CostlyOperationsInLoop.bad() (tests/detectors/costly-loop/multiple_costly_operations_in_loop.sol#10-14) has costly operations inside a loop:\n\t- state_variable ++ (tests/detectors/costly-loop/multiple_costly_operations_in_loop.sol#12)\n",
             "markdown": "[CostlyOperationsInLoop.bad()](tests/detectors/costly-loop/multiple_costly_operations_in_loop.sol#L10-L14) has costly operations inside a loop:\n\t- [state_variable ++](tests/detectors/costly-loop/multiple_costly_operations_in_loop.sol#L12)\n",
+            "first_markdown_element": "tests/detectors/costly-loop/multiple_costly_operations_in_loop.sol#L10-L14",
             "id": "245dbe07302f785326efd84e8b711d1691f045726e1098601f7e1058f1e72b2a",
             "check": "costly-loop",
             "impact": "Informational",

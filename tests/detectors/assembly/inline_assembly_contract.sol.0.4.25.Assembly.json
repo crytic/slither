@@ -176,6 +176,7 @@
             ],
             "description": "GetCode.at(address) (tests/detectors/assembly/inline_assembly_contract.sol#6-20) uses assembly\n\t- INLINE ASM (tests/detectors/assembly/inline_assembly_contract.sol#7-20)\n",
             "markdown": "[GetCode.at(address)](tests/detectors/assembly/inline_assembly_contract.sol#L6-L20) uses assembly\n\t- [INLINE ASM](tests/detectors/assembly/inline_assembly_contract.sol#L7-L20)\n",
+            "first_markdown_element": "tests/detectors/assembly/inline_assembly_contract.sol#L6-L20",
             "id": "076a663af9edac0ed5fd4b04bb521be77206cde70d71f430b80d13896d7ad54d",
             "check": "assembly",
             "impact": "Informational",
