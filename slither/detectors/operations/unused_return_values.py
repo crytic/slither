@@ -5,6 +5,7 @@ Module detecting unused return values from external calls
 from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import HighLevelCall
+from slither.core.declarations import Function
 
 
 class UnusedReturnValues(AbstractDetector):
@@ -36,10 +37,15 @@ contract MyConc{
 
     WIKI_RECOMMENDATION = "Ensure that all the return values of the function calls are used."
 
-    _txt_description = "external calls"
-
     def _is_instance(self, ir):  # pylint: disable=no-self-use
-        return isinstance(ir, HighLevelCall)
+        return isinstance(ir, HighLevelCall) and (
+            (
+                isinstance(ir.function, Function)
+                and ir.function.solidity_signature
+                not in ["transfer(address,uint256)", "transferFrom(address,address,uint256)"]
+            )
+            or not isinstance(ir.function, Function)
+        )
 
     def detect_unused_return_values(self, f):  # pylint: disable=no-self-use
         """

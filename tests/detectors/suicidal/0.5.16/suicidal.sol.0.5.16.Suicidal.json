@@ -52,6 +52,7 @@
             ],
             "description": "C.i_am_a_backdoor() (tests/detectors/suicidal/0.5.16/suicidal.sol#4-6) allows anyone to destruct the contract\n",
             "markdown": "[C.i_am_a_backdoor()](tests/detectors/suicidal/0.5.16/suicidal.sol#L4-L6) allows anyone to destruct the contract\n",
+            "first_markdown_element": "tests/detectors/suicidal/0.5.16/suicidal.sol#L4-L6",
             "id": "bb1e4596537b6e2c29f4221e733692fd6dac8555095181718e440ca525016eb7",
             "check": "suicidal",
             "impact": "High",

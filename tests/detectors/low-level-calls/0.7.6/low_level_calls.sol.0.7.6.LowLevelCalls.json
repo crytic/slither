@@ -115,6 +115,7 @@
             ],
             "description": "Low level call in Sender.send(address) (tests/detectors/low-level-calls/0.7.6/low_level_calls.sol#5-7):\n\t- _receiver.call{gas: 7777,value: msg.value}() (tests/detectors/low-level-calls/0.7.6/low_level_calls.sol#6)\n",
             "markdown": "Low level call in [Sender.send(address)](tests/detectors/low-level-calls/0.7.6/low_level_calls.sol#L5-L7):\n\t- [_receiver.call{gas: 7777,value: msg.value}()](tests/detectors/low-level-calls/0.7.6/low_level_calls.sol#L6)\n",
+            "first_markdown_element": "tests/detectors/low-level-calls/0.7.6/low_level_calls.sol#L5-L7",
             "id": "ec014cc9f1ed1d83294a16253fc735b22f22eebba3953cdae61f6547550fd64d",
             "check": "low-level-calls",
             "impact": "Informational",

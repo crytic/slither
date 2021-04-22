@@ -141,6 +141,7 @@
             ],
             "description": "MyConc.bad(address) (tests/detectors/unchecked-send/0.7.6/unchecked_send.sol#2-4) ignores return value by dst.send(msg.value) (tests/detectors/unchecked-send/0.7.6/unchecked_send.sol#3)\n",
             "markdown": "[MyConc.bad(address)](tests/detectors/unchecked-send/0.7.6/unchecked_send.sol#L2-L4) ignores return value by [dst.send(msg.value)](tests/detectors/unchecked-send/0.7.6/unchecked_send.sol#L3)\n",
+            "first_markdown_element": "tests/detectors/unchecked-send/0.7.6/unchecked_send.sol#L2-L4",
             "id": "74d3637eb50def7c93e85041859377832449a73e2546ab915ac91aef6d9a30e8",
             "check": "unchecked-send",
             "impact": "Medium",

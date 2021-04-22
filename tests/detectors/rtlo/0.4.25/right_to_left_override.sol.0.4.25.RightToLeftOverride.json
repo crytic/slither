@@ -23,6 +23,7 @@
             ],
             "description": "tests/detectors/rtlo/0.4.25/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:\n\t- b'        test1(/*A\\xe2\\x80\\xae/*B*/2 , 1/*\\xe2\\x80\\xad'\n",
             "markdown": "tests/detectors/rtlo/0.4.25/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:\n\t- b'        test1(/*A\\xe2\\x80\\xae/*B*/2 , 1/*\\xe2\\x80\\xad'\n",
+            "first_markdown_element": "",
             "id": "02545af9e98ed496f7c9e2b2de0f66bcf8e8e31c25a2a2626b5bad92619b1f85",
             "check": "rtlo",
             "impact": "High",

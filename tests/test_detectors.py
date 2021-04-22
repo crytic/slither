@@ -53,7 +53,7 @@ def id_test(test_item: Test):
 
 
 ALL_TESTS = [
-    Test(  # DO NOT move this specific test further down in this list, because for some inexplicable reason this test will then fail to report function bad2 ?!
+    Test(
         all_detectors.UninitializedFunctionPtrsConstructor,
         "uninitialized_function_ptr_constructor.sol",
         "0.4.25",
@@ -610,6 +610,11 @@ ALL_TESTS = [
     Test(
         all_detectors.UnusedReturnValues,
         "unused_return.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.UncheckedTransfer,
+        "unused_return_transfers.sol",
         "0.7.6",
     ),
     Test(

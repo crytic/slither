@@ -1,17 +1,19 @@
+from typing import TYPE_CHECKING
+
 from slither.core.children.child_node import ChildNode
 from slither.core.declarations import Contract, Enum, SolidityVariable, Function
 from slither.core.variables.variable import Variable
 
+if TYPE_CHECKING:
+    from slither.core.cfg.node import Node
+
 
 class ReferenceVariable(ChildNode, Variable):
-
-    COUNTER = 0
-
-    def __init__(self, node, index=None):
+    def __init__(self, node: "Node", index=None):
         super().__init__()
         if index is None:
-            self._index = ReferenceVariable.COUNTER
-            ReferenceVariable.COUNTER += 1
+            self._index = node.slither.counter_slithir_reference
+            node.slither.counter_slithir_reference += 1
         else:
             self._index = index
         self._points_to = None

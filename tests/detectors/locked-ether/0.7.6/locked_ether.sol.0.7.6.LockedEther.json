@@ -70,6 +70,7 @@
             ],
             "description": "Contract locking ether found in :\n\tContract OnlyLocked (tests/detectors/locked-ether/0.7.6/locked_ether.sol#26) has payable functions:\n\t - Locked.receive_eth() (tests/detectors/locked-ether/0.7.6/locked_ether.sol#4-6)\n\tBut does not have a function to withdraw the ether\n",
             "markdown": "Contract locking ether found in :\n\tContract [OnlyLocked](tests/detectors/locked-ether/0.7.6/locked_ether.sol#L26) has payable functions:\n\t - [Locked.receive_eth()](tests/detectors/locked-ether/0.7.6/locked_ether.sol#L4-L6)\n\tBut does not have a function to withdraw the ether\n",
+            "first_markdown_element": "tests/detectors/locked-ether/0.7.6/locked_ether.sol#L26",
             "id": "1eb31cab3df894265d213a6a2e85c7fe840a4021a598ab09f1052a86c897d886",
             "check": "locked-ether",
             "impact": "Medium",

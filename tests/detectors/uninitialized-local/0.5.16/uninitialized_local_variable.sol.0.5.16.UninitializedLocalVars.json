@@ -76,6 +76,7 @@
             ],
             "description": "Uninitialized.func().uint_not_init (tests/detectors/uninitialized-local/0.5.16/uninitialized_local_variable.sol#4) is a local variable never initialized\n",
             "markdown": "[Uninitialized.func().uint_not_init](tests/detectors/uninitialized-local/0.5.16/uninitialized_local_variable.sol#L4) is a local variable never initialized\n",
+            "first_markdown_element": "tests/detectors/uninitialized-local/0.5.16/uninitialized_local_variable.sol#L4",
             "id": "6ef627d0a3f7234c0d3dd339ae4cf3c1adf898f03384e08c3c8d846c67e0d476",
             "check": "uninitialized-local",
             "impact": "Medium",

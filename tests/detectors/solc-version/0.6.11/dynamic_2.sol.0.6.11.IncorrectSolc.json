@@ -34,6 +34,7 @@
             ],
             "description": "Pragma version>=0.6.0<0.7.0 (tests/detectors/solc-version/0.6.11/dynamic_2.sol#1) allows old versions\n",
             "markdown": "Pragma version[>=0.6.0<0.7.0](tests/detectors/solc-version/0.6.11/dynamic_2.sol#L1) allows old versions\n",
+            "first_markdown_element": "tests/detectors/solc-version/0.6.11/dynamic_2.sol#L1",
             "id": "8c08bc3809d977ad0253b208683307501206a69d53c84f78e68fad3ae144117c",
             "check": "solc-version",
             "impact": "Informational",

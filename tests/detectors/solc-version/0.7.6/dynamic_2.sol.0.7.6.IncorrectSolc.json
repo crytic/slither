@@ -34,6 +34,7 @@
             ],
             "description": "Pragma version>=0.7.0<=0.7.6 (tests/detectors/solc-version/0.7.6/dynamic_2.sol#1) is too complex\n",
             "markdown": "Pragma version[>=0.7.0<=0.7.6](tests/detectors/solc-version/0.7.6/dynamic_2.sol#L1) is too complex\n",
+            "first_markdown_element": "tests/detectors/solc-version/0.7.6/dynamic_2.sol#L1",
             "id": "d63860d6851dda74b9cb989aa5ef5bbb9bcc22c1b6f217b9356c0fc843b78386",
             "check": "solc-version",
             "impact": "Informational",

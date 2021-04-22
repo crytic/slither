@@ -127,6 +127,7 @@
             ],
             "description": "MyConc.bad(address) (tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol#2-4) ignores return value by dst.call.value(msg.value)() (tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol#3)\n",
             "markdown": "[MyConc.bad(address)](tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol#L2-L4) ignores return value by [dst.call.value(msg.value)()](tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol#L3)\n",
+            "first_markdown_element": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol#L2-L4",
             "id": "f03d14053bc8c0d4a6cacad0f9915b9d1be3a711767d92e994ae01f690e2b9ca",
             "check": "unchecked-lowlevel",
             "impact": "Medium",

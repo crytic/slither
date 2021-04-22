@@ -119,6 +119,7 @@
             ],
             "description": "Void constructor called in D.constructor() (tests/detectors/void-cst/0.7.6/void-cst.sol#10-12):\n\t- C() (tests/detectors/void-cst/0.7.6/void-cst.sol#10)\n",
             "markdown": "Void constructor called in [D.constructor()](tests/detectors/void-cst/0.7.6/void-cst.sol#L10-L12):\n\t- [C()](tests/detectors/void-cst/0.7.6/void-cst.sol#L10)\n",
+            "first_markdown_element": "tests/detectors/void-cst/0.7.6/void-cst.sol#L10-L12",
             "id": "deffcf2d974f53d4993c8cb12ada6abdb84e44ceea422e2261068e4fb2e663ac",
             "check": "void-cst",
             "impact": "Low",

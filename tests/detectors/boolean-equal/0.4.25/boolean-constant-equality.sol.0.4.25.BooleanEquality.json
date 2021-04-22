@@ -161,6 +161,7 @@
             ],
             "description": "MyConc.bad1(bool) (tests/detectors/boolean-equal/0.4.25/boolean-constant-equality.sol#7-9) compares to a boolean constant:\n\t-(b == true) (tests/detectors/boolean-equal/0.4.25/boolean-constant-equality.sol#8)\n",
             "markdown": "[MyConc.bad1(bool)](tests/detectors/boolean-equal/0.4.25/boolean-constant-equality.sol#L7-L9) compares to a boolean constant:\n\t-[(b == true)](tests/detectors/boolean-equal/0.4.25/boolean-constant-equality.sol#L8)\n",
+            "first_markdown_element": "tests/detectors/boolean-equal/0.4.25/boolean-constant-equality.sol#L7-L9",
             "id": "55ba7d7edfd3cc9012d1fbd9d2ba12a488d950a885c3664fe080b90288a2c715",
             "check": "boolean-equal",
             "impact": "Informational",

@@ -139,6 +139,7 @@
             ],
             "description": "CallInLoop.bad() (tests/detectors/calls-loop/0.4.25/multiple_calls_in_loop.sol#9-13) has external calls inside a loop: destinations[i].transfer(i) (tests/detectors/calls-loop/0.4.25/multiple_calls_in_loop.sol#11)\n",
             "markdown": "[CallInLoop.bad()](tests/detectors/calls-loop/0.4.25/multiple_calls_in_loop.sol#L9-L13) has external calls inside a loop: [destinations[i].transfer(i)](tests/detectors/calls-loop/0.4.25/multiple_calls_in_loop.sol#L11)\n",
+            "first_markdown_element": "tests/detectors/calls-loop/0.4.25/multiple_calls_in_loop.sol#L9-L13",
             "id": "997dd7de40b82c6ac8e98324329bd99f827ed067c22d5b508b2e56c87ad49c0a",
             "check": "calls-loop",
             "impact": "Low",
