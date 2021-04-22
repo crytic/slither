@@ -7,8 +7,8 @@ from slither.core.variables.variable import Variable
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
-class ReferenceVariable(ChildNode, Variable):
 
+class ReferenceVariable(ChildNode, Variable):
     def __init__(self, node: "Node", index=None):
         super().__init__()
         if index is None:

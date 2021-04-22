@@ -8,7 +8,6 @@ if TYPE_CHECKING:
 
 
 class TupleVariable(ChildNode, SlithIRVariable):
-
     def __init__(self, node: "Node", index=None):
         super().__init__()
         if index is None:
