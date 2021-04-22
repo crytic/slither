@@ -1,0 +1,427 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "deleteSt",
+                    "source_mapping": {
+                        "start": 114,
+                        "length": 70,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9,
+                            10,
+                            11
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Lib",
+                            "source_mapping": {
+                                "start": 29,
+                                "length": 158,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "deleteSt(Lib.MyStruct[1])"
+                    }
+                },
+                {
+                    "type": "struct",
+                    "name": "MyStruct",
+                    "source_mapping": {
+                        "start": 47,
+                        "length": 61,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5,
+                            6,
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Lib",
+                            "source_mapping": {
+                                "start": 29,
+                                "length": 158,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "delete st[0]",
+                    "source_mapping": {
+                        "start": 165,
+                        "length": 12,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 21
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "deleteSt",
+                            "source_mapping": {
+                                "start": 114,
+                                "length": 70,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    9,
+                                    10,
+                                    11
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Lib",
+                                    "source_mapping": {
+                                        "start": 29,
+                                        "length": 158,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "deleteSt(Lib.MyStruct[1])"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Lib.deleteSt(Lib.MyStruct[1]) (tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#9-11) deletes Lib.MyStruct (tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#5-7) which contains a mapping:\n\t-delete st[0] (tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#10)\n",
+            "markdown": "[Lib.deleteSt(Lib.MyStruct[1])](tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#L9-L11) deletes [Lib.MyStruct](tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#L5-L7) which contains a mapping:\n\t-[delete st[0]](tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#L10)\n",
+            "first_markdown_element": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#L9-L11",
+            "id": "8c8313f12eb11c77c9acf1f683fe6d44a79ca1445e0d92cffd79c04a3462d3e9",
+            "check": "mapping-deletion",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "deleteBalance",
+                    "source_mapping": {
+                        "start": 544,
+                        "length": 137,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            28,
+                            29,
+                            30,
+                            31
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Balances",
+                            "source_mapping": {
+                                "start": 189,
+                                "length": 825,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "deleteBalance(uint256)"
+                    }
+                },
+                {
+                    "type": "struct",
+                    "name": "BalancesStruct",
+                    "source_mapping": {
+                        "start": 218,
+                        "length": 94,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            17,
+                            18,
+                            19,
+                            20
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Balances",
+                            "source_mapping": {
+                                "start": 189,
+                                "length": 825,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "delete stackBalance[idx]",
+                    "source_mapping": {
+                        "start": 650,
+                        "length": 24,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            30
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 33
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "deleteBalance",
+                            "source_mapping": {
+                                "start": 544,
+                                "length": 137,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    28,
+                                    29,
+                                    30,
+                                    31
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Balances",
+                                    "source_mapping": {
+                                        "start": 189,
+                                        "length": 825,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "deleteBalance(uint256)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Balances.deleteBalance(uint256) (tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#28-31) deletes Balances.BalancesStruct (tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#17-20) which contains a mapping:\n\t-delete stackBalance[idx] (tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#30)\n",
+            "markdown": "[Balances.deleteBalance(uint256)](tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#L28-L31) deletes [Balances.BalancesStruct](tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#L17-L20) which contains a mapping:\n\t-[delete stackBalance[idx]](tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#L30)\n",
+            "first_markdown_element": "tests/detectors/mapping-deletion/0.4.25/MappingDeletion.sol#L28-L31",
+            "id": "6c8848cdccd246661513f2c5d83d03b4a1cb4f07e198a671ce0f6d27fda257ad",
+            "check": "mapping-deletion",
+            "impact": "Medium",
+            "confidence": "High"
+        }
+    ]
+]

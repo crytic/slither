@@ -1,0 +1,67 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "pragma",
+                    "name": "^0.6.10",
+                    "source_mapping": {
+                        "start": 0,
+                        "length": 24,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/pragma/0.6.11/pragma.0.6.10.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/pragma/0.6.11/pragma.0.6.10.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            1
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 25
+                    },
+                    "type_specific_fields": {
+                        "directive": [
+                            "solidity",
+                            "^",
+                            "0.6",
+                            ".10"
+                        ]
+                    }
+                },
+                {
+                    "type": "pragma",
+                    "name": "^0.6.11",
+                    "source_mapping": {
+                        "start": 0,
+                        "length": 24,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/pragma/0.6.11/pragma.0.6.11.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/pragma/0.6.11/pragma.0.6.11.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            1
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 25
+                    },
+                    "type_specific_fields": {
+                        "directive": [
+                            "solidity",
+                            "^",
+                            "0.6",
+                            ".11"
+                        ]
+                    }
+                }
+            ],
+            "description": "Different versions of Solidity is used in :\n\t- Version used: ['^0.6.10', '^0.6.11']\n\t- ^0.6.10 (tests/detectors/pragma/0.6.11/pragma.0.6.10.sol#1)\n\t- ^0.6.11 (tests/detectors/pragma/0.6.11/pragma.0.6.11.sol#1)\n",
+            "markdown": "Different versions of Solidity is used in :\n\t- Version used: ['^0.6.10', '^0.6.11']\n\t- [^0.6.10](tests/detectors/pragma/0.6.11/pragma.0.6.10.sol#L1)\n\t- [^0.6.11](tests/detectors/pragma/0.6.11/pragma.0.6.11.sol#L1)\n",
+            "first_markdown_element": "tests/detectors/pragma/0.6.11/pragma.0.6.10.sol#L1",
+            "id": "ac4d13e962f946f674a568e134a2d9db2449eaf7d49cc43cb39a8a4822963b27",
+            "check": "pragma",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]
