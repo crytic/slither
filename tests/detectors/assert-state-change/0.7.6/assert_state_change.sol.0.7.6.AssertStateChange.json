@@ -1,0 +1,571 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad0",
+                    "source_mapping": {
+                        "start": 77,
+                        "length": 57,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 4
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 759,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad0()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "assert(bool)((s_a += 1) > 10)",
+                    "source_mapping": {
+                        "start": 106,
+                        "length": 23,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 28
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad0",
+                            "source_mapping": {
+                                "start": 77,
+                                "length": 57,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 3,
+                                "ending_column": 4
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "A",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 759,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad0()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "A.bad0() (tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#6-8) has an assert() call which possibly changes state.\n\t-assert(bool)((s_a += 1) > 10) (tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#7)\nConsider using require() or change the invariant to not modify the state.\n",
+            "markdown": "[A.bad0()](tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#L6-L8) has an assert() call which possibly changes state.\n\t-[assert(bool)((s_a += 1) > 10)](tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#L7)\nConsider using require() or change the invariant to not modify the state.\n",
+            "first_markdown_element": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#L6-L8",
+            "id": "a710d11e5510f0eb3acb2c1ec524779253f25bf2931bce4cb9c5c048ec586b80",
+            "check": "assert-state-change",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad1",
+                    "source_mapping": {
+                        "start": 186,
+                        "length": 66,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            11,
+                            12,
+                            13
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 4
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 759,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad1(uint256)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "assert(bool)((s_a += a) > 10)",
+                    "source_mapping": {
+                        "start": 224,
+                        "length": 23,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            12
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 28
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad1",
+                            "source_mapping": {
+                                "start": 186,
+                                "length": 66,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    11,
+                                    12,
+                                    13
+                                ],
+                                "starting_column": 3,
+                                "ending_column": 4
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "A",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 759,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad1(uint256)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "A.bad1(uint256) (tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#11-13) has an assert() call which possibly changes state.\n\t-assert(bool)((s_a += a) > 10) (tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#12)\nConsider using require() or change the invariant to not modify the state.\n",
+            "markdown": "[A.bad1(uint256)](tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#L11-L13) has an assert() call which possibly changes state.\n\t-[assert(bool)((s_a += a) > 10)](tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#L12)\nConsider using require() or change the invariant to not modify the state.\n",
+            "first_markdown_element": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#L11-L13",
+            "id": "60ad080e2f9647b400851918171383a9aac2900cc0828121e441db4240911fba",
+            "check": "assert-state-change",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad2",
+                    "source_mapping": {
+                        "start": 398,
+                        "length": 55,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            19,
+                            20,
+                            21
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 4
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 759,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad2()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "assert(bool)(bad2_callee())",
+                    "source_mapping": {
+                        "start": 427,
+                        "length": 21,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 26
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad2",
+                            "source_mapping": {
+                                "start": 398,
+                                "length": 55,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    19,
+                                    20,
+                                    21
+                                ],
+                                "starting_column": 3,
+                                "ending_column": 4
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "A",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 759,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad2()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "A.bad2() (tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#19-21) has an assert() call which possibly changes state.\n\t-assert(bool)(bad2_callee()) (tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#20)\nConsider using require() or change the invariant to not modify the state.\n",
+            "markdown": "[A.bad2()](tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#L19-L21) has an assert() call which possibly changes state.\n\t-[assert(bool)(bad2_callee())](tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#L20)\nConsider using require() or change the invariant to not modify the state.\n",
+            "first_markdown_element": "tests/detectors/assert-state-change/0.7.6/assert_state_change.sol#L19-L21",
+            "id": "4b31923b05dec7d68f1bf133b986b4ec06fcc82ff3b8f0414d3ee3d623b69265",
+            "check": "assert-state-change",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]

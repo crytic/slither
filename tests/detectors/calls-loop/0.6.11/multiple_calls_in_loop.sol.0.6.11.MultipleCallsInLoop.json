@@ -1,0 +1,149 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad",
+                    "source_mapping": {
+                        "start": 160,
+                        "length": 153,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9,
+                            10,
+                            11,
+                            12,
+                            13
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "CallInLoop",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 316,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "address(uint160(destinations[i])).transfer(i)",
+                    "source_mapping": {
+                        "start": 251,
+                        "length": 45,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            11
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 58
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad",
+                            "source_mapping": {
+                                "start": 160,
+                                "length": 153,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "CallInLoop",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 316,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "CallInLoop.bad() (tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol#9-13) has external calls inside a loop: address(uint160(destinations[i])).transfer(i) (tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol#11)\n",
+            "markdown": "[CallInLoop.bad()](tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol#L9-L13) has external calls inside a loop: [address(uint160(destinations[i])).transfer(i)](tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol#L11)\n",
+            "first_markdown_element": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol#L9-L13",
+            "id": "f7fa2b373fe4eb9207d3ed267d99d7ca34ec7d786898816bc113c3e20079a411",
+            "check": "calls-loop",
+            "impact": "Low",
+            "confidence": "Medium"
+        }
+    ]
+]

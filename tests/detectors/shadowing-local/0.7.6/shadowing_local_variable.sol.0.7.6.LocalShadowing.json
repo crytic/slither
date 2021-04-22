@@ -1,0 +1,635 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "__x",
+                    "source_mapping": {
+                        "start": 382,
+                        "length": 8,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            25
+                        ],
+                        "starting_column": 30,
+                        "ending_column": 38
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowingParent",
+                            "source_mapping": {
+                                "start": 357,
+                                "length": 81,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    25
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 86
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "FurtherExtendedContract",
+                                    "source_mapping": {
+                                        "start": 201,
+                                        "length": 239,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "shadowingParent(uint256)"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "__x",
+                    "source_mapping": {
+                        "start": 260,
+                        "length": 12,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            17
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 17
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "FurtherExtendedContract",
+                            "source_mapping": {
+                                "start": 201,
+                                "length": 239,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "FurtherExtendedContract.shadowingParent(uint256).__x (tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#25) shadows:\n\t- FurtherExtendedContract.__x (tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#17) (state variable)\n",
+            "markdown": "[FurtherExtendedContract.shadowingParent(uint256).__x](tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L25) shadows:\n\t- [FurtherExtendedContract.__x](tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L17) (state variable)\n",
+            "first_markdown_element": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L25",
+            "id": "cd61765f88a1447471f5c75c7a488af44534d81be3998f5d01a6b5fa8f693327",
+            "check": "shadowing-local",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "y",
+                    "source_mapping": {
+                        "start": 406,
+                        "length": 5,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            25
+                        ],
+                        "starting_column": 54,
+                        "ending_column": 59
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowingParent",
+                            "source_mapping": {
+                                "start": 357,
+                                "length": 81,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    25
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 86
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "FurtherExtendedContract",
+                                    "source_mapping": {
+                                        "start": 201,
+                                        "length": 239,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "shadowingParent(uint256)"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "y",
+                    "source_mapping": {
+                        "start": 73,
+                        "length": 10,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 15
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "BaseContract",
+                            "source_mapping": {
+                                "start": 29,
+                                "length": 57,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "FurtherExtendedContract.shadowingParent(uint256).y (tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#25) shadows:\n\t- BaseContract.y (tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#5) (state variable)\n",
+            "markdown": "[FurtherExtendedContract.shadowingParent(uint256).y](tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L25) shadows:\n\t- [BaseContract.y](tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L5) (state variable)\n",
+            "first_markdown_element": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L25",
+            "id": "465bd81cbb09a3d2cc84ea6102fb059296f1970e85e2d86a171f8219f1a34508",
+            "check": "shadowing-local",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "z",
+                    "source_mapping": {
+                        "start": 413,
+                        "length": 6,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            25
+                        ],
+                        "starting_column": 61,
+                        "ending_column": 67
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowingParent",
+                            "source_mapping": {
+                                "start": 357,
+                                "length": 81,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    25
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 86
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "FurtherExtendedContract",
+                                    "source_mapping": {
+                                        "start": 201,
+                                        "length": 239,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "shadowingParent(uint256)"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "z",
+                    "source_mapping": {
+                        "start": 154,
+                        "length": 27,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            11
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 32
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "ExtendedContract",
+                            "source_mapping": {
+                                "start": 88,
+                                "length": 111,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "z()"
+                    }
+                }
+            ],
+            "description": "FurtherExtendedContract.shadowingParent(uint256).z (tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#25) shadows:\n\t- ExtendedContract.z() (tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#11) (function)\n",
+            "markdown": "[FurtherExtendedContract.shadowingParent(uint256).z](tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L25) shadows:\n\t- [ExtendedContract.z()](tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L11) (function)\n",
+            "first_markdown_element": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L25",
+            "id": "e3d2948e9c1252fe84e0d7e58f6682af7af84ef209f6e71f039faccabf07b0bd",
+            "check": "shadowing-local",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "w",
+                    "source_mapping": {
+                        "start": 421,
+                        "length": 6,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            25
+                        ],
+                        "starting_column": 69,
+                        "ending_column": 75
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowingParent",
+                            "source_mapping": {
+                                "start": 357,
+                                "length": 81,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    25
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 86
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "FurtherExtendedContract",
+                                    "source_mapping": {
+                                        "start": 201,
+                                        "length": 239,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "shadowingParent(uint256)"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "w",
+                    "source_mapping": {
+                        "start": 280,
+                        "length": 71,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "FurtherExtendedContract",
+                            "source_mapping": {
+                                "start": 201,
+                                "length": 239,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "w()"
+                    }
+                }
+            ],
+            "description": "FurtherExtendedContract.shadowingParent(uint256).w (tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#25) shadows:\n\t- FurtherExtendedContract.w() (tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#20-23) (modifier)\n",
+            "markdown": "[FurtherExtendedContract.shadowingParent(uint256).w](tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L25) shadows:\n\t- [FurtherExtendedContract.w()](tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L20-L23) (modifier)\n",
+            "first_markdown_element": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L25",
+            "id": "a94a2b9331482c75582868e6d3cc5c9b01487e7505f219abcf36a20d76e0b089",
+            "check": "shadowing-local",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "v",
+                    "source_mapping": {
+                        "start": 429,
+                        "length": 6,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            25
+                        ],
+                        "starting_column": 77,
+                        "ending_column": 83
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowingParent",
+                            "source_mapping": {
+                                "start": 357,
+                                "length": 81,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    25
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 86
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "FurtherExtendedContract",
+                                    "source_mapping": {
+                                        "start": 201,
+                                        "length": 239,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "shadowingParent(uint256)"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "event",
+                    "name": "v",
+                    "source_mapping": {
+                        "start": 187,
+                        "length": 10,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 15
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "ExtendedContract",
+                            "source_mapping": {
+                                "start": 88,
+                                "length": 111,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "v()"
+                    }
+                }
+            ],
+            "description": "FurtherExtendedContract.shadowingParent(uint256).v (tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#25) shadows:\n\t- ExtendedContractv() (tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#13) (event)\n",
+            "markdown": "[FurtherExtendedContract.shadowingParent(uint256).v](tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L25) shadows:\n\t- [ExtendedContractv()](tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L13) (event)\n",
+            "first_markdown_element": "tests/detectors/shadowing-local/0.7.6/shadowing_local_variable.sol#L25",
+            "id": "973e31cc30dc7a3e1f089dfa5848234075f237f78fa492c772b1083e12c79054",
+            "check": "shadowing-local",
+            "impact": "Low",
+            "confidence": "High"
+        }
+    ]
+]
