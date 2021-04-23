@@ -34,7 +34,7 @@ contract C {
 
             let aStoreC := mul(sload(storC_slot), storC_offset)
 
-            let libAddr := L
+            // let libAddr := L // Not supported for now
         }
     }
 }
