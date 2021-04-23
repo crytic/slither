@@ -694,7 +694,7 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         return Identifier(func.underlying)
 
     # check for magic suffixes
-    if name.endswith("_slot") or name.endswith('.slot'):
+    if name.endswith("_slot") or name.endswith(".slot"):
         potential_name = name[:-5]
         var = root.function.contract.get_state_variable_from_name(potential_name)
         if var:
@@ -702,7 +702,7 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         var = root.function.get_local_variable_from_name(potential_name)
         if var and var.is_storage:
             return Identifier(var)
-    if name.endswith("_offset") or name.endswith('.offset'):
+    if name.endswith("_offset") or name.endswith(".offset"):
         potential_name = name[:-7]
         var = root.function.contract.get_state_variable_from_name(potential_name)
         if var:
