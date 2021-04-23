@@ -8,6 +8,8 @@ from distutils.version import StrictVersion
 from typing import List, Dict
 
 import pytest
+from crytic_compile import CryticCompile, save_to_zip
+from crytic_compile.utils.zip import load_from_zip
 from deepdiff import DeepDiff
 
 from slither import Slither
@@ -65,6 +67,10 @@ XFAIL = (
     + [f"variabledeclaration_0.7.{ver}_legacy" for ver in ALL_07]
     + [f"variabledeclaration_0.8.{ver}_legacy" for ver in ALL_08]
     + [f"variabledeclaration_0.4.{ver}_compact" for ver in range(12, 27)]
+    + [f"top-level_0.7.{ver}_legacy" for ver in ALL_07]
+    + [f"top-level_0.7.{ver}_compact" for ver in ALL_07]
+    + [f"top-level_0.8.{ver}_legacy" for ver in ALL_08]
+    + [f"top-level_0.8.{ver}_compact" for ver in ALL_08]
     + [f"top-level-import_0.7.{ver}_legacy" for ver in range(1, 7)]
     + [f"top-level-import_0.7.{ver}_compact" for ver in range(1, 7)]
     + [f"top-level-import_0.8.{ver}_compact" for ver in ALL_08]
@@ -209,7 +215,9 @@ def set_solc(test_item: Item):
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
 def test_parsing(test_item: Item):
     flavor = "legacy" if test_item.is_legacy else "compact"
-    test_file = os.path.join(TEST_ROOT, f"{test_item.test_id}-{test_item.base_ver}.sol")
+    test_file = os.path.join(
+        TEST_ROOT, "compile", f"{test_item.test_id}-{test_item.solc_ver}-{flavor}.zip"
+    )
     expected_file = os.path.join(
         TEST_ROOT, "expected", f"{test_item.test_id}-{test_item.solc_ver}-{flavor}.json"
     )
@@ -217,10 +225,12 @@ def test_parsing(test_item: Item):
     if id_test(test_item) in XFAIL:
         pytest.xfail("this test needs to be fixed")
 
-    set_solc(test_item)
+    # set_solc(test_item)
+
+    cc = load_from_zip(test_file)[0]
 
     sl = Slither(
-        test_file,
+        cc,
         solc_force_legacy_json=test_item.is_legacy,
         disallow_partial=True,
         skip_analyze=True,
@@ -247,18 +257,17 @@ def test_parsing(test_item: Item):
                 f.write(change.t2)
 
     assert not diff, diff.pretty()
-    # Currently top level call are covnerted to high level call, which makes
-    # The IR buggy
-    if test_item.test_id == "top-level-import":
-        return
-    sl = Slither(test_file, solc_force_legacy_json=test_item.is_legacy, disallow_partial=True)
+
+    sl = Slither(cc, solc_force_legacy_json=test_item.is_legacy, disallow_partial=True)
     sl.register_printer(Echidna)
     sl.run_printers()
 
 
 def _generate_test(test_item: Item, skip_existing=False):
     flavor = "legacy" if test_item.is_legacy else "compact"
-    test_file = os.path.join(TEST_ROOT, f"{test_item.test_id}-{test_item.base_ver}.sol")
+    test_file = os.path.join(
+        TEST_ROOT, "compile", f"{test_item.test_id}-{test_item.solc_ver}-{flavor}.zip"
+    )
     expected_file = os.path.join(
         TEST_ROOT, "expected", f"{test_item.test_id}-{test_item.solc_ver}-{flavor}.json"
     )
@@ -270,7 +279,7 @@ def _generate_test(test_item: Item, skip_existing=False):
             return
     if id_test(test_item) in XFAIL:
         return
-    set_solc(test_item)
+    # set_solc(test_item)
     try:
         sl = Slither(
             test_file,
@@ -290,14 +299,33 @@ def _generate_test(test_item: Item, skip_existing=False):
         json.dump(actual, f, indent="  ")
 
 
+def _generate_compile(test_item: Item, skip_existing=False):
+    flavor = "legacy" if test_item.is_legacy else "compact"
+    test_file = os.path.join(TEST_ROOT, f"{test_item.test_id}-{test_item.base_ver}.sol")
+    expected_file = os.path.join(
+        TEST_ROOT, "compile", f"{test_item.test_id}-{test_item.solc_ver}-{flavor}.zip"
+    )
+
+    if skip_existing:
+        if os.path.isfile(expected_file):
+            return
+
+    set_solc(test_item)
+
+    cc = CryticCompile(test_file, solc_force_legacy_json=test_item.is_legacy)
+    print(f"Compiled to {expected_file}")
+    save_to_zip([cc], expected_file)
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2 or sys.argv[1] not in ["--generate", "--overwrite"]:
+    if len(sys.argv) != 2 or sys.argv[1] not in ["--generate", "--overwrite", "--compile"]:
         print(
             "To generate the missing json artifacts run\n\tpython tests/test_ast_parsing.py --generate"
         )
         print(
             "To re-generate all the json artifacts run\n\tpython tests/test_ast_parsing.py --overwrite"
         )
+        print("To compile json artifacts run\n\tpython tests/test_ast_parsing.py --compile")
         print("\tThis will overwrite the previous json files")
     elif sys.argv[1] == "--generate":
         for next_test in ALL_TESTS:
@@ -305,3 +333,6 @@ if __name__ == "__main__":
     elif sys.argv[1] == "--overwrite":
         for next_test in ALL_TESTS:
             _generate_test(next_test)
+    elif sys.argv[1] == "--compile":
+        for next_test in ALL_TESTS:
+            _generate_compile(next_test, skip_existing=True)
