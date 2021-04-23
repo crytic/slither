@@ -38,6 +38,7 @@ jobs:
           git checkout 119dd05f58341811cb02b546f25269a7e8a10875
           python setup.py install
           solc-select install all
+          solc-select use 0.8.0
           cd ..
 
       - name: Test with pytest
