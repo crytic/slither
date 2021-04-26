@@ -85,8 +85,6 @@ Uint = [
 Max_Uint = {k: 2 ** (8 * i) - 1 if i > 0 else 2 ** 256 - 1 for i, k in enumerate(Uint)}
 Min_Uint = {k: 0 for k in Uint}
 
-MaxValues = dict(Max_Int, **Max_Uint)
-MinValues = dict(Min_Int, **Min_Uint)
 
 Byte = [
     "byte",
@@ -124,6 +122,16 @@ Byte = [
     "bytes31",
     "bytes32",
 ]
+
+Max_Byte = {k: 2 ** (8 * (i + 1)) - 1 for i, k in enumerate(Byte[2:])}
+Max_Byte["bytes"] = None
+Max_Byte["byte"] = 255
+Min_Byte = {k: 1 << (4 + 8 * i) for i, k in enumerate(Byte[2:])}
+Min_Byte["bytes"] = 0x0
+Min_Byte["byte"] = 0x10
+
+MaxValues = dict(dict(Max_Int, **Max_Uint), **Max_Byte)
+MinValues = dict(dict(Min_Int, **Min_Uint), **Min_Byte)
 
 # https://solidity.readthedocs.io/en/v0.4.24/types.html#fixed-point-numbers
 M = list(range(8, 257, 8))

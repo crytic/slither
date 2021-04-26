@@ -1,0 +1,50 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "pragma",
+                    "name": "0.5.14",
+                    "source_mapping": {
+                        "start": 0,
+                        "length": 23,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/solc-version/0.5.14/static.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/solc-version/0.5.14/static.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            1
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 24
+                    },
+                    "type_specific_fields": {
+                        "directive": [
+                            "solidity",
+                            "0.5",
+                            ".14"
+                        ]
+                    }
+                }
+            ],
+            "description": "Pragma version0.5.14 (tests/detectors/solc-version/0.5.14/static.sol#1) is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)\n",
+            "markdown": "Pragma version[0.5.14](tests/detectors/solc-version/0.5.14/static.sol#L1) is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)\n",
+            "first_markdown_element": "tests/detectors/solc-version/0.5.14/static.sol#L1",
+            "id": "cf9412fdac7f959dea885dbcebb2f9cfb0f3b0ca55f8fc84ebdc51e09eaf6957",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "solc-0.5.14 is not recommended for deployment\n",
+            "markdown": "solc-0.5.14 is not recommended for deployment\n",
+            "first_markdown_element": "",
+            "id": "839b9aa9c05b3f4bfeb7aefa9b7a69d82a322bf527f21bbf7080a7855f003803",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]

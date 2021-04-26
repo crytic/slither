@@ -24,7 +24,14 @@ from slither.utils.tests_pattern import is_test_contract
 # pylint: disable=too-many-lines,too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks
 if TYPE_CHECKING:
     from slither.utils.type_helpers import LibraryCallType, HighLevelCallType, InternalCallType
-    from slither.core.declarations import Enum, Event, Modifier, EnumContract, StructureContract
+    from slither.core.declarations import (
+        Enum,
+        Event,
+        Modifier,
+        EnumContract,
+        StructureContract,
+        FunctionContract,
+    )
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.core.variables.variable import Variable
     from slither.core.variables.state_variable import StateVariable
@@ -57,7 +64,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._variables: Dict[str, "StateVariable"] = {}
         self._variables_ordered: List["StateVariable"] = []
         self._modifiers: Dict[str, "Modifier"] = {}
-        self._functions: Dict[str, "Function"] = {}
+        self._functions: Dict[str, "FunctionContract"] = {}
         self._linearizedBaseContracts = List[int]
 
         # The only str is "*"
@@ -390,23 +397,23 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._signatures_declared
 
     @property
-    def functions(self) -> List["Function"]:
+    def functions(self) -> List["FunctionContract"]:
         """
         list(Function): List of the functions
         """
         return list(self._functions.values())
 
-    def available_functions_as_dict(self) -> Dict[str, "Function"]:
+    def available_functions_as_dict(self) -> Dict[str, "FunctionContract"]:
         if self._available_functions_as_dict is None:
             self._available_functions_as_dict = {
                 f.full_name: f for f in self._functions.values() if not f.is_shadowed
             }
         return self._available_functions_as_dict
 
-    def add_function(self, func: "Function"):
+    def add_function(self, func: "FunctionContract"):
         self._functions[func.canonical_name] = func
 
-    def set_functions(self, functions: Dict[str, "Function"]):
+    def set_functions(self, functions: Dict[str, "FunctionContract"]):
         """
         Set the functions
 
@@ -416,21 +423,21 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._functions = functions
 
     @property
-    def functions_inherited(self) -> List["Function"]:
+    def functions_inherited(self) -> List["FunctionContract"]:
         """
         list(Function): List of the inherited functions
         """
         return [f for f in self.functions if f.contract_declarer != self]
 
     @property
-    def functions_declared(self) -> List["Function"]:
+    def functions_declared(self) -> List["FunctionContract"]:
         """
         list(Function): List of the functions defined within the contract (not inherited)
         """
         return [f for f in self.functions if f.contract_declarer == self]
 
     @property
-    def functions_entry_points(self) -> List["Function"]:
+    def functions_entry_points(self) -> List["FunctionContract"]:
         """
         list(Functions): List of public and external functions
         """

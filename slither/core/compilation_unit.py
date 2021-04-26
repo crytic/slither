@@ -54,6 +54,10 @@ class SlitherCompilationUnit(Context):
 
         self._source_units: Dict[int, str] = {}
 
+        self.counter_slithir_tuple = 0
+        self.counter_slithir_temporary = 0
+        self.counter_slithir_reference = 0
+
     @property
     def core(self) -> "SlitherCore":
         return self._core

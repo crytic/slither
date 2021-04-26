@@ -35,12 +35,11 @@ jobs:
 
           git clone https://github.com/crytic/solc-select.git
           cd solc-select
-          git checkout 857d6fa883d9283454be1cb2d869a8f9962b27b8
+          git checkout 119dd05f58341811cb02b546f25269a7e8a10875
+          python setup.py install
+          solc-select install all
+          solc-select use 0.8.0
           cd ..
-          ./solc-select/scripts/install.sh
-          export PATH=/home/runner/.solc-select:$PATH
-          echo "export PATH=/home/runner/.solc-select:$PATH" >> ~/.bashrc
-          solc use 0.7.3
 
       - name: Test with pytest
         run: |
