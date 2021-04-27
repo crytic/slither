@@ -56,4 +56,5 @@ jobs:
           VALIDATE_DOCKERFILE_HADOLINT: false
           VALIDATE_EDITORCONFIG: false
           VALIDATE_JSCPD: false
+          VALIDATE_PYTHON_MYPY: false
           SHELLCHECK_OPTS: "-e SC1090"
