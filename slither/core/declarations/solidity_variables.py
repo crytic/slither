@@ -25,6 +25,7 @@ SOLIDITY_VARIABLES_COMPOSED = {
     "block.number": "uint256",
     "block.timestamp": "uint256",
     "block.blockhash": "uint256",  # alias for blockhash. It's a call
+    "block.chainid": "uint256",
     "msg.data": "bytes",
     "msg.gas": "uint256",
     "msg.sender": "address",
