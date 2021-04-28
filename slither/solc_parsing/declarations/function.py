@@ -1017,7 +1017,7 @@ class FunctionSolc:
 
         return node
 
-    def _parse_block(self, block: Dict, node: NodeSolc, check_arithmetic:bool = False):
+    def _parse_block(self, block: Dict, node: NodeSolc, check_arithmetic: bool = False):
         """
         Return:
             Node
