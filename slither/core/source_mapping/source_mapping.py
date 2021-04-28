@@ -1,7 +1,10 @@
 import re
-from typing import Dict, Union, Optional, List, Tuple
+from typing import Dict, Union, Optional, List, Tuple, TYPE_CHECKING
 
 from slither.core.context.context import Context
+
+if TYPE_CHECKING:
+    from slither.core.compilation_unit import SlitherCompilationUnit
 
 
 class SourceMapping(Context):
@@ -25,27 +28,33 @@ class SourceMapping(Context):
         return self._source_mapping
 
     @staticmethod
-    def _compute_line(slither, filename, start: int, length: int) -> Tuple[List[int], int, int]:
+    def _compute_line(
+        compilation_unit: "SlitherCompilationUnit", filename, start: int, length: int
+    ) -> Tuple[List[int], int, int]:
         """
         Compute line(s) numbers and starting/ending columns
         from a start/end offset. All numbers start from 1.
 
         Not done in an efficient way
         """
-        start_line, starting_column = slither.crytic_compile.get_line_from_offset(filename, start)
-        end_line, ending_column = slither.crytic_compile.get_line_from_offset(
+        start_line, starting_column = compilation_unit.core.crytic_compile.get_line_from_offset(
+            filename, start
+        )
+        end_line, ending_column = compilation_unit.core.crytic_compile.get_line_from_offset(
             filename, start + length
         )
         return list(range(start_line, end_line + 1)), starting_column, ending_column
 
-    def _convert_source_mapping(self, offset: str, slither):  # pylint: disable=too-many-locals
+    def _convert_source_mapping(
+        self, offset: str, compilation_unit: "SlitherCompilationUnit"
+    ):  # pylint: disable=too-many-locals
         """
         Convert a text offset to a real offset
         see https://solidity.readthedocs.io/en/develop/miscellaneous.html#source-mappings
         Returns:
             (dict): {'start':0, 'length':0, 'filename': 'file.sol'}
         """
-        sourceUnits = slither.source_units
+        sourceUnits = compilation_unit.source_units
 
         position = re.findall("([0-9]*):([0-9]*):([-]?[0-9]*)", offset)
         if len(position) != 1:
@@ -66,30 +75,32 @@ class SourceMapping(Context):
         is_dependency = False
 
         # If possible, convert the filename to its absolute/relative version
-        if slither.crytic_compile:
-            filenames = slither.crytic_compile.filename_lookup(filename_used)
+        if compilation_unit.core.crytic_compile:
+            filenames = compilation_unit.core.crytic_compile.filename_lookup(filename_used)
             filename_absolute = filenames.absolute
             filename_relative = filenames.relative
             filename_short = filenames.short
 
-            is_dependency = slither.crytic_compile.is_dependency(filename_absolute)
+            is_dependency = compilation_unit.core.crytic_compile.is_dependency(filename_absolute)
 
             if (
-                filename_absolute in slither.source_code
-                or filename_absolute in slither.crytic_compile.src_content
+                filename_absolute in compilation_unit.core.source_code
+                or filename_absolute in compilation_unit.core.crytic_compile.src_content
             ):
                 filename = filename_absolute
-            elif filename_relative in slither.source_code:
+            elif filename_relative in compilation_unit.core.source_code:
                 filename = filename_relative
-            elif filename_short in slither.source_code:
+            elif filename_short in compilation_unit.core.source_code:
                 filename = filename_short
             else:
                 filename = filename_used
         else:
             filename = filename_used
 
-        if slither.crytic_compile:
-            (lines, starting_column, ending_column) = self._compute_line(slither, filename, s, l)
+        if compilation_unit.core.crytic_compile:
+            (lines, starting_column, ending_column) = self._compute_line(
+                compilation_unit, filename, s, l
+            )
         else:
             (lines, starting_column, ending_column) = ([], None, None)
 
@@ -106,11 +117,11 @@ class SourceMapping(Context):
             "ending_column": ending_column,
         }
 
-    def set_offset(self, offset: Union[Dict, str], slither):
+    def set_offset(self, offset: Union[Dict, str], compilation_unit: "SlitherCompilationUnit"):
         if isinstance(offset, dict):
             self._source_mapping = offset
         else:
-            self._source_mapping = self._convert_source_mapping(offset, slither)
+            self._source_mapping = self._convert_source_mapping(offset, compilation_unit)
 
     def _get_lines_str(self, line_descr=""):
         lines = self.source_mapping.get("lines", None)

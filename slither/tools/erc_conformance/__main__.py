@@ -79,12 +79,13 @@ def main():
 
     if args.erc.upper() in ERCS:
 
-        contract = slither.get_contract_from_name(args.contract_name)
+        contracts = slither.get_contract_from_name(args.contract_name)
 
-        if not contract:
+        if len(contracts) != 1:
             err = f"Contract not found: {args.contract_name}"
             _log_error(err, args)
             return
+        contract = contracts[0]
         # First elem is the function, second is the event
         erc = ERCS[args.erc.upper()]
         generic_erc_checks(contract, erc[0], erc[1], ret)

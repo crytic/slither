@@ -94,7 +94,7 @@ The constructor of `A` is called multiple times in `D` and `E`:
             # Leading to several FPs
             # As the result, we might miss some TPs if the reused is due to the constructor called
             # In the contract definition
-            if self.slither.solc_version >= "0.4.22":
+            if self.compilation_unit.solc_version >= "0.4.22":
                 # Find all base constructors explicitly called from the contract definition with arguments.
                 _add_constructors_with_args(
                     current_contract.explicit_base_constructor_calls,
@@ -123,7 +123,7 @@ The constructor of `A` is called multiple times in `D` and `E`:
         results = []
 
         # The bug is not possible with solc >= 0.5.0
-        if not self.slither.solc_version.startswith("0.4."):
+        if not self.compilation_unit.solc_version.startswith("0.4."):
             return []
 
         # Loop for each contract

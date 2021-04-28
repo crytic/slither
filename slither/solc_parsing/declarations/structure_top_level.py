@@ -8,7 +8,7 @@ from slither.core.variables.structure_variable import StructureVariable
 from slither.solc_parsing.variables.structure_variable import StructureVariableSolc
 
 if TYPE_CHECKING:
-    from slither.solc_parsing.slitherSolc import SlitherSolc
+    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
 
 
 class StructureTopLevelSolc:  # pylint: disable=too-few-public-methods
@@ -22,7 +22,7 @@ class StructureTopLevelSolc:  # pylint: disable=too-few-public-methods
         self,
         st: Structure,
         struct: Dict,
-        slither_parser: "SlitherSolc",
+        slither_parser: "SlitherCompilationUnitSolc",
     ):
 
         if slither_parser.is_compact_ast:
@@ -49,7 +49,7 @@ class StructureTopLevelSolc:  # pylint: disable=too-few-public-methods
         for elem_to_parse in self._elemsNotParsed:
             elem = StructureVariable()
             elem.set_structure(self._structure)
-            elem.set_offset(elem_to_parse["src"], self._slither_parser.core)
+            elem.set_offset(elem_to_parse["src"], self._slither_parser.compilation_unit)
 
             elem_parser = StructureVariableSolc(elem, elem_to_parse)
             elem_parser.analyze(self._slither_parser)

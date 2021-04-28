@@ -104,7 +104,7 @@ Otherwise, thoroughly review the contract to ensure a user-controlled variable c
         """
         results = []
         # Starting from 0.6 .length is read only
-        if self.slither.solc_version >= "0.6.":
+        if self.compilation_unit.solc_version >= "0.6.":
             return results
         for contract in self.contracts:
             array_length_assignments = detect_array_length_assignment(contract)

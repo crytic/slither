@@ -1,7 +1,7 @@
 """
 Module detecting unused state variables
 """
-
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.solidity_types import ArrayType
 from slither.visitors.expression.export_values import ExportValues
@@ -57,7 +57,7 @@ class UnusedStateVars(AbstractDetector):
     def _detect(self):
         """Detect unused state variables"""
         results = []
-        for c in self.slither.contracts_derived:
+        for c in self.compilation_unit.contracts_derived:
             unusedVars = detect_unused(c)
             if unusedVars:
                 for var in unusedVars:
@@ -68,5 +68,5 @@ class UnusedStateVars(AbstractDetector):
         return results
 
     @staticmethod
-    def _format(slither, result):
-        custom_format(slither, result)
+    def _format(compilation_unit: SlitherCompilationUnit, result):
+        custom_format(compilation_unit, result)

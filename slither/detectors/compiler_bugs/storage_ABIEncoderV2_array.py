@@ -128,13 +128,13 @@ contract A {
         results = []
 
         # Check if vulnerable solc versions are used
-        if self.slither.solc_version not in vulnerable_solc_versions:
+        if self.compilation_unit.solc_version not in vulnerable_solc_versions:
             return results
 
         # Check if pragma experimental ABIEncoderV2 is used
         if not any(
             (p.directive[0] == "experimental" and p.directive[1] == "ABIEncoderV2")
-            for p in self.slither.pragma_directives
+            for p in self.compilation_unit.pragma_directives
         ):
             return results
 

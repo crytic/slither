@@ -110,7 +110,7 @@ As a result, Eve wins the game."""
     def _detect(self):
         """Detect bad PRNG due to the use of block.timestamp, now or blockhash (block.blockhash) as a source of randomness"""
         results = []
-        for c in self.slither.contracts_derived:
+        for c in self.compilation_unit.contracts_derived:
             values = detect_bad_PRNG(c)
             for func, nodes in values:
 

@@ -115,7 +115,7 @@ Consider using the latest version of Solidity for testing."""
         """
         # Detect all version related pragmas and check if they are disallowed.
         results = []
-        pragma = self.slither.pragma_directives
+        pragma = self.compilation_unit.pragma_directives
         disallowed_pragmas = []
 
         for p in pragma:
@@ -137,24 +137,19 @@ Consider using the latest version of Solidity for testing."""
 
                 results.append(json)
 
-        if self.slither.crytic_compile:
-            if self.slither.crytic_compile.compiler_version:
-                if (
-                    self.slither.crytic_compile.compiler_version.version
-                    not in self.ALLOWED_VERSIONS
-                ):
-                    info = [
-                        "solc-",
-                        self.slither.crytic_compile.compiler_version.version,
-                        " is not recommended for deployment\n",
-                    ]
+        if self.compilation_unit.solc_version not in self.ALLOWED_VERSIONS:
+            info = [
+                "solc-",
+                self.compilation_unit.solc_version,
+                " is not recommended for deployment\n",
+            ]
 
-                    json = self.generate_result(info)
+            json = self.generate_result(info)
 
-                    # TODO: Once crytic-compile adds config file info, add a source mapping element pointing to
-                    #       the line in the config that specifies the problematic version of solc
+            # TODO: Once crytic-compile adds config file info, add a source mapping element pointing to
+            #       the line in the config that specifies the problematic version of solc
 
-                    results.append(json)
+            results.append(json)
 
         return results
 

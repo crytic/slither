@@ -3,6 +3,7 @@ import json
 from typing import Optional, Dict, List, Union
 
 from slither.core.cfg.node import NodeType, Node, link_nodes
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import (
     Function,
     SolidityFunction,
@@ -20,7 +21,6 @@ from slither.core.expressions import (
     UnaryOperation,
 )
 from slither.core.expressions.expression import Expression
-from slither.core.slither_core import SlitherCore
 from slither.core.solidity_types import ElementaryType
 from slither.core.variables.local_variable import LocalVariable
 from slither.exceptions import SlitherException
@@ -66,7 +66,9 @@ class YulNode:
                     AssignmentOperationType.ASSIGN,
                     self._node.variable_declaration.type,
                 )
-                _expression.set_offset(self._node.expression.source_mapping, self._node.slither)
+                _expression.set_offset(
+                    self._node.expression.source_mapping, self._node.compilation_unit
+                )
                 self._node.add_expression(_expression, bypass_verif_empty=True)
 
             expression = self._node.expression
@@ -132,8 +134,8 @@ class YulScope(metaclass=abc.ABCMeta):
         return self._contract
 
     @property
-    def slither(self) -> SlitherCore:
-        return self._contract.slither
+    def compilation_unit(self) -> SlitherCompilationUnit:
+        return self._contract.compilation_unit
 
     @property
     def parent_func(self) -> Optional[Function]:
@@ -182,7 +184,7 @@ class YulLocalVariable:  # pylint: disable=too-few-public-methods
 
         # start initializing the underlying variable
         var.set_function(root.function)
-        var.set_offset(ast["src"], root.slither)
+        var.set_offset(ast["src"], root.compilation_unit)
 
         var.name = _name_to_yul_name(ast["name"], root.id)
         var.set_type(ElementaryType("uint256"))
@@ -209,9 +211,9 @@ class YulFunction(YulScope):
 
         func.name = ast["name"]
         func.set_visibility("private")
-        func.set_offset(ast["src"], root.slither)
+        func.set_offset(ast["src"], root.compilation_unit)
         func.set_contract(root.contract)
-        func.slither = root.slither
+        func.compilation_unit = root.compilation_unit
         func.set_contract_declarer(root.contract)
         func.scope = root.id
         func.is_implemented = True
@@ -225,10 +227,6 @@ class YulFunction(YulScope):
     @property
     def underlying(self) -> Function:
         return self._function
-
-    @property
-    def slither(self) -> SlitherCore:
-        return self._entrypoint.underlying_node.slither
 
     @property
     def function(self) -> Function:
@@ -336,11 +334,11 @@ def convert_yul_block(root: YulScope, parent: YulNode, ast: Dict) -> YulNode:
 
 
 def convert_yul_function_definition(root: YulScope, parent: YulNode, ast: Dict) -> YulNode:
-    func = FunctionContract(root.slither)
+    func = FunctionContract(root.compilation_unit)
     yul_function = YulFunction(func, root, ast)
 
     root.contract.add_function(func)
-    root.slither.add_function(func)
+    root.compilation_unit.add_function(func)
     root.add_yul_local_function(yul_function)
 
     yul_function.convert_body()
@@ -694,7 +692,7 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         return Identifier(func.underlying)
 
     # check for magic suffixes
-    if name.endswith("_slot"):
+    if name.endswith("_slot") or name.endswith(".slot"):
         potential_name = name[:-5]
         var = root.function.contract.get_state_variable_from_name(potential_name)
         if var:
@@ -702,7 +700,7 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         var = root.function.get_local_variable_from_name(potential_name)
         if var and var.is_storage:
             return Identifier(var)
-    if name.endswith("_offset"):
+    if name.endswith("_offset") or name.endswith(".offset"):
         potential_name = name[:-7]
         var = root.function.contract.get_state_variable_from_name(potential_name)
         if var:
@@ -739,7 +737,7 @@ def parse_yul_unsupported(_root: YulScope, _node: YulNode, ast: Dict) -> Optiona
 def parse_yul(root: YulScope, node: YulNode, ast: Dict) -> Optional[Expression]:
     op = parsers.get(ast["nodeType"], parse_yul_unsupported)(root, node, ast)
     if op:
-        op.set_offset(ast["src"], root.slither)
+        op.set_offset(ast["src"], root.compilation_unit)
     return op
 
 

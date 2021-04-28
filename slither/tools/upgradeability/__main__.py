@@ -185,13 +185,14 @@ def main():
 
         # Analyze logic contract
         v1_name = args.ContractName
-        v1_contract = variable1.get_contract_from_name(v1_name)
-        if v1_contract is None:
+        v1_contracts = variable1.get_contract_from_name(v1_name)
+        if len(v1_contracts) != 1:
             info = "Contract {} not found in {}".format(v1_name, variable1.filename)
             logger.error(red(info))
             if args.json:
                 output_to_json(args.json, str(info), json_results)
             return
+        v1_contract = v1_contracts[0]
 
         detectors_results, number_detectors = _checks_on_contract(detectors, v1_contract)
         json_results["detectors"] += detectors_results
@@ -205,13 +206,14 @@ def main():
             else:
                 proxy = variable1
 
-            proxy_contract = proxy.get_contract_from_name(args.proxy_name)
-            if proxy_contract is None:
+            proxy_contracts = proxy.get_contract_from_name(args.proxy_name)
+            if len(proxy_contracts) != 1:
                 info = "Proxy {} not found in {}".format(args.proxy_name, proxy.filename)
                 logger.error(red(info))
                 if args.json:
                     output_to_json(args.json, str(info), json_results)
                 return
+            proxy_contract = proxy_contracts[0]
             json_results["proxy-present"] = True
 
             detectors_results, number_detectors = _checks_on_contract_and_proxy(
@@ -226,8 +228,8 @@ def main():
             else:
                 variable2 = variable1
 
-            v2_contract = variable2.get_contract_from_name(args.new_contract_name)
-            if v2_contract is None:
+            v2_contracts = variable2.get_contract_from_name(args.new_contract_name)
+            if len(v2_contracts) != 1:
                 info = "New logic contract {} not found in {}".format(
                     args.new_contract_name, variable2.filename
                 )
@@ -235,6 +237,7 @@ def main():
                 if args.json:
                     output_to_json(args.json, str(info), json_results)
                 return
+            v2_contract = v2_contracts[0]
             json_results["contract_v2-present"] = True
 
             if proxy_contract:

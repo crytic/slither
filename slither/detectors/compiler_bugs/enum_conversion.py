@@ -68,10 +68,10 @@ Attackers can trigger unexpected behaviour by calling `bug(1)`."""
         """Detect dangerous conversion to enum"""
         results = []
         # If solc version >= 0.4.5 then return
-        if not _uses_vulnerable_solc_version(self.slither.solc_version):
+        if not _uses_vulnerable_solc_version(self.compilation_unit.solc_version):
             return results
 
-        for c in self.slither.contracts:
+        for c in self.compilation_unit.contracts:
             ret = _detect_dangerous_enum_conversions(c)
             for node, var in ret:
                 func_info = [node, " has a dangerous enum conversion\n"]

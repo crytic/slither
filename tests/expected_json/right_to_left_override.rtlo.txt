@@ -1,6 +1,0 @@
-[91m
-tests/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:
-	- b'        test1(/*A\xe2\x80\xae/*B*/2 , 1/*\xe2\x80\xad'
-Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#right-to-left-override-character[0m
-tests/right_to_left_override.sol analyzed (1 contracts with 1 detectors), 1 result(s) found
-[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

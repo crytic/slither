@@ -119,14 +119,14 @@ contract Something {
         # Skip interfaces without functions
         interfaces = [
             contract
-            for contract in self.slither.contracts
+            for contract in self.compilation_unit.contracts
             if contract.is_signature_only()
             and any(not f.is_constructor_variables for f in contract.functions)
         ]
 
         # Check derived contracts for missing interface implementations
         results = []
-        for contract in self.slither.contracts_derived:
+        for contract in self.compilation_unit.contracts_derived:
             # Skip interfaces
             if contract in interfaces:
                 continue

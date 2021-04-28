@@ -1,6 +1,0 @@
-[93m
-TxOrigin.bug0() (tests/tx_origin-0.5.1.sol#9-11) uses tx.origin for authorization: require(bool)(tx.origin == owner) (tests/tx_origin-0.5.1.sol#10)
-TxOrigin.bug2() (tests/tx_origin-0.5.1.sol#13-17) uses tx.origin for authorization: tx.origin != owner (tests/tx_origin-0.5.1.sol#14)
-Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-usage-of-txorigin[0m
-tests/tx_origin-0.5.1.sol analyzed (1 contracts with 1 detectors), 2 result(s) found
-[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

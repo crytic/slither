@@ -91,7 +91,7 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
         self.results = []
         self.visited_all_paths = {}
 
-        for contract in self.slither.contracts:
+        for contract in self.compilation_unit.contracts:
             for function in contract.functions:
                 if function.is_implemented:
                     uninitialized_storage_variables = [

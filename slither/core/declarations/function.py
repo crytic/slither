@@ -42,8 +42,7 @@ if TYPE_CHECKING:
     from slither.slithir.variables import LocalIRVariable
     from slither.core.expressions.expression import Expression
     from slither.slithir.operations import Operation
-    from slither.slither import Slither
-    from slither.core.slither_core import SlitherCore
+    from slither.core.compilation_unit import SlitherCompilationUnit
 
 LOGGER = logging.getLogger("Function")
 ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
@@ -109,7 +108,7 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
     Function class
     """
 
-    def __init__(self, slither: "SlitherCore"):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit"):
         super().__init__()
         self._scope: List[str] = []
         self._name: Optional[str] = None
@@ -205,7 +204,7 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
         self._canonical_name: Optional[str] = None
         self._is_protected: Optional[bool] = None
 
-        self._slither: "SlitherCore" = slither
+        self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
 
     ###################################################################################
     ###################################################################################
@@ -314,13 +313,13 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
                     return True
         return self._can_send_eth
 
-    @property
-    def slither(self) -> "SlitherCore":
-        return self._slither
-
-    @slither.setter
-    def slither(self, sl: "SlitherCore"):
-        self._slither = sl
+    # @property
+    # def slither(self) -> "SlitherCore":
+    #     return self._slither
+    #
+    # @slither.setter
+    # def slither(self, sl: "SlitherCore"):
+    #     self._slither = sl
 
     # endregion
     ###################################################################################
@@ -1532,7 +1531,7 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
         from slither.core.cfg.node import Node
 
         node = Node(node_type, self._counter_nodes)
-        node.set_offset(src, self.slither)
+        node.set_offset(src, self.compilation_unit)
         self._counter_nodes += 1
         node.set_function(self)
         self._nodes.append(node)

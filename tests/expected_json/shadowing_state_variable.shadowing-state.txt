@@ -1,6 +1,0 @@
-[91m
-DerivedContract.owner (tests/shadowing_state_variable.sol#12) shadows:
-	- BaseContract.owner (tests/shadowing_state_variable.sol#2)
-Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#state-variable-shadowing[0m
-tests/shadowing_state_variable.sol analyzed (2 contracts with 1 detectors), 1 result(s) found
-[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

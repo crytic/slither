@@ -56,7 +56,7 @@ class UnprotectedUpgradeable(AbstractDetector):
     def _detect(self):
         results = []
 
-        for contract in self.slither.contracts_derived:
+        for contract in self.compilation_unit.contracts_derived:
             if contract.is_upgradeable:
                 functions_that_can_destroy = _can_be_destroyed(contract)
                 if functions_that_can_destroy:

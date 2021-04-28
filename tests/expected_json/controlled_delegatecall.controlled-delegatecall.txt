@@ -1,8 +1,0 @@
-[91m
-C.bad_delegate_call(bytes) (tests/controlled_delegatecall.sol#8-11) uses delegatecall to a input-controlled function id
-	- addr_bad.delegatecall(data) (tests/controlled_delegatecall.sol#10)
-C.bad_delegate_call2(bytes) (tests/controlled_delegatecall.sol#18-20) uses delegatecall to a input-controlled function id
-	- addr_bad.delegatecall(abi.encode(func_id,data)) (tests/controlled_delegatecall.sol#19)
-Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#controlled-delegatecall[0m
-tests/controlled_delegatecall.sol analyzed (1 contracts with 1 detectors), 2 result(s) found
-[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m
