@@ -597,7 +597,7 @@ class FunctionSolc:
 
         if cond:
             cond_scope = Scope(node.underlying_node.scope.is_checked, False, last_scope)
-            cond_scope = last_scope
+            last_scope = cond_scope
             node_condition = self._new_node(NodeType.IFLOOP, cond["src"], cond_scope)
             node_condition.add_unparsed_expression(cond)
             link_underlying_nodes(node_startLoop, node_condition)
