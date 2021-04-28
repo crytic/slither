@@ -1531,7 +1531,9 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def new_node(self, node_type: "NodeType", src: Union[str, Dict], scope: Union[Scope, "Function"]) -> "Node":
+    def new_node(
+        self, node_type: "NodeType", src: Union[str, Dict], scope: Union[Scope, "Function"]
+    ) -> "Node":
         from slither.core.cfg.node import Node
 
         node = Node(node_type, self._counter_nodes, scope)

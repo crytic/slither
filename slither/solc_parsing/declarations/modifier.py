@@ -93,7 +93,9 @@ class ModifierSolc(FunctionSolc):
         # self._analyze_read_write()
         # self._analyze_calls()
 
-    def _parse_statement(self, statement: Dict, node: NodeSolc, scope: Union[Scope, "Function"]) -> NodeSolc:
+    def _parse_statement(
+        self, statement: Dict, node: NodeSolc, scope: Union[Scope, "Function"]
+    ) -> NodeSolc:
         name = statement[self.get_key()]
         if name == "PlaceholderStatement":
             placeholder_node = self._new_node(NodeType.PLACEHOLDER, statement["src"], scope)

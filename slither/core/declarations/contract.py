@@ -1115,12 +1115,16 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                     constructor_variable.set_offset(self.source_mapping, self.compilation_unit)
                     self._functions[constructor_variable.canonical_name] = constructor_variable
 
-                    prev_node = self._create_node(constructor_variable, 0, variable_candidate, constructor_variable)
+                    prev_node = self._create_node(
+                        constructor_variable, 0, variable_candidate, constructor_variable
+                    )
                     variable_candidate.node_initialization = prev_node
                     counter = 1
                     for v in self.state_variables[idx + 1 :]:
                         if v.expression and not v.is_constant:
-                            next_node = self._create_node(constructor_variable, counter, v, prev_node.scope)
+                            next_node = self._create_node(
+                                constructor_variable, counter, v, prev_node.scope
+                            )
                             v.node_initialization = next_node
                             prev_node.add_son(next_node)
                             next_node.add_father(prev_node)
@@ -1143,12 +1147,16 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                     constructor_variable.set_offset(self.source_mapping, self.compilation_unit)
                     self._functions[constructor_variable.canonical_name] = constructor_variable
 
-                    prev_node = self._create_node(constructor_variable, 0, variable_candidate, constructor_variable)
+                    prev_node = self._create_node(
+                        constructor_variable, 0, variable_candidate, constructor_variable
+                    )
                     variable_candidate.node_initialization = prev_node
                     counter = 1
                     for v in self.state_variables[idx + 1 :]:
                         if v.expression and v.is_constant:
-                            next_node = self._create_node(constructor_variable, counter, v, prev_node.scope)
+                            next_node = self._create_node(
+                                constructor_variable, counter, v, prev_node.scope
+                            )
                             v.node_initialization = next_node
                             prev_node.add_son(next_node)
                             next_node.add_father(prev_node)
@@ -1157,7 +1165,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
                     break
 
-    def _create_node(self, func: Function, counter: int, variable: "Variable", scope: Union[Scope, Function]):
+    def _create_node(
+        self, func: Function, counter: int, variable: "Variable", scope: Union[Scope, Function]
+    ):
         from slither.core.cfg.node import Node, NodeType
         from slither.core.expressions import (
             AssignmentOperationType,
