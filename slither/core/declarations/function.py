@@ -8,6 +8,7 @@ from enum import Enum
 from itertools import groupby
 from typing import Dict, TYPE_CHECKING, List, Optional, Set, Union, Callable, Tuple
 
+from slither.core.cfg.scope import Scope
 from slither.core.declarations.solidity_variables import (
     SolidityFunction,
     SolidityVariable,
@@ -313,13 +314,16 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
                     return True
         return self._can_send_eth
 
-    # @property
-    # def slither(self) -> "SlitherCore":
-    #     return self._slither
-    #
-    # @slither.setter
-    # def slither(self, sl: "SlitherCore"):
-    #     self._slither = sl
+    @property
+    def is_checked(self) -> bool:
+        """
+        Return true if the overflow are enabled by default
+
+
+        :return:
+        """
+
+        return self.compilation_unit.solc_version >= "0.8.0"
 
     # endregion
     ###################################################################################
@@ -1527,10 +1531,10 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def new_node(self, node_type: "NodeType", src: Union[str, Dict]) -> "Node":
+    def new_node(self, node_type: "NodeType", src: Union[str, Dict], scope: Union[Scope, "Function"]) -> "Node":
         from slither.core.cfg.node import Node
 
-        node = Node(node_type, self._counter_nodes)
+        node = Node(node_type, self._counter_nodes, scope)
         node.set_offset(src, self.compilation_unit)
         self._counter_nodes += 1
         node.set_function(self)

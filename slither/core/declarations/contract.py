@@ -7,6 +7,7 @@ from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
 
 from crytic_compile.platform import Type as PlatformType
 
+from slither.core.cfg.scope import Scope
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 
@@ -1114,12 +1115,12 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                     constructor_variable.set_offset(self.source_mapping, self.compilation_unit)
                     self._functions[constructor_variable.canonical_name] = constructor_variable
 
-                    prev_node = self._create_node(constructor_variable, 0, variable_candidate)
+                    prev_node = self._create_node(constructor_variable, 0, variable_candidate, constructor_variable)
                     variable_candidate.node_initialization = prev_node
                     counter = 1
                     for v in self.state_variables[idx + 1 :]:
                         if v.expression and not v.is_constant:
-                            next_node = self._create_node(constructor_variable, counter, v)
+                            next_node = self._create_node(constructor_variable, counter, v, prev_node.scope)
                             v.node_initialization = next_node
                             prev_node.add_son(next_node)
                             next_node.add_father(prev_node)
@@ -1142,12 +1143,12 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                     constructor_variable.set_offset(self.source_mapping, self.compilation_unit)
                     self._functions[constructor_variable.canonical_name] = constructor_variable
 
-                    prev_node = self._create_node(constructor_variable, 0, variable_candidate)
+                    prev_node = self._create_node(constructor_variable, 0, variable_candidate, constructor_variable)
                     variable_candidate.node_initialization = prev_node
                     counter = 1
                     for v in self.state_variables[idx + 1 :]:
                         if v.expression and v.is_constant:
-                            next_node = self._create_node(constructor_variable, counter, v)
+                            next_node = self._create_node(constructor_variable, counter, v, prev_node.scope)
                             v.node_initialization = next_node
                             prev_node.add_son(next_node)
                             next_node.add_father(prev_node)
@@ -1156,7 +1157,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
                     break
 
-    def _create_node(self, func: Function, counter: int, variable: "Variable"):
+    def _create_node(self, func: Function, counter: int, variable: "Variable", scope: Union[Scope, Function]):
         from slither.core.cfg.node import Node, NodeType
         from slither.core.expressions import (
             AssignmentOperationType,
@@ -1165,7 +1166,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         )
 
         # Function uses to create node for state variable declaration statements
-        node = Node(NodeType.OTHER_ENTRYPOINT, counter)
+        node = Node(NodeType.OTHER_ENTRYPOINT, counter, scope)
         node.set_offset(variable.source_mapping, self.compilation_unit)
         node.set_function(func)
         func.add_node(node)

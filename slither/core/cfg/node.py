@@ -54,6 +54,7 @@ if TYPE_CHECKING:
         LibraryCallType,
         LowLevelCallType,
     )
+    from slither.core.cfg.scope import Scope
 
 
 # pylint: disable=too-many-lines,too-many-branches,too-many-instance-attributes
@@ -152,7 +153,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
     """
 
-    def __init__(self, node_type: NodeType, node_id: int):
+    def __init__(self, node_type: NodeType, node_id: int, scope: Union["Scope", "Function"]):
         super().__init__()
         self._node_type = node_type
 
@@ -219,6 +220,8 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._can_send_eth: Optional[bool] = None
 
         self._asm_source_code: Optional[Union[str, Dict]] = None
+
+        self.scope = scope
 
     ###################################################################################
     ###################################################################################

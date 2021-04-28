@@ -1,10 +1,11 @@
 """
     Event module
 """
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING, Union
 
 from slither.core.cfg.node import NodeType
 from slither.core.cfg.node import link_nodes
+from slither.core.cfg.scope import Scope
 from slither.core.declarations.modifier import Modifier
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
@@ -12,6 +13,7 @@ from slither.solc_parsing.declarations.function import FunctionSolc
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+    from slither.core.declarations import Function
 
 
 class ModifierSolc(FunctionSolc):
@@ -91,10 +93,10 @@ class ModifierSolc(FunctionSolc):
         # self._analyze_read_write()
         # self._analyze_calls()
 
-    def _parse_statement(self, statement: Dict, node: NodeSolc) -> NodeSolc:
+    def _parse_statement(self, statement: Dict, node: NodeSolc, scope: Union[Scope, "Function"]) -> NodeSolc:
         name = statement[self.get_key()]
         if name == "PlaceholderStatement":
-            placeholder_node = self._new_node(NodeType.PLACEHOLDER, statement["src"])
+            placeholder_node = self._new_node(NodeType.PLACEHOLDER, statement["src"], scope)
             link_nodes(node.underlying_node, placeholder_node.underlying_node)
             return placeholder_node
-        return super()._parse_statement(statement, node)
+        return super()._parse_statement(statement, node, scope)
