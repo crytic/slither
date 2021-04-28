@@ -88,6 +88,16 @@ class BinaryType(Enum):
 
         raise SlithIRError("get_type: Unknown operation type {})".format(operation_type))
 
+    def can_be_checked_for_overflow(self):
+        return self in [
+            BinaryType.POWER,
+            BinaryType.MULTIPLICATION,
+            BinaryType.MODULO,
+            BinaryType.ADDITION,
+            BinaryType.SUBTRACTION,
+            BinaryType.DIVISION,
+        ]
+
     def __str__(self):  # pylint: disable=too-many-branches
         if self == BinaryType.POWER:
             return "**"
@@ -167,6 +177,8 @@ class Binary(OperationWithLValue):
 
     @property
     def type_str(self):
+        if self.node.scope.is_checked and self._type.can_be_checked_for_overflow():
+            return "(c)" + str(self._type)
         return str(self._type)
 
     def __str__(self):
