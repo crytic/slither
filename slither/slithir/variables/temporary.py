@@ -11,8 +11,8 @@ class TemporaryVariable(ChildNode, Variable):
     def __init__(self, node: "Node", index=None):
         super().__init__()
         if index is None:
-            self._index = node.slither.counter_slithir_temporary
-            node.slither.counter_slithir_temporary += 1
+            self._index = node.compilation_unit.counter_slithir_temporary
+            node.compilation_unit.counter_slithir_temporary += 1
         else:
             self._index = index
         self._node = node

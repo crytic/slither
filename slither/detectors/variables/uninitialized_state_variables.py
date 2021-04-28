@@ -74,7 +74,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             return self.__variables_written_in_proxy
 
         variables_written_in_proxy = []
-        for c in self.slither.contracts:
+        for c in self.compilation_unit.contracts:
             if c.is_upgradeable_proxy:
                 variables_written_in_proxy += self._written_variables(c)
 
@@ -122,7 +122,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             dict: [contract name] = set(state variable uninitialized)
         """
         results = []
-        for c in self.slither.contracts_derived:
+        for c in self.compilation_unit.contracts_derived:
             ret = self._detect_uninitialized(c)
             for variable, functions in ret:
 

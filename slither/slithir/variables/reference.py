@@ -12,8 +12,8 @@ class ReferenceVariable(ChildNode, Variable):
     def __init__(self, node: "Node", index=None):
         super().__init__()
         if index is None:
-            self._index = node.slither.counter_slithir_reference
-            node.slither.counter_slithir_reference += 1
+            self._index = node.compilation_unit.counter_slithir_reference
+            node.compilation_unit.counter_slithir_reference += 1
         else:
             self._index = index
         self._points_to = None

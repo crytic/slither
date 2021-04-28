@@ -97,7 +97,7 @@ contract Token{
             dict: [contract name] = set(str)  events
         """
         results = []
-        for c in self.slither.contracts_derived:
+        for c in self.compilation_unit.contracts_derived:
             functions = IncorrectERC20InterfaceDetection.detect_incorrect_erc20_interface(c)
             if functions:
                 for function in functions:

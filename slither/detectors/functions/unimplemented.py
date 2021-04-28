@@ -76,7 +76,7 @@ All unimplemented functions must be implemented on a contract that is meant to b
                 and not f.is_fallback
                 and not f.is_constructor_variables
             ):
-                if self.slither.solc_version not in older_solc_versions:
+                if self.compilation_unit.solc_version not in older_solc_versions:
                     # Since 0.5.1, Solidity allows creating state variable matching a function signature
                     if not self._match_state_variable(contract, f):
                         unimplemented.add(f)
@@ -92,7 +92,7 @@ All unimplemented functions must be implemented on a contract that is meant to b
             list: {'vuln', 'filename,'contract','func'}
         """
         results = []
-        for contract in self.slither.contracts_derived:
+        for contract in self.compilation_unit.contracts_derived:
             functions = self._detect_unimplemented_function(contract)
             if functions:
                 info = [contract, " does not implement functions:\n"]

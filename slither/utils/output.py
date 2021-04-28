@@ -4,7 +4,7 @@ import json
 import logging
 import zipfile
 from collections import OrderedDict
-from typing import Optional, Dict, List, Union, Any
+from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING
 from zipfile import ZipFile
 
 from slither.core.cfg.node import Node
@@ -14,6 +14,9 @@ from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
 from slither.utils.myprettytable import MyPrettyTable
+
+if TYPE_CHECKING:
+    from slither.core.compilation_unit import SlitherCompilationUnit
 
 logger = logging.getLogger("Slither")
 
@@ -508,7 +511,7 @@ class Output:
         self,
         name: str,
         source_mapping,
-        slither,
+        compilation_unit: "SlitherCompilationUnit",
         additional_fields: Optional[Dict] = None,
     ):
         # If this a tuple with (filename, start, end), convert it to a source mapping.
@@ -523,7 +526,7 @@ class Output:
                     for (
                         source_unit_id,
                         source_unit_filename,
-                    ) in slither.source_units.items()
+                    ) in compilation_unit.source_units.items()
                     if source_unit_filename == filename
                 ),
                 -1,
@@ -536,7 +539,7 @@ class Output:
         if isinstance(source_mapping, str):
             source_mapping_str = source_mapping
             source_mapping = SourceMapping()
-            source_mapping.set_offset(source_mapping_str, slither)
+            source_mapping.set_offset(source_mapping_str, compilation_unit)
 
         # If this is a source mapping object, get the underlying source mapping dictionary
         if isinstance(source_mapping, SourceMapping):

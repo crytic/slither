@@ -1,5 +1,7 @@
 import re
 import logging
+
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.slithir.operations import (
     Send,
     Transfer,
@@ -24,7 +26,7 @@ logger = logging.getLogger("Slither.Format")
 # pylint: disable=anomalous-backslash-in-string
 
 
-def custom_format(slither, result):
+def custom_format(compilation_unit: SlitherCompilationUnit, result):
     elements = result["elements"]
     for element in elements:
         target = element["additional_fields"]["target"]
@@ -38,7 +40,7 @@ def custom_format(slither, result):
             )
             continue
 
-        _patch(slither, result, element, target)
+        _patch(compilation_unit, result, element, target)
 
 
 # endregion
@@ -157,7 +159,7 @@ def _convert_CapWords(original_name, slither):
     return name
 
 
-def _convert_mixedCase(original_name, slither):
+def _convert_mixedCase(original_name, compilation_unit: SlitherCompilationUnit):
     name = original_name
     if isinstance(name, bytes):
         name = name.decode("utf8")
@@ -168,15 +170,15 @@ def _convert_mixedCase(original_name, slither):
             name = name[0:offset] + name[offset + 1].upper() + name[offset + 2 :]
 
     name = name[0].lower() + name[1:]
-    if _name_already_use(slither, name):
+    if _name_already_use(compilation_unit, name):
         raise FormatImpossible(f"{original_name} cannot be converted to {name} (already used)")
     if name in SOLIDITY_KEYWORDS:
         raise FormatImpossible(f"{original_name} cannot be converted to {name} (Solidity keyword)")
     return name
 
 
-def _convert_UPPER_CASE_WITH_UNDERSCORES(name, slither):
-    if _name_already_use(slither, name.upper()):
+def _convert_UPPER_CASE_WITH_UNDERSCORES(name, compilation_unit: SlitherCompilationUnit):
+    if _name_already_use(compilation_unit, name.upper()):
         raise FormatImpossible(f"{name} cannot be converted to {name.upper()} (already used)")
     if name.upper() in SOLIDITY_KEYWORDS:
         raise FormatImpossible(f"{name} cannot be converted to {name.upper()} (Solidity keyword)")
@@ -198,9 +200,9 @@ conventions = {
 ###################################################################################
 
 
-def _get_from_contract(slither, element, name, getter):
+def _get_from_contract(compilation_unit: SlitherCompilationUnit, element, name, getter):
     contract_name = element["type_specific_fields"]["parent"]["name"]
-    contract = slither.get_contract_from_name(contract_name)
+    contract = compilation_unit.get_contract_from_name(contract_name)
     return getattr(contract, getter)(name)
 
 
@@ -212,27 +214,33 @@ def _get_from_contract(slither, element, name, getter):
 ###################################################################################
 
 
-def _patch(slither, result, element, _target):
+def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
     if _target == "contract":
-        target = slither.get_contract_from_name(element["name"])
+        target = compilation_unit.get_contract_from_name(element["name"])
 
     elif _target == "structure":
-        target = _get_from_contract(slither, element, element["name"], "get_structure_from_name")
+        target = _get_from_contract(
+            compilation_unit, element, element["name"], "get_structure_from_name"
+        )
 
     elif _target == "event":
-        target = _get_from_contract(slither, element, element["name"], "get_event_from_name")
+        target = _get_from_contract(
+            compilation_unit, element, element["name"], "get_event_from_name"
+        )
 
     elif _target == "function":
         # Avoid constructor (FP?)
         if element["name"] != element["type_specific_fields"]["parent"]["name"]:
             function_sig = element["type_specific_fields"]["signature"]
             target = _get_from_contract(
-                slither, element, function_sig, "get_function_from_signature"
+                compilation_unit, element, function_sig, "get_function_from_signature"
             )
 
     elif _target == "modifier":
         modifier_sig = element["type_specific_fields"]["signature"]
-        target = _get_from_contract(slither, element, modifier_sig, "get_modifier_from_signature")
+        target = _get_from_contract(
+            compilation_unit, element, modifier_sig, "get_modifier_from_signature"
+        )
 
     elif _target == "parameter":
         contract_name = element["type_specific_fields"]["parent"]["type_specific_fields"]["parent"][
@@ -242,7 +250,7 @@ def _patch(slither, result, element, _target):
             "signature"
         ]
         param_name = element["name"]
-        contract = slither.get_contract_from_name(contract_name)
+        contract = compilation_unit.get_contract_from_name(contract_name)
         function = contract.get_function_from_signature(function_sig)
         target = function.get_local_variable_from_name(param_name)
 
@@ -256,24 +264,26 @@ def _patch(slither, result, element, _target):
                 "signature"
             ]
             var_name = element["name"]
-            contract = slither.get_contract_from_name(contract_name)
+            contract = compilation_unit.get_contract_from_name(contract_name)
             function = contract.get_function_from_signature(function_sig)
             target = function.get_local_variable_from_name(var_name)
         # State variable
         else:
             target = _get_from_contract(
-                slither, element, element["name"], "get_state_variable_from_name"
+                compilation_unit, element, element["name"], "get_state_variable_from_name"
             )
 
     elif _target == "enum":
         target = _get_from_contract(
-            slither, element, element["name"], "get_enum_from_canonical_name"
+            compilation_unit, element, element["name"], "get_enum_from_canonical_name"
         )
 
     else:
         raise FormatError("Unknown naming convention! " + _target)
 
-    _explore(slither, result, target, conventions[element["additional_fields"]["convention"]])
+    _explore(
+        compilation_unit, result, target, conventions[element["additional_fields"]["convention"]]
+    )
 
 
 # endregion
@@ -661,9 +671,9 @@ def _explore_contract(slither, contract, result, target, convert):
         create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
 
-def _explore(slither, result, target, convert):
-    for contract in slither.contracts_derived:
-        _explore_contract(slither, contract, result, target, convert)
+def _explore(compilation_unit: SlitherCompilationUnit, result, target, convert):
+    for contract in compilation_unit.contracts_derived:
+        _explore_contract(compilation_unit, contract, result, target, convert)
 
 
 # endregion

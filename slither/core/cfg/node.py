@@ -47,7 +47,7 @@ from slither.core.expressions.expression import Expression
 if TYPE_CHECKING:
     from slither.core.declarations import Function
     from slither.slithir.variables.variable import SlithIRVariable
-    from slither.core.slither_core import SlitherCore
+    from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.utils.type_helpers import (
         InternalCallType,
         HighLevelCallType,
@@ -227,8 +227,8 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     ###################################################################################
 
     @property
-    def slither(self) -> "SlitherCore":
-        return self.function.slither
+    def compilation_unit(self) -> "SlitherCompilationUnit":
+        return self.function.compilation_unit
 
     @property
     def node_id(self) -> int:

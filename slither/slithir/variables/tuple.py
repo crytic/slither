@@ -11,8 +11,8 @@ class TupleVariable(ChildNode, SlithIRVariable):
     def __init__(self, node: "Node", index=None):
         super().__init__()
         if index is None:
-            self._index = node.slither.counter_slithir_tuple
-            node.slither.counter_slithir_tuple += 1
+            self._index = node.compilation_unit.counter_slithir_tuple
+            node.compilation_unit.counter_slithir_tuple += 1
         else:
             self._index = index
 

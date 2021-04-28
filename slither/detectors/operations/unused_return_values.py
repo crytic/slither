@@ -73,7 +73,7 @@ contract MyConc{
     def _detect(self):
         """Detect high level calls which return a value that are never used"""
         results = []
-        for c in self.slither.contracts:
+        for c in self.compilation_unit.contracts:
             for f in c.functions + c.modifiers:
                 if f.contract_declarer != c:
                     continue

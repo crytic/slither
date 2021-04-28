@@ -1,8 +1,0 @@
-[92m
-ERC20 event IERC20BadTransfer(address,address,uint256) (tests/erc20_indexed.sol#19)does not index parameter from
-ERC20 event IERC20BadTransfer(address,address,uint256) (tests/erc20_indexed.sol#19)does not index parameter to
-ERC20 event IERC20BadApproval(address,address,uint256) (tests/erc20_indexed.sol#20)does not index parameter owner
-ERC20 event IERC20BadApproval(address,address,uint256) (tests/erc20_indexed.sol#20)does not index parameter spender
-Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-erc20-event-parameters[0m
-tests/erc20_indexed.sol analyzed (3 contracts with 1 detectors), 4 result(s) found
-[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

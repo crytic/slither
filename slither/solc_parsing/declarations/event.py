@@ -48,7 +48,9 @@ class EventSolc:
             elem = EventVariable()
             # Todo: check if the source offset is always here
             if "src" in elem_to_parse:
-                elem.set_offset(elem_to_parse["src"], self._parser_contract.slither)
+                elem.set_offset(
+                    elem_to_parse["src"], self._parser_contract.underlying_contract.compilation_unit
+                )
             elem_parser = EventVariableSolc(elem, elem_to_parse)
             elem_parser.analyze(contract)
 

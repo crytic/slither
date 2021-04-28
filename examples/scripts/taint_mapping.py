@@ -14,7 +14,7 @@ def visit_node(node, visited):
         return
 
     visited += [node]
-    taints = node.function.slither.context[KEY]
+    taints = node.function.compilation_unit.context[KEY]
 
     refs = {}
     for ir in node.irs:
@@ -41,7 +41,7 @@ def visit_node(node, visited):
 
     taints = [v for v in taints if not isinstance(v, (TemporaryVariable, ReferenceVariable))]
 
-    node.function.slither.context[KEY] = list(set(taints))
+    node.function.compilation_unit.context[KEY] = list(set(taints))
 
     for son in node.sons:
         visit_node(son, visited)

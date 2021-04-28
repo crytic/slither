@@ -13,8 +13,9 @@ if len(sys.argv) != 2:
 
 slither = Slither(sys.argv[1])
 
-contract = slither.get_contract_from_name("Simple")
-assert contract
+contracts = slither.get_contract_from_name("Simple")
+assert len(contracts) == 1
+contract = contracts[0]
 destination = contract.get_state_variable_from_name("destination")
 source = contract.get_state_variable_from_name("source")
 
@@ -35,8 +36,9 @@ assert not is_tainted(source, contract)
 print("{} is tainted {}".format(destination, is_tainted(destination, contract)))
 assert is_tainted(destination, contract)
 
-contract = slither.get_contract_from_name("Reference")
-assert contract
+contracts = slither.get_contract_from_name("Reference")
+assert len(contracts) == 1
+contract = contracts[0]
 destination = contract.get_state_variable_from_name("destination")
 assert destination
 source = contract.get_state_variable_from_name("source")
@@ -73,8 +75,9 @@ assert is_tainted(destination_indirect_2, contract)
 
 print("SolidityVar contract")
 
-contract = slither.get_contract_from_name("SolidityVar")
-assert contract
+contracts = slither.get_contract_from_name("SolidityVar")
+assert len(contracts) == 1
+contract = contracts[0]
 addr_1 = contract.get_state_variable_from_name("addr_1")
 assert addr_1
 addr_2 = contract.get_state_variable_from_name("addr_2")
@@ -91,8 +94,9 @@ assert not is_dependent(addr_2, msgsender, contract)
 
 
 print("Intermediate contract")
-contract = slither.get_contract_from_name("Intermediate")
-assert contract
+contracts = slither.get_contract_from_name("Intermediate")
+assert len(contracts) == 1
+contract = contracts[0]
 destination = contract.get_state_variable_from_name("destination")
 assert destination
 source = contract.get_state_variable_from_name("source")
@@ -106,8 +110,10 @@ print(
 assert is_dependent(destination, source, contract)
 
 print("Base Derived contract")
-contract = slither.get_contract_from_name("Base")
-contract_derived = slither.get_contract_from_name("Derived")
+contracts = slither.get_contract_from_name("Base")
+assert len(contracts) == 1
+contract = contracts[0]
+contract_derived = slither.get_contract_from_name("Derived")[0]
 destination = contract.get_state_variable_from_name("destination")
 source = contract.get_state_variable_from_name("source")
 
@@ -125,8 +131,9 @@ print(
 assert is_dependent(destination, source, contract_derived)
 
 print("PropagateThroughArguments contract")
-contract = slither.get_contract_from_name("PropagateThroughArguments")
-assert contract
+contracts = slither.get_contract_from_name("PropagateThroughArguments")
+assert len(contracts) == 1
+contract = contracts[0]
 var_tainted = contract.get_state_variable_from_name("var_tainted")
 assert var_tainted
 var_not_tainted = contract.get_state_variable_from_name("var_not_tainted")

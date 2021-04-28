@@ -11,7 +11,7 @@ from slither.solc_parsing.declarations.function import FunctionSolc
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.contract import ContractSolc
-    from slither.solc_parsing.slitherSolc import SlitherSolc
+    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
 
 
 class ModifierSolc(FunctionSolc):
@@ -20,7 +20,7 @@ class ModifierSolc(FunctionSolc):
         modifier: Modifier,
         function_data: Dict,
         contract_parser: "ContractSolc",
-        slither_parser: "SlitherSolc",
+        slither_parser: "SlitherCompilationUnitSolc",
     ):
         super().__init__(modifier, function_data, contract_parser, slither_parser)
         # _modifier is equal to _function, but keep it here to prevent

@@ -76,7 +76,7 @@ If you do, ensure your users are aware of the potential issues."""
 
     def _detect(self):
         results = []
-        for contract in self.slither.contracts_derived:
+        for contract in self.compilation_unit.contracts_derived:
             vulns = _detect_token_reentrant(contract)
             for function, nodes in vulns.items():
                 info = [function, " is an reentrancy unsafe token function:\n"]

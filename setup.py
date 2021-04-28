@@ -11,10 +11,10 @@ setup(
     install_requires=[
         "prettytable>=0.7.2",
         "pysha3>=1.0.2",
-        "crytic-compile>=0.1.13",
-        # "crytic-compile",
+        # "crytic-compile>=0.1.13",
+        "crytic-compile",
     ],
-    # dependency_links=["git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile"],
+    dependency_links=["git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile"],
     license="AGPL-3.0",
     long_description=open("README.md").read(),
     entry_points={

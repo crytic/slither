@@ -226,8 +226,17 @@ class PrinterCallGraph(AbstractPrinter):
         results = []
         with open(all_contracts_filename, "w", encoding="utf8") as f:
             info += f"Call Graph: {all_contracts_filename}\n"
+
+            # Avoid dupplicate funcitons due to different compilation unit
+            all_functionss = [
+                compilation_unit.functions for compilation_unit in self.slither.compilation_units
+            ]
+            all_functions = [item for sublist in all_functionss for item in sublist]
+            all_functions_as_dict = {
+                function.canonical_name: function for function in all_functions
+            }
             content = "\n".join(
-                ["strict digraph {"] + [_process_functions(self.slither.functions)] + ["}"]
+                ["strict digraph {"] + [_process_functions(all_functions_as_dict.values())] + ["}"]
             )
             f.write(content)
             results.append((all_contracts_filename, content))

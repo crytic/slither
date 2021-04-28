@@ -1,16 +1,17 @@
 from collections import defaultdict
 
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
-def _find_missing_inheritance(slither):
+def _find_missing_inheritance(compilation_unit: SlitherCompilationUnit):
     """
     Filter contracts with missing inheritance to return only the "most base" contracts
     in the inheritance tree.
     :param slither:
     :return:
     """
-    missings = slither.contracts_with_missing_inheritance
+    missings = compilation_unit.contracts_with_missing_inheritance
 
     ret = []
     for b in missings:
@@ -44,12 +45,14 @@ As a result, the second contract cannot be analyzed.
 
     def _detect(self):  # pylint: disable=too-many-locals,too-many-branches
         results = []
-
-        names_reused = self.slither.contract_name_collisions
+        compilation_unit = self.compilation_unit
+        names_reused = compilation_unit.contract_name_collisions
 
         # First show the contracts that we know are missing
         incorrectly_constructed = [
-            contract for contract in self.contracts if contract.is_incorrectly_constructed
+            contract
+            for contract in compilation_unit.contracts
+            if contract.is_incorrectly_constructed
         ]
 
         inheritance_corrupted = defaultdict(list)
@@ -74,7 +77,7 @@ As a result, the second contract cannot be analyzed.
 
         # Then show the contracts for which one of the father was not found
         # Here we are not able to know
-        most_base_with_missing_inheritance = _find_missing_inheritance(self.slither)
+        most_base_with_missing_inheritance = _find_missing_inheritance(compilation_unit)
 
         for b in most_base_with_missing_inheritance:
             info = [b, " inherits from a contract for which the name is reused.\n"]

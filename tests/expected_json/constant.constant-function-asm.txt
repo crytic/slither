@@ -1,5 +1,0 @@
-[93m
-Constant.test_assembly_bug() (tests/constant.sol#22-24) is declared view but contains assembly code
-Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#constant-functions-using-assembly-code[0m
-tests/constant.sol analyzed (1 contracts with 1 detectors), 1 result(s) found
-[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

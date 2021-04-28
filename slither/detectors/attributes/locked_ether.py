@@ -73,13 +73,13 @@ Every Ether sent to `Locked` will be lost."""
     def _detect(self):
         results = []
 
-        for contract in self.slither.contracts_derived:
+        for contract in self.compilation_unit.contracts_derived:
             if contract.is_signature_only():
                 continue
             funcs_payable = [function for function in contract.functions if function.payable]
             if funcs_payable:
                 if self.do_no_send_ether(contract):
-                    info = [f"Contract locking ether found in {self.filename}:\n"]
+                    info = ["Contract locking ether found:\n"]
                     info += ["\tContract ", contract, " has payable functions:\n"]
                     for function in funcs_payable:
                         info += ["\t - ", function, "\n"]

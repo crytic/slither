@@ -72,10 +72,12 @@ class PublicMappingNested(AbstractDetector):
         """
         results = []
 
-        for p in self.slither.pragma_directives:
+        for p in self.compilation_unit.pragma_directives:
             if "0.5.0" in p.version and not "<0.5.0" in p.version:
                 return []
-        if self.slither.solc_version and self.slither.solc_version.startswith("0.5."):
+        if self.compilation_unit.solc_version and self.compilation_unit.solc_version.startswith(
+            "0.5."
+        ):
             return []
 
         for contract in self.contracts:

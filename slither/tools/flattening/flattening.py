@@ -7,6 +7,7 @@ from typing import List, Set, Dict, Optional
 
 from slither.core.declarations import SolidityFunction, EnumContract, StructureContract
 from slither.core.declarations.contract import Contract
+from slither.core.slither_core import SlitherCore
 from slither.core.solidity_types import MappingType, ArrayType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.exceptions import SlitherException
@@ -43,7 +44,7 @@ class Flattening:
     # pylint: disable=too-many-instance-attributes,too-many-arguments,too-many-locals,too-few-public-methods
     def __init__(
         self,
-        slither,
+        slither: SlitherCore,
         external_to_public=False,
         remove_assert=False,
         private_to_internal=False,
@@ -51,7 +52,7 @@ class Flattening:
         pragma_solidity: Optional[str] = None,
     ):
         self._source_codes: Dict[Contract, str] = {}
-        self._slither = slither
+        self._slither: SlitherCore = slither
         self._external_to_public = external_to_public
         self._remove_assert = remove_assert
         self._use_abi_encoder_v2 = False
@@ -71,10 +72,11 @@ class Flattening:
         Set _use_abi_encorder_v2
         :return:
         """
-        for p in self._slither.pragma_directives:
-            if "ABIEncoderV2" in str(p.directive):
-                self._use_abi_encoder_v2 = True
-                return
+        for compilation_unit in self._slither.compilation_units:
+            for p in compilation_unit.pragma_directives:
+                if "ABIEncoderV2" in str(p.directive):
+                    self._use_abi_encoder_v2 = True
+                    return
 
     def _get_source_code(
         self, contract: Contract
@@ -187,8 +189,9 @@ class Flattening:
         ret = ""
         if self._pragma_solidity:
             ret += f"pragma solidity {self._pragma_solidity};\n"
-        elif self._slither.solc_version:
-            ret += f"pragma solidity {self._slither.solc_version};\n"
+        else:
+            # TODO support multiple compiler version
+            ret += f"pragma solidity {list(self._slither.crytic_compile.compilation_units.values())[0].compiler_version.version};\n"
 
         if self._use_abi_encoder_v2:
             ret += "pragma experimental ABIEncoderV2;\n"
@@ -338,10 +341,11 @@ class Flattening:
             elif strategy == Strategy.LocalImport:
                 exports = self._export_with_import()
         else:
-            contract = self._slither.get_contract_from_name(target)
-            if contract is None:
+            contracts = self._slither.get_contract_from_name(target)
+            if len(contracts) != 1:
                 logger.error(f"{target} not found")
                 return
+            contract = contracts[0]
             exports = [self._export_contract_with_inheritance(contract)]
 
         if json:

@@ -79,7 +79,7 @@ contract Token
                 res.add_other(
                     "rtlo-character",
                     (filename, idx, len(self.RTLO_CHARACTER_ENCODED)),
-                    self.slither,
+                    self.compilation_unit,
                 )
                 results.append(res)
 

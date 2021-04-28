@@ -131,10 +131,10 @@ The call to `a(10)` will lead to unexpected behavior because function pointer `a
         results = []
 
         # Check if vulnerable solc versions are used
-        if self.slither.solc_version not in vulnerable_solc_versions:
+        if self.compilation_unit.solc_version not in vulnerable_solc_versions:
             return results
 
-        for contract in self.slither.contracts:
+        for contract in self.compilation_unit.contracts:
             contract_info = ["Contract ", contract, " \n"]
             nodes = self._detect_uninitialized_function_ptr_in_constructor(contract)
             for node in nodes:

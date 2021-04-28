@@ -49,7 +49,7 @@ class StructureContractSolc:  # pylint: disable=too-few-public-methods
         for elem_to_parse in self._elemsNotParsed:
             elem = StructureVariable()
             elem.set_structure(self._structure)
-            elem.set_offset(elem_to_parse["src"], self._structure.contract.slither)
+            elem.set_offset(elem_to_parse["src"], self._structure.contract.compilation_unit)
 
             elem_parser = StructureVariableSolc(elem, elem_to_parse)
             elem_parser.analyze(self._contract_parser)
