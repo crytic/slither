@@ -200,7 +200,9 @@ class YulLocalVariable:  # pylint: disable=too-few-public-methods
 class YulFunction(YulScope):
     __slots__ = ["_function", "_root", "_ast", "_nodes", "_entrypoint", "node_scope"]
 
-    def __init__(self, func: Function, root: YulScope, ast: Dict, node_scope: Union[Function, Scope]):
+    def __init__(
+        self, func: Function, root: YulScope, ast: Dict, node_scope: Union[Function, Scope]
+    ):
         super().__init__(root.contract, root.id + [ast["name"]], parent_func=root.parent_func)
 
         assert ast["nodeType"] == "YulFunctionDefinition"
@@ -277,7 +279,14 @@ class YulBlock(YulScope):
 
     __slots__ = ["_entrypoint", "_parent_func", "_nodes", "node_scope"]
 
-    def __init__(self, contract: Optional[Contract], entrypoint: Node, yul_id: List[str], node_scope: Union[Scope, Function], **kwargs):
+    def __init__(
+        self,
+        contract: Optional[Contract],
+        entrypoint: Node,
+        yul_id: List[str],
+        node_scope: Union[Scope, Function],
+        **kwargs,
+    ):
         super().__init__(contract, yul_id, **kwargs)
 
         self._entrypoint: YulNode = YulNode(entrypoint, self)
@@ -333,15 +342,19 @@ class YulBlock(YulScope):
 # dispatches to a specialized function based on a lookup dictionary.
 
 
-def convert_yul_block(root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul_block(
+    root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]
+) -> YulNode:
     for statement in ast["statements"]:
         parent = convert_yul(root, parent, statement, node_scope)
     return parent
 
 
-def convert_yul_function_definition(root: YulScope, parent: YulNode, ast: Dict) -> YulNode:
+def convert_yul_function_definition(
+    root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]
+) -> YulNode:
     func = FunctionContract(root.compilation_unit)
-    yul_function = YulFunction(func, root, ast)
+    yul_function = YulFunction(func, root, ast, node_scope)
 
     root.contract.add_function(func)
     root.compilation_unit.add_function(func)
@@ -353,7 +366,9 @@ def convert_yul_function_definition(root: YulScope, parent: YulNode, ast: Dict) 
     return parent
 
 
-def convert_yul_variable_declaration(root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul_variable_declaration(
+    root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]
+) -> YulNode:
     for variable_ast in ast["variables"]:
         parent = convert_yul(root, parent, variable_ast, node_scope)
 
@@ -364,14 +379,18 @@ def convert_yul_variable_declaration(root: YulScope, parent: YulNode, ast: Dict,
     return node
 
 
-def convert_yul_assignment(root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul_assignment(
+    root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]
+) -> YulNode:
     node = root.new_node(NodeType.EXPRESSION, ast["src"])
     node.add_unparsed_expression(ast)
     link_underlying_nodes(parent, node)
     return node
 
 
-def convert_yul_expression_statement(root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul_expression_statement(
+    root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]
+) -> YulNode:
     src = ast["src"]
     expression_ast = ast["expression"]
 
@@ -382,7 +401,9 @@ def convert_yul_expression_statement(root: YulScope, parent: YulNode, ast: Dict,
     return expression
 
 
-def convert_yul_if(root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul_if(
+    root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]
+) -> YulNode:
     # we're cheating and pretending that yul supports if/else so we can convert switch cleaner
 
     src = ast["src"]
@@ -409,7 +430,9 @@ def convert_yul_if(root: YulScope, parent: YulNode, ast: Dict, node_scope: Union
     return end
 
 
-def convert_yul_switch(root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul_switch(
+    root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]
+) -> YulNode:
     """
     This is unfortunate. We don't really want a switch in our IR so we're going to
     translate it into a series of if/else statements.
@@ -493,7 +516,9 @@ def convert_yul_switch(root: YulScope, parent: YulNode, ast: Dict, node_scope: U
     return convert_yul(root, parent, rewritten_switch, node_scope)
 
 
-def convert_yul_for_loop(root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul_for_loop(
+    root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]
+) -> YulNode:
     pre_ast = ast["pre"]
     condition_ast = ast["condition"]
     post_ast = ast["post"]
@@ -521,25 +546,33 @@ def convert_yul_for_loop(root: YulScope, parent: YulNode, ast: Dict, node_scope:
     return end_loop
 
 
-def convert_yul_break(root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul_break(
+    root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]
+) -> YulNode:
     break_ = root.new_node(NodeType.BREAK, ast["src"])
     link_underlying_nodes(parent, break_)
     return break_
 
 
-def convert_yul_continue(root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul_continue(
+    root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]
+) -> YulNode:
     continue_ = root.new_node(NodeType.CONTINUE, ast["src"])
     link_underlying_nodes(parent, continue_)
     return continue_
 
 
-def convert_yul_leave(root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul_leave(
+    root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]
+) -> YulNode:
     leave = root.new_node(NodeType.RETURN, ast["src"])
     link_underlying_nodes(parent, leave)
     return leave
 
 
-def convert_yul_typed_name(root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul_typed_name(
+    root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]
+) -> YulNode:
     local_var = LocalVariable()
 
     var = YulLocalVariable(local_var, root, ast)
@@ -552,13 +585,17 @@ def convert_yul_typed_name(root: YulScope, parent: YulNode, ast: Dict, _node_sco
     return node
 
 
-def convert_yul_unsupported(root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul_unsupported(
+    root: YulScope, parent: YulNode, ast: Dict, _node_scope: Union[Function, Scope]
+) -> YulNode:
     raise SlitherException(
         f"no converter available for {ast['nodeType']} {json.dumps(ast, indent=2)}"
     )
 
 
-def convert_yul(root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]) -> YulNode:
+def convert_yul(
+    root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]
+) -> YulNode:
     return converters.get(ast["nodeType"], convert_yul_unsupported)(root, parent, ast, node_scope)
 
 
