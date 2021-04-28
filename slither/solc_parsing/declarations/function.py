@@ -881,6 +881,8 @@ class FunctionSolc:
             node = self._parse_for(statement, node)
         elif name == "Block":
             node = self._parse_block(statement, node)
+        elif name == "UncheckedBlock":
+            node = self._parse_unchecked_block(statement, node)
         elif name == "InlineAssembly":
             # Added with solc 0.6 - the yul code is an AST
             if "AST" in statement and not self.compilation_unit.core.skip_assembly:
@@ -965,7 +967,7 @@ class FunctionSolc:
 
         return node
 
-    def _parse_block(self, block: Dict, node: NodeSolc):
+    def _parse_block(self, block: Dict, node: NodeSolc, check_arithmetic:bool = False):
         """
         Return:
             Node
@@ -977,7 +979,25 @@ class FunctionSolc:
         else:
             statements = block[self.get_children("children")]
 
-        new_scope = Scope(node.underlying_node.scope.is_checked, False, node.underlying_node.scope)
+        check_arithmetic = check_arithmetic | node.underlying_node.scope.is_checked
+        new_scope = Scope(check_arithmetic, False, node.underlying_node.scope)
+        for statement in statements:
+            node = self._parse_statement(statement, node, new_scope)
+        return node
+
+    def _parse_unchecked_block(self, block: Dict, node: NodeSolc):
+        """
+        Return:
+            Node
+        """
+        assert block[self.get_key()] == "UncheckedBlock"
+
+        if self.is_compact_ast:
+            statements = block["statements"]
+        else:
+            statements = block[self.get_children("children")]
+
+        new_scope = Scope(False, False, node.underlying_node.scope)
         for statement in statements:
             node = self._parse_statement(statement, node, new_scope)
         return node
@@ -998,7 +1018,8 @@ class FunctionSolc:
             self._function.is_empty = True
         else:
             self._function.is_empty = False
-            self._parse_block(cfg, node)
+            check_arithmetic = self.compilation_unit.solc_version >= "0.8.0"
+            self._parse_block(cfg, node, check_arithmetic=check_arithmetic)
             self._remove_incorrect_edges()
             self._remove_alone_endif()
 
