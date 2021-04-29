@@ -306,20 +306,13 @@ def find_variable(
     all_contracts = sl.contracts
     all_functions_parser = sl_parser.all_functions_and_modifiers_parser
 
-    # Look for all references delcaration
-    # First look only in the context of function/contract
-    # Then look everywhere
+    # Only look for reference declaration in the direct contract, see comment at the end
+    # Reference looked are split between direct and all
     # Because functions are copied between contracts, two functions can have the same ref
     # So we need to first look with respect to the direct context
 
     ret = _find_variable_from_ref_declaration(
         referenced_declaration, direct_contracts, direct_functions_parser
-    )
-    if ret:
-        return ret
-
-    ret = _find_variable_from_ref_declaration(
-        referenced_declaration, all_contracts, all_functions_parser
     )
     if ret:
         return ret
@@ -365,6 +358,33 @@ def find_variable(
 
     # Top level must be at the end, if nothing else was found
     ret = _find_top_level(var_name, sl)
+    if ret:
+        return ret
+
+    # Look from reference declaration in all the contracts at the end
+    # Because they are many instances where this can't be trusted
+    # For example in
+    # contract A{
+    #     function _f() internal view returns(uint){
+    #         return 1;
+    #     }
+    #
+    #     function get() public view returns(uint){
+    #         return _f();
+    #     }
+    # }
+    #
+    # contract B is A{
+    #     function _f() internal view returns(uint){
+    #         return 2;
+    #     }
+    #
+    # }
+    # get's AST will say that the ref declaration for _f() is A._f(), but in the context of B, its not
+
+    ret = _find_variable_from_ref_declaration(
+        referenced_declaration, all_contracts, all_functions_parser
+    )
     if ret:
         return ret
 
