@@ -1134,6 +1134,11 @@ ALL_TESTS = [
         "predeclaration_usage_local.sol",
         "0.4.25",
     ),
+    Test(
+        all_detectors.DeadCode,
+        "dead-code.sol",
+        "0.8.0",
+    ),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 
