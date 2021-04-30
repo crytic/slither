@@ -22,6 +22,7 @@ def _remove_states(written: Dict[Variable, Node]):
         if isinstance(key, StateVariable):
             del written[key]
 
+
 def _handle_ir(
     ir: Operation,
     written: Dict[Variable, Node],
