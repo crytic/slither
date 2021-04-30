@@ -445,7 +445,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return [
             f
             for f in self.functions
-            if f.visibility in ["public", "external"] and not f.is_shadowed
+            if f.visibility in ["public", "external"] and not f.is_shadowed or f.is_fallback
         ]
 
     @property
