@@ -1139,6 +1139,11 @@ ALL_TESTS = [
         "dead-code.sol",
         "0.8.0",
     ),
+    Test(
+        all_detectors.WriteAfterWrite,
+        "write-after-write.sol",
+        "0.8.0",
+    ),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 
