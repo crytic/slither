@@ -218,10 +218,9 @@ def _find_function_from_parameter(ir: Call, candidates: List[Function]) -> Optio
             type_args = [get_type(arg.type)]
 
         arg_type = arg.type
-        if (
-            isinstance(arg_type, ElementaryType)
-            and arg_type.type in ElementaryTypeInt + Uint + Byte + ["string"]
-        ):
+        if isinstance(
+            arg_type, ElementaryType
+        ) and arg_type.type in ElementaryTypeInt + Uint + Byte + ["string"]:
             if isinstance(arg, Constant):
                 value = arg.value
                 can_be_uint = True
