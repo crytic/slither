@@ -1,9 +1,12 @@
 from decimal import Decimal
+from typing import Union
 
 from slither.exceptions import SlitherError
 
 
-def convert_string_to_int(val: str) -> int:
+def convert_string_to_int(val: Union[str, int]) -> int:
+    if isinstance(val, int):
+        return val
     if val.startswith("0x") or val.startswith("0X"):
         return int(val, 16)
 

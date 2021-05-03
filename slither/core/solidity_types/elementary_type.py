@@ -125,9 +125,11 @@ Byte = [
 
 Max_Byte = {k: 2 ** (8 * (i + 1)) - 1 for i, k in enumerate(Byte[2:])}
 Max_Byte["bytes"] = None
+Max_Byte["string"] = None
 Max_Byte["byte"] = 255
 Min_Byte = {k: 1 << (4 + 8 * i) for i, k in enumerate(Byte[2:])}
 Min_Byte["bytes"] = 0x0
+Min_Byte["string"] = None
 Min_Byte["byte"] = 0x10
 
 MaxValues = dict(dict(Max_Int, **Max_Uint), **Max_Byte)
