@@ -190,10 +190,10 @@ def _fits_under_byte(val: Union[int, str]) -> List[str]:
     if isinstance(val, int):
         hex_val = hex(val)[2:]
         size = len(hex_val) // 2
-        return [f"byte{size}"]
+        return [f"bytes{size}"]
     # val is a str
     length = len(val.encode("utf-8"))
-    return [f"byte{f}" for f in range(length, 32)]
+    return [f"bytes{f}" for f in range(length, 33)]
 
 
 def _find_function_from_parameter(ir: Call, candidates: List[Function]) -> Optional[Function]:
@@ -217,28 +217,31 @@ def _find_function_from_parameter(ir: Call, candidates: List[Function]) -> Optio
         else:
             type_args = [get_type(arg.type)]
 
-        if (
-            isinstance(arg.type, ElementaryType)
-            and arg.type.type in ElementaryTypeInt + Uint + Byte
-        ):
+        arg_type = arg.type
+        if isinstance(
+            arg_type, ElementaryType
+        ) and arg_type.type in ElementaryTypeInt + Uint + Byte + ["string"]:
             if isinstance(arg, Constant):
                 value = arg.value
                 can_be_uint = True
                 can_be_int = True
             else:
-                value = MaxValues[arg.type.type]
+                value = MaxValues[arg_type.type]
                 can_be_uint = False
                 can_be_int = False
-                if arg.type.type in ElementaryTypeInt:
+                if arg_type.type in ElementaryTypeInt:
                     can_be_int = True
-                elif arg.type.type in Uint:
+                elif arg_type.type in Uint:
                     can_be_uint = True
 
-            if arg.type.type in ElementaryTypeInt + Uint:
+            if arg_type.type in ElementaryTypeInt + Uint:
                 type_args = _fits_under_integer(value, can_be_int, can_be_uint)
+            elif value is None and arg_type.type in ["bytes", "string"]:
+                type_args = ["bytes", "string"]
             else:
-                print(value)
                 type_args = _fits_under_byte(value)
+                if arg_type.type == "string":
+                    type_args += ["string"]
 
         not_found = True
         candidates_kept = []
@@ -247,8 +250,7 @@ def _find_function_from_parameter(ir: Call, candidates: List[Function]) -> Optio
                 break
             candidates_kept = []
             for candidate in candidates:
-                param = str(candidate.parameters[idx].type)
-
+                param = get_type(candidate.parameters[idx].type)
                 if param == type_arg:
                     not_found = False
                     candidates_kept.append(candidate)
@@ -256,7 +258,6 @@ def _find_function_from_parameter(ir: Call, candidates: List[Function]) -> Optio
             if len(candidates_kept) == 1:
                 return candidates_kept[0]
         candidates = candidates_kept
-
     if len(candidates) == 1:
         return candidates[0]
     return None
@@ -1005,7 +1006,9 @@ def convert_to_low_level(ir):
     raise SlithIRError("Incorrect conversion to low level {}".format(ir))
 
 
-def can_be_solidity_func(ir):
+def can_be_solidity_func(ir) -> bool:
+    if not isinstance(ir, HighLevelCall):
+        return False
     return ir.destination.name == "abi" and ir.function_name in [
         "encode",
         "encodePacked",
