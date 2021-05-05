@@ -178,12 +178,12 @@ class AnalysisGUI:
 
         self.lbl_source = lbl_source = tk.Label(frm_source, text="Source")
         frm_source.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-        hbar_source.pack(side=tk.BOTTOM, fill=tk.X)
+        # hbar_source.pack(side=tk.BOTTOM, fill=tk.X)
         hbar_source.config(command=canv_source.xview)
-        vbar_source.pack(side=tk.RIGHT, fill=tk.Y)
+        # vbar_source.pack(side=tk.RIGHT, fill=tk.Y)
         vbar_source.config(command=canv_source.yview)
-        lbl_source.pack(side=tk.TOP, fill=tk.X)
-        canv_source.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        # lbl_source.pack(side=tk.TOP, fill=tk.X)
+        # canv_source.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         canv_source.config(xscrollcommand=hbar_source.set, yscrollcommand=vbar_source.set)
 
         # Create the ir frame
@@ -211,12 +211,12 @@ class AnalysisGUI:
         canv_ir.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
 
         frm_ir.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-        hbar_ir.pack(side=tk.BOTTOM, fill=tk.X)
+        # hbar_ir.pack(side=tk.BOTTOM, fill=tk.X)
         hbar_ir.config(command=canv_ir.xview)
-        vbar_ir.pack(side=tk.RIGHT, fill=tk.Y)
+        # vbar_ir.pack(side=tk.RIGHT, fill=tk.Y)
         vbar_ir.config(command=canv_ir.yview)
-        lbl_ir.pack(side=tk.TOP, fill=tk.X)
-        canv_ir.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        # lbl_ir.pack(side=tk.TOP, fill=tk.X)
+        # canv_ir.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         canv_ir.config(xscrollcommand=hbar_ir.set, yscrollcommand=vbar_ir.set)
 
         self.refresh()
