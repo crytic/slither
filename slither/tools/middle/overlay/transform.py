@@ -8,7 +8,36 @@ from slither import Slither
 
 from slither.tools.middle.overlay.ast.graph import OverlayGraph
 from slither.tools.middle.overlay.ast.function import overlay_function_from_basic_block
-from slither.tools.middle.overlay.util import OverlayCall, NodeType, OverlayFunction, OverlayNode, is_return, is_end_if, add_edge, remove_edge, copy, Condition, OverlayITE, add_node_after, get_ssa_variables_read, get_ssa_variables_defined, get_ssa_variables_used, Phi, Binary, Length, add_node_before, rewrite_ir_variable_by_name, rewrite_variable_in_all_successors, Assignment, is_loop_call, is_end_loop, OperationWithLValue, TemporaryVariableSSA, ReferenceVariableSSA, remove_all_edges
+from slither.tools.middle.overlay.util import (
+    OverlayCall,
+    NodeType,
+    OverlayFunction,
+    OverlayNode,
+    is_return,
+    is_end_if,
+    add_edge,
+    remove_edge,
+    copy,
+    Condition,
+    OverlayITE,
+    add_node_after,
+    get_ssa_variables_read,
+    get_ssa_variables_defined,
+    get_ssa_variables_used,
+    Phi,
+    Binary,
+    Length,
+    add_node_before,
+    rewrite_ir_variable_by_name,
+    rewrite_variable_in_all_successors,
+    Assignment,
+    is_loop_call,
+    is_end_loop,
+    OperationWithLValue,
+    TemporaryVariableSSA,
+    ReferenceVariableSSA,
+    remove_all_edges,
+)
 
 logger = logging.getLogger("transform")
 # logger.setLevel(logging.DEBUG)

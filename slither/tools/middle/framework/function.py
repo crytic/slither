@@ -841,9 +841,7 @@ class AnalysisFunction:
                 if stmt.type == NodeType.ENTRYPOINT or stmt.type == NodeType.ENDIF:
                     continue
                 for ir in stmt.ir:
-                    if (
-                        isinstance(ir, (InternalCall, HighLevelCall))
-                    ) and ir in self.callees:
+                    if (isinstance(ir, (InternalCall, HighLevelCall))) and ir in self.callees:
                         # We have confirmed to go down this path
                         inner_mappings = self.callees[ir].get_live_source_mappings()
                         for k, v in inner_mappings.items():
@@ -870,7 +868,7 @@ class AnalysisFunction:
         return None
 
 
-def find_key_in_dict(value, my_dict): # TODO: replace all calls with dict.get(key)
+def find_key_in_dict(value, my_dict):  # TODO: replace all calls with dict.get(key)
     for k, v in my_dict.items():
         if v == value:
             return k

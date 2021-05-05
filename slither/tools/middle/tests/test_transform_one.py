@@ -1,5 +1,7 @@
-from overlay.transform import outline_all_conditionals
-from overlay.ast.graph import OverlayGraph
+#from overlay.transform import outline_all_conditionals
+#from overlay.ast.graph import OverlayGraph
+from slither.tools.middle.overlay.ast.graph import OverlayGraph
+from slither.tools.middle.overlay.transform import outline_all_conditionals
 from slither import Slither
 
 

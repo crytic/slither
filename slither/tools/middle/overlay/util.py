@@ -121,7 +121,7 @@ def get_name(var) -> str:
         return var.name
     if isinstance(var, Constant):
         # Constants don't really need to be resolved or annotated.
-        return "" # TODO: fix for pylint
+        return ""  # TODO: fix for pylint
     if isinstance(var, ReferenceVariableSSA):
         return var.name
     if isinstance(var, StateIRVariable):
@@ -356,9 +356,7 @@ def resolve_nearest_concrete_parent(graph, func):
         callsites = [
             (y, x)
             for (y, x) in callsites
-            if not isinstance(x, OverlayCall)
-            or isinstance(x, OverlayCall)
-            and not x.loop_continue
+            if not isinstance(x, OverlayCall) or isinstance(x, OverlayCall) and not x.loop_continue
         ]
         assert len(callsites) == 1
         current, _ = callsites[0]
