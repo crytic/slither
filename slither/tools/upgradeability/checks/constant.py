@@ -48,8 +48,7 @@ Do not remove `constant` from a state variables during an update.
         state_variables_v2 = contract_v2.state_variables
 
         v2_additional_variables = len(state_variables_v2) - len(state_variables_v1)
-        if v2_additional_variables < 0:
-            v2_additional_variables = 0
+        v2_additional_variables = max(v2_additional_variables, 0)
 
         # We keep two index, because we need to have them out of sync if v2
         # has additional non constant variables
@@ -130,8 +129,7 @@ Do not make an existing state variable `constant`.
         state_variables_v2 = contract_v2.state_variables
 
         v2_additional_variables = len(state_variables_v2) - len(state_variables_v1)
-        if v2_additional_variables < 0:
-            v2_additional_variables = 0
+        v2_additional_variables = max(v2_additional_variables, 0)
 
         # We keep two index, because we need to have them out of sync if v2
         # has additional non constant variables

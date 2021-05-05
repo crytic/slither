@@ -9,5 +9,9 @@ def kspec_coverage(args):
 
     slither = Slither(contract, **vars(args))
 
+    compilation_units = slither.compilation_units
+    if len(compilation_units) != 1:
+        print("Only single compilation unit supported")
+        return
     # Run the analysis on the Klab specs
-    run_analysis(args, slither, kspec)
+    run_analysis(args, compilation_units[0], kspec)

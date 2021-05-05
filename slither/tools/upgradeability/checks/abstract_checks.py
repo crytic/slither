@@ -1,6 +1,8 @@
 import abc
+from typing import Optional
 
 from slither.utils.colors import green, yellow, red
+from slither.utils.comparable_enum import ComparableEnum
 from slither.utils.output import Output
 
 
@@ -8,7 +10,7 @@ class IncorrectCheckInitialization(Exception):
     pass
 
 
-class CheckClassification:  # pylint: disable=too-few-public-methods
+class CheckClassification(ComparableEnum):
     HIGH = 0
     MEDIUM = 1
     LOW = 2
@@ -33,7 +35,7 @@ classification_txt = {
 class AbstractCheck(metaclass=abc.ABCMeta):
     ARGUMENT = ""
     HELP = ""
-    IMPACT = None
+    IMPACT: Optional[CheckClassification] = None
 
     WIKI = ""
 
@@ -136,7 +138,9 @@ class AbstractCheck(metaclass=abc.ABCMeta):
         return all_results
 
     def generate_result(self, info, additional_fields=None):
-        output = Output(info, additional_fields, markdown_root=self.contract.slither.markdown_root)
+        output = Output(
+            info, additional_fields, markdown_root=self.contract.compilation_unit.core.markdown_root
+        )
 
         output.data["check"] = self.ARGUMENT
 

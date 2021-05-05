@@ -42,7 +42,7 @@ Bob calls `delegate` and delegates the execution to his malicious contract. As a
     def _detect(self):
         results = []
 
-        for contract in self.slither.contracts_derived:
+        for contract in self.compilation_unit.contracts_derived:
             for f in contract.functions:
                 # If its an upgradeable proxy, do not report protected function
                 # As functions to upgrades the destination lead to too many FPs

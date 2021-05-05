@@ -7,7 +7,7 @@ from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
 
 from crytic_compile.platform import Type as PlatformType
 
-from slither.core.children.child_slither import ChildSlither
+from slither.core.cfg.scope import Scope
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 
@@ -24,22 +24,30 @@ from slither.utils.tests_pattern import is_test_contract
 
 # pylint: disable=too-many-lines,too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks
 if TYPE_CHECKING:
-    from slither.utils.type_helpers import LibraryCallType, HighLevelCallType
-    from slither.core.declarations import Enum, Event, Modifier
-    from slither.core.declarations import Structure
+    from slither.utils.type_helpers import LibraryCallType, HighLevelCallType, InternalCallType
+    from slither.core.declarations import (
+        Enum,
+        Event,
+        Modifier,
+        EnumContract,
+        StructureContract,
+        FunctionContract,
+    )
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.core.variables.variable import Variable
     from slither.core.variables.state_variable import StateVariable
+    from slither.core.compilation_unit import SlitherCompilationUnit
+
 
 LOGGER = logging.getLogger("Contract")
 
 
-class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-methods
+class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     """
     Contract class
     """
 
-    def __init__(self):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit"):
         super().__init__()
 
         self._name: Optional[str] = None
@@ -51,13 +59,13 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         # contract B is A(1) { ..
         self._explicit_base_constructor_calls: List["Contract"] = []
 
-        self._enums: Dict[str, "Enum"] = {}
-        self._structures: Dict[str, "Structure"] = {}
+        self._enums: Dict[str, "EnumContract"] = {}
+        self._structures: Dict[str, "StructureContract"] = {}
         self._events: Dict[str, "Event"] = {}
         self._variables: Dict[str, "StateVariable"] = {}
         self._variables_ordered: List["StateVariable"] = []
         self._modifiers: Dict[str, "Modifier"] = {}
-        self._functions: Dict[str, "Function"] = {}
+        self._functions: Dict[str, "FunctionContract"] = {}
         self._linearizedBaseContracts = List[int]
 
         # The only str is "*"
@@ -71,11 +79,16 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         self._is_upgradeable: Optional[bool] = None
         self._is_upgradeable_proxy: Optional[bool] = None
 
-        self._is_top_level = False
+        self.is_top_level = False  # heavily used, so no @property
 
         self._initial_state_variables: List["StateVariable"] = []  # ssa
 
         self._is_incorrectly_parsed: bool = False
+
+        self._available_functions_as_dict: Optional[Dict[str, "Function"]] = None
+        self._all_functions_called: Optional[List["InternalCallType"]] = None
+
+        self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
 
     ###################################################################################
     ###################################################################################
@@ -132,28 +145,28 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
     ###################################################################################
 
     @property
-    def structures(self) -> List["Structure"]:
+    def structures(self) -> List["StructureContract"]:
         """
         list(Structure): List of the structures
         """
         return list(self._structures.values())
 
     @property
-    def structures_inherited(self) -> List["Structure"]:
+    def structures_inherited(self) -> List["StructureContract"]:
         """
         list(Structure): List of the inherited structures
         """
         return [s for s in self.structures if s.contract != self]
 
     @property
-    def structures_declared(self) -> List["Structure"]:
+    def structures_declared(self) -> List["StructureContract"]:
         """
         list(Structues): List of the structures declared within the contract (not inherited)
         """
         return [s for s in self.structures if s.contract == self]
 
     @property
-    def structures_as_dict(self) -> Dict[str, "Structure"]:
+    def structures_as_dict(self) -> Dict[str, "StructureContract"]:
         return self._structures
 
     # endregion
@@ -164,25 +177,25 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
     ###################################################################################
 
     @property
-    def enums(self) -> List["Enum"]:
+    def enums(self) -> List["EnumContract"]:
         return list(self._enums.values())
 
     @property
-    def enums_inherited(self) -> List["Enum"]:
+    def enums_inherited(self) -> List["EnumContract"]:
         """
         list(Enum): List of the inherited enums
         """
         return [e for e in self.enums if e.contract != self]
 
     @property
-    def enums_declared(self) -> List["Enum"]:
+    def enums_declared(self) -> List["EnumContract"]:
         """
         list(Enum): List of the enums declared within the contract (not inherited)
         """
         return [e for e in self.enums if e.contract == self]
 
     @property
-    def enums_as_dict(self) -> Dict[str, "Enum"]:
+    def enums_as_dict(self) -> Dict[str, "EnumContract"]:
         return self._enums
 
     # endregion
@@ -282,8 +295,8 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         """
         List all of the slithir variables (non SSA)
         """
-        slithir_variables = [f.slithir_variables for f in self.functions + self.modifiers]  # type: ignore
-        slithir_variables = [item for sublist in slithir_variables for item in sublist]
+        slithir_variabless = [f.slithir_variables for f in self.functions + self.modifiers]  # type: ignore
+        slithir_variables = [item for sublist in slithir_variabless for item in sublist]
         return list(set(slithir_variables))
 
     # endregion
@@ -385,19 +398,23 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         return self._signatures_declared
 
     @property
-    def functions(self) -> List["Function"]:
+    def functions(self) -> List["FunctionContract"]:
         """
         list(Function): List of the functions
         """
         return list(self._functions.values())
 
-    def available_functions_as_dict(self) -> Dict[str, "Function"]:
-        return {f.full_name: f for f in self._functions.values() if not f.is_shadowed}
+    def available_functions_as_dict(self) -> Dict[str, "FunctionContract"]:
+        if self._available_functions_as_dict is None:
+            self._available_functions_as_dict = {
+                f.full_name: f for f in self._functions.values() if not f.is_shadowed
+            }
+        return self._available_functions_as_dict
 
-    def add_function(self, func: "Function"):
+    def add_function(self, func: "FunctionContract"):
         self._functions[func.canonical_name] = func
 
-    def set_functions(self, functions: Dict[str, "Function"]):
+    def set_functions(self, functions: Dict[str, "FunctionContract"]):
         """
         Set the functions
 
@@ -407,28 +424,28 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         self._functions = functions
 
     @property
-    def functions_inherited(self) -> List["Function"]:
+    def functions_inherited(self) -> List["FunctionContract"]:
         """
         list(Function): List of the inherited functions
         """
         return [f for f in self.functions if f.contract_declarer != self]
 
     @property
-    def functions_declared(self) -> List["Function"]:
+    def functions_declared(self) -> List["FunctionContract"]:
         """
         list(Function): List of the functions defined within the contract (not inherited)
         """
         return [f for f in self.functions if f.contract_declarer == self]
 
     @property
-    def functions_entry_points(self) -> List["Function"]:
+    def functions_entry_points(self) -> List["FunctionContract"]:
         """
         list(Functions): List of public and external functions
         """
         return [
             f
             for f in self.functions
-            if f.visibility in ["public", "external"] and not f.is_shadowed
+            if f.visibility in ["public", "external"] and not f.is_shadowed or f.is_fallback
         ]
 
     @property
@@ -559,7 +576,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         """
         list(Contract): Return the list of contracts derived from self
         """
-        candidates = self.slither.contracts
+        candidates = self.compilation_unit.contracts
         return [c for c in candidates if self in c.inheritance]
 
     # endregion
@@ -726,33 +743,35 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
     ###################################################################################
 
     @property
-    def all_functions_called(self) -> List["Function"]:
+    def all_functions_called(self) -> List["InternalCallType"]:
         """
         list(Function): List of functions reachable from the contract
         Includes super, and private/internal functions not shadowed
         """
-        all_calls = [f for f in self.functions + self.modifiers if not f.is_shadowed]  # type: ignore
-        all_callss = [f.all_internal_calls() for f in all_calls] + [all_calls]
-        all_calls = [item for sublist in all_callss for item in sublist]
-        all_calls = list(set(all_calls))
+        if self._all_functions_called is None:
+            all_functions = [f for f in self.functions + self.modifiers if not f.is_shadowed]  # type: ignore
+            all_callss = [f.all_internal_calls() for f in all_functions] + [list(all_functions)]
+            all_calls = [item for sublist in all_callss for item in sublist]
+            all_calls = list(set(all_calls))
 
-        all_constructors = [c.constructor for c in self.inheritance if c.constructor]
-        all_constructors = list(set(all_constructors))
+            all_constructors = [c.constructor for c in self.inheritance if c.constructor]
+            all_constructors = list(set(all_constructors))
 
-        set_all_calls = set(all_calls + all_constructors)
+            set_all_calls = set(all_calls + list(all_constructors))
 
-        return [c for c in set_all_calls if isinstance(c, Function)]
+            self._all_functions_called = [c for c in set_all_calls if isinstance(c, Function)]
+        return self._all_functions_called
 
     @property
     def all_state_variables_written(self) -> List["StateVariable"]:
         """
         list(StateVariable): List all of the state variables written
         """
-        all_state_variables_written = [
+        all_state_variables_writtens = [
             f.all_state_variables_written() for f in self.functions + self.modifiers  # type: ignore
         ]
         all_state_variables_written = [
-            item for sublist in all_state_variables_written for item in sublist
+            item for sublist in all_state_variables_writtens for item in sublist
         ]
         return list(set(all_state_variables_written))
 
@@ -761,11 +780,11 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         """
         list(StateVariable): List all of the state variables read
         """
-        all_state_variables_read = [
+        all_state_variables_reads = [
             f.all_state_variables_read() for f in self.functions + self.modifiers  # type: ignore
         ]
         all_state_variables_read = [
-            item for sublist in all_state_variables_read for item in sublist
+            item for sublist in all_state_variables_reads for item in sublist
         ]
         return list(set(all_state_variables_read))
 
@@ -774,8 +793,8 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         """
         list((Contract, Function): List all of the libraries func called
         """
-        all_high_level_calls = [f.all_library_calls() for f in self.functions + self.modifiers]  # type: ignore
-        all_high_level_calls = [item for sublist in all_high_level_calls for item in sublist]
+        all_high_level_callss = [f.all_library_calls() for f in self.functions + self.modifiers]  # type: ignore
+        all_high_level_calls = [item for sublist in all_high_level_callss for item in sublist]
         return list(set(all_high_level_calls))
 
     @property
@@ -783,8 +802,8 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         """
         list((Contract, Function|Variable)): List all of the external high level calls
         """
-        all_high_level_calls = [f.all_high_level_calls() for f in self.functions + self.modifiers]  # type: ignore
-        all_high_level_calls = [item for sublist in all_high_level_calls for item in sublist]
+        all_high_level_callss = [f.all_high_level_calls() for f in self.functions + self.modifiers]  # type: ignore
+        all_high_level_calls = [item for sublist in all_high_level_callss for item in sublist]
         return list(set(all_high_level_calls))
 
     # endregion
@@ -794,9 +813,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
     ###################################################################################
     ###################################################################################
 
-    def get_summary(
-        self, include_shadowed=True
-    ) -> Tuple[str, List[str], List[str], List[str], List[str]]:
+    def get_summary(self, include_shadowed=True) -> Tuple[str, List[str], List[str], List, List]:
         """Return the function summary
 
         :param include_shadowed: boolean to indicate if shadowed functions should be included (default True)
@@ -838,15 +855,15 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: list of string
         """
         all_erc = [
-            ("ERC20", lambda x: x.is_erc20()),
-            ("ERC165", lambda x: x.is_erc165()),
-            ("ERC1820", lambda x: x.is_erc1820()),
-            ("ERC223", lambda x: x.is_erc223()),
-            ("ERC721", lambda x: x.is_erc721()),
-            ("ERC777", lambda x: x.is_erc777()),
+            ("ERC20", self.is_erc20),
+            ("ERC165", self.is_erc165),
+            ("ERC1820", self.is_erc1820),
+            ("ERC223", self.is_erc223),
+            ("ERC721", self.is_erc721),
+            ("ERC777", self.is_erc777),
         ]
 
-        return [erc[0] for erc in all_erc if erc[1](self)]
+        return [erc for erc, is_erc in all_erc if is_erc()]
 
     def is_erc20(self) -> bool:
         """
@@ -856,7 +873,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: Returns a true if the contract is an erc20
         """
         full_names = self.functions_signatures
-        return all((s in full_names for s in ERC20_signatures))
+        return all(s in full_names for s in ERC20_signatures)
 
     def is_erc165(self) -> bool:
         """
@@ -866,7 +883,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: Returns a true if the contract is an erc165
         """
         full_names = self.functions_signatures
-        return all((s in full_names for s in ERC165_signatures))
+        return all(s in full_names for s in ERC165_signatures)
 
     def is_erc1820(self) -> bool:
         """
@@ -876,7 +893,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: Returns a true if the contract is an erc165
         """
         full_names = self.functions_signatures
-        return all((s in full_names for s in ERC1820_signatures))
+        return all(s in full_names for s in ERC1820_signatures)
 
     def is_erc223(self) -> bool:
         """
@@ -886,7 +903,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: Returns a true if the contract is an erc223
         """
         full_names = self.functions_signatures
-        return all((s in full_names for s in ERC223_signatures))
+        return all(s in full_names for s in ERC223_signatures)
 
     def is_erc721(self) -> bool:
         """
@@ -896,7 +913,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: Returns a true if the contract is an erc721
         """
         full_names = self.functions_signatures
-        return all((s in full_names for s in ERC721_signatures))
+        return all(s in full_names for s in ERC721_signatures)
 
     def is_erc777(self) -> bool:
         """
@@ -906,7 +923,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         :return: Returns a true if the contract is an erc165
         """
         full_names = self.functions_signatures
-        return all((s in full_names for s in ERC777_signatures))
+        return all(s in full_names for s in ERC777_signatures)
 
     @property
     def is_token(self) -> bool:
@@ -969,9 +986,9 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
     ###################################################################################
 
     def is_from_dependency(self) -> bool:
-        if self.slither.crytic_compile is None:
-            return False
-        return self.slither.crytic_compile.is_dependency(self.source_mapping["filename_absolute"])
+        return self.compilation_unit.core.crytic_compile.is_dependency(
+            self.source_mapping["filename_absolute"]
+        )
 
     # endregion
     ###################################################################################
@@ -986,12 +1003,11 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         Return true if the contract is the Migrations contract needed for Truffle
         :return:
         """
-        if self.slither.crytic_compile:
-            if self.slither.crytic_compile.platform == PlatformType.TRUFFLE:
-                if self.name == "Migrations":
-                    paths = Path(self.source_mapping["filename_absolute"]).parts
-                    if len(paths) >= 2:
-                        return paths[-2] == "contracts" and paths[-1] == "migrations.sol"
+        if self.compilation_unit.core.crytic_compile.platform == PlatformType.TRUFFLE:
+            if self.name == "Migrations":
+                paths = Path(self.source_mapping["filename_absolute"]).parts
+                if len(paths) >= 2:
+                    return paths[-2] == "contracts" and paths[-1] == "migrations.sol"
         return False
 
     @property
@@ -1020,14 +1036,20 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
     def is_upgradeable(self) -> bool:
         if self._is_upgradeable is None:
             self._is_upgradeable = False
-            initializable = self.slither.get_contract_from_name("Initializable")
+            if self.is_upgradeable_proxy:
+                return False
+            initializable = self.compilation_unit.get_contract_from_name("Initializable")
             if initializable:
                 if initializable in self.inheritance:
                     self._is_upgradeable = True
             else:
                 for c in self.inheritance + [self]:
                     # This might lead to false positive
-                    if "upgradeable" in c.name.lower() or "upgradable" in c.name.lower():
+                    lower_name = c.name.lower()
+                    if "upgradeable" in lower_name or "upgradable" in lower_name:
+                        self._is_upgradeable = True
+                        break
+                    if "initializable" in lower_name:
                         self._is_upgradeable = True
                         break
         return self._is_upgradeable
@@ -1039,6 +1061,9 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
 
         if self._is_upgradeable_proxy is None:
             self._is_upgradeable_proxy = False
+            if "Proxy" in self.name:
+                self._is_upgradeable_proxy = True
+                return True
             for f in self.functions:
                 if f.is_fallback:
                     for node in f.all_nodes():
@@ -1074,36 +1099,43 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         self._is_incorrectly_parsed = incorrect
 
     def add_constructor_variables(self):
+        from slither.core.declarations.function_contract import FunctionContract
+
         if self.state_variables:
             for (idx, variable_candidate) in enumerate(self.state_variables):
                 if variable_candidate.expression and not variable_candidate.is_constant:
 
-                    constructor_variable = Function()
+                    constructor_variable = FunctionContract(self.compilation_unit)
                     constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
                     constructor_variable.set_contract(self)
                     constructor_variable.set_contract_declarer(self)
                     constructor_variable.set_visibility("internal")
                     # For now, source mapping of the constructor variable is the whole contract
                     # Could be improved with a targeted source mapping
-                    constructor_variable.set_offset(self.source_mapping, self.slither)
+                    constructor_variable.set_offset(self.source_mapping, self.compilation_unit)
                     self._functions[constructor_variable.canonical_name] = constructor_variable
 
-                    prev_node = self._create_node(constructor_variable, 0, variable_candidate)
+                    prev_node = self._create_node(
+                        constructor_variable, 0, variable_candidate, constructor_variable
+                    )
                     variable_candidate.node_initialization = prev_node
                     counter = 1
                     for v in self.state_variables[idx + 1 :]:
                         if v.expression and not v.is_constant:
-                            next_node = self._create_node(constructor_variable, counter, v)
+                            next_node = self._create_node(
+                                constructor_variable, counter, v, prev_node.scope
+                            )
                             v.node_initialization = next_node
                             prev_node.add_son(next_node)
                             next_node.add_father(prev_node)
+                            prev_node = next_node
                             counter += 1
                     break
 
             for (idx, variable_candidate) in enumerate(self.state_variables):
                 if variable_candidate.expression and variable_candidate.is_constant:
 
-                    constructor_variable = Function()
+                    constructor_variable = FunctionContract(self.compilation_unit)
                     constructor_variable.set_function_type(
                         FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES
                     )
@@ -1112,23 +1144,30 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
                     constructor_variable.set_visibility("internal")
                     # For now, source mapping of the constructor variable is the whole contract
                     # Could be improved with a targeted source mapping
-                    constructor_variable.set_offset(self.source_mapping, self.slither)
+                    constructor_variable.set_offset(self.source_mapping, self.compilation_unit)
                     self._functions[constructor_variable.canonical_name] = constructor_variable
 
-                    prev_node = self._create_node(constructor_variable, 0, variable_candidate)
+                    prev_node = self._create_node(
+                        constructor_variable, 0, variable_candidate, constructor_variable
+                    )
                     variable_candidate.node_initialization = prev_node
                     counter = 1
                     for v in self.state_variables[idx + 1 :]:
                         if v.expression and v.is_constant:
-                            next_node = self._create_node(constructor_variable, counter, v)
+                            next_node = self._create_node(
+                                constructor_variable, counter, v, prev_node.scope
+                            )
                             v.node_initialization = next_node
                             prev_node.add_son(next_node)
                             next_node.add_father(prev_node)
+                            prev_node = next_node
                             counter += 1
 
                     break
 
-    def _create_node(self, func: Function, counter: int, variable: "Variable"):
+    def _create_node(
+        self, func: Function, counter: int, variable: "Variable", scope: Union[Scope, Function]
+    ):
         from slither.core.cfg.node import Node, NodeType
         from slither.core.expressions import (
             AssignmentOperationType,
@@ -1137,10 +1176,11 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
         )
 
         # Function uses to create node for state variable declaration statements
-        node = Node(NodeType.OTHER_ENTRYPOINT, counter)
-        node.set_offset(variable.source_mapping, self.slither)
+        node = Node(NodeType.OTHER_ENTRYPOINT, counter, scope)
+        node.set_offset(variable.source_mapping, self.compilation_unit)
         node.set_function(func)
         func.add_node(node)
+        assert variable.expression
         expression = AssignmentOperation(
             Identifier(variable),
             variable.expression,
@@ -1148,7 +1188,7 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
             variable.type,
         )
 
-        expression.set_offset(variable.source_mapping, self.slither)
+        expression.set_offset(variable.source_mapping, self.compilation_unit)
         node.add_expression(expression)
         return node
 
@@ -1198,19 +1238,6 @@ class Contract(ChildSlither, SourceMapping):  # pylint: disable=too-many-public-
 
         for func in self.functions + self.modifiers:
             func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
-
-    @property
-    def is_top_level(self) -> bool:
-        """
-        The "TopLevel" contract is used to hold structures and enums defined at the top level
-        ie. structures and enums that are represented outside of any contract
-        :return:
-        """
-        return self._is_top_level
-
-    @is_top_level.setter
-    def is_top_level(self, t: bool):
-        self._is_top_level = t
 
     # endregion
     ###################################################################################

@@ -5,6 +5,7 @@ from slither.core.solidity_types.type import Type
 
 
 # see https://solidity.readthedocs.io/en/v0.4.24/miscellaneous.html?highlight=grammar
+from slither.exceptions import SlitherException
 
 Int = [
     "int",
@@ -42,6 +43,9 @@ Int = [
     "int256",
 ]
 
+Max_Int = {k: 2 ** (8 * i - 1) - 1 if i > 0 else 2 ** 255 - 1 for i, k in enumerate(Int)}
+Min_Int = {k: -(2 ** (8 * i - 1)) if i > 0 else -(2 ** 255) for i, k in enumerate(Int)}
+
 Uint = [
     "uint",
     "uint8",
@@ -77,6 +81,10 @@ Uint = [
     "uint248",
     "uint256",
 ]
+
+Max_Uint = {k: 2 ** (8 * i) - 1 if i > 0 else 2 ** 256 - 1 for i, k in enumerate(Uint)}
+Min_Uint = {k: 0 for k in Uint}
+
 
 Byte = [
     "byte",
@@ -114,6 +122,18 @@ Byte = [
     "bytes31",
     "bytes32",
 ]
+
+Max_Byte = {k: 2 ** (8 * (i + 1)) - 1 for i, k in enumerate(Byte[2:])}
+Max_Byte["bytes"] = None
+Max_Byte["string"] = None
+Max_Byte["byte"] = 255
+Min_Byte = {k: 1 << (4 + 8 * i) for i, k in enumerate(Byte[2:])}
+Min_Byte["bytes"] = 0x0
+Min_Byte["string"] = None
+Min_Byte["byte"] = 0x10
+
+MaxValues = dict(dict(Max_Int, **Max_Uint), **Max_Byte)
+MinValues = dict(dict(Min_Int, **Min_Uint), **Min_Byte)
 
 # https://solidity.readthedocs.io/en/v0.4.24/types.html#fixed-point-numbers
 M = list(range(8, 257, 8))
@@ -176,8 +196,21 @@ class ElementaryType(Type):
     def storage_size(self) -> Tuple[int, bool]:
         if self._type == "string" or self._type == "bytes":
             return 32, True
-
+        if self.size is None:
+            return 32, True
         return int(self.size / 8), False
+
+    @property
+    def min(self) -> int:
+        if self.name in MinValues:
+            return MinValues[self.name]
+        raise SlitherException(f"{self.name} does not have a min value")
+
+    @property
+    def max(self) -> int:
+        if self.name in MaxValues:
+            return MaxValues[self.name]
+        raise SlitherException(f"{self.name} does not have a max value")
 
     def __str__(self):
         return self._type

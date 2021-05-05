@@ -4,7 +4,7 @@ import json
 import logging
 import zipfile
 from collections import OrderedDict
-from typing import Optional, Dict, List, Union, Any
+from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING
 from zipfile import ZipFile
 
 from slither.core.cfg.node import Node
@@ -14,6 +14,9 @@ from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
 from slither.utils.myprettytable import MyPrettyTable
+
+if TYPE_CHECKING:
+    from slither.core.compilation_unit import SlitherCompilationUnit
 
 logger = logging.getLogger("Slither")
 
@@ -236,6 +239,8 @@ class Output:
         self._data["elements"] = []
         self._data["description"] = "".join(_convert_to_description(d) for d in info)
         self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
+        self._data["first_markdown_element"] = ""
+        self._markdown_root = markdown_root
 
         id_txt = "".join(_convert_to_id(d) for d in info)
         self._data["id"] = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()
@@ -250,6 +255,10 @@ class Output:
             self._data["additional_fields"] = additional_fields
 
     def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None):
+        if not self._data["first_markdown_element"]:
+            self._data["first_markdown_element"] = add.source_mapping_to_markdown(
+                self._markdown_root
+            )
         if isinstance(add, Variable):
             self.add_variable(add, additional_fields=additional_fields)
         elif isinstance(add, Contract):
@@ -502,7 +511,7 @@ class Output:
         self,
         name: str,
         source_mapping,
-        slither,
+        compilation_unit: "SlitherCompilationUnit",
         additional_fields: Optional[Dict] = None,
     ):
         # If this a tuple with (filename, start, end), convert it to a source mapping.
@@ -517,7 +526,7 @@ class Output:
                     for (
                         source_unit_id,
                         source_unit_filename,
-                    ) in slither.source_units.items()
+                    ) in compilation_unit.source_units.items()
                     if source_unit_filename == filename
                 ),
                 -1,
@@ -530,7 +539,7 @@ class Output:
         if isinstance(source_mapping, str):
             source_mapping_str = source_mapping
             source_mapping = SourceMapping()
-            source_mapping.set_offset(source_mapping_str, slither)
+            source_mapping.set_offset(source_mapping_str, compilation_unit)
 
         # If this is a source mapping object, get the underlying source mapping dictionary
         if isinstance(source_mapping, SourceMapping):

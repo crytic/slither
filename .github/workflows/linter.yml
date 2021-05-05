@@ -9,6 +9,9 @@ defaults:
 on:
   pull_request:
     branches: [master, dev]
+  schedule:
+    # run CI every day even if no PRs/merges occur
+    - cron:  '0 12 * * *'
 
 jobs:
   build:
@@ -32,31 +35,6 @@ jobs:
           mkdir -p .github/linters
           cp pyproject.toml .github/linters
 
-      - name: Pylint
-        uses: docker://github/super-linter:v3
-        if: always()
-        env:
-          # run linter on everything to catch preexisting problems
-          VALIDATE_ALL_CODEBASE: true
-          DEFAULT_BRANCH: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Run only pylint
-          VALIDATE_PYTHON: true
-          VALIDATE_PYTHON_PYLINT: true
-          PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
-
-      - name: Black
-        uses: docker://github/super-linter:v3
-        if: always()
-        env:
-          # run linter on everything to catch preexisting problems
-          VALIDATE_ALL_CODEBASE: true
-          DEFAULT_BRANCH: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Run only black
-          VALIDATE_PYTHON_BLACK: true
-          PYTHON_BLACK_CONFIG_FILE: pyproject.toml
-
       - name: Lint everything else
         uses: docker://github/super-linter:v3
         if: always()
@@ -69,6 +47,7 @@ jobs:
           VALIDATE_PYTHON: false
           VALIDATE_PYTHON_PYLINT: false
           VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_ISORT: false
           # Always false
           VALIDATE_JSON: false
           VALIDATE_JAVASCRIPT_STANDARD: false
@@ -76,4 +55,6 @@ jobs:
           VALIDATE_DOCKERFILE: false
           VALIDATE_DOCKERFILE_HADOLINT: false
           VALIDATE_EDITORCONFIG: false
+          VALIDATE_JSCPD: false
+          VALIDATE_PYTHON_MYPY: false
           SHELLCHECK_OPTS: "-e SC1090"

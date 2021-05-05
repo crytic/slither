@@ -1,0 +1,1052 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "C",
+                    "source_mapping": {
+                        "start": 157,
+                        "length": 66,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14,
+                            15,
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "constructor",
+                    "source_mapping": {
+                        "start": 34,
+                        "length": 51,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 87,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "constructor(uint256)"
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "C",
+                    "source_mapping": {
+                        "start": 157,
+                        "length": 66,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14,
+                            15,
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "B",
+                    "source_mapping": {
+                        "start": 89,
+                        "length": 66,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8,
+                            9,
+                            10,
+                            11,
+                            12
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                }
+            ],
+            "description": "C (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#14-18) gives base constructor A.constructor(uint256) (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#3-5) arguments more than once in inheritance hierarchy:\n\t- From C (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#14-18) constructor definition\n\t- From B (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#8-12) constructor definition\n",
+            "markdown": "[C](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L14-L18) gives base constructor [A.constructor(uint256)](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L3-L5) arguments more than once in inheritance hierarchy:\n\t- From [C](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L14-L18) constructor definition\n\t- From [B](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L8-L12) constructor definition\n",
+            "first_markdown_element": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L14-L18",
+            "id": "2d9d2b1b6d2540f86fd909f9766e128da573e659f40a50835cc9adef3c4dbee8",
+            "check": "reused-constructor",
+            "impact": "Medium",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "D",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 72,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "constructor",
+                    "source_mapping": {
+                        "start": 110,
+                        "length": 43,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9,
+                            10,
+                            11
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "B",
+                            "source_mapping": {
+                                "start": 89,
+                                "length": 66,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "constructor(uint256)"
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "D",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 72,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "D",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 72,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                }
+            ],
+            "description": "D (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) gives base constructor B.constructor(uint256) (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#9-11) arguments more than once in inheritance hierarchy:\n\t- From D (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) contract definition\n\t- From D (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) constructor definition\n",
+            "markdown": "[D](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24) gives base constructor [B.constructor(uint256)](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L9-L11) arguments more than once in inheritance hierarchy:\n\t- From [D](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24) contract definition\n\t- From [D](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24) constructor definition\n",
+            "first_markdown_element": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24",
+            "id": "5f3b188e7d6c737684f829c3fde96f739cd502b4aba8f3f6e3ceab7decffa618",
+            "check": "reused-constructor",
+            "impact": "Medium",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "D",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 72,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "constructor",
+                    "source_mapping": {
+                        "start": 178,
+                        "length": 43,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            15,
+                            16,
+                            17
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 157,
+                                "length": 66,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "constructor(uint256)"
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "D",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 72,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "D",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 72,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                }
+            ],
+            "description": "D (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) gives base constructor C.constructor(uint256) (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#15-17) arguments more than once in inheritance hierarchy:\n\t- From D (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) contract definition\n\t- From D (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) constructor definition\n",
+            "markdown": "[D](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24) gives base constructor [C.constructor(uint256)](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L15-L17) arguments more than once in inheritance hierarchy:\n\t- From [D](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24) contract definition\n\t- From [D](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24) constructor definition\n",
+            "first_markdown_element": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24",
+            "id": "b579da8996b6a1a35169bcae74ad8126c68fb0a1819d3977cea3e0e295ff2d5c",
+            "check": "reused-constructor",
+            "impact": "Medium",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "D",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 72,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "constructor",
+                    "source_mapping": {
+                        "start": 34,
+                        "length": 51,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 87,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "constructor(uint256)"
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "C",
+                    "source_mapping": {
+                        "start": 157,
+                        "length": 66,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14,
+                            15,
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "B",
+                    "source_mapping": {
+                        "start": 89,
+                        "length": 66,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8,
+                            9,
+                            10,
+                            11,
+                            12
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                }
+            ],
+            "description": "D (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) gives base constructor A.constructor(uint256) (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#3-5) arguments more than once in inheritance hierarchy:\n\t- From C (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#14-18) constructor definition\n\t- From B (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#8-12) constructor definition\n",
+            "markdown": "[D](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24) gives base constructor [A.constructor(uint256)](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L3-L5) arguments more than once in inheritance hierarchy:\n\t- From [C](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L14-L18) constructor definition\n\t- From [B](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L8-L12) constructor definition\n",
+            "first_markdown_element": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24",
+            "id": "1f85bf19873eaee39a8f703b0c783aa86e34c91fad5556ee831eb7c6adcfdb77",
+            "check": "reused-constructor",
+            "impact": "Medium",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "E",
+                    "source_mapping": {
+                        "start": 299,
+                        "length": 78,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26,
+                            27,
+                            28,
+                            29,
+                            30
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "constructor",
+                    "source_mapping": {
+                        "start": 110,
+                        "length": 43,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9,
+                            10,
+                            11
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "B",
+                            "source_mapping": {
+                                "start": 89,
+                                "length": 66,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "constructor(uint256)"
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "E",
+                    "source_mapping": {
+                        "start": 299,
+                        "length": 78,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26,
+                            27,
+                            28,
+                            29,
+                            30
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "E",
+                    "source_mapping": {
+                        "start": 299,
+                        "length": 78,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26,
+                            27,
+                            28,
+                            29,
+                            30
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "D",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 72,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "D",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 72,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                }
+            ],
+            "description": "E (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#26-30) gives base constructor B.constructor(uint256) (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#9-11) arguments more than once in inheritance hierarchy:\n\t- From E (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#26-30) contract definition\n\t- From E (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#26-30) constructor definition\n\t- From D (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) contract definition\n\t- From D (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) constructor definition\n",
+            "markdown": "[E](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L26-L30) gives base constructor [B.constructor(uint256)](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L9-L11) arguments more than once in inheritance hierarchy:\n\t- From [E](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L26-L30) contract definition\n\t- From [E](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L26-L30) constructor definition\n\t- From [D](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24) contract definition\n\t- From [D](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24) constructor definition\n",
+            "first_markdown_element": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L26-L30",
+            "id": "ee7d44329ffb81dc06e2a2f1b3a166a5115287a1175b32cf828b57479afbc4ae",
+            "check": "reused-constructor",
+            "impact": "Medium",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "E",
+                    "source_mapping": {
+                        "start": 299,
+                        "length": 78,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26,
+                            27,
+                            28,
+                            29,
+                            30
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "constructor",
+                    "source_mapping": {
+                        "start": 178,
+                        "length": 43,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            15,
+                            16,
+                            17
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 157,
+                                "length": 66,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "constructor(uint256)"
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "E",
+                    "source_mapping": {
+                        "start": 299,
+                        "length": 78,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26,
+                            27,
+                            28,
+                            29,
+                            30
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "D",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 72,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "D",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 72,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                }
+            ],
+            "description": "E (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#26-30) gives base constructor C.constructor(uint256) (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#15-17) arguments more than once in inheritance hierarchy:\n\t- From E (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#26-30) constructor definition\n\t- From D (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) contract definition\n\t- From D (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) constructor definition\n",
+            "markdown": "[E](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L26-L30) gives base constructor [C.constructor(uint256)](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L15-L17) arguments more than once in inheritance hierarchy:\n\t- From [E](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L26-L30) constructor definition\n\t- From [D](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24) contract definition\n\t- From [D](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L20-L24) constructor definition\n",
+            "first_markdown_element": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L26-L30",
+            "id": "33b16377cf3026b60d644e79d92682e6e626d7ad6598387440c9b20fd8aa44fe",
+            "check": "reused-constructor",
+            "impact": "Medium",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "E",
+                    "source_mapping": {
+                        "start": 299,
+                        "length": 78,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26,
+                            27,
+                            28,
+                            29,
+                            30
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "constructor",
+                    "source_mapping": {
+                        "start": 34,
+                        "length": 51,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 87,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "constructor(uint256)"
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "C",
+                    "source_mapping": {
+                        "start": 157,
+                        "length": 66,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14,
+                            15,
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "B",
+                    "source_mapping": {
+                        "start": 89,
+                        "length": 66,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8,
+                            9,
+                            10,
+                            11,
+                            12
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                }
+            ],
+            "description": "E (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#26-30) gives base constructor A.constructor(uint256) (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#3-5) arguments more than once in inheritance hierarchy:\n\t- From C (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#14-18) constructor definition\n\t- From B (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#8-12) constructor definition\n",
+            "markdown": "[E](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L26-L30) gives base constructor [A.constructor(uint256)](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L3-L5) arguments more than once in inheritance hierarchy:\n\t- From [C](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L14-L18) constructor definition\n\t- From [B](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L8-L12) constructor definition\n",
+            "first_markdown_element": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L26-L30",
+            "id": "f5c86955c15d44fe9471680d12d37843a15ba934cbb124786cadab0919ea68d1",
+            "check": "reused-constructor",
+            "impact": "Medium",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "F",
+                    "source_mapping": {
+                        "start": 380,
+                        "length": 58,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            33,
+                            34,
+                            35,
+                            36,
+                            37,
+                            38
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "constructor",
+                    "source_mapping": {
+                        "start": 34,
+                        "length": 51,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 87,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "constructor(uint256)"
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "F",
+                    "source_mapping": {
+                        "start": 380,
+                        "length": 58,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            33,
+                            34,
+                            35,
+                            36,
+                            37,
+                            38
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "B",
+                    "source_mapping": {
+                        "start": 89,
+                        "length": 66,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8,
+                            9,
+                            10,
+                            11,
+                            12
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                }
+            ],
+            "description": "F (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#33-38) gives base constructor A.constructor(uint256) (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#3-5) arguments more than once in inheritance hierarchy:\n\t- From F (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#33-38) constructor definition\n\t- From B (tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#8-12) constructor definition\n",
+            "markdown": "[F](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L33-L38) gives base constructor [A.constructor(uint256)](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L3-L5) arguments more than once in inheritance hierarchy:\n\t- From [F](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L33-L38) constructor definition\n\t- From [B](tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L8-L12) constructor definition\n",
+            "first_markdown_element": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol#L33-L38",
+            "id": "b74eb2b11af7a004b623d28b035228963f09aed588c95efed636021f426c5cdc",
+            "check": "reused-constructor",
+            "impact": "Medium",
+            "confidence": "Medium"
+        }
+    ]
+]

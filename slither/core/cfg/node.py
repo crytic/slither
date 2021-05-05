@@ -47,13 +47,14 @@ from slither.core.expressions.expression import Expression
 if TYPE_CHECKING:
     from slither.core.declarations import Function
     from slither.slithir.variables.variable import SlithIRVariable
-    from slither.core.slither_core import SlitherCore
+    from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.utils.type_helpers import (
         InternalCallType,
         HighLevelCallType,
         LibraryCallType,
         LowLevelCallType,
     )
+    from slither.core.cfg.scope import Scope
 
 
 # pylint: disable=too-many-lines,too-many-branches,too-many-instance-attributes
@@ -101,9 +102,9 @@ class NodeType(Enum):
 
     # Node not related to the CFG
     # Use for state variable declaration
-    OTHER_ENTRYPOINT = 0x50
+    OTHER_ENTRYPOINT = 0x60
 
-    # TODO: remove me
+    # TODO: remove me (?)
     OVERLAY = 0x99
 
     #    @staticmethod
@@ -142,6 +143,8 @@ class NodeType(Enum):
             return "END_LOOP"
         if self == NodeType.OVERLAY:
             return "OVERLAY"
+        if self == NodeType.OTHER_ENTRYPOINT:
+            return "OTHER_ENTRYPOINT"
         return "Unknown type {}".format(hex(self.value))
 
 
@@ -155,7 +158,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
     """
 
-    def __init__(self, node_type: NodeType, node_id: int):
+    def __init__(self, node_type: NodeType, node_id: int, scope: Union["Scope", "Function"]):
         super().__init__()
         self._node_type = node_type
 
@@ -223,6 +226,8 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
         self._asm_source_code: Optional[Union[str, Dict]] = None
 
+        self.scope = scope
+
     ###################################################################################
     ###################################################################################
     # region General's properties
@@ -230,8 +235,8 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     ###################################################################################
 
     @property
-    def slither(self) -> "SlitherCore":
-        return self.function.slither
+    def compilation_unit(self) -> "SlitherCompilationUnit":
+        return self.function.compilation_unit
 
     @property
     def node_id(self) -> int:

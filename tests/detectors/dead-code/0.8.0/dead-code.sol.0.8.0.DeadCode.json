@@ -1,0 +1,173 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "unused",
+                    "source_mapping": {
+                        "start": 19,
+                        "length": 34,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/dead-code/0.8.0/dead-code.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/dead-code/0.8.0/dead-code.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            2,
+                            3,
+                            4
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Test",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 55,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/dead-code/0.8.0/dead-code.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/dead-code/0.8.0/dead-code.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "unused()"
+                    }
+                }
+            ],
+            "description": "Test.unused() (tests/detectors/dead-code/0.8.0/dead-code.sol#2-4) is never used and should be removed\n",
+            "markdown": "[Test.unused()](tests/detectors/dead-code/0.8.0/dead-code.sol#L2-L4) is never used and should be removed\n",
+            "first_markdown_element": "tests/detectors/dead-code/0.8.0/dead-code.sol#L2-L4",
+            "id": "a7c13823116566bbbbb68e8a7efa78fe64785fcb8582069373eda7f27c523cb3",
+            "check": "dead-code",
+            "impact": "Informational",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "unused_but_shadowed",
+                    "source_mapping": {
+                        "start": 79,
+                        "length": 55,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/dead-code/0.8.0/dead-code.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/dead-code/0.8.0/dead-code.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Test2",
+                            "source_mapping": {
+                                "start": 58,
+                                "length": 78,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/dead-code/0.8.0/dead-code.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/dead-code/0.8.0/dead-code.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "unused_but_shadowed()"
+                    }
+                }
+            ],
+            "description": "Test2.unused_but_shadowed() (tests/detectors/dead-code/0.8.0/dead-code.sol#10-12) is never used and should be removed\n",
+            "markdown": "[Test2.unused_but_shadowed()](tests/detectors/dead-code/0.8.0/dead-code.sol#L10-L12) is never used and should be removed\n",
+            "first_markdown_element": "tests/detectors/dead-code/0.8.0/dead-code.sol#L10-L12",
+            "id": "aaba496684b73955e90b555de174e1cd03f0fee337849c4d58c10ef76ff93582",
+            "check": "dead-code",
+            "impact": "Informational",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "unused_but_shadowed",
+                    "source_mapping": {
+                        "start": 319,
+                        "length": 56,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/dead-code/0.8.0/dead-code.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/dead-code/0.8.0/dead-code.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Test4",
+                            "source_mapping": {
+                                "start": 290,
+                                "length": 87,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/dead-code/0.8.0/dead-code.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/dead-code/0.8.0/dead-code.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "unused_but_shadowed()"
+                    }
+                }
+            ],
+            "description": "Test4.unused_but_shadowed() (tests/detectors/dead-code/0.8.0/dead-code.sol#26-28) is never used and should be removed\n",
+            "markdown": "[Test4.unused_but_shadowed()](tests/detectors/dead-code/0.8.0/dead-code.sol#L26-L28) is never used and should be removed\n",
+            "first_markdown_element": "tests/detectors/dead-code/0.8.0/dead-code.sol#L26-L28",
+            "id": "74ea8421cf7fa9e04d243014b61f3eee7a9c7648df98316c3881dd4f1f2ab3f7",
+            "check": "dead-code",
+            "impact": "Informational",
+            "confidence": "Medium"
+        }
+    ]
+]

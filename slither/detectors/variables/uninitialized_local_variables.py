@@ -30,7 +30,7 @@ contract Uninitialized is Owner{
 ```
 Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is lost."""
 
-    WIKI_RECOMMENDATION = "Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero."
+    WIKI_RECOMMENDATION = "Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero to improve code readability."
 
     key = "UNINITIALIZEDLOCAL"
 
@@ -83,7 +83,7 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
         self.results = []
         self.visited_all_paths = {}
 
-        for contract in self.slither.contracts:
+        for contract in self.compilation_unit.contracts:
             for function in contract.functions:
                 if function.is_implemented and function.contract_declarer == contract:
                     if function.contains_assembly:

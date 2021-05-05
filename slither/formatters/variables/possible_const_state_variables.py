@@ -1,21 +1,23 @@
 import re
+
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.exceptions import FormatError, FormatImpossible
 from slither.formatters.utils.patches import create_patch
 
 
-def custom_format(slither, result):
+def custom_format(compilation_unit: SlitherCompilationUnit, result):
     elements = result["elements"]
     for element in elements:
 
         # TODO: decide if this should be changed in the constant detector
         contract_name = element["type_specific_fields"]["parent"]["name"]
-        contract = slither.get_contract_from_name(contract_name)
+        contract = compilation_unit.get_contract_from_name(contract_name)
         var = contract.get_state_variable_from_name(element["name"])
         if not var.expression:
             raise FormatImpossible(f"{var.name} is uninitialized and cannot become constant.")
 
         _patch(
-            slither,
+            compilation_unit,
             result,
             element["source_mapping"]["filename_absolute"],
             element["name"],
@@ -26,9 +28,15 @@ def custom_format(slither, result):
 
 
 def _patch(  # pylint: disable=too-many-arguments
-    slither, result, in_file, match_text, replace_text, modify_loc_start, modify_loc_end
+    compilation_unit: SlitherCompilationUnit,
+    result,
+    in_file,
+    match_text,
+    replace_text,
+    modify_loc_start,
+    modify_loc_end,
 ):
-    in_file_str = slither.source_code[in_file].encode("utf8")
+    in_file_str = compilation_unit.core.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Add keyword `constant` before the variable name
     (new_str_of_interest, num_repl) = re.subn(

@@ -2,13 +2,13 @@
     Function module
 """
 import logging
+from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 from enum import Enum
 from itertools import groupby
 from typing import Dict, TYPE_CHECKING, List, Optional, Set, Union, Callable, Tuple
 
-from slither.core.children.child_contract import ChildContract
-from slither.core.children.child_inheritance import ChildInheritance
+from slither.core.cfg.scope import Scope
 from slither.core.declarations.solidity_variables import (
     SolidityFunction,
     SolidityVariable,
@@ -24,7 +24,6 @@ from slither.core.solidity_types import UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
-
 from slither.core.variables.state_variable import StateVariable
 from slither.utils.utils import unroll
 
@@ -44,8 +43,7 @@ if TYPE_CHECKING:
     from slither.slithir.variables import LocalIRVariable
     from slither.core.expressions.expression import Expression
     from slither.slithir.operations import Operation
-    from slither.slither import Slither
-    from slither.core.cfg.node import NodeType
+    from slither.core.compilation_unit import SlitherCompilationUnit
 
 LOGGER = logging.getLogger("Function")
 ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
@@ -106,14 +104,12 @@ def _filter_state_variables_written(expressions: List["Expression"]):
     return ret
 
 
-class Function(
-    ChildContract, ChildInheritance, SourceMapping
-):  # pylint: disable=too-many-public-methods
+class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
     """
     Function class
     """
 
-    def __init__(self):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit"):
         super().__init__()
         self._scope: List[str] = []
         self._name: Optional[str] = None
@@ -131,10 +127,10 @@ class Function(
         self._slithir_variables: Set["SlithIRVariable"] = set()
         self._parameters: List["LocalVariable"] = []
         self._parameters_ssa: List["LocalIRVariable"] = []
-        self._parameters_src: Optional[SourceMapping] = None
+        self._parameters_src: SourceMapping = SourceMapping()
         self._returns: List["LocalVariable"] = []
         self._returns_ssa: List["LocalIRVariable"] = []
-        self._returns_src: Optional[SourceMapping] = None
+        self._returns_src: SourceMapping = SourceMapping()
         self._return_values: Optional[List["SlithIRVariable"]] = None
         self._return_values_ssa: Optional[List["SlithIRVariable"]] = None
         self._vars_read: List["Variable"] = []
@@ -200,6 +196,17 @@ class Function(
 
         self._counter_nodes = 0
 
+        # Memoize parameters:
+        # TODO: identify all the memoize parameters and add a way to undo the memoization
+        self._full_name: Optional[str] = None
+        self._signature: Optional[Tuple[str, List[str], List[str]]] = None
+        self._solidity_signature: Optional[str] = None
+        self._signature_str: Optional[str] = None
+        self._canonical_name: Optional[str] = None
+        self._is_protected: Optional[bool] = None
+
+        self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
+
     ###################################################################################
     ###################################################################################
     # region General properties
@@ -247,22 +254,20 @@ class Function(
         str: func_name(type1,type2)
         Return the function signature without the return values
         """
-        name, parameters, _ = self.signature
-        return ".".join(self._scope + [name]) + "(" + ",".join(parameters) + ")"
+        if self._full_name is None:
+            name, parameters, _ = self.signature
+            full_name = ".".join(self._scope + [name]) + "(" + ",".join(parameters) + ")"
+            self._full_name = full_name
+        return self._full_name
 
     @property
+    @abstractmethod
     def canonical_name(self) -> str:
         """
         str: contract.func_name(type1,type2)
         Return the function signature without the return values
         """
-        name, parameters, _ = self.signature
-        return (
-            ".".join([self.contract_declarer.name] + self._scope + [name])
-            + "("
-            + ",".join(parameters)
-            + ")"
-        )
+        return ""
 
     @property
     def contains_assembly(self) -> bool:
@@ -296,29 +301,29 @@ class Function(
 
     def can_send_eth(self) -> bool:
         """
-        Check if the function can send eth
+        Check if the function or any internal (not external) functions called by it can send eth
         :return bool:
         """
         from slither.slithir.operations import Call
 
         if self._can_send_eth is None:
+            self._can_send_eth = False
             for ir in self.all_slithir_operations():
                 if isinstance(ir, Call) and ir.can_send_eth():
                     self._can_send_eth = True
                     return True
-        return self._can_reenter
+        return self._can_send_eth
 
     @property
-    def slither(self) -> "Slither":
-        return self.contract.slither
-
-    def is_declared_by(self, contract: "Contract") -> bool:
+    def is_checked(self) -> bool:
         """
-        Check if the element is declared by the contract
-        :param contract:
+        Return true if the overflow are enabled by default
+
+
         :return:
         """
-        return self.contract_declarer == contract
+
+        return self.compilation_unit.solc_version >= "0.8.0"
 
     # endregion
     ###################################################################################
@@ -568,6 +573,9 @@ class Function(
     def add_parameter_ssa(self, var: "LocalIRVariable"):
         self._parameters_ssa.append(var)
 
+    def parameters_src(self) -> SourceMapping:
+        return self._parameters_src
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -585,6 +593,9 @@ class Function(
         if returns:
             return [r.type for r in returns]
         return None
+
+    def returns_src(self) -> SourceMapping:
+        return self._returns_src
 
     @property
     def type(self) -> Optional[List[Type]]:
@@ -924,8 +935,12 @@ class Function(
         Contract and converted into address
         :return: the solidity signature
         """
-        parameters = [self._convert_type_for_solidity_signature(x.type) for x in self.parameters]
-        return self.name + "(" + ",".join(parameters) + ")"
+        if self._solidity_signature is None:
+            parameters = [
+                self._convert_type_for_solidity_signature(x.type) for x in self.parameters
+            ]
+            self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
+        return self._solidity_signature
 
     @property
     def signature(self) -> Tuple[str, List[str], List[str]]:
@@ -933,11 +948,14 @@ class Function(
         (str, list(str), list(str)): Function signature as
         (name, list parameters type, list return values type)
         """
-        return (
-            self.name,
-            [str(x.type) for x in self.parameters],
-            [str(x.type) for x in self.returns],
-        )
+        if self._signature is None:
+            signature = (
+                self.name,
+                [str(x.type) for x in self.parameters],
+                [str(x.type) for x in self.returns],
+            )
+            self._signature = signature
+        return self._signature
 
     @property
     def signature_str(self) -> str:
@@ -945,8 +963,12 @@ class Function(
         str: func_name(type1,type2) returns (type3)
         Return the function signature as a str (contains the return values)
         """
-        name, parameters, returnVars = self.signature
-        return name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
+        if self._signature_str is None:
+            name, parameters, returnVars = self.signature
+            self._signature_str = (
+                name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
+            )
+        return self._signature_str
 
     # endregion
     ###################################################################################
@@ -956,16 +978,9 @@ class Function(
     ###################################################################################
 
     @property
+    @abstractmethod
     def functions_shadowed(self) -> List["Function"]:
-        """
-            Return the list of functions shadowed
-        Returns:
-            list(core.Function)
-
-        """
-        candidates = [c.functions_declared for c in self.contract.inheritance]
-        candidates = [candidate for sublist in candidates for candidate in sublist]
-        return [f for f in candidates if f.full_name == self.full_name]
+        pass
 
     # endregion
     ###################################################################################
@@ -1298,7 +1313,7 @@ class Function(
         with open(filename, "w", encoding="utf8") as f:
             f.write(content)
 
-    def slithir_cfg_to_dot_str(self) -> str:
+    def slithir_cfg_to_dot_str(self, skip_expressions=False) -> str:
         """
         Export the CFG to a DOT format. The nodes includes the Solidity expressions and the IRs
         :return: the DOT content
@@ -1310,9 +1325,9 @@ class Function(
         content += "digraph{\n"
         for node in self.nodes:
             label = "Node Type: {} {}\n".format(str(node.type), node.node_id)
-            if node.expression:
+            if node.expression and not skip_expressions:
                 label += "\nEXPRESSION:\n{}\n".format(node.expression)
-            if node.irs:
+            if node.irs and not skip_expressions:
                 label += "\nIRs:\n" + "\n".join([str(ir) for ir in node.irs])
             content += '{}[label="{}"];\n'.format(node.node_id, label)
             if node.type in [NodeType.IF, NodeType.IFLOOP]:
@@ -1380,25 +1395,11 @@ class Function(
         """
         return variable in self.variables_written
 
+    @abstractmethod
     def get_summary(
         self,
     ) -> Tuple[str, str, str, List[str], List[str], List[str], List[str], List[str]]:
-        """
-            Return the function summary
-        Returns:
-            (str, str, str, list(str), list(str), listr(str), list(str), list(str);
-            contract_name, name, visibility, modifiers, vars read, vars written, internal_calls, external_calls_as_expressions
-        """
-        return (
-            self.contract_declarer.name,
-            self.full_name,
-            self.visibility,
-            [str(x) for x in self.modifiers],
-            [str(x) for x in self.state_variables_read + self.solidity_variables_read],
-            [str(x) for x in self.state_variables_written],
-            [str(x) for x in self.internal_calls],
-            [str(x) for x in self.external_calls_as_expressions],
-        )
+        pass
 
     def is_protected(self) -> bool:
         """
@@ -1412,11 +1413,16 @@ class Function(
             (bool)
         """
 
-        if self.is_constructor:
-            return True
-        conditional_vars = self.all_conditional_solidity_variables_read(include_loop=False)
-        args_vars = self.all_solidity_variables_used_as_args()
-        return SolidityVariableComposed("msg.sender") in conditional_vars + args_vars
+        if self._is_protected is None:
+            if self.is_constructor:
+                self._is_protected = True
+                return True
+            conditional_vars = self.all_conditional_solidity_variables_read(include_loop=False)
+            args_vars = self.all_solidity_variables_used_as_args()
+            self._is_protected = (
+                SolidityVariableComposed("msg.sender") in conditional_vars + args_vars
+            )
+        return self._is_protected
 
     # endregion
     ###################################################################################
@@ -1525,11 +1531,13 @@ class Function(
     ###################################################################################
     ###################################################################################
 
-    def new_node(self, node_type: "NodeType", src: Union[str, Dict]) -> "Node":
+    def new_node(
+        self, node_type: "NodeType", src: Union[str, Dict], scope: Union[Scope, "Function"]
+    ) -> "Node":
         from slither.core.cfg.node import Node
 
-        node = Node(node_type, self._counter_nodes)
-        node.set_offset(src, self.slither)
+        node = Node(node_type, self._counter_nodes, scope)
+        node.set_offset(src, self.compilation_unit)
         self._counter_nodes += 1
         node.set_function(self)
         self._nodes.append(node)
@@ -1663,18 +1671,9 @@ class Function(
         self._analyze_read_write()
         self._analyze_calls()
 
+    @abstractmethod
     def generate_slithir_ssa(self, all_ssa_state_variables_instances):
-        from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
-        from slither.core.dominators.utils import (
-            compute_dominance_frontier,
-            compute_dominators,
-        )
-
-        compute_dominators(self.nodes)
-        compute_dominance_frontier(self.nodes)
-        transform_slithir_vars_to_ssa(self)
-        if not self.contract.is_incorrectly_constructed:
-            add_ssa_ir(self, all_ssa_state_variables_instances)
+        pass
 
     def update_read_write_using_ssa(self):
         for node in self.nodes:

@@ -50,7 +50,9 @@ ERC20_PROPERTIES = {
 }
 
 
-def generate_erc20(contract: Contract, type_property: str, addresses: Addresses):
+def generate_erc20(
+    contract: Contract, type_property: str, addresses: Addresses
+):  # pylint: disable=too-many-locals
     """
     Generate the ERC20 tests
     Files generated:
@@ -67,11 +69,16 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
     :param type_property: One of ERC20_PROPERTIES.keys()
     :return:
     """
-    if contract.slither.crytic_compile.type not in [
+    if contract.compilation_unit.core.crytic_compile is None:
+        logging.error("Please compile with crytic-compile")
+        return
+    if contract.compilation_unit.core.crytic_compile.type not in [
         PlatformType.TRUFFLE,
         PlatformType.SOLC,
     ]:
-        logging.error(f"{contract.slither.crytic_compile.type} not yet supported by slither-prop")
+        logging.error(
+            f"{contract.compilation_unit.core.crytic_compile.type} not yet supported by slither-prop"
+        )
         return
 
     # Check if the contract is an ERC20 contract and if the functions have the correct visibility
@@ -80,14 +87,14 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
         logger.error(red(errors))
         return
 
-    properties = ERC20_PROPERTIES.get(type_property, None)
-    if properties is None:
+    erc_properties = ERC20_PROPERTIES.get(type_property, None)
+    if erc_properties is None:
         logger.error(f"{type_property} unknown. Types available {ERC20_PROPERTIES.keys()}")
         return
-    properties = properties.properties
+    properties = erc_properties.properties
 
     # Generate the output directory
-    output_dir = _platform_to_output_dir(contract.slither.crytic_compile.platform)
+    output_dir = _platform_to_output_dir(contract.compilation_unit.core.crytic_compile.platform)
     output_dir.mkdir(exist_ok=True)
 
     # Get the properties
@@ -111,13 +118,13 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
 
     # Generate Echidna config file
     echidna_config_filename = generate_echidna_config(
-        Path(contract.slither.crytic_compile.target).parent, addresses
+        Path(contract.compilation_unit.core.crytic_compile.target).parent, addresses
     )
 
     unit_test_info = ""
 
     # If truffle, generate unit tests
-    if contract.slither.crytic_compile.type == PlatformType.TRUFFLE:
+    if contract.compilation_unit.core.crytic_compile.type == PlatformType.TRUFFLE:
         unit_test_info = generate_truffle_test(contract, type_property, unit_tests, addresses)
 
     logger.info("################################################")
@@ -127,7 +134,7 @@ def generate_erc20(contract: Contract, type_property: str, addresses: Addresses)
         logger.info(green(unit_test_info))
 
     logger.info(green("To run Echidna:"))
-    txt = f"\t echidna-test {contract.slither.crytic_compile.target} "
+    txt = f"\t echidna-test {contract.compilation_unit.core.crytic_compile.target} "
     txt += f"--contract {contract_name} --config {echidna_config_filename}"
     logger.info(green(txt))
 
@@ -188,7 +195,7 @@ def _check_compatibility(contract):
 def _get_properties(contract, properties: List[Property]) -> Tuple[str, List[Property]]:
     solidity_properties = ""
 
-    if contract.slither.crytic_compile.type == PlatformType.TRUFFLE:
+    if contract.compilation_unit.crytic_compile.type == PlatformType.TRUFFLE:
         solidity_properties += "\n".join([property_to_solidity(p) for p in ERC20_CONFIG])
 
     solidity_properties += "\n".join([property_to_solidity(p) for p in properties])

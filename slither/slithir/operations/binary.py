@@ -1,6 +1,7 @@
 import logging
 from enum import Enum
 
+from slither.core.declarations import Function
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -87,6 +88,16 @@ class BinaryType(Enum):
 
         raise SlithIRError("get_type: Unknown operation type {})".format(operation_type))
 
+    def can_be_checked_for_overflow(self):
+        return self in [
+            BinaryType.POWER,
+            BinaryType.MULTIPLICATION,
+            BinaryType.MODULO,
+            BinaryType.ADDITION,
+            BinaryType.SUBTRACTION,
+            BinaryType.DIVISION,
+        ]
+
     def __str__(self):  # pylint: disable=too-many-branches
         if self == BinaryType.POWER:
             return "**"
@@ -130,9 +141,9 @@ class BinaryType(Enum):
 
 
 class Binary(OperationWithLValue):
-    def __init__(self, result, left_variable, right_variable, operation_type):
-        assert is_valid_rvalue(left_variable)
-        assert is_valid_rvalue(right_variable)
+    def __init__(self, result, left_variable, right_variable, operation_type: BinaryType):
+        assert is_valid_rvalue(left_variable) or isinstance(left_variable, Function)
+        assert is_valid_rvalue(right_variable) or isinstance(right_variable, Function)
         assert is_valid_lvalue(result)
         assert isinstance(operation_type, BinaryType)
         super().__init__()
@@ -166,6 +177,8 @@ class Binary(OperationWithLValue):
 
     @property
     def type_str(self):
+        if self.node.scope.is_checked and self._type.can_be_checked_for_overflow():
+            return "(c)" + str(self._type)
         return str(self._type)
 
     def __str__(self):

@@ -62,7 +62,7 @@ class VariableDeclarationSolc:
                     init = variable_data["initialValue"]
                 self._init_from_declaration(variable_data["declarations"][0], init)
             elif nodeType == "VariableDeclaration":
-                self._init_from_declaration(variable_data, variable_data["value"])
+                self._init_from_declaration(variable_data, variable_data.get("value", None))
             else:
                 raise ParsingError("Incorrect variable declaration type {}".format(nodeType))
 

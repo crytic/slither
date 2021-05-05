@@ -12,7 +12,7 @@ class ExpressionTyped(Expression):  # pylint: disable=too-few-public-methods
         self._type: Optional["Type"] = None
 
     @property
-    def type(self):
+    def type(self) -> Optional["Type"]:
         return self._type
 
     @type.setter

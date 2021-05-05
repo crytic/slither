@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 
 import argparse
+import cProfile
 import glob
 import inspect
 import json
 import logging
 import os
+import pstats
 import sys
 import traceback
+from typing import Optional
 
 from pkg_resources import iter_entry_points, require
 
@@ -266,7 +269,7 @@ def parse_filter_paths(args):
     return []
 
 
-def parse_args(detector_classes, printer_classes):
+def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-statements
     parser = argparse.ArgumentParser(
         description="Slither. For usage information, see https://github.com/crytic/slither/wiki/Usage",
         usage="slither.py contract.sol [flag]",
@@ -369,6 +372,13 @@ def parse_args(detector_classes, printer_classes):
         help="Exclude high impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_high"],
+    )
+
+    group_detector.add_argument(
+        "--show-ignored-findings",
+        help="Show all the findings",
+        action="store_true",
+        default=defaults_flag_in_config["show_ignored_findings"],
     )
 
     group_misc.add_argument(
@@ -482,10 +492,24 @@ def parse_args(detector_classes, printer_classes):
     )
 
     parser.add_argument(
+        "--skip-assembly",
+        help=argparse.SUPPRESS,
+        action="store_true",
+        default=defaults_flag_in_config["skip_assembly"],
+    )
+
+    parser.add_argument(
         "--ignore-return-value",
         help=argparse.SUPPRESS,
         action="store_true",
         default=defaults_flag_in_config["ignore_return_value"],
+    )
+
+    parser.add_argument(
+        "--perf",
+        help=argparse.SUPPRESS,
+        action="store_true",
+        default=False,
     )
 
     # if the json is splitted in different files
@@ -596,6 +620,11 @@ def main_impl(all_detector_classes, all_printer_classes):
     # Set logger of Slither to info, to catch warnings related to the arg parsing
     logger.setLevel(logging.INFO)
     args = parse_args(all_detector_classes, all_printer_classes)
+
+    cp: Optional[cProfile.Profile] = None
+    if args.perf:
+        cp = cProfile.Profile()
+        cp.enable()
 
     # Set colorization option
     set_colorization_enabled(not args.disable_color)
@@ -771,6 +800,11 @@ def main_impl(all_detector_classes, all_printer_classes):
 
     if outputting_zip:
         output_to_zip(args.zip, output_error, json_results, args.zip_type)
+
+    if args.perf:
+        cp.disable()
+        stats = pstats.Stats(cp).sort_stats("cumtime")
+        stats.print_stats()
 
     # Exit with the appropriate status code
     if output_error:

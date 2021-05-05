@@ -37,7 +37,7 @@ ERC20_Transferable = [
         name="crytic_less_than_total_ERC20Properties()",
         description="Balance of one user must be less or equal to the total supply.",
         content="""
-\t\treturn this.balanceOf(msg.sender) <= totalSupply();""",
+\t\treturn this.balanceOf(msg.sender) <= this.totalSupply();""",
         type=PropertyType.MEDIUM_SEVERITY,
         return_type=PropertyReturn.SUCCESS,
         is_unit_test=True,
@@ -48,7 +48,7 @@ ERC20_Transferable = [
         name="crytic_totalSupply_consistant_ERC20Properties()",
         description="Balance of the crytic users must be less or equal to the total supply.",
         content="""
-\t\treturn this.balanceOf(crytic_owner) + this.balanceOf(crytic_user) + this.balanceOf(crytic_attacker) <= totalSupply();""",
+\t\treturn this.balanceOf(crytic_owner) + this.balanceOf(crytic_user) + this.balanceOf(crytic_attacker) <= this.totalSupply();""",
         type=PropertyType.MEDIUM_SEVERITY,
         return_type=PropertyReturn.SUCCESS,
         is_unit_test=True,
@@ -57,7 +57,7 @@ ERC20_Transferable = [
     ),
     Property(
         name="crytic_revert_transfer_to_zero_ERC20PropertiesTransferable()",
-        description="No one should be able to send tokens to the address 0x0 (transfer).",
+        description="Using transfer to send tokens to the address 0x0 will revert.",
         content="""
 \t\tif (this.balanceOf(msg.sender) == 0){
 \t\t\trevert();
@@ -71,7 +71,7 @@ ERC20_Transferable = [
     ),
     Property(
         name="crytic_revert_transferFrom_to_zero_ERC20PropertiesTransferable()",
-        description="No one should be able to send tokens to the address 0x0 (transferFrom).",
+        description="Using transferFrom to send tokens to the address 0x0 will revert.",
         content="""
 \t\tuint balance = this.balanceOf(msg.sender);
 \t\tif (balance == 0){
@@ -87,7 +87,7 @@ ERC20_Transferable = [
     ),
     Property(
         name="crytic_self_transferFrom_ERC20PropertiesTransferable()",
-        description="Self transferFrom works.",
+        description="Self transfering tokens using transferFrom works as expected.",
         content="""
 \t\tuint balance = this.balanceOf(msg.sender);
 \t\tbool approve_return = approve(msg.sender, balance);
@@ -101,7 +101,7 @@ ERC20_Transferable = [
     ),
     Property(
         name="crytic_self_transferFrom_to_other_ERC20PropertiesTransferable()",
-        description="transferFrom works.",
+        description="Transfering tokens to other address using transferFrom works as expected.",
         content="""
 \t\tuint balance = this.balanceOf(msg.sender);
 \t\tbool approve_return = approve(msg.sender, balance);
@@ -119,7 +119,7 @@ ERC20_Transferable = [
     ),
     Property(
         name="crytic_self_transfer_ERC20PropertiesTransferable()",
-        description="Self transfer works.",
+        description="Self transfering tokens using transfer works as expected.",
         content="""
 \t\tuint balance = this.balanceOf(msg.sender);
 \t\tbool transfer_return = transfer(msg.sender, balance);
@@ -132,7 +132,7 @@ ERC20_Transferable = [
     ),
     Property(
         name="crytic_transfer_to_other_ERC20PropertiesTransferable()",
-        description="transfer works.",
+        description="Transfering tokens to other address using transfer works as expected.",
         content="""
 \t\tuint balance = this.balanceOf(msg.sender);
 \t\taddress other = crytic_user;
@@ -152,7 +152,7 @@ ERC20_Transferable = [
     ),
     Property(
         name="crytic_revert_transfer_to_user_ERC20PropertiesTransferable()",
-        description="Cannot transfer more than the balance.",
+        description="Transfering more tokens than the balance will revert.",
         content="""
 \t\tuint balance = this.balanceOf(msg.sender);
 \t\tif (balance == (2 ** 256 - 1))

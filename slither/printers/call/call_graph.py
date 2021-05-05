@@ -216,29 +216,40 @@ class PrinterCallGraph(AbstractPrinter):
             filename(string)
         """
 
+        all_contracts_filename = ""
         if not filename.endswith(".dot"):
-            filename += ".dot"
+            all_contracts_filename = f"{filename}.all_contracts.call-graph.dot"
         if filename == ".dot":
-            filename = "all_contracts.dot"
+            all_contracts_filename = "all_contracts.dot"
 
         info = ""
         results = []
-        with open(filename, "w", encoding="utf8") as f:
-            info += f"Call Graph: {filename}\n"
+        with open(all_contracts_filename, "w", encoding="utf8") as f:
+            info += f"Call Graph: {all_contracts_filename}\n"
+
+            # Avoid dupplicate funcitons due to different compilation unit
+            all_functionss = [
+                compilation_unit.functions for compilation_unit in self.slither.compilation_units
+            ]
+            all_functions = [item for sublist in all_functionss for item in sublist]
+            all_functions_as_dict = {
+                function.canonical_name: function for function in all_functions
+            }
             content = "\n".join(
-                ["strict digraph {"] + [_process_functions(self.slither.functions)] + ["}"]
+                ["strict digraph {"] + [_process_functions(all_functions_as_dict.values())] + ["}"]
             )
             f.write(content)
-            results.append((filename, content))
+            results.append((all_contracts_filename, content))
 
         for derived_contract in self.slither.contracts_derived:
-            with open(f"{derived_contract.name}.dot", "w", encoding="utf8") as f:
-                info += f"Call Graph: {derived_contract.name}.dot\n"
+            derived_output_filename = f"{filename}.{derived_contract.name}.call-graph.dot"
+            with open(derived_output_filename, "w", encoding="utf8") as f:
+                info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
                     ["strict digraph {"] + [_process_functions(derived_contract.functions)] + ["}"]
                 )
                 f.write(content)
-                results.append((filename, content))
+                results.append((derived_output_filename, content))
 
         self.info(info)
         res = self.generate_output(info)

@@ -35,10 +35,9 @@ class IncorrectSolc(AbstractDetector):
 We also recommend avoiding complex `pragma` statement."""
     WIKI_RECOMMENDATION = """
 Deploy with any of the following Solidity versions:
-- 0.5.11 - 0.5.13,
-- 0.5.15 - 0.5.17,
-- 0.6.8,
-- 0.6.10 - 0.6.11.
+- 0.5.16 - 0.5.17
+- 0.6.11 - 0.6.12
+- 0.7.5 - 0.7.6
 Use a simple pragma version that allows any of these versions.
 Consider using the latest version of Solidity for testing."""
 
@@ -47,7 +46,7 @@ Consider using the latest version of Solidity for testing."""
     LESS_THAN_TXT = "uses lesser than"
 
     TOO_RECENT_VERSION_TXT = (
-        "necessitates a version too recent to be trusted. Consider deploying with 0.6.11"
+        "necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6"
     )
     BUGGY_VERSION_TXT = (
         "is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
@@ -55,15 +54,12 @@ Consider using the latest version of Solidity for testing."""
 
     # Indicates the allowed versions. Must be formatted in increasing order.
     ALLOWED_VERSIONS = [
-        "0.5.11",
-        "0.5.12",
-        "0.5.13",
-        "0.5.15",
         "0.5.16",
         "0.5.17",
-        "0.6.8",
-        "0.6.10",
         "0.6.11",
+        "0.6.12",
+        "0.7.5",
+        "0.7.6",
     ]
 
     # Indicates the versions that should not be used.
@@ -119,7 +115,7 @@ Consider using the latest version of Solidity for testing."""
         """
         # Detect all version related pragmas and check if they are disallowed.
         results = []
-        pragma = self.slither.pragma_directives
+        pragma = self.compilation_unit.pragma_directives
         disallowed_pragmas = []
 
         for p in pragma:
@@ -141,24 +137,19 @@ Consider using the latest version of Solidity for testing."""
 
                 results.append(json)
 
-        if self.slither.crytic_compile:
-            if self.slither.crytic_compile.compiler_version:
-                if (
-                    self.slither.crytic_compile.compiler_version.version
-                    not in self.ALLOWED_VERSIONS
-                ):
-                    info = [
-                        "solc-",
-                        self.slither.crytic_compile.compiler_version.version,
-                        " is not recommended for deployment\n",
-                    ]
+        if self.compilation_unit.solc_version not in self.ALLOWED_VERSIONS:
+            info = [
+                "solc-",
+                self.compilation_unit.solc_version,
+                " is not recommended for deployment\n",
+            ]
 
-                    json = self.generate_result(info)
+            json = self.generate_result(info)
 
-                    # TODO: Once crytic-compile adds config file info, add a source mapping element pointing to
-                    #       the line in the config that specifies the problematic version of solc
+            # TODO: Once crytic-compile adds config file info, add a source mapping element pointing to
+            #       the line in the config that specifies the problematic version of solc
 
-                    results.append(json)
+            results.append(json)
 
         return results
 
