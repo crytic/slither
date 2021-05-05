@@ -1,4 +1,5 @@
 import copy
+import sys
 
 from slither.tools.middle.framework.tokens import Indent
 from slither.tools.middle.overlay.ast.call import OverlayCall
@@ -33,8 +34,7 @@ def is_loop_begin(node: OverlayNode) -> bool:
         return False
     if node.node.type == NodeType.STARTLOOP:
         return True
-    else:
-        return False
+    return False
 
 
 def is_loop_call(node: OverlayNode) -> bool:
@@ -111,20 +111,20 @@ def rewrite_ir_variable_by_name(ir, old_var_name, new_var):
 
     else:
         print("Unrecognized IR type for rewriting: {}".format(type(ir)))
-        exit("-1")
+        sys.exit(-1)
 
 
 def get_name(var) -> str:
     if isinstance(var, LocalIRVariable):
         return var.ssa_name
-    elif isinstance(var, TemporaryVariableSSA):
+    if isinstance(var, TemporaryVariableSSA):
         return var.name
-    elif isinstance(var, Constant):
+    if isinstance(var, Constant):
         # Constants don't really need to be resolved or annotated.
-        return ""
-    elif isinstance(var, ReferenceVariableSSA):
+        return "" # TODO: fix for pylint
+    if isinstance(var, ReferenceVariableSSA):
         return var.name
-    elif isinstance(var, StateIRVariable):
+    if isinstance(var, StateIRVariable):
         return var.name
 
 
@@ -133,7 +133,7 @@ def get_ssa_variables_used_in_ir(ir, phi_read=True):
     if not phi_read and isinstance(ir, Phi):
         ret.add(ir.lvalue)
         return ret
-    ret.update([x for x in ir.read])
+    ret.update(list(ir.read))
     ret.update([x for x in ir.used if isinstance(x, (LocalIRVariable, StateIRVariable))])
     return ret
 
@@ -159,7 +159,7 @@ def get_ssa_variables_used(n: OverlayNode, phi_read=True, all_vars=False):
                 ret.add(ir.lvalue)
                 continue
             if all_vars:
-                ret.update([x for x in ir.read])
+                ret.update(list(ir.read))
             else:
                 ret.update(
                     [x for x in ir.used if isinstance(x, (LocalIRVariable, StateIRVariable))]
@@ -194,7 +194,7 @@ def get_ssa_variables_read(n: OverlayNode, phi_read=True, constants=False):
                     [x for x in ir.read if isinstance(x, (LocalIRVariable, StateIRVariable))]
                 )
             else:
-                ret.update([x for x in ir.read])
+                ret.update(list(ir.read))
     return ret
 
 
@@ -222,12 +222,12 @@ def get_ssa_variables_in_function(f: OverlayFunction):
     """
     A function to get all the variables defined in a function
     """
-    vars = set()
+    defined_vars = set()
     for stmt in f.get_topological_ordering():
-        vars.update(get_ssa_variables_read(stmt))
-        vars.update(get_ssa_variables_used(stmt))
-        vars.update(get_ssa_variables_defined(stmt))
-    return vars
+        defined_vars.update(get_ssa_variables_read(stmt))
+        defined_vars.update(get_ssa_variables_used(stmt))
+        defined_vars.update(get_ssa_variables_defined(stmt))
+    return defined_vars
 
 
 def get_state_argument_variables_defined(n: OverlayNode):
@@ -236,10 +236,9 @@ def get_state_argument_variables_defined(n: OverlayNode):
     """
     if isinstance(n, OverlayCall):
         return n.dest
-    elif n.node is not None:
+    if n.node is not None:
         return n.node.state_variables_read + n.node.state_variables_written
-    else:
-        return set()
+    return set()
 
 
 def remove_edge(a: OverlayNode, b: OverlayNode):
@@ -342,7 +341,7 @@ def get_all_call_sites_to(graph, f):
             dest = callsite.function
         else:
             print("Error: unhandled callsite type: {}".format(type(callsite)))
-            exit(-1)
+            sys.exit(-1)
         if dest == f:
             call_sites.append((func, callsite))
     return call_sites
@@ -351,20 +350,19 @@ def get_all_call_sites_to(graph, f):
 def resolve_nearest_concrete_parent(graph, func):
     if func.func is not None:
         return func
-    else:
-        current = func.func
-        while current is None:
-            callsites = get_all_call_sites_to(graph, func)
-            callsites = [
-                (y, x)
-                for (y, x) in callsites
-                if not isinstance(x, OverlayCall)
-                or isinstance(x, OverlayCall)
-                and not x.loop_continue
-            ]
-            assert len(callsites) == 1
-            current, _ = callsites[0]
-        return current
+    current = func.func
+    while current is None:
+        callsites = get_all_call_sites_to(graph, func)
+        callsites = [
+            (y, x)
+            for (y, x) in callsites
+            if not isinstance(x, OverlayCall)
+            or isinstance(x, OverlayCall)
+            and not x.loop_continue
+        ]
+        assert len(callsites) == 1
+        current, _ = callsites[0]
+    return current
 
 
 def get_all_call_sites_in_function(func: OverlayFunction):
@@ -374,6 +372,6 @@ def get_all_call_sites_in_function(func: OverlayFunction):
         if isinstance(node, OverlayCall):
             call_sites.append(node)
         for ir in node.ir:
-            if isinstance(ir, InternalCall) or isinstance(ir, HighLevelCall):
+            if isinstance(ir, (InternalCall, HighLevelCall)):
                 call_sites.append(ir)
     return call_sites

@@ -156,12 +156,11 @@ class CallSite(Token):
     def render(self):
         if isinstance(self.assoc_stmt, InternalCall):
             return self.assoc_stmt.function_name
-        elif isinstance(self.assoc_stmt, HighLevelCall):
+        if isinstance(self.assoc_stmt, HighLevelCall):
             return self.assoc_stmt.function_name
-        elif isinstance(self.assoc_stmt, SolidityCall):
+        if isinstance(self.assoc_stmt, SolidityCall):
             return str(self.assoc_stmt.function)
-        else:
-            return "LOOP " + self.assoc_stmt.dest.name.lower()
+        return "LOOP " + self.assoc_stmt.dest.name.lower()
 
     def __eq__(self, other):
         if not isinstance(other, CallSite):

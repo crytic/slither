@@ -1,3 +1,4 @@
+from itertools import count
 from slither.tools.middle.framework.tokens import (
     Variable,
     Equals,
@@ -8,7 +9,6 @@ from slither.tools.middle.framework.tokens import (
     Indent,
 )
 from slither.core.cfg.node import Node, NodeType
-from itertools import count
 
 from slither.slithir.operations import (
     Assignment,
@@ -30,9 +30,9 @@ class OverlayNode:
     prev: set
     ir: list
 
-    def __init__(self, type: NodeType, node=None):
+    def __init__(self, node_type: NodeType, node=None):
         # Some nodes may be created and do not have a concrete counterpart
-        self.type = type
+        self.type = node_type
         self.node = node
         self.succ = set()
         self.prev = set()
@@ -47,8 +47,7 @@ class OverlayNode:
     def __str__(self):
         if self.node is not None:
             return str(self.node)
-        else:
-            return str(self.type)
+        return str(self.type)
 
     def __copy__(self):
         return OverlayNode(self.type, self.node)

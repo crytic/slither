@@ -1,6 +1,6 @@
 from overlay.transform import outline_all_conditionals
-from slither import Slither
 from overlay.ast.graph import OverlayGraph
+from slither import Slither
 
 
 def print_test_by_name(name: str):

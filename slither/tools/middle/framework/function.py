@@ -1,4 +1,5 @@
 import html
+import sys
 import re
 from collections import defaultdict
 from itertools import count
@@ -160,9 +161,8 @@ class AnalysisFunction:
                     continue
                 if var.non_ssa_version != state_var:
                     continue
-                else:
-                    first_use = var if first_use is None else first_use
-                    last_write = var
+                first_use = var if first_use is None else first_use
+                last_write = var
             return first_use, last_write
 
         for var in self.analyzer.state_variables:
@@ -174,14 +174,13 @@ class AnalysisFunction:
                 if isinstance(stmt, OverlayCall):
                     if stmt not in self.callees:
                         continue
-                    else:
-                        dest_analysis = self.callees[stmt]
-                        first_use = (
-                            dest_analysis.callsite_entry_state_vars[var]
-                            if first_use is None
-                            else first_use
-                        )
-                        last_write = dest_analysis.callsite_exit_state_vars[var]
+                    dest_analysis = self.callees[stmt]
+                    first_use = (
+                        dest_analysis.callsite_entry_state_vars[var]
+                        if first_use is None
+                        else first_use
+                    )
+                    last_write = dest_analysis.callsite_exit_state_vars[var]
 
                 (first_use, last_write) = update_with_var_list(
                     first_use, last_write, var, get_ssa_variables_read(stmt, phi_read=False)
@@ -215,7 +214,7 @@ class AnalysisFunction:
         # TODO: resolve the state variables for each of the calls. Find the most
         #       recent write and the next read and hook them up
         def resolve_for_call(c: Union[OverlayCall, InternalCall], stmts: List[OverlayNode]):
-            if isinstance(c, InternalCall) or isinstance(c, HighLevelCall):
+            if isinstance(c, (InternalCall, HighLevelCall)):
                 c_stmt = next((x for x in stmts if c in x.ir), None)
                 c_idx = stmts.index(c_stmt)
             else:
@@ -272,7 +271,7 @@ class AnalysisFunction:
                 resolve_for_call(stmt, stmts)
             else:
                 for ir in stmt.ir:
-                    if isinstance(ir, InternalCall) or isinstance(ir, HighLevelCall):
+                    if isinstance(ir, (InternalCall, HighLevelCall)):
                         resolve_for_call(ir, stmts)
 
         for callsite in get_all_call_sites_in_function(self.under):
@@ -296,8 +295,7 @@ class AnalysisFunction:
         # result of the global lookup.
         if var in self.var_to_symvar_local:
             return self.var_to_symvar_local[var]
-        else:
-            return self.analyzer.get_sym_var(var, self)
+        return self.analyzer.get_sym_var(var, self)
 
     def get_all_vars(self) -> Set:
         ret = set()
@@ -375,7 +373,7 @@ class AnalysisFunction:
                 name = var.ssa_name
             else:
                 print("ERROR: Unrecognized variable type for printing {}".format(type(var)))
-                exit(-1)
+                sys.exit(-1)
 
             if self.analyzer.is_var_resolved(var, self):
                 value = self.analyzer.get_var_value(var, self)
@@ -393,8 +391,7 @@ class AnalysisFunction:
 
                 if sym_id in already_printed_resolved:
                     continue
-                else:
-                    already_printed_resolved.add(sym_id)
+                already_printed_resolved.add(sym_id)
 
                 if substitute:
                     ret = re.sub(r"\b{}\b".format(name), "[{}: {}]".format(sym_id, name), ret)
@@ -508,8 +505,7 @@ class AnalysisFunction:
 
                 if resolved_sym_var.name in already_printed_resolved:
                     continue
-                else:
-                    already_printed_resolved.add(resolved_sym_var.name)
+                already_printed_resolved.add(resolved_sym_var.name)
 
                 # Print the value of the variable.
                 ret = re.sub(
@@ -522,8 +518,7 @@ class AnalysisFunction:
             else:
                 if ir_var.name in already_printed_resolved:
                     continue
-                else:
-                    already_printed_resolved.add(ir_var.name)
+                already_printed_resolved.add(ir_var.name)
 
                 # Show all of the ids that correspond to a certain source variable.
                 ir_var_label = ["{}".format(x.id) for x in var_list]
@@ -591,7 +586,7 @@ class AnalysisFunction:
         print(g.source)
         g.view()
 
-    def get_digraph(self, counter) -> Tuple[str, Digraph]:
+    def get_digraph(self, my_counter) -> Tuple[str, Digraph]:
         """
         Returns the digraph object and a handle to the root (function) node
         """
@@ -601,28 +596,28 @@ class AnalysisFunction:
         # TODO: change the fact that they are all in the same cluster but this
         #   is okay for a small example because it looks better
         g = Digraph(name="c")
-        # g = Digraph(name='cluster_{}'.format(next(counter)))
+        # g = Digraph(name='cluster_{}'.format(next(my_counter)))
         g.attr("node", shape="record")
         g.graph_attr.update({"rankdir": "LR"})
 
         # Adds the root (function) node
-        func_node_handle = "{}_{}".format(self.under.name, next(counter))
+        func_node_handle = "{}_{}".format(self.under.name, next(my_counter))
         func_node_label = "<id> FID: {} | <title> FUNCTION: {}|<params> params|<statements> statements |<returns> returns".format(
             self.id, self.under.name
         )
         g.node(func_node_handle, label=func_node_label, color="blue")
 
         for stmt in self.under.statements:
-            self.add_statement_to_digraph(g, stmt, func_node_handle, counter)
+            self.add_statement_to_digraph(g, stmt, func_node_handle, my_counter)
 
         return func_node_handle, g
 
-    def add_statement_to_digraph(self, g: Digraph, stmt, root_handle, counter):
+    def add_statement_to_digraph(self, g: Digraph, stmt, root_handle, my_counter):
         if isinstance(stmt, OverlayCall):
             # Handle the case where we have outlined a function. We know that
             # there will be no IR in this call so we can just continue.
             label = None
-            num = next(counter)
+            num = next(my_counter)
             # Add the number to the label so we can reference this call
             name = "CALL__{}".format(num)
             if stmt.cond_complement:
@@ -647,7 +642,7 @@ class AnalysisFunction:
         if isinstance(stmt, OverlayITE):
             # We know there will be no ir in the OverlayITE
             label = "<title> ITE | <cond> cond | <true> true | <false> false | <result> result"
-            name = "ITE__{}".format(next(counter))
+            name = "ITE__{}".format(next(my_counter))
             g.node(name, label=label)
             g.edge("{}:statements".format(root_handle), "{}:title".format(name))
             g.edge("{}:cond".format(name), str(self.get_sym_var(stmt.condition)))
@@ -661,7 +656,7 @@ class AnalysisFunction:
                 label = "<title> {} | <left> left | <right> right | <result> result".format(
                     html.escape(str(ir.type))
                 )
-                name = "{}__{}".format(str(ir.type), next(counter))
+                name = "{}__{}".format(str(ir.type), next(my_counter))
                 g.node(name, label=label)
                 g.edge("{}:statements".format(root_handle), "{}:title".format(name))
                 g.edge("{}:left".format(name), str(self.get_sym_var(ir.variable_left)))
@@ -669,12 +664,12 @@ class AnalysisFunction:
                 g.edge("{}:result".format(name), str(self.get_sym_var(ir.lvalue)))
             elif isinstance(ir, Condition):
                 label = "<title> CONDITION | <value> value"
-                name = "CONDITION__{}".format(next(counter))
+                name = "CONDITION__{}".format(next(my_counter))
                 g.node(name, label=label)
                 g.edge("{}:statements".format(root_handle), "{}:title".format(name))
                 g.edge("{}:value".format(name), str(self.get_sym_var(ir.value)))
             elif isinstance(ir, InternalCall):
-                num = next(counter)
+                num = next(my_counter)
                 # Add the number to the label so we can reference this call
                 label = "<id> ID: {} | <title> CALL | <target> target | <args> args | <returns> returns".format(
                     num
@@ -689,7 +684,7 @@ class AnalysisFunction:
                 g.edge("{}:returns".format(name), str(self.get_sym_var(ir.lvalue)))
             elif isinstance(ir, Assignment):
                 label = "<title> ASSIGN | <left> left | <right> right"
-                name = "ASSIGN__{}".format(next(counter))
+                name = "ASSIGN__{}".format(next(my_counter))
                 g.node(name, label=label)
                 self.call_node_digraph_handles[stmt] = name
                 g.edge("{}:statements".format(root_handle), "{}:title".format(name))
@@ -697,7 +692,7 @@ class AnalysisFunction:
                 g.edge("{}:right".format(name), str(self.get_sym_var(ir.rvalue)))
             elif isinstance(ir, Phi):
                 label = "<title> PHI | <args> args | <result> result"
-                name = "PHI__{}".format(next(counter))
+                name = "PHI__{}".format(next(my_counter))
                 g.node(name, label=label)
                 g.edge("{}:statements".format(root_handle), "{}:title".format(name))
                 for arg in ir.rvalues:
@@ -731,13 +726,13 @@ class AnalysisFunction:
                     and stmt.cond_complement
                 ):
                     continue
-                elif (
+                if (
                     self.analyzer.get_var_value_or_default(stmt.cond, self, None) == False
                     and self.analyzer.strategy.hide_resolved
                 ):
                     continue
                 # If its a loop continue and its not resolved
-                elif stmt.loop_continue and not stmt in self.callees:
+                if stmt.loop_continue and not stmt in self.callees:
                     tokens.extend(
                         [Indent(stmt, self) for _ in range(indentation_level)]
                         + [CallSite(stmt, self), NewLine(stmt, self)]
@@ -771,7 +766,7 @@ class AnalysisFunction:
                 for ir in stmt.ir:
                     if isinstance(ir, Phi):
                         continue
-                    elif isinstance(ir, InternalCall) or isinstance(ir, HighLevelCall):
+                    if isinstance(ir, (InternalCall, HighLevelCall)):
                         if ir in self.callees:
                             # Find the index of the call token associated with this ir and inline the function
                             call_idx = staging.index(CallSite(ir, self))
@@ -847,7 +842,7 @@ class AnalysisFunction:
                     continue
                 for ir in stmt.ir:
                     if (
-                        isinstance(ir, InternalCall) or isinstance(ir, HighLevelCall)
+                        isinstance(ir, (InternalCall, HighLevelCall))
                     ) and ir in self.callees:
                         # We have confirmed to go down this path
                         inner_mappings = self.callees[ir].get_live_source_mappings()
@@ -875,8 +870,8 @@ class AnalysisFunction:
         return None
 
 
-def find_key_in_dict(value, dict):
-    for k, v in dict.items():
+def find_key_in_dict(value, my_dict): # TODO: replace all calls with dict.get(key)
+    for k, v in my_dict.items():
         if v == value:
             return k
     return None

@@ -1,4 +1,3 @@
-import pickle
 import re
 import sys
 
@@ -20,7 +19,7 @@ def main():
     init_pattern = re.compile(r"init\s+(\w+)")
     show_pattern = re.compile(r"show\s+(\d+)")
     source_pattern = re.compile(r"source\s+(\d+)")
-    switch_pattern = re.compile(f"switch\s+(\d+)")
+    switch_pattern = re.compile(r"switch\s+(\d+)")
 
     group_analyzer = GroupAnalyzer()
     analyzer = Analyzer(ConcreteStrategy(), sys.argv[1])
@@ -184,7 +183,7 @@ def main():
 
             if not new_analyzers:
                 print("FATAL: No call sites available, RIP")
-                exit(-1)
+                sys.exit(-1)
 
             analyzer = new_analyzers[0]
 

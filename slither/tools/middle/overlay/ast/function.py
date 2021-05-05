@@ -1,4 +1,6 @@
 from collections import deque
+from typing import Set, List
+from itertools import count
 
 from slither.tools.middle.overlay.ast.call import OverlayCall
 from slither.tools.middle.overlay.ast.ite import OverlayITE
@@ -6,8 +8,6 @@ from slither.tools.middle.overlay.ast.node import OverlayNode
 from slither.tools.middle.overlay.construction import construct_overlay
 from slither.core.cfg.node import NodeType
 from slither.solc_parsing.declarations.function import FunctionSolc
-from typing import Set, List
-from itertools import count
 
 
 class OverlayFunction:

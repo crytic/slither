@@ -1,3 +1,4 @@
+import sys
 from slither.tools.middle.overlay.ast.node import OverlayNode
 from slither.core.cfg.node import NodeType
 from slither.solc_parsing.cfg.node import NodeSolc
@@ -15,7 +16,7 @@ class OverlayUnwrap(OverlayNode):
     def __init__(self, node: NodeSolc):
         if node.type != NodeType.BREAK:
             print("Error: invalid construction of OverlayUnwrap")
-            exit(-1)
+            sys.exit(-1)
         super().__init__(node.type, node)
 
     def __str__(self):

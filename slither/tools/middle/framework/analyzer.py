@@ -1,4 +1,5 @@
 import copy
+import sys
 from collections import defaultdict
 from itertools import count
 from typing import Dict, Any, Union, List, Tuple, DefaultDict
@@ -168,7 +169,7 @@ class Analyzer:
         func = next((x for x in self.overlay_graph.functions if x.name == function_name), None)
         if func is None:
             print("ERROR: could not find function {} to start analysis".format(function_name))
-            exit(-1)
+            sys.exit(-1)
         added = AnalysisFunction(func, self)
 
         self.add_function_object(added)
@@ -207,8 +208,7 @@ class Analyzer:
     def get_var_value_or_default(self, var, func, default):
         if self.is_var_resolved(var, func):
             return self.get_var_value(var, func)
-        else:
-            return default
+        return default
 
     def get_sym_var_value(self, symvar):
         rep: SymVar = self.symvars_union_find.find(symvar)
@@ -282,7 +282,7 @@ class Analyzer:
                         self.set_equal(var, caller_function, as_var, new_function)
                 else:
                     self.set_equal(var, caller_function, var, new_function)
-        elif isinstance(callsite, InternalCall) or isinstance(callsite, HighLevelCall):
+        elif isinstance(callsite, (InternalCall, HighLevelCall)):
             # In the InternalCall case, things are a bit more complicated
             # because we want to link the argument and return variables which
             # are often represented by physically different variables in the IR.
@@ -312,7 +312,7 @@ class Analyzer:
                 )
         else:
             print("ERROR: Unhandled callsite type in link_args_and_returns")
-            exit(-1)
+            sys.exit(-1)
 
     def link_state_variables(self, callsite, caller_function, new_function):
         # Link up the state variables into the appropriate slots.
@@ -383,7 +383,7 @@ class Analyzer:
                 break
         if our_callsite is None:
             print("ERROR: cannot find callsite")
-            exit(-1)
+            sys.exit(-1)
 
         # Add the correct caller and callee relationship.
         our_function.callees[our_callsite] = self.root
@@ -451,12 +451,12 @@ class Analyzer:
             if isinstance(site, OverlayCall):
                 if site.dest == root.under:
                     xrefs.append((func, site))
-            elif isinstance(site, InternalCall) or isinstance(site, HighLevelCall):
+            elif isinstance(site, (InternalCall, HighLevelCall)):
                 if site.function == root.under.func:
                     xrefs.append((func, site))
             else:
                 print("ERROR: invalid call site type: {}".format(type(site)))
-                exit(-1)
+                sys.exit(-1)
         return xrefs
 
     def traverse_nodes(self) -> List[Tuple[Any, AnalysisFunction]]:
@@ -497,11 +497,10 @@ class Analyzer:
                         function_handle = digraph_function_handles[func.callees[stmt]]
                         g.edge(call_node_handle, function_handle)
                         continue
-                    else:
-                        stub_label = "{}_stub".format(stmt.dest.name)
-                        stub_handle = "{}_stub_{}".format(stmt.dest.name, id(func))
-                        g.node(stub_handle, label=stub_label)
-                        g.edge("{}:target".format(call_node_handle), stub_handle)
+                    stub_label = "{}_stub".format(stmt.dest.name)
+                    stub_handle = "{}_stub_{}".format(stmt.dest.name, id(func))
+                    g.node(stub_handle, label=stub_label)
+                    g.edge("{}:target".format(call_node_handle), stub_handle)
                 for ir in stmt.ir:
                     if isinstance(ir, InternalCall):
                         call_node_handle = func.call_node_digraph_handles[ir]
@@ -581,12 +580,12 @@ class Analyzer:
             callsite = next((k for (k, v) in parent.callees.items() if v == current), None)
             if callsite is None:
                 print("Error, could not find callsite for function")
-                exit(-1)
+                sys.exit(-1)
             if isinstance(callsite, OverlayCall):
                 self.set_var_value(
                     callsite.cond,
                     parent,
-                    True if not callsite.cond_complement else False,
+                    bool(not callsite.cond_complement),
                     deduce=False,
                 )
 

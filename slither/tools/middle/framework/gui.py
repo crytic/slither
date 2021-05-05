@@ -405,12 +405,12 @@ class SourceCanvas(tk.Canvas):
                             filename, lexeme.curr_char
                         )
                         if assoc_stmt is not None:
-                            vars = (
+                            my_vars = (
                                 assoc_stmt.node.variables_read
                                 + assoc_stmt.node.variables_written
                                 + [assoc_stmt.node.variable_declaration]
                             )
-                            v = next((v for v in vars if str(v) == lexeme.literal), None)
+                            v = next((v for v in my_vars if str(v) == lexeme.literal), None)
                             if v is not None:
                                 # It is a variable
                                 self.addtag(item, self.TAG_VAR)

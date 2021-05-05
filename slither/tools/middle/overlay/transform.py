@@ -8,7 +8,7 @@ from slither import Slither
 
 from slither.tools.middle.overlay.ast.graph import OverlayGraph
 from slither.tools.middle.overlay.ast.function import overlay_function_from_basic_block
-from slither.tools.middle.overlay.util import *
+from slither.tools.middle.overlay.util import OverlayCall, NodeType, OverlayFunction, OverlayNode, is_return, is_end_if, add_edge, remove_edge, copy, Condition, OverlayITE, add_node_after, get_ssa_variables_read, get_ssa_variables_defined, get_ssa_variables_used, Phi, Binary, Length, add_node_before, rewrite_ir_variable_by_name, rewrite_variable_in_all_successors, Assignment, is_loop_call, is_end_loop, OperationWithLValue, TemporaryVariableSSA, ReferenceVariableSSA, remove_all_edges
 
 logger = logging.getLogger("transform")
 # logger.setLevel(logging.DEBUG)
@@ -21,7 +21,7 @@ dup_ssa_var_counter = count()
 def main():
     if len(sys.argv) != 2:
         print("Usage: python transform.py contract.sol")
-        exit(-1)
+        sys.exit(-1)
     slither = Slither(sys.argv[1])
     graph = OverlayGraph(slither)
     outline_all_conditionals(graph)
@@ -117,8 +117,7 @@ def outline_conditional_if(graph: OverlayGraph, function: OverlayFunction, state
 
         if current.type == NodeType.ENDLOOP and loop_enter_counter <= 0:
             continue
-        else:
-            loop_enter_counter -= 1
+        loop_enter_counter -= 1
 
         if current in visited:
             continue
@@ -234,10 +233,10 @@ def outline_conditional_loop(graph: OverlayGraph, function: OverlayFunction, stm
         logger.debug("WHILE")
         try:
             coalesce_nodes(stmt, c)
-        except (AssertionError):
+        except AssertionError:
             print("Encountered an assertion error")
             # graph.save_digraph()
-            exit(-1)
+            sys.exit(-1)
 
         # Duplicate the call and the if into the end of the body of the new function.
         last = list(filter(lambda x: len(x.succ) == 0, f.statements))[0]
@@ -536,14 +535,14 @@ def duplicate_basic_block_after(
                     else ir.variable_right
                 )
 
-            elif isinstance(ir, Condition) or isinstance(ir, Length):
+            elif isinstance(ir, (Condition, Length)):
                 continue
 
             else:
                 print(
                     "ERROR: Unhandled ir type trying to duplicate basic block: {}".format(type(ir))
                 )
-                exit(-1)
+                sys.exit(-1)
 
     first, last = bb[0], bb[-1]
     first.prev.add(anchor)
@@ -651,7 +650,7 @@ def try_compress_phi_node(graph: OverlayGraph, function: OverlayFunction) -> boo
                         true_branch = next((x for x in resolved if x != false_branch))
                     else:
                         print("ERROR: incomprehensible double resolution!")
-                        exit(-1)
+                        sys.exit(-1)
                     new_node = OverlayITE(ir.lvalue, cond, true_branch, false_branch)
                     add_node_before(function, stmt, new_node)
                     stmt.ir.remove(ir)
@@ -674,14 +673,14 @@ def try_compress_phi_node(graph: OverlayGraph, function: OverlayFunction) -> boo
                     add_node_before(function, stmt, new_node)
                 else:
                     print("ERROR: Invalid for loop construction!")
-                    exit(-1)
+                    sys.exit(-1)
 
                 stmt.ir.remove(ir)
                 rewrite_variable_in_all_successors(nodes[node_num], str(ir.lvalue), new_lvalue)
 
                 continue
 
-            elif stmt.node.type == NodeType.IFLOOP:
+            if stmt.node.type == NodeType.IFLOOP:
                 if not isinstance(ir, Phi):
                     continue
 
@@ -735,14 +734,14 @@ def try_compress_phi_node(graph: OverlayGraph, function: OverlayFunction) -> boo
 
                 if end_loop_idx is None:
                     print("ERROR: could not find matching end_loop")
-                    exit(-1)
+                    sys.exit(-1)
 
                 # For every node after the end loop, rename any variables
                 # that we have introduced ITEs for.
                 for idx in range(end_loop_idx, len(nodes)):
-                    for ir in nodes[idx].ir:
+                    for _ir in nodes[idx].ir:
                         for old_lvalue, new_lvalue in old_lvalue_to_new_lvalue.items():
-                            rewrite_ir_variable_by_name(ir, str(old_lvalue), new_lvalue)
+                            rewrite_ir_variable_by_name(_ir, str(old_lvalue), new_lvalue)
 
                 return True
 

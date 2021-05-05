@@ -1,8 +1,8 @@
-from collections import defaultdict
 from typing import Union, Callable, Any
 from abc import ABC, abstractmethod
-import z3 as z3
 from itertools import count
+import sys
+import z3
 
 # from framework.analyzer import Analyzer
 from slither.tools.middle.framework.function import AnalysisFunction
@@ -62,15 +62,14 @@ class Strategy(ABC):
 
         if isinstance(node, OverlayITE):
             return self.update_node_ite(node, func)
-        elif isinstance(node, OverlayCall):
+        if isinstance(node, OverlayCall):
             return False
-        elif isinstance(node, OverlayUnwrap):
+        if isinstance(node, OverlayUnwrap):
             return False
-        elif isinstance(node, OverlayNode):
+        if isinstance(node, OverlayNode):
             return False
-        else:
-            print("Unimplemented handling node type: {}".format(type(node)))
-            exit(-1)
+        print("Unimplemented handling node type: {}".format(type(node)))
+        sys.exit(-1)
 
     def update_ir(self, ir: Operation, func) -> bool:
         """
@@ -85,28 +84,27 @@ class Strategy(ABC):
 
         if isinstance(ir, Binary):
             return self.update_ir_binary(ir, func)
-        elif isinstance(ir, Phi):
+        if isinstance(ir, Phi):
             return self.update_ir_phi(ir, func)
-        elif isinstance(ir, Assignment):
+        if isinstance(ir, Assignment):
             return self.update_ir_assignment(ir, func)
-        elif isinstance(ir, Return):
+        if isinstance(ir, Return):
             return self.update_ir_return(ir, func)
-        elif isinstance(ir, Condition):
+        if isinstance(ir, Condition):
             return self.update_ir_condition(ir, func)
-        elif isinstance(ir, TypeConversion):
+        if isinstance(ir, TypeConversion):
             return self.update_ir_type_conversion(ir, func)
-        elif isinstance(ir, Length):
+        if isinstance(ir, Length):
             return self.update_ir_length(ir, func)
-        elif isinstance(ir, InternalCall):
+        if isinstance(ir, InternalCall):
             return self.update_ir_internal_call(ir, func)
-        elif isinstance(ir, NewContract) or isinstance(ir, HighLevelCall):
+        if isinstance(ir, (NewContract, HighLevelCall)):
             return False
-        elif isinstance(ir, SolidityCall):
+        if isinstance(ir, SolidityCall):
             return False
-        else:
-            # TODO: change this later
-            print("Unimplemented handling IR type: {}".format(type(ir)))
-            return False
+        # TODO: change this later
+        print("Unimplemented handling IR type: {}".format(type(ir)))
+        return False
 
     def resolve_ir_vars(self) -> bool:
         """
@@ -127,21 +125,18 @@ class Strategy(ABC):
         This function only needs to be overwritten if the strategy is managing
         its own values.
         """
-        pass
 
     def get_var_value(self, variable, func):
         """
         This function only needs to be overwritten if the strategy is managing
         resolving its own values.
         """
-        pass
 
     def run_to_fixpoint(self):
         """
         Run the analyzer to fixpoint, this only needs to be overwritten if the
         strategy is managing its own fixpoint execution.
         """
-        pass
 
     @abstractmethod
     def update_ir_variable(self, variable, func: AnalysisFunction) -> bool:
@@ -149,7 +144,6 @@ class Strategy(ABC):
         Resolve this variable in isolation if you can. Return True if new
         information was introduced and false otherwise.
         """
-        pass
 
     @abstractmethod
     def update_ir_binary(self, ir: Binary, func: AnalysisFunction) -> bool:
@@ -223,27 +217,27 @@ class ConcreteStrategy(Strategy):
             # We cannot compute either operand in the case of <= so we pass
             # in None.
             return self.update_ir_binary_helper(ir, func, lambda x, y, z: x <= y, None, None)
-        elif ir.type == BinaryType.SUBTRACTION:
+        if ir.type == BinaryType.SUBTRACTION:
             return self.update_ir_binary_helper(
                 ir, func, lambda x, y, z: x - y, lambda x, y, z: x - z, lambda x, y, z: z + y
             )
-        elif ir.type == BinaryType.ADDITION:
+        if ir.type == BinaryType.ADDITION:
             return self.update_ir_binary_helper(
                 ir, func, lambda x, y, z: x + y, lambda x, y, z: z - x, lambda x, y, z: z - y
             )
-        elif ir.type == BinaryType.LESS:
+        if ir.type == BinaryType.LESS:
             return self.update_ir_binary_helper(ir, func, lambda x, y, z: x < y, None, None)
-        elif ir.type == BinaryType.GREATER:
+        if ir.type == BinaryType.GREATER:
             return self.update_ir_binary_helper(ir, func, lambda x, y, z: x > y, None, None)
-        elif ir.type == BinaryType.GREATER_EQUAL:
+        if ir.type == BinaryType.GREATER_EQUAL:
             return self.update_ir_binary_helper(ir, func, lambda x, y, z: x >= y, None, None)
-        elif ir.type == BinaryType.MULTIPLICATION:
+        if ir.type == BinaryType.MULTIPLICATION:
             return self.update_ir_binary_helper(
                 ir, func, lambda x, y, z: x * y, lambda x, y, z: z // x, lambda x, y, z: z // y
             )
-        elif ir.type == BinaryType.POWER:
+        if ir.type == BinaryType.POWER:
             return self.update_ir_binary_helper(ir, func, lambda x, y, z: x ** y, None, None)
-        elif ir.type == BinaryType.EQUAL:
+        if ir.type == BinaryType.EQUAL:
             return self.update_ir_binary_helper(
                 ir,
                 func,
@@ -251,17 +245,16 @@ class ConcreteStrategy(Strategy):
                 lambda x, y, z: x if z is True else None,
                 lambda x, y, z: y if z is True else None,
             )
-        elif ir.type == BinaryType.NOT_EQUAL:
+        if ir.type == BinaryType.NOT_EQUAL:
             return self.update_ir_binary_helper(ir, func, lambda x, y, z: x != y, None, None)
-        elif ir.type == BinaryType.DIVISION:
+        if ir.type == BinaryType.DIVISION:
             return self.update_ir_binary_helper(
                 ir, func, lambda x, y, z: x // y, lambda x, y, z: z * x, lambda x, y, z: z * y
             )
-        elif ir.type == BinaryType.MODULO:
+        if ir.type == BinaryType.MODULO:
             return self.update_ir_binary_helper(ir, func, lambda x, y, z: x % y, None, None)
-        else:
-            print("Unimplmented handling Binary instruction type: {}".format(str(ir.type)))
-            exit(-1)
+        print("Unimplmented handling Binary instruction type: {}".format(str(ir.type)))
+        sys.exit(-1)
 
     def update_ir_binary_helper(
         self,
@@ -302,7 +295,7 @@ class ConcreteStrategy(Strategy):
 
             self.analyzer.set_var_value(ir.lvalue, func, result)
             return False
-        elif left_res and right_res and not result_res:
+        if left_res and right_res and not result_res:
             # Do the same thing as the above case except return True because we
             # are returning something new not merely verifying a result.
             result = compute_result(left_val, right_val, result_val)
@@ -311,7 +304,7 @@ class ConcreteStrategy(Strategy):
 
             self.analyzer.set_var_value(ir.lvalue, func, result)
             return True
-        elif (left_res and not right_res and result_res) and (compute_right is not None):
+        if (left_res and not right_res and result_res) and (compute_right is not None):
             # Compute the right result using the given lambda
             result = compute_right(left_val, right_val, result_val)
             if result is None:
@@ -319,7 +312,7 @@ class ConcreteStrategy(Strategy):
 
             self.analyzer.set_var_value(ir.variable_right, func, result)
             return True
-        elif (not left_res and right_res and result_res) and (compute_left is not None):
+        if (not left_res and right_res and result_res) and (compute_left is not None):
             # Compute the left result using the given lambda
             result = compute_left(left_val, right_val, result_val)
             if result is None:
@@ -327,8 +320,7 @@ class ConcreteStrategy(Strategy):
 
             self.analyzer.set_var_value(ir.variable_left, func, result)
             return True
-        else:
-            return False
+        return False
 
     def update_ir_phi(self, ir: Phi, func: AnalysisFunction) -> bool:
         """
@@ -360,16 +352,15 @@ class ConcreteStrategy(Strategy):
                     "Assignment error: {} != {}".format(left_val, right_val)
                 )
             return False
-        elif left_resolved and not right_resolved:
+        if left_resolved and not right_resolved:
             # Assign the right node to the value of the left.
             self.analyzer.set_var_value(ir.rvalue, func, left_val)
             return True
-        elif right_resolved and not left_resolved:
+        if right_resolved and not left_resolved:
             # Assign the value of the left node to the right.
             self.analyzer.set_var_value(ir.lvalue, func, right_val)
             return True
-        else:
-            return False
+        return False
 
     def update_ir_type_conversion(self, ir: TypeConversion, func: AnalysisFunction):
         # For now, treat type conversions as assignment.
@@ -388,14 +379,13 @@ class ConcreteStrategy(Strategy):
                     "TypeConversion error: {} != {}".format(left_val, right_val)
                 )
             return False
-        elif left_resolved and not right_resolved:
+        if left_resolved and not right_resolved:
             self.analyzer.set_var_value(ir.variable, func, left_val)
             return True
-        elif right_resolved and not left_resolved:
+        if right_resolved and not left_resolved:
             self.analyzer.set_var_value(ir.lvalue, func, right_val)
             return True
-        else:
-            return False
+        return False
 
     def update_ir_condition(self, ir: Condition, func: AnalysisFunction) -> bool:
         # We cannot gain any new information from conditions.
@@ -428,25 +418,23 @@ class ConcreteStrategy(Strategy):
             if result_resolved:
                 self.analyzer.set_var_value(node.lvalue, func, true_val)
                 return False
-            else:
-                self.analyzer.set_var_value(node.lvalue, func, true_val)
-                return True
+            self.analyzer.set_var_value(node.lvalue, func, true_val)
+            return True
 
         # If the condition is false and we have the false branch value we can evaluate result.
-        elif cond_resolved and not cond_val and false_resolved:
+        if cond_resolved and not cond_val and false_resolved:
             if result_resolved:
                 self.analyzer.set_var_value(node.lvalue, func, false_val)
                 return False
-            else:
-                self.analyzer.set_var_value(node.lvalue, func, false_val)
-                return True
+            self.analyzer.set_var_value(node.lvalue, func, false_val)
+            return True
 
         # If both branches and result are resolved we can infer cond if the branches are not equal.
-        elif result_resolved and true_resolved and false_resolved and not cond_resolved:
+        if result_resolved and true_resolved and false_resolved and not cond_resolved:
             if result_val == true_val and result_val != false_val:
                 self.analyzer.set_var_value(node.condition, True)
                 return True
-            elif result_val == false_val and result_val != true_val:
+            if result_val == false_val and result_val != true_val:
                 self.analyzer.set_var_value(node.condition, False)
                 return True
 
@@ -548,8 +536,7 @@ class SymbolicStrategy(Strategy):
     def get_sym_value(self, symbolic):
         if symbolic in self.values:
             return str(self.values.get(symbolic))
-        else:
-            return ""
+        return ""
 
     def set_value(self, symbolic, value):
         self.values[symbolic] = value
@@ -585,21 +572,21 @@ class SymbolicStrategy(Strategy):
 
         if ir.type == BinaryType.LESS_EQUAL:
             return False
-        elif ir.type == BinaryType.SUBTRACTION:
+        if ir.type == BinaryType.SUBTRACTION:
             return False
-        elif ir.type == BinaryType.ADDITION:
+        if ir.type == BinaryType.ADDITION:
             return self.update_ir_binary_helper(
                 ir, func, lambda x, y, z: x + y, lambda x, y, z: z - x, lambda x, y, z: z - y
             )
-        elif ir.type == BinaryType.LESS:
+        if ir.type == BinaryType.LESS:
             return False
-        elif ir.type == BinaryType.GREATER:
+        if ir.type == BinaryType.GREATER:
             return False
-        elif ir.type == BinaryType.MULTIPLICATION:
+        if ir.type == BinaryType.MULTIPLICATION:
             return False
-        elif ir.type == BinaryType.POWER:
+        if ir.type == BinaryType.POWER:
             return False
-        elif ir.type == BinaryType.EQUAL:
+        if ir.type == BinaryType.EQUAL:
             return self.update_ir_binary_helper(
                 ir,
                 func,
@@ -607,9 +594,8 @@ class SymbolicStrategy(Strategy):
                 lambda x, y, z: x if z is True else None,
                 lambda x, y, z: y if z is True else None,
             )
-        else:
-            print("Unimplmented handling Binary instruction type: {}".format(str(ir.type)))
-            exit(-1)
+        print("Unimplmented handling Binary instruction type: {}".format(str(ir.type)))
+        sys.exit(-1)
 
     def update_ir_binary_helper(
         self,
@@ -652,9 +638,9 @@ class SymbolicStrategy(Strategy):
         else:
             result_val = None
 
-        left_res = True if self.is_sym_resolved(left_sym) else False
-        right_res = True if self.is_sym_resolved(right_sym) else False
-        result_res = True if self.is_sym_resolved(result_sym) else False
+        left_res = bool(self.is_sym_resolved(left_sym))
+        right_res = bool(self.is_sym_resolved(right_sym))
+        result_res = bool(self.is_sym_resolved(result_sym))
 
         if left_res and right_res and result_res:
             # Verify that the result is correct. This is equivalent to treating
@@ -666,7 +652,7 @@ class SymbolicStrategy(Strategy):
 
             self.values[result_sym] = result
             return False
-        elif left_res and right_res and not result_res:
+        if left_res and right_res and not result_res:
             # Do the same thing as the above case except return True because we
             # are returning something new not merely verifying a result.
             result = compute_result(left_val, right_val, result_val)
@@ -675,7 +661,7 @@ class SymbolicStrategy(Strategy):
 
             self.values[result_sym] = result
             return True
-        elif (left_res and not right_res and result_res) and (compute_right is not None):
+        if (left_res and not right_res and result_res) and (compute_right is not None):
             # Compute the right result using the given lambda
             result = compute_right(left_val, right_val, result_val)
             if result is None:
@@ -683,7 +669,7 @@ class SymbolicStrategy(Strategy):
 
             self.values[right_sym] = result
             return True
-        elif (not left_res and right_res and result_res) and (compute_left is not None):
+        if (not left_res and right_res and result_res) and (compute_left is not None):
             # Compute the left result using the given lambda
             result = compute_left(left_val, right_val, result_val)
             if result is None:
@@ -691,8 +677,7 @@ class SymbolicStrategy(Strategy):
 
             self.values[left_sym] = result
             return True
-        else:
-            return False
+        return False
 
     def update_ir_phi(self, ir: Phi, func: AnalysisFunction) -> bool:
         return False
@@ -717,25 +702,23 @@ class SymbolicStrategy(Strategy):
         if left_res and right_res:
             if range_left == range_right:
                 return False
-            elif range_left.contains(range_right):
+            if range_left.contains(range_right):
                 self.values[sym_left] = self.values[sym_right]
                 return True
-            elif range_right.contains(range_left):
+            if range_right.contains(range_left):
                 self.values[sym_right] = self.values[sym_left]
                 return True
-            else:
-                raise InconsistentStateError(
-                    "Cannot reconcile intervals: {} {}".format(range_left, range_right)
-                )
-        elif left_res and not right_res:
+            raise InconsistentStateError(
+                "Cannot reconcile intervals: {} {}".format(range_left, range_right)
+            )
+        if left_res and not right_res:
             self.values[sym_right] = self.values[sym_left]
             return True
-        elif not left_res and right_res:
+        if not left_res and right_res:
             self.values[sym_left] = self.values[sym_right]
             return True
-        else:
-            # not left_res and not right_res
-            return False
+        # not left_res and not right_res
+        return False
 
     def update_ir_type_conversion(self, ir: TypeConversion, func: AnalysisFunction) -> bool:
         return False
@@ -767,17 +750,16 @@ class SymbolicStrategy(Strategy):
         if not lvalue_resolved and true_resolved and condition is True:
             self.values[sym_lvalue] = self.values[sym_true]
             return True
-        elif not lvalue_resolved and false_resolved and condition is False:
+        if not lvalue_resolved and false_resolved and condition is False:
             self.values[sym_lvalue] = self.values[sym_false]
             return True
-        elif lvalue_resolved and not true_resolved and condition is True:
+        if lvalue_resolved and not true_resolved and condition is True:
             self.values[sym_true] = self.values[sym_lvalue]
             return True
-        elif lvalue_resolved and not false_resolved and condition is False:
+        if lvalue_resolved and not false_resolved and condition is False:
             self.values[sym_false] = self.values[sym_lvalue]
             return True
-        else:
-            return False
+        return False
 
     def update_ir_internal_call(self, ir: InternalCall, func: AnalysisFunction) -> bool:
         return False
@@ -869,7 +851,7 @@ class ConstraintStrategy(Strategy):
                             z_var_callee = self.values[create_hashable(var, new_function)]
                             self.opt.add(z_var_caller == z_var_callee)
 
-                elif isinstance(callsite, InternalCall) or isinstance(callsite, HighLevelCall):
+                elif isinstance(callsite, (InternalCall, HighLevelCall)):
                     # In the InternalCall case, things are a bit more complicated
                     # because we want to link the argument and return variables which
                     # are often represented by physically different variables in the IR.
@@ -922,7 +904,7 @@ class ConstraintStrategy(Strategy):
             callsite = next((k for (k, v) in parent.callees.items() if v == current), None)
             if callsite is None:
                 print("ERROR: could not find callsite for funtion")
-                exit(-1)
+                sys.exit(-1)
             if isinstance(callsite, OverlayCall):
                 z_condvar = self.values[create_hashable(callsite.cond, parent)]
                 if not callsite.cond_complement:
@@ -976,25 +958,21 @@ class ConstraintStrategy(Strategy):
 
     def boolref_to_bool(self, z_var):
         assert z3.is_bool(z_var)
-        if z3.is_true(z_var):
-            return True
-        else:
-            return False
+        return bool(z3.is_true(z_var))
 
     def update_node(
         self, node: Union[OverlayCall, OverlayUnwrap, OverlayITE, OverlayNode], func
     ) -> bool:
         if isinstance(node, OverlayITE):
             return self.update_node_ite(node, func)
-        elif isinstance(node, OverlayCall):
+        if isinstance(node, OverlayCall):
             return False
-        elif isinstance(node, OverlayUnwrap):
+        if isinstance(node, OverlayUnwrap):
             return False
-        elif isinstance(node, OverlayNode):
+        if isinstance(node, OverlayNode):
             return False
-        else:
-            print("Unimplemented handling node type: {}".format(type(node)))
-            exit(-1)
+        print("Unimplemented handling node type: {}".format(type(node)))
+        sys.exit(-1)
 
     def update_node_ite(self, node: OverlayITE, func: AnalysisFunction) -> bool:
         z_true = self.values[create_hashable(node.consequence, func)]
@@ -1042,7 +1020,7 @@ class ConstraintStrategy(Strategy):
             self.opt.add(z_lvalue == z3.And(z_left, z_right))
         else:
             print("Unimplmented handling Binary instruction type: {}".format(str(ir.type)))
-            exit(-1)
+            sys.exit(-1)
 
     def update_ir_variable(self, variable, func: AnalysisFunction) -> bool:
         return False

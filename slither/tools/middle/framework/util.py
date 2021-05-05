@@ -10,8 +10,6 @@ class InconsistentStateError(Exception):
     we get an inconsistent execution state.
     """
 
-    pass
-
 
 class UnionFindSymVar:
     """
