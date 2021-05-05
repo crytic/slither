@@ -7,7 +7,6 @@ from typing import Tuple, Dict, List, Set, Union
 from slither.core.cfg.node import NodeType
 from slither.slithir.operations import (
     Binary,
-    BinaryType,
     Condition,
     InternalCall,
     Assignment,
@@ -660,9 +659,9 @@ class AnalysisFunction:
         for ir in stmt.ir:
             if isinstance(ir, Binary):
                 label = "<title> {} | <left> left | <right> right | <result> result".format(
-                    html.escape(BinaryType.str(ir.type))
+                    html.escape(str(ir.type))
                 )
-                name = "{}__{}".format(BinaryType.str(ir.type), next(counter))
+                name = "{}__{}".format(str(ir.type), next(counter))
                 g.node(name, label=label)
                 g.edge("{}:statements".format(root_handle), "{}:title".format(name))
                 g.edge("{}:left".format(name), str(self.get_sym_var(ir.variable_left)))
