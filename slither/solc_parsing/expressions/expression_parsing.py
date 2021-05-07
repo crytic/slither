@@ -729,7 +729,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
         assert "children" not in expression
 
         if is_compact_ast:
-            value = expression["value"]
+            value = expression.get("value", None)
             if value:
                 if "subdenomination" in expression and expression["subdenomination"]:
                     subdenomination = expression["subdenomination"]
@@ -742,7 +742,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
                 if expression["kind"] == "number":
                     type_candidate = "int_const"
         else:
-            value = expression["attributes"]["value"]
+            value = expression["attributes"].get("value", None)
             if value:
                 if (
                     "subdenomination" in expression["attributes"]
