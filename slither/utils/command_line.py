@@ -145,7 +145,7 @@ def convert_result_to_markdown(txt):
     return "".join(ret)
 
 
-def output_results_to_markdown(all_results):
+def output_results_to_markdown(all_results, checklistlimit: str):
     checks = defaultdict(list)
     info = defaultdict(dict)
     for results in all_results:
@@ -154,13 +154,17 @@ def output_results_to_markdown(all_results):
 
     print("Summary")
     for check in checks:
-        print(f" - [{check}](#{check}) ({len(checks[check])} results)")
+        print(f" - [{check}](#{check}) ({len(checks[check])} results) ({info[check]['impact']})")
 
     counter = 0
     for (check, results) in checks.items():
         print(f"## {check}")
         print(f'Impact: {info[check]["impact"]}')
         print(f'Confidence: {info[check]["confidence"]}')
+        additional = False
+        if checklistlimit and len(results) > 5:
+            results = results[0:5]
+            additional = True
         for result in results:
             print(" - [ ] ID-" + f"{counter}")
             counter = counter + 1
@@ -168,6 +172,8 @@ def output_results_to_markdown(all_results):
             if result["first_markdown_element"]:
                 print(result["first_markdown_element"])
                 print("\n")
+        if additional:
+            print(f"**More results were found, check [{checklistlimit}]({checklistlimit})**")
 
 
 def output_wiki(detector_classes, filter_wiki):
