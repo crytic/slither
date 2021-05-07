@@ -472,6 +472,8 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         "--checklist", help=argparse.SUPPRESS, action="store_true", default=False
     )
 
+    group_misc.add_argument("--checklist-limit", help=argparse.SUPPRESS, action="store", default="")
+
     parser.add_argument(
         "--wiki-detectors", help=argparse.SUPPRESS, action=OutputWiki, default=False
     )
@@ -751,7 +753,7 @@ def main_impl(all_detector_classes, all_printer_classes):
 
         # Output our results to markdown if we wish to compile a checklist.
         if args.checklist:
-            output_results_to_markdown(results_detectors)
+            output_results_to_markdown(results_detectors, args.checklist_limit)
 
         # Dont print the number of result for printers
         if number_contracts == 0:
