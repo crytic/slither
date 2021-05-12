@@ -17,5 +17,8 @@ for file in *0.5.17-compact.zip; do
 done
 
 cd ../../.. || exit
-
-slither examples/scripts/test_evm_api.sol --print evm 
+# Needed for evm printer
+pip install evm-cfg-builder
+solc-select use "0.5.1"
+if ! slither examples/scripts/test_evm_api.sol --print evm; then
+  echo "EVM printer failed"
