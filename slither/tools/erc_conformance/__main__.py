@@ -8,6 +8,7 @@ from slither.utils.erc import ERCS
 from slither.utils.output import output_to_json
 from .erc.ercs import generic_erc_checks
 from .erc.erc20 import check_erc20
+from .erc.erc1155 import check_erc1155
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
@@ -22,7 +23,7 @@ logger.addHandler(ch)
 logger.handlers[0].setFormatter(formatter)
 logger.propagate = False
 
-ADDITIONAL_CHECKS = {"ERC20": check_erc20}
+ADDITIONAL_CHECKS = {"ERC20": check_erc20, "ERC1155": check_erc1155}
 
 
 def parse_args():
