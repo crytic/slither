@@ -16,5 +16,6 @@ for file in *0.5.17-compact.zip; do
   fi
 done
 
+cd ../../.. || exit
 
 slither examples/scripts/test_evm_api.sol --print evm 
