@@ -14,6 +14,7 @@ logger = logging.getLogger("Slither-check-upgradeability")
 class MultipleInitTarget(Exception):
     pass
 
+
 def _has_initiliaze_modifier(function: Function):
     if not function.modifiers:
         return False
@@ -21,7 +22,11 @@ def _has_initiliaze_modifier(function: Function):
 
 
 def _get_initialize_functions(contract):
-    return [f for f in contract.functions if (f.name == "initialize" or _has_initiliaze_modifier(f)) and f.is_implemented]
+    return [
+        f
+        for f in contract.functions
+        if (f.name == "initialize" or _has_initiliaze_modifier(f)) and f.is_implemented
+    ]
 
 
 def _get_all_internal_calls(function):
