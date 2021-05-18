@@ -11,7 +11,7 @@ import pstats
 from slither.detectors.reentrancy.reentrancy import Reentrancy
 import sys
 import traceback
-from typing import List, Optional
+from typing import Optional
 
 from pkg_resources import iter_entry_points, require
 
