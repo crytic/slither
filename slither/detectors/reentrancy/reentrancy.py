@@ -4,8 +4,11 @@
     Based on heuristics, it may lead to FP and FN
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
+from slither.core.compilation_unit import SlitherCompilationUnit
+from build.lib.slither.core.declarations.modifier import Modifier
+from build.lib.slither.core.declarations.contract import Contract
 from collections import defaultdict
-from typing import Set, Dict, Union
+from typing import List, Set, Dict, Union
 
 from slither.core.cfg.node import NodeType, Node
 from slither.core.declarations import Function
@@ -210,6 +213,10 @@ def _filter_if(node):
 class Reentrancy(AbstractDetector):
     KEY = "REENTRANCY"
 
+    def __init__(self, compilation_unit: SlitherCompilationUnit, slither, logger):
+        super().__init__(compilation_unit, slither, logger)
+        self._guard_modifiers: Dict[str, bool] = defaultdict()
+
     # can_callback and can_send_eth are static method
     # allowing inherited classes to define different behaviors
     # For example reentrancy_no_gas consider Send and Transfer as reentrant functions
@@ -281,10 +288,12 @@ class Reentrancy(AbstractDetector):
         for son in sons:
             self._explore(son, visited)
 
-    def detect_reentrancy(self, contract):
+    def detect_reentrancy(self, contract: Contract):
         for function in contract.functions_and_modifiers_declared:
             if function.is_implemented:
                 if self.KEY in function.context:
+                    continue
+                if len(function.modifiers) > 0 and self._contains_guard(function.modifiers):
                     continue
                 self._explore(function.entry_point, [])
                 function.context[self.KEY] = True
@@ -302,3 +311,15 @@ class Reentrancy(AbstractDetector):
             self.detect_reentrancy(c)
 
         return []
+
+
+    def _contains_guard(self, modifiers: List["Modifier"]):
+        return True if (modifier in self._guard_modifiers for modifier in modifiers) else False
+
+
+    def add_guard(self, modifierName: str):
+        if modifierName not in self._guard_modifiers:
+            self._guard_modifiers[modifierName] = True
+
+        
+        

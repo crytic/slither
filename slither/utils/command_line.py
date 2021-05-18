@@ -45,6 +45,7 @@ defaults_flag_in_config = {
     "zip": None,
     "zip_type": "lzma",
     "show_ignored_findings": False,
+    "guard_modifiers": "nonReentrant",
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 }
 

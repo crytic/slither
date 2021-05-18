@@ -8,9 +8,10 @@ import json
 import logging
 import os
 import pstats
+from slither.detectors.reentrancy.reentrancy import Reentrancy
 import sys
 import traceback
-from typing import Optional
+from typing import List, Optional
 
 from pkg_resources import iter_entry_points, require
 
@@ -64,7 +65,7 @@ def process_single(target, args, detector_classes, printer_classes):
         ast = "--ast-json"
     slither = Slither(target, ast_format=ast, **vars(args))
 
-    return _process(slither, detector_classes, printer_classes)
+    return _process(slither, detector_classes, printer_classes, args)
 
 
 def process_all(target, args, detector_classes, printer_classes):
@@ -92,7 +93,7 @@ def process_all(target, args, detector_classes, printer_classes):
     )
 
 
-def _process(slither, detector_classes, printer_classes):
+def _process(slither: Slither, detector_classes, printer_classes, args):
     for detector_cls in detector_classes:
         slither.register_detector(detector_cls)
 
@@ -103,6 +104,14 @@ def _process(slither, detector_classes, printer_classes):
 
     results_detectors = []
     results_printers = []
+
+    # We add the modifier guard to all the reentrancy detectors 
+    for detector in slither.detectors:
+        if isinstance(detector, Reentrancy):
+            for modifier in args.guard_modifiers.split(","):
+                detector.add_guard(modifier)
+                
+
 
     if not printer_classes:
         detector_results = slither.run_detectors()
@@ -314,6 +323,14 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         action=ListDetectors,
         nargs=0,
         default=False,
+    )
+
+    group_detector.add_argument(
+        "--include-guard-modifiers",
+        help="Comma-separated list of modifiers that avoid reentrancy, default nonReentrant,onlyOwner",
+        action="store",
+        dest="guard_modifiers",
+        default=defaults_flag_in_config["guard_modifiers"],
     )
 
     group_printer.add_argument(
