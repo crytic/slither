@@ -14,18 +14,18 @@ from slither.tools.middle.imports.graphivz import Digraph
 
 
 class OverlayGraph:
-    slither: Slither
+    contract: Slither
     functions: List[OverlayFunction]
 
     counter = count()
 
     def __init__(self, slither: Slither):
-        # Overlay graph can only be constructed from a valid slither instance
-        self.slither = slither
+        # Overlay graph can only be constructed from a valid slither instance. We use the first contract only for now.
+        self.contract = slither.contracts[0]
         self.functions = []
 
         # Create overlay functions
-        for func in slither.functions:
+        for func in self.contract.functions:
             self.functions.append(OverlayFunction(func.contract, func))
 
         # Another pass to add correctly identify the neighbors (both the

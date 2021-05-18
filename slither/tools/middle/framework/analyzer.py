@@ -15,10 +15,12 @@ from slither.tools.middle.overlay.ast.graph import OverlayGraph
 from slither.tools.middle.overlay.transform import (
     outline_all_conditionals,
     compress_all_phi_nodes,
+)
+from slither.tools.middle.overlay.util import (
+    get_all_call_sites,
     get_all_call_sites_in_function,
     create_hashable,
 )
-from slither.tools.middle.overlay.util import get_all_call_sites
 
 from slither import Slither
 from slither.core.variables.variable import Variable
@@ -121,10 +123,13 @@ class Analyzer:
         self.root = None
         self.id = next(analyzer_counter)
 
+        # Only analyze one contract for now.
+        self.contract = self.overlay_graph.contract
+
         # Initialize the strategy.
         strategy.set_analysis(self)
 
-        self.state_variables = self.slither.state_variables
+        self.state_variables = self.contract.state_variables
 
     @property
     def initialized(self):
