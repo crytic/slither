@@ -1405,7 +1405,11 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
         """
             Determine if the function is protected using a check on msg.sender
 
-            Only detects if msg.sender is directly used in a condition
+            Consider onlyOwner as a safe modifier.
+            If the owner functionality is incorrectly implemented, this will lead to incorrectly
+            classify the function as protected
+
+            Otherwise only detects if msg.sender is directly used in a condition
             For example, it wont work for:
                 address a = msg.sender
                 require(a == owner)
@@ -1415,6 +1419,9 @@ class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
 
         if self._is_protected is None:
             if self.is_constructor:
+                self._is_protected = True
+                return True
+            if "onlyOwner" in [m.name for m in self.modifiers]:
                 self._is_protected = True
                 return True
             conditional_vars = self.all_conditional_solidity_variables_read(include_loop=False)
