@@ -772,6 +772,17 @@ def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
                 op.set_expression(ins.expression)
                 op.call_id = ins.call_id
                 return op
+
+            # For event emit through library
+            # lib L { event E()}
+            # ...
+            # emit L.E();
+            if str(ins.ori.variable_right) in [f.name for f in ins.ori.variable_left.events]:
+                eventcall = EventCall(ins.ori.variable_right)
+                eventcall.set_expression(ins.expression)
+                eventcall.call_id = ins.call_id
+                return eventcall
+
             libcall = LibraryCall(
                 ins.ori.variable_left,
                 ins.ori.variable_right,

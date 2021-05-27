@@ -892,7 +892,12 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
                     array_type = ElementaryType(type_name["attributes"]["name"])
             elif type_name[caller_context.get_key()] == "UserDefinedTypeName":
                 if is_compact_ast:
-                    array_type = parse_type(UnknownType(type_name["name"]), caller_context)
+                    if "name" not in type_name:
+                        name_type = type_name["pathNode"]["name"]
+                    else:
+                        name_type = type_name["name"]
+
+                    array_type = parse_type(UnknownType(name_type), caller_context)
                 else:
                     array_type = parse_type(
                         UnknownType(type_name["attributes"]["name"]), caller_context
