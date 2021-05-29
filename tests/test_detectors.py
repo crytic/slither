@@ -1194,6 +1194,11 @@ ALL_TESTS = [
         "multiple_constructor_schemes.sol",
         "0.4.22",
     ),
+    Test(
+        all_detectors.DeprecatedStandards,
+        "deprecated_calls.sol",
+        "0.4.25",
+    ),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 

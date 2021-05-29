@@ -1,0 +1,176 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "node",
+                    "name": "msg.gas == msg.value",
+                    "source_mapping": {
+                        "start": 140,
+                        "length": 20,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5
+                        ],
+                        "starting_column": 12,
+                        "ending_column": 32
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "functionWithDeprecatedThrow",
+                            "source_mapping": {
+                                "start": 21,
+                                "length": 229,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Test",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 252,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "functionWithDeprecatedThrow()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Deprecated standard detected msg.gas == msg.value (tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol#5):\n\t- Usage of \"msg.gas\" should be replaced with \"gasleft()\"\n",
+            "markdown": "Deprecated standard detected [msg.gas == msg.value](tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol#L5):\n\t- Usage of \"msg.gas\" should be replaced with \"gasleft()\"\n",
+            "first_markdown_element": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol#L5",
+            "id": "e779713eabc28919356310f06b9413a8a3b7e9e713026d6cfae2d9f6839c1e57",
+            "check": "deprecated-standards",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "node",
+                    "name": "",
+                    "source_mapping": {
+                        "start": 228,
+                        "length": 5,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 18
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "functionWithDeprecatedThrow",
+                            "source_mapping": {
+                                "start": 21,
+                                "length": 229,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Test",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 252,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "functionWithDeprecatedThrow()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Deprecated standard detected THROW (tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol#7):\n\t- Usage of \"throw\" should be replaced with \"revert()\"\n",
+            "markdown": "Deprecated standard detected [THROW](tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol#L7):\n\t- Usage of \"throw\" should be replaced with \"revert()\"\n",
+            "first_markdown_element": "tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol#L7",
+            "id": "5fbf4a42467953d0fd8d0661cbb4eeb81d4b40f69ae3820196bf10c4be53044e",
+            "check": "deprecated-standards",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]
