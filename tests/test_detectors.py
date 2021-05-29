@@ -1184,6 +1184,11 @@ ALL_TESTS = [
         "unimplemented_interface.sol",
         "0.7.6",
     ),
+    Test(
+        all_detectors.EnumConversion,
+        "enum_conversion.sol",
+        "0.4.2",
+    ),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 
