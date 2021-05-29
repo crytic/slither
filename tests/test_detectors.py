@@ -1189,6 +1189,11 @@ ALL_TESTS = [
         "enum_conversion.sol",
         "0.4.2",
     ),
+    Test(
+        all_detectors.MultipleConstructorSchemes,
+        "multiple_constructor_schemes.sol",
+        "0.4.22",
+    ),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 
