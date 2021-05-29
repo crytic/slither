@@ -1,0 +1,58 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Something",
+                    "source_mapping": {
+                        "start": 68,
+                        "length": 89,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/missing-inheritance/0.4.25/unimplemented_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/missing-inheritance/0.4.25/unimplemented_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "contract",
+                    "name": "ISomething",
+                    "source_mapping": {
+                        "start": 0,
+                        "length": 66,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/missing-inheritance/0.4.25/unimplemented_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/missing-inheritance/0.4.25/unimplemented_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            1,
+                            2,
+                            3
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                }
+            ],
+            "description": "Something (tests/detectors/missing-inheritance/0.4.25/unimplemented_interface.sol#5-10) should inherit from ISomething (tests/detectors/missing-inheritance/0.4.25/unimplemented_interface.sol#1-3)\n",
+            "markdown": "[Something](tests/detectors/missing-inheritance/0.4.25/unimplemented_interface.sol#L5-L10) should inherit from [ISomething](tests/detectors/missing-inheritance/0.4.25/unimplemented_interface.sol#L1-L3)\n",
+            "first_markdown_element": "tests/detectors/missing-inheritance/0.4.25/unimplemented_interface.sol#L5-L10",
+            "id": "58962dc72a6c49524a027e8e1615ab92be30f1a0f5ef0eb4a029204687159649",
+            "check": "missing-inheritance",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]
