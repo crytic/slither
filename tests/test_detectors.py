@@ -1199,6 +1199,26 @@ ALL_TESTS = [
         "deprecated_calls.sol",
         "0.4.25",
     ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply.sol",
+        "0.7.6",
+    ),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 

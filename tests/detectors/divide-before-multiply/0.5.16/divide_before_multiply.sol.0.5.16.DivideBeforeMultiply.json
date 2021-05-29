@@ -1,0 +1,127 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "f",
+                    "source_mapping": {
+                        "start": 14,
+                        "length": 92,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            2,
+                            3,
+                            4
+                        ],
+                        "starting_column": 2,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 108,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "f(uint256,uint256,uint256)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "(a / b) * c",
+                    "source_mapping": {
+                        "start": 81,
+                        "length": 18,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 27
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "f",
+                            "source_mapping": {
+                                "start": 14,
+                                "length": 92,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "starting_column": 2,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "A",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 108,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "f(uint256,uint256,uint256)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "A.f(uint256,uint256,uint256) (tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol#2-4) performs a multiplication on the result of a division:\n\t-(a / b) * c (tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol#3)\n",
+            "markdown": "[A.f(uint256,uint256,uint256)](tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol#L2-L4) performs a multiplication on the result of a division:\n\t-[(a / b) * c](tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol#L3)\n",
+            "first_markdown_element": "tests/detectors/divide-before-multiply/0.5.16/divide_before_multiply.sol#L2-L4",
+            "id": "a484421df5c9ebf3dc3d8bcec6701ab3065e03b21e294c4972142c4503f2fccb",
+            "check": "divide-before-multiply",
+            "impact": "Medium",
+            "confidence": "Medium"
+        }
+    ]
+]
