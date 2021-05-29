@@ -1239,6 +1239,26 @@ ALL_TESTS = [
         "type_based_tautology.sol",
         "0.7.6",
     ),
+    Test(
+        all_detectors.SimilarVarsDetection,
+        "similar_variables.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.SimilarVarsDetection,
+        "similar_variables.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.SimilarVarsDetection,
+        "similar_variables.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.SimilarVarsDetection,
+        "similar_variables.sol",
+        "0.7.6",
+    ),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 
