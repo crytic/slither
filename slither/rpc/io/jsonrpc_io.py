@@ -1,8 +1,9 @@
 import json
 import re
 from threading import Lock
-from typing import Any, Optional, BinaryIO, Tuple, List, Union
+from typing import Any, Optional, BinaryIO, Tuple, List, Union, IO
 
+# The regex used to parse Content-Length from the JSON-RPC messages.
 CONTENT_LENGTH_REGEX = re.compile("Content-Length:\s+(\d+)\s*", re.IGNORECASE)
 
 class JsonRpcIo:
@@ -12,7 +13,7 @@ class JsonRpcIo:
     Target: Language Server Protocol 3.16
     https://microsoft.github.io/language-server-protocol/specifications/specification-3-16/
     """
-    def __init__(self, read_file_handle: BinaryIO, write_file_handle: BinaryIO):
+    def __init__(self, read_file_handle: IO, write_file_handle: IO):
         self._read_file_handle = read_file_handle
         self._write_file_handle = write_file_handle
         self._read_lock = Lock()
@@ -24,6 +25,7 @@ class JsonRpcIo:
         :return: Returns a tuple(headers, body) if a message was available, returns None otherwise.
         """
         # TODO: We'll likely want to add some proper exception handling logic here.
+        # TODO: We'll probably want to parse and read based off of the provided Content-Type for future flexibility.
         with self._read_lock:
             # Attempt to read headers, searching for Content-Length in the process
             headers = []
@@ -35,7 +37,8 @@ class JsonRpcIo:
                     break
 
                 # If stripping it results in no remaining content, then it should be the final \r\n string.
-                line = line.decode('utf-8')
+                if isinstance(line, bytes):
+                    line = line.decode('utf-8')
                 if not line.strip():
                     break
 
@@ -45,10 +48,10 @@ class JsonRpcIo:
                 # See if this line is the content-length header
                 match = CONTENT_LENGTH_REGEX.match(line)
                 if match:
-                    match = match.group()
+                    match = match.group(1)
                     if len(match) > 0:
                         assert content_length is None, "More than one Content-Length header should not be received."
-                        content_length = int(match[0])
+                        content_length = int(match)
 
             # If we didn't receive a content-length header, return None and try to skip
             # TODO: We probably want to send the appropriate error code back in the future.
@@ -57,8 +60,9 @@ class JsonRpcIo:
 
             # Next we'll want to read our body
             body = self._read_file_handle.read(content_length)
-            body = json.loads(body.decode('utf-8'))
-            return headers, body
+            if isinstance(body, bytes):
+                body = body.decode('utf-8')
+            return headers, json.loads(body)
 
 
     def write(self, data: Optional[Any]) -> None:
@@ -69,16 +73,23 @@ class JsonRpcIo:
         """
         # TODO: We'll likely want to add some exception handling logic here.
         with self._write_lock:
-            # The default encoding type specified is UTF-8, we encode now to determine content-length header contents.
-            encoded_json_data = json.dumps(data).encode('utf-8')
+            # Get our data as JSON. Depending on if the stream is text/binary, we encode the data
+            json_data = json.dumps(data)
+            if isinstance(self._write_file_handle, BinaryIO):
+                json_data = json_data.encode('utf-8')
 
             # Construct our headers. Headers are delimited by '\r\n'. This is also the case for the headers+body.
             # Note: Although Content-Type defaults to the value below, we remain explicit to be safe.
             headers = (
-            f"Content-Length: {len(encoded_json_data)}\r\n"
-            "Content-Type: application/vscode-jsonrpc; charset=utf-8\r\n"
-            "\r\n").encode('utf-8')
+                f"Content-Length: {len(json_data)}\r\n"
+                "Content-Type: application/vscode-jsonrpc; charset=utf-8\r\n"
+                "\r\n"
+            )
+
+            # Depending on if the stream is text/binary, we encode the data
+            if isinstance(self._write_file_handle, BinaryIO):
+                headers = headers.encode('utf-8')
 
             # Write our data and flush it to our handle
-            self._write_file_handle.write(headers + encoded_json_data)
+            self._write_file_handle.write(headers + json_data)
             self._write_file_handle.flush()

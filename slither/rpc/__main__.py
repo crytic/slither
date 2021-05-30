@@ -22,12 +22,12 @@ def parse_args() -> argparse.Namespace:
 
     # We want to offer a switch to communicate over a network socket rather than stdin/stdout.
     parser.add_argument(
-        "--network", help="Indicates that the RPC server should use a network socket rather than stdin/stdout.",
-        action='store_true',
-        default=False
+        "--port",
+        help="Indicates that the RPC server should use a TCP socket with the provided port, rather than stdio.",
+        type=int
     )
 
-    # TODO: We should add additional arguments for host/port binding for the --network option.
+    # TODO: Perform validation for port number
 
     return parser.parse_args()
 
@@ -41,13 +41,15 @@ def main() -> None:
     args = parse_args()
 
     # Determine which server provider to use.
-    if args.network:
-        server = NetworkServer()
+    if args.port:
+        # Initialize a network server (using the provided host/port to communicate over TCP).
+        server = NetworkServer(args.port)
     else:
+        # Initialize a console server (uses stdio to communicate)
         server = ConsoleServer()
 
     # Begin processing commands
-    server.main_loop()
+    server.start()
 
 
 if __name__ == "__main__":
