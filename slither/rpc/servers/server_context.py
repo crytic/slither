@@ -2,8 +2,11 @@ from slither import Slither
 from typing import Optional
 
 
-class ServerState:
+class ServerContext:
     def __init__(self):
+        # Create our basic LSP state variables
+        self.lsp_initialized: bool = False
+
         # Create our analysis results structure
         self._analysis_results = {}
 

@@ -64,7 +64,6 @@ class JsonRpcIo:
                 body = body.decode('utf-8')
             return headers, json.loads(body)
 
-
     def write(self, data: Optional[Any]) -> None:
         """
         Serializes the provided data as JSON and sends it over the underlying file handle.
