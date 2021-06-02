@@ -47,7 +47,7 @@ class FunctionInitializedState(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#function-initializing-state-variables"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#function-initializing-state"
 
     WIKI_TITLE = "Function Initializing State"
     WIKI_DESCRIPTION = "Detects the immediate initialization of state variables through function calls that are not pure/constant, or that use non-constant state variable."
