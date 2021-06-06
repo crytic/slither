@@ -18,9 +18,14 @@ class TooManyDigits(AbstractDetector):
 
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits"
     WIKI_TITLE = "Too many digits"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Literals with many digits are difficult to read and review.
 """
+    # endregion wiki_description
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract MyContract{
@@ -30,12 +35,16 @@ contract MyContract{
 
 While `1_ether` looks like `1 ether`, it is `10 ether`. As a result, it's likely to be used incorrectly.
 """
+    # endregion wiki_exploit_scenario
+
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Use:
 - [Ether suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#ether-units),
 - [Time suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#time-units), or
 - [The scientific notation](https://solidity.readthedocs.io/en/latest/types.html#rational-and-integer-literals)
 """
+    # endregion wiki_recommendation
 
     @staticmethod
     def _detect_too_many_digits(f):

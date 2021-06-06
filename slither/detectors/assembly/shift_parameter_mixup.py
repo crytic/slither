@@ -17,6 +17,8 @@ class ShiftParameterMixup(AbstractDetector):
 
     WIKI_TITLE = "Incorrect shift in assembly."
     WIKI_DESCRIPTION = "Detect if the values in a shift operation are reversed"
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract C {
@@ -28,6 +30,7 @@ contract C {
 }
 ```
 The shift statement will right-shift the constant 8 by `a` bits"""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Swap the order of parameters."
 

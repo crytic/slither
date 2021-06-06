@@ -25,6 +25,8 @@ class LockedEther(AbstractDetector):  # pylint: disable=too-many-nested-blocks
 
     WIKI_TITLE = "Contracts that lock Ether"
     WIKI_DESCRIPTION = "Contract with a `payable` function, but without a withdrawal capacity."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 pragma solidity 0.4.24;
@@ -34,6 +36,7 @@ contract Locked{
 }
 ```
 Every Ether sent to `Locked` will be lost."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Remove the payable attribute or add a withdraw function."
 

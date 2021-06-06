@@ -35,6 +35,8 @@ class IncorrectStrictEquality(AbstractDetector):
 
     WIKI_TITLE = "Dangerous strict equalities"
     WIKI_DESCRIPTION = "Use of strict equalities that can be easily manipulated by an attacker."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Crowdsale{
@@ -44,7 +46,8 @@ contract Crowdsale{
 ```
 `Crowdsale` relies on `fund_reached` to know when to stop the sale of tokens.
 `Crowdsale` reaches 100 Ether. Bob sends 0.1 Ether. As a result, `fund_reached` is always false and the `crowdsale` never ends."""
-
+    # endregion wiki_exploit_scenario
+    
     WIKI_RECOMMENDATION = (
         """Don't use strict equality to determine if an account has enough Ether or tokens."""
     )

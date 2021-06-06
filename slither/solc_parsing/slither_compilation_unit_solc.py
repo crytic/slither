@@ -286,8 +286,10 @@ class SlitherCompilationUnitSolc:
                 and not contract.is_top_level
             ):
                 raise SlitherException(
+                    # region multi-line-string
                     """Your codebase has a contract named 'SlitherInternalTopLevelContract'.
 Please rename it, this name is reserved for Slither's internals"""
+                    # endregion multi-line
                 )
             if contract.name in self._compilation_unit.contracts_as_dict:
                 if contract.id != self._compilation_unit.contracts_as_dict[contract.name].id:

@@ -19,6 +19,8 @@ class UninitializedStorageVars(AbstractDetector):
 
     WIKI_TITLE = "Uninitialized storage variables"
     WIKI_DESCRIPTION = "An uninitialized storage variable will act as a reference to the first state variable, and can override a critical variable."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Uninitialized{
@@ -36,6 +38,7 @@ contract Uninitialized{
 ```
 Bob calls `func`. As a result, `owner` is overridden to `0`.
 """
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Initialize all storage variables."
 

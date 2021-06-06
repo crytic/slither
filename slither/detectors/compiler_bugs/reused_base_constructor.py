@@ -34,6 +34,8 @@ class ReusedBaseConstructor(AbstractDetector):
 
     WIKI_TITLE = "Reused base constructors"
     WIKI_DESCRIPTION = "Detects if the same base constructor is called with arguments from two different locations in the same inheritance hierarchy."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 pragma solidity ^0.4.0;
@@ -65,6 +67,8 @@ The constructor of `A` is called multiple times in `D` and `E`:
 - `D` inherits from `B` and `C`, both of which construct `A`.
 - `E` only inherits from `B`, but `B` and `E` construct `A`.
 ."""
+    # endregion wiki_exploit_scenario
+
     WIKI_RECOMMENDATION = "Remove the duplicate constructor call."
 
     def _detect_explicitly_called_base_constructors(self, contract):

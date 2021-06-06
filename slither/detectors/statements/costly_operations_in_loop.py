@@ -20,6 +20,8 @@ class CostlyOperationsInLoop(AbstractDetector):
     WIKI_DESCRIPTION = (
         "Costly operations inside a loop might waste gas, so optimizations are justified."
     )
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract CostlyOperationsInLoop{
@@ -43,7 +45,8 @@ contract CostlyOperationsInLoop{
 }
 ```
 Incrementing `state_variable` in a loop incurs a lot of gas because of expensive `SSTOREs`, which might lead to an `out-of-gas`."""
-
+    # endregion wiki_exploit_scenario
+    
     WIKI_RECOMMENDATION = "Use a local variable to hold the loop computation result."
 
     @staticmethod

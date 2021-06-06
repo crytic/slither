@@ -24,10 +24,14 @@ class ReentrancyReadBeforeWritten(Reentrancy):
     )
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
 Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
     function bug(){
@@ -39,6 +43,8 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
     }   
 ```
 """
+    # endregion wiki_exploit_scenario
+
     WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy)."
 
     STANDARD_JSON = False

@@ -72,6 +72,8 @@ class ArrayLengthAssignment(AbstractDetector):
 
     WIKI_TITLE = "Array Length Assignment"
     WIKI_DESCRIPTION = """Detects the direct assignment of an array's length."""
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
@@ -94,9 +96,12 @@ Contract storage/state-variables are indexed by a 256-bit integer.
 The user can set the array length to `2**256-1` in order to index all storage slots. 
 In the example above, one could call the function `f` to set the array length, then call the function `g` to control any storage slot desired. 
 Note that storage slots here are indexed via a hash of the indexers; nonetheless, all storage will still be accessible and could be controlled by the attacker."""
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """Do not allow array lengths to be set directly set; instead, opt to add values as needed.
 Otherwise, thoroughly review the contract to ensure a user-controlled variable cannot reach an array length assignment."""
+    # endregion wiki_recommendation
 
     def _detect(self):
         """

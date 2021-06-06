@@ -11,10 +11,14 @@ class WereConstant(AbstractCheck):
     HELP = "Variables that should be constant"
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-that-should-be-constant"
     WIKI_TITLE = "Variables that should be constant"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect state variables that should be `constant̀`.
 """
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
@@ -32,10 +36,13 @@ contract ContractV2{
 Because `variable2` is not anymore a `constant`, the storage location of `variable3` will be different.
 As a result, `ContractV2` will have a corrupted storage layout.
 """
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Do not remove `constant` from a state variables during an update.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
     REQUIRE_CONTRACT_V2 = True
@@ -92,10 +99,13 @@ class BecameConstant(AbstractCheck):
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-that-should-not-be-constant"
     WIKI_TITLE = "Variables that should not be constant"
 
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect state variables that should not be `constant̀`.
 """
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
@@ -113,10 +123,13 @@ contract ContractV2{
 Because `variable2` is now a `constant`, the storage location of `variable3` will be different.
 As a result, `ContractV2` will have a corrupted storage layout.
 """
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Do not make an existing state variable `constant`.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
     REQUIRE_CONTRACT_V2 = True

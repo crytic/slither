@@ -21,6 +21,8 @@ class DeadCode(AbstractDetector):
 
     WIKI_TITLE = "Dead-code"
     WIKI_DESCRIPTION = "Functions that are not sued."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
@@ -28,6 +30,7 @@ contract Contract{
 }
 ```
 `dead_code` is not used in the contract, and make the code's review more difficult."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Remove unused functions."
 

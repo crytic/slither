@@ -42,6 +42,8 @@ class IncorrectUnaryExpressionDetection(AbstractDetector):
 
     WIKI_TITLE = "Dangerous unary expressions"
     WIKI_DESCRIPTION = "Unary expressions such as `x=+1` probably typos."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```Solidity 
 contract Bug{
@@ -54,6 +56,7 @@ contract Bug{
 }
 ```
 `increase()` uses `=+` instead of `+=`, so `counter` will never exceed 1."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Remove the unary expression."
 
