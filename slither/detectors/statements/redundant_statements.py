@@ -22,6 +22,8 @@ class RedundantStatements(AbstractDetector):
 
     WIKI_TITLE = "Redundant Statements"
     WIKI_DESCRIPTION = "Detect the usage of redundant statements that have no effect."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract RedundantStatementsContract {
@@ -41,6 +43,7 @@ contract RedundantStatementsContract {
 }
 ```
 Each commented line references types/identifiers, but performs no action with them, so no code will be generated for such statements and they can be removed."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Remove redundant statements if they congest code but offer no value."
 

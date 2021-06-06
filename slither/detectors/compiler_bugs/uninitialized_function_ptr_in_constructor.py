@@ -89,6 +89,8 @@ class UninitializedFunctionPtrsConstructor(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-function-pointers-in-constructors"
     WIKI_TITLE = "Uninitialized function pointers in constructors"
     WIKI_DESCRIPTION = "solc versions `0.4.5`-`0.4.26` and `0.5.0`-`0.5.8` contain a compiler bug leading to unexpected behavior when calling uninitialized function pointers in constructors."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract bad0 {
@@ -102,6 +104,8 @@ contract bad0 {
 }
 ```
 The call to `a(10)` will lead to unexpected behavior because function pointer `a` is not initialized in the constructor."""
+    # endregion wiki_exploit_scenario
+
     WIKI_RECOMMENDATION = (
         "Initialize function pointers before calling. Avoid function pointers if possible."
     )

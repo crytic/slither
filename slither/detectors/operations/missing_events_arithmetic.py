@@ -22,6 +22,8 @@ class MissingEventsArithmetic(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#missing-events-arithmetic"
     WIKI_TITLE = "Missing events arithmetic"
     WIKI_DESCRIPTION = "Detect missing events for critical arithmetic parameters."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract C {
@@ -42,6 +44,7 @@ contract C {
 ```
 `updateOwner()` has no event, so it is difficult to track off-chain changes in the buy price. 
 """
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Emit an event for critical parameter changes."
 

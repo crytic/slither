@@ -89,6 +89,8 @@ class BadPRNG(AbstractDetector):
 
     WIKI_TITLE = "Weak PRNG"
     WIKI_DESCRIPTION = "Weak PRNG due to a modulo on `block.timestamp`, `now` or `blockhash`. These can be influenced by miners to some extent so they should be avoided."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Game {
@@ -102,6 +104,7 @@ contract Game {
 ```
 Eve is a miner. Eve calls `guessing` and re-orders the block containing the transaction. 
 As a result, Eve wins the game."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = (
         "Do not use `block.timestamp`, `now` or `blockhash` as a source of randomness"

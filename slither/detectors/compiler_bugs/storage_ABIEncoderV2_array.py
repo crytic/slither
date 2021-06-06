@@ -62,6 +62,8 @@ class ABIEncoderV2Array(AbstractDetector):
     )
     WIKI_TITLE = "Storage ABIEncoderV2 Array"
     WIKI_DESCRIPTION = """`solc` versions `0.4.7`-`0.5.10` contain a [compiler bug](https://blog.ethereum.org/2019/06/25/solidity-storage-array-bugs.) leading to incorrect ABI encoder usage."""
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
@@ -75,6 +77,8 @@ contract A {
 ```
 `abi.encode(bad_arr)` in a call to `bad()` will incorrectly encode the array as `[[1, 2], [2, 3], [3, 4]]` and lead to unintended behavior.
 """
+    # endregion wiki_exploit_scenario
+
     WIKI_RECOMMENDATION = "Use a compiler >= `0.5.10`."
 
     @staticmethod

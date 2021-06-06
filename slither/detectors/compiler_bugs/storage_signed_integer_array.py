@@ -59,8 +59,13 @@ class StorageSignedIntegerArray(AbstractDetector):
         "https://github.com/crytic/slither/wiki/Detector-Documentation#storage-signed-integer-array"
     )
     WIKI_TITLE = "Storage Signed Integer Array"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """`solc` versions `0.4.7`-`0.5.10` contain [a compiler bug](https://blog.ethereum.org/2019/06/25/solidity-storage-array-bugs)
 leading to incorrect values in signed integer arrays."""
+    # endregion wiki_description
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
@@ -75,6 +80,8 @@ contract A {
 `bad0()` uses a (storage-allocated) signed integer array state variable to store the ether balances of three accounts.  
 `-1` is supposed to indicate uninitialized values but the Solidity bug makes these as `1`, which could be exploited by the accounts.
 """
+    # endregion wiki_exploit_scenario
+
     WIKI_RECOMMENDATION = "Use a compiler version >= `0.5.10`."
 
     @staticmethod

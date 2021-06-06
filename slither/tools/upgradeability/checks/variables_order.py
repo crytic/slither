@@ -11,9 +11,14 @@ class MissingVariable(AbstractCheck):
     HELP = "Variable missing in the v2"
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#missing-variables"
     WIKI_TITLE = "Missing variables"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect variables that were present in the original contracts but are not in the updated one.
 """
+    # endregion wiki_description
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract V1{
@@ -29,10 +34,13 @@ The new version, `V2` does not contain `variable1`.
 If a new variable is added in an update of `V2`, this variable will hold the latest value of `variable2` and
 will be corrupted.
 """
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Do not change the order of the state variables in the updated contract.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
     REQUIRE_CONTRACT_V2 = True
@@ -62,10 +70,13 @@ class DifferentVariableContractProxy(AbstractCheck):
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#incorrect-variables-with-the-proxy"
     WIKI_TITLE = "Incorrect variables with the proxy"
 
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect variables that are different between the contract and the proxy.
 """
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
@@ -78,10 +89,13 @@ contract Proxy{
 ```
 `Contract` and `Proxy` do not have the same storage layout. As a result the storage of both contracts can be corrupted.
 """
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Avoid variables in the proxy. If a variable is in the proxy, ensure it has the same layout than in the contract.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
     REQUIRE_PROXY = True
@@ -129,10 +143,13 @@ class DifferentVariableContractNewContract(DifferentVariableContractProxy):
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#incorrect-variables-with-the-v2"
     WIKI_TITLE = "Incorrect variables with the v2"
 
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect variables that are different between the original contract and the updated one.
 """
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
@@ -145,10 +162,13 @@ contract ContractV2{
 ```
 `Contract` and `ContractV2` do not have the same storage layout. As a result the storage of both contracts can be corrupted.
 """
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Respect the variable order of the original contract in the updated contract.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
     REQUIRE_PROXY = False
@@ -168,10 +188,13 @@ class ExtraVariablesProxy(AbstractCheck):
     )
     WIKI_TITLE = "Extra variables in the proxy"
 
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect variables that are in the proxy and not in the contract.
 """
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
@@ -185,10 +208,13 @@ contract Proxy{
 ```
 `Proxy` contains additional variables. A future update of `Contract` is likely to corrupt the proxy.
 """
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Avoid variables in the proxy. If a variable is in the proxy, ensure it has the same layout than in the contract.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
     REQUIRE_PROXY = True
@@ -229,15 +255,19 @@ class ExtraVariablesNewContract(ExtraVariablesProxy):
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#extra-variables-in-the-v2"
     WIKI_TITLE = "Extra variables in the v2"
 
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Show new variables in the updated contract. 
 
 This finding does not have an immediate security impact and is informative.
 """
+    # endregion wiki_description
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Ensure that all the new variables are expected.
 """
+    # endregion wiki_recommendation
 
     IMPACT = CheckClassification.INFORMATIONAL
 

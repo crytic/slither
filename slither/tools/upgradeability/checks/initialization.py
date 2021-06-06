@@ -45,14 +45,19 @@ class InitializablePresent(AbstractCheck):
     HELP = "Initializable is missing"
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing"
     WIKI_TITLE = "Initializable is missing"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect if a contract `Initializable` is present.
 """
+    # endregion wiki_description
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Review manually the contract's initialization..
 Consider using a `Initializable` contract to follow [standard practice](https://docs.openzeppelin.com/upgrades/2.7/writing-upgradeable).
 """
+    # endregion wiki_recommendation
 
     def _check(self):
         initializable = self.contract.compilation_unit.get_contract_from_name("Initializable")
@@ -73,13 +78,17 @@ class InitializableInherited(AbstractCheck):
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-not-inherited"
     WIKI_TITLE = "Initializable is not inherited"
 
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect if `Initializable` is inherited.
 """
+    # endregion wiki_description
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Review manually the contract's initialization. Consider inheriting `Initializable`.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
 
@@ -103,13 +112,17 @@ class InitializableInitializer(AbstractCheck):
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializer-is-missing"
     WIKI_TITLE = "initializer() is missing"
 
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect the lack of `Initializable.initializer()` modifier.
 """
+    # endregion wiki_description
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Review manually the contract's initialization. Consider inheriting a `Initializable.initializer()` modifier.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
 
@@ -137,10 +150,14 @@ class MissingInitializerModifier(AbstractCheck):
     HELP = "initializer() is not called"
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializer-is-not-called"
     WIKI_TITLE = "initializer() is not called"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect if `Initializable.initializer()` is called.
 """
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
@@ -152,10 +169,13 @@ contract Contract{
 ```
 `initialize` should have the `initializer` modifier to prevent someone from initializing the contract multiple times.  
 """
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Use `Initializable.initializer()`.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
 
@@ -189,10 +209,14 @@ class MissingCalls(AbstractCheck):
     HELP = "Missing calls to init functions"
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-functions-are-not-called"
     WIKI_TITLE = "Initialize functions are not called"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect missing calls to initialize functions.
 """
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Base{
@@ -209,10 +233,13 @@ contract Derived is Base{
 ```
 `Derived.initialize` does not call `Base.initialize` leading the contract to not be correctly initialized.  
 """
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Ensure all the initialize functions are reached by the most derived initialize function.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
 
@@ -246,10 +273,14 @@ class MultipleCalls(AbstractCheck):
     HELP = "Init functions called multiple times"
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-functions-are-called-multiple-times"
     WIKI_TITLE = "Initialize functions are called multiple times"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect multiple calls to a initialize function.
 """
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Base{
@@ -273,10 +304,13 @@ contract DerivedDerived is Derived{
 ```
 `Base.initialize(uint)` is called two times in `DerivedDerived.initiliaze` execution, leading to a potential corruption.
 """
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Call only one time every initialize function.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
 
@@ -314,15 +348,19 @@ class InitializeTarget(AbstractCheck):
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function"
     WIKI_TITLE = "Initialize function"
 
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Show the function that must be called at deployment. 
 
 This finding does not have an immediate security impact and is informative.
 """
+    # endregion wiki_description
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Ensure that the function is called at deployment.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
 

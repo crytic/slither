@@ -32,6 +32,8 @@ class BooleanConstantMisuse(AbstractDetector):
 
     WIKI_TITLE = "Misuse of a Boolean constant"
     WIKI_DESCRIPTION = """Detects the misuse of a Boolean constant."""
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
@@ -52,7 +54,8 @@ contract A {
 ```
 Boolean constants in code have only a few legitimate uses. 
 Other uses (in complex expressions, as conditionals) indicate either an error or, most likely, the persistence of faulty code."""
-
+    # endregion wiki_exploit_scenario
+    
     WIKI_RECOMMENDATION = """Verify and simplify the condition."""
 
     @staticmethod

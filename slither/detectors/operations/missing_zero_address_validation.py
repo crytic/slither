@@ -24,6 +24,8 @@ class MissingZeroAddressValidation(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#missing-zero-address-validation"
     WIKI_TITLE = "Missing zero address validation"
     WIKI_DESCRIPTION = "Detect missing zero address validation."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract C {
@@ -40,6 +42,7 @@ contract C {
 ```
 Bob calls `updateOwner` without specifying the `newOwner`, soBob loses ownership of the contract.
 """
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Check that the address is not zero."
 

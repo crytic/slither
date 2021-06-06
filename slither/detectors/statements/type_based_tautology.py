@@ -74,6 +74,8 @@ class TypeBasedTautology(AbstractDetector):
 
     WIKI_TITLE = "Tautology or contradiction"
     WIKI_DESCRIPTION = """Detects expressions that are tautologies or contradictions."""
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
@@ -95,6 +97,7 @@ contract A {
 `x` is a `uint256`, so `x >= 0` will be always true.
 `y` is a `uint8`, so `y <512` will be always true.  
 """
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = (
         """Fix the incorrect comparison by changing the value type or the comparison."""

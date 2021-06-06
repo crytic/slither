@@ -42,6 +42,8 @@ class ModifierDefaultDetection(AbstractDetector):
 
     WIKI_TITLE = "Incorrect modifier"
     WIKI_DESCRIPTION = "If a modifier does not execute `_` or revert, the execution of the function will return the default value, which can be misleading for the caller."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
     modidfier myModif(){
@@ -54,6 +56,7 @@ class ModifierDefaultDetection(AbstractDetector):
     }
 ```
 If the condition in `myModif` is false, the execution of `get()` will return 0."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "All the paths in a modifier must execute `_` or revert."
 

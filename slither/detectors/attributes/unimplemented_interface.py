@@ -21,6 +21,8 @@ class MissingInheritance(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#missing-inheritance"
     WIKI_TITLE = "Missing inheritance"
     WIKI_DESCRIPTION = "Detect missing inheritance."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 interface ISomething {
@@ -35,6 +37,7 @@ contract Something {
 ```
 `Something` should inherit from `ISomething`. 
 """
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Inherit from the missing interface or contract."
 

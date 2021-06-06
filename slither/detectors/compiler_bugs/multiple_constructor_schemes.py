@@ -20,6 +20,8 @@ class MultipleConstructorSchemes(AbstractDetector):
     WIKI_DESCRIPTION = (
         "Detect multiple constructor definitions in the same contract (using new and old schemes)."
     )
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
@@ -37,6 +39,7 @@ contract A {
 }
 ```
 In Solidity [0.4.22](https://github.com/ethereum/solidity/releases/tag/v0.4.23), a contract with both constructor schemes will compile. The first constructor will take precedence over the second, which may be unintended."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Only declare one constructor, preferably using the new scheme `constructor(...)` instead of `function <contractName>(...)`."
 

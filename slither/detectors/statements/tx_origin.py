@@ -21,6 +21,8 @@ class TxOrigin(AbstractDetector):
 
     WIKI_TITLE = "Dangerous usage of `tx.origin`"
     WIKI_DESCRIPTION = "`tx.origin`-based protection can be abused by a malicious contract if a legitimate user interacts with the malicious contract."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract TxOrigin {
@@ -31,7 +33,8 @@ contract TxOrigin {
     }
 ```
 Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `TxOrigin` and bypasses the `tx.origin` protection."""
-
+    # endregion wiki_exploit_scenario
+    
     WIKI_RECOMMENDATION = "Do not use `tx.origin` for authorization."
 
     @staticmethod

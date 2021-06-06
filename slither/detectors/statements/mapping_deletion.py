@@ -22,6 +22,8 @@ class MappingDeletionDetection(AbstractDetector):
 
     WIKI_TITLE = "Deletion on mapping containing a structure"
     WIKI_DESCRIPTION = "A deletion in a structure containing a mapping will not delete the mapping (see the [Solidity documentation](https://solidity.readthedocs.io/en/latest/types.html##delete)). The remaining data may be used to compromise the contract."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
     struct BalancesStruct{
@@ -36,6 +38,7 @@ class MappingDeletionDetection(AbstractDetector):
 ```
 `remove` deletes an item of `stackBalance`.
 The mapping `balances` is never deleted, so `remove` does not work as intended."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = (
         "Use a lock mechanism instead of a deletion to disable structure containing a mapping."
