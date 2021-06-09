@@ -47,7 +47,7 @@ When `truffle compile` runs, only one of the two contracts will generate artifac
 As a result, the second contract cannot be analyzed.
 """
     # endregion wiki_exploit_scenario
-    
+
     WIKI_RECOMMENDATION = "Rename the contract."
 
     def _detect(self):  # pylint: disable=too-many-locals,too-many-branches

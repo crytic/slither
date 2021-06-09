@@ -46,7 +46,7 @@ contract CostlyOperationsInLoop{
 ```
 Incrementing `state_variable` in a loop incurs a lot of gas because of expensive `SSTOREs`, which might lead to an `out-of-gas`."""
     # endregion wiki_exploit_scenario
-    
+
     WIKI_RECOMMENDATION = "Use a local variable to hold the loop computation result."
 
     @staticmethod

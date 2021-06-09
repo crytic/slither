@@ -34,7 +34,7 @@ contract TxOrigin {
 ```
 Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `TxOrigin` and bypasses the `tx.origin` protection."""
     # endregion wiki_exploit_scenario
-    
+
     WIKI_RECOMMENDATION = "Do not use `tx.origin` for authorization."
 
     @staticmethod

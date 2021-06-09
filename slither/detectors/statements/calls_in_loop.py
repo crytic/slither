@@ -42,7 +42,7 @@ contract CallsInLoop{
 ```
 If one of the destinations has a fallback function that reverts, `bad` will always revert."""
     # endregion wiki_exploit_scenario
-    
+
     WIKI_RECOMMENDATION = "Favor [pull over push](https://github.com/ethereum/wiki/wiki/Safety#favor-pull-over-push-for-external-calls) strategy for external calls."
 
     @staticmethod

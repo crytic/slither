@@ -46,7 +46,7 @@ contract Token
 
 """
     # endregion wiki_exploit_scenario
-    
+
     WIKI_RECOMMENDATION = "Special control characters must not be allowed."
 
     RTLO_CHARACTER_ENCODED = "\u202e".encode("utf-8")

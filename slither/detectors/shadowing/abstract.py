@@ -48,7 +48,7 @@ contract DerivedContract is BaseContract{
 ```
 `owner` of `BaseContract` is shadowed in `DerivedContract`."""
     # endregion wiki_exploit_scenario
-    
+
     WIKI_RECOMMENDATION = "Remove the state variable shadowing."
 
     def _detect(self):

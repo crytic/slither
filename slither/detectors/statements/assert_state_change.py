@@ -66,7 +66,7 @@ contract A {
 The assert in `bad()` increments the state variable `s_a` while checking for the condition.
 """
     # endregion wiki_exploit_scenario
-    
+
     WIKI_RECOMMENDATION = """Use `require` for invariants modifying the state."""
 
     def _detect(self):

@@ -39,7 +39,7 @@ contract Delegatecall{
 ```
 Bob calls `delegate` and delegates the execution to his malicious contract. As a result, Bob withdraws the funds of the contract and destructs it."""
     # endregion wiki_exploit_scenario
-    
+
     WIKI_RECOMMENDATION = "Avoid using `delegatecall`. Use only trusted destinations."
 
     def _detect(self):

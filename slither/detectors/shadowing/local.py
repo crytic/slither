@@ -42,7 +42,7 @@ contract Bug {
 ```
 `sensitive_function.owner` shadows `Bug.owner`. As a result, the use of `owner` in `sensitive_function` might be incorrect."""
     # endregion wiki_exploit_scenario
-    
+
     WIKI_RECOMMENDATION = "Rename the local variables that shadow another component."
 
     OVERSHADOWED_FUNCTION = "function"
