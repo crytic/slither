@@ -5,12 +5,21 @@ from slither.utils import output
 
 logger = logging.getLogger("Slither-conformance")
 
+
 def events_safeBatchTransferFrom(contract, ret):
-    function = contract.get_function_from_signature("safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)")
+    function = contract.get_function_from_signature(
+        "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)"
+    )
     events = [
-                {"name": "TransferSingle", "parameters": ["address", "address", "address", "uint256", "uint256"]},
-                {"name": "TransferBatch", "parameters": ["address", "address", "address", "uint256[]", "uint256[]"]}
-             ]
+        {
+            "name": "TransferSingle",
+            "parameters": ["address", "address", "address", "uint256", "uint256"],
+        },
+        {
+            "name": "TransferBatch",
+            "parameters": ["address", "address", "address", "uint256[]", "uint256[]"],
+        },
+    ]
 
     event_counter_name = 0
     event_counter_parameters = 0
@@ -33,6 +42,7 @@ def events_safeBatchTransferFrom(contract, ret):
         ret["erroneous_erc1155_safeBatchTransferFrom_event"].append(
             erroneous_erc1155_safeBatchTransferFrom_event.data
         )
+
 
 def check_erc1155(contract, ret, explored=None):
     if explored is None:

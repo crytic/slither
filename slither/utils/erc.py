@@ -273,19 +273,21 @@ ERC1155_EVENTS = [
 ]
 
 ERC1155 = [
-    ERC("safeTransferFrom",
+    ERC(
+        "safeTransferFrom",
         ["address", "address", "uint256", "uint256", "bytes"],
         "",
         False,
         True,
-        [ERC1155_transfersingle_event]
+        [ERC1155_transfersingle_event],
     ),
-    ERC("safeBatchTransferFrom",
+    ERC(
+        "safeBatchTransferFrom",
         ["address", "address", "uint256[]", "uint256[]", "bytes"],
         "",
         False,
         True,
-        []
+        [],
     ),
     ERC("balanceOf", ["address", "uint256"], "uint256", True, True, []),
     ERC("balanceOfBatch", ["address[]", "uint256[]"], "uint256[]", True, True, []),
@@ -294,25 +296,25 @@ ERC1155 = [
 ] + ERC165
 
 ERC1155_TOKEN_RECEIVER = [
-    ERC("onERC1155Received",
+    ERC(
+        "onERC1155Received",
         ["address", "address", "uint256", "uint256", "bytes"],
         "bytes4",
         False,
         False,
-        []
+        [],
     ),
-    ERC("onERC1155BatchReceived",
+    ERC(
+        "onERC1155BatchReceived",
         ["address", "address", "uint256[]", "uint256[]", "bytes"],
         "bytes4",
         False,
         False,
-        []
+        [],
     ),
 ]
 
-ERC1155_METADATA = [
-    ERC("uri", ["uint256"], "string", True, False, [])
-]
+ERC1155_METADATA = [ERC("uri", ["uint256"], "string", True, False, [])]
 
 ERC1155 = ERC1155 + ERC1155_TOKEN_RECEIVER + ERC1155_METADATA
 
