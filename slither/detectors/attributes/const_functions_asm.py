@@ -19,6 +19,8 @@ class ConstantFunctionsAsm(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#constant-functions-using-assembly-code"
 
     WIKI_TITLE = "Constant functions using assembly code"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Functions declared as `constant`/`pure`/`view` using assembly code.
 
@@ -26,7 +28,9 @@ Functions declared as `constant`/`pure`/`view` using assembly code.
 Starting from Solidity 0.5, a call to a `constant`/`pure`/`view` function uses the `STATICCALL` opcode, which reverts in case of state modification.
 
 As a result, a call to an [incorrectly labeled function may trap a contract compiled with Solidity 0.5](https://solidity.readthedocs.io/en/develop/050-breaking-changes.html#interoperability-with-older-contracts)."""
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Constant{
@@ -39,6 +43,7 @@ contract Constant{
 ```
 `Constant` was deployed with Solidity 0.4.25. Bob writes a smart contract that interacts with `Constant` in Solidity 0.5.0. 
 All the calls to `get` revert, breaking Bob's smart contract execution."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = (
         "Ensure the attributes of contracts compiled prior to Solidity 0.5.0 are correct."

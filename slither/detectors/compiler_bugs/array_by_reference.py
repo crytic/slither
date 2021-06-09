@@ -26,6 +26,8 @@ class ArrayByReference(AbstractDetector):
     WIKI_DESCRIPTION = (
         "Detect arrays passed to a function that expects reference to a storage array"
     )
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Memory {
@@ -48,6 +50,7 @@ contract Memory {
 
 Bob calls `f()`. Bob assumes that at the end of the call `x[0]` is 2, but it is 1.
 As a result, Bob's usage of the contract is incorrect."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Ensure the correct usage of `memory` and `storage` in the function parameters. Make all the locations explicit."
 

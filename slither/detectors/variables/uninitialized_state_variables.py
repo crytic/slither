@@ -28,6 +28,8 @@ class UninitializedStateVarsDetection(AbstractDetector):
 
     WIKI_TITLE = "Uninitialized state variables"
     WIKI_DESCRIPTION = "Uninitialized state variables."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Uninitialized{
@@ -40,9 +42,13 @@ contract Uninitialized{
 ```
 Bob calls `transfer`. As a result, the Ether are sent to the address `0x0` and are lost.
 """
+    # endregion wiki_exploit_scenario
+
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero to improve code readability.
 """
+    # endregion wiki_recommendation
 
     @staticmethod
     def _written_variables(contract):

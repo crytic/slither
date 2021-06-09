@@ -30,9 +30,14 @@ class IncorrectSolc(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity"
 
     WIKI_TITLE = "Incorrect versions of Solidity"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 `solc` frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks.
 We also recommend avoiding complex `pragma` statement."""
+    # endregion wiki_description
+
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Deploy with any of the following Solidity versions:
 - 0.5.16 - 0.5.17
@@ -40,6 +45,7 @@ Deploy with any of the following Solidity versions:
 - 0.7.5 - 0.7.6
 Use a simple pragma version that allows any of these versions.
 Consider using the latest version of Solidity for testing."""
+    # endregion wiki_recommendation
 
     COMPLEX_PRAGMA_TXT = "is too complex"
     OLD_VERSION_TXT = "allows old versions"

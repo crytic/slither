@@ -94,6 +94,8 @@ class ArbitrarySend(AbstractDetector):
 
     WIKI_TITLE = "Functions that send Ether to arbitrary destinations"
     WIKI_DESCRIPTION = "Unprotected call to a function sending Ether to an arbitrary address."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract ArbitrarySend{
@@ -108,6 +110,7 @@ contract ArbitrarySend{
 }
 ```
 Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract's balance."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Ensure that an arbitrary user cannot withdraw unauthorized funds."
 

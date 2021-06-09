@@ -103,6 +103,8 @@ class WriteAfterWrite(AbstractDetector):
 
     WIKI_TITLE = "Write after write"
     WIKI_DESCRIPTION = """Detects variables that are written but never read and written again."""
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
     ```solidity
     contract Buggy{
@@ -115,6 +117,7 @@ class WriteAfterWrite(AbstractDetector):
     }
     ```
     `a` is first asigned to `b`, and then to `c`. As a result the first write does nothing."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = """Fix or remove the writes."""
 

@@ -34,6 +34,8 @@ class ShadowingAbstractDetection(AbstractDetector):
 
     WIKI_TITLE = "State variable shadowing from abstract contracts"
     WIKI_DESCRIPTION = "Detection of state variables shadowed from abstract contracts."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract BaseContract{
@@ -45,7 +47,8 @@ contract DerivedContract is BaseContract{
 }
 ```
 `owner` of `BaseContract` is shadowed in `DerivedContract`."""
-
+    # endregion wiki_exploit_scenario
+    
     WIKI_RECOMMENDATION = "Remove the state variable shadowing."
 
     def _detect(self):

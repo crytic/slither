@@ -24,6 +24,8 @@ class UnusedReturnValues(AbstractDetector):
     WIKI_DESCRIPTION = (
         "The return value of an external call is not stored in a local or state variable."
     )
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract MyConc{
@@ -34,6 +36,7 @@ contract MyConc{
 }
 ```
 `MyConc` calls `add` of `SafeMath`, but does not store the result in `a`. As a result, the computation has no effect."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Ensure that all the return values of the function calls are used."
 

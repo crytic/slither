@@ -50,6 +50,8 @@ class AssertStateChange(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#assert-state-change"
     WIKI_TITLE = "Assert state shange"
     WIKI_DESCRIPTION = """Incorrect use of `assert()`. See Solidity best [practices](https://solidity.readthedocs.io/en/latest/control-structures.html#id4)."""
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
@@ -63,6 +65,8 @@ contract A {
 ```
 The assert in `bad()` increments the state variable `s_a` while checking for the condition.
 """
+    # endregion wiki_exploit_scenario
+    
     WIKI_RECOMMENDATION = """Use `require` for invariants modifying the state."""
 
     def _detect(self):

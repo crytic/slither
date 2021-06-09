@@ -28,6 +28,8 @@ class UnimplementedFunctionDetection(AbstractDetector):
 
     WIKI_TITLE = "Unimplemented functions"
     WIKI_DESCRIPTION = "Detect functions that are not implemented on derived-most contracts."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 interface BaseInterface {
@@ -48,6 +50,7 @@ contract DerivedContract is BaseInterface, BaseInterface2 {
 `DerivedContract` does not implement `BaseInterface.f2` or `BaseInterface2.f3`.
 As a result, the contract will not properly compile. 
 All unimplemented functions must be implemented on a contract that is meant to be used."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Implement all unimplemented functions in any contract you intend to use directly (not simply inherit from)."
 

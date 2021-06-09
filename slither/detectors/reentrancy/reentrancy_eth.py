@@ -25,9 +25,14 @@ class ReentrancyEth(Reentrancy):
     )
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
 Do not report reentrancies that don't involve Ether (see `reentrancy-no-eth`)"""
+    # endregion wiki_description
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
     function withdrawBalance(){
@@ -41,6 +46,7 @@ Do not report reentrancies that don't involve Ether (see `reentrancy-no-eth`)"""
 ```
 
 Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw more than its initial deposit to the contract."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions pattern`](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy)."
 
