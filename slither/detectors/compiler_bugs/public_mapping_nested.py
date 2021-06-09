@@ -72,7 +72,6 @@ class PublicMappingNested(AbstractDetector):
         """
         results = []
 
-        vulnerable_version = False
         if self.compilation_unit.solc_version >= "0.5.0":
             return []
 
