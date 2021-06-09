@@ -152,7 +152,7 @@ See the [Printer documentation](https://github.com/crytic/slither/wiki/Printer-d
 - `slither-prop`: [Automatic unit test and property generation](https://github.com/crytic/slither/wiki/Property-generation)
 - `slither-flat`: [Flatten a codebase](https://github.com/crytic/slither/wiki/Contract-Flattening)
 - `slither-check-erc`: [Check the ERC's conformance](https://github.com/crytic/slither/wiki/ERC-Conformance)
-- `slither-format`: [Automatic patches generation](https://github.com/crytic/slither/wiki/Slither-format)
+- `slither-format`: [Automatic patch generation](https://github.com/crytic/slither/wiki/Slither-format)
 
 See the [Tool documentation](https://github.com/crytic/slither/wiki/Tool-Documentation) for additional tools.
 
