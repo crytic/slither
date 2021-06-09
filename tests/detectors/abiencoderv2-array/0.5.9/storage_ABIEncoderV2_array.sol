@@ -14,39 +14,39 @@ contract A {
   event event1_good(uint[3] good_arr);
   event event2_bad(S[3] s); 
 
-  function good7_external(uint [2][3] calldata arr1) external {
+  function bad0_external(uint [2][3] calldata arr1) external {
   }
 
   /* Array of arrays passed to an external function is vulnerable */
-  function good7() public {
-    this.good7_external(bad_arr);
+  function bad0() public {
+    this.bad0_external(bad_arr);
   }
 
-  function good8_external (S[3] calldata s1) external {
+  function bad1_external (S[3] calldata s1) external {
   }
 
   /* Array of structs passed to an external function is vulnerable */
-  function good8 (S[3] memory s1) public {
-    this.good8_external(s);
+  function bad1 (S[3] memory s1) public {
+    this.bad1_external(s);
   }
 
   /* Array of arrays passed to abi.encode is vulnerable */
-  function good9() public {                                                                                          
+  function bad2() public {                                                                                          
     bytes memory b = abi.encode(bad_arr);
   }
 
   /* Array of structs passed to abi.encode is vulnerable */
-  function good10() public {                                                                                          
+  function bad3() public {                                                                                          
     bytes memory b = abi.encode(s);
   }
 
   /* Array of arrays passed to an event emit is vulnerable */
-  function good11() public {                                                                                          
+  function bad4() public {                                                                                          
     emit event1_bad(bad_arr);
   }
 
   /* Array of structs passed to an event emit is vulnerable */
-  function good12() public {                                                                                          
+  function bad5() public {                                                                                          
     emit event2_bad(s);
   }
 
