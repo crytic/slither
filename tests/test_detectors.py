@@ -848,7 +848,7 @@ ALL_TESTS = [
     Test(
         all_detectors.ABIEncoderV2Array,
         "storage_ABIEncoderV2_array.sol",
-        "0.5.11",
+        "0.5.9",
     ),
     Test(
         all_detectors.ArrayByReference,
