@@ -26,7 +26,7 @@ ALL_04 = range(0, 27)
 ALL_05 = range(0, 18)
 ALL_06 = range(0, 13)
 ALL_07 = range(0, 7)
-ALL_08 = range(0, 5)
+ALL_08 = range(0, 6)
 
 # these are tests that are currently failing right now
 XFAIL = (
