@@ -124,10 +124,10 @@ Num | Detector | What it Detects | Impact | Confidence
 73 | `constable-states` | [State variables that could be declared constant](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant) | Optimization | High
 74 | `external-function` | [Public function that could be declared external](https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external) | Optimization | High
 
-See the [Detectors Documentation](https://github.com/crytic/slither/wiki/Detector-Documentation) for more information.
-By default, all the detectors are run.
-
-Check out [Crytic](https://crytic.io/) to get access to additional Slither's detectors and GitHub integration.
+For more information, see
+- The [Detector Documentation](https://github.com/crytic/slither/wiki/Detector-Documentation) for details on each detector
+- The [Detection Selection](https://github.com/crytic/slither/wiki/Usage#detector-selection) to run only selected detectors. By default, all the detectors are run.
+- The [Triage Mode](https://github.com/crytic/slither/wiki/Usage#triage-mode) to filter individual results
 
 ## Printers
 
@@ -152,7 +152,7 @@ See the [Printer documentation](https://github.com/crytic/slither/wiki/Printer-d
 - `slither-prop`: [Automatic unit test and property generation](https://github.com/crytic/slither/wiki/Property-generation)
 - `slither-flat`: [Flatten a codebase](https://github.com/crytic/slither/wiki/Contract-Flattening)
 - `slither-check-erc`: [Check the ERC's conformance](https://github.com/crytic/slither/wiki/ERC-Conformance)
-- `slither-format`: [Automatic patches generation](https://github.com/crytic/slither/wiki/Slither-format)
+- `slither-format`: [Automatic patch generation](https://github.com/crytic/slither/wiki/Slither-format)
 
 See the [Tool documentation](https://github.com/crytic/slither/wiki/Tool-Documentation) for additional tools.
 
