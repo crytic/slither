@@ -311,7 +311,7 @@ Please rename it, this name is reserved for Slither's internals"""
             father_constructors = []
             # try:
             # Resolve linearized base contracts.
-            missing_inheritance = False
+            missing_inheritance = None
 
             for i in contract_parser.linearized_base_contracts[1:]:
                 if i in contract_parser.remapping:
@@ -321,7 +321,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 elif i in self._contracts_by_id:
                     ancestors.append(self._contracts_by_id[i])
                 else:
-                    missing_inheritance = True
+                    missing_inheritance = i
 
             # Resolve immediate base contracts
             for i in contract_parser.baseContracts:
@@ -332,7 +332,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 elif i in self._contracts_by_id:
                     fathers.append(self._contracts_by_id[i])
                 else:
-                    missing_inheritance = True
+                    missing_inheritance = i
 
             # Resolve immediate base constructor calls
             for i in contract_parser.baseConstructorContractsCalled:
@@ -343,7 +343,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 elif i in self._contracts_by_id:
                     father_constructors.append(self._contracts_by_id[i])
                 else:
-                    missing_inheritance = True
+                    missing_inheritance = i
 
             contract_parser.underlying_contract.set_inheritance(
                 ancestors, fathers, father_constructors
@@ -353,7 +353,14 @@ Please rename it, this name is reserved for Slither's internals"""
                 self._compilation_unit.contracts_with_missing_inheritance.add(
                     contract_parser.underlying_contract
                 )
-                contract_parser.log_incorrect_parsing(f"Missing inheritance {contract_parser}")
+                txt = f"Missing inheritance {contract_parser.underlying_contract} ({contract_parser.compilation_unit.crytic_compile_compilation_unit.unique_id})\n"
+                txt += f"Missing inheritance ID: {missing_inheritance}\n"
+                if contract_parser.underlying_contract.inheritance:
+                    txt += f"Inheritance found:\n"
+                    for contract_inherited in contract_parser.underlying_contract.inheritance:
+                        txt += f"\t - {contract_inherited} (ID {contract_inherited.id})\n"
+                contract_parser.log_incorrect_parsing(txt)
+
                 contract_parser.set_is_analyzed(True)
                 contract_parser.delete_content()
 
