@@ -67,7 +67,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._variables_ordered: List["StateVariable"] = []
         self._modifiers: Dict[str, "Modifier"] = {}
         self._functions: Dict[str, "FunctionContract"] = {}
-        self._linearizedBaseContracts = List[int]
+        self._linearizedBaseContracts: List[int] = []
 
         # The only str is "*"
         self._using_for: Dict[Union[str, Type], List[str]] = {}
