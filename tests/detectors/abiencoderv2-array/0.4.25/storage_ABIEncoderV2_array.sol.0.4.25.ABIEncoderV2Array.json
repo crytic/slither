@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 1076,
                         "length": 154,
-                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -28,7 +28,7 @@
                             "source_mapping": {
                                 "start": 35,
                                 "length": 2982,
-                                "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -145,7 +145,7 @@
                     "source_mapping": {
                         "start": 1195,
                         "length": 30,
-                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -163,7 +163,7 @@
                             "source_mapping": {
                                 "start": 1076,
                                 "length": 154,
-                                "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -183,7 +183,7 @@
                                     "source_mapping": {
                                         "start": 35,
                                         "length": 2982,
-                                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -313,7 +313,7 @@
                     "source_mapping": {
                         "start": 1296,
                         "length": 148,
-                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -333,7 +333,7 @@
                             "source_mapping": {
                                 "start": 35,
                                 "length": 2982,
-                                "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -450,7 +450,7 @@
                     "source_mapping": {
                         "start": 1415,
                         "length": 24,
-                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -468,7 +468,7 @@
                             "source_mapping": {
                                 "start": 1296,
                                 "length": 148,
-                                "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -488,7 +488,7 @@
                                     "source_mapping": {
                                         "start": 35,
                                         "length": 2982,
-                                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -618,7 +618,7 @@
                     "source_mapping": {
                         "start": 540,
                         "length": 61,
-                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -638,7 +638,7 @@
                             "source_mapping": {
                                 "start": 35,
                                 "length": 2982,
-                                "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -755,7 +755,7 @@
                     "source_mapping": {
                         "start": 569,
                         "length": 27,
-                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -773,7 +773,7 @@
                             "source_mapping": {
                                 "start": 540,
                                 "length": 61,
-                                "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -793,7 +793,7 @@
                                     "source_mapping": {
                                         "start": 35,
                                         "length": 2982,
-                                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -923,7 +923,7 @@
                     "source_mapping": {
                         "start": 726,
                         "length": 63,
-                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -943,7 +943,7 @@
                             "source_mapping": {
                                 "start": 35,
                                 "length": 2982,
-                                "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1060,7 +1060,7 @@
                     "source_mapping": {
                         "start": 763,
                         "length": 21,
-                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1078,7 +1078,7 @@
                             "source_mapping": {
                                 "start": 726,
                                 "length": 63,
-                                "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1098,7 +1098,7 @@
                                     "source_mapping": {
                                         "start": 35,
                                         "length": 2982,
-                                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1228,7 +1228,7 @@
                     "source_mapping": {
                         "start": 852,
                         "length": 160,
-                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1248,7 +1248,7 @@
                             "source_mapping": {
                                 "start": 35,
                                 "length": 2982,
-                                "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1365,7 +1365,7 @@
                     "source_mapping": {
                         "start": 971,
                         "length": 36,
-                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1383,7 +1383,7 @@
                             "source_mapping": {
                                 "start": 852,
                                 "length": 160,
-                                "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1403,7 +1403,7 @@
                                     "source_mapping": {
                                         "start": 35,
                                         "length": 2982,
-                                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1533,7 +1533,7 @@
                     "source_mapping": {
                         "start": 1511,
                         "length": 142,
-                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1553,7 +1553,7 @@
                             "source_mapping": {
                                 "start": 35,
                                 "length": 2982,
-                                "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1670,7 +1670,7 @@
                     "source_mapping": {
                         "start": 1630,
                         "length": 18,
-                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1688,7 +1688,7 @@
                             "source_mapping": {
                                 "start": 1511,
                                 "length": 142,
-                                "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
@@ -1708,7 +1708,7 @@
                                     "source_mapping": {
                                         "start": 35,
                                         "length": 2982,
-                                        "filename_used": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
+                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/abiencoderv2-array/0.4.25/storage_ABIEncoderV2_array.sol",

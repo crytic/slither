@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 368,
                         "length": 32,
-                        "filename_used": "tests/detectors/locked-ether/0.4.25/locked_ether.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/locked-ether/0.4.25/locked_ether.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/locked-ether/0.4.25/locked_ether.sol",
@@ -26,7 +26,7 @@
                     "source_mapping": {
                         "start": 47,
                         "length": 72,
-                        "filename_used": "tests/detectors/locked-ether/0.4.25/locked_ether.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/locked-ether/0.4.25/locked_ether.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/locked-ether/0.4.25/locked_ether.sol",
@@ -46,7 +46,7 @@
                             "source_mapping": {
                                 "start": 25,
                                 "length": 97,
-                                "filename_used": "tests/detectors/locked-ether/0.4.25/locked_ether.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/locked-ether/0.4.25/locked_ether.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/locked-ether/0.4.25/locked_ether.sol",

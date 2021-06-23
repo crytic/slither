@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 21,
                         "length": 86,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
                         "filename_relative": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
@@ -28,7 +28,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 419,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
                                 "filename_relative": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
@@ -66,7 +66,7 @@
                     "source_mapping": {
                         "start": 81,
                         "length": 19,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
                         "filename_relative": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
@@ -84,7 +84,7 @@
                             "source_mapping": {
                                 "start": 21,
                                 "length": 86,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
                                 "filename_relative": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
@@ -104,7 +104,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 419,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
                                         "filename_relative": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",

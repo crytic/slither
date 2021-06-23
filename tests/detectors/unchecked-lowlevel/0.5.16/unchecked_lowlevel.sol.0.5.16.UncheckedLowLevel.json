@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 21,
                         "length": 96,
-                        "filename_used": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
@@ -28,7 +28,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 274,
-                                "filename_used": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
@@ -59,7 +59,7 @@
                     "source_mapping": {
                         "start": 81,
                         "length": 29,
-                        "filename_used": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
@@ -77,7 +77,7 @@
                             "source_mapping": {
                                 "start": 21,
                                 "length": 96,
-                                "filename_used": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
@@ -97,7 +97,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 274,
-                                        "filename_used": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
+                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol",

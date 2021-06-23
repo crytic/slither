@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 20,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -26,7 +26,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 992,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -103,7 +103,7 @@
                     "source_mapping": {
                         "start": 157,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -121,7 +121,7 @@
                             "source_mapping": {
                                 "start": 116,
                                 "length": 78,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -142,7 +142,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 992,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -222,7 +222,7 @@
                     "source_mapping": {
                         "start": 177,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -240,7 +240,7 @@
                             "source_mapping": {
                                 "start": 116,
                                 "length": 78,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -261,7 +261,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 992,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -352,7 +352,7 @@
                     "source_mapping": {
                         "start": 351,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -370,7 +370,7 @@
                             "source_mapping": {
                                 "start": 310,
                                 "length": 86,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -392,7 +392,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 992,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -472,7 +472,7 @@
                     "source_mapping": {
                         "start": 367,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -490,7 +490,7 @@
                             "source_mapping": {
                                 "start": 310,
                                 "length": 86,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -512,7 +512,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 992,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -592,7 +592,7 @@
                     "source_mapping": {
                         "start": 383,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -610,7 +610,7 @@
                             "source_mapping": {
                                 "start": 310,
                                 "length": 86,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -632,7 +632,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 992,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -723,7 +723,7 @@
                     "source_mapping": {
                         "start": 894,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -741,7 +741,7 @@
                             "source_mapping": {
                                 "start": 845,
                                 "length": 145,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -765,7 +765,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 992,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -845,7 +845,7 @@
                     "source_mapping": {
                         "start": 914,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -863,7 +863,7 @@
                             "source_mapping": {
                                 "start": 845,
                                 "length": 145,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -887,7 +887,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 992,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -967,7 +967,7 @@
                     "source_mapping": {
                         "start": 973,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -985,7 +985,7 @@
                             "source_mapping": {
                                 "start": 845,
                                 "length": 145,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
@@ -1009,7 +1009,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 992,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_relative": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/write-after-write/0.8.0/write-after-write.sol",

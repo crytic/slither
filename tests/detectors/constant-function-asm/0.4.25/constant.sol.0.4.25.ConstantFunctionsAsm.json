@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 324,
                         "length": 66,
-                        "filename_used": "tests/detectors/constant-function-asm/0.4.25/constant.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/constant-function-asm/0.4.25/constant.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/constant-function-asm/0.4.25/constant.sol",
@@ -28,7 +28,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 392,
-                                "filename_used": "tests/detectors/constant-function-asm/0.4.25/constant.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/constant-function-asm/0.4.25/constant.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/constant-function-asm/0.4.25/constant.sol",

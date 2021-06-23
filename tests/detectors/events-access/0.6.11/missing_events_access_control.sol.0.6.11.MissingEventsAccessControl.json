@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 364,
                         "length": 90,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                         "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -28,7 +28,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 1309,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                 "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -100,7 +100,7 @@
                     "source_mapping": {
                         "start": 421,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                         "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -118,7 +118,7 @@
                             "source_mapping": {
                                 "start": 364,
                                 "length": 90,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                 "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -138,7 +138,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1309,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                         "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -223,7 +223,7 @@
                     "source_mapping": {
                         "start": 284,
                         "length": 76,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                         "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -243,7 +243,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 1309,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                 "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -315,7 +315,7 @@
                     "source_mapping": {
                         "start": 325,
                         "length": 18,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                         "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -333,7 +333,7 @@
                             "source_mapping": {
                                 "start": 284,
                                 "length": 76,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                 "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -353,7 +353,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1309,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                         "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -438,7 +438,7 @@
                     "source_mapping": {
                         "start": 458,
                         "length": 127,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                         "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -459,7 +459,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 1309,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                 "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -531,7 +531,7 @@
                     "source_mapping": {
                         "start": 552,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                         "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -549,7 +549,7 @@
                             "source_mapping": {
                                 "start": 458,
                                 "length": 127,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                 "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
@@ -570,7 +570,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1309,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                         "filename_relative": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/events-access/0.6.11/missing_events_access_control.sol",

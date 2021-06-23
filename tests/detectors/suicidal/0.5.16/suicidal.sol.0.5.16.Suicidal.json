@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 18,
                         "length": 74,
-                        "filename_used": "tests/detectors/suicidal/0.5.16/suicidal.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/suicidal/0.5.16/suicidal.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/suicidal/0.5.16/suicidal.sol",
@@ -28,7 +28,7 @@
                             "source_mapping": {
                                 "start": 1,
                                 "length": 94,
-                                "filename_used": "tests/detectors/suicidal/0.5.16/suicidal.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/suicidal/0.5.16/suicidal.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/suicidal/0.5.16/suicidal.sol",

@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 911,
                         "length": 761,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                         "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
@@ -48,7 +48,7 @@
                             "source_mapping": {
                                 "start": 72,
                                 "length": 1602,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                                 "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
@@ -112,7 +112,7 @@
                     "source_mapping": {
                         "start": 995,
                         "length": 671,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                         "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
@@ -150,7 +150,7 @@
                             "source_mapping": {
                                 "start": 911,
                                 "length": 761,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                                 "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
@@ -190,7 +190,7 @@
                                     "source_mapping": {
                                         "start": 72,
                                         "length": 1602,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                                         "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
@@ -267,7 +267,7 @@
                     "source_mapping": {
                         "start": 574,
                         "length": 254,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                         "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
@@ -291,7 +291,7 @@
                             "source_mapping": {
                                 "start": 72,
                                 "length": 1602,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                                 "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
@@ -355,7 +355,7 @@
                     "source_mapping": {
                         "start": 708,
                         "length": 104,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                         "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
@@ -375,7 +375,7 @@
                             "source_mapping": {
                                 "start": 574,
                                 "length": 254,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                                 "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
@@ -399,7 +399,7 @@
                                     "source_mapping": {
                                         "start": 72,
                                         "length": 1602,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                                         "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",

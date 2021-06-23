@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 337,
                         "length": 118,
-                        "filename_used": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
@@ -28,7 +28,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 585,
-                                "filename_used": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
@@ -73,7 +73,7 @@
                     "source_mapping": {
                         "start": 400,
                         "length": 48,
-                        "filename_used": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
@@ -91,7 +91,7 @@
                             "source_mapping": {
                                 "start": 337,
                                 "length": 118,
-                                "filename_used": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
@@ -111,7 +111,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 585,
-                                        "filename_used": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
+                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
@@ -169,7 +169,7 @@
                     "source_mapping": {
                         "start": 101,
                         "length": 134,
-                        "filename_used": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
@@ -190,7 +190,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 585,
-                                "filename_used": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
@@ -235,7 +235,7 @@
                     "source_mapping": {
                         "start": 201,
                         "length": 27,
-                        "filename_used": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
@@ -253,7 +253,7 @@
                             "source_mapping": {
                                 "start": 101,
                                 "length": 134,
-                                "filename_used": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
@@ -274,7 +274,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 585,
-                                        "filename_used": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
+                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/controlled-delegatecall/0.7.6/controlled_delegatecall.sol",

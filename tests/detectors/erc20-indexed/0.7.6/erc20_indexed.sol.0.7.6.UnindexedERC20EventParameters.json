@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 1204,
                         "length": 53,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                         "filename_relative": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
@@ -26,7 +26,7 @@
                             "source_mapping": {
                                 "start": 679,
                                 "length": 644,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                                 "filename_relative": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
@@ -70,7 +70,7 @@
                     "source_mapping": {
                         "start": 1262,
                         "length": 59,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                         "filename_relative": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
@@ -88,7 +88,7 @@
                             "source_mapping": {
                                 "start": 679,
                                 "length": 644,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                                 "filename_relative": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
@@ -132,7 +132,7 @@
                     "source_mapping": {
                         "start": 1204,
                         "length": 53,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                         "filename_relative": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
@@ -150,7 +150,7 @@
                             "source_mapping": {
                                 "start": 679,
                                 "length": 644,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                                 "filename_relative": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
@@ -194,7 +194,7 @@
                     "source_mapping": {
                         "start": 1262,
                         "length": 59,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                         "filename_relative": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
@@ -212,7 +212,7 @@
                             "source_mapping": {
                                 "start": 679,
                                 "length": 644,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                                 "filename_relative": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-indexed/0.7.6/erc20_indexed.sol",

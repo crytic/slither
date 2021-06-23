@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 199,
                         "length": 11,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -26,7 +26,7 @@
                             "source_mapping": {
                                 "start": 17,
                                 "length": 442,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -59,7 +59,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 461,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -100,7 +100,7 @@
                     "source_mapping": {
                         "start": 17,
                         "length": 442,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -133,7 +133,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 461,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -172,7 +172,7 @@
                     "source_mapping": {
                         "start": 417,
                         "length": 3,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -190,7 +190,7 @@
                             "source_mapping": {
                                 "start": 17,
                                 "length": 442,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -223,7 +223,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 461,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -275,7 +275,7 @@
                     "source_mapping": {
                         "start": 199,
                         "length": 11,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -293,7 +293,7 @@
                             "source_mapping": {
                                 "start": 17,
                                 "length": 442,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -326,7 +326,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 461,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -367,7 +367,7 @@
                     "source_mapping": {
                         "start": 17,
                         "length": 442,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -400,7 +400,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 461,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -439,7 +439,7 @@
                     "source_mapping": {
                         "start": 402,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -457,7 +457,7 @@
                             "source_mapping": {
                                 "start": 17,
                                 "length": 442,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -490,7 +490,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 461,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -542,7 +542,7 @@
                     "source_mapping": {
                         "start": 199,
                         "length": 11,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -560,7 +560,7 @@
                             "source_mapping": {
                                 "start": 17,
                                 "length": 442,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -593,7 +593,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 461,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -634,7 +634,7 @@
                     "source_mapping": {
                         "start": 17,
                         "length": 442,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -667,7 +667,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 461,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -706,7 +706,7 @@
                     "source_mapping": {
                         "start": 436,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -724,7 +724,7 @@
                             "source_mapping": {
                                 "start": 17,
                                 "length": 442,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -757,7 +757,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 461,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -809,7 +809,7 @@
                     "source_mapping": {
                         "start": 130,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -827,7 +827,7 @@
                             "source_mapping": {
                                 "start": 17,
                                 "length": 442,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -860,7 +860,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 461,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -901,7 +901,7 @@
                     "source_mapping": {
                         "start": 17,
                         "length": 442,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -934,7 +934,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 461,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -973,7 +973,7 @@
                     "source_mapping": {
                         "start": 69,
                         "length": 13,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -991,7 +991,7 @@
                             "source_mapping": {
                                 "start": 17,
                                 "length": 442,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -1024,7 +1024,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 461,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -1076,7 +1076,7 @@
                     "source_mapping": {
                         "start": 199,
                         "length": 11,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -1094,7 +1094,7 @@
                             "source_mapping": {
                                 "start": 17,
                                 "length": 442,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -1127,7 +1127,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 461,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -1168,7 +1168,7 @@
                     "source_mapping": {
                         "start": 17,
                         "length": 442,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -1201,7 +1201,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 461,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -1240,7 +1240,7 @@
                     "source_mapping": {
                         "start": 410,
                         "length": 5,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -1258,7 +1258,7 @@
                             "source_mapping": {
                                 "start": 17,
                                 "length": 442,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
@@ -1291,7 +1291,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 461,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",

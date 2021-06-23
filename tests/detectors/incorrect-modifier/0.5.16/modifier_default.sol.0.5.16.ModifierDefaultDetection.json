@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 496,
                         "length": 251,
-                        "filename_used": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
@@ -37,7 +37,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 901,
-                                "filename_used": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
@@ -120,7 +120,7 @@
                     "source_mapping": {
                         "start": 277,
                         "length": 111,
-                        "filename_used": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
@@ -142,7 +142,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 901,
-                                "filename_used": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
@@ -225,7 +225,7 @@
                     "source_mapping": {
                         "start": 20,
                         "length": 103,
-                        "filename_used": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
+                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
@@ -247,7 +247,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 901,
-                                "filename_used": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
+                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",

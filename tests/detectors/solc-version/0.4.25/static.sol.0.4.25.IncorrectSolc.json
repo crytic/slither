@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 0,
                         "length": 23,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/solc-version/0.4.25/static.sol",
                         "filename_relative": "tests/detectors/solc-version/0.4.25/static.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/solc-version/0.4.25/static.sol",

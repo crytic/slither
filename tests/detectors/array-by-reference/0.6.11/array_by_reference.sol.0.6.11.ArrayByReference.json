@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 869,
                         "length": 269,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -32,7 +32,7 @@
                             "source_mapping": {
                                 "start": 702,
                                 "length": 440,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -74,7 +74,7 @@
                     "source_mapping": {
                         "start": 836,
                         "length": 9,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -92,7 +92,7 @@
                             "source_mapping": {
                                 "start": 702,
                                 "length": 440,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -133,7 +133,7 @@
                     "source_mapping": {
                         "start": 578,
                         "length": 120,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -154,7 +154,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -214,7 +214,7 @@
                     "source_mapping": {
                         "start": 869,
                         "length": 269,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -238,7 +238,7 @@
                             "source_mapping": {
                                 "start": 702,
                                 "length": 440,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -280,7 +280,7 @@
                     "source_mapping": {
                         "start": 836,
                         "length": 9,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -298,7 +298,7 @@
                             "source_mapping": {
                                 "start": 702,
                                 "length": 440,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -339,7 +339,7 @@
                     "source_mapping": {
                         "start": 498,
                         "length": 74,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -359,7 +359,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -419,7 +419,7 @@
                     "source_mapping": {
                         "start": 40,
                         "length": 167,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -441,7 +441,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -490,7 +490,7 @@
                     "source_mapping": {
                         "start": 17,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -508,7 +508,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -556,7 +556,7 @@
                     "source_mapping": {
                         "start": 498,
                         "length": 74,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -576,7 +576,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -636,7 +636,7 @@
                     "source_mapping": {
                         "start": 40,
                         "length": 167,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -658,7 +658,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -707,7 +707,7 @@
                     "source_mapping": {
                         "start": 17,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -725,7 +725,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -773,7 +773,7 @@
                     "source_mapping": {
                         "start": 578,
                         "length": 120,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -794,7 +794,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -854,7 +854,7 @@
                     "source_mapping": {
                         "start": 213,
                         "length": 198,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -877,7 +877,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -926,7 +926,7 @@
                     "source_mapping": {
                         "start": 243,
                         "length": 21,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -944,7 +944,7 @@
                             "source_mapping": {
                                 "start": 213,
                                 "length": 198,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -967,7 +967,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 700,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -1018,7 +1018,7 @@
                     "source_mapping": {
                         "start": 578,
                         "length": 120,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -1039,7 +1039,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -1099,7 +1099,7 @@
                     "source_mapping": {
                         "start": 213,
                         "length": 198,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -1122,7 +1122,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -1171,7 +1171,7 @@
                     "source_mapping": {
                         "start": 243,
                         "length": 21,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -1189,7 +1189,7 @@
                             "source_mapping": {
                                 "start": 213,
                                 "length": 198,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -1212,7 +1212,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 700,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -1263,7 +1263,7 @@
                     "source_mapping": {
                         "start": 498,
                         "length": 74,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
@@ -1283,7 +1283,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.6.11/array_by_reference.sol",

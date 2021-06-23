@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 363,
                         "length": 58,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -28,7 +28,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 499,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -75,7 +75,7 @@
                     "source_mapping": {
                         "start": 395,
                         "length": 19,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -93,7 +93,7 @@
                             "source_mapping": {
                                 "start": 363,
                                 "length": 58,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -113,7 +113,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 499,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                         "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -173,7 +173,7 @@
                     "source_mapping": {
                         "start": 184,
                         "length": 78,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -193,7 +193,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 499,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -240,7 +240,7 @@
                     "source_mapping": {
                         "start": 216,
                         "length": 39,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -258,7 +258,7 @@
                             "source_mapping": {
                                 "start": 184,
                                 "length": 78,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -278,7 +278,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 499,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                         "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -338,7 +338,7 @@
                     "source_mapping": {
                         "start": 45,
                         "length": 68,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -358,7 +358,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 499,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -405,7 +405,7 @@
                     "source_mapping": {
                         "start": 77,
                         "length": 29,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -423,7 +423,7 @@
                             "source_mapping": {
                                 "start": 45,
                                 "length": 68,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -443,7 +443,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 499,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                         "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -503,7 +503,7 @@
                     "source_mapping": {
                         "start": 122,
                         "length": 56,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -523,7 +523,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 499,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -570,7 +570,7 @@
                     "source_mapping": {
                         "start": 154,
                         "length": 17,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -588,7 +588,7 @@
                             "source_mapping": {
                                 "start": 122,
                                 "length": 56,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
@@ -608,7 +608,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 499,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                         "filename_relative": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/weak-prng/0.5.16/bad_prng.sol",
