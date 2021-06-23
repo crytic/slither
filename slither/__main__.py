@@ -280,7 +280,7 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x[:-1] for x in SUPPORTED_NETWORK)}\n"
 
     parser = argparse.ArgumentParser(
-        description="Slither. For usage information, see https://github.com/crytic/slither/wiki/Usage",
+        description="For usage information, see https://github.com/crytic/slither/wiki/Usage",
         usage=usage,
     )
 
