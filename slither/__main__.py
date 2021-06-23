@@ -16,6 +16,7 @@ from pkg_resources import iter_entry_points, require
 
 from crytic_compile import cryticparser
 from crytic_compile.platform.standard import generate_standard_export
+from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
 from crytic_compile import compile_all, is_supported
 
 from slither.detectors import all_detectors
@@ -270,12 +271,20 @@ def parse_filter_paths(args):
 
 
 def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-statements
+
+    usage = "slither.py target [flag]\n"
+    usage += "\ntarget can be:\n"
+    usage += "\t- file.sol // a Solidity file\n"
+    usage += "\t- project_directory // a project directory. See https://github.com/crytic/crytic-compile/#crytic-compile for the supported platforms\n"
+    usage += "\t- 0x.. // a contract on mainet\n"
+    usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x[:-1] for x in SUPPORTED_NETWORK)}\n"
+
     parser = argparse.ArgumentParser(
         description="Slither. For usage information, see https://github.com/crytic/slither/wiki/Usage",
-        usage="slither.py contract.sol [flag]",
+        usage=usage,
     )
 
-    parser.add_argument("filename", help="contract.sol")
+    parser.add_argument("filename", help=argparse.SUPPRESS)
 
     cryticparser.init(parser)
 
