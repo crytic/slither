@@ -2,10 +2,7 @@ import logging
 import re
 from typing import Dict, TYPE_CHECKING, Optional, Union, List, Tuple
 
-from slither.core.declarations import Event, Enum, Structure
-from slither.core.declarations.contract import Contract
-from slither.core.declarations.function import Function
-from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations import Event, Enum, Structure, Contract, Function, FunctionContract
 from slither.core.declarations.solidity_variables import (
     SOLIDITY_FUNCTIONS,
     SOLIDITY_VARIABLES,
@@ -23,21 +20,24 @@ from slither.core.expressions.binary_operation import (
     BinaryOperation,
     BinaryOperationType,
 )
-from slither.core.expressions.call_expression import CallExpression
-from slither.core.expressions.conditional_expression import ConditionalExpression
-from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
-from slither.core.expressions.identifier import Identifier
-from slither.core.expressions.index_access import IndexAccess
-from slither.core.expressions.literal import Literal
-from slither.core.expressions.member_access import MemberAccess
-from slither.core.expressions.new_array import NewArray
-from slither.core.expressions.new_contract import NewContract
-from slither.core.expressions.new_elementary_type import NewElementaryType
-from slither.core.expressions.super_call_expression import SuperCallExpression
-from slither.core.expressions.super_identifier import SuperIdentifier
-from slither.core.expressions.tuple_expression import TupleExpression
-from slither.core.expressions.type_conversion import TypeConversion
-from slither.core.expressions.unary_operation import UnaryOperation, UnaryOperationType
+from slither.core.expressions import (
+    CallExpression,
+    ConditionalExpression,
+    ElementaryTypeNameExpression,
+    Identifier,
+    IndexAccess,
+    Literal,
+    MemberAccess,
+    NewArray,
+    NewContract,
+    NewElementaryType,
+    SuperCallExpression,
+    SuperIdentifier,
+    TupleExpression,
+    TypeConversion,
+    UnaryOperation,
+    UnaryOperationType,
+)
 from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
@@ -264,7 +264,6 @@ def _find_variable_init(
         raise SlitherError(
             f"{type(caller_context)} ({caller_context} is not valid for find_variable"
         )
-
     return direct_contracts, direct_functions_parser, sl, sl_parser
 
 
@@ -378,7 +377,6 @@ def find_variable(
     #     function _f() internal view returns(uint){
     #         return 2;
     #     }
-    #
     # }
     # get's AST will say that the ref declaration for _f() is A._f(), but in the context of B, its not
 
@@ -802,6 +800,10 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
 
         identifier = Identifier(var)
         identifier.set_offset(src, caller_context.compilation_unit)
+        # for i in range(0, identifier.source_mapping.length+1):
+        #     caller_context.compilation_unit.core.offset_to_objects[identifier.source_mapping.filename][identifier.source_mapping.start + i] = var
+        var.references.append(identifier.source_mapping)
+
         return identifier
 
     if name == "IndexAccess":
@@ -853,6 +855,12 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
                 raise VariableNotFound("Variable not found: {}".format(super_name))
             sup = SuperIdentifier(var)
             sup.set_offset(src, caller_context.compilation_unit)
+
+            # for i in range(0, sup.source_mapping.length + 1):
+            #     caller_context.compilation_unit.core.offset_to_objects[sup.source_mapping.filename][
+            #         sup.source_mapping.start + i] = var
+            var.references.append(sup.source_mapping)
+
             return sup
         member_access = MemberAccess(member_name, member_type, member_expression)
         member_access.set_offset(src, caller_context.compilation_unit)
@@ -978,6 +986,13 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
 
             identifier = Identifier(var)
             identifier.set_offset(src, caller_context.compilation_unit)
+
+            # for i in range(0, identifier.source_mapping.length + 1):
+            #     caller_context.compilation_unit.core.offset_to_objects[identifier.source_mapping.filename][
+            #         identifier.source_mapping.start + i] = var
+
+            var.references.append(identifier.source_mapping)
+
             return identifier
 
         raise ParsingError("IdentifierPath not currently supported for the legacy ast")

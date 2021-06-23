@@ -2,7 +2,7 @@
     Function module
 """
 import logging
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from collections import namedtuple
 from enum import Enum
 from itertools import groupby
@@ -104,7 +104,7 @@ def _filter_state_variables_written(expressions: List["Expression"]):
     return ret
 
 
-class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
+class Function(SourceMapping):  # pylint: disable=too-many-public-methods
     """
     Function class
     """

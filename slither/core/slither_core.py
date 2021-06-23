@@ -5,15 +5,21 @@ import json
 import logging
 import os
 import re
+from collections import defaultdict
 from typing import Optional, Dict, List, Set, Union
 
 from crytic_compile import CryticCompile
+from crytic_compile.utils.naming import Filename
 
+from slither.core.children.child_contract import ChildContract
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.context.context import Context
-from slither.core.declarations import Contract
+from slither.core.declarations import Contract, FunctionContract
+from slither.core.declarations.top_level import TopLevel
+from slither.core.source_mapping.source_mapping import SourceMapping, Source
 from slither.slithir.variables import Constant
 from slither.utils.colors import red
+from slither.utils.source_mapping import get_definition, get_references, get_implementation
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -67,6 +73,11 @@ class SlitherCore(Context):
 
         self._contracts: List[Contract] = []
         self._contracts_derived: List[Contract] = []
+
+        self._offset_to_objects: Optional[Dict[Filename, Dict[int, Set[SourceMapping]]]] = None
+        self._offset_to_references: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
+        self._offset_to_implementations: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
+        self._offset_to_definitions: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
 
     @property
     def compilation_units(self) -> List[SlitherCompilationUnit]:
@@ -158,6 +169,108 @@ class SlitherCore(Context):
             for c in compilation_unit.contracts:
                 for f in c.functions:
                     f.cfg_to_dot(os.path.join(d, "{}.{}.dot".format(c.name, f.name)))
+
+    def offset_to_objects(self, filename_str: str, offset: int) -> Set[SourceMapping]:
+        if self._offset_to_objects is None:
+            self._compute_offsets_to_ref_impl_decl()
+        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+        return self._offset_to_objects[filename][offset]
+
+    def _compute_offsets_from_thing(self, thing: SourceMapping):
+        definition = get_definition(thing, self.crytic_compile)
+        references = get_references(thing)
+        implementation = get_implementation(thing)
+
+        for offset in range(definition.start, definition.end + 1):
+
+            if (
+                isinstance(thing, TopLevel)
+                or (
+                    isinstance(thing, FunctionContract)
+                    and thing.contract_declarer == thing.contract
+                )
+                or (isinstance(thing, ChildContract) and not isinstance(thing, FunctionContract))
+            ):
+                self._offset_to_objects[definition.filename][offset].add(thing)
+
+            self._offset_to_definitions[definition.filename][offset].add(definition)
+            self._offset_to_implementations[definition.filename][offset].add(implementation)
+            self._offset_to_references[definition.filename][offset] |= set(references)
+
+        for ref in references:
+            for offset in range(ref.start, ref.end + 1):
+
+                if (
+                    isinstance(thing, TopLevel)
+                    or (
+                        isinstance(thing, FunctionContract)
+                        and thing.contract_declarer == thing.contract
+                    )
+                    or (
+                        isinstance(thing, ChildContract) and not isinstance(thing, FunctionContract)
+                    )
+                ):
+                    self._offset_to_objects[definition.filename][offset].add(thing)
+
+                self._offset_to_definitions[ref.filename][offset].add(definition)
+                self._offset_to_implementations[ref.filename][offset].add(implementation)
+                self._offset_to_references[ref.filename][offset] |= set(references)
+
+    def _compute_offsets_to_ref_impl_decl(self):  # pylint: disable=too-many-branches
+        self._offset_to_references = defaultdict(lambda: defaultdict(lambda: set()))
+        self._offset_to_definitions = defaultdict(lambda: defaultdict(lambda: set()))
+        self._offset_to_implementations = defaultdict(lambda: defaultdict(lambda: set()))
+        self._offset_to_objects = defaultdict(lambda: defaultdict(lambda: set()))
+
+        for compilation_unit in self._compilation_units:
+            for contract in compilation_unit.contracts:
+                self._compute_offsets_from_thing(contract)
+
+                for function in contract.functions:
+                    self._compute_offsets_from_thing(function)
+                    for variable in function.local_variables:
+                        self._compute_offsets_from_thing(variable)
+                for modifier in contract.modifiers:
+                    self._compute_offsets_from_thing(modifier)
+                    for variable in modifier.local_variables:
+                        self._compute_offsets_from_thing(variable)
+
+                for st in contract.structures:
+                    self._compute_offsets_from_thing(st)
+
+                for enum in contract.enums:
+                    self._compute_offsets_from_thing(enum)
+
+                for event in contract.events:
+                    self._compute_offsets_from_thing(event)
+            for enum in compilation_unit.enums_top_level:
+                self._compute_offsets_from_thing(enum)
+            for function in compilation_unit.functions_top_level:
+                self._compute_offsets_from_thing(function)
+            for st in compilation_unit.structures_top_level:
+                self._compute_offsets_from_thing(st)
+            for import_directive in compilation_unit.import_directives:
+                self._compute_offsets_from_thing(import_directive)
+            for pragma in compilation_unit.pragma_directives:
+                self._compute_offsets_from_thing(pragma)
+
+    def offset_to_references(self, filename_str: str, offset: int) -> Set[Source]:
+        if self._offset_to_references is None:
+            self._compute_offsets_to_ref_impl_decl()
+        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+        return self._offset_to_references[filename][offset]
+
+    def offset_to_implementations(self, filename_str: str, offset: int) -> Set[Source]:
+        if self._offset_to_implementations is None:
+            self._compute_offsets_to_ref_impl_decl()
+        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+        return self._offset_to_implementations[filename][offset]
+
+    def offset_to_definitions(self, filename_str: str, offset: int) -> Set[Source]:
+        if self._offset_to_definitions is None:
+            self._compute_offsets_to_ref_impl_decl()
+        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+        return self._offset_to_definitions[filename][offset]
 
     # endregion
     ###################################################################################

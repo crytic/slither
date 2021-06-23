@@ -415,9 +415,9 @@ def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-ma
 ):
     for variable in variables:
         # First explore the type of the variable
-        filename_source_code = variable.source_mapping["filename_absolute"]
-        full_txt_start = variable.source_mapping["start"]
-        full_txt_end = full_txt_start + variable.source_mapping["length"]
+        filename_source_code = variable.source_mapping.filename.absolute
+        full_txt_start = variable.source_mapping.start
+        full_txt_end = full_txt_start + variable.source_mapping.length
         full_txt = slither.source_code[filename_source_code].encode("utf8")[
             full_txt_start:full_txt_end
         ]
@@ -430,7 +430,7 @@ def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-ma
             variable.type,
             filename_source_code,
             full_txt_start,
-            variable.source_mapping["start"] + variable.source_mapping["length"],
+            variable.source_mapping.start + variable.source_mapping.length,
         )
 
         # If the variable is the target
@@ -445,9 +445,9 @@ def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-ma
 
             # Patch comment only makes sense for local variable declaration in the parameter list
             if patch_comment and isinstance(variable, LocalVariable):
-                if "lines" in variable.source_mapping and variable.source_mapping["lines"]:
+                if variable.source_mapping.lines:
                     func = variable.function
-                    end_line = func.source_mapping["lines"][0]
+                    end_line = func.source_mapping.lines[0]
                     if variable in func.parameters:
                         idx = len(func.parameters) - func.parameters.index(variable) + 1
                         first_line = end_line - idx - 2
@@ -459,8 +459,8 @@ def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-ma
                             first_line : end_line - 1
                         ]
 
-                        idx_beginning = func.source_mapping["start"]
-                        idx_beginning += -func.source_mapping["starting_column"] + 1
+                        idx_beginning = func.source_mapping.start
+                        idx_beginning += -func.source_mapping.starting_column + 1
                         idx_beginning += -sum([len(c) for c in potential_comments])
 
                         old_comment = f"@param {old_str}".encode("utf8")
@@ -495,9 +495,9 @@ def _explore_structures_declaration(slither, structures, result, target, convert
             old_str = st.name
             new_str = convert(old_str, slither)
 
-            filename_source_code = st.source_mapping["filename_absolute"]
-            full_txt_start = st.source_mapping["start"]
-            full_txt_end = full_txt_start + st.source_mapping["length"]
+            filename_source_code = st.source_mapping.filename.absolute
+            full_txt_start = st.source_mapping.start
+            full_txt_end = full_txt_start + st.source_mapping.length
             full_txt = slither.source_code[filename_source_code].encode("utf8")[
                 full_txt_start:full_txt_end
             ]
@@ -518,12 +518,12 @@ def _explore_events_declaration(slither, events, result, target, convert):
 
         # If the event is the target
         if event == target:
-            filename_source_code = event.source_mapping["filename_absolute"]
+            filename_source_code = event.source_mapping.filename.absolute
 
             old_str = event.name
             new_str = convert(old_str, slither)
 
-            loc_start = event.source_mapping["start"]
+            loc_start = event.source_mapping.start
             loc_end = loc_start + len(old_str)
 
             create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
@@ -603,9 +603,9 @@ def _explore_functions(slither, functions, result, target, convert):
             old_str = function.name
             new_str = convert(old_str, slither)
 
-            filename_source_code = function.source_mapping["filename_absolute"]
-            full_txt_start = function.source_mapping["start"]
-            full_txt_end = full_txt_start + function.source_mapping["length"]
+            filename_source_code = function.source_mapping.filename.absolute
+            full_txt_start = function.source_mapping.start
+            full_txt_end = full_txt_start + function.source_mapping.length
             full_txt = slither.source_code[filename_source_code].encode("utf8")[
                 full_txt_start:full_txt_end
             ]
@@ -628,9 +628,9 @@ def _explore_enums(slither, enums, result, target, convert):
             old_str = enum.name
             new_str = convert(old_str, slither)
 
-            filename_source_code = enum.source_mapping["filename_absolute"]
-            full_txt_start = enum.source_mapping["start"]
-            full_txt_end = full_txt_start + enum.source_mapping["length"]
+            filename_source_code = enum.source_mapping.filename.absolute
+            full_txt_start = enum.source_mapping.start
+            full_txt_end = full_txt_start + enum.source_mapping.length
             full_txt = slither.source_code[filename_source_code].encode("utf8")[
                 full_txt_start:full_txt_end
             ]
@@ -651,9 +651,9 @@ def _explore_contract(slither, contract, result, target, convert):
     _explore_enums(slither, contract.enums, result, target, convert)
 
     if contract == target:
-        filename_source_code = contract.source_mapping["filename_absolute"]
-        full_txt_start = contract.source_mapping["start"]
-        full_txt_end = full_txt_start + contract.source_mapping["length"]
+        filename_source_code = contract.source_mapping.filename.absolute
+        full_txt_start = contract.source_mapping.start
+        full_txt_end = full_txt_start + contract.source_mapping.length
         full_txt = slither.source_code[filename_source_code].encode("utf8")[
             full_txt_start:full_txt_end
         ]

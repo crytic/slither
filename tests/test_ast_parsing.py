@@ -8,9 +8,9 @@ from distutils.version import StrictVersion
 from typing import List, Dict
 
 import pytest
+from deepdiff import DeepDiff
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
-from deepdiff import DeepDiff
 
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna

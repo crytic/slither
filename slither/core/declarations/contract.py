@@ -8,10 +8,9 @@ from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
 from crytic_compile.platform import Type as PlatformType
 
 from slither.core.cfg.scope import Scope
+from slither.core.declarations.function import Function, FunctionType
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
-
-from slither.core.declarations.function import Function, FunctionType
 from slither.utils.erc import (
     ERC20_signatures,
     ERC165_signatures,
@@ -999,7 +998,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     def is_from_dependency(self) -> bool:
         return self.compilation_unit.core.crytic_compile.is_dependency(
-            self.source_mapping["filename_absolute"]
+            self.source_mapping.filename.absolute
         )
 
     # endregion
@@ -1017,7 +1016,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         if self.compilation_unit.core.crytic_compile.platform == PlatformType.TRUFFLE:
             if self.name == "Migrations":
-                paths = Path(self.source_mapping["filename_absolute"]).parts
+                paths = Path(self.source_mapping.filename.absolute).parts
                 if len(paths) >= 2:
                     return paths[-2] == "contracts" and paths[-1] == "migrations.sol"
         return False

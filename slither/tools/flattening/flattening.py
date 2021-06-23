@@ -101,10 +101,10 @@ class Flattening:
                     continue
                 if f.visibility == "external":
                     attributes_start = (
-                        f.parameters_src().source_mapping["start"]
-                        + f.parameters_src().source_mapping["length"]
+                        f.parameters_src().source_mapping.start
+                        + f.parameters_src().source_mapping.length
                     )
-                    attributes_end = f.returns_src().source_mapping["start"]
+                    attributes_end = f.returns_src().source_mapping.start
                     attributes = content[attributes_start:attributes_end]
                     regex = re.search(r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes)
                     if regex:
@@ -119,8 +119,8 @@ class Flattening:
 
                     for var in f.parameters:
                         if var.location == "calldata":
-                            calldata_start = var.source_mapping["start"]
-                            calldata_end = calldata_start + var.source_mapping["length"]
+                            calldata_start = var.source_mapping.start
+                            calldata_end = calldata_start + var.source_mapping.length
                             calldata_idx = content[calldata_start:calldata_end].find(" calldata ")
                             to_patch.append(
                                 Patch(
@@ -133,8 +133,8 @@ class Flattening:
             for variable in contract.state_variables_declared:
                 if variable.visibility == "private":
                     print(variable.source_mapping)
-                    attributes_start = variable.source_mapping["start"]
-                    attributes_end = attributes_start + variable.source_mapping["length"]
+                    attributes_start = variable.source_mapping.start
+                    attributes_end = attributes_start + variable.source_mapping.length
                     attributes = content[attributes_start:attributes_end]
                     print(attributes)
                     regex = re.search(r" private ", attributes)
@@ -157,7 +157,7 @@ class Flattening:
                         if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
                             "assert(bool)"
                         ):
-                            to_patch.append(Patch(node.source_mapping["start"], "line_removal"))
+                            to_patch.append(Patch(node.source_mapping.start, "line_removal"))
                             logger.info(
                                 f"Code commented: {node.expression} ({node.source_mapping_str})"
                             )

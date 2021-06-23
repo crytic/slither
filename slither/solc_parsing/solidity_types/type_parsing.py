@@ -190,6 +190,12 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     return UserDefinedType(var_type)
 
 
+def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit"):
+
+    if isinstance(type_found, UserDefinedType):
+        type_found.type.add_reference_from_raw_source(src, sl)
+
+
 def parse_type(t: Union[Dict, UnknownType], caller_context):
     # local import to avoid circular dependency
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
@@ -224,6 +230,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
         contracts = sl.contracts
         functions = []
     elif isinstance(caller_context, (ContractSolc, FunctionSolc)):
+        sl = caller_context.compilation_unit
         if isinstance(caller_context, FunctionSolc):
             underlying_func = caller_context.underlying_function
             # If contract_parser is set to None, then underlying_function is a functionContract
@@ -274,7 +281,7 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
 
     if t[key] == "UserDefinedTypeName":
         if is_compact_ast:
-            return _find_from_type_name(
+            type_found = _find_from_type_name(
                 t["typeDescriptions"]["typeString"],
                 functions,
                 contracts,
@@ -283,10 +290,12 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
                 enums_direct_access,
                 all_enums,
             )
+            _add_type_references(type_found, t["src"], sl)
+            return type_found
 
         # Determine if we have a type node (otherwise we use the name node, as some older solc did not have 'type').
         type_name_key = "type" if "type" in t["attributes"] else key
-        return _find_from_type_name(
+        type_found = _find_from_type_name(
             t["attributes"][type_name_key],
             functions,
             contracts,
@@ -295,11 +304,13 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
             enums_direct_access,
             all_enums,
         )
+        _add_type_references(type_found, t["src"], sl)
+        return type_found
 
     # Introduced with Solidity 0.8
     if t[key] == "IdentifierPath":
         if is_compact_ast:
-            return _find_from_type_name(
+            type_found = _find_from_type_name(
                 t["name"],
                 functions,
                 contracts,
@@ -308,6 +319,8 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
                 enums_direct_access,
                 all_enums,
             )
+            _add_type_references(type_found, t["src"], sl)
+            return type_found
 
         raise SlitherError("Solidity 0.8 not supported with the legacy AST")
 

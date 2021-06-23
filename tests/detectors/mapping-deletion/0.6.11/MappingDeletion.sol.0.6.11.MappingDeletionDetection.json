@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 114,
                         "length": 80,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                         "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -28,7 +28,7 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 168,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                 "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -59,7 +59,7 @@
                     "source_mapping": {
                         "start": 47,
                         "length": 61,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                         "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -79,7 +79,7 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 168,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                 "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -109,7 +109,7 @@
                     "source_mapping": {
                         "start": 175,
                         "length": 12,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                         "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -127,7 +127,7 @@
                             "source_mapping": {
                                 "start": 114,
                                 "length": 80,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                 "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -147,7 +147,7 @@
                                     "source_mapping": {
                                         "start": 29,
                                         "length": 168,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                         "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -191,7 +191,7 @@
                     "source_mapping": {
                         "start": 595,
                         "length": 137,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                         "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -212,7 +212,7 @@
                             "source_mapping": {
                                 "start": 199,
                                 "length": 866,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                 "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -262,7 +262,7 @@
                     "source_mapping": {
                         "start": 228,
                         "length": 94,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                         "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -283,7 +283,7 @@
                             "source_mapping": {
                                 "start": 199,
                                 "length": 866,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                 "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -332,7 +332,7 @@
                     "source_mapping": {
                         "start": 701,
                         "length": 24,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                         "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -350,7 +350,7 @@
                             "source_mapping": {
                                 "start": 595,
                                 "length": 137,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                 "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
@@ -371,7 +371,7 @@
                                     "source_mapping": {
                                         "start": 199,
                                         "length": 866,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                         "filename_relative": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/mapping-deletion/0.6.11/MappingDeletion.sol",

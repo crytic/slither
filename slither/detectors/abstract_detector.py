@@ -212,6 +212,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                     return [r for (idx, r) in enumerate(results) if idx not in indexes]
                 except ValueError:
                     self.logger.error(yellow("Malformed input. Example of valid input: 0,1,2,3"))
+        results = sorted(results, key=lambda x: x["id"])
+
         return results
 
     @property

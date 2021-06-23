@@ -128,17 +128,17 @@ def _get_evm_instructions_node(node_info):
         node_info["cfg"].instructions,
         node_info["srcmap"],
         node_info["slither"],
-        node_info["contract"].source_mapping["filename_absolute"],
+        node_info["contract"].source_mapping.filename.absolute,
     )
     contract_file = (
         node_info["slither"]
-        .source_code[node_info["contract"].source_mapping["filename_absolute"]]
+        .source_code[node_info["contract"].source_mapping.filename.absolute]
         .encode("utf-8")
     )
 
     # Get evm instructions corresponding to node's source line number
     node_source_line = (
-        contract_file[0 : node_info["node"].source_mapping["start"]].count("\n".encode("utf-8")) + 1
+        contract_file[0 : node_info["node"].source_mapping.start].count("\n".encode("utf-8")) + 1
     )
     node_pcs = contract_pcs.get(node_source_line, [])
     node_ins = []

@@ -1,0 +1,42 @@
+---
+name: Parser tests
+
+defaults:
+  run:
+    # To load bashrc
+    shell: bash -ieo pipefail {0}
+
+on:
+  pull_request:
+    branches: [master, dev]
+  schedule:
+    # run CI every day even if no PRs/merges occur
+    - cron:  '0 12 * * *'
+
+jobs:
+  build:
+    name: Parser tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
+      - name: Install dependencies
+        run: |
+          python setup.py inst
+          pip install pytest
+          pip install solc-select
+          solc-select install all
+          solc-select use 0.6.12
+
+      - name: Test with pytest
+        run: |
+          pytest tests/test_function.py
+          pytest tests/test_source_mapping.py
+

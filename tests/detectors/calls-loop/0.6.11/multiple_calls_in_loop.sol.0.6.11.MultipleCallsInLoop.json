@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 160,
                         "length": 153,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
                         "filename_relative": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
@@ -30,7 +30,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 316,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
                                 "filename_relative": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
@@ -65,7 +65,7 @@
                     "source_mapping": {
                         "start": 251,
                         "length": 45,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
                         "filename_relative": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
@@ -83,7 +83,7 @@
                             "source_mapping": {
                                 "start": 160,
                                 "length": 153,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
                                 "filename_relative": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
@@ -105,7 +105,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 316,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
                                         "filename_relative": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/calls-loop/0.6.11/multiple_calls_in_loop.sol",

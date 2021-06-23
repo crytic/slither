@@ -43,7 +43,7 @@ def is_test_contract(contract: "Contract") -> bool:
         _is_test_pattern(contract.name, "Test")
         or _is_test_pattern(contract.name, "Mock")
         or (
-            contract.source_mapping["filename_absolute"]
-            and is_test_file(Path(contract.source_mapping["filename_absolute"]))
+            contract.source_mapping.filename.absolute
+            and is_test_file(Path(contract.source_mapping.filename.absolute))
         )
     )

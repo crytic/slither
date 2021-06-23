@@ -1620,6 +1620,21 @@ def convert_delete(irs):
 # endregion
 ###################################################################################
 ###################################################################################
+# region Source Mapping
+###################################################################################
+###################################################################################
+
+
+def _find_source_mapping_references(irs: List[Operation]):
+    for ir in irs:
+
+        if isinstance(ir, NewContract):
+            ir.contract_created.references.append(ir.expression.source_mapping)
+
+
+# endregion
+###################################################################################
+###################################################################################
 # region Heuristics selection
 ###################################################################################
 ###################################################################################
@@ -1637,5 +1652,7 @@ def apply_ir_heuristics(irs, node):
     find_references_origin(irs)
     convert_constant_types(irs)
     convert_delete(irs)
+
+    _find_source_mapping_references(irs)
 
     return irs

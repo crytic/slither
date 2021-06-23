@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 77,
                         "length": 18,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/uninitialized-local/0.4.25/uninitialized_local_variable.sol",
                         "filename_relative": "tests/detectors/uninitialized-local/0.4.25/uninitialized_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-local/0.4.25/uninitialized_local_variable.sol",
@@ -26,7 +26,7 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 143,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/uninitialized-local/0.4.25/uninitialized_local_variable.sol",
                                 "filename_relative": "tests/detectors/uninitialized-local/0.4.25/uninitialized_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-local/0.4.25/uninitialized_local_variable.sol",
@@ -48,7 +48,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 179,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/uninitialized-local/0.4.25/uninitialized_local_variable.sol",
                                         "filename_relative": "tests/detectors/uninitialized-local/0.4.25/uninitialized_local_variable.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/uninitialized-local/0.4.25/uninitialized_local_variable.sol",

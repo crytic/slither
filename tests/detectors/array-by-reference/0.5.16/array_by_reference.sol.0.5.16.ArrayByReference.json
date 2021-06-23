@@ -6,9 +6,420 @@
                     "type": "function",
                     "name": "f",
                     "source_mapping": {
+                        "start": 869,
+                        "length": 269,
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            42,
+                            43,
+                            44,
+                            45,
+                            46,
+                            47,
+                            48
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "D",
+                            "source_mapping": {
+                                "start": 702,
+                                "length": 440,
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "f()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "x",
+                    "source_mapping": {
+                        "start": 836,
+                        "length": 9,
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            39
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 14
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "D",
+                            "source_mapping": {
+                                "start": 702,
+                                "length": 440,
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "setByValueAndReturn",
+                    "source_mapping": {
+                        "start": 578,
+                        "length": 120,
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 700,
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "setByValueAndReturn(uint256[1])"
+                    }
+                }
+            ],
+            "description": "D.f() (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#42-48) passes array D.x (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#39)by reference to C.setByValueAndReturn(uint256[1]) (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#25-28)which only takes arrays by value\n",
+            "markdown": "[D.f()](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L42-L48) passes array [D.x](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L39)by reference to [C.setByValueAndReturn(uint256[1])](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L25-L28)which only takes arrays by value\n",
+            "first_markdown_element": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L42-L48",
+            "id": "019912974eabe7e8b1e67ca05b342e5106de13fa93fa0adf599a4259c425bd54",
+            "check": "array-by-reference",
+            "impact": "High",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "f",
+                    "source_mapping": {
+                        "start": 869,
+                        "length": 269,
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            42,
+                            43,
+                            44,
+                            45,
+                            46,
+                            47,
+                            48
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "D",
+                            "source_mapping": {
+                                "start": 702,
+                                "length": 440,
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "f()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "x",
+                    "source_mapping": {
+                        "start": 836,
+                        "length": 9,
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            39
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 14
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "D",
+                            "source_mapping": {
+                                "start": 702,
+                                "length": 440,
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "setByValue",
+                    "source_mapping": {
+                        "start": 498,
+                        "length": 74,
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            21,
+                            22,
+                            23
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 700,
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "setByValue(uint256[1])"
+                    }
+                }
+            ],
+            "description": "D.f() (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#42-48) passes array D.x (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#39)by reference to C.setByValue(uint256[1]) (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#21-23)which only takes arrays by value\n",
+            "markdown": "[D.f()](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L42-L48) passes array [D.x](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L39)by reference to [C.setByValue(uint256[1])](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L21-L23)which only takes arrays by value\n",
+            "first_markdown_element": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L42-L48",
+            "id": "1520955a53c36e391abbaf648a91a5a12d432f0f4746b0a8187d0988a6a66846",
+            "check": "array-by-reference",
+            "impact": "High",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "f",
+                    "source_mapping": {
                         "start": 40,
                         "length": 167,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -30,7 +441,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -79,7 +490,7 @@
                     "source_mapping": {
                         "start": 17,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -97,7 +508,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -145,7 +556,7 @@
                     "source_mapping": {
                         "start": 498,
                         "length": 74,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -165,7 +576,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -225,7 +636,7 @@
                     "source_mapping": {
                         "start": 40,
                         "length": 167,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -247,7 +658,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -296,7 +707,7 @@
                     "source_mapping": {
                         "start": 17,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -314,7 +725,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -362,7 +773,7 @@
                     "source_mapping": {
                         "start": 578,
                         "length": 120,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -383,7 +794,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -443,7 +854,7 @@
                     "source_mapping": {
                         "start": 213,
                         "length": 198,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -466,7 +877,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -515,7 +926,7 @@
                     "source_mapping": {
                         "start": 243,
                         "length": 21,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -533,7 +944,7 @@
                             "source_mapping": {
                                 "start": 213,
                                 "length": 198,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -556,251 +967,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 700,
-                                        "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            1,
-                                            2,
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18,
-                                            19,
-                                            20,
-                                            21,
-                                            22,
-                                            23,
-                                            24,
-                                            25,
-                                            26,
-                                            27,
-                                            28,
-                                            29
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 2
-                                    }
-                                },
-                                "signature": "g()"
-                            }
-                        }
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "setByValue",
-                    "source_mapping": {
-                        "start": 498,
-                        "length": 74,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            21,
-                            22,
-                            23
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 6
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "C",
-                            "source_mapping": {
-                                "start": 0,
-                                "length": 700,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22,
-                                    23,
-                                    24,
-                                    25,
-                                    26,
-                                    27,
-                                    28,
-                                    29
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "setByValue(uint256[1])"
-                    }
-                }
-            ],
-            "description": "C.g() (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#10-15) passes array C.g().y (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#11)by reference to C.setByValue(uint256[1]) (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#21-23)which only takes arrays by value\n",
-            "markdown": "[C.g()](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L10-L15) passes array [C.g().y](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L11)by reference to [C.setByValue(uint256[1])](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L21-L23)which only takes arrays by value\n",
-            "first_markdown_element": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L10-L15",
-            "id": "d039169712808e785bf2e53f322c1c6fcd6b93a0a0c17f1a701addd09ed83996",
-            "check": "array-by-reference",
-            "impact": "High",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "function",
-                    "name": "g",
-                    "source_mapping": {
-                        "start": 213,
-                        "length": 198,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            10,
-                            11,
-                            12,
-                            13,
-                            14,
-                            15
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 6
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "C",
-                            "source_mapping": {
-                                "start": 0,
-                                "length": 700,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22,
-                                    23,
-                                    24,
-                                    25,
-                                    26,
-                                    27,
-                                    28,
-                                    29
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "g()"
-                    }
-                },
-                {
-                    "type": "variable",
-                    "name": "y",
-                    "source_mapping": {
-                        "start": 243,
-                        "length": 21,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            11
-                        ],
-                        "starting_column": 9,
-                        "ending_column": 30
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "g",
-                            "source_mapping": {
-                                "start": 213,
-                                "length": 198,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15
-                                ],
-                                "starting_column": 5,
-                                "ending_column": 6
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "C",
-                                    "source_mapping": {
-                                        "start": 0,
-                                        "length": 700,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -851,7 +1018,7 @@
                     "source_mapping": {
                         "start": 578,
                         "length": 120,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -872,7 +1039,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -928,23 +1095,22 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "f",
+                    "name": "g",
                     "source_mapping": {
-                        "start": 869,
-                        "length": 269,
-                        "filename_used": "/GENERIC_PATH",
+                        "start": 213,
+                        "length": 198,
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "is_dependency": false,
                         "lines": [
-                            42,
-                            43,
-                            44,
-                            45,
-                            46,
-                            47,
-                            48
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -952,101 +1118,141 @@
                     "type_specific_fields": {
                         "parent": {
                             "type": "contract",
-                            "name": "D",
+                            "name": "C",
                             "source_mapping": {
-                                "start": 702,
-                                "length": 440,
-                                "filename_used": "/GENERIC_PATH",
+                                "start": 0,
+                                "length": 700,
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    31,
-                                    32,
-                                    33,
-                                    34,
-                                    35,
-                                    36,
-                                    37,
-                                    38,
-                                    39,
-                                    40,
-                                    41,
-                                    42,
-                                    43,
-                                    44,
-                                    45,
-                                    46,
-                                    47,
-                                    48,
-                                    49,
-                                    50,
-                                    51,
-                                    52
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29
                                 ],
                                 "starting_column": 1,
-                                "ending_column": 0
+                                "ending_column": 2
                             }
                         },
-                        "signature": "f()"
+                        "signature": "g()"
                     }
                 },
                 {
                     "type": "variable",
-                    "name": "x",
+                    "name": "y",
                     "source_mapping": {
-                        "start": 836,
-                        "length": 9,
-                        "filename_used": "/GENERIC_PATH",
+                        "start": 243,
+                        "length": 21,
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "is_dependency": false,
                         "lines": [
-                            39
+                            11
                         ],
-                        "starting_column": 5,
-                        "ending_column": 14
+                        "starting_column": 9,
+                        "ending_column": 30
                     },
                     "type_specific_fields": {
                         "parent": {
-                            "type": "contract",
-                            "name": "D",
+                            "type": "function",
+                            "name": "g",
                             "source_mapping": {
-                                "start": 702,
-                                "length": 440,
-                                "filename_used": "/GENERIC_PATH",
+                                "start": 213,
+                                "length": 198,
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    31,
-                                    32,
-                                    33,
-                                    34,
-                                    35,
-                                    36,
-                                    37,
-                                    38,
-                                    39,
-                                    40,
-                                    41,
-                                    42,
-                                    43,
-                                    44,
-                                    45,
-                                    46,
-                                    47,
-                                    48,
-                                    49,
-                                    50,
-                                    51,
-                                    52
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15
                                 ],
-                                "starting_column": 1,
-                                "ending_column": 0
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 700,
+                                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "g()"
                             }
                         }
                     }
@@ -1057,7 +1263,7 @@
                     "source_mapping": {
                         "start": 498,
                         "length": 74,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -1077,7 +1283,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 700,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
@@ -1121,216 +1327,10 @@
                     }
                 }
             ],
-            "description": "D.f() (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#42-48) passes array D.x (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#39)by reference to C.setByValue(uint256[1]) (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#21-23)which only takes arrays by value\n",
-            "markdown": "[D.f()](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L42-L48) passes array [D.x](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L39)by reference to [C.setByValue(uint256[1])](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L21-L23)which only takes arrays by value\n",
-            "first_markdown_element": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L42-L48",
-            "id": "1520955a53c36e391abbaf648a91a5a12d432f0f4746b0a8187d0988a6a66846",
-            "check": "array-by-reference",
-            "impact": "High",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "function",
-                    "name": "f",
-                    "source_mapping": {
-                        "start": 869,
-                        "length": 269,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            42,
-                            43,
-                            44,
-                            45,
-                            46,
-                            47,
-                            48
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 6
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "D",
-                            "source_mapping": {
-                                "start": 702,
-                                "length": 440,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    31,
-                                    32,
-                                    33,
-                                    34,
-                                    35,
-                                    36,
-                                    37,
-                                    38,
-                                    39,
-                                    40,
-                                    41,
-                                    42,
-                                    43,
-                                    44,
-                                    45,
-                                    46,
-                                    47,
-                                    48,
-                                    49,
-                                    50,
-                                    51,
-                                    52
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 0
-                            }
-                        },
-                        "signature": "f()"
-                    }
-                },
-                {
-                    "type": "variable",
-                    "name": "x",
-                    "source_mapping": {
-                        "start": 836,
-                        "length": 9,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            39
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 14
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "D",
-                            "source_mapping": {
-                                "start": 702,
-                                "length": 440,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    31,
-                                    32,
-                                    33,
-                                    34,
-                                    35,
-                                    36,
-                                    37,
-                                    38,
-                                    39,
-                                    40,
-                                    41,
-                                    42,
-                                    43,
-                                    44,
-                                    45,
-                                    46,
-                                    47,
-                                    48,
-                                    49,
-                                    50,
-                                    51,
-                                    52
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 0
-                            }
-                        }
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "setByValueAndReturn",
-                    "source_mapping": {
-                        "start": 578,
-                        "length": 120,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            25,
-                            26,
-                            27,
-                            28
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 6
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "C",
-                            "source_mapping": {
-                                "start": 0,
-                                "length": 700,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22,
-                                    23,
-                                    24,
-                                    25,
-                                    26,
-                                    27,
-                                    28,
-                                    29
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "setByValueAndReturn(uint256[1])"
-                    }
-                }
-            ],
-            "description": "D.f() (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#42-48) passes array D.x (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#39)by reference to C.setByValueAndReturn(uint256[1]) (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#25-28)which only takes arrays by value\n",
-            "markdown": "[D.f()](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L42-L48) passes array [D.x](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L39)by reference to [C.setByValueAndReturn(uint256[1])](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L25-L28)which only takes arrays by value\n",
-            "first_markdown_element": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L42-L48",
-            "id": "019912974eabe7e8b1e67ca05b342e5106de13fa93fa0adf599a4259c425bd54",
+            "description": "C.g() (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#10-15) passes array C.g().y (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#11)by reference to C.setByValue(uint256[1]) (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#21-23)which only takes arrays by value\n",
+            "markdown": "[C.g()](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L10-L15) passes array [C.g().y](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L11)by reference to [C.setByValue(uint256[1])](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L21-L23)which only takes arrays by value\n",
+            "first_markdown_element": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L10-L15",
+            "id": "d039169712808e785bf2e53f322c1c6fcd6b93a0a0c17f1a701addd09ed83996",
             "check": "array-by-reference",
             "impact": "High",
             "confidence": "High"

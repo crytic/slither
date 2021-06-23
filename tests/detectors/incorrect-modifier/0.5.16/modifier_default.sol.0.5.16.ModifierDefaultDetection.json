@@ -4,21 +4,28 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "noResult",
+                    "name": "loopsNoResult",
                     "source_mapping": {
-                        "start": 20,
-                        "length": 103,
-                        "filename_used": "/GENERIC_PATH",
+                        "start": 496,
+                        "length": 251,
+                        "filename_used": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                         "filename_relative": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                         "is_dependency": false,
                         "lines": [
-                            2,
-                            3,
-                            4,
-                            5,
-                            6
+                            30,
+                            31,
+                            32,
+                            33,
+                            34,
+                            35,
+                            36,
+                            37,
+                            38,
+                            39,
+                            40,
+                            41
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -30,7 +37,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 901,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                                 "filename_relative": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
@@ -93,14 +100,14 @@
                                 "ending_column": 2
                             }
                         },
-                        "signature": "noResult()"
+                        "signature": "loopsNoResult()"
                     }
                 }
             ],
-            "description": "Modifier Test.noResult() (tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol#2-6) does not always execute _; or revert",
-            "markdown": "Modifier [Test.noResult()](tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol#L2-L6) does not always execute _; or revert",
-            "first_markdown_element": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol#L2-L6",
-            "id": "e83e0a544940d3ddd9ea8fe0ae0277bec4660926110809cfd28153817969c3a3",
+            "description": "Modifier Test.loopsNoResult() (tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol#30-41) does not always execute _; or revert",
+            "markdown": "Modifier [Test.loopsNoResult()](tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol#L30-L41) does not always execute _; or revert",
+            "first_markdown_element": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol#L30-L41",
+            "id": "0ba95ef5faf2a00c06d4f83c5159220d1cd06bc346a1287a6634334b7a0c433f",
             "check": "incorrect-modifier",
             "impact": "Low",
             "confidence": "High"
@@ -113,7 +120,7 @@
                     "source_mapping": {
                         "start": 277,
                         "length": 111,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                         "filename_relative": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
@@ -135,7 +142,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 901,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                                 "filename_relative": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
@@ -214,28 +221,21 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "loopsNoResult",
+                    "name": "noResult",
                     "source_mapping": {
-                        "start": 496,
-                        "length": 251,
-                        "filename_used": "/GENERIC_PATH",
+                        "start": 20,
+                        "length": 103,
+                        "filename_used": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                         "filename_relative": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                         "is_dependency": false,
                         "lines": [
-                            30,
-                            31,
-                            32,
-                            33,
-                            34,
-                            35,
-                            36,
-                            37,
-                            38,
-                            39,
-                            40,
-                            41
+                            2,
+                            3,
+                            4,
+                            5,
+                            6
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -247,7 +247,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 901,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                                 "filename_relative": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol",
@@ -310,14 +310,14 @@
                                 "ending_column": 2
                             }
                         },
-                        "signature": "loopsNoResult()"
+                        "signature": "noResult()"
                     }
                 }
             ],
-            "description": "Modifier Test.loopsNoResult() (tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol#30-41) does not always execute _; or revert",
-            "markdown": "Modifier [Test.loopsNoResult()](tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol#L30-L41) does not always execute _; or revert",
-            "first_markdown_element": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol#L30-L41",
-            "id": "0ba95ef5faf2a00c06d4f83c5159220d1cd06bc346a1287a6634334b7a0c433f",
+            "description": "Modifier Test.noResult() (tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol#2-6) does not always execute _; or revert",
+            "markdown": "Modifier [Test.noResult()](tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol#L2-L6) does not always execute _; or revert",
+            "first_markdown_element": "tests/detectors/incorrect-modifier/0.5.16/modifier_default.sol#L2-L6",
+            "id": "e83e0a544940d3ddd9ea8fe0ae0277bec4660926110809cfd28153817969c3a3",
             "check": "incorrect-modifier",
             "impact": "Low",
             "confidence": "High"

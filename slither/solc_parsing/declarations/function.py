@@ -12,6 +12,7 @@ from slither.core.declarations.function import (
 from slither.core.declarations.function_contract import FunctionContract
 
 from slither.core.expressions import AssignmentOperation
+from slither.core.source_mapping.source_mapping import Source
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 
@@ -330,7 +331,7 @@ class FunctionSolc:
     ###################################################################################
 
     def _new_node(
-        self, node_type: NodeType, src: Union[str, Dict], scope: Union[Scope, "Function"]
+        self, node_type: NodeType, src: Union[str, Source], scope: Union[Scope, "Function"]
     ) -> NodeSolc:
         node = self._function.new_node(node_type, src, scope)
         node_parser = NodeSolc(node)

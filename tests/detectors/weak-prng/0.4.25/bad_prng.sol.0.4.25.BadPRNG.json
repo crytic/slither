@@ -4,341 +4,11 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "bad0",
-                    "source_mapping": {
-                        "start": 45,
-                        "length": 68,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            4,
-                            5,
-                            6
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 6
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "BadPRNG",
-                            "source_mapping": {
-                                "start": 0,
-                                "length": 499,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22,
-                                    23,
-                                    24,
-                                    25,
-                                    26,
-                                    27
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "bad0()"
-                    }
-                },
-                {
-                    "type": "node",
-                    "name": "i = block.timestamp % 10",
-                    "source_mapping": {
-                        "start": 77,
-                        "length": 29,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            5
-                        ],
-                        "starting_column": 7,
-                        "ending_column": 36
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "bad0",
-                            "source_mapping": {
-                                "start": 45,
-                                "length": 68,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    4,
-                                    5,
-                                    6
-                                ],
-                                "starting_column": 5,
-                                "ending_column": 6
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "BadPRNG",
-                                    "source_mapping": {
-                                        "start": 0,
-                                        "length": 499,
-                                        "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            1,
-                                            2,
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18,
-                                            19,
-                                            20,
-                                            21,
-                                            22,
-                                            23,
-                                            24,
-                                            25,
-                                            26,
-                                            27
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 2
-                                    }
-                                },
-                                "signature": "bad0()"
-                            }
-                        }
-                    }
-                }
-            ],
-            "description": "BadPRNG.bad0() (tests/detectors/weak-prng/0.4.25/bad_prng.sol#4-6) uses a weak PRNG: \"i = block.timestamp % 10 (tests/detectors/weak-prng/0.4.25/bad_prng.sol#5)\" \n",
-            "markdown": "[BadPRNG.bad0()](tests/detectors/weak-prng/0.4.25/bad_prng.sol#L4-L6) uses a weak PRNG: \"[i = block.timestamp % 10](tests/detectors/weak-prng/0.4.25/bad_prng.sol#L5)\" \n",
-            "first_markdown_element": "tests/detectors/weak-prng/0.4.25/bad_prng.sol#L4-L6",
-            "id": "fc717c512384a74aab058df35c032bca15e276f4e03446ad7b52f33acac1a556",
-            "check": "weak-prng",
-            "impact": "High",
-            "confidence": "Medium"
-        },
-        {
-            "elements": [
-                {
-                    "type": "function",
-                    "name": "bad1",
-                    "source_mapping": {
-                        "start": 122,
-                        "length": 56,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            8,
-                            9,
-                            10
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 6
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "BadPRNG",
-                            "source_mapping": {
-                                "start": 0,
-                                "length": 499,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22,
-                                    23,
-                                    24,
-                                    25,
-                                    26,
-                                    27
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "bad1()"
-                    }
-                },
-                {
-                    "type": "node",
-                    "name": "i = now % 10",
-                    "source_mapping": {
-                        "start": 154,
-                        "length": 17,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            9
-                        ],
-                        "starting_column": 7,
-                        "ending_column": 24
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "bad1",
-                            "source_mapping": {
-                                "start": 122,
-                                "length": 56,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    8,
-                                    9,
-                                    10
-                                ],
-                                "starting_column": 5,
-                                "ending_column": 6
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "BadPRNG",
-                                    "source_mapping": {
-                                        "start": 0,
-                                        "length": 499,
-                                        "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            1,
-                                            2,
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18,
-                                            19,
-                                            20,
-                                            21,
-                                            22,
-                                            23,
-                                            24,
-                                            25,
-                                            26,
-                                            27
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 2
-                                    }
-                                },
-                                "signature": "bad1()"
-                            }
-                        }
-                    }
-                }
-            ],
-            "description": "BadPRNG.bad1() (tests/detectors/weak-prng/0.4.25/bad_prng.sol#8-10) uses a weak PRNG: \"i = now % 10 (tests/detectors/weak-prng/0.4.25/bad_prng.sol#9)\" \n",
-            "markdown": "[BadPRNG.bad1()](tests/detectors/weak-prng/0.4.25/bad_prng.sol#L8-L10) uses a weak PRNG: \"[i = now % 10](tests/detectors/weak-prng/0.4.25/bad_prng.sol#L9)\" \n",
-            "first_markdown_element": "tests/detectors/weak-prng/0.4.25/bad_prng.sol#L8-L10",
-            "id": "b6c45323a90c31dea54db817de9a3d13e40431227ca6240465e43183004f6541",
-            "check": "weak-prng",
-            "impact": "High",
-            "confidence": "Medium"
-        },
-        {
-            "elements": [
-                {
-                    "type": "function",
                     "name": "bad2",
                     "source_mapping": {
                         "start": 184,
                         "length": 78,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                         "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
@@ -358,7 +28,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 499,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                                 "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
@@ -405,7 +75,7 @@
                     "source_mapping": {
                         "start": 216,
                         "length": 39,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                         "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
@@ -423,7 +93,7 @@
                             "source_mapping": {
                                 "start": 184,
                                 "length": 78,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                                 "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
@@ -443,7 +113,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 499,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                                         "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
@@ -503,7 +173,7 @@
                     "source_mapping": {
                         "start": 363,
                         "length": 58,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                         "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
@@ -523,7 +193,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 499,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                                 "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
@@ -570,7 +240,7 @@
                     "source_mapping": {
                         "start": 395,
                         "length": 19,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                         "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
@@ -588,7 +258,7 @@
                             "source_mapping": {
                                 "start": 363,
                                 "length": 58,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                                 "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
@@ -608,7 +278,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 499,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                                         "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
@@ -656,6 +326,336 @@
             "markdown": "[BadPRNG.bad3()](tests/detectors/weak-prng/0.4.25/bad_prng.sol#L20-L22) uses a weak PRNG: \"[i = foo() % 10](tests/detectors/weak-prng/0.4.25/bad_prng.sol#L21)\" \n",
             "first_markdown_element": "tests/detectors/weak-prng/0.4.25/bad_prng.sol#L20-L22",
             "id": "9ea8ea8faa26193b33dc2b3be5a338350aa82a076a4b5ec387ad8f5c15b7181f",
+            "check": "weak-prng",
+            "impact": "High",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad1",
+                    "source_mapping": {
+                        "start": 122,
+                        "length": 56,
+                        "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                        "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8,
+                            9,
+                            10
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "BadPRNG",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 499,
+                                "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad1()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "i = now % 10",
+                    "source_mapping": {
+                        "start": 154,
+                        "length": 17,
+                        "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                        "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9
+                        ],
+                        "starting_column": 7,
+                        "ending_column": 24
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad1",
+                            "source_mapping": {
+                                "start": 122,
+                                "length": 56,
+                                "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "BadPRNG",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 499,
+                                        "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                        "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad1()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "BadPRNG.bad1() (tests/detectors/weak-prng/0.4.25/bad_prng.sol#8-10) uses a weak PRNG: \"i = now % 10 (tests/detectors/weak-prng/0.4.25/bad_prng.sol#9)\" \n",
+            "markdown": "[BadPRNG.bad1()](tests/detectors/weak-prng/0.4.25/bad_prng.sol#L8-L10) uses a weak PRNG: \"[i = now % 10](tests/detectors/weak-prng/0.4.25/bad_prng.sol#L9)\" \n",
+            "first_markdown_element": "tests/detectors/weak-prng/0.4.25/bad_prng.sol#L8-L10",
+            "id": "b6c45323a90c31dea54db817de9a3d13e40431227ca6240465e43183004f6541",
+            "check": "weak-prng",
+            "impact": "High",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad0",
+                    "source_mapping": {
+                        "start": 45,
+                        "length": 68,
+                        "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                        "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4,
+                            5,
+                            6
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "BadPRNG",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 499,
+                                "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad0()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "i = block.timestamp % 10",
+                    "source_mapping": {
+                        "start": 77,
+                        "length": 29,
+                        "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                        "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5
+                        ],
+                        "starting_column": 7,
+                        "ending_column": 36
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad0",
+                            "source_mapping": {
+                                "start": 45,
+                                "length": 68,
+                                "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "BadPRNG",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 499,
+                                        "filename_used": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                        "filename_relative": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/weak-prng/0.4.25/bad_prng.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad0()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "BadPRNG.bad0() (tests/detectors/weak-prng/0.4.25/bad_prng.sol#4-6) uses a weak PRNG: \"i = block.timestamp % 10 (tests/detectors/weak-prng/0.4.25/bad_prng.sol#5)\" \n",
+            "markdown": "[BadPRNG.bad0()](tests/detectors/weak-prng/0.4.25/bad_prng.sol#L4-L6) uses a weak PRNG: \"[i = block.timestamp % 10](tests/detectors/weak-prng/0.4.25/bad_prng.sol#L5)\" \n",
+            "first_markdown_element": "tests/detectors/weak-prng/0.4.25/bad_prng.sol#L4-L6",
+            "id": "fc717c512384a74aab058df35c032bca15e276f4e03446ad7b52f33acac1a556",
             "check": "weak-prng",
             "impact": "High",
             "confidence": "Medium"

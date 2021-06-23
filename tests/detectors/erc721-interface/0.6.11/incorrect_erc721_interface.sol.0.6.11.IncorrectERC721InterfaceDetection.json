@@ -8,703 +8,7 @@
                     "source_mapping": {
                         "start": 112,
                         "length": 829,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            6,
-                            7,
-                            8,
-                            9,
-                            10,
-                            11,
-                            12,
-                            13,
-                            14,
-                            15,
-                            16
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "supportsInterface",
-                    "source_mapping": {
-                        "start": 53,
-                        "length": 56,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            4
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 61
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "IERC165",
-                            "source_mapping": {
-                                "start": 29,
-                                "length": 82,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    3,
-                                    4,
-                                    5
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "supportsInterface(bytes4)"
-                    }
-                }
-            ],
-            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:IERC165.supportsInterface(bytes4) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#4)\n",
-            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[IERC165.supportsInterface(bytes4)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L4)\n",
-            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
-            "id": "a8593587ca70c51a9ab827843babec3b3eb7f9a08d76eea1e5528e668f7b291d",
-            "check": "erc721-interface",
-            "impact": "Medium",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "Token",
-                    "source_mapping": {
-                        "start": 112,
-                        "length": 829,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            6,
-                            7,
-                            8,
-                            9,
-                            10,
-                            11,
-                            12,
-                            13,
-                            14,
-                            15,
-                            16
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "balanceOf",
-                    "source_mapping": {
-                        "start": 152,
-                        "length": 52,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            7
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 57
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "Token",
-                            "source_mapping": {
-                                "start": 112,
-                                "length": 829,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "balanceOf(address)"
-                    }
-                }
-            ],
-            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.balanceOf(address) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#7)\n",
-            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.balanceOf(address)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L7)\n",
-            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
-            "id": "6fb9d0320e0b63e2c70f9844d5bea2be958e73beb6eaa4ccb2323ead0c7ef991",
-            "check": "erc721-interface",
-            "impact": "Medium",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "Token",
-                    "source_mapping": {
-                        "start": 112,
-                        "length": 829,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            6,
-                            7,
-                            8,
-                            9,
-                            10,
-                            11,
-                            12,
-                            13,
-                            14,
-                            15,
-                            16
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "ownerOf",
-                    "source_mapping": {
-                        "start": 209,
-                        "length": 52,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            8
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 57
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "Token",
-                            "source_mapping": {
-                                "start": 112,
-                                "length": 829,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "ownerOf(uint256)"
-                    }
-                }
-            ],
-            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.ownerOf(uint256) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#8)\n",
-            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.ownerOf(uint256)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L8)\n",
-            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
-            "id": "7d9235dd4ef8bc29a3b7700597cc1e4efb846377c928e5e50c5f49cb37f288d2",
-            "check": "erc721-interface",
-            "impact": "Medium",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "Token",
-                    "source_mapping": {
-                        "start": 112,
-                        "length": 829,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            6,
-                            7,
-                            8,
-                            9,
-                            10,
-                            11,
-                            12,
-                            13,
-                            14,
-                            15,
-                            16
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "safeTransferFrom",
-                    "source_mapping": {
-                        "start": 266,
-                        "length": 125,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            9
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 130
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "Token",
-                            "source_mapping": {
-                                "start": 112,
-                                "length": 829,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "safeTransferFrom(address,address,uint256,bytes)"
-                    }
-                }
-            ],
-            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.safeTransferFrom(address,address,uint256,bytes) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#9)\n",
-            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.safeTransferFrom(address,address,uint256,bytes)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L9)\n",
-            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
-            "id": "ccec612c4b5db00ab59b766b5dde3f8d3a8c6408ef595ab08bff21628587e2a1",
-            "check": "erc721-interface",
-            "impact": "Medium",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "Token",
-                    "source_mapping": {
-                        "start": 112,
-                        "length": 829,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            6,
-                            7,
-                            8,
-                            9,
-                            10,
-                            11,
-                            12,
-                            13,
-                            14,
-                            15,
-                            16
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "safeTransferFrom",
-                    "source_mapping": {
-                        "start": 396,
-                        "length": 104,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            10
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 109
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "Token",
-                            "source_mapping": {
-                                "start": 112,
-                                "length": 829,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "safeTransferFrom(address,address,uint256)"
-                    }
-                }
-            ],
-            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.safeTransferFrom(address,address,uint256) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#10)\n",
-            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.safeTransferFrom(address,address,uint256)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L10)\n",
-            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
-            "id": "50ab7b0f39f327ac6deccf3c16b4e6fee1dc249072ac41a4bd485ccf0c12315b",
-            "check": "erc721-interface",
-            "impact": "Medium",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "Token",
-                    "source_mapping": {
-                        "start": 112,
-                        "length": 829,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            6,
-                            7,
-                            8,
-                            9,
-                            10,
-                            11,
-                            12,
-                            13,
-                            14,
-                            15,
-                            16
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "transferFrom",
-                    "source_mapping": {
-                        "start": 505,
-                        "length": 100,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            11
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 105
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "Token",
-                            "source_mapping": {
-                                "start": 112,
-                                "length": 829,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "transferFrom(address,address,uint256)"
-                    }
-                }
-            ],
-            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.transferFrom(address,address,uint256) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#11)\n",
-            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.transferFrom(address,address,uint256)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L11)\n",
-            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
-            "id": "847b11227f3bfc9b120e0ea573f385a4bbc61c4b7f89f434864612a679b1133e",
-            "check": "erc721-interface",
-            "impact": "Medium",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "Token",
-                    "source_mapping": {
-                        "start": 112,
-                        "length": 829,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            6,
-                            7,
-                            8,
-                            9,
-                            10,
-                            11,
-                            12,
-                            13,
-                            14,
-                            15,
-                            16
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "approve",
-                    "source_mapping": {
-                        "start": 610,
-                        "length": 86,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            12
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 91
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "Token",
-                            "source_mapping": {
-                                "start": 112,
-                                "length": 829,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "approve(address,uint256)"
-                    }
-                }
-            ],
-            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.approve(address,uint256) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#12)\n",
-            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.approve(address,uint256)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L12)\n",
-            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
-            "id": "439c95972d0e084aff057161164b13ab63f85bee31d80b568b7155e58eac4b5d",
-            "check": "erc721-interface",
-            "impact": "Medium",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "Token",
-                    "source_mapping": {
-                        "start": 112,
-                        "length": 829,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            6,
-                            7,
-                            8,
-                            9,
-                            10,
-                            11,
-                            12,
-                            13,
-                            14,
-                            15,
-                            16
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "setApprovalForAll",
-                    "source_mapping": {
-                        "start": 701,
-                        "length": 94,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            13
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 99
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "Token",
-                            "source_mapping": {
-                                "start": 112,
-                                "length": 829,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "setApprovalForAll(address,bool)"
-                    }
-                }
-            ],
-            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.setApprovalForAll(address,bool) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#13)\n",
-            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.setApprovalForAll(address,bool)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L13)\n",
-            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
-            "id": "b95e9bb000fb073c25fdbd9fff7bf0a3c44e04e70fc1a7da27c94c6b7fb8be40",
-            "check": "erc721-interface",
-            "impact": "Medium",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "Token",
-                    "source_mapping": {
-                        "start": 112,
-                        "length": 829,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
@@ -732,7 +36,7 @@
                     "source_mapping": {
                         "start": 800,
                         "length": 56,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
@@ -750,7 +54,7 @@
                             "source_mapping": {
                                 "start": 112,
                                 "length": 829,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
                                 "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
@@ -792,7 +96,703 @@
                     "source_mapping": {
                         "start": 112,
                         "length": 829,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "approve",
+                    "source_mapping": {
+                        "start": 610,
+                        "length": 86,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            12
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 91
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Token",
+                            "source_mapping": {
+                                "start": 112,
+                                "length": 829,
+                                "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "approve(address,uint256)"
+                    }
+                }
+            ],
+            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.approve(address,uint256) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#12)\n",
+            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.approve(address,uint256)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L12)\n",
+            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
+            "id": "439c95972d0e084aff057161164b13ab63f85bee31d80b568b7155e58eac4b5d",
+            "check": "erc721-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Token",
+                    "source_mapping": {
+                        "start": 112,
+                        "length": 829,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "safeTransferFrom",
+                    "source_mapping": {
+                        "start": 396,
+                        "length": 104,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 109
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Token",
+                            "source_mapping": {
+                                "start": 112,
+                                "length": 829,
+                                "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "safeTransferFrom(address,address,uint256)"
+                    }
+                }
+            ],
+            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.safeTransferFrom(address,address,uint256) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#10)\n",
+            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.safeTransferFrom(address,address,uint256)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L10)\n",
+            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
+            "id": "50ab7b0f39f327ac6deccf3c16b4e6fee1dc249072ac41a4bd485ccf0c12315b",
+            "check": "erc721-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Token",
+                    "source_mapping": {
+                        "start": 112,
+                        "length": 829,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "balanceOf",
+                    "source_mapping": {
+                        "start": 152,
+                        "length": 52,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 57
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Token",
+                            "source_mapping": {
+                                "start": 112,
+                                "length": 829,
+                                "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "balanceOf(address)"
+                    }
+                }
+            ],
+            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.balanceOf(address) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#7)\n",
+            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.balanceOf(address)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L7)\n",
+            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
+            "id": "6fb9d0320e0b63e2c70f9844d5bea2be958e73beb6eaa4ccb2323ead0c7ef991",
+            "check": "erc721-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Token",
+                    "source_mapping": {
+                        "start": 112,
+                        "length": 829,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "ownerOf",
+                    "source_mapping": {
+                        "start": 209,
+                        "length": 52,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 57
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Token",
+                            "source_mapping": {
+                                "start": 112,
+                                "length": 829,
+                                "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "ownerOf(uint256)"
+                    }
+                }
+            ],
+            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.ownerOf(uint256) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#8)\n",
+            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.ownerOf(uint256)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L8)\n",
+            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
+            "id": "7d9235dd4ef8bc29a3b7700597cc1e4efb846377c928e5e50c5f49cb37f288d2",
+            "check": "erc721-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Token",
+                    "source_mapping": {
+                        "start": 112,
+                        "length": 829,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "transferFrom",
+                    "source_mapping": {
+                        "start": 505,
+                        "length": 100,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            11
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 105
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Token",
+                            "source_mapping": {
+                                "start": 112,
+                                "length": 829,
+                                "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "transferFrom(address,address,uint256)"
+                    }
+                }
+            ],
+            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.transferFrom(address,address,uint256) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#11)\n",
+            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.transferFrom(address,address,uint256)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L11)\n",
+            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
+            "id": "847b11227f3bfc9b120e0ea573f385a4bbc61c4b7f89f434864612a679b1133e",
+            "check": "erc721-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Token",
+                    "source_mapping": {
+                        "start": 112,
+                        "length": 829,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "supportsInterface",
+                    "source_mapping": {
+                        "start": 53,
+                        "length": 56,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 61
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "IERC165",
+                            "source_mapping": {
+                                "start": 29,
+                                "length": 82,
+                                "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "supportsInterface(bytes4)"
+                    }
+                }
+            ],
+            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:IERC165.supportsInterface(bytes4) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#4)\n",
+            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[IERC165.supportsInterface(bytes4)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L4)\n",
+            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
+            "id": "a8593587ca70c51a9ab827843babec3b3eb7f9a08d76eea1e5528e668f7b291d",
+            "check": "erc721-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Token",
+                    "source_mapping": {
+                        "start": 112,
+                        "length": 829,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "setApprovalForAll",
+                    "source_mapping": {
+                        "start": 701,
+                        "length": 94,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 99
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Token",
+                            "source_mapping": {
+                                "start": 112,
+                                "length": 829,
+                                "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "setApprovalForAll(address,bool)"
+                    }
+                }
+            ],
+            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.setApprovalForAll(address,bool) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#13)\n",
+            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.setApprovalForAll(address,bool)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L13)\n",
+            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
+            "id": "b95e9bb000fb073c25fdbd9fff7bf0a3c44e04e70fc1a7da27c94c6b7fb8be40",
+            "check": "erc721-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Token",
+                    "source_mapping": {
+                        "start": 112,
+                        "length": 829,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "safeTransferFrom",
+                    "source_mapping": {
+                        "start": 266,
+                        "length": 125,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 130
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Token",
+                            "source_mapping": {
+                                "start": 112,
+                                "length": 829,
+                                "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "safeTransferFrom(address,address,uint256,bytes)"
+                    }
+                }
+            ],
+            "description": "Token (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.safeTransferFrom(address,address,uint256,bytes) (tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#9)\n",
+            "markdown": "[Token](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16) has incorrect ERC721 function interface:[Token.safeTransferFrom(address,address,uint256,bytes)](tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L9)\n",
+            "first_markdown_element": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol#L6-L16",
+            "id": "ccec612c4b5db00ab59b766b5dde3f8d3a8c6408ef595ab08bff21628587e2a1",
+            "check": "erc721-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Token",
+                    "source_mapping": {
+                        "start": 112,
+                        "length": 829,
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
@@ -820,7 +820,7 @@
                     "source_mapping": {
                         "start": 861,
                         "length": 78,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
@@ -838,7 +838,7 @@
                             "source_mapping": {
                                 "start": 112,
                                 "length": 829,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
                                 "filename_relative": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc721-interface/0.6.11/incorrect_erc721_interface.sol",

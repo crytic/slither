@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 162,
                         "length": 84,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
                         "filename_relative": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
@@ -28,7 +28,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 923,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
                                 "filename_relative": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
@@ -95,7 +95,7 @@
                     "source_mapping": {
                         "start": 221,
                         "length": 18,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
                         "filename_relative": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
@@ -113,7 +113,7 @@
                             "source_mapping": {
                                 "start": 162,
                                 "length": 84,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
                                 "filename_relative": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
@@ -133,7 +133,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 923,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
                                         "filename_relative": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/boolean-cst/0.7.6/boolean-constant-misuse.sol",

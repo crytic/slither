@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 139,
                         "length": 84,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
                         "filename_relative": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
@@ -28,7 +28,7 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 578,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
                                 "filename_relative": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
@@ -76,7 +76,7 @@
                     "source_mapping": {
                         "start": 198,
                         "length": 18,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
                         "filename_relative": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
@@ -94,7 +94,7 @@
                             "source_mapping": {
                                 "start": 139,
                                 "length": 84,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
                                 "filename_relative": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
@@ -114,7 +114,7 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 578,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
                                         "filename_relative": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/boolean-equal/0.5.16/boolean-constant-equality.sol",

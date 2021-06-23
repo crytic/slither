@@ -8,7 +8,7 @@
                     "source_mapping": {
                         "start": 25,
                         "length": 2256,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                         "filename_relative": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
@@ -68,7 +68,7 @@
                     "source_mapping": {
                         "start": 601,
                         "length": 170,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                         "filename_relative": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
@@ -88,7 +88,7 @@
                             "source_mapping": {
                                 "start": 25,
                                 "length": 2256,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                                 "filename_relative": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
@@ -151,7 +151,7 @@
                     "source_mapping": {
                         "start": 746,
                         "length": 20,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                         "filename_relative": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
@@ -169,7 +169,7 @@
                             "source_mapping": {
                                 "start": 601,
                                 "length": 170,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                                 "filename_relative": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
@@ -189,7 +189,7 @@
                                     "source_mapping": {
                                         "start": 25,
                                         "length": 2256,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                                         "filename_relative": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
@@ -265,7 +265,7 @@
                     "source_mapping": {
                         "start": 25,
                         "length": 2256,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                         "filename_relative": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
@@ -325,7 +325,7 @@
                     "source_mapping": {
                         "start": 355,
                         "length": 132,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                         "filename_relative": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
@@ -345,7 +345,7 @@
                             "source_mapping": {
                                 "start": 25,
                                 "length": 2256,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                                 "filename_relative": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
@@ -408,7 +408,7 @@
                     "source_mapping": {
                         "start": 384,
                         "length": 23,
-                        "filename_used": "/GENERIC_PATH",
+                        "filename_used": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                         "filename_relative": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
@@ -426,7 +426,7 @@
                             "source_mapping": {
                                 "start": 355,
                                 "length": 132,
-                                "filename_used": "/GENERIC_PATH",
+                                "filename_used": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                                 "filename_relative": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
@@ -446,7 +446,7 @@
                                     "source_mapping": {
                                         "start": 25,
                                         "length": 2256,
-                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_used": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                                         "filename_relative": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/storage-array/0.5.10/storage_signed_integer_array.sol",
