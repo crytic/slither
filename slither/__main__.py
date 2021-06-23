@@ -272,7 +272,7 @@ def parse_filter_paths(args):
 
 def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-statements
 
-    usage = "slither.py target [flag]\n"
+    usage = "slither target [flag]\n"
     usage += "\ntarget can be:\n"
     usage += "\t- file.sol // a Solidity file\n"
     usage += "\t- project_directory // a project directory. See https://github.com/crytic/crytic-compile/#crytic-compile for the supported platforms\n"
