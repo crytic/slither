@@ -46,3 +46,5 @@ please submit a PR with the relevant information.
 [AlphaHomoraV2](https://certificate.quantstamp.com/full/alpha-homora-v-2) | Dangerous divide before multiply operations | Jan 2021
 [Mimo Defi](https://certificate.quantstamp.com/full/ten-x-titan) | Lack of return value check | Jan 2021
 [OriginTrail](https://certificate.quantstamp.com/full/origin-trail-starfleet-staking) | Lack of return value check | Feb 2021
+[VoyagerToken](https://certificate.quantstamp.com/full/voyager-token) | Lack of return value check | Apr 2021
+
