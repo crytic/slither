@@ -390,6 +390,7 @@ class Echidna(AbstractPrinter):
             "have_external_calls": external_calls,
             "call_a_parameter": call_parameters,
             "use_balance": use_balance,
+            "solc_versions": [unit.solc_version for unit in self.slither.compilation_units],
         }
 
         self.info(json.dumps(d, indent=4))
