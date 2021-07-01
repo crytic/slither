@@ -208,6 +208,13 @@ class FunctionSolc:
             if self._function.name == self._function.contract_declarer.name:
                 self._function.function_type = FunctionType.CONSTRUCTOR
 
+        if "isConstructor" in attributes and attributes["isConstructor"]:
+            self._function.function_type = FunctionType.CONSTRUCTOR
+
+        if "kind" in attributes:
+            if attributes["kind"] == "constructor":
+                self._function.function_type = FunctionType.CONSTRUCTOR
+
     def _analyze_attributes(self):
         if self.is_compact_ast:
             attributes = self._functionNotParsed
@@ -227,13 +234,6 @@ class FunctionSolc:
 
         if "constant" in attributes:
             self._function.view = attributes["constant"]
-
-        if "isConstructor" in attributes and attributes["isConstructor"]:
-            self._function.function_type = FunctionType.CONSTRUCTOR
-
-        if "kind" in attributes:
-            if attributes["kind"] == "constructor":
-                self._function.function_type = FunctionType.CONSTRUCTOR
 
         if "visibility" in attributes:
             self._function.visibility = attributes["visibility"]
