@@ -34,7 +34,7 @@ class ArrayType(Type):
         return self._length
 
     @property
-    def lenght_value(self) -> Optional[Literal]:
+    def length_value(self) -> Optional[Literal]:
         return self._length_value
 
     @property
@@ -49,10 +49,11 @@ class ArrayType(Type):
             return str(self._type) + "[{}]".format(str(self._length_value))
         return str(self._type) + "[]"
 
+    # @webthethird edited to resolve false positives in upgradeability > checks > variables_order
     def __eq__(self, other):
         if not isinstance(other, ArrayType):
             return False
-        return self._type == other.type and self.length == other.length
+        return self._type == other.type and self.length_value == other.length_value
 
     def __hash__(self):
         return hash(str(self))

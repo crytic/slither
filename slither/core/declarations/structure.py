@@ -47,3 +47,25 @@ class Structure(SourceMapping):
 
     def __str__(self):
         return self.name
+
+    # @webthethird added to resolve false positives in upgradeability > checks > variables_order
+    def __eq__(self, other):
+        if not isinstance(other, Structure):
+            # print(self._name + " != " + other.name + " other is not instance of Structure")
+            return False
+        if not self.name == other.name:
+            # print(self._name + " != " + other.name + " names don't match")
+            return False
+        elems1 = self.elems_ordered
+        elems2 = other.elems_ordered
+        if not len(elems1) == len(elems2):
+            # print(self._name + " != " + other.name + " lengths don't match")
+            return False
+        for i in range(len(elems1)):
+            if (elems1[i].name != elems2[i].name) or (elems1[i].type != elems2[i].type) \
+                                                  or (elems1[i].type.storage_size != elems2[i].type.storage_size):
+                # print(self._name + " != " + other.name
+                #       + " elems1[" + str(i) + "]: " + str(elems1[i]) + " (" + str(elems1[i].type) + ") !="
+                #       + " elems2[" + str(i) + "]: " + str(elems2[i]) + " (" + str(elems2[i].type) + ")")
+                return False
+        return True

@@ -31,3 +31,19 @@ class Literal(Expression):
             return str(convert_subdenomination(self._value, self.subdenomination))
         # be sure to handle any character
         return str(self._value)
+
+    # @webthethird added to resolve false positives in upgradeability > checks > variables_order
+    def __eq__(self, other):
+        if not isinstance(other, Literal):
+            return False
+        if self._type != other.type:
+            # print(str(self) + " (" + str(self._type) + ") != " + str(other) + " (" + str(other.type) + ")")
+            return  False
+        if self._value != other.value:
+            # print(str(self) + " (" + str(self._value) + ") != " + str(other) + " (" + str(other.value) + ")")
+            return False
+        if self._subdenomination != other.subdenomination:
+            # print(str(self) + " (" + str(self._subdenomination) + ") != "
+            #       + str(other) + " (" + str(other.subdenomination) + ")")
+            return False
+        return True
