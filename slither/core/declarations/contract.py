@@ -1264,7 +1264,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         if isinstance(other, Contract):
             """ @webthethird Implemented to resolve false positives in upgradeability > checks > variables_order
                 get_summary()-> (str, list, list, list, list): 
-                                [name, inheritance, variables, fuction summaries, modifier summaries]
+                                [name, inheritance, variables, function summaries, modifier summaries]
             """
             self_summary = self.get_summary()
             other_summary = other.get_summary()
@@ -1273,25 +1273,17 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             self_inherits = self_summary[1]
             other_inherits = other_summary[1]
             if len(self_inherits) != len(other_inherits):
-                # print(self._name + " != " + other.name + " num inheritances")
                 return False
             for i in range(len(self_inherits)):
                 if self_inherits[i] != other_inherits[i]:
-                    # print("{0} != {1} self_inherits[{2}]: {3} != other_inherits[{2}]: {4} inheritance".format(
-                    #     self._name, other.name, i, self_inherits[i], other_inherits[i]
-                    # ))
                     return False
             """ List[str(x) for x in self.variables] """
             self_variables = self_summary[2]
             other_variables = other_summary[2]
             if len(self_variables) != len(other_variables):
-                # print(self._name + " != " + other.name + " num variables")
                 return False
             for i in range(len(self_variables)):
                 if self_variables[i] != other_variables[i]:
-                    # print("{0} != {1} self_variables[{2}]: {3} != other_variables[{2}]: {4} variable".format(
-                    #     self._name, other.name, i, self_variables[i], other_variables[i]
-                    # ))
                     return False
             """ List[f.get_summary() for f in self.functions if (not f.is_shadowed or include_shadowed)]
                                                    0    1    2    3          4          5           6          7
@@ -1302,82 +1294,38 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             self_func_summaries = self_summary[3]
             other_func_summaries = other_summary[3]
             if len(self_func_summaries) != len(other_func_summaries):
-                # print(self._name + " != " + other.name + " num functions")
                 return False
             for i in range(len(self_func_summaries)):
                 self_fsum = self_func_summaries[i]
                 other_fsum = other_func_summaries[i]
                 if self_fsum[1] != other_fsum[1]:
-                    # print("{0} != {1} self_function[{2}]: {3} != other_function[{2}}: {4} function".format(
-                    #     self._name, other.name, i, self_fsum[1], other_fsum[1]
-                    # ))
                     return False
                 if self_fsum[2] != other_fsum[2]:
-                    # print("{0} != {1} self_function[{2}]: {3}({4}) != other_function[{2}}: {5}({6}) visibility"
-                    #       .format(self._name, other.name, i, self_fsum[1], self_fsum[2], other_fsum[1], other_fsum[2]
-                    # ))
                     return False
                 if len(self_fsum[3]) != len(other_fsum[3]):
-                    # print("{0} != {1} self_function[{2}]: {3}({4}) != other_function[{2}}: {5}({6}) modifier"
-                    #       .format(self._name, other.name, i, self_fsum[1], str(self_fsum[3]),
-                    #               other_fsum[1], str(other_fsum[3])))
                     return False
                 for j in range(len(self_fsum[3])):
                     if self_fsum[3][j] != other_fsum[3][j]:
-                        # print(
-                        #     "{0} != {1} self_function[{2}]: {3}({4}) != other_function[{2}}: {5}({6}) modifier"
-                        #     .format(self._name, other.name, i, self_fsum[1], self_fsum[3][j],
-                        #             other_fsum[1], other_fsum[3][j]))
                         return False
                 if len(self_fsum[4]) != len(other_fsum[4]):
-                    # print("{0} != {1} self_function[{2}]: {3}({4}) != other_function[{2}}: {5}({6}) vars read"
-                    #       .format(self._name, other.name, i, self_fsum[1], str(self_fsum[4]),
-                    #               other_fsum[1], str(other_fsum[4])))
                     return False
                 for j in range(len(self_fsum[4])):
                     if self_fsum[4][j] != other_fsum[4][j]:
-                        # print(
-                        #     "{0} != {1} self_function[{2}]: {3}({4}) != other_function[{2}}: {5}({6}) var read"
-                        #     .format(self._name, other.name, i, self_fsum[1], self_fsum[4][j],
-                        #             other_fsum[1], other_fsum[4][j]))
                         return False
                 if len(self_fsum[5]) != len(other_fsum[5]):
-                    # print("{0} != {1} self_function[{2}]: {3}({4}) != other_function[{2}}: {5}({6}) vars write"
-                    #       .format(self._name, other.name, i, self_fsum[1], str(self_fsum[5]),
-                    #               other_fsum[1], str(other_fsum[5])))
                     return False
                 for j in range(len(self_fsum[5])):
                     if self_fsum[5][j] != other_fsum[5][j]:
-                        # print(
-                        #     "{0} != {1} self_function[{2}]: {3}({4})!= other_function[{2}}: {5}({6}) var write"
-                        #     .format(self._name, other.name, i, self_fsum[1], self_fsum[5][j],
-                        #             other_fsum[1], other_fsum[5][j]))
                         return False
                 if len(self_fsum[6]) != len(other_fsum[6]):
-                    # print(
-                    #     "{0} != {1} self_function[{2}]: {3}({4}) != other_function[{2}}: {5}({6}) intern call"
-                    #     .format(self._name, other.name, i, self_fsum[1], str(self_fsum[6]),
-                    #             other_fsum[1], str(other_fsum[6])))
                     return False
                 for j in range(len(self_fsum[6])):
                     if self_fsum[6][j] != other_fsum[6][j]:
-                        # print(
-                        #     "{0}!= {1} self_function[{2}]: {3}({4})!=other_function[{2}}: {5}({6}) intern call"
-                        #     .format(self._name, other.name, i, self_fsum[1], self_fsum[6][j],
-                        #             other_fsum[1], other_fsum[6][j]))
                         return False
                 if len(self_fsum[7]) != len(other_fsum[7]):
-                    # print(
-                    #     "{0} != {1} self_function[{2}]: {3}({4}) != other_function[{2}}: {5}({6}) extern call"
-                    #     .format(self._name, other.name, i, self_fsum[1], str(self_fsum[7]),
-                    #             other_fsum[1], str(other_fsum[7])))
                     return False
                 for j in range(len(self_fsum[7])):
                     if self_fsum[7][j] != other_fsum[7][j]:
-                        # print(
-                        #     "{0}!= {1} self_function[{2}]: {3}({4})!=other_function[{2}}: {5}({6}) extern call"
-                        #     .format(self._name, other.name, i, self_fsum[1], self_fsum[7][j],
-                        #             other_fsum[1], other_fsum[7][j]))
                         return False
             """ List[f.get_summary() for f in self.modifiers if (not f.is_shadowed or include_shadowed)]
                 modifier.get_summary() -> function_contract.get_summary()
@@ -1385,82 +1333,38 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             self_modif_summaries = self_summary[4]
             other_modif_summaries = other_summary[4]
             if len(self_modif_summaries) != len(other_modif_summaries):
-                # print(self._name + " != " + other.name + " num modifiers")
                 return False
             for i in range(len(self_modif_summaries)):
                 self_msum = self_modif_summaries[i]
                 other_msum = other_modif_summaries[i]
                 if self_msum[1] != other_msum[1]:
-                    # print("{0} != {1} self_modifier[{2}]: {3} != other_modifier[{2}}: {4} modifier".format(
-                    #     self._name, other.name, i, self_msum[1], other_msum[1]
-                    # ))
                     return False
                 if self_msum[2] != other_msum[2]:
-                    # print("{0} != {1} self_modifier[{2}]: {3}({4}) != other_modifier[{2}}: {5}({6}) visibility"
-                    #       .format(self._name, other.name, i, self_msum[1], self_msum[2], other_msum[1], other_msum[2]
-                    # ))
                     return False
                 if len(self_msum[3]) != len(other_msum[3]):
-                    # print("{0} != {1} self_modifier[{2}]: {3}({4}) != other_modifier[{2}}: {5}({6}) modifier"
-                    #       .format(self._name, other.name, i, self_msum[1], str(self_msum[3]),
-                    #               other_msum[1], str(other_msum[3])))
                     return False
                 for j in range(len(self_msum[3])):
                     if self_msum[3][j] != other_msum[3][j]:
-                        # print(
-                        #     "{0} != {1} self_modifier[{2}]: {3}({4}) != other_modifier[{2}}: {5}({6}) modifier"
-                        #     .format(self._name, other.name, i, self_msum[1], self_msum[3][j],
-                        #             other_msum[1], other_msum[3][j]))
                         return False
                 if len(self_msum[4]) != len(other_msum[4]):
-                    # print("{0} != {1} self_modifier[{2}]: {3}({4}) != other_modifier[{2}}: {5}({6}) vars read"
-                    #       .format(self._name, other.name, i, self_msum[1], str(self_msum[4]),
-                    #               other_msum[1], str(other_msum[4])))
                     return False
                 for j in range(len(self_msum[4])):
                     if self_msum[4][j] != other_msum[4][j]:
-                        # print(
-                        #     "{0} != {1} self_modifier[{2}]: {3}({4}) != other_modifier[{2}}: {5}({6}) var read"
-                        #     .format(self._name, other.name, i, self_msum[1], self_msum[4][j],
-                        #             other_msum[1], other_msum[4][j]))
                         return False
                 if len(self_msum[5]) != len(other_msum[5]):
-                    # print("{0} != {1} self_modifier[{2}]: {3}({4}) != other_modifier[{2}}: {5}({6}) vars write"
-                    #       .format(self._name, other.name, i, self_msum[1], str(self_msum[5]),
-                    #               other_msum[1], str(other_msum[5])))
                     return False
                 for j in range(len(self_msum[5])):
                     if self_msum[5][j] != other_msum[5][j]:
-                        # print(
-                        #     "{0} != {1} self_modifier[{2}]: {3}({4})!= other_modifier[{2}}: {5}({6}) var write"
-                        #     .format(self._name, other.name, i, self_msum[1], self_msum[5][j],
-                        #             other_msum[1], other_msum[5][j]))
                         return False
                 if len(self_msum[6]) != len(other_msum[6]):
-                    # print(
-                    #     "{0} != {1} self_modifier[{2}]: {3}({4}) != other_modifier[{2}}: {5}({6}) intern call"
-                    #     .format(self._name, other.name, i, self_msum[1], str(self_msum[6]),
-                    #             other_msum[1], str(other_msum[6])))
                     return False
                 for j in range(len(self_msum[6])):
                     if self_msum[6][j] != other_msum[6][j]:
-                        # print(
-                        #     "{0}!= {1} self_modifier[{2}]: {3}({4})!=other_modifier[{2}}: {5}({6}) intern call"
-                        #     .format(self._name, other.name, i, self_msum[1], self_msum[6][j],
-                        #             other_msum[1], other_msum[6][j]))
                         return False
                 if len(self_msum[7]) != len(other_msum[7]):
-                    # print(
-                    #     "{0} != {1} self_modifier[{2}]: {3}({4}) != other_modifier[{2}}: {5}({6}) extern call"
-                    #     .format(self._name, other.name, i, self_msum[1], str(self_msum[7]),
-                    #             other_msum[1], str(other_msum[7])))
                     return False
                 for j in range(len(self_msum[7])):
                     if self_msum[7][j] != other_msum[7][j]:
-                        # print(
-                        #     "{0}!= {1} self_modifier[{2}]: {3}({4})!=other_modifier[{2}}: {5}({6}) extern call"
-                        #     .format(self._name, other.name, i, self_msum[1], self_msum[7][j],
-                        #             other_msum[1], other_msum[7][j]))
                         return False
             return True
         else:

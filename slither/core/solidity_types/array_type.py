@@ -49,7 +49,6 @@ class ArrayType(Type):
             return str(self._type) + "[{}]".format(str(self._length_value))
         return str(self._type) + "[]"
 
-    # @webthethird edited to resolve false positives in upgradeability > checks > variables_order
     def __eq__(self, other):
         if not isinstance(other, ArrayType):
             return False
