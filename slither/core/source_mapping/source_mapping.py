@@ -94,10 +94,10 @@ def _compute_line(
 
     Not done in an efficient way
     """
-    start_line, starting_column = compilation_unit.core.crytic_compile.get_line_from_offset(
+    start_line, starting_column = compilation_unit.core.crytic_compile.get_line_and_character_from_offset(
         filename, start
     )
-    end_line, ending_column = compilation_unit.core.crytic_compile.get_line_from_offset(
+    end_line, ending_column = compilation_unit.core.crytic_compile.get_line_and_character_from_offset(
         filename, start + length
     )
     return list(range(start_line, end_line + 1)), starting_column, ending_column
