@@ -26,6 +26,8 @@ class FunctionIds(AbstractPrinter):
             txt += "\n{}:\n".format(contract.name)
             table = MyPrettyTable(["Name", "ID"])
             for function in contract.functions:
+                if function.is_shadowed or function.is_constructor_variables:
+                    continue
                 if function.visibility in ["public", "external"]:
                     function_id = get_function_id(function.solidity_signature)
                     table.add_row([function.solidity_signature, f"{function_id:#0{10}x}"])
