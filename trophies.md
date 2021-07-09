@@ -51,11 +51,11 @@ please submit a PR with the relevant information.
 [holdmybeer](https://github.com/hodlmybeer/hodl/pull/4) | Reentrancies | Jun 2021
 
 ## Slither Rekt
-The following lists security incidents that could have been prevented using Slither. 
+The following lists security incidents that could have been prevented using Slither.
 
 | Project | Vulnerability | Value loss | Date
 |--|--|--| -- |
-Dforce | [Reentrancy](https://peckshield.medium.com/uniswap-lendf-me-hacks-root-cause-and-loss-analysis-50f3263dcc09) | $25m (recovered) | Apr 2020 
+Dforce | [Reentrancy](https://peckshield.medium.com/uniswap-lendf-me-hacks-root-cause-and-loss-analysis-50f3263dcc09) | $25m (recovered) | Apr 2020
 Lendf.me | [Incorrect self-transfer](https://bzx.network/blog/incident) ([slither-prop](https://github.com/crytic/slither/wiki/Property-generation)) | $8m | Sep 2020
 Akropolis | [Reentrancy](https://blog.peckshield.com/2020/11/13/akropolis/) | $2m | Nov 2020
 OUSD | [Reentrancy](https://blog.originprotocol.com/urgent-ousd-has-hacked-and-there-has-been-a-loss-of-funds-7b8c4a7d534c?gi=fcb8badacf40) | $7m | Nov 2020
