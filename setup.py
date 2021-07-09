@@ -14,7 +14,9 @@ setup(
         # "crytic-compile>=0.2.0",
         "crytic-compile",
     ],
-    dependency_links=["git+https://github.com/crytic/crytic-compile.git@dev-line-and-char-to-offset#egg=crytic-compile"],
+    dependency_links=[
+        "git+https://github.com/crytic/crytic-compile.git@dev-line-and-char-to-offset#egg=crytic-compile"
+    ],
     license="AGPL-3.0",
     long_description=open("README.md").read(),
     entry_points={
