@@ -1144,6 +1144,36 @@ ALL_TESTS = [
         "write-after-write.sol",
         "0.8.0",
     ),
+    Test(
+        all_detectors.UintOverflow,
+        "Overflow.sol",
+        "0.6.2",
+    ),
+    Test(
+        all_detectors.UintOverflow,
+        "OverflowManully.sol",
+        "0.6.2",
+    ),
+    Test(
+        all_detectors.UintOverflow,
+        "NoOverflow.sol",
+        "0.6.2",
+    ),
+    Test(
+        all_detectors.UintUnderflow,
+        "underFlow.sol",
+        "0.6.2",
+    ),
+    Test(
+        all_detectors.UintUnderflow,
+        "underFlowManully.sol",
+        "0.6.2",
+    ),
+    Test(
+        all_detectors.UintUnderflow,
+        "NoUnderflow.sol",
+        "0.6.2",
+    ),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 
