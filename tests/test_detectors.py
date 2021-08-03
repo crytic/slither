@@ -1145,33 +1145,23 @@ ALL_TESTS = [
         "0.8.0",
     ),
     Test(
-        all_detectors.UintOverflow,
-        "Overflow.sol",
-        "0.6.2",
+        all_detectors.UintOverfloMUL,
+        "BECToken.sol",
+        "0.4.16",
     ),
     Test(
-        all_detectors.UintOverflow,
-        "OverflowManully.sol",
-        "0.6.2",
-    ),
-    Test(
-        all_detectors.UintOverflow,
-        "NoOverflow.sol",
-        "0.6.2",
+        all_detectors.UintOverflowADD,
+        "buggy_1.sol",
+        "0.5.1",
     ),
     Test(
         all_detectors.UintUnderflow,
-        "underFlow.sol",
-        "0.6.2",
+        "buggy_1.sol",
+        "0.5.1",
     ),
     Test(
-        all_detectors.UintUnderflow,
-        "underFlowManully.sol",
-        "0.6.2",
-    ),
-    Test(
-        all_detectors.UintUnderflow,
-        "NoUnderflow.sol",
+        all_detectors.Truncation,
+        "truncationError.sol",
         "0.6.2",
     ),
 ]

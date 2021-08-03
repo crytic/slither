@@ -1,0 +1,195 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "batchTransfer",
+                    "source_mapping": {
+                        "start": 7672,
+                        "length": 553,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            261,
+                            262,
+                            263,
+                            264,
+                            265,
+                            266,
+                            267,
+                            268,
+                            269,
+                            270,
+                            271,
+                            272,
+                            273,
+                            274
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 4
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "PausableToken",
+                            "source_mapping": {
+                                "start": 7183,
+                                "length": 1044,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    247,
+                                    248,
+                                    249,
+                                    250,
+                                    251,
+                                    252,
+                                    253,
+                                    254,
+                                    255,
+                                    256,
+                                    257,
+                                    258,
+                                    259,
+                                    260,
+                                    261,
+                                    262,
+                                    263,
+                                    264,
+                                    265,
+                                    266,
+                                    267,
+                                    268,
+                                    269,
+                                    270,
+                                    271,
+                                    272,
+                                    273,
+                                    274,
+                                    275
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "batchTransfer(address[],uint256)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "amount = uint256(cnt) * _value",
+                    "source_mapping": {
+                        "start": 7842,
+                        "length": 38,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            264
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 43
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "batchTransfer",
+                            "source_mapping": {
+                                "start": 7672,
+                                "length": 553,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    261,
+                                    262,
+                                    263,
+                                    264,
+                                    265,
+                                    266,
+                                    267,
+                                    268,
+                                    269,
+                                    270,
+                                    271,
+                                    272,
+                                    273,
+                                    274
+                                ],
+                                "starting_column": 3,
+                                "ending_column": 4
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "PausableToken",
+                                    "source_mapping": {
+                                        "start": 7183,
+                                        "length": 1044,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            247,
+                                            248,
+                                            249,
+                                            250,
+                                            251,
+                                            252,
+                                            253,
+                                            254,
+                                            255,
+                                            256,
+                                            257,
+                                            258,
+                                            259,
+                                            260,
+                                            261,
+                                            262,
+                                            263,
+                                            264,
+                                            265,
+                                            266,
+                                            267,
+                                            268,
+                                            269,
+                                            270,
+                                            271,
+                                            272,
+                                            273,
+                                            274,
+                                            275
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "batchTransfer(address[],uint256)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "PausableToken.batchTransfer(address[],uint256) (tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol#261-274)will maybe occured overflow\n\t-amount = uint256(cnt) * _value (tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol#264)\n",
+            "markdown": "[PausableToken.batchTransfer(address[],uint256)](tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol#L261-L274)will maybe occured overflow\n\t-[amount = uint256(cnt) * _value](tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol#L264)\n",
+            "first_markdown_element": "tests/detectors/multiplication-uint-overflow/0.4.16/BECToken.sol#L261-L274",
+            "id": "3a7d4156379fbca36ae1388d899a3494384578807a9bc2e831c7529eb8ad7ee1",
+            "check": "multiplication-uint-overflow",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]
