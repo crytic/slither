@@ -6,6 +6,7 @@ import zipfile
 from collections import OrderedDict
 from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING
 from zipfile import ZipFile
+from pkg_resources import require
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import Contract, Function, Enum, Event, Structure, Pragma
@@ -55,6 +56,113 @@ def output_to_json(filename: str, error, results: Dict):
             with open(filename, "w", encoding="utf8") as f:
                 json.dump(json_result, f, indent=2)
 
+def output_to_sarif(filename: str, error, results: Dict):
+    """
+
+    :param filename: Filename where the SARIF JSON file will be written. If None or "-", write to stdout
+    :param error: Error to report
+    :param results: Results to report
+    :param logger: Logger where to log potential info
+    :return:
+    """
+
+    sarif = {
+        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "Slither",
+                        "informationUri": "https://github.com/crytic/slither",
+                        "version": require("slither-analyzer")[0].version,
+                        "rules": []
+                    }
+                },
+                "results" : [],
+            }
+        ],
+    }
+ 
+    for detector in results["detectors"]:
+        id = hashlib.sha3_256(detector["check"].encode("utf-8")).hexdigest()
+        path = detector["first_markdown_element"].split("#")[0]
+        lines = detector["first_markdown_element"].split("#")[1].split("-")
+
+        start_line = int(lines[0][1:])
+        end_line = start_line
+
+        if len(lines) > 1:
+            end_line = int(lines[1][1:])
+
+        confidence = "very-high"
+        if detector["confidence"] == "Medium":
+            confidence = "high"
+        elif detector["confidence"] == "Low":
+            confidence = "medium"
+        elif detector["confidence"] == "Informational":
+            confidence = "low"
+
+        risk = "0.0"
+        if detector["impact"] == "High" :
+            risk = "8.0"
+        if detector["impact"] == "Medium" :
+            risk = "4.0"
+        elif detector["impact"] == "Low":
+            risk = "3.0"
+
+        rule = {
+            "id": id,
+            "name": detector["check"],
+            "properties": {
+                "precision": confidence,
+                "security-severity": risk
+            }
+        }
+
+        # Add the rule if does not exist yet
+        if len(list(filter(lambda x: x["id"] == id, sarif["runs"][0]["tool"]["driver"]["rules"]))) == 0:
+            sarif["runs"][0]["tool"]["driver"]["rules"].append(rule)
+
+        sarif["runs"][0]["results"].append({
+            "ruleId": id,
+            "message": {
+                "text": detector["description"],
+                "markdown": detector["markdown"]
+            },
+            "level": "warning",
+            "locations": [
+                {
+                    "physicalLocation": {
+                        "artifactLocation": {
+                            "uri": path
+                        },
+                        "region": {
+                            "startLine": start_line,
+                            "endLine": end_line
+                        }
+                    }
+                }
+            ],
+            "partialFingerprints": {
+                "id": detector["id"]
+            }
+        })
+
+    if filename == "-":
+        filename = None
+
+    # Determine if we should output to stdout
+    if filename is None:
+        # Write json to console
+        print(json.dumps(sarif))
+    else:
+        # Write json to file
+        if os.path.isfile(filename):
+            logger.info(yellow(f"{filename} exists already, the overwrite is prevented"))
+        else:
+            with open(filename, "w", encoding="utf8") as f:
+                json.dump(sarif, f, indent=2)
 
 # https://docs.python.org/3/library/zipfile.html#zipfile-objects
 ZIP_TYPES_ACCEPTED = {
