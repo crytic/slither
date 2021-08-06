@@ -56,7 +56,8 @@ def output_to_json(filename: str, error, results: Dict):
             with open(filename, "w", encoding="utf8") as f:
                 json.dump(json_result, f, indent=2)
 
-def output_to_sarif(filename: str, error, results: Dict):
+
+def output_to_sarif(filename: str, results: Dict):
     """
 
     :param filename: Filename where the SARIF JSON file will be written. If None or "-", write to stdout
@@ -76,16 +77,16 @@ def output_to_sarif(filename: str, error, results: Dict):
                         "name": "Slither",
                         "informationUri": "https://github.com/crytic/slither",
                         "version": require("slither-analyzer")[0].version,
-                        "rules": []
+                        "rules": [],
                     }
                 },
-                "results" : [],
+                "results": [],
             }
         ],
     }
- 
+
     for detector in results["detectors"]:
-        id = hashlib.sha3_256(detector["check"].encode("utf-8")).hexdigest()
+        check_id = hashlib.sha3_256(detector["check"].encode("utf-8")).hexdigest()
         path = detector["first_markdown_element"].split("#")[0]
         lines = detector["first_markdown_element"].split("#")[1].split("-")
 
@@ -104,50 +105,41 @@ def output_to_sarif(filename: str, error, results: Dict):
             confidence = "low"
 
         risk = "0.0"
-        if detector["impact"] == "High" :
+        if detector["impact"] == "High":
             risk = "8.0"
-        if detector["impact"] == "Medium" :
+        elif detector["impact"] == "Medium":
             risk = "4.0"
         elif detector["impact"] == "Low":
             risk = "3.0"
 
         rule = {
-            "id": id,
+            "id": check_id,
             "name": detector["check"],
-            "properties": {
-                "precision": confidence,
-                "security-severity": risk
-            }
+            "properties": {"precision": confidence, "security-severity": risk},
         }
 
         # Add the rule if does not exist yet
-        if len(list(filter(lambda x: x["id"] == id, sarif["runs"][0]["tool"]["driver"]["rules"]))) == 0:
-            sarif["runs"][0]["tool"]["driver"]["rules"].append(rule)
+        if (
+            len([x for x in sarif["runs"][0]["tool"]["driver"]["rules"] if x["id"] == check_id])
+            == 0
+        ): sarif["runs"][0]["tool"]["driver"]["rules"].append(rule)
 
-        sarif["runs"][0]["results"].append({
-            "ruleId": id,
-            "message": {
-                "text": detector["description"],
-                "markdown": detector["markdown"]
-            },
-            "level": "warning",
-            "locations": [
-                {
-                    "physicalLocation": {
-                        "artifactLocation": {
-                            "uri": path
-                        },
-                        "region": {
-                            "startLine": start_line,
-                            "endLine": end_line
+        sarif["runs"][0]["results"].append(
+            {
+                "ruleId": check_id,
+                "message": {"text": detector["description"], "markdown": detector["markdown"]},
+                "level": "warning",
+                "locations": [
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": path},
+                            "region": {"startLine": start_line, "endLine": end_line},
                         }
                     }
-                }
-            ],
-            "partialFingerprints": {
-                "id": detector["id"]
+                ],
+                "partialFingerprints": {"id": detector["id"]},
             }
-        })
+        )
 
     if filename == "-":
         filename = None
@@ -163,6 +155,7 @@ def output_to_sarif(filename: str, error, results: Dict):
         else:
             with open(filename, "w", encoding="utf8") as f:
                 json.dump(sarif, f, indent=2)
+
 
 # https://docs.python.org/3/library/zipfile.html#zipfile-objects
 ZIP_TYPES_ACCEPTED = {
