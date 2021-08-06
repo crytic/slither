@@ -37,7 +37,12 @@ if TYPE_CHECKING:
 ###################################################################################
 
 
-def is_dependent(variable, source, context, only_unprotected=False):
+def is_dependent(
+    variable: Variable,
+    source: Variable,
+    context: Union[Contract, Function],
+    only_unprotected: bool = False,
+) -> bool:
     """
     Args:
         variable (Variable)
@@ -52,17 +57,22 @@ def is_dependent(variable, source, context, only_unprotected=False):
         return False
     if variable == source:
         return True
-    context = context.context
+    context_dict = context.context
 
     if only_unprotected:
         return (
-            variable in context[KEY_NON_SSA_UNPROTECTED]
-            and source in context[KEY_NON_SSA_UNPROTECTED][variable]
+            variable in context_dict[KEY_NON_SSA_UNPROTECTED]
+            and source in context_dict[KEY_NON_SSA_UNPROTECTED][variable]
         )
-    return variable in context[KEY_NON_SSA] and source in context[KEY_NON_SSA][variable]
+    return variable in context_dict[KEY_NON_SSA] and source in context_dict[KEY_NON_SSA][variable]
 
 
-def is_dependent_ssa(variable, source, context, only_unprotected=False):
+def is_dependent_ssa(
+    variable: Variable,
+    source: Variable,
+    context: Union[Contract, Function],
+    only_unprotected: bool = False,
+) -> bool:
     """
     Args:
         variable (Variable)
@@ -73,17 +83,17 @@ def is_dependent_ssa(variable, source, context, only_unprotected=False):
         bool
     """
     assert isinstance(context, (Contract, Function))
-    context = context.context
+    context_dict = context.context
     if isinstance(variable, Constant):
         return False
     if variable == source:
         return True
     if only_unprotected:
         return (
-            variable in context[KEY_SSA_UNPROTECTED]
-            and source in context[KEY_SSA_UNPROTECTED][variable]
+            variable in context_dict[KEY_SSA_UNPROTECTED]
+            and source in context_dict[KEY_SSA_UNPROTECTED][variable]
         )
-    return variable in context[KEY_SSA] and source in context[KEY_SSA][variable]
+    return variable in context_dict[KEY_SSA] and source in context_dict[KEY_SSA][variable]
 
 
 GENERIC_TAINT = {

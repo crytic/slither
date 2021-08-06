@@ -2,6 +2,8 @@ import argparse
 import sys
 
 import logging
+from argparse import ArgumentParser
+
 from crytic_compile import cryticparser
 from slither import Slither
 from slither.utils.colors import red
@@ -15,12 +17,12 @@ logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
     """
-    parser = argparse.ArgumentParser(
+    parser: ArgumentParser = argparse.ArgumentParser(
         description="PossiblePaths",
         usage="possible_paths.py filename [contract.function targets]",
     )
@@ -36,7 +38,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     # ------------------------------
     # PossiblePaths.py
     #       Usage: python3 possible_paths.py filename targets

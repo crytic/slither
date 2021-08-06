@@ -2,18 +2,24 @@
 Module detecting bad PRNG due to the use of block.timestamp, now or blockhash (block.blockhash) as a source of randomness
 """
 
+from typing import List, Tuple
+
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
+from slither.core.cfg.node import Node
+from slither.core.declarations import Function, Contract
 from slither.core.declarations.solidity_variables import (
     SolidityVariable,
     SolidityFunction,
     SolidityVariableComposed,
 )
+from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import BinaryType, Binary
 from slither.slithir.operations import SolidityCall
+from slither.utils.output import Output, AllSupportedOutput
 
 
-def collect_return_values_of_bad_PRNG_functions(f):
+def collect_return_values_of_bad_PRNG_functions(f: Function) -> List:
     """
         Return the return-values of calls to blockhash()
     Args:
@@ -33,7 +39,7 @@ def collect_return_values_of_bad_PRNG_functions(f):
     return values_returned
 
 
-def contains_bad_PRNG_sources(func, blockhash_ret_values):
+def contains_bad_PRNG_sources(func: Function, blockhash_ret_values: List[Variable]) -> List[Node]:
     """
          Check if any node in function has a modulus operator and the first operand is dependent on block.timestamp, now or blockhash()
     Returns:
@@ -57,7 +63,7 @@ def contains_bad_PRNG_sources(func, blockhash_ret_values):
     return list(ret)
 
 
-def detect_bad_PRNG(contract):
+def detect_bad_PRNG(contract: Contract) -> List[Tuple[Function, List[Node]]]:
     """
     Args:
         contract (Contract)
@@ -67,7 +73,7 @@ def detect_bad_PRNG(contract):
     blockhash_ret_values = []
     for f in contract.functions:
         blockhash_ret_values += collect_return_values_of_bad_PRNG_functions(f)
-    ret = []
+    ret: List[Tuple[Function, List[Node]]] = []
     for f in contract.functions:
         bad_prng_nodes = contains_bad_PRNG_sources(f, blockhash_ret_values)
         if bad_prng_nodes:
@@ -110,7 +116,7 @@ As a result, Eve wins the game."""
         "Do not use `block.timestamp`, `now` or `blockhash` as a source of randomness"
     )
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """Detect bad PRNG due to the use of block.timestamp, now or blockhash (block.blockhash) as a source of randomness"""
         results = []
         for c in self.compilation_unit.contracts_derived:
@@ -118,7 +124,7 @@ As a result, Eve wins the game."""
             for func, nodes in values:
 
                 for node in nodes:
-                    info = [func, ' uses a weak PRNG: "', node, '" \n']
+                    info: List[AllSupportedOutput] = [func, ' uses a weak PRNG: "', node, '" \n']
                     res = self.generate_result(info)
                     results.append(res)
 

@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, List, Tuple
 
 from slither.core.children.child_contract import ChildContract
 from slither.core.children.child_inheritance import ChildInheritance
-from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.declarations import Function
 
 # pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
@@ -14,7 +13,7 @@ if TYPE_CHECKING:
     from slither.core.declarations import Contract
 
 
-class FunctionContract(Function, ChildContract, ChildInheritance, SourceMapping):
+class FunctionContract(Function, ChildContract, ChildInheritance):
     @property
     def canonical_name(self) -> str:
         """

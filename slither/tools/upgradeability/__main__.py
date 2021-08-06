@@ -20,7 +20,7 @@ from slither.tools.upgradeability.utils.command_line import (
 )
 
 logging.basicConfig()
-logger = logging.getLogger("Slither")
+logger: logging.Logger = logging.getLogger("Slither")
 logger.setLevel(logging.INFO)
 
 
