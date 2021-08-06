@@ -1,6 +1,5 @@
 import abc
 import re
-from functools import partial
 from logging import Logger
 from typing import Optional, List, TYPE_CHECKING, Dict, Union, Callable
 
