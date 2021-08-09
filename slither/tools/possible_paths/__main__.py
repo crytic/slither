@@ -1,8 +1,7 @@
-import argparse
 import sys
 
 import logging
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 
 from crytic_compile import cryticparser
 from slither import Slither
@@ -17,12 +16,12 @@ logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args() -> Namespace:
     """
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
     """
-    parser: ArgumentParser = argparse.ArgumentParser(
+    parser: ArgumentParser = ArgumentParser(
         description="PossiblePaths",
         usage="possible_paths.py filename [contract.function targets]",
     )
