@@ -415,6 +415,7 @@ def filter_name(value: str) -> str:
     value = value.replace(" payable", "")
     value = value.replace("function (", "function(")
     value = value.replace("returns (", "returns(")
+    value = value.replace(" calldata", "")
 
     # remove the text remaining after functio(...)
     # which should only be ..returns(...)
