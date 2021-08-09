@@ -215,6 +215,7 @@ def _create_parent_element(element):
 
 
 SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node]
+AllSupportedOutput = Union[str, SupportedOutput]
 
 
 class Output:

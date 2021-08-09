@@ -104,7 +104,7 @@ def _filter_state_variables_written(expressions: List["Expression"]):
     return ret
 
 
-class Function(metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
+class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
     """
     Function class
     """

@@ -8,7 +8,7 @@ class MyPrettyTable:
         self._field_names = field_names
         self._rows: List = []
 
-    def add_row(self, row):
+    def add_row(self, row: List[str]) -> None:
         self._rows.append(row)
 
     def to_pretty_table(self) -> PrettyTable:
@@ -20,5 +20,5 @@ class MyPrettyTable:
     def to_json(self) -> Dict:
         return {"fields_names": self._field_names, "rows": self._rows}
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.to_pretty_table())
