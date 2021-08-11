@@ -777,12 +777,6 @@ def main_impl(all_detector_classes, all_printer_classes):
                 len(detector_classes),
                 len(results_detectors),
             )
-
-        logger.info(
-            blue(
-                "Use https://crytic.io/ to get access to additional detectors and Github integration"
-            )
-        )
         if args.ignore_return_value:
             return
 
