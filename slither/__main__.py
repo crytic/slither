@@ -820,7 +820,9 @@ def main_impl(all_detector_classes, all_printer_classes):
 
     if outputting_sarif:
         StandardOutputCapture.disable()
-        output_to_sarif(None if outputting_sarif_stdout else args.sarif, json_results)
+        output_to_sarif(
+            None if outputting_sarif_stdout else args.sarif, json_results, detector_classes
+        )
 
     if outputting_zip:
         output_to_zip(args.zip, output_error, json_results, args.zip_type)
