@@ -26,7 +26,7 @@ from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils.output import output_to_json, output_to_zip, ZIP_TYPES_ACCEPTED
 from slither.utils.output_capture import StandardOutputCapture
-from slither.utils.colors import red, blue, set_colorization_enabled
+from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
     output_detectors,
     output_results_to_markdown,
