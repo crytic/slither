@@ -34,6 +34,7 @@ defaults_flag_in_config = {
     "exclude_medium": False,
     "exclude_high": False,
     "json": None,
+    "sarif": None,
     "json-types": ",".join(DEFAULT_JSON_OUTPUT_TYPES),
     "disable_color": False,
     "filter_paths": None,
