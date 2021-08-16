@@ -662,7 +662,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
     # output.
     if outputting_json or output_to_sarif:
-        StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout )
+        StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
 
     printer_classes = choose_printers(args, all_printer_classes)
     detector_classes = choose_detectors(args, all_detector_classes)

@@ -122,7 +122,8 @@ def output_to_sarif(filename: str, results: Dict):
         if (
             len([x for x in sarif["runs"][0]["tool"]["driver"]["rules"] if x["id"] == check_id])
             == 0
-        ): sarif["runs"][0]["tool"]["driver"]["rules"].append(rule)
+        ):
+            sarif["runs"][0]["tool"]["driver"]["rules"].append(rule)
 
         sarif["runs"][0]["results"].append(
             {
