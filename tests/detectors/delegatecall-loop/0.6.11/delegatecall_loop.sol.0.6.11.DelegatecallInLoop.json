@@ -1,0 +1,151 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad",
+                    "source_mapping": {
+                        "start": 61,
+                        "length": 232,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5,
+                            6,
+                            7,
+                            8,
+                            9
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 388,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "bad(address[])"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i]))",
+                    "source_mapping": {
+                        "start": 188,
+                        "length": 88,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 101
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad",
+                            "source_mapping": {
+                                "start": 61,
+                                "length": 232,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 388,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "bad(address[])"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.bad(address[]) (tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol#5-9) has delegatecall inside a loop in a payable function: address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i])) (tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol#7)\n",
+            "markdown": "[C.bad(address[])](tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol#L5-L9) has delegatecall inside a loop in a payable function: [address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i]))](tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol#L7)\n",
+            "first_markdown_element": "tests/detectors/delegatecall-loop/0.6.11/delegatecall_loop.sol#L5-L9",
+            "id": "dfa0a166dfe43235e3fbeab4eadd8b0c7c612cd2fefe3cf281d909129b3b824e",
+            "check": "delegatecall-loop",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]
