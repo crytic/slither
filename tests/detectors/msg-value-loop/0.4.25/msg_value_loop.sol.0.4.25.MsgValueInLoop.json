@@ -29,7 +29,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 0,
-                                "length": 512,
+                                "length": 763,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
@@ -57,7 +57,15 @@
                                     19,
                                     20,
                                     21,
-                                    22
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 0
@@ -111,7 +119,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 0,
-                                        "length": 512,
+                                        "length": 763,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -139,7 +147,15 @@
                                             19,
                                             20,
                                             21,
-                                            22
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 0
@@ -163,21 +179,19 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "bad2",
+                    "name": "bad2_internal",
                     "source_mapping": {
-                        "start": 246,
-                        "length": 173,
+                        "start": 425,
+                        "length": 84,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
                         "is_dependency": false,
                         "lines": [
-                            11,
-                            12,
-                            13,
-                            14,
-                            15
+                            17,
+                            18,
+                            19
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -188,7 +202,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 0,
-                                "length": 512,
+                                "length": 763,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
@@ -216,50 +230,56 @@
                                     19,
                                     20,
                                     21,
-                                    22
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 0
                             }
                         },
-                        "signature": "bad2(address[])"
+                        "signature": "bad2_internal(address)"
                     }
                 },
                 {
                     "type": "node",
-                    "name": "bad2_internal(receivers[i])",
+                    "name": "balances[a] += msg.value",
                     "source_mapping": {
-                        "start": 375,
-                        "length": 27,
+                        "start": 478,
+                        "length": 24,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
                         "is_dependency": false,
                         "lines": [
-                            13
+                            18
                         ],
-                        "starting_column": 13,
-                        "ending_column": 40
+                        "starting_column": 9,
+                        "ending_column": 33
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "bad2",
+                            "name": "bad2_internal",
                             "source_mapping": {
-                                "start": 246,
-                                "length": 173,
+                                "start": 425,
+                                "length": 84,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15
+                                    17,
+                                    18,
+                                    19
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -270,7 +290,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 0,
-                                        "length": 512,
+                                        "length": 763,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -298,22 +318,209 @@
                                             19,
                                             20,
                                             21,
-                                            22
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 0
                                     }
                                 },
-                                "signature": "bad2(address[])"
+                                "signature": "bad2_internal(address)"
                             }
                         }
                     }
                 }
             ],
-            "description": "C.bad2(address[]) (tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#11-15) use msg.value in a loop: bad2_internal(receivers[i]) (tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#13)\n",
-            "markdown": "[C.bad2(address[])](tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#L11-L15) use msg.value in a loop: [bad2_internal(receivers[i])](tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#L13)\n",
-            "first_markdown_element": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#L11-L15",
-            "id": "4d17ef147fc09de0f0b15d1919f6fc14f98b5e8db7d468b2033c640a26ca34b5",
+            "description": "C.bad2_internal(address) (tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#17-19) use msg.value in a loop: balances[a] += msg.value (tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#18)\n",
+            "markdown": "[C.bad2_internal(address)](tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#L17-L19) use msg.value in a loop: [balances[a] += msg.value](tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#L18)\n",
+            "first_markdown_element": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#L17-L19",
+            "id": "46e81ee3916dd92be3598ae1c853e34145102f527870dd2eb0409fee047ddc4d",
+            "check": "msg-value-loop",
+            "impact": "High",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad3",
+                    "source_mapping": {
+                        "start": 515,
+                        "length": 245,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 763,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "bad3(address[])"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "balances[receivers[j]] += msg.value",
+                    "source_mapping": {
+                        "start": 694,
+                        "length": 35,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            24
+                        ],
+                        "starting_column": 17,
+                        "ending_column": 52
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad3",
+                            "source_mapping": {
+                                "start": 515,
+                                "length": 245,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 763,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "bad3(address[])"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.bad3(address[]) (tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#21-27) use msg.value in a loop: balances[receivers[j]] += msg.value (tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#24)\n",
+            "markdown": "[C.bad3(address[])](tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#L21-L27) use msg.value in a loop: [balances[receivers[j]] += msg.value](tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#L24)\n",
+            "first_markdown_element": "tests/detectors/msg-value-loop/0.4.25/msg_value_loop.sol#L21-L27",
+            "id": "91bc78ce47280ec59296ebb0cf98afb5ede603b3c31025002c1c2ec1b940ad68",
             "check": "msg-value-loop",
             "impact": "High",
             "confidence": "Medium"

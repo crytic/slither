@@ -1,34 +1,40 @@
-from slither.core.cfg.node import NodeType
+from typing import List
+from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.declarations import SolidityVariableComposed
+from slither.slithir.operations import InternalCall
+from slither.core.declarations import SolidityVariableComposed, Contract
+from slither.utils.output import Output
 
 
-def detect_msg_value_in_loop(contract):
-    results = []
-    for f in contract.functions + contract.modifiers:
+def detect_msg_value_in_loop(contract: Contract) -> List[Node]:
+    results: List[Node] = []
+    for f in contract.functions_entry_points:
         if f.is_implemented and f.payable:
-            msg_value_in_loop(f.entry_point, False, [], results)
+            msg_value_in_loop(f.entry_point, 0, [], results)
     return results
 
 
-def msg_value_in_loop(node, in_loop, visited, results):
+def msg_value_in_loop(
+    node: Node, in_loop_counter: int, visited: List[Node], results: List[Node]
+) -> None:
     if node in visited:
         return
     # shared visited
     visited.append(node)
 
     if node.type == NodeType.STARTLOOP:
-        in_loop = True
+        in_loop_counter += 1
     elif node.type == NodeType.ENDLOOP:
-        in_loop = False
+        in_loop_counter -= 1
 
-    if in_loop:
-        for ir in node.all_slithir_operations():
-            if SolidityVariableComposed("msg.value") in ir.read:
-                results.append(node)
+    for ir in node.all_slithir_operations():
+        if in_loop_counter > 0 and SolidityVariableComposed("msg.value") in ir.read:
+            results.append(ir.node)
+        if isinstance(ir, (InternalCall)):
+            msg_value_in_loop(ir.function.entry_point, in_loop_counter, visited, results)
 
     for son in node.sons:
-        msg_value_in_loop(son, in_loop, visited, results)
+        msg_value_in_loop(son, in_loop_counter, visited, results)
 
 
 class MsgValueInLoop(AbstractDetector):
@@ -61,17 +67,16 @@ contract MsgValueInLoop{
 
 }
 ```
-When calling `bad` the same `msg.value` amount will be accredited multiple times."""
+"""
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = """
-Don't use `msg.value` inside a loop. 
-If you need to use it inside a loop save the `msg.value` to a local variable and use it as a cache (subtract the amount used from it)
+Track msg.value through a local variable and decrease its amount on every iteration/usage.
 """
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """"""
-        results = []
+        results: List[Output] = []
         for c in self.compilation_unit.contracts_derived:
             values = detect_msg_value_in_loop(c)
             for node in values:
