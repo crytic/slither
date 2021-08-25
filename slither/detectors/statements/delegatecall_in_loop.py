@@ -1,34 +1,44 @@
-from slither.core.cfg.node import NodeType
+from typing import List
+from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import LowLevelCall
+from slither.slithir.operations import LowLevelCall, InternalCall
+from slither.core.declarations import Contract
+from slither.utils.output import Output
 
 
-def detect_delegatecall_in_loop(contract):
-    results = []
-    for f in contract.functions + contract.modifiers:
+def detect_delegatecall_in_loop(contract: Contract) -> List[Node]:
+    results: List[Node] = []
+    for f in contract.functions_entry_points:
         if f.is_implemented and f.payable:
-            delegatecall_in_loop(f.entry_point, False, [], results)
+            delegatecall_in_loop(f.entry_point, 0, [], results)
     return results
 
 
-def delegatecall_in_loop(node, in_loop, visited, results):
+def delegatecall_in_loop(
+    node: Node, in_loop_counter: int, visited: List[Node], results: List[Node]
+) -> None:
     if node in visited:
         return
     # shared visited
     visited.append(node)
 
     if node.type == NodeType.STARTLOOP:
-        in_loop = True
+        in_loop_counter += 1
     elif node.type == NodeType.ENDLOOP:
-        in_loop = False
+        in_loop_counter -= 1
 
-    if in_loop:
-        for ir in node.all_slithir_operations():
-            if isinstance(ir, (LowLevelCall)) and ir.function_name == "delegatecall":
-                results.append(node)
+    for ir in node.all_slithir_operations():
+        if (
+            in_loop_counter > 0
+            and isinstance(ir, (LowLevelCall))
+            and ir.function_name == "delegatecall"
+        ):
+            results.append(ir.node)
+        if isinstance(ir, (InternalCall)):
+            delegatecall_in_loop(ir.function.entry_point, in_loop_counter, visited, results)
 
     for son in node.sons:
-        delegatecall_in_loop(son, in_loop, visited, results)
+        delegatecall_in_loop(son, in_loop_counter, visited, results)
 
 
 class DelegatecallInLoop(AbstractDetector):
@@ -44,10 +54,7 @@ class DelegatecallInLoop(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation/#payable-functions-using-delegatecall-inside-a-loop"
 
     WIKI_TITLE = "Payable functions using `delegatecall` inside a loop"
-    WIKI_DESCRIPTION = """
-Detect the use of `delegatecall` inside a loop in a payable function.
-It's dangerous because `delegatecall` forward the `msg.value` in case the function called is payable.
-"""
+    WIKI_DESCRIPTION = "Detect the use of `delegatecall` inside a loop in a payable function."
 
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
@@ -72,12 +79,12 @@ When calling `bad` the same `msg.value` amount will be accredited multiple times
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = """
-Don't use `delegatecall` inside a loop in a payable function or carefully check that the function called by `delegatecall` is not payable/doesn't use `msg.value`.
+Carefully check that the function called by `delegatecall` is not payable/doesn't use `msg.value`.
 """
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """"""
-        results = []
+        results: List[Output] = []
         for c in self.compilation_unit.contracts_derived:
             values = detect_delegatecall_in_loop(c)
             for node in values:
