@@ -188,8 +188,8 @@ class ElementaryType(Type):
             return int(8)
         if t == "address":
             return int(160)
-        if t.startswith("bytes"):
-            return int(t[len("bytes") :])
+        if t != "bytes" and t.startswith("bytes"):
+            return 8 * int(t[len("bytes") :])
         return None
 
     @property
