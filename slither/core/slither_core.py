@@ -46,7 +46,7 @@ class SlitherCore(Context):
         self._previous_results_ids: Set[str] = set()
         # Every slither object has a list of result from detector
         # Because of the multiple compilation support, we might analyze
-        # Multiple time the same result, so we remove dupplicate
+        # Multiple time the same result, so we remove duplicates
         self._currently_seen_resuts: Set[str] = set()
         self._paths_to_filter: Set[str] = set()
 
@@ -207,7 +207,7 @@ class SlitherCore(Context):
             - There is an ignore comment on the preceding line
         """
 
-        # Remove dupplicate due to the multiple compilation support
+        # Remove duplicate due to the multiple compilation support
         if r["id"] in self._currently_seen_resuts:
             return False
         self._currently_seen_resuts.add(r["id"])
@@ -240,7 +240,8 @@ class SlitherCore(Context):
         if r["elements"] and matching:
             return False
         if r["elements"] and self._exclude_dependencies:
-            return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
+            if all(element["source_mapping"]["is_dependency"] for element in r["elements"]):
+                return False
         if self._show_ignored_findings:
             return True
         if r["id"] in self._previous_results_ids:
@@ -248,7 +249,10 @@ class SlitherCore(Context):
         if self.has_ignore_comment(r):
             return False
         # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
-        return not r["description"] in [pr["description"] for pr in self._previous_results]
+        if r["description"] in [pr["description"] for pr in self._previous_results]:
+            return False
+
+        return True
 
     def load_previous_results(self):
         filename = self._previous_results_filename
