@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM node:lts-buster
 
 LABEL name=slither
 LABEL src="https://github.com/trailofbits/slither"
@@ -29,7 +29,8 @@ RUN [ "c9b268750506b88fe71371100050e9dd1e7edcf8f69da34d1cd09557ecb24580  /usr/bi
 
 COPY --chown=slither:slither . /home/slither/slither
 WORKDIR /home/slither/slither
-
 RUN python3.8 setup.py install --user
 ENV PATH="/home/slither/.local/bin:${PATH}"
+
+WORKDIR /workspace
 CMD /bin/bash
