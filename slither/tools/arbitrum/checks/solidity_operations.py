@@ -50,14 +50,18 @@ Review https://developer.offchainlabs.com/docs/solidity_support to ensure all th
         results = []
         for contract in self.compilation_unit.contracts_derived:
             for function in contract.functions:
-                intersection = set.intersection(set(function.solidity_variables_read), SOLIDITY_DANGEROUS_VARIABLES)
+                intersection = set.intersection(
+                    set(function.solidity_variables_read), SOLIDITY_DANGEROUS_VARIABLES
+                )
 
                 for elem in intersection:
                     info = [function, " reads ", str(elem), "\n"]
                     json = self.generate_result(info)
                     results.append(json)
 
-                intersection = set.intersection(set(function.solidity_calls), SOLIDITY_DANGEROUS_CALL)
+                intersection = set.intersection(
+                    set(function.solidity_calls), SOLIDITY_DANGEROUS_CALL
+                )
                 for elem in intersection:
                     info = [function, " calls ", str(elem), "\n"]
                     json = self.generate_result(info)

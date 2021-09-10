@@ -47,11 +47,7 @@ class AbstractCheck(metaclass=abc.ABCMeta):
     WIKI_EXPLOIT_SCENARIO = ""
     WIKI_RECOMMENDATION = ""
 
-    def __init__(
-            self,
-            logger: Logger,
-            compilation_unit: SlitherCompilationUnit
-    ) -> None:
+    def __init__(self, logger: Logger, compilation_unit: SlitherCompilationUnit) -> None:
         self.logger = logger
         self.compilation_unit: SlitherCompilationUnit = compilation_unit
 
@@ -121,9 +117,9 @@ class AbstractCheck(metaclass=abc.ABCMeta):
         return all_results
 
     def generate_result(
-            self,
-            info: Union[str, List[Union[str, SupportedOutput]]],
-            additional_fields: Optional[Dict] = None,
+        self,
+        info: Union[str, List[Union[str, SupportedOutput]]],
+        additional_fields: Optional[Dict] = None,
     ) -> Output:
         output = Output(
             info, additional_fields, markdown_root=self.compilation_unit.core.markdown_root

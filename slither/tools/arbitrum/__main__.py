@@ -133,7 +133,7 @@ def main():
 
     args = parse_args()
 
-    slither = Slither(vars(args)['project'], **vars(args))
+    slither = Slither(vars(args)["project"], **vars(args))
 
     detectors = _get_checks()
 
