@@ -13,6 +13,7 @@ from slither.core.declarations import (
     SolidityVariableComposed,
     Structure,
 )
+from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import Index, OperationWithLValue, InternalCall
 from slither.slithir.variables import (
@@ -408,6 +409,7 @@ def convert_variable_to_non_ssa(v):
             Structure,
             Function,
             Type,
+            SolidityImportPlaceHolder,
         ),
     )
     return v
