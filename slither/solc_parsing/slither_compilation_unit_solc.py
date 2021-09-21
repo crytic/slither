@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+from pathlib import Path
 from typing import List, Dict
 
 from slither.analyses.data_dependency.data_dependency import compute_dependency
@@ -181,12 +182,28 @@ class SlitherCompilationUnitSolc:
                 self._compilation_unit.pragma_directives.append(pragma)
             elif top_level_data[self.get_key()] == "ImportDirective":
                 if self.is_compact_ast:
-                    import_directive = Import(top_level_data["absolutePath"])
+                    import_directive = Import(
+                        Path(
+                            self._compilation_unit.crytic_compile.working_dir,
+                            top_level_data["absolutePath"],
+                        )
+                    )
                     # TODO investigate unitAlias in version < 0.7 and legacy ast
                     if "unitAlias" in top_level_data:
                         import_directive.alias = top_level_data["unitAlias"]
                 else:
-                    import_directive = Import(top_level_data["attributes"].get("absolutePath", ""))
+                    import_directive = Import(
+                        Path(
+                            self._compilation_unit.crytic_compile.working_dir,
+                            top_level_data["attributes"].get("absolutePath", ""),
+                        )
+                    )
+                    # TODO investigate unitAlias in version < 0.7 and legacy ast
+                    if (
+                        "attributes" in top_level_data
+                        and "unitAlias" in top_level_data["attributes"]
+                    ):
+                        import_directive.alias = top_level_data["attributes"]["unitAlias"]
                 import_directive.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.import_directives.append(import_directive)
 
@@ -211,6 +228,7 @@ class SlitherCompilationUnitSolc:
                 self._variables_top_level_parser.append(var_parser)
             elif top_level_data[self.get_key()] == "FunctionDefinition":
                 func = FunctionTopLevel(self._compilation_unit)
+                func.set_offset(top_level_data["src"], self._compilation_unit)
                 func_parser = FunctionSolc(func, top_level_data, None, self)
 
                 self._compilation_unit.functions_top_level.append(func)

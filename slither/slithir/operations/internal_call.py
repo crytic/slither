@@ -1,3 +1,4 @@
+from typing import Union, Tuple, List, Optional
 from slither.core.declarations import Modifier
 from slither.core.declarations.function import Function
 from slither.core.declarations.function_contract import FunctionContract
@@ -6,7 +7,9 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 
 
 class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, function, nbr_arguments, result, type_call):
+    def __init__(
+        self, function: Union[Function, Tuple[str, str]], nbr_arguments, result, type_call
+    ):
         super().__init__()
         self._contract_name = ""
         if isinstance(function, Function):
@@ -21,6 +24,10 @@ class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
         self._lvalue = result
+        # function_candidates is only used as an helper to retrieve the "function" object
+        # For top level function called through a import renamed
+        # See SolidityImportPlaceHolder usages
+        self.function_candidates: Optional[List[Function]] = None
 
     @property
     def read(self):
