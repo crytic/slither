@@ -136,6 +136,14 @@ class VariableDeclarationSolc:
         if "constant" in attributes:
             self._variable.is_constant = attributes["constant"]
 
+        if "mutability" in attributes:
+            # Note: this checked is not needed if "constant" was already in attribute, but we keep it
+            # for completion
+            if attributes["mutability"] == "constant":
+                self._variable.is_constant = True
+            if attributes["mutability"] == "immutable":
+                self._variable.is_immutable = True
+
         self._analyze_variable_attributes(attributes)
 
         if self._is_compact_ast:
