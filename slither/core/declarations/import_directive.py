@@ -1,16 +1,34 @@
+from pathlib import Path
 from typing import Optional
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 
 
 class Import(SourceMapping):
-    def __init__(self, filename: str):
+    def __init__(self, filename: Path):
         super().__init__()
-        self._filename = filename
+        self._filename: Path = filename
         self._alias: Optional[str] = None
 
     @property
     def filename(self) -> str:
+        """
+        Return the absolute filename
+
+        :return:
+        :rtype:
+        """
+        return str(self._filename)
+
+    @property
+    def filename_path(self) -> Path:
+        """
+        Return the absolute filename
+
+        :return:
+        :rtype:
+        """
+
         return self._filename
 
     @property

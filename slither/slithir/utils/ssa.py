@@ -9,6 +9,7 @@ from slither.core.declarations import (
     SolidityVariable,
     Structure,
 )
+from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
@@ -610,6 +611,7 @@ def get(
             Structure,
             Function,
             Type,
+            SolidityImportPlaceHolder,
         ),
     )  # type for abi.decode(.., t)
     return variable
