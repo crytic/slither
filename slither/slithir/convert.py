@@ -13,8 +13,10 @@ from slither.core.declarations import (
     SolidityVariableComposed,
     Structure,
 )
+from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
+from slither.core.declarations.solidity_variables import SolidityCustomRevert
 from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types import (
     ArrayType,
@@ -938,6 +940,12 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
 
     if isinstance(ins.called, SolidityFunction):
         s = SolidityCall(ins.called, ins.nbr_arguments, ins.lvalue, ins.type_call)
+        s.set_expression(ins.expression)
+        return s
+
+    if isinstance(ins.called, CustomError):
+        sol_function = SolidityCustomRevert(ins.called)
+        s = SolidityCall(sol_function, ins.nbr_arguments, ins.lvalue, ins.type_call)
         s.set_expression(ins.expression)
         return s
 

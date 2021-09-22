@@ -13,6 +13,7 @@ from slither.core.declarations import (
     Function,
     Modifier,
 )
+from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
@@ -40,6 +41,7 @@ class SlitherCompilationUnit(Context):
         self._functions_top_level: List[FunctionTopLevel] = []
         self._pragma_directives: List[Pragma] = []
         self._import_directives: List[Import] = []
+        self._custom_errors: List[CustomError] = []
 
         self._all_functions: Set[Function] = set()
         self._all_modifiers: Set[Modifier] = set()
@@ -209,6 +211,10 @@ class SlitherCompilationUnit(Context):
     @property
     def functions_top_level(self) -> List[FunctionTopLevel]:
         return self._functions_top_level
+
+    @property
+    def custom_errors(self) -> List[CustomError]:
+        return self._custom_errors
 
     # endregion
     ###################################################################################

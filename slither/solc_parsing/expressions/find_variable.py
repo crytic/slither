@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Optional, Union, List, Tuple
 
 from slither.core.declarations import Event, Enum, Structure
 from slither.core.declarations.contract import Contract
+from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.function import Function
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
@@ -100,7 +101,7 @@ def _find_variable_in_function_parser(
 
 def _find_top_level(
     var_name: str, sl: "SlitherCompilationUnit"
-) -> Tuple[Optional[Union[Enum, Structure, SolidityImportPlaceHolder]], bool]:
+) -> Tuple[Optional[Union[Enum, Structure, SolidityImportPlaceHolder, CustomError]], bool]:
     """
     Return the top level variable use, and a boolean indicating if the variable returning was cretead
     If the variable was created, it has no source_mapping
@@ -126,6 +127,11 @@ def _find_top_level(
         if import_directive.alias == var_name:
             new_val = SolidityImportPlaceHolder(import_directive)
             return new_val, True
+
+    # Note for now solidity prevent two custom error from having the same name
+    for custom_error in sl.custom_errors:
+        if custom_error.solidity_signature == var_name:
+            return custom_error, False
 
     return None, False
 
@@ -260,6 +266,7 @@ def find_variable(
         Event,
         Enum,
         Structure,
+        CustomError,
     ],
     bool,
 ]:

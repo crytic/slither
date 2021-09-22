@@ -190,7 +190,12 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     return UserDefinedType(var_type)
 
 
-def parse_type(t: Union[Dict, UnknownType], caller_context):
+def parse_type(
+    t: Union[Dict, UnknownType],
+    caller_context: Union[
+        "SlitherCompilationUnitSolc", "FunctionSolc", "ContractSolc", "CustomSolc"
+    ],
+):
     # local import to avoid circular dependency
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     # pylint: disable=import-outside-toplevel
@@ -198,17 +203,22 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
     from slither.solc_parsing.variables.function_type_variable import FunctionTypeVariableSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
+    from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
 
     sl: "SlitherCompilationUnit"
     # Note: for convenicence top level functions use the same parser than function in contract
     # but contract_parser is set to None
-    if isinstance(caller_context, SlitherCompilationUnitSolc) or (
+    if isinstance(caller_context, (SlitherCompilationUnitSolc, CustomErrorSolc)) or (
         isinstance(caller_context, FunctionSolc) and caller_context.contract_parser is None
     ):
+        structures_direct_access: List["Structure"]
         if isinstance(caller_context, SlitherCompilationUnitSolc):
             sl = caller_context.compilation_unit
             next_context = caller_context
+        elif isinstance(caller_context, CustomErrorSolc):
+            sl = caller_context.underlying_custom_error.compilation_unit
+            next_context = caller_context.slither_parser
         else:
             assert isinstance(caller_context, FunctionSolc)
             sl = caller_context.underlying_function.compilation_unit
@@ -235,13 +245,13 @@ def parse_type(t: Union[Dict, UnknownType], caller_context):
             contract = caller_context.underlying_contract
             next_context = caller_context
 
-        structures_direct_access = (
-            contract.structures + contract.compilation_unit.structures_top_level
-        )
+        structures_direct_access = contract.structures
+        structures_direct_access += contract.compilation_unit.structures_top_level
         all_structuress = [c.structures for c in contract.compilation_unit.contracts]
         all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += contract.compilation_unit.structures_top_level
-        enums_direct_access = contract.enums + contract.compilation_unit.enums_top_level
+        enums_direct_access: List["Enum"] = contract.enums
+        enums_direct_access += contract.compilation_unit.enums_top_level
         all_enumss = [c.enums for c in contract.compilation_unit.contracts]
         all_enums = [item for sublist in all_enumss for item in sublist]
         all_enums += contract.compilation_unit.enums_top_level
