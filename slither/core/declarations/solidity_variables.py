@@ -193,3 +193,10 @@ class SolidityCustomRevert(SolidityFunction):
         self._name = "revert " + custom_error.solidity_signature
         self._custom_error = custom_error
         self._return_type: List[Union[TypeInformation, ElementaryType]] = []
+
+    def __eq__(self, other):
+        return (
+            self.__class__ == other.__class__
+            and self.name == other.name
+            and self._custom_error == self._custom_error
+        )
