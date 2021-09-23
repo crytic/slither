@@ -198,5 +198,5 @@ class SolidityCustomRevert(SolidityFunction):
         return (
             self.__class__ == other.__class__
             and self.name == other.name
-            and self._custom_error == self._custom_error
+            and self._custom_error == other._custom_error
         )
