@@ -137,7 +137,7 @@ class YulScope(metaclass=abc.ABCMeta):
 
     @property
     def compilation_unit(self) -> SlitherCompilationUnit:
-        return self._contract.compilation_unit
+        return self._parent_func.compilation_unit
 
     @property
     def parent_func(self) -> Optional[Function]:
@@ -714,14 +714,16 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         return Identifier(YulBuiltin(name))
 
     # check function-scoped variables
-    if root.parent_func:
-        variable = root.parent_func.get_local_variable_from_name(name)
+    parent_func = root.parent_func
+    if parent_func:
+        variable = parent_func.get_local_variable_from_name(name)
         if variable:
             return Identifier(variable)
 
-        variable = root.parent_func.contract.get_state_variable_from_name(name)
-        if variable:
-            return Identifier(variable)
+        if isinstance(parent_func, FunctionContract):
+            variable = parent_func.contract.get_state_variable_from_name(name)
+            if variable:
+                return Identifier(variable)
 
     # check yul-scoped variable
     variable = root.get_yul_local_variable_from_name(name)
