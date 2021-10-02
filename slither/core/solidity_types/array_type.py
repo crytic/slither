@@ -34,7 +34,7 @@ class ArrayType(Type):
         return self._length
 
     @property
-    def lenght_value(self) -> Optional[Literal]:
+    def length_value(self) -> Optional[Literal]:
         return self._length_value
 
     @property
