@@ -9,7 +9,7 @@ from crytic_compile.platform import Type as PlatformType
 from slither.core.declarations import Contract
 from slither.tools.properties.addresses.address import Addresses
 from slither.tools.properties.platforms.echidna import generate_echidna_config
-from slither.tools.properties.properties.ercs.erc20.properties.burn import ERC20_NotBurnable, ERC20_NotBurnable
+from slither.tools.properties.properties.ercs.erc20.properties.burn import ERC20_NotBurnable, ERC20_Burnable
 from slither.tools.properties.properties.ercs.erc20.properties.initialization import ERC20_CONFIG
 from slither.tools.properties.properties.ercs.erc20.properties.mint import ERC20_NotMintable
 from slither.tools.properties.properties.ercs.erc20.properties.mint_and_burn import (
