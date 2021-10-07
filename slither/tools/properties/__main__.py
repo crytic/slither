@@ -6,12 +6,14 @@ from crytic_compile import cryticparser
 
 from slither import Slither
 from slither.tools.properties.properties.erc20 import generate_erc20, ERC20_PROPERTIES
+from slither.tools.properties.properties.erc721 import generate_erc721, ERC721_PROPERTIES
 from slither.tools.properties.addresses.address import (
     Addresses,
     OWNER_ADDRESS,
     USER_ADDRESS,
     ATTACKER_ADDRESS,
 )
+from slither.utils.erc import ERCS
 from slither.utils.myprettytable import MyPrettyTable
 
 logging.basicConfig()
@@ -64,7 +66,7 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(
         description="Demo",
-        usage="slither-demo filename",
+        usage="slither-prop filename",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
@@ -94,6 +96,13 @@ def parse_args():
         action=ListProperties,
         nargs=0,
         default=False,
+    )
+
+    parser.add_argument(
+        "--erc",
+        help=f"ERC to be tested, available {','.join(ERCS.keys())} (default ERC20)",
+        action="store",
+        default="erc20",
     )
 
     parser.add_argument(
@@ -142,8 +151,10 @@ def main():
 
     addresses = Addresses(args.address_owner, args.address_user, args.address_attacker)
 
-    generate_erc20(contract, args.scenario, addresses)
-
+    if args.erc == "erc20":
+        generate_erc20(contract, args.scenario, addresses)
+    elif args.erc == "erc721":
+        generate_erc721(contract, args.scenario, addresses)
 
 if __name__ == "__main__":
     main()

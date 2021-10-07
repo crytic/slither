@@ -151,7 +151,13 @@ ERC721_OPTIONAL = [
     ERC("tokenURI", ["uint256"], "string", False, False, []),
 ]
 
-ERC721 = ERC721 + ERC721_OPTIONAL
+ERC721_ENUMERABLE = [
+    ERC("totalSupply", [], "uint256", True, False, []),
+    ERC("tokenByIndex", ["uint256"], "uint256", True, False, []),
+    ERC("tokenOfOwnerByIndex", ["address", "uint256"], "uint256", True, False, []),
+]
+
+ERC721 = ERC721 + ERC721_ENUMERABLE + ERC721_OPTIONAL
 
 ERC721_signatures = erc_to_signatures(ERC721)
 
