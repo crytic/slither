@@ -32,26 +32,44 @@ ERC721_Transferable = [
     ),
     Property(
         name="crytic_transfer_to_other_ERC721Properties()",
-        description="Transfer to other should work.",
+        description="Transfers and approvals to other users should work. Approvals should reset after transfer to other",
         content="""
 \t\tuint otherBalance = balanceOf(crytic_attacker);
 \t\tuint selfBalance = balanceOf(msg.sender);
 \t\tuint oldTotalSupply = totalSupply();
 \t\tfor (uint i = 0; i < selfBalance; i++) {
 \t\t\tuint tokenId = tokenOfOwnerByIndex(msg.sender, 0);  // Always zero to avoid issues
-\t\t\tapprove(otherUser, tokenId);
-\t\t\trequire(getApproved(tokenId) == otherUser); 
-\t\t\tsafeTransferFrom(msg.sender, otherUser, tokenId);
-\t\t\trequire(ownerOf(tokenId) == otherUser);
+\t\t\tapprove(crytic_attacker, tokenId);
+\t\t\trequire(getApproved(tokenId) == crytic_attacker);
+\t\t\tsafeTransferFrom(msg.sender, crytic_attacker, tokenId);
+\t\t\trequire(ownerOf(tokenId) == crytic_attacker);
 \t\t\trequire(getApproved(tokenId) == address(0x0));
 \t\t}
-\t\treturn oldTotalSupply == totalSupply() && otherBalance + selfBalance == balanceOf(otherUser) && balanceOf(msg.sender) == 0;""",
+\t\treturn oldTotalSupply == totalSupply() && otherBalance + selfBalance == balanceOf(crytic_attacker) && balanceOf(msg.sender) == 0;""",
         type=PropertyType.HIGH_SEVERITY,
         return_type=PropertyReturn.SUCCESS,
         is_unit_test=True,
         is_property_test=True,
         caller=PropertyCaller.ANY,
     ),
-
-
+    Property(
+        name="crytic_transfer_to_self_ERC721Properties()",
+        description="Transfer to self should work. Approvals should reset after transfer to self",
+        content="""
+\t\tuint selfBalance = balanceOf(msg.sender);
+\t\tfor (uint i = 0; i < selfBalance; i++) {
+\t\t\tuint tokenId = tokenOfOwnerByIndex(msg.sender, i);
+\t\t\tapprove(crytic_attacker, tokenId);
+\t\t\trequire(getApproved(tokenId) == crytic_attacker);
+\t\t\tsafeTransferFrom(msg.sender, msg.sender, tokenId);
+\t\t\trequire(ownerOf(tokenId) == msg.sender);
+\t\t\trequire(getApproved(tokenId) == address(0x0));
+\t\t}
+\t\treturn (balanceOf(msg.sender) == selfBalance);""",
+       type=PropertyType.HIGH_SEVERITY,
+        return_type=PropertyReturn.SUCCESS,
+        is_unit_test=True,
+        is_property_test=True,
+        caller=PropertyCaller.ANY,
+    ),
 ]
