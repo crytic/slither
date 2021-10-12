@@ -9,7 +9,8 @@ from crytic_compile.platform import Type as PlatformType
 from slither.core.declarations import Contract
 from slither.tools.properties.addresses.address import Addresses
 from slither.tools.properties.platforms.echidna import generate_echidna_config
-#from slither.tools.properties.properties.ercs.erc20.properties.burn import ERC20_NotBurnable
+from slither.tools.properties.properties.ercs.erc721.properties.burn import ERC721_Burnable
+from slither.tools.properties.properties.ercs.erc721.properties.mint import ERC721_Mintable
 #from slither.tools.properties.properties.ercs.erc20.properties.initialization import ERC20_CONFIG
 #from slither.tools.properties.properties.ercs.erc20.properties.mint import ERC20_NotMintable
 #from slither.tools.properties.properties.ercs.erc20.properties.mint_and_burn import (
@@ -43,10 +44,15 @@ ERC721_PROPERTIES = {
     #    ERC20_NotMintableNotBurnable, "Test that no one can mint or burn tokens"
     #),
     #"NotBurnable": PropertyDescription(ERC20_NotBurnable, "Test that no one can burn tokens"),
-    #"Burnable": PropertyDescription(
-    #    ERC20_NotBurnable,
-    #    'Test the burn of tokens. Require the "burn(uint256) returns()" function',
-    #),
+    "Burnable": PropertyDescription(
+        ERC721_Burnable,
+        'Test the burn of tokens. Require the "burn(uint256) returns ()" function',
+    ),
+    "Mintable": PropertyDescription(
+        ERC721_Mintable,
+        'Test the mint of tokens. Require the "mint() returns (uint256)" function',
+    ),
+
 }
 
 
@@ -57,16 +63,16 @@ def generate_erc721(
     Generate the ERC721 tests
     Files generated:
     - interfaces.sol: generic crytic interface
-    - Properties[CONTRACTNAME].sol: erc20 properties
+    - Properties[CONTRACTNAME].sol: erc721 properties
     - Test[CONTRACTNAME].sol: Target, its constructor needs to be manually updated
     - If truffle
         - migrations/x_Test[CONTRACTNAME].js
         - test/crytic/InitializationTest[CONTRACTNAME].js: unit tests to check that the contract is correctly configured
-        - test/crytic/Test[CONTRACTNAME].js: ERC20 checks
+        - test/crytic/Test[CONTRACTNAME].js: ERC721 checks
     - echidna_config.yaml: configuration file
     :param addresses:
     :param contract:
-    :param type_property: One of ERC20_PROPERTIES.keys()
+    :param type_property: One of ERC721_PROPERTIES.keys()
     :return:
     """
     if contract.compilation_unit.core.crytic_compile is None:
