@@ -22,12 +22,18 @@ class CustomErrorSolc:
         self._slither_parser: "SlitherCompilationUnitSolc" = slither_parser
         self._custom_error = custom_error
         custom_error.name = custom_error_data["name"]
+        self._params_was_analyzed = False
 
         if not self._slither_parser.is_compact_ast:
             custom_error_data = custom_error_data["attributes"]
         self._custom_error_data = custom_error_data
 
     def analyze_params(self):
+        # Can be re-analyzed due to inheritance
+        if self._params_was_analyzed:
+            return
+
+        self._params_was_analyzed = True
 
         if self._slither_parser.is_compact_ast:
             params = self._custom_error_data["parameters"]
