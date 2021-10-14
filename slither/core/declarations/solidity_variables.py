@@ -201,6 +201,5 @@ class SolidityCustomRevert(SolidityFunction):
             and self._custom_error == other._custom_error
         )
 
-
     def __hash__(self):
         return hash(hash(self.name) + hash(self._custom_error))
