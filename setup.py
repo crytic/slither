@@ -16,7 +16,7 @@ setup(
     ],
     dependency_links=["git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile"],
     license="AGPL-3.0",
-    long_description=open("README.md").read(),
+    long_description=open("README.md","r", encoding="utf-8").read(),
     entry_points={
         "console_scripts": [
             "slither = slither.__main__:main",
