@@ -1057,13 +1057,15 @@ def convert_to_low_level(ir):
 def can_be_solidity_func(ir) -> bool:
     if not isinstance(ir, HighLevelCall):
         return False
-    return ir.destination.name == "abi" and ir.function_name in [
+    is_abi = ir.destination.name == "abi" and ir.function_name in [
         "encode",
         "encodePacked",
         "encodeWithSelector",
         "encodeWithSignature",
         "decode",
     ]
+    is_bytes = ir.destination.name == "bytes" and ir.function_name == "concat"
+    return is_abi or is_bytes
 
 
 def convert_to_solidity_func(ir):
