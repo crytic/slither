@@ -218,7 +218,12 @@ class PrinterCallGraph(AbstractPrinter):
 
         all_contracts_filename = ""
         if not filename.endswith(".dot"):
-            all_contracts_filename = f"{filename}.all_contracts.call-graph.dot"
+            if filename in ("", "."):
+                filename = ""
+            else:
+                filename += "."
+            all_contracts_filename = f"{filename}all_contracts.call-graph.dot"
+
         if filename == ".dot":
             all_contracts_filename = "all_contracts.dot"
 
@@ -227,11 +232,11 @@ class PrinterCallGraph(AbstractPrinter):
         with open(all_contracts_filename, "w", encoding="utf8") as f:
             info += f"Call Graph: {all_contracts_filename}\n"
 
-            # Avoid dupplicate funcitons due to different compilation unit
-            all_functionss = [
+            # Avoid duplicate functions due to different compilation unit
+            all_functions = [
                 compilation_unit.functions for compilation_unit in self.slither.compilation_units
             ]
-            all_functions = [item for sublist in all_functionss for item in sublist]
+            all_functions = [item for sublist in all_functions for item in sublist]
             all_functions_as_dict = {
                 function.canonical_name: function for function in all_functions
             }
@@ -242,7 +247,7 @@ class PrinterCallGraph(AbstractPrinter):
             results.append((all_contracts_filename, content))
 
         for derived_contract in self.slither.contracts_derived:
-            derived_output_filename = f"{filename}.{derived_contract.name}.call-graph.dot"
+            derived_output_filename = f"{filename}{derived_contract.name}.call-graph.dot"
             with open(derived_output_filename, "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
