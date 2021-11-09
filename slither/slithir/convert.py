@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from typing import List, TYPE_CHECKING, Union, Optional
 
 # pylint: disable= too-many-lines,import-outside-toplevel,too-many-branches,too-many-statements,too-many-nested-blocks
@@ -13,6 +14,7 @@ from slither.core.declarations import (
     Structure,
 )
 from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types import (
     ArrayType,
@@ -386,7 +388,11 @@ def propagate_type_and_convert_call(result, node):
         ins = result[idx]
 
         if isinstance(ins, TmpCall):
-            new_ins = extract_tmp_call(ins, node.function.contract)
+            # If the node.function is a FunctionTopLevel, then it does not have a contract
+            contract = (
+                node.function.contract if isinstance(node.function, FunctionContract) else None
+            )
+            new_ins = extract_tmp_call(ins, contract)
             if new_ins:
                 new_ins.set_node(ins.node)
                 ins = new_ins
@@ -558,7 +564,11 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
             elif isinstance(ir, InternalCall):
                 # if its not a tuple, return a singleton
                 if ir.function is None:
-                    convert_type_of_high_and_internal_level_call(ir, node.function.contract)
+                    func = node.function
+                    function_contract = (
+                        func.contract if isinstance(func, FunctionContract) else None
+                    )
+                    convert_type_of_high_and_internal_level_call(ir, function_contract)
                 return_type = ir.function.return_type
                 if return_type:
                     if len(return_type) == 1:
@@ -735,7 +745,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
     return None
 
 
-def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
+def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: disable=too-many-locals
     assert isinstance(ins, TmpCall)
     if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
         # If the call is made to a variable member, where the member is this
@@ -749,7 +759,7 @@ def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
             return call
     if isinstance(ins.ori, Member):
         # If there is a call on an inherited contract, it is an internal call or an event
-        if ins.ori.variable_left in contract.inheritance + [contract]:
+        if contract and ins.ori.variable_left in contract.inheritance + [contract]:
             if str(ins.ori.variable_right) in [f.name for f in contract.functions]:
                 internalcall = InternalCall(
                     (ins.ori.variable_right, ins.ori.variable_left.name),
@@ -865,6 +875,33 @@ def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
             to_log = "Slither does not support dynamic functions to libraries if functions have the same name"
             to_log += f"{[candidate.full_name for candidate in candidates]}"
             raise SlithIRError(to_log)
+        if isinstance(ins.ori.variable_left, SolidityImportPlaceHolder):
+            # For top level import, where the import statement renames the filename
+            # See https://blog.soliditylang.org/2020/09/02/solidity-0.7.1-release-announcement/
+
+            current_path = Path(ins.ori.variable_left.source_mapping["filename_absolute"]).parent
+            target = str(
+                Path(current_path, ins.ori.variable_left.import_directive.filename).absolute()
+            )
+            top_level_function_targets = [
+                f
+                for f in ins.compilation_unit.functions_top_level
+                if f.source_mapping["filename_absolute"] == target
+                and f.name == ins.ori.variable_right
+                and len(f.parameters) == ins.nbr_arguments
+            ]
+
+            internalcall = InternalCall(
+                (ins.ori.variable_right, ins.ori.variable_left.name),
+                ins.nbr_arguments,
+                ins.lvalue,
+                ins.type_call,
+            )
+            internalcall.set_expression(ins.expression)
+            internalcall.call_id = ins.call_id
+            internalcall.function_candidates = top_level_function_targets
+            return internalcall
+
         msgcall = HighLevelCall(
             ins.ori.variable_left,
             ins.ori.variable_right,
@@ -1355,22 +1392,30 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
     return [return_type.type]
 
 
-def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Contract):
+def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Optional[Contract]):
     func = None
     if isinstance(ir, InternalCall):
-        candidates = [
-            f
-            for f in contract.functions
-            if f.name == ir.function_name
-            and f.contract_declarer.name == ir.contract_name
-            and len(f.parameters) == len(ir.arguments)
-        ]
+
+        if ir.function_candidates:
+            # This path is taken only for SolidityImportPlaceHolder
+            # Here we have already done a filtering on the potential targets
+            candidates = ir.function_candidates
+        else:
+            candidates = [
+                f
+                for f in contract.functions
+                if f.name == ir.function_name
+                and f.contract_declarer.name == ir.contract_name
+                and len(f.parameters) == len(ir.arguments)
+            ]
         func = _find_function_from_parameter(ir, candidates)
 
         if not func:
+            assert contract
             func = contract.get_state_variable_from_name(ir.function_name)
     else:
         assert isinstance(ir, HighLevelCall)
+        assert contract
 
         candidates = [
             f

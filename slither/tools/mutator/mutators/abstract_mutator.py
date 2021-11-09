@@ -69,14 +69,14 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
         """TODO Documentation"""
         return dict()
 
-    def mutate(self):
-        patches = self._mutate()
+    def mutate(self) -> None:
+        all_patches = self._mutate()
 
-        for file in patches["patches"]:
+        for file in all_patches["patches"]:
             original_txt = self.slither.source_code[file].encode("utf8")
             patched_txt = original_txt
             offset = 0
-            patches = patches["patches"][file]
+            patches = all_patches["patches"][file]
             patches.sort(key=lambda x: x["start"])
             if not all(patches[i]["end"] <= patches[i + 1]["end"] for i in range(len(patches) - 1)):
                 logger.info(f"Impossible to generate patch; patches collisions: {patches}")

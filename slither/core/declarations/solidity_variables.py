@@ -6,7 +6,7 @@ from slither.core.solidity_types import ElementaryType, TypeInformation
 from slither.exceptions import SlitherException
 
 if TYPE_CHECKING:
-    from slither.core.declarations import Import
+    pass
 
 SOLIDITY_VARIABLES = {
     "now": "uint256",
@@ -184,37 +184,3 @@ class SolidityFunction:
 
     def __hash__(self):
         return hash(self.name)
-
-
-class SolidityImportPlaceHolder(SolidityVariable):
-    """
-    Placeholder for import on top level objects
-    See the example at https://blog.soliditylang.org/2020/09/02/solidity-0.7.1-release-announcement/
-    In the long term we should remove this and better integrate import aliases
-    """
-
-    def __init__(self, import_directive: "Import"):
-        assert import_directive.alias is not None
-        super().__init__(import_directive.alias)
-        self._import_directive = import_directive
-
-    def _check_name(self, name: str):
-        return True
-
-    @property
-    def type(self) -> ElementaryType:
-        return ElementaryType("string")
-
-    def __eq__(self, other):
-        return (
-            self.__class__ == other.__class__
-            and self.name == other.name
-            and self._import_directive.filename == self._import_directive.filename
-        )
-
-    @property
-    def import_directive(self) -> "Import":
-        return self._import_directive
-
-    def __hash__(self):
-        return hash(str(self.import_directive))

@@ -16,6 +16,7 @@ from pkg_resources import iter_entry_points, require
 
 from crytic_compile import cryticparser
 from crytic_compile.platform.standard import generate_standard_export
+from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
 from crytic_compile import compile_all, is_supported
 
 from slither.detectors import all_detectors
@@ -23,9 +24,9 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
-from slither.utils.output import output_to_json, output_to_zip, ZIP_TYPES_ACCEPTED
+from slither.utils.output import output_to_json, output_to_zip, output_to_sarif, ZIP_TYPES_ACCEPTED
 from slither.utils.output_capture import StandardOutputCapture
-from slither.utils.colors import red, blue, set_colorization_enabled
+from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
     output_detectors,
     output_results_to_markdown,
@@ -270,12 +271,20 @@ def parse_filter_paths(args):
 
 
 def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-statements
+
+    usage = "slither target [flag]\n"
+    usage += "\ntarget can be:\n"
+    usage += "\t- file.sol // a Solidity file\n"
+    usage += "\t- project_directory // a project directory. See https://github.com/crytic/crytic-compile/#crytic-compile for the supported platforms\n"
+    usage += "\t- 0x.. // a contract on mainet\n"
+    usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x[:-1] for x in SUPPORTED_NETWORK)}\n"
+
     parser = argparse.ArgumentParser(
-        description="Slither. For usage information, see https://github.com/crytic/slither/wiki/Usage",
-        usage="slither.py contract.sol [flag]",
+        description="For usage information, see https://github.com/crytic/slither/wiki/Usage",
+        usage=usage,
     )
 
-    parser.add_argument("filename", help="contract.sol")
+    parser.add_argument("filename", help=argparse.SUPPRESS)
 
     cryticparser.init(parser)
 
@@ -386,6 +395,13 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         help='Export the results as a JSON file ("--json -" to export to stdout)',
         action="store",
         default=defaults_flag_in_config["json"],
+    )
+
+    group_misc.add_argument(
+        "--sarif",
+        help='Export the results as a SARIF JSON file ("--sarif -" to export to stdout)',
+        action="store",
+        default=defaults_flag_in_config["sarif"],
     )
 
     group_misc.add_argument(
@@ -636,6 +652,8 @@ def main_impl(all_detector_classes, all_printer_classes):
     output_error = None
     outputting_json = args.json is not None
     outputting_json_stdout = args.json == "-"
+    outputting_sarif = args.sarif is not None
+    outputting_sarif_stdout = args.sarif == "-"
     outputting_zip = args.zip is not None
     if args.zip_type not in ZIP_TYPES_ACCEPTED.keys():
         to_log = f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED.keys())}'
@@ -643,8 +661,8 @@ def main_impl(all_detector_classes, all_printer_classes):
 
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
     # output.
-    if outputting_json:
-        StandardOutputCapture.enable(outputting_json_stdout)
+    if outputting_json or output_to_sarif:
+        StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
 
     printer_classes = choose_printers(args, all_printer_classes)
     detector_classes = choose_detectors(args, all_detector_classes)
@@ -723,7 +741,7 @@ def main_impl(all_detector_classes, all_printer_classes):
             ) = process_all(filename, args, detector_classes, printer_classes)
 
         # Determine if we are outputting JSON
-        if outputting_json or outputting_zip:
+        if outputting_json or outputting_zip or output_to_sarif:
             # Add our compilation information to JSON
             if "compilations" in args.json_types:
                 compilation_results = []
@@ -768,12 +786,6 @@ def main_impl(all_detector_classes, all_printer_classes):
                 len(detector_classes),
                 len(results_detectors),
             )
-
-        logger.info(
-            blue(
-                "Use https://crytic.io/ to get access to additional detectors and Github integration"
-            )
-        )
         if args.ignore_return_value:
             return
 
@@ -799,6 +811,12 @@ def main_impl(all_detector_classes, all_printer_classes):
             }
         StandardOutputCapture.disable()
         output_to_json(None if outputting_json_stdout else args.json, output_error, json_results)
+
+    if outputting_sarif:
+        StandardOutputCapture.disable()
+        output_to_sarif(
+            None if outputting_sarif_stdout else args.sarif, json_results, detector_classes
+        )
 
     if outputting_zip:
         output_to_zip(args.zip, output_error, json_results, args.zip_type)
