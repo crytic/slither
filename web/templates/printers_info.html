@@ -1,0 +1,146 @@
+{% extends "base.html" %} {% block title %}Sample{% endblock %} 
+{% block content %}
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <h1 class="h3 mb-2 text-gray-800">Printers</h1>
+          <p class="mb-4">Slither allows printing contracts information through its printers.</p>
+
+          <!-- DataTales Example -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Printer</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>Num</th>
+                      <th>Printer</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tfoot>
+                    <tr>
+                      <th>Num</th>
+                      <th>Printer</th>
+                      <th>Description</th>
+                    </tr>
+                  </tfoot>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>call-graph</td>
+                      <td>Export the call-graph of the contracts to a dot file</td>
+                    </tr>
+                    <tr>
+                      <td>2</td>
+                      <td>cfg</td>
+                      <td>Export the CFG of each functions</td>
+                    </tr>
+                    <tr>
+                      <td>3</td>
+                      <td>constructor-calls</td>
+                      <td>Print the constructors executed</td>
+                    </tr>
+                    <tr>
+                      <td>4</td>
+                      <td>contract-summary </td>
+                      <td>Print a summary of the contracts</td>
+                    </tr>
+                    <tr>
+                      <td>5</td>
+                      <td>data-dependency</td>
+                      <td>Print the data dependencies of the variables</td>
+                    </tr>
+                    <tr>
+                      <td>6</td>
+                      <td>echidna</td>
+                      <td>Export Echidna guiding information</td>
+                    </tr>
+                    <tr>
+                      <td>7</td>
+                      <td>evm</td>
+                      <td>Print the evm instructions of nodes in functions</td>
+                    </tr>
+                    <tr>
+                      <td>8</td>
+                      <td>function-id</td>
+                      <td>Print the keccack256 signature of the functions</td>
+                    </tr>
+                    <tr>
+                      <td>9</td>
+                      <td>function-summary</td>
+                      <td>Print a summary of the functions</td>
+                    </tr>
+                    <tr>
+                      <td>10</td>
+                      <td>human-summary</td>
+                      <td>Print a human-readable summary of the contracts</td>
+                    </tr>
+                    <tr>
+                      <td>11</td>
+                      <td>inheritance</td>
+                      <td>Print the inheritance relations between contracts</td>
+                    </tr>
+                    <tr>
+                      <td>12</td>
+                      <td>inheritance-graph</td>
+                      <td>Export the inheritance graph of each contract to a dot file</td>
+                    </tr>
+                    <tr>
+                      <td>13</td>
+                      <td>modifiers</td>
+                      <td>Print the modifiers called by each function</td>
+                    </tr>
+                    <tr>
+                      <td>14</td>
+                      <td>require</td>
+                      <td>Print the require and assert calls of each function</td>
+                    </tr>
+                    <tr>
+                      <td>15</td>
+                      <td>slithir</td>
+                      <td>Print the slithIR representation of the functions</td>
+                    </tr>
+                    <tr>
+                      <td>16</td>
+                      <td>slithir-ssa</td>
+                      <td>Print the slithIR representation of the functions</td>
+                    </tr>
+                    <tr>
+                      <td>17</td>
+                      <td>variable-order</td>
+                      <td>Print the storage order of the state variables</td>
+                    </tr>
+                    <tr>
+                      <td>18</td>
+                      <td>vars-and-auth</td>
+                      <td>Print the state variables written and the authorization of the functions</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+{% endblock %}
+
+{% block js %}
+    {{ super() }}
+    <!-- Page level plugins -->
+    <script src="{{ url_for('static', filename='vendor/datatables/jquery.dataTables.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='vendor/datatables/dataTables.bootstrap4.min.js')}}"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="{{ url_for('static', filename='js/demo/datatables-demo.js')}}"></script>
+{% endblock %}

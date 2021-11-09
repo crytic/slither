@@ -1,0 +1,132 @@
+{% extends "base.html" %} {% block title %}Sample{% endblock %} 
+{% block content %}
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <div class="d-sm-flex align-items-center justify-content-between">
+            <h1 class="h3 mb-0 text-gray-800">Slither</h1>
+          </div>
+
+
+          <div class="jumbotron text-center">
+            <h1 class="text-gray-900">Bugs Detectors</h1>
+            <p class="text-gray-700">The Solidity static analysis framework.</p> 
+          </div>
+          <!-- Content Row -->
+          <div class="col">
+
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="  mb-4">
+              <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Analysis</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">Import file to detect vulnerabilities.</div>
+                      
+                      <div class="my-2"></div>
+                      <a href="detect_file" class="btn btn-secondary btn-icon-split">
+                        <span class="icon text-white-50">
+                          <i class="fas fa-arrow-right"></i>
+                        </span>
+                        <span class="text">Import a file</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="mb-4">
+              <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Analysis</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">Past contract address to detect vulnerabilities.</div>
+                    
+                      <div class="my-2"></div>
+                      <a href="detect_address" class="btn btn-secondary btn-icon-split">
+                        <span class="icon text-white-50">
+                          <i class="fas fa-arrow-right"></i>
+                        </span>
+                        <span class="text">Past your contract address</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            
+            <!-- Pending Requests Card Example -->
+            <div class="mb-4">
+              <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Printers</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">Import file to print contract information.</div>
+                    
+                      <div class="my-2"></div>
+                      <a href="print_file" class="btn btn-secondary btn-icon-split">
+                        <span class="icon text-white-50">
+                          <i class="fas fa-arrow-right"></i>
+                        </span>
+                        <span class="text">Import a file</span>
+                      </a>
+                    
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Printers</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">Past contract address to print contract information.</div>
+                    
+                      <div class="my-2"></div>
+                      <a href="print_address" class="btn btn-secondary btn-icon-split">
+                        <span class="icon text-white-50">
+                          <i class="fas fa-arrow-right"></i>
+                        </span>
+                        <span class="text">Past your contract address</span>
+                      </a>
+                    
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+
+
+          <!-- Content Row -->
+
+         
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+{% endblock %}
+
+{% block js %}
+    {{ super() }}
+    <!-- Page level plugins -->
+    <script src="{{ url_for('static', filename='vendor/chart.js/Chart.min.js')}}"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="{{ url_for('static', filename='js/demo/chart-area-demo.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/demo/chart-pie-demo.js')}}"></script>
+{% endblock %}
