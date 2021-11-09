@@ -6,11 +6,11 @@ import sys
 from collections import namedtuple
 from distutils.version import StrictVersion
 from typing import List, Dict
+from deepdiff import DeepDiff
 
 import pytest
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
-from deepdiff import DeepDiff
 
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna
@@ -26,7 +26,7 @@ ALL_04 = range(0, 27)
 ALL_05 = range(0, 18)
 ALL_06 = range(0, 13)
 ALL_07 = range(0, 7)
-ALL_08 = range(0, 7)
+ALL_08 = range(0, 10)
 
 # these are tests that are currently failing right now
 XFAIL = (
@@ -67,13 +67,6 @@ XFAIL = (
     + [f"variabledeclaration_0.7.{ver}_legacy" for ver in ALL_07]
     + [f"variabledeclaration_0.8.{ver}_legacy" for ver in ALL_08]
     + [f"variabledeclaration_0.4.{ver}_compact" for ver in range(12, 27)]
-    + [f"top-level_0.7.{ver}_legacy" for ver in ALL_07]
-    + [f"top-level_0.7.{ver}_compact" for ver in ALL_07]
-    + [f"top-level_0.8.{ver}_legacy" for ver in ALL_08]
-    + [f"top-level_0.8.{ver}_compact" for ver in ALL_08]
-    + [f"top-level-import_0.7.{ver}_legacy" for ver in range(1, 7)]
-    + [f"top-level-import_0.7.{ver}_compact" for ver in range(1, 7)]
-    + [f"top-level-import_0.8.{ver}_compact" for ver in ALL_08]
 )
 
 

@@ -9,7 +9,10 @@
 
     TODO: dont report if the value is tainted by msg.value
 """
-from slither.core.declarations import Function
+from typing import List
+
+from slither.core.cfg.node import Node
+from slither.core.declarations import Function, Contract
 from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
 from slither.core.declarations.solidity_variables import (
     SolidityFunction,
@@ -27,11 +30,14 @@ from slither.slithir.operations import (
 
 
 # pylint: disable=too-many-nested-blocks,too-many-branches
-def arbitrary_send(func):
+from slither.utils.output import Output
+
+
+def arbitrary_send(func: Function):
     if func.is_protected():
         return []
 
-    ret = []
+    ret: List[Node] = []
     for node in func.nodes:
         for ir in node.irs:
             if isinstance(ir, SolidityCall):
@@ -68,7 +74,7 @@ def arbitrary_send(func):
     return ret
 
 
-def detect_arbitrary_send(contract):
+def detect_arbitrary_send(contract: Contract):
     """
         Detect arbitrary send
     Args:
@@ -114,7 +120,7 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
 
     WIKI_RECOMMENDATION = "Ensure that an arbitrary user cannot withdraw unauthorized funds."
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """"""
         results = []
 

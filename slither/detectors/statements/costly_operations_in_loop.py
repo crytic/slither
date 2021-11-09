@@ -1,7 +1,45 @@
-from slither.core.cfg.node import NodeType
-from slither.core.solidity_types.array_type import ArrayType
-from slither.core.solidity_types.mapping_type import MappingType
+from typing import List
+from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations import Contract
+from slither.utils.output import Output
+from slither.slithir.operations import InternalCall, OperationWithLValue
+from slither.core.variables.state_variable import StateVariable
+
+
+def detect_costly_operations_in_loop(contract: Contract) -> List[Node]:
+    ret: List[Node] = []
+    for f in contract.functions_entry_points:
+        if f.is_implemented:
+            costly_operations_in_loop(f.entry_point, 0, [], ret)
+
+    return ret
+
+
+def costly_operations_in_loop(
+    node: Node, in_loop_counter: int, visited: List[Node], ret: List[Node]
+) -> None:
+    if node in visited:
+        return
+    # shared visited
+    visited.append(node)
+
+    if node.type == NodeType.STARTLOOP:
+        in_loop_counter += 1
+    elif node.type == NodeType.ENDLOOP:
+        in_loop_counter -= 1
+
+    if in_loop_counter > 0:
+        for ir in node.all_slithir_operations():
+            # Ignore Array/Mapping/Struct types for now
+            if isinstance(ir, OperationWithLValue) and isinstance(ir.lvalue, StateVariable):
+                ret.append(ir.node)
+                break
+            if isinstance(ir, (InternalCall)):
+                costly_operations_in_loop(ir.function.entry_point, in_loop_counter, visited, ret)
+
+    for son in node.sons:
+        costly_operations_in_loop(son, in_loop_counter, visited, ret)
 
 
 class CostlyOperationsInLoop(AbstractDetector):
@@ -49,44 +87,11 @@ Incrementing `state_variable` in a loop incurs a lot of gas because of expensive
 
     WIKI_RECOMMENDATION = "Use a local variable to hold the loop computation result."
 
-    @staticmethod
-    def costly_operations_in_loop(node, in_loop, visited, ret):
-        if node in visited:
-            return
-        # shared visited
-        visited.append(node)
-
-        if node.type == NodeType.STARTLOOP:
-            in_loop = True
-        elif node.type == NodeType.ENDLOOP:
-            in_loop = False
-
-        if in_loop:
-            sv_written = node.state_variables_written
-            for sv in sv_written:
-                # Ignore Array/Mapping/Struct types for now
-                if isinstance(sv.type, (ArrayType, MappingType)):
-                    continue
-                ret.append(node)
-                break
-
-        for son in node.sons:
-            CostlyOperationsInLoop.costly_operations_in_loop(son, in_loop, visited, ret)
-
-    @staticmethod
-    def detect_costly_operations_in_loop(contract):
-        ret = []
-        for f in contract.functions + contract.modifiers:
-            if f.contract_declarer == contract and f.is_implemented:
-                CostlyOperationsInLoop.costly_operations_in_loop(f.entry_point, False, [], ret)
-
-        return ret
-
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """"""
-        results = []
+        results: List[Output] = []
         for c in self.compilation_unit.contracts_derived:
-            values = self.detect_costly_operations_in_loop(c)
+            values = detect_costly_operations_in_loop(c)
             for node in values:
                 func = node.function
                 info = [func, " has costly operations inside a loop:\n"]

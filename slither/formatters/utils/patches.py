@@ -1,9 +1,19 @@
 import os
 import difflib
+from typing import Dict, Tuple, Union
 from collections import defaultdict
 
+from slither.core.compilation_unit import SlitherCompilationUnit
 
-def create_patch(result, file, start, end, old_str, new_str):  # pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments
+def create_patch(
+    result: Dict,
+    file: str,
+    start: int,
+    end: int,
+    old_str: Union[str, bytes],
+    new_str: Union[str, bytes],
+) -> None:
     if isinstance(old_str, bytes):
         old_str = old_str.decode("utf8")
     if isinstance(new_str, bytes):
@@ -15,7 +25,7 @@ def create_patch(result, file, start, end, old_str, new_str):  # pylint: disable
         result["patches"][file].append(p)
 
 
-def apply_patch(original_txt, patch, offset):
+def apply_patch(original_txt: bytes, patch: Dict, offset: int) -> Tuple[bytes, int]:
     patched_txt = original_txt[: int(patch["start"] + offset)]
     patched_txt += patch["new_string"].encode("utf8")
     patched_txt += original_txt[int(patch["end"] + offset) :]
@@ -25,9 +35,11 @@ def apply_patch(original_txt, patch, offset):
     return patched_txt, patch_length_diff + offset
 
 
-def create_diff(slither, original_txt, patched_txt, filename):
-    if slither.crytic_compile:
-        relative_path = slither.crytic_compile.filename_lookup(filename).relative
+def create_diff(
+    compilation_unit: SlitherCompilationUnit, original_txt: bytes, patched_txt: bytes, filename: str
+) -> str:
+    if compilation_unit.crytic_compile:
+        relative_path = compilation_unit.crytic_compile.filename_lookup(filename).relative
         relative_path = os.path.join(".", relative_path)
     else:
         relative_path = filename

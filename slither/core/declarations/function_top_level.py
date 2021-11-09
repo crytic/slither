@@ -5,10 +5,9 @@ from typing import List, Tuple
 
 from slither.core.declarations import Function
 from slither.core.declarations.top_level import TopLevel
-from slither.core.source_mapping.source_mapping import SourceMapping
 
 
-class FunctionTopLevel(Function, TopLevel, SourceMapping):
+class FunctionTopLevel(Function, TopLevel):
     @property
     def canonical_name(self) -> str:
         """

@@ -20,6 +20,7 @@ class Variable(SourceMapping):
         self._initialized: Optional[bool] = None
         self._visibility: Optional[str] = None
         self._is_constant = False
+        self._is_immutable: bool = False
 
     @property
     def is_scalar(self) -> bool:
@@ -105,6 +106,19 @@ class Variable(SourceMapping):
             t = ElementaryType(t)
         assert isinstance(t, (Type, list)) or t is None
         self._type = t
+
+    @property
+    def is_immutable(self) -> bool:
+        """
+        Return true of the variable is immutable
+
+        :return:
+        """
+        return self._is_immutable
+
+    @is_immutable.setter
+    def is_immutable(self, immutablility: bool):
+        self._is_immutable = immutablility
 
     @property
     def function_name(self):

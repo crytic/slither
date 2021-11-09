@@ -1,6 +1,7 @@
 import abc
 import re
-from typing import Optional, List, TYPE_CHECKING
+from logging import Logger
+from typing import Optional, List, TYPE_CHECKING, Dict, Union, Callable
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
@@ -8,7 +9,7 @@ from slither.utils.colors import green, yellow, red
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.utils.comparable_enum import ComparableEnum
-from slither.utils.output import Output
+from slither.utils.output import Output, SupportedOutput
 
 if TYPE_CHECKING:
     from slither import Slither
@@ -25,8 +26,10 @@ class DetectorClassification(ComparableEnum):
     INFORMATIONAL = 3
     OPTIMIZATION = 4
 
+    UNIMPLEMENTED = 999
 
-classification_colors = {
+
+classification_colors: Dict[DetectorClassification, Callable[[str], str]] = {
     DetectorClassification.INFORMATIONAL: green,
     DetectorClassification.OPTIMIZATION: green,
     DetectorClassification.LOW: green,
@@ -46,8 +49,8 @@ classification_txt = {
 class AbstractDetector(metaclass=abc.ABCMeta):
     ARGUMENT = ""  # run the detector with slither.py --ARGUMENT
     HELP = ""  # help information
-    IMPACT: Optional[DetectorClassification] = None
-    CONFIDENCE: Optional[DetectorClassification] = None
+    IMPACT: DetectorClassification = DetectorClassification.UNIMPLEMENTED
+    CONFIDENCE: DetectorClassification = DetectorClassification.UNIMPLEMENTED
 
     WIKI = ""
 
@@ -58,7 +61,9 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     STANDARD_JSON = True
 
-    def __init__(self, compilation_unit: SlitherCompilationUnit, slither, logger):
+    def __init__(
+        self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
+    ):
         self.compilation_unit: SlitherCompilationUnit = compilation_unit
         self.contracts: List[Contract] = compilation_unit.contracts
         self.slither: "Slither" = slither
@@ -130,32 +135,25 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                 "CONFIDENCE is not initialized {}".format(self.__class__.__name__)
             )
 
-    def _log(self, info):
+    def _log(self, info: str) -> None:
         if self.logger:
             self.logger.info(self.color(info))
 
     @abc.abstractmethod
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """TODO Documentation"""
         return []
 
     # pylint: disable=too-many-branches
-    def detect(self):
-        results = []
+    def detect(self) -> List[Dict]:
+        results: List[Dict] = []
         # only keep valid result, and remove dupplicate
         # Keep only dictionaries
-        for r in [r.data for r in self._detect()]:
+        for r in [output.data for output in self._detect()]:
             if self.compilation_unit.core.valid_result(r) and r not in results:
                 results.append(r)
-        if results:
-            if self.logger:
-                info = "\n"
-                for idx, result in enumerate(results):
-                    if self.slither.triage_mode:
-                        info += "{}: ".format(idx)
-                    info += result["description"]
-                info += "Reference: {}".format(self.WIKI)
-                self._log(info)
+        if results and self.logger:
+            self._log_result(results)
         if self.compilation_unit.core.generate_patches:
             for result in results:
                 try:
@@ -205,20 +203,24 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                 if indexes.endswith("]"):
                     indexes = indexes[:-1]
                 try:
-                    indexes = [int(i) for i in indexes.split(",")]
+                    indexes_converted = [int(i) for i in indexes.split(",")]
                     self.slither.save_results_to_hide(
-                        [r for (idx, r) in enumerate(results) if idx in indexes]
+                        [r for (idx, r) in enumerate(results) if idx in indexes_converted]
                     )
-                    return [r for (idx, r) in enumerate(results) if idx not in indexes]
+                    return [r for (idx, r) in enumerate(results) if idx not in indexes_converted]
                 except ValueError:
                     self.logger.error(yellow("Malformed input. Example of valid input: 0,1,2,3"))
         return results
 
     @property
-    def color(self):
+    def color(self) -> Callable[[str], str]:
         return classification_colors[self.IMPACT]
 
-    def generate_result(self, info, additional_fields=None):
+    def generate_result(
+        self,
+        info: Union[str, List[Union[str, SupportedOutput]]],
+        additional_fields: Optional[Dict] = None,
+    ) -> Output:
         output = Output(
             info,
             additional_fields,
@@ -233,6 +235,15 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return output
 
     @staticmethod
-    def _format(_compilation_unit: SlitherCompilationUnit, _result):
+    def _format(_compilation_unit: SlitherCompilationUnit, _result: Dict) -> None:
         """Implement format"""
         return
+
+    def _log_result(self, results: List[Dict]) -> None:
+        info = "\n"
+        for idx, result in enumerate(results):
+            if self.slither.triage_mode:
+                info += "{}: ".format(idx)
+            info += result["description"]
+        info += "Reference: {}".format(self.WIKI)
+        self._log(info)
