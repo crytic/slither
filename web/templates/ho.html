@@ -1,0 +1,159 @@
+
+
+	{% extends "base.html" %} {% block title %}Sample{% endblock %} 
+	{% block content %}
+
+	<br>
+
+	<div class="container-fluid">
+		<div class="container min-vh-100">
+			<div class="jumbotron text-center">
+				<h1 class="text-gray-900">Bugs Detectors</h1>
+				<p class="text-gray-700">The Solidity static analysis framework.</p> 
+			</div>
+			
+			<div id="select" class="row">
+				<div class="col form-group">
+					<h3 class="text-gray-900">Printers</h3>
+					<select class="form-control text-gray-800"  id="select_printers" name="printers" method="GET" action="/">
+						<option value="{{printers[0]}}" selected>{{printers[0]}}</option>
+  						{% for printer in printers[1:] %}
+    						<option value="{{printer}}">{{printer}}</option>
+  						{% endfor %}
+					</select>
+				</div>
+				<div class="col form-group">
+					<h3 class="text-gray-900">Detectors</h3>
+					<select class="form-control  text-gray-800"  id="select_detectors" name="detectors">
+						<option value="{{detectors[0]}}" selected>{{detectors[0]}}</option>
+						{% for detector in detectors[1:] %}
+    						<option value= "{{detector}}">{{detector}}</option>"
+    					{% endfor %}
+					</select>
+					<select class="form-control"  id="select_no">
+						<option>------</option>
+					</select>
+				</div>
+				<div class="col form-group">
+					<h3 class="text-gray-900">Solc Versions</h3>
+					
+					<select class="form-control  text-gray-800" id="select_printers" name="solc">
+						<option value="{{solc[0]}}" selected>{{solc[0]}}</option>
+						{% for solc in solc[1:] %}
+    						<option value= "{{solc}}">{{solc}}</option>"
+    					{% endfor %}
+					</select>
+					</select>
+				</div>
+			</div>
+			
+
+			<br>
+			
+			<div class="card shadow mb-4">
+                <!-- Card Header - Accordion -->
+                <a href="#collapseCardExample" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                  <h6 class="m-0 font-weight-bold text-primary">Data Upload</h6>
+                </a>
+                <!-- Card Content - Collapse -->
+                <div class="collapse show" id="collapseCardExample">
+                  <div id="data_upload" class="card-body text-center">
+                    <form class="form" id="upload_form" method="post" enctype="multipart/form-data" type="file" onchange="validate_upload_filename(this)">
+						<input class="form-control-file border text-gray-900" id="result_data" name="result_data"  required type="file">
+						<h6>*僅接受 sol 格式的檔案</h6> 
+					<input class="btn btn-success" id="submit" name="submit" type="submit" value="Submit">
+					</form>
+                  </div>
+
+				  <div id="data_loading" class="loading_box text-center">
+					<button class="btn btn-success" disabled>
+						<span class="spinner-border spinner-border-sm"></span>
+						Loading..
+					</button>	
+				</div>
+                </div>
+              </div>
+			
+			</div>
+
+
+			<span id="textarea_id"></span>
+		</div>
+	</div>
+	
+	<script>
+
+		$(document).ready(function () {
+			$('#data_loading').hide();
+			$('#select_no').hide();
+			$('#select_printers').change(function () { ChangePrinters(); });
+		});
+	
+		function ChangePrinters() {
+			var selectedValue = $("#select_printers").find("option:selected").text();
+	
+			if ($.trim(selectedValue).length > 0) {
+				if (selectedValue == "default") {
+					$('#select_no').hide();
+					$('#select_detectors').show(); 
+				}
+				else {
+					$('#select_detectors').hide();
+					$('#select_no').show();            }
+	
+			}
+		}
+	</script>
+	
+
+	<script>
+		function validate_upload_filename(file){
+				
+		}
+	</script>
+
+	<!---->
+	<script>
+		const fileUploader = document.querySelector('#result_data');
+
+		fileUploader.addEventListener('change', (e) => {
+  		console.log(e.target.files); // get file object
+		});
+
+        $(document).on('submit', '#upload_form', function () {
+            var fullPath = document.getElementById('result_data');
+            var fileExp = /(.*?)\.(sol)$/;
+			
+			if ($('#result_data').val() == '') {
+                return false;
+            }
+
+			if (fullPath.value.toLowerCase().match(fileExp)) {
+				$('#data_upload').hide();
+            	$('#data_loading').show();
+				
+                return true;
+            } else {
+                document.getElementById('upload_form').reset();
+				alert("僅接受 sol 格式的檔案");
+                return false;
+            }
+			
+        });
+    </script>
+	{% endblock %}
+
+
+
+  </body>
+</html>
+
+{% block js %}
+{{ super() }}
+<!-- Page level plugins -->
+<script src="{{ url_for('static', filename='vendor/chart.js/Chart.min.js')}}"></script>
+
+<!-- Page level custom scripts -->
+<script src="{{ url_for('static', filename='js/demo/chart-area-demo.js')}}"></script>
+<script src="{{ url_for('static', filename='js/demo/chart-pie-demo.js')}}"></script>
+{% endblock %}

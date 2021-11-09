@@ -1,0 +1,82 @@
+{% extends "base.html" %} {% block title %}Sample{% endblock %} 
+{% block content %}
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <h1 class="h3 mb-4 text-gray-800">Result</h1>
+
+
+          <!-- Outer Row -->
+        <div class="row justify-content-center">
+
+          <div class="col-xl-10 col-lg-12 col-md-9">
+
+              <div class="card o-hidden border-0 shadow-lg my-5">
+                  <div class="card-body p-0">
+                      <!-- Nested Row within Card Body -->
+                      
+                              <div class="p-5">
+                                
+                                {% for title in title %}
+                                {% set h =  "#{0}".format(title) %}
+                                <div class="card shadow mb-4">
+                                    <!-- Card Header - Accordion -->
+                                    <a href="{{h}}" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                                      <h6 class="m-0 font-weight-bold text-primary">{{title}}</h6>
+                                    </a>
+                                    <!-- Card Content - Collapse -->
+                                    <div class="collapse show" id="{{title}}">
+                                      <div id="reseult" class="card-body ">
+                                        <table class="table table-bordered text-gray-900">
+                                            <thbody>
+                                                {% for data in data[title] %}
+                                                    <tr>
+                                                        <td align='center'>{{loop.index}}</td>
+                                                        <td>
+                                                            {% for data_slice in data %}
+                                                                {% if '\t' in data_slice %}
+                                                                    &emsp;
+                                                                {% endif %}
+                                                                {{data_slice}}
+                                                        </br>
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </thbody>
+                                        </table>
+                                     </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                  <hr>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+          </div>
+
+      </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+        
+      </div>
+      <!-- End of Main Content -->
+
+{% endblock %}
+
+{% block js %}
+{{ super() }}
+<!-- Page level plugins -->
+<script src="{{ url_for('static', filename='vendor/chart.js/Chart.min.js')}}"></script>
+
+<!-- Page level custom scripts -->
+<script src="{{ url_for('static', filename='js/demo/chart-area-demo.js')}}"></script>
+<script src="{{ url_for('static', filename='js/demo/chart-pie-demo.js')}}"></script>
+{% endblock %}
