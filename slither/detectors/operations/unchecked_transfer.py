@@ -4,11 +4,11 @@ Module detecting unused transfer/transferFrom return values from external calls
 
 from slither.core.declarations import Function
 from slither.detectors.abstract_detector import DetectorClassification
-from slither.detectors.operations.unused_return_values import UnusedReturnValues
+from slither.detectors.operations.unchecked_send_return_value import UncheckedSend
 from slither.slithir.operations import HighLevelCall
 
 
-class UncheckedTransfer(UnusedReturnValues):
+class UncheckedTransfer(UncheckedSend):
     """
     If the return value of a transfer/transferFrom function is never used, it's likely to be bug
     """

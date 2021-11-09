@@ -80,7 +80,6 @@ contract Crowdsale{
                     if isinstance(ir, Balance):
                         taints.append(ir.lvalue)
                     if isinstance(ir, HighLevelCall):
-                        # print(ir.function.full_name)
                         if (
                             isinstance(ir.function, Function)
                             and ir.function.full_name == "balanceOf(address)"

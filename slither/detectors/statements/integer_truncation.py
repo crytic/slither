@@ -1,6 +1,5 @@
 from collections import defaultdict
-from slither.core.variables.variable import Variable
-from slither.slithir.variables import ReferenceVariable, TemporaryVariable, reference
+from slither.slithir.variables import ReferenceVariable, TemporaryVariable
 from slither.slithir.operations import Binary, BinaryType, TypeConversion, Index
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, N, Uint
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
@@ -19,7 +18,10 @@ def detect_conversions(nodes):
     for node in nodes:
         for ir in node.irs:
             # a[i]
-            if isinstance(ir, Index) and isinstance(ir.lvalue.type, ElementaryType):
+            if isinstance(ir, Index):
+                if not isinstance(ir.lvalue.type, ElementaryType):
+                    continue
+
                 (var, index) = ir.read
                 if isinstance(index, (ReferenceVariable, TemporaryVariable)) and (index in tmps):
                     index = tmps[index]
@@ -58,7 +60,7 @@ def detect_conversions(nodes):
                         condition_nodes += [(left, type)]  
 
 
-            elif isinstance(ir, TypeConversion):
+            elif isinstance(ir, TypeConversion) and isinstance(ir.type, ElementaryType):
                 if node.contains_if() or node.contains_require_or_assert():
                     var = ir.variable
                     if isinstance(var, (ReferenceVariable, TemporaryVariable)) and (var in tmps):
@@ -97,13 +99,13 @@ class Truncation(AbstractDetector):
     """
 
     ARGUMENT = 'truncation' # slither will launch the detector with slither.py --detect mydetector
-    HELP = 'truncation'
-    IMPACT = DetectorClassification.HIGH
+    HELP = 'Integer truncation'
+    IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
 
     # region wiki
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#truncation'
-    WIKI_TITLE = 'Wrong Operator'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#integer_truncation'
+    WIKI_TITLE = 'Integer Truncation'
     WIKI_DESCRIPTION = 'In *Solidity*, a loss of accuracy may occur when (1) a longer integer is cast to a shorter one, (2)unsigned integer types are converted to the corresponding signed integer types, (3)signed integer types are converted to the corresponding unsigned integer types.'
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
@@ -116,9 +118,6 @@ contract Truncation {
     }
 }
 ```
-```
-```
-```
 """
     WIKI_RECOMMENDATION = 'Check the variable type to be converted'
     # endregion wiki
@@ -129,8 +128,6 @@ contract Truncation {
             conversions = []
 
             for f in c.functions_declared:
-                if not f.entry_point:
-                    continue
 
                 f_results = detect_conversions(f.nodes)
 

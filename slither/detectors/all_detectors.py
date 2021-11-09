@@ -79,10 +79,6 @@ from .statements.unary import IncorrectUnaryExpressionDetection
 from .operations.missing_zero_address_validation import MissingZeroAddressValidation
 from .functions.dead_code import DeadCode
 from .statements.write_after_write import WriteAfterWrite
-from .statements.uint_overflow_add import UintOverflowADD
-from .statements.uint_overflow_mul import UintOverfloMUL
-from .statements.uint_underflow_sub import UintUnderflow
-from .statements.integer_truncation import Truncation
-#from .statements.integer_truncation import LossORMisinterpretedData
+
 #
 #

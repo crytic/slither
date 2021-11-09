@@ -123,7 +123,7 @@ class SlitherCore(Context):
 
     @property
     def source_code(self) -> Dict[str, str]:
-        """ {filename: source_code (str)}: source code """
+        """{filename: source_code (str)}: source code"""
         return self._raw_source_code
 
     @property

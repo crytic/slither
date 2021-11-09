@@ -2,11 +2,11 @@
 Module detecting unused return values from low level
 """
 from slither.detectors.abstract_detector import DetectorClassification
-from slither.detectors.operations.unused_return_values import UnusedReturnValues
+from slither.detectors.operations.unchecked_send_return_value import UncheckedSend
 from slither.slithir.operations import LowLevelCall
 
 
-class UncheckedLowLevel(UnusedReturnValues):
+class UncheckedLowLevel(UncheckedSend):
     """
     If the return value of a send is not checked, it might lead to losing ether
     """

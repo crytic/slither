@@ -1,6 +1,5 @@
 """
     Module detecting dangerous use of block.timestamp
-
 """
 from typing import List, Tuple
 
@@ -12,32 +11,44 @@ from slither.core.declarations.solidity_variables import (
     SolidityVariable,
 )
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Binary, BinaryType
+from slither.slithir.operations import Binary, BinaryType, Assignment
 
-
+constructor_value = []
 def _timestamp(func: Function) -> List[Node]:
     ret = set()
+    unused_var = {}
     for node in func.nodes:
-        if node.contains_require_or_assert():
-            for var in node.variables_read:
-                if is_dependent(var, SolidityVariableComposed("block.timestamp"), func.contract):
-                    ret.add(node)
-                if is_dependent(var, SolidityVariable("now"), func.contract):
-                    ret.add(node)
-        for ir in node.irs:
-            if isinstance(ir, Binary) and BinaryType.return_bool(ir.type):
-                for var in ir.read:
-                    if is_dependent(
-                        var, SolidityVariableComposed("block.timestamp"), func.contract
-                    ):
+        for var in node.variables_read:
+            if (
+                is_dependent(var, SolidityVariableComposed("block.timestamp"), func.contract)
+                or is_dependent(var, SolidityVariable("now"), func.contract)
+            ):
+                if func.name == "slitherConstructorVariables":
+                    declared_value = node._state_vars_written[0]
+                    if declared_value.name not in constructor_value:
+                        constructor_value.append(declared_value.name )
                         ret.add(node)
-                    if is_dependent(var, SolidityVariable("now"), func.contract):
+
+                elif len(node.irs) == 1:
+                    ir = node.irs[0]
+                    if isinstance(ir, Assignment):
+                        unused_var[ir.lvalue] = node
+                    else:
+                        if var in unused_var:
+                            ret.add(unused_var[var])
                         ret.add(node)
+
+                else:
+                    if var in unused_var:
+                        ret.add(unused_var[var])
+                    ret.add(node)
+
     return sorted(list(ret), key=lambda x: x.node_id)
 
 
+
 def _detect_dangerous_timestamp(
-    contract: Contract,
+    contract: Contract
 ) -> List[Tuple[Function, List[Node]]]:
     """
     Args:
@@ -49,7 +60,11 @@ def _detect_dangerous_timestamp(
     for f in [f for f in contract.functions if f.contract_declarer == contract]:
         nodes = _timestamp(f)
         if nodes:
-            ret.append((f, nodes))
+            if f.name == "slitherConstructorVariables":
+                ret += [(n,[]) for n in nodes]
+            else:
+                ret.append((f, []))
+            
     return ret
 
 
@@ -75,11 +90,10 @@ class Timestamp(AbstractDetector):
 
         for c in self.contracts:
             dangerous_timestamp = _detect_dangerous_timestamp(c)
+
             for (func, nodes) in dangerous_timestamp:
 
-                info = [func, " uses timestamp for comparisons\n"]
-
-                info += ["\tDangerous comparisons:\n"]
+                info = [func, "\n"] #, " uses timestamp for comparisons\n"]
 
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)

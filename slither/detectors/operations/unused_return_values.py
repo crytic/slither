@@ -80,14 +80,16 @@ contract MyConc{
             for f in c.functions + c.modifiers:
                 if f.contract_declarer != c:
                     continue
+
                 unused_return = self.detect_unused_return_values(f)
+
                 if unused_return:
+                    info = [f, " ignores return value by\n "]
 
                     for node in unused_return:
-                        info = [f, " ignores return value by ", node, "\n"]
-
-                        res = self.generate_result(info)
-
-                        results.append(res)
+                        info += ["\t- ", node, "\n"]
+                    
+                    res = self.generate_result(info)
+                    results.append(res)
 
         return results

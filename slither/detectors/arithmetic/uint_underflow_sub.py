@@ -1,8 +1,9 @@
 from collections import defaultdict
 from slither.core.solidity_types.elementary_type import ElementaryType, Uint
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Binary, Assignment, BinaryType, Index, TypeConversion
+from slither.slithir.operations import Binary, Assignment, BinaryType, Index, TypeConversion, lvalue
 from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable
+from slither.detectors.arithmetic.temp_and_reference_variables import Handle_TmpandRefer
 
 
 def is_sub(ir):
@@ -97,76 +98,55 @@ def detect_underflow(nodes):
     f_results = []
     bigs = defaultdict(list)
     smalls = defaultdict(list)
-    tmps = defaultdict(list)
-
+    tmps = Handle_TmpandRefer()
+    is_constant = []
+    
     for node in nodes:
         for ir in node.irs:
-            if isinstance(ir, Index) and isinstance(ir.lvalue.type, ElementaryType):
-                if ir.lvalue.type.name in Uint:
-                    (var, index) = ir.read
+            temp_vars = tmps.temp
 
-                    # avoid unhashable type "Constant"
-                    if isinstance(index, Constant):
-                        index = index.name
+            if isinstance(ir, Index):
+                tmps.handle_index(ir)
 
-                    if isinstance(index, (ReferenceVariable, TemporaryVariable)) and (index in tmps):
-                        index = tmps[index]
-                        if len(index) == 1:
-                            index = index[0]
+            elif isinstance(ir, TypeConversion):
+                tmps.handle_conversion(ir)
 
-                    tmps[ir.lvalue] = (var, index)
-
-            elif isinstance(ir, TypeConversion) and (ir.lvalue.type.name in Uint):
-                if isinstance(ir.variable, Constant):
-                    continue
-                
-                var = ir.variable
-                only = 0
-
-                if isinstance(var, (ReferenceVariable, TemporaryVariable)) and (var in tmps):
-                        var = tmps[var]
-                        if len(var) == 1:
-                            var = var[0]
-                        else:
-                            only += 1
-
-                if only == 0:
-                    tmps[ir.lvalue] = [var]
-                else:
-                    tmps[ir.lvalue] = var
-
-            if isinstance(ir, Assignment) and (ir.lvalue.type.name in Uint):
+            elif isinstance(ir, Assignment):
                 if not isinstance(ir.rvalue, Constant):
                     right = ir.rvalue
-                    if isinstance(right, (ReferenceVariable, TemporaryVariable)) and (right in tmps):
-                        right = tmps[right]
+                    if isinstance(right, (ReferenceVariable, TemporaryVariable)) and (right in temp_vars):
+                        right = temp_vars[right]
                         if len(right) == 1:
                             right = right[0]
             
                     if (right in bigs) or (right in smalls):
                         if right in bigs:
-                            assign_value(1, ir.lvalue, right, node, bigs[right], bigs, smalls, tmps)
+                            assign_value(1, ir.lvalue, right, node, bigs[right], bigs, smalls, temp_vars)
                         if right in smalls:
-                            assign_value(2, ir.lvalue, right, node, smalls[right], bigs, smalls, tmps)
+                            assign_value(2, ir.lvalue, right, node, smalls[right], bigs, smalls, temp_vars)
                     else:
-                        delete_changed_value(ir.lvalue, bigs, smalls, tmps)
+                        delete_changed_value(ir.lvalue, bigs, smalls, temp_vars)
                 else:
-                    delete_changed_value(ir.lvalue, bigs, smalls, tmps)
+                    delete_changed_value(ir.lvalue, bigs, smalls, temp_vars)
 
             # tmp = a - b
             # a = a - b
-            if is_sub(ir) and (ir.lvalue.type.name in Uint):
+            elif is_sub(ir):
                 (left, right) = ir.read
                 if (isinstance(left, Constant)) or (isinstance(right, Constant)):
+                    is_constant += [ir.lvalue]
+                    continue
+                if (left in is_constant) or (right in is_constant):
+                    is_constant += [ir.lvalue]
                     continue
 
-                if isinstance(left, (ReferenceVariable, TemporaryVariable)) and (left in tmps):
-                    left = tmps[left]
+                if isinstance(left, (ReferenceVariable, TemporaryVariable)) and (left in temp_vars):
+                    left = temp_vars[left]
                     if len(left) == 1:
                         left = left[0]
 
-                if isinstance(right, (ReferenceVariable, TemporaryVariable)) and (right in tmps):
-                    right = tmps[right]
+                if isinstance(right, (ReferenceVariable, TemporaryVariable)) and (right in temp_vars):
+                    right = temp_vars[right]
                     if len(right) == 1:
                         right = right[0]
 
@@ -174,15 +154,31 @@ def detect_underflow(nodes):
 
                 if flag == False:
                     f_results += [node]
-                delete_changed_value(ir.lvalue, bigs, smalls, tmps)
+                delete_changed_value(ir.lvalue, bigs, smalls, temp_vars)
+
+            elif  isinstance(ir, Binary):
+                if ir.type in [
+                    BinaryType.POWER,
+                    BinaryType.ADDITION,
+                    BinaryType.MODULO,
+                    BinaryType.MULTIPLICATION,
+                    BinaryType.DIVISION,
+                ]:
+                    (left, right) = ir.read
+                    if (isinstance(left, Constant)) or (isinstance(right, Constant)):
+                        is_constant += [ir.lvalue]
+                        continue
+                    if (left in is_constant) or (right in is_constant):
+                        is_constant += [ir.lvalue]
+                        continue
 
             # a >= b
-            if is_greater_equal(ir):
-                log_compared_variable(node, ir, bigs, smalls, tmps)
+            elif is_greater_equal(ir):
+                log_compared_variable(node, ir, bigs, smalls, temp_vars)
 
             # a <= b
-            if is_less_equal(ir):
-                log_compared_variable(node, ir, smalls, bigs, tmps)
+            elif is_less_equal(ir):
+                log_compared_variable(node, ir, smalls, bigs, temp_vars)
 
     return f_results
 
@@ -221,13 +217,10 @@ contract Overflow {
         results = []
         for c in self.contracts:
             underflow = []
-
+            
             for f in c.functions_declared:
-                if not f.entry_point:
-                    continue
-
                 f_results = detect_underflow(f.nodes)
-
+                
                 if f_results:
                     underflow.append((f, f_results))
 

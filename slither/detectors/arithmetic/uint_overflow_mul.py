@@ -1,8 +1,9 @@
 from collections import defaultdict
 from slither.core.solidity_types.elementary_type import ElementaryType, Uint
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Binary, Assignment, BinaryType, Index, TypeConversion, LibraryCall
+from slither.slithir.operations import Binary, Assignment, BinaryType, Index, TypeConversion, LibraryCall, lvalue
 from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable
+from slither.detectors.arithmetic.temp_and_reference_variables import Handle_TmpandRefer
 
 
 def is_mul(ir):
@@ -74,80 +75,62 @@ def assign_value(pos, left, right, node, assign_node, results, arguments, tmps, 
 def detect_overflow(nodes):
     results = defaultdict(list)
     arguments = defaultdict(list)
-    tmps = defaultdict(list)
+    tmps = Handle_TmpandRefer()
     safe_nodes = []
     unuse_nodes = []
+    is_constant = []
 
     for node in nodes:
         for ir in node.irs:
+            temp_vars = tmps.temp
+
             #a[i]
-            if isinstance(ir, Index) and isinstance(ir.lvalue.type, ElementaryType):
-                if ir.lvalue.type.name in Uint:
-                    (var, index) = ir.read
-
-                    # avoid unhashable type "Constant"
-                    if isinstance(index, Constant):
-                        index = index.name
-
-                    if isinstance(index, (ReferenceVariable, TemporaryVariable)) and (index in tmps):
-                        index = tmps[index]
-                        if len(index) == 1:
-                            index = index[0]
-
-                    tmps[ir.lvalue] = (var, index)
+            if isinstance(ir, Index):
+                tmps.handle_index(ir)
 
             #uint(a)
-            elif isinstance(ir, TypeConversion) and (ir.lvalue.type.name in Uint):
-                if isinstance(ir.variable, Constant):
-                    continue
-
-                var = ir.variable
-                only = 0
-
-                if isinstance(var, (ReferenceVariable, TemporaryVariable)) and (var in tmps):
-                        var = tmps[var]
-                        if len(var) == 1:
-                            var = var[0]
-                        else:
-                            only += 1
-
-                if only == 0:
-                    tmps[ir.lvalue] = [var]
-                else:
-                    tmps[ir.lvalue] = var
+            elif isinstance(ir, TypeConversion):
+                tmps.handle_conversion(ir)
 
             #a = tmp, c = a
-            elif isinstance(ir, Assignment) and (ir.lvalue.type.name in Uint):
+            elif isinstance(ir, Assignment):
+                if not isinstance(ir.lvalue.type, ElementaryType) or (ir.lvalue.type.name not in Uint):
+                    continue
+
                 if not isinstance(ir.rvalue, Constant):
                     right = ir.rvalue
-                    if isinstance(right, (ReferenceVariable, TemporaryVariable)) and (right in tmps):
-                        right = tmps[right]
+                    if isinstance(right, (ReferenceVariable, TemporaryVariable)) and (right in temp_vars):
+                        right = temp_vars[right]
                         if len(right) == 1:
                             right = right[0]
             
                     if (right in results) or (right in arguments):
                         if right in results:
-                            assign_value(1, ir.lvalue, right, node, results[right], results, arguments, tmps, unuse_nodes)
+                            assign_value(1, ir.lvalue, right, node, results[right], results, arguments, temp_vars, unuse_nodes)
                         if right in arguments:
-                            assign_value(2, ir.lvalue, right, node, arguments[right], results, arguments, tmps, unuse_nodes)
+                            assign_value(2, ir.lvalue, right, node, arguments[right], results, arguments, temp_vars, unuse_nodes)
                     else:
-                        delete_changed_value(ir.lvalue, results, arguments, tmps, unuse_nodes)
+                        delete_changed_value(ir.lvalue, results, arguments, temp_vars, unuse_nodes)
                 else:
-                    delete_changed_value(ir.lvalue, results, arguments, tmps, unuse_nodes)
+                    delete_changed_value(ir.lvalue, results, arguments, temp_vars, unuse_nodes)
             
             #(tmp|var) = (tmp|ref|var) * (tmp|ref|var)
-            elif is_mul(ir) and (ir.lvalue.type.name in Uint):
+            elif is_mul(ir):
                 (left, right) = ir.read
                 if (isinstance(left, Constant)) or (isinstance(right, Constant)):
+                    is_constant += [ir.lvalue]
+                    continue
+                if (left in is_constant) or (right in is_constant):
+                    is_constant += [ir.lvalue]
                     continue
 
-                if isinstance(left, (ReferenceVariable, TemporaryVariable)) and (left in tmps):
-                    left = tmps[left]
+                if isinstance(left, (ReferenceVariable, TemporaryVariable)) and (left in temp_vars):
+                    left = temp_vars[left]
                     if len(left) == 1:
                         left = left[0]
 
-                if isinstance(right, (ReferenceVariable, TemporaryVariable)) and (right in tmps):
-                    right = tmps[right]
+                if isinstance(right, (ReferenceVariable, TemporaryVariable)) and (right in temp_vars):
+                    right = temp_vars[right]
                     if len(right) == 1:
                         right = right[0]
                 
@@ -155,8 +138,8 @@ def detect_overflow(nodes):
                 arguments[right] += [node]
 
                 res = ir.lvalue
-                if isinstance(res, ReferenceVariable) and (res in tmps):
-                    res = tmps[res]
+                if isinstance(res, ReferenceVariable) and (res in temp_vars):
+                    res = temp_vars[res]
                 if res in arguments:
                     arguments.pop(res)
 
@@ -167,23 +150,26 @@ def detect_overflow(nodes):
                 
             #tmp = c/a
             elif is_div(ir):
-                (left, right) = ir.read
+                if isinstance(ir, LibraryCall):
+                    (left, right) = ir.arguments
+                else:
+                    (left, right) = ir.read
                 if (isinstance(left, Constant)) or (isinstance(right, Constant)):
                     continue
 
-                if isinstance(left, (ReferenceVariable, TemporaryVariable)) and (left in tmps):
-                    left = tmps[left]
+                if isinstance(left, (ReferenceVariable, TemporaryVariable)) and (left in temp_vars):
+                    left = temp_vars[left]
                     if len(left) == 1:
                         left = left[0]
 
-                if isinstance(right, (ReferenceVariable, TemporaryVariable)) and (right in tmps):
-                    right = tmps[right]
+                if isinstance(right, (ReferenceVariable, TemporaryVariable)) and (right in temp_vars):
+                    right = temp_vars[right]
                     if len(right) == 1:
                         right = right[0]
 
                 if (left in results) and (right in arguments):
                     if results[left][0] in arguments[right]:
-                        tmps[ir.lvalue] = (left, right)
+                        tmtemp_varsps[ir.lvalue] = (left, right)
 
             #tmp == b  or  tmp != b
             #b == tmp  or  b != tmp
@@ -196,13 +182,13 @@ def detect_overflow(nodes):
                 res = None
                 pos = 0
                 if isinstance(left, TemporaryVariable):
-                    if (left in tmps) and (len(tmps[left]) == 2):
-                        (r, a) = tmps[left]
+                    if (left in temp_vars) and (len(temp_vars[left]) == 2):
+                        (r, a) = temp_vars[left]
                         if (r in results) and (a in arguments):
                             if isinstance(right, Constant):
                                 right = right.name
-                            if isinstance(right, (ReferenceVariable, TemporaryVariable)) and (right in tmps):
-                                right = tmps[right]
+                            if isinstance(right, (ReferenceVariable, TemporaryVariable)) and (right in temp_vars):
+                                right = temp_vars[right]
 
                             if a == right:
                                 continue
@@ -210,16 +196,16 @@ def detect_overflow(nodes):
                             pos += 1
 
                         else:
-                            left = tmps[left]
+                            left = temp_vars[left]
 
                 if isinstance(right, TemporaryVariable):
-                    if (right in tmps) and (len(tmps[right]) == 2):
-                        (r, a) = tmps[right]
+                    if (right in temp_vars) and (len(temp_vars[right]) == 2):
+                        (r, a) = temp_vars[right]
                         if (r in results) and (a in arguments):
                             if isinstance (left, Constant):
                                 left = left.name
-                            if isinstance(left, (ReferenceVariable, TemporaryVariable)) and (left in tmps):
-                                left = tmps[left]
+                            if isinstance(left, (ReferenceVariable, TemporaryVariable)) and (left in temp_vars):
+                                left = temp_vars[left]
 
                             if a == left:
                                 continue
@@ -227,7 +213,7 @@ def detect_overflow(nodes):
                             pos += 2
 
                         else:
-                            right = tmps[right]
+                            right = temp_vars[right]
 
 
                 if (res == None) and (pos >= 3):
@@ -245,6 +231,21 @@ def detect_overflow(nodes):
                         safe_nodes += [res_nodes[0]]
                         results.pop(res)
 
+            elif  isinstance(ir, Binary):
+                if ir.type in [
+                    BinaryType.POWER,
+                    BinaryType.ADDITION,
+                    BinaryType.MODULO,
+                    BinaryType.SUBTRACTION,
+                    BinaryType.DIVISION,
+                ]:
+                    (left, right) = ir.read
+                    if (isinstance(left, Constant)) or (isinstance(right, Constant)):
+                        is_constant += [ir.lvalue]
+                        continue
+                    if (left in is_constant) or (right in is_constant):
+                        is_constant += [ir.lvalue]
+                        continue
 
     f_results = []
     for key in results:
