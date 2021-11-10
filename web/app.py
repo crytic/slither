@@ -61,14 +61,8 @@ solc = ['0.8.6','0.8.5','0.8.4','0.8.3','0.8.2','0.8.1','0.8.0',
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.',1)[1] in ALLOWED_EXTENSIONS
 
-
-list=[]
 @app.route('/detect_file', methods=['POST'])
-def upload_file():
-	solc = '0.8.6'
-	#ids = request.form['id']
-	#id_list = json.loads(ids)
-	#print("data : ",ids)
+def detect_file():
 	if request.method == 'POST':
 		detector=request.form.get('str')
 		solc = request.form['select_solc']
@@ -94,7 +88,7 @@ def upload_file():
 
 			total_cmd = solc_cmd + " && " + tool_cmd + det_cmd + json_cmd
 			os.system(total_cmd)
-			#return redirect(url_for('upload_file',filename=filename))
+			
 			json_url = "{0}.json".format(os.path.join(app.config['UPLOAD_FOLDER'] , filename))
 
 			with open(json_url,'r') as reader :
@@ -106,11 +100,9 @@ def upload_file():
 
 			data={}
 			title=[]
-			collaspe={}
 			for i in range(len(jf['results']['detectors'])):
 				str1 = "{0}".format(jf['results']['detectors'][i]['check'])
 				str2 = "{0}".format(jf['results']['detectors'][i]['description'])
-				str3 = "#{0}".format(jf['results']['detectors'][i]['check'])
 
 				str2 = str2.split('\n')
 
@@ -120,31 +112,101 @@ def upload_file():
 				
 				else:
 					title.append(str1)
-					collaspe[str1]=str3
 					data[str1] = [str2]
 
-				collapse_href = "#collapseCard{0}".format(title)
-				collapse_id = "collapseCard{0}".format(title)
-
-			#data = json.loads(json_url)
-			#print("data:",data)
-		return render_template('result.html',data=data,title=title,collapse_href=collapse_href,collapse_id=collapse_id)
+		return render_template('result.html',data=data,title=title)
 			
-
-
 @app.route('/detect_file', methods=['GET','POST'])
 def detect_file_dropdown_list():
 	return render_template('detect_file.html', detectors=detectors,solc = solc)
 
 
 
+@app.route('/detect_address', methods=['POST'])
+def detect_address():
+	if request.method == 'POST':
+		detector=request.form.get('str')
+		solc = request.form['select_solc']
+		addr = request.form['address']
+
+		solc_cmd = "solc-select use {0}".format(solc)
+
+		tool_cmd = "slither  {0}".format(addr)
+
+		det_cmd = ""
+		if detector != "":
+			det_cmd = "  --detect {0}".format(detector)
+
+		json_cmd = "  --json {0}.json".format(os.path.join(app.config['UPLOAD_FOLDER'] , addr))
+
+		total_cmd = solc_cmd + " && " + tool_cmd + det_cmd + json_cmd
+		os.system(total_cmd)
+		json_url = "{0}.json".format(os.path.join(app.config['UPLOAD_FOLDER'] , addr))
+
+		with open(json_url,'r') as reader :
+			jf=json.loads(reader.read())
+
+
+		if jf['success'] == False:
+			return render_template('fail.html')
+
+		data={}
+		title=[]
+		for i in range(len(jf['results']['detectors'])):
+			str1 = "{0}".format(jf['results']['detectors'][i]['check'])
+			str2 = "{0}".format(jf['results']['detectors'][i]['description'])
+
+			str2 = str2.split('\n')
+
+			if len(title) > 0 and str1 == title[-1]:
+				data[str1] += [str2]
+				continue
+				
+			else:
+				title.append(str1)
+				data[str1] = [str2]
+
+	return render_template('result.html',data=data,title=title)
+
 @app.route('/detect_address', methods=['GET','POST'])
 def detect_address_dropdown_list():
 	return render_template('detect_address.html', detectors=detectors,solc=solc)
 
+
+
+@app.route('/print_file', methods=['POST'])
+def print_file():
+	if request.method == 'POST':
+		#solc = request.form['select_solc']
+		printer=request.form['printers']
+		file = request.files['result_data']   #get file 
+		
+		if file and allowed_file(file.filename):
+			#avoid Directory traversal attack 
+			#Ex : /../../../filename
+			filename = secure_filename(file.filename)
+
+			f=os.path.join(app.config['UPLOAD_FOLDER'] , filename)
+			file.save(f)
+			#solc_cmd = "solc-select use {0}".format(solc)
+
+			tool_cmd = "slither  {0} --print {1}".format(f,printer)
+
+			dot_cmd = " && dot {0}.{1}.dot -Tpng -o {2}.png".format(f,printer,f)
+
+			total_cmd = tool_cmd + dot_cmd
+			os.system(total_cmd)
+
+			img_url = "/files/{0}.png".format(filename)
+
+			return render_template('img.html', img_url=img_url)
+
+
 @app.route('/print_file', methods=['GET','POST'])
 def print_file_dropdown_list():
-	return render_template('print_file.html', printers=printers)
+	return render_template('print_file.html', printers=printers,solc=solc)
+
+
 
 @app.route('/print_address', methods=['GET','POST'])
 def print_address_dropdown_list():

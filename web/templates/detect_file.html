@@ -64,7 +64,7 @@
                                         
                                             <input class="form-control-file border text-gray-900" id="result_data" name="result_data"  required type="file">
                                             <h6>*僅接受 sol 格式的檔案</h6> 
-                                        <input class="btn btn-success" id="submit" name="submit" onclick="send()"  type="submit" value="Submit">
+                                        <input class="btn btn-success" id="submit" name="submit"  type="submit" value="Submit">
                                     </div>
                         </form>
                                       
@@ -97,17 +97,11 @@
       </div>
       <!-- End of Main Content -->
 
-      <script type=text/javascript>
-        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-      </script>
-      
-
-
       <script>
         var  select_detector_list=[];
 		$(document).ready(function () {
 			$('#data_loading').hide();
-			$('#select_no').hide();
+            $('#str').hide();
 			$('#select_printers').change(function () { ChangePrinters(); });
             
 		});
@@ -170,20 +164,6 @@
 			if (fullPath.value.toLowerCase().match(fileExp)) {
 				$('#data_upload').hide();
             	$('#data_loading').show();
-				var haha={
-                data:JSON.stringify({'id' : select_detector_list})
-            };
-            var data={'detectors' : "123"}
-            $.ajax({
-                    type:"POST",
-                    async:false,
-                    url:"/detector_file",
-                    data: JSON.stringify(data),
-                    dataType:'json',
-                    success:function(data){
-                        alert(data)
-                    }
-                });
                 return true;
             } else {
                 document.getElementById('upload_form').reset();

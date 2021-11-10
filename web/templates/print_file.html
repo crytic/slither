@@ -16,7 +16,7 @@
               <div class="card o-hidden border-0 shadow-lg my-5">
                   <div class="card-body p-0">
                       <!-- Nested Row within Card Body -->
-                      
+                      <form class="form" id="upload_form" method="post" enctype="multipart/form-data" type="file">
                               <div class="p-5">
                                 <div class="row form-group ">
                                     <h3 class="text-gray-900">Choose Printers</h3>
@@ -27,20 +27,41 @@
                                           {% endfor %}
                                     </select>
                                 </div>
+                                <div class="row form-group ">
+                                    <h3 class="text-gray-900">Choose Solidity Compiler</h3>
+                                        <select  class="form-control  text-gray-800" id="select_solc" name="select_solc">
+                                            <option value="{{solc[0]}}" selected>{{solc[0]}}</option>
+                                            {% for solc in solc[1:] %}
+                                                <option value= "{{solc}}">{{solc}}</option>"
+                                            {% endfor %}
+                                        </select>
+                                </div>
                                 <br>
-                                  <div class="">
-                                      <h3 class=" text-gray-900 mb-2">Past Your Contract Address</h3    >
-            
-                                  </div>
-                                  <form class="user">
-                                      <div class="form-group">
-                                          <input class="form-control form-control-user"
-                                              placeholder="Enter Contract Address...">
-                                      </div>
-                                      <a href="login.html" class="btn btn-primary btn-user btn-block">
-                                          Print
-                                      </a>
+                                  
+                                  <hr>
+
+                                  <div class="card shadow mb-4">
+                                    <!-- Card Header - Accordion -->
+                                    <a href="#collapseCardExample" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                                      <h6 class="m-0 font-weight-bold text-primary">Data Upload</h6>
+                                    </a>
+                                    <!-- Card Content - Collapse -->
+                                    <div class="collapse show" id="collapseCardExample">
+                                      <div id="data_upload" class="card-body text-center">
+                                        
+                                            <input class="form-control-file border text-gray-900" id="result_data" name="result_data"  required type="file">
+                                            <h6>*僅接受 sol 格式的檔案</h6> 
+                                        <input class="btn btn-success" id="submit" name="submit"  type="submit" value="Submit">
+                                    </div>
                                   </form>
+
+                                  <div id="data_loading" class="loading_box text-center">
+                                    <button class="btn btn-success" disabled>
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                        Loading..
+                                    </button>	
+                                </div>
+
                                   <hr>
                               </div>
                           </div>
@@ -59,6 +80,42 @@
       </div>
       <!-- End of Main Content -->
 
+      <script>
+        var  select_detector_list=[];
+		$(document).ready(function () {
+			$('#data_loading').hide();
+            
+		});
+
+        const fileUploader = document.querySelector('#result_data');
+
+		fileUploader.addEventListener('change', (e) => {
+  		console.log(e.target.files); // get file object
+		});
+
+        //$(document).on('submit', '#upload_form', function () {
+        $('#upload_form').submit(function(){
+            var fullPath = document.getElementById('result_data');
+            var fileExp = /(.*?)\.(sol)$/;
+			
+			if ($('#result_data').val() == '') {
+                return false;
+            }
+
+			if (fullPath.value.toLowerCase().match(fileExp)) {
+				$('#data_upload').hide();
+            	$('#data_loading').show();
+                return true;
+            } else {
+                document.getElementById('upload_form').reset();
+				alert("僅接受 sol 格式的檔案");
+                return false;
+            }
+            
+            
+			document.getElementById('upload_form').reset();
+        });
+        </script>
 {% endblock %}
 
 {% block js %}

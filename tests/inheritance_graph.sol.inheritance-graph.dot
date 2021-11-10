@@ -1,0 +1,31 @@
+digraph "" {
+TestContractVar[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>TestContractVar</B></TD></TR></TABLE> >];
+
+A[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>A</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    getValue()</TD></TR><TR><TD align="left">    notRedefined()</TD></TR><TR><TD align="left">    testFunction()</TD></TR><TR><TD align="left"><I>Modifiers:</I></TD></TR><TR><TD align="left">    testModifier()</TD></TR><TR><TD align="left"><I>Public Variables:</I></TD></TR><TR><TD align="left">    public_var</TD></TR><TR><TD align="left">    public_contract<font color="blue" POINT-SIZE="10"> (TestContractVar)</font></TD></TR><TR><TD align="left">    shadowed_public_var</TD></TR><TR><TD align="left">    shadowed_public_contract<font color="blue" POINT-SIZE="10"> (TestContractVar)</font></TD></TR><TR><TD align="left"><I>Private Variables:</I></TD></TR><TR><TD align="left">    private_var</TD></TR><TR><TD align="left">    private_contract<font color="blue" POINT-SIZE="10"> (TestContractVar)</font></TD></TR><TR><TD align="left">    shadowed_private_var</TD></TR><TR><TD align="left">    shadowed_private_contract<font color="blue" POINT-SIZE="10"> (TestContractVar)</font></TD></TR></TABLE> >];
+
+B -> A;
+B[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>B</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left"><font color="#FFA500">    getValue()</font></TD></TR></TABLE> >];
+
+Good -> A [ label="1" ];
+Good -> B [ label="2" ];
+Good[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>Good</B></TD></TR><TR><TD><BR/></TD></TR><TR><TD align="left" border="1"><font color="#777777" point-size="10">'getValue()' collides in inherited contracts A, B where B is chosen.</font></TD></TR></TABLE> >];
+
+C -> A;
+C[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left"><font color="#FFA500">    getValue()</font></TD></TR></TABLE> >];
+
+D -> B;
+D[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>D</B></TD></TR><TR><TD align="left"><I>Public Variables:</I></TD></TR><TR><TD align="left"><font color="red">    shadowed_public_var</font></TD></TR><TR><TD align="left"><font color="red">    shadowed_public_contract</font><font color="blue" POINT-SIZE="10"> (TestContractVar)</font></TD></TR><TR><TD align="left"><I>Private Variables:</I></TD></TR><TR><TD align="left"><font color="red">    shadowed_private_var</font></TD></TR><TR><TD align="left"><font color="red">    shadowed_private_contract</font><font color="blue" POINT-SIZE="10"> (TestContractVar)</font></TD></TR></TABLE> >];
+
+E[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>E</B></TD></TR><TR><TD align="left"><I>Modifiers:</I></TD></TR><TR><TD align="left">    testModifier()</TD></TR><TR><TD align="left"><I>Public Variables:</I></TD></TR><TR><TD align="left">    public_var</TD></TR><TR><TD align="left">    public_contract<font color="blue" POINT-SIZE="10"> (TestContractVar)</font></TD></TR><TR><TD align="left"><I>Private Variables:</I></TD></TR><TR><TD align="left">    private_var</TD></TR><TR><TD align="left">    private_contract<font color="blue" POINT-SIZE="10"> (TestContractVar)</font></TD></TR></TABLE> >];
+
+F -> B;
+F[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>F</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left"><font color="#FFA500">    getValue()</font></TD></TR><TR><TD align="left"><I>Modifiers:</I></TD></TR><TR><TD align="left"><font color="#FFA500">    testModifier()</font></TD></TR><TR><TD align="left"><I>Public Variables:</I></TD></TR><TR><TD align="left"><font color="red">    shadowed_public_var</font></TD></TR><TR><TD align="left"><font color="red">    shadowed_public_contract</font><font color="blue" POINT-SIZE="10"> (TestContractVar)</font></TD></TR><TR><TD align="left"><I>Private Variables:</I></TD></TR><TR><TD align="left"><font color="red">    shadowed_private_var</font></TD></TR><TR><TD align="left"><font color="red">    shadowed_private_contract</font><font color="blue" POINT-SIZE="10"> (TestContractVar)</font></TD></TR></TABLE> >];
+
+G -> B [ label="1" ];
+G -> C [ label="2" ];
+G -> D [ label="3" ];
+G -> E [ label="4" ];
+G -> F [ label="5" ];
+G[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>G</B></TD></TR><TR><TD align="left"><I>Public Variables:</I></TD></TR><TR><TD align="left"><font color="red">    shadowed_public_var</font></TD></TR><TR><TD align="left"><font color="red">    shadowed_public_contract</font><font color="blue" POINT-SIZE="10"> (TestContractVar)</font></TD></TR><TR><TD align="left"><I>Private Variables:</I></TD></TR><TR><TD align="left"><font color="red">    shadowed_private_var</font></TD></TR><TR><TD><BR/></TD></TR><TR><TD align="left" border="1"><font color="#777777" point-size="10">'getValue()' collides in inherited contracts C, B, B, F where F is chosen.</font></TD></TR></TABLE> >];
+
+}
