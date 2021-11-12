@@ -33,6 +33,7 @@ wheels/
 *.spec
 
 dataset/
+sol/
 
 
 # Installer logs
