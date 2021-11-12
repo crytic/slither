@@ -44,11 +44,7 @@ The array length is calculated for each loop, but the array length remains the s
         used_node = []
         tmp_n=[]
         tmp_id=[]
-        print("-------------")
-        print(f.name)
-        for n in f.nodes:
-            print(n.expression)
-            print(n.source_mapping['lines'])
+
         nodes = f.nodes
         id = 0
         while True:
