@@ -1,7 +1,4 @@
 from collections import defaultdict
-from typing import List
-from slither.slithir.operations import Index, TypeConversion
-from slither.slithir.operations.length import Length
 from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable
 
 class Handle_TmpandRefer():

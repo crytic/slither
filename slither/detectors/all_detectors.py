@@ -90,5 +90,7 @@ from .TOD.tod_receiver import TODReciver
 from .TOD.tod_tranfer import TODTransfer
 from .variables.del_dynamic_array import DeleteDynamicArrayElement
 from .statements.do_while import ContinueInDoWhile
+from .parameters.collishion_hash import HashCollision
+from .parameters.signature_use_wrong_para import SigWrongPara
 #
 #

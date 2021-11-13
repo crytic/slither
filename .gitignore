@@ -32,8 +32,7 @@ wheels/
 *.manifest
 *.spec
 
-dataset/
-sol/
+
 
 
 # Installer logs
@@ -111,3 +110,6 @@ ENV/
 
 # Test results
 test_artifacts/
+
+dataset/
+sol/
