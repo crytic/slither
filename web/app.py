@@ -1,6 +1,7 @@
 from collections import defaultdict
 from flask import Flask,render_template,request,redirect, templating,url_for,jsonify,json
 import os,sys
+from flask.helpers import make_response
 import jinja2.exceptions
 from werkzeug.utils import secure_filename
 import json
@@ -78,7 +79,7 @@ def detect_file():
 
 			solc_cmd = "solc-select use {0}".format(solc)
 
-			tool_cmd = "slither  {0}".format(UPLOAD_FOLDER+filename)
+			tool_cmd = "slither  {0} ".format(UPLOAD_FOLDER+filename)
 
 			det_cmd = ""
 			if detector != "":
@@ -98,13 +99,36 @@ def detect_file():
 			if jf['success'] == False:
 				return render_template('fail.html')
 
+			if jf['results']=={}:
+				return render_template('no_bugs.html')
+
 			data={}
 			title=[]
+			total_num=0
+			optimization_num=0
+			informational_num=0
+			low_num=0
+			medium_num=0
+			high_num=0
 			for i in range(len(jf['results']['detectors'])):
 				str1 = "{0}".format(jf['results']['detectors'][i]['check'])
 				str2 = "{0}".format(jf['results']['detectors'][i]['description'])
 
 				str2 = str2.split('\n')
+
+				total_num+=1
+				impact=jf['results']['detectors'][i]['impact']
+				if impact=="Optimization":
+					optimization_num+=1
+				elif impact=="Informational":
+					informational_num+=1
+				elif impact=="Low":
+					low_num+=1
+				elif impact=="Medium":
+					medium_num+=1
+				else:
+					high_num+=1
+
 
 				if len(title) > 0 and str1 == title[-1]:
 					data[str1] += [str2]
@@ -114,7 +138,8 @@ def detect_file():
 					title.append(str1)
 					data[str1] = [str2]
 
-		return render_template('result.html',data=data,title=title)
+		return render_template('result.html',data=data,title=title,total_num=total_num,optimization_num=optimization_num,
+					informational_num=informational_num,low_num=low_num,medium_num=medium_num,high_num=high_num)
 			
 @app.route('/detect_file', methods=['GET','POST'])
 def detect_file_dropdown_list():
@@ -194,10 +219,11 @@ def print_file():
 
 			dot_cmd = " && dot {0}.{1}.dot -Tpng -o {2}.png".format(f,printer,f)
 
-			total_cmd = tool_cmd + dot_cmd
+			rm_cmd = " && mv {0}.png ./static/images/".format(f)
+			total_cmd = tool_cmd + dot_cmd + rm_cmd
 			os.system(total_cmd)
 
-			img_url = "/files/{0}.png".format(filename)
+			img_url = "./static/images/{0}.png".format(filename)
 
 			return render_template('img.html', img_url=img_url)
 

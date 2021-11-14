@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block title %}Sample{% endblock %}
+{% block content %}
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- The Modal -->
+  <div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Result of number</h4>
+          <button type="button" class="close" data-dismiss="modal">×</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <h5>Total: {{total_num}}</h5>
+          <h5>Optimization: 0</h5>
+          <h5>Informational: 0</h5>
+          <h5>Low: 0</h5>
+          <h5>Medium: 0</h5>
+          <h5>High: 0</h5>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <div class="text-center">
+    <div class="error mx-auto">Nice</div>
+    <p class="lead text-gray-800 mb-5">We don't find any vulnerability.</p>
+    <a href="detect_file">&larr; Back to detect</a>
+  </div>
+
+</div>
+<!-- /.container-fluid -->
+
+</div>
+<!-- End of Main Content -->
+
+{% endblock %}
