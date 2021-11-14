@@ -1,6 +1,7 @@
 from collections import defaultdict
 from flask import Flask,render_template,request,redirect, templating,url_for,jsonify,json
 import os,sys
+from flask.helpers import make_response
 import jinja2.exceptions
 from werkzeug.utils import secure_filename
 import json
@@ -61,14 +62,8 @@ solc = ['0.8.6','0.8.5','0.8.4','0.8.3','0.8.2','0.8.1','0.8.0',
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.',1)[1] in ALLOWED_EXTENSIONS
 
-
-list=[]
 @app.route('/detect_file', methods=['POST'])
-def upload_file():
-	solc = '0.8.6'
-	#ids = request.form['id']
-	#id_list = json.loads(ids)
-	#print("data : ",ids)
+def detect_file():
 	if request.method == 'POST':
 		detector=request.form.get('str')
 		solc = request.form['select_solc']
@@ -84,7 +79,7 @@ def upload_file():
 
 			solc_cmd = "solc-select use {0}".format(solc)
 
-			tool_cmd = "slither  {0}".format(UPLOAD_FOLDER+filename)
+			tool_cmd = "slither  {0} ".format(UPLOAD_FOLDER+filename)
 
 			det_cmd = ""
 			if detector != "":
@@ -94,7 +89,7 @@ def upload_file():
 
 			total_cmd = solc_cmd + " && " + tool_cmd + det_cmd + json_cmd
 			os.system(total_cmd)
-			#return redirect(url_for('upload_file',filename=filename))
+			
 			json_url = "{0}.json".format(os.path.join(app.config['UPLOAD_FOLDER'] , filename))
 
 			with open(json_url,'r') as reader :
@@ -104,15 +99,36 @@ def upload_file():
 			if jf['success'] == False:
 				return render_template('fail.html')
 
+			if jf['results']=={}:
+				return render_template('no_bugs.html')
+
 			data={}
 			title=[]
-			collaspe={}
+			total_num=0
+			optimization_num=0
+			informational_num=0
+			low_num=0
+			medium_num=0
+			high_num=0
 			for i in range(len(jf['results']['detectors'])):
 				str1 = "{0}".format(jf['results']['detectors'][i]['check'])
 				str2 = "{0}".format(jf['results']['detectors'][i]['description'])
-				str3 = "#{0}".format(jf['results']['detectors'][i]['check'])
 
 				str2 = str2.split('\n')
+
+				total_num+=1
+				impact=jf['results']['detectors'][i]['impact']
+				if impact=="Optimization":
+					optimization_num+=1
+				elif impact=="Informational":
+					informational_num+=1
+				elif impact=="Low":
+					low_num+=1
+				elif impact=="Medium":
+					medium_num+=1
+				else:
+					high_num+=1
+
 
 				if len(title) > 0 and str1 == title[-1]:
 					data[str1] += [str2]
@@ -120,31 +136,103 @@ def upload_file():
 				
 				else:
 					title.append(str1)
-					collaspe[str1]=str3
 					data[str1] = [str2]
 
-				collapse_href = "#collapseCard{0}".format(title)
-				collapse_id = "collapseCard{0}".format(title)
-
-			#data = json.loads(json_url)
-			#print("data:",data)
-		return render_template('result.html',data=data,title=title,collapse_href=collapse_href,collapse_id=collapse_id)
+		return render_template('result.html',data=data,title=title,total_num=total_num,optimization_num=optimization_num,
+					informational_num=informational_num,low_num=low_num,medium_num=medium_num,high_num=high_num)
 			
-
-
 @app.route('/detect_file', methods=['GET','POST'])
 def detect_file_dropdown_list():
 	return render_template('detect_file.html', detectors=detectors,solc = solc)
 
 
 
+@app.route('/detect_address', methods=['POST'])
+def detect_address():
+	if request.method == 'POST':
+		detector=request.form.get('str')
+		solc = request.form['select_solc']
+		addr = request.form['address']
+
+		solc_cmd = "solc-select use {0}".format(solc)
+
+		tool_cmd = "slither  {0}".format(addr)
+
+		det_cmd = ""
+		if detector != "":
+			det_cmd = "  --detect {0}".format(detector)
+
+		json_cmd = "  --json {0}.json".format(os.path.join(app.config['UPLOAD_FOLDER'] , addr))
+
+		total_cmd = solc_cmd + " && " + tool_cmd + det_cmd + json_cmd
+		os.system(total_cmd)
+		json_url = "{0}.json".format(os.path.join(app.config['UPLOAD_FOLDER'] , addr))
+
+		with open(json_url,'r') as reader :
+			jf=json.loads(reader.read())
+
+
+		if jf['success'] == False:
+			return render_template('fail.html')
+
+		data={}
+		title=[]
+		for i in range(len(jf['results']['detectors'])):
+			str1 = "{0}".format(jf['results']['detectors'][i]['check'])
+			str2 = "{0}".format(jf['results']['detectors'][i]['description'])
+
+			str2 = str2.split('\n')
+
+			if len(title) > 0 and str1 == title[-1]:
+				data[str1] += [str2]
+				continue
+				
+			else:
+				title.append(str1)
+				data[str1] = [str2]
+
+	return render_template('result.html',data=data,title=title)
+
 @app.route('/detect_address', methods=['GET','POST'])
 def detect_address_dropdown_list():
 	return render_template('detect_address.html', detectors=detectors,solc=solc)
 
+
+
+@app.route('/print_file', methods=['POST'])
+def print_file():
+	if request.method == 'POST':
+		#solc = request.form['select_solc']
+		printer=request.form['printers']
+		file = request.files['result_data']   #get file 
+		
+		if file and allowed_file(file.filename):
+			#avoid Directory traversal attack 
+			#Ex : /../../../filename
+			filename = secure_filename(file.filename)
+
+			f=os.path.join(app.config['UPLOAD_FOLDER'] , filename)
+			file.save(f)
+			#solc_cmd = "solc-select use {0}".format(solc)
+
+			tool_cmd = "slither  {0} --print {1}".format(f,printer)
+
+			dot_cmd = " && dot {0}.{1}.dot -Tpng -o {2}.png".format(f,printer,f)
+
+			rm_cmd = " && mv {0}.png ./static/images/".format(f)
+			total_cmd = tool_cmd + dot_cmd + rm_cmd
+			os.system(total_cmd)
+
+			img_url = "./static/images/{0}.png".format(filename)
+
+			return render_template('img.html', img_url=img_url)
+
+
 @app.route('/print_file', methods=['GET','POST'])
 def print_file_dropdown_list():
-	return render_template('print_file.html', printers=printers)
+	return render_template('print_file.html', printers=printers,solc=solc)
+
+
 
 @app.route('/print_address', methods=['GET','POST'])
 def print_address_dropdown_list():

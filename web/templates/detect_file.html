@@ -1,200 +1,170 @@
-{% extends "base.html" %} {% block title %}Sample{% endblock %} 
+{% extends "base.html" %} {% block title %}Sample{% endblock %}
 {% block content %}
 
-        <!-- Begin Page Content -->
-        <div class="container-fluid">
+<!-- Begin Page Content -->
+<div class="container-fluid">
 
-          <!-- Page Heading -->
-          <h1 class="h3 mb-4 text-gray-800">Detectors</h1>
+    <!-- Page Heading -->
+    <h1 class="h3 mb-4 text-gray-800">Detectors</h1>
 
 
-          <!-- Outer Row -->
-        <div class="row justify-content-center">
+    <!-- Outer Row -->
+    <div class="row justify-content-center">
 
-          <div class="col-xl-10 col-lg-12 col-md-9">
+        <div class="col-xl-10 col-lg-12 col-md-9">
 
-              <div class="card o-hidden border-0 shadow-lg my-5">
-                  <div class="card-body p-0">
-                      <!-- Nested Row within Card Body -->
-                        <form class="form" id="upload_form" method="post" enctype="multipart/form-data" type="file">
-                              <div class="p-5">
-                                <div class="row form-group ">
-                                    <h3 class="text-gray-900">Choose Detectors</h3>
-					                <select class="form-control  text-gray-800"  id="select_detectors" name="detectors">
-						                <option value="{{detectors[0]}}" selected>{{detectors[0]}}</option>
-						                {% for detector in detectors[1:] %}
-    						                <option value= "{{detector}}">{{detector}}</option>"
-    					                {% endfor %}
-					                </select>
-                                    
+            <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card-body p-0">
+
+                    <form class="form" id="upload_form" method="post" enctype="multipart/form-data" type="file">
+                        <div class="p-5">
+                            <div class="row form-group ">
+                                <h3 class="text-gray-900">Choose Detectors</h3>
+                                <select class="form-control  text-gray-800" id="select_detectors" name="detectors">
+                                    <option value="{{detectors[0]}}" selected>{{detectors[0]}}</option>
+                                    {% for detector in detectors[1:] %}
+                                    <option value="{{detector}}">{{detector}}</option>"
+                                    {% endfor %}
+                                </select>
+
                                 <div class="row form-group "></div>
-                                    <button id="btn_add" onclick="createDetector()"type="button"class="btn btn-primary btn-block btn-user">
-                                       Add
-                                    </button>
+                                <button id="btn_add" onclick="createDetector()" type="button"
+                                    class="btn btn-primary btn-block btn-user">
+                                    Add
+                                </button>
 
-                                    </script>
-                                </div>
+                                </script>
+                            </div>
 
-                                <div class="row form-group ">
-                                    <h3 class="text-gray-900">Choose Solidity Compiler</h3>
-                                        <select  class="form-control  text-gray-800" id="select_solc" name="select_solc">
-                                            <option value="{{solc[0]}}" selected>{{solc[0]}}</option>
-                                            {% for solc in solc[1:] %}
-                                                <option value= "{{solc}}">{{solc}}</option>"
-                                            {% endfor %}
-                                        </select>
-                                </div>
+                            <div class="row form-group ">
+                                <h3 class="text-gray-900">Choose Solidity Compiler</h3>
+                                <select class="form-control  text-gray-800" id="select_solc" name="select_solc">
+                                    <option value="{{solc[0]}}" selected>{{solc[0]}}</option>
+                                    {% for solc in solc[1:] %}
+                                    <option value="{{solc}}">{{solc}}</option>"
+                                    {% endfor %}
+                                </select>
+                            </div>
 
-                                <div class="row " id="detector_list"></div>
+                            <div class="row " id="detector_list"></div>
 
-                                <input id="str" name="str"  class="form-control form-control-user">
+                            <input id="str" name="str" class="form-control form-control-user">
 
-                                <br>
-                                  
-                                  <hr>
+                            <br>
 
-                                  <div class="card shadow mb-4">
-                                    <!-- Card Header - Accordion -->
-                                    <a href="#collapseCardExample" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
-                                      <h6 class="m-0 font-weight-bold text-primary">Data Upload</h6>
-                                    </a>
-                                    <!-- Card Content - Collapse -->
-                                    <div class="collapse show" id="collapseCardExample">
-                                      <div id="data_upload" class="card-body text-center">
-                                        
-                                            <input class="form-control-file border text-gray-900" id="result_data" name="result_data"  required type="file">
-                                            <h6>*僅接受 sol 格式的檔案</h6> 
-                                        <input class="btn btn-success" id="submit" name="submit" onclick="send()"  type="submit" value="Submit">
+                            <hr>
+
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Accordion -->
+                                <a href="#collapseCardExample" class="d-block card-header py-3" data-toggle="collapse"
+                                    role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                                    <h6 class="m-0 font-weight-bold text-primary">Data Upload</h6>
+                                </a>
+                                <!-- Card Content - Collapse -->
+                                <div class="collapse show" id="collapseCardExample">
+                                    <div id="data_upload" class="card-body text-center">
+
+                                        <input class="form-control-file border text-gray-900" id="result_data"
+                                            name="result_data" required type="file">
+                                        <h6>*僅接受 sol 格式的檔案</h6>
+                                        <input class="btn btn-success" id="submit" name="submit" type="submit"
+                                            value="Submit">
                                     </div>
-                        </form>
-                                      
-                    
-                                      <div id="data_loading" class="loading_box text-center">
-                                        <button class="btn btn-success" disabled>
-                                            <span class="spinner-border spinner-border-sm"></span>
-                                            Loading..
-                                        </button>	
-                                    </div>
-                                    
-                                </div>
+                    </form>
 
-                                <br>
-                                
 
-                          </div>
-                      </div>
-                  </div>
-              </div>
+                    <div id="data_loading" class="loading_box text-center">
+                        <button class="btn btn-success" disabled>
+                            <span class="spinner-border spinner-border-sm"></span>
+                            Loading..
+                        </button>
+                    </div>
 
-          </div>
+                </div>
 
-      </div>
+                <br>
 
+
+            </div>
         </div>
-        <!-- /.container-fluid -->
+    </div>
 
-        
-      </div>
-      <!-- End of Main Content -->
+</div>
 
-      <script type=text/javascript>
-        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-      </script>
-      
+<script>
+    var select_detector_list = [];
+    $(document).ready(function () {
+        $('#data_loading').hide();
+        $('#str').hide();
+    });
 
 
-      <script>
-        var  select_detector_list=[];
-		$(document).ready(function () {
-			$('#data_loading').hide();
-			$('#select_no').hide();
-			$('#select_printers').change(function () { ChangePrinters(); });
-            
-		});
-	
-		
-        function createDetector(){
+    function createDetector() {
 
-            var e = document.getElementById("select_detectors");
-            var detector = e.options[e.selectedIndex].text;
+        var e = document.getElementById("select_detectors");
+        var detector = e.options[e.selectedIndex].text;
 
-            flag=1;
-            for(i=0;i<=select_detector_list.length;i++){
-                if(select_detector_list[i]==detector){
-                    flag=0;
-                }
+        flag = 1;
+        for (i = 0; i <= select_detector_list.length; i++) {
+            if (select_detector_list[i] == detector) {
+                flag = 0;
             }
-            if(flag==1){
-                select_detector_list.push(detector);
-                var $btn = $("<div class='my-2'> \n\
-                        <button id='haha' value='"+detector+"' href='' class='delete btn btn-danger btn-icon-split'> \n\
+        }
+        if (flag == 1) {
+            select_detector_list.push(detector);
+            var $btn = $("<div class='my-2'> \n\
+                        <button id='haha' value='"+ detector + "' href='' class='delete btn btn-danger btn-icon-split'> \n\
                             <span class='icon text-white-50'> \n\
                                 <i class='fas fa-trash'></i> \n\
                             </span> \n\
-                            <span class='text'>"+detector + "</span> \n\
+                            <span class='text'>"+ detector + "</span> \n\
                         </bytton></div><p>&nbsp;</p>");
-                    $btn.appendTo($("#detector_list"));
-                    str.value=select_detector_list.toString();
-                    
-            }
-            
-            $('.delete').click(function () {
-                var del = $(this).val()
+            $btn.appendTo($("#detector_list"));
+            str.value = select_detector_list.toString();
 
-                select_detector_list = select_detector_list.filter(function(item){
-                    return item != del
-                });
-                
-                $(this).remove();
-                str.value=select_detector_list.toString();
-                
-            });
-            
         }
-	
-		const fileUploader = document.querySelector('#result_data');
 
-		fileUploader.addEventListener('change', (e) => {
-  		console.log(e.target.files); // get file object
-		});
+        $('.delete').click(function () {
+            var del = $(this).val()
 
-        //$(document).on('submit', '#upload_form', function () {
-        $('#upload_form').submit(function(){
-            var fullPath = document.getElementById('result_data');
-            var fileExp = /(.*?)\.(sol)$/;
-			
-			if ($('#result_data').val() == '') {
-                return false;
-            }
+            select_detector_list = select_detector_list.filter(function (item) {
+                return item != del
+            });
 
-			if (fullPath.value.toLowerCase().match(fileExp)) {
-				$('#data_upload').hide();
-            	$('#data_loading').show();
-				var haha={
-                data:JSON.stringify({'id' : select_detector_list})
-            };
-            var data={'detectors' : "123"}
-            $.ajax({
-                    type:"POST",
-                    async:false,
-                    url:"/detector_file",
-                    data: JSON.stringify(data),
-                    dataType:'json',
-                    success:function(data){
-                        alert(data)
-                    }
-                });
-                return true;
-            } else {
-                document.getElementById('upload_form').reset();
-				alert("僅接受 sol 格式的檔案");
-                return false;
-            }
-            
-            
-			document.getElementById('upload_form').reset();
+            $(this).remove();
+            str.value = select_detector_list.toString();
+
         });
-    </script>
+
+    }
+
+    const fileUploader = document.querySelector('#result_data');
+
+    fileUploader.addEventListener('change', (e) => {
+        console.log(e.target.files); // get file object
+    });
+
+    //$(document).on('submit', '#upload_form', function () {
+    $('#upload_form').submit(function () {
+        var fullPath = document.getElementById('result_data');
+        var fileExp = /(.*?)\.(sol)$/;
+
+        if ($('#result_data').val() == '') {
+            return false;
+        }
+
+        if (fullPath.value.toLowerCase().match(fileExp)) {
+            $('#data_upload').hide();
+            $('#data_loading').show();
+
+            return true;
+        } else {
+            document.getElementById('upload_form').reset();
+            alert("僅接受 sol 格式的檔案");
+            return false;
+        }
+    });
+</script>
 {% endblock %}
 
 {% block js %}

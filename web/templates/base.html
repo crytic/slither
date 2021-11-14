@@ -6,25 +6,28 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Slither</title>
-	<link rel="icon" href="{{url_for('static',filename='images/icon.png')}}">
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	
-	<!-- Jquery -->
-    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+  <link rel="icon" href="{{url_for('static',filename='images/icon.png')}}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Jquery -->
+  <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+    crossorigin="anonymous"></script>
 
 
-<!-- Bootstrap CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 
-	<!-- Custom fonts for this template-->
-	<link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css') }}">
-	<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-  
-	<!-- Custom styles for this template-->
-	<link rel="stylesheet" href="{{ url_for('static', filename='css/sb-admin-2.min.css') }}">
+  <!-- Custom fonts for this template-->
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css') }}">
+  <link
+    href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+    rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/sb-admin-2.min.css') }}">
   {% endblock %}
 </head>
 
@@ -62,7 +65,8 @@
 
       <!-- Nav Item - Pages Collapse Menu -->
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseTwo">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true"
+          aria-controls="collapseTwo">
           <i class="fas fa-fw fa-chart-area"></i>
           <span>Analysis</span>
         </a>
@@ -76,7 +80,8 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true"
+          aria-controls="collapseTwo">
           <i class="fas fa-fw fa-chart-area"></i>
           <span>Printers</span>
         </a>
@@ -99,7 +104,8 @@
 
       <!-- Nav Item - Pages Collapse Menu -->
       <li class="nav-item">
-        <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
+        <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true"
+          aria-controls="collapsePages">
           <i class="fas fa-fw fa-folder"></i>
           <span>Documents</span>
         </a>
@@ -124,45 +130,45 @@
     </ul>
     <!-- End of Sidebar -->
 
-          {% block content %} {% endblock %}
+    {% block content %} {% endblock %}
 
-<!-- Content Wrapper -->
-<div id="content-wrapper" class="d-flex flex-column">
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
 
-  <!-- Main Content -->
-  <div id="content">
-      <!-- Footer -->
-      <footer class="sticky-footer bg-white">
-        <div class="container my-auto">
-          <div class="copyright text-center my-auto">
-            <span>Copyright &copy; Slither 2021</span>
+      <!-- Main Content -->
+      <div id="content">
+        <!-- Footer -->
+        <footer class="sticky-footer bg-white">
+          <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+              <span>Copyright &copy; Slither 2021</span>
+            </div>
           </div>
-        </div>
-      </footer>
-      <!-- End of Footer -->
+        </footer>
+        <!-- End of Footer -->
+
+      </div>
+      <!-- End of Content Wrapper -->
 
     </div>
-    <!-- End of Content Wrapper -->
+    <!-- End of Page Wrapper -->
 
-  </div>
-  <!-- End of Page Wrapper -->
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fas fa-angle-up"></i>
+    </a>
+    {% block js %}
+    <!-- Bootstrap core JavaScript-->
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
 
-  <!-- Scroll to Top Button-->
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>
-  {% block js %}
-  <!-- Bootstrap core JavaScript-->
-  <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js')}}"></script>
-  <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="{{ url_for('static', filename='vendor/jquery-easing/jquery.easing.min.js')}}"></script>
 
-  <!-- Core plugin JavaScript-->
-  <script src="{{ url_for('static', filename='vendor/jquery-easing/jquery.easing.min.js')}}"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="{{ url_for('static', filename='js/sb-admin-2.min.js')}}"></script>
 
-  <!-- Custom scripts for all pages-->
-  <script src="{{ url_for('static', filename='js/sb-admin-2.min.js')}}"></script>
-
-  {% endblock %}
+    {% endblock %}
 </body>
 
 </html>
