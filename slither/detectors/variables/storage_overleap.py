@@ -134,9 +134,14 @@ function UpdateBonusCodeAt(uint idx, uint c) external {
                     continue
                 
                 for var in values:
-                    info = [var, " cause writing to arbitrary storage location.\n",]
+                    if var in values_rec:
+                        values.remove(var)
+                        continue
 
+                    info = [var, " cause writing to arbitrary storage location.\n",]
                     res = self.generate_result(info)
                     results.append(res)
+                
+                values_rec += values
 
         return results
