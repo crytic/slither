@@ -55,6 +55,7 @@ solc = ['0.8.6','0.8.5','0.8.4','0.8.3','0.8.2','0.8.1','0.8.0',
 		'0.4.12','0.4.11','0.4.10','0.4.9','0.4.8','0.4.7',
 		'0.4.6','0.4.5','0.4.4','0.4.3','0.4.2','0.4.1','0.4.0']
 
+net = ['ethereum','ropsten','kovan','rinkeby','goerli']
 
 
 #insure security of upload file (avoid user upload virus...)
@@ -153,10 +154,14 @@ def detect_address():
 		detector=request.form.get('str')
 		solc = request.form['select_solc']
 		addr = request.form['address']
+		net = request.form['select_net']
 
 		solc_cmd = "solc-select use {0}".format(solc)
 
-		tool_cmd = "slither  {0}".format(addr)
+		if net=='ethereum':
+			tool_cmd = "slither  {0}".format(addr)
+		else:
+			tool_cmd = "slither  {0}:{1}".format(net,addr)
 
 		det_cmd = ""
 		if detector != "":
@@ -175,13 +180,36 @@ def detect_address():
 		if jf['success'] == False:
 			return render_template('fail.html')
 
+		if jf['results']=={}:
+				return render_template('no_bugs.html')
+
 		data={}
 		title=[]
+		total_num=0
+		optimization_num=0
+		informational_num=0
+		low_num=0
+		medium_num=0
+		high_num=0
 		for i in range(len(jf['results']['detectors'])):
 			str1 = "{0}".format(jf['results']['detectors'][i]['check'])
 			str2 = "{0}".format(jf['results']['detectors'][i]['description'])
 
 			str2 = str2.split('\n')
+
+
+			total_num+=1
+			impact=jf['results']['detectors'][i]['impact']
+			if impact=="Optimization":
+				optimization_num+=1
+			elif impact=="Informational":
+				informational_num+=1
+			elif impact=="Low":
+				low_num+=1
+			elif impact=="Medium":
+				medium_num+=1
+			else:
+				high_num+=1
 
 			if len(title) > 0 and str1 == title[-1]:
 				data[str1] += [str2]
@@ -191,11 +219,12 @@ def detect_address():
 				title.append(str1)
 				data[str1] = [str2]
 
-	return render_template('result.html',data=data,title=title)
+	return render_template('result.html',data=data,title=title,total_num=total_num,optimization_num=optimization_num,
+					informational_num=informational_num,low_num=low_num,medium_num=medium_num,high_num=high_num)
 
 @app.route('/detect_address', methods=['GET','POST'])
 def detect_address_dropdown_list():
-	return render_template('detect_address.html', detectors=detectors,solc=solc)
+	return render_template('detect_address.html', detectors=detectors,solc=solc,net=net)
 
 
 

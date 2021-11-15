@@ -110,7 +110,7 @@
                 flag = 0;
             }
         }
-        if (flag == 1) {
+        if (flag == 1 && detector!="all") {
             select_detector_list.push(detector);
             var $btn = $("<div class='my-2'> \n\
                         <button id='haha' value='"+ detector + "' href='' class='delete btn btn-danger btn-icon-split'> \n\
