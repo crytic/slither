@@ -45,6 +45,16 @@
                                         </select>
                                 </div>
 
+                                <div class="row form-group ">
+                                    <h3 class="text-gray-900">Choose Net</h3>
+                                        <select  class="form-control  text-gray-800" id="select_net" name="select_net">
+                                            <option value="{{net[0]}}" selected>{{net[0]}}</option>
+                                            {% for net in net[1:] %}
+                                                <option value= "{{net}}">{{net}}</option>"
+                                            {% endfor %}
+                                        </select>
+                                </div>
+
                                 <div class="row " id="detector_list"></div>
 
                                 <input id="str" name="str"  class="form-control form-control-user">
@@ -109,7 +119,7 @@
                     flag=0;
                 }
             }
-            if(flag==1){
+            if(flag==1 && detector!="all"){
                 select_detector_list.push(detector);
                 var $btn = $("<div class='my-2'> \n\
                         <button id='haha' value='"+detector+"' href='' class='delete btn btn-danger btn-icon-split'> \n\
