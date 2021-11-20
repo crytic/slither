@@ -1,0 +1,9 @@
+digraph{
+0[label="Node Type: OTHER_ENTRYPOINT 0
+
+EXPRESSION:
+val = 0
+
+IRs:
+val(uint256) := 0(uint256)"];
+}

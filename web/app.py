@@ -5,7 +5,7 @@ from flask.helpers import make_response
 import jinja2.exceptions
 from werkzeug.utils import secure_filename
 import json
-import numpy
+import re
 
 UPLOAD_FOLDER = './files/'
 ALLOWED_EXTENSIONS = set(['sol'])
@@ -19,10 +19,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def index():
 	return render_template('index.html')
 
-printers = ['default','call-graph', 'cfg', 'constructor-calls', 'contract-summary','data-dependency',
-            'echidna','evm','function-id','function-summary','human-summary',
-            'inheritance','inheritance-graph','modifiers','require','slithir',
-            'slithir-ssa','variable-order','vars-and-auth']
+printers = ['call-graph', 'cfg', 'constructor-calls', 'contract-summary','data-dependency',
+            'function-id','human-summary','inheritance','inheritance-graph','slithir','vars-and-auth']
 
 detectors = ['all','abiencoderv2-array','arbitrary-send','array-by-reference',
 			'assembly','assert-state-change','boolean-cst','boolean-equal',
@@ -62,6 +60,8 @@ net = ['ethereum','ropsten','kovan','rinkeby','goerli']
 #check file sub filename
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.',1)[1] in ALLOWED_EXTENSIONS
+
+
 
 @app.route('/detect_file', methods=['POST'])
 def detect_file():
@@ -144,6 +144,8 @@ def detect_file():
 			
 @app.route('/detect_file', methods=['GET','POST'])
 def detect_file_dropdown_list():
+	rm_cmd = "rm -fr ./files/*"
+	os.system(rm_cmd)
 	return render_template('detect_file.html', detectors=detectors,solc = solc)
 
 
@@ -224,6 +226,8 @@ def detect_address():
 
 @app.route('/detect_address', methods=['GET','POST'])
 def detect_address_dropdown_list():
+	rm_cmd = "rm -fr ./files/*"
+	os.system(rm_cmd)
 	return render_template('detect_address.html', detectors=detectors,solc=solc,net=net)
 
 
@@ -231,7 +235,7 @@ def detect_address_dropdown_list():
 @app.route('/print_file', methods=['POST'])
 def print_file():
 	if request.method == 'POST':
-		#solc = request.form['select_solc']
+		solc = request.form['select_solc']
 		printer=request.form['printers']
 		file = request.files['result_data']   #get file 
 		
@@ -242,29 +246,68 @@ def print_file():
 
 			f=os.path.join(app.config['UPLOAD_FOLDER'] , filename)
 			file.save(f)
-			#solc_cmd = "solc-select use {0}".format(solc)
+			solc_cmd = "solc-select use {0}".format(solc)
 
-			tool_cmd = "slither  {0} --print {1}".format(f,printer)
+			tool_cmd = " && slither  {0} --print {1}".format(f,printer)
 
-			dot_cmd = " && dot {0}.{1}.dot -Tpng -o {2}.png".format(f,printer,f)
-
-			rm_cmd = " && mv {0}.png ./static/images/".format(f)
-			total_cmd = tool_cmd + dot_cmd + rm_cmd
+			json_cmd = " --json {0}.json".format(f)
+			total_cmd = solc_cmd + tool_cmd + json_cmd
 			os.system(total_cmd)
 
-			img_url = "./static/images/{0}.png".format(filename)
+			json_url = "{0}.json".format(f)
+			with open(json_url,'r') as reader :
+				jf=json.loads(reader.read())
 
-			return render_template('img.html', img_url=img_url)
 
+			if jf['success'] == False:
+				return render_template('fail.html')
+
+			if printer=="call-graph" or printer=="cfg" or printer=="inheritance-graph":
+				img_url = []
+				for i in range(len(jf['results']['printers'][0]['elements'])):
+					dot_filename = jf['results']['printers'][0]['elements'][i]['name']['filename']
+					
+					rename=dot_filename
+					rename_cmd=""
+					if printer =="cfg":
+						index = rename.find('(')
+						rename = rename[:index] + '\\' + rename[index:]
+						index = rename.find(')')
+						rename = rename[:index] + '\\' + rename[index:]
+
+					dot_cmd = "dot {0} -Tpng -o {1}.png".format(rename,rename)
+					rm_cmd = " && mv {0}.png ./static/result/".format(rename)
+					os.system(rename_cmd + dot_cmd + rm_cmd)
+					dot_filename = dot_filename[8:]
+					img = "./static/result/{0}.png".format(dot_filename)
+					img_url.append(img)
+					return render_template('printer_png_result.html' , printer = printer, img_url=img_url)
+
+			elif printer=="contract-summary" or printer=="data-dependency" or printer=="constructor-calls" or \
+				printer=="function-id" or printer =="human-summary" or printer =="inheritance" or printer=="vars-and-auth" or printer=="slithir":
+				result = "{0}".format(jf['results']['printers'][0]['description'])
+				result = result.replace('[0m', '') 
+				result = result.replace('[92m', '') 
+				result = result.replace('[94m', '') 
+				result = result.split('\n')
+				
+				return render_template('printer_result.html' , printer = printer, result=result)
+
+	return '''
+	'''
 
 @app.route('/print_file', methods=['GET','POST'])
 def print_file_dropdown_list():
+	rm_cmd = "rm -fr ./files/* && rm -fr ./static/result/*"
+	os.system(rm_cmd)
 	return render_template('print_file.html', printers=printers,solc=solc)
 
 
 
 @app.route('/print_address', methods=['GET','POST'])
 def print_address_dropdown_list():
+	rm_cmd = "rm -fr ./files/* && rm -fr ./static/result/*"
+	os.system(rm_cmd)
 	return render_template('print_address.html', printers=printers,solc=solc)
 
 @app.route('/<pagename>')
