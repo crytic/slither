@@ -1,0 +1,20 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+keccak256()(0)
+
+IRs:
+TMP_0(bytes32) = SOLIDITY_CALL keccak256()(0)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+Library.library_func()
+
+IRs:
+LIBRARY_CALL, dest:Library, function:Library.library_func(), arguments:[] "];
+}

@@ -1,0 +1,13 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+a = new ContractA()
+
+IRs:
+TMP_3 = new ContractA() 
+a(ContractA) := TMP_3(ContractA)"];
+}

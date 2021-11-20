@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+balances[msg.sender] += value
+
+IRs:
+REF_0(uint256) -> balances[msg.sender]
+REF_0(-> balances) = REF_0 + value"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Owner.onlyOwner()()"];
+2->1;
+}
