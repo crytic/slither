@@ -1,0 +1,16 @@
+digraph "" {
+BaseContract1[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>BaseContract1</B></TD></TR></TABLE> >];
+
+BaseContract2[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>BaseContract2</B></TD></TR></TABLE> >];
+
+ChildContract1 -> BaseContract1;
+ChildContract1[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>ChildContract1</B></TD></TR></TABLE> >];
+
+ChildContract2 -> BaseContract1 [ label="1" ];
+ChildContract2 -> BaseContract2 [ label="2" ];
+ChildContract2[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>ChildContract2</B></TD></TR></TABLE> >];
+
+GrandchildContract1 -> ChildContract1;
+GrandchildContract1[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>GrandchildContract1</B></TD></TR></TABLE> >];
+
+}

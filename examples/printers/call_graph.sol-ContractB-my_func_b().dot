@@ -1,0 +1,20 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+a.my_func_a()
+
+IRs:
+HIGH_LEVEL_CALL, dest:a(ContractA), function:my_func_a, arguments:[]  "];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+my_second_func_b()
+
+IRs:
+INTERNAL_CALL, ContractB.my_second_func_b()()"];
+}

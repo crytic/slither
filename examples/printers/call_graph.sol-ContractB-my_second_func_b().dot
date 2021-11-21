@@ -1,0 +1,12 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+a.val()
+
+IRs:
+TMP_7(uint256) = HIGH_LEVEL_CALL, dest:a(ContractA), function:val, arguments:[]  "];
+}
