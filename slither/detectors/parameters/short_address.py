@@ -85,7 +85,7 @@ If `amount` is 2, but length of `to` lost 2 bits, this contract will transfer 51
                     if v.type == ElementaryType("address"):
                         is_addr_func = True
 
-                    if is_addr_func and v.type.name in Uint+Int:
+                    elif is_addr_func and v.type.name in Uint+Int:
                         is_int_func = True
                     
             if is_addr_func and is_int_func:
