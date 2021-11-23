@@ -1,72 +1,93 @@
-{% extends "base.html" %} {% block title %}Sample{% endblock %} 
+{% extends "base.html" %} {% block title %}Sample{% endblock %}
 {% block content %}
 
-        <!-- Begin Page Content -->
-        <div class="container-fluid">
+<!-- Begin Page Content -->
+<div class="container-fluid">
 
-          <!-- Page Heading -->
-          <h1 class="h3 mb-4 text-gray-800">Printers</h1>
+    <!-- Page Heading -->
+    <h1 class="h3 mb-4 text-gray-800">Detectors</h1>
 
 
-          <!-- Outer Row -->
-        <div class="row justify-content-center">
+    <!-- Outer Row -->
+    <div class="row justify-content-center">
 
-          <div class="col-xl-10 col-lg-12 col-md-9">
+        <div class="col-xl-10 col-lg-12 col-md-9">
 
-              <div class="card o-hidden border-0 shadow-lg my-5">
-                  <div class="card-body p-0">
-                      <!-- Nested Row within Card Body -->
-                      
-                              <div class="p-5">
-                                <div class="row form-group ">
-                                    <h3 class="text-gray-900">Choose Printers</h3>
-                                    <select class="form-control text-gray-900"  id="select_printers" name="printers" method="GET" action="/">
-                                        <option value="{{printers[0]}}" selected>{{printers[0]}}</option>
-                                          {% for printer in printers[1:] %}
-                                            <option value="{{printer}}">{{printer}}</option>
-                                          {% endfor %}
-                                    </select>
+            <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card-body p-0">
+                    <!-- Nested Row within Card Body -->
+                    <form class="form" id="upload_form" method="post" enctype="multipart/form-data" type="file">
+                        <div class="p-5">
+                            <div class="row form-group ">
+                                <h3 class="text-gray-900">Choose Printer</h3>
+                                <select class="form-control  text-gray-800" id="select_printers" name="printers">
+                                    <option value="{{printers[0]}}" selected>{{printers[0]}}</option>
+                                    {% for printers in printers[1:] %}
+                                    <option value="{{printers}}">{{printers}}</option>"
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="row form-group ">
+                                <h3 class="text-gray-900">Choose Solidity Compiler</h3>
+                                <select class="form-control  text-gray-800" id="select_solc" name="select_solc">
+                                    <option value="{{solc[0]}}" selected>{{solc[0]}}</option>
+                                    {% for solc in solc[1:] %}
+                                    <option value="{{solc}}">{{solc}}</option>"
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="row form-group ">
+                                <h3 class="text-gray-900">Choose Net</h3>
+                                <select class="form-control  text-gray-800" id="select_net" name="select_net">
+                                    <option value="{{net[0]}}" selected>{{net[0]}}</option>
+                                    {% for net in net[1:] %}
+                                    <option value="{{net}}">{{net}}</option>"
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <br>
+
+                            <hr>
+
+                            <br>
+                            <div class="">
+                                <h3 class=" text-gray-900 mb-2">Past Your Contract Address</h3>
+
+                            </div>
+                            <form class="user">
+                                <div class="form-group">
+                                    <input id="address" name="address" class="form-control form-control-user"
+                                        placeholder="Enter Contract Address...">
                                 </div>
-                                    <div class="row form-group ">
-                                        <h3 class="text-gray-900">Choose Solidity Compiler</h3>
-                                        <select class="form-control  text-gray-800" id="select_printers" name="solc">
-                                            <option value="{{solc[0]}}" selected>{{solc[0]}}</option>
-                                            {% for solc in solc[1:] %}
-                                                <option value= "{{solc}}">{{solc}}</option>"
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                <br>
-                                  <div class="">
-                                      <h3 class=" text-gray-900 mb-2">Past Your Contract Address</h3    >
-            
-                                  </div>
-                                  <form class="user">
-                                      <div class="form-group">
-                                          <input class="form-control form-control-user"
-                                              placeholder="Enter Contract Address...">
-                                      </div>
-                                      <a href="login.html" class="btn btn-primary btn-user btn-block">
-                                          Print
-                                      </a>
-                                  </form>
-                                  <hr>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
+                                <input class="btn btn-primary btn-user btn-block" id="submit" name="submit"
+                                    type="submit" value="Submit">
+                            </form>
+                            <hr>
+                    </form>
 
-          </div>
 
-      </div>
+                    <br>
 
+
+                </div>
+            </div>
         </div>
-        <!-- /.container-fluid -->
+    </div>
 
-        
-      </div>
-      <!-- End of Main Content -->
+</div>
+
+</div>
+
+</div>
+<!-- /.container-fluid -->
+
+
+</div>
+<!-- End of Main Content -->
+
 
 {% endblock %}
 

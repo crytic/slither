@@ -293,8 +293,7 @@ def print_file():
 				
 				return render_template('printer_result.html' , printer = printer, result=result)
 
-	return '''
-	'''
+	return render_template("404.html")
 
 @app.route('/print_file', methods=['GET','POST'])
 def print_file_dropdown_list():
@@ -303,12 +302,75 @@ def print_file_dropdown_list():
 	return render_template('print_file.html', printers=printers,solc=solc)
 
 
+@app.route('/print_address', methods=['POST'])
+def print_address():
+	if request.method == 'POST':
+		solc = request.form['select_solc']
+		printer=request.form['printers']
+		addr = request.form['address'] 
+		net = request.form['select_net']
+		
+		solc_cmd = "solc-select use {0}".format(solc)
+
+		if net=='ethereum':
+			tool_cmd = "slither  {0}".format(addr)
+		else:
+			tool_cmd = "slither  {0}:{1}".format(net,addr)
+		
+		print_cmd = " --print {0}".format(printer)
+
+		f=os.path.join(app.config['UPLOAD_FOLDER'] , addr)
+		json_cmd = "  --json {0}.json".format(f)
+
+		total_cmd = solc_cmd + " && " + tool_cmd  + print_cmd +json_cmd
+		os.system(total_cmd)
+
+		json_url = "{0}.json".format(f)
+		with open(json_url,'r') as reader :
+			jf=json.loads(reader.read())
+
+		if jf['success'] == False:
+			return render_template('fail.html')
+
+		if printer=="call-graph" or printer=="cfg" or printer=="inheritance-graph":
+			img_url = []
+			for i in range(len(jf['results']['printers'][0]['elements'])):
+				dot_filename = jf['results']['printers'][0]['elements'][i]['name']['filename']
+					
+				rename=dot_filename
+				rename_cmd=""
+				if printer =="cfg":
+					index = rename.find('(')
+					rename = rename[:index] + '\\' + rename[index:]
+					index = rename.find(')')
+					rename = rename[:index] + '\\' + rename[index:]
+
+				#mv_cmd = "mv {0} ./files/".format(dot_filename)
+				#rename = "./files/{0}".format(dot_filename)
+				dot_cmd = "dot {0} -Tpng -o {1}.png".format(rename,rename)
+				rm_cmd = " && mv {0}.png ./static/result/".format(rename)
+				os.system(rename_cmd + dot_cmd + rm_cmd)
+				img = "./static/result/{0}.png".format(dot_filename)
+				img_url.append(img)
+			return render_template('printer_png_result.html' , printer = printer, img_url=img_url)
+
+		elif printer=="contract-summary" or printer=="data-dependency" or printer=="constructor-calls" or \
+			printer=="function-id" or printer =="human-summary" or printer =="inheritance" or printer=="vars-and-auth" or printer=="slithir":
+			result = "{0}".format(jf['results']['printers'][0]['description'])
+			result = result.replace('[0m', '') 
+			result = result.replace('[92m', '') 
+			result = result.replace('[94m', '') 
+			result = result.split('\n')
+				
+			return render_template('printer_result.html' , printer = printer, result=result)
+
+	return render_template("404.html")
 
 @app.route('/print_address', methods=['GET','POST'])
 def print_address_dropdown_list():
 	rm_cmd = "rm -fr ./files/* && rm -fr ./static/result/*"
 	os.system(rm_cmd)
-	return render_template('print_address.html', printers=printers,solc=solc)
+	return render_template('print_address.html', printers=printers,solc=solc , net = net)
 
 @app.route('/<pagename>')
 def admin(pagename):
