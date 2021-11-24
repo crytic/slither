@@ -233,3 +233,7 @@
     margin-top: -15px;
     margin-left: -15px;
 }
+
+.ladybug{
+    background: url(./static/images/ladybugs.gif);
+}
