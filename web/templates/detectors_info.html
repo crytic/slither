@@ -44,510 +44,657 @@
                     </tr>
                     <tr>
                       <td>2</td>
+                      <td>addition-uint-overflow</td>
+                      <td>addition-uint-overflow</td>
+                      <td>High</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>3</td>
                       <td>array-by-reference</td>
                       <td>Modifying storage array by value</td>
                       <td>High</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>3</td>
+                      <td>4</td>
                       <td>incorrect-shift</td>
                       <td>The order of parameters in a shift instruction is incorrect.</td>
                       <td>High</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>4</td>
+                      <td>5</td>
                       <td>multiple-constructors</td>
                       <td>Multiple constructor schemes</td>
                       <td>High</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>5</td>
+                      <td>6</td>
+                      <td>multiplication-uint-overflow</td>
+                      <td>Unsigned_integer_overflow_mul</td>
+                      <td>High</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>7</td>
                       <td>name-reused</td>
                       <td>Contract's name reused</td>
                       <td>High</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>6</td>
+                      <td>8</td>
                       <td>public-mappings-nested</td>
                       <td>Public mappings with nested variables</td>
                       <td>High</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>7</td>
+                      <td>9</td>
                       <td>rtlo</td>
                       <td>Right-To-Left-Override control character is used</td>
                       <td>High</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>8</td>
+                      <td>10</td>
                       <td>shadowing-state</td>
                       <td>State variables shadowing</td>
                       <td>High</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>9</td>
+                      <td>11</td>
                       <td>suicidal</td>
                       <td>Functions allowing anyone to destruct the contract</td>
                       <td>High</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>10</td>
+                      <td>12</td>
+                      <td>uint-underflow</td>
+                      <td>Unsigned_integer_underflow</td>
+                      <td>High</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>13</td>
                       <td>uninitialized-state</td>
                       <td>Uninitialized state variables</td>
                       <td>High</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>11</td>
+                      <td>14</td>
                       <td>uninitialized-storage</td>
                       <td>Uninitialized storage variables</td>
                       <td>High</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>12</td>
+                      <td>15</td>
                       <td>unprotected-upgrade</td>
                       <td>Unprotected upgradeable contract</td>
                       <td>High</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>13</td>
+                      <td>16</td>
                       <td>arbitrary-send</td>
                       <td>Functions that send Ether to arbitrary destinations</td>
                       <td>High</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>14</td>
+                      <td>17</td>
                       <td>controlled-array-length</td>
                       <td>Tainted array length assignment</td>
                       <td>High</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>15</td>
+                      <td>18</td>
                       <td>controlled-delegatecall</td>
                       <td>Controlled delegatecall destination</td>
                       <td>High</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>16</td>
+                      <td>19</td>
                       <td>reentrancy-eth</td>
                       <td>Reentrancy vulnerabilities (theft of ethers)</td>
                       <td>High</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>17</td>
+                      <td>20</td>
                       <td>storage-array</td>
                       <td>Signed storage integer array compiler bug</td>
                       <td>High</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>18</td>
+                      <td>21</td>
                       <td>unchecked-transfer</td>
                       <td>Unchecked tokens transfer</td>
                       <td>High</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>19</td>
+                      <td>22</td>
                       <td>weak-prng</td>
                       <td>Weak PRNG</td>
                       <td>High</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>20</td>
+                      <td>23</td>
+                      <td>adress-not-exist-set</td>
+                      <td>If the address is wrong, the contract fails</td>
+                      <td>High</td>
+                      <td>Medium</td>
+                    </tr>
+                    <tr>
+                      <td>24</td>
+                      <td>adress-not-exist-transfer</td>
+                      <td>If the address is wrong, the contract fails</td>
+                      <td>High</td>
+                      <td>Medium</td>
+                    </tr>
+                    <tr>
+                      <td>25</td>
+                      <td>do-continue-while</td>
+                      <td>Use continue in do-while loop</td>
+                      <td>High</td>
+                      <td>Medium</td>
+                    </tr>
+                    <tr>
+                      <td>26</td>
                       <td>enum-conversion</td>
                       <td>Detect dangerous enum conversion</td>
                       <td>Medium</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>21</td>
+                      <td>27</td>
                       <td>erc20-interface</td>
                       <td>Incorrect ERC20 interfaces</td>
                       <td>Medium</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>22</td>
+                      <td>28</td>
                       <td>erc721-interface</td>
                       <td>Incorrect ERC721 interfaces</td>
                       <td>Medium</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>23</td>
+                      <td>29</td>
+                      <td>hash-collision</td>
+                      <td>Using abi.encodePacked() with multiple variable-length parameters can cause hash collisions</td>
+                      <td>Medium</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>30</td>
                       <td>incorrect-equality</td>
                       <td>Dangerous strict equalities</td>
                       <td>Medium</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>24</td>
+                      <td>31</td>
+                      <td>inheritance-order</td>
+                      <td>Incorrect inheritance order</td>
+                      <td>Medium</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>32</td>
                       <td>locked-ether</td>
                       <td>Contracts that lock ether</td>
                       <td>Medium</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>25</td>
+                      <td>33</td>
                       <td>mapping-deletion</td>
                       <td>Deletion on mapping containing a structure</td>
                       <td>Medium</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>26</td>
+                      <td>34</td>
                       <td>shadowing-abstract</td>
                       <td>State variables shadowing from abstract contracts</td>
                       <td>Medium</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>27</td>
+                      <td>35</td>
+                      <td>sig-wrong-para</td>
+                      <td>Signature use wrong parameters</td>
+                      <td>Medium</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>36</td>
+                      <td>storage-overleap</td>
+                      <td>Writing to arbitrary storage location</td>
+                      <td>Medium</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>37</td>
                       <td>tautology</td>
                       <td>Tautology or contradiction</td>
                       <td>Medium</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>28</td>
+                      <td>38</td>
                       <td>write-after-write</td>
                       <td>Unused write</td>
                       <td>Medium</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>29</td>
+                      <td>39</td>
                       <td>boolean-cst</td>
                       <td>Misuse of Boolean constant</td>
                       <td>Medium</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>30</td>
+                      <td>40</td>
                       <td>constant-function-asm</td>
                       <td>Constant functions using assembly code</td>
                       <td>Medium</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>31</td>
+                      <td>41</td>
                       <td>constant-function-state</td>
                       <td>Constant functions changing the state</td>
                       <td>Medium</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>32</td>
+                      <td>42</td>
                       <td>divide-before-multiply</td>
                       <td>Imprecise arithmetic operations order</td>
                       <td>Medium</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>33</td>
+                      <td>43</td>
                       <td>reentrancy-no-eth</td>
                       <td>Reentrancy vulnerabilities (no theft of ethers)</td>
                       <td>Medium</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>34</td>
+                      <td>44</td>
                       <td>reused-constructor</td>
                       <td>Reused base constructor</td>
                       <td>Medium</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>35</td>
+                      <td>45</td>
+                      <td>tod-amount</td>
+                      <td>Transaction ordering dependency</td>
+                      <td>Medium</td>
+                      <td>Medium</td>
+                    </tr>
+                    <tr>
+                      <td>46</td>
+                      <td>tod-erc20</td>
+                      <td>Transaction ordering dependency</td>
+                      <td>Medium</td>
+                      <td>Medium</td>
+                    </tr>
+                    <tr>
+                      <td>47</td>
+                      <td>tod-receiver</td>
+                      <td>Transaction ordering dependency</td>
+                      <td>Medium</td>
+                      <td>Medium</td>
+                    </tr>
+                    <tr>
+                      <td>48</td>
+                      <td>tod-transfer</td>
+                      <td>Transaction ordering dependency</td>
+                      <td>Medium</td>
+                      <td>Medium</td>
+                    </tr>
+                    <tr>
+                      <td>49</td>
                       <td>tx-origin</td>
                       <td>Dangerous usage of tx.origin</td>
                       <td>Medium</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>36</td>
+                      <td>50</td>
                       <td>unchecked-lowlevel</td>
                       <td>Unchecked low-level calls</td>
                       <td>Medium</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>37</td>
+                      <td>51</td>
                       <td>unchecked-send</td>
                       <td>Unchecked send</td>
                       <td>Medium</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>38</td>
+                      <td>52</td>
                       <td>uninitialized-local</td>
                       <td>Uninitialized local variables</td>
                       <td>Medium</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>39</td>
+                      <td>53</td>
                       <td>unused-return</td>
                       <td>Unused return values</td>
                       <td>Medium</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>40</td>
+                      <td>54</td>
                       <td>incorrect-modifier</td>
                       <td>Modifiers that can return the default value</td>
                       <td>Low</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>41</td>
+                      <td>55</td>
                       <td>shadowing-builtin</td>
                       <td>Built-in symbol shadowing</td>
                       <td>Low</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>42</td>
+                      <td>56</td>
                       <td>shadowing-local</td>
                       <td>Local variables shadowing</td>
                       <td>Low</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>43</td>
+                      <td>57</td>
+                      <td>signedness</td>
+                      <td>Integer signedness</td>
+                      <td>Low</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>58</td>
+                      <td>truncation</td>
+                      <td>Integer truncation</td>
+                      <td>Low</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>59</td>
                       <td>uninitialized-fptr-cst</td>
                       <td>Uninitialized function pointer calls in constructors</td>
                       <td>Low</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>44</td>
+                      <td>60</td>
                       <td>variable-scope</td>
                       <td>Local variables used prior their declaration</td>
                       <td>Low</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>45</td>
+                      <td>61</td>
                       <td>void-cst</td>
                       <td>Constructor called not implemented</td>
                       <td>Low</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>46</td>
+                      <td>62</td>
                       <td>calls-loop</td>
                       <td>Multiple calls in a loop</td>
                       <td>Low</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>47</td>
+                      <td>63</td>
                       <td>events-access</td>
                       <td>Missing Events Access Control</td>
                       <td>Low</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>48</td>
+                      <td>64</td>
                       <td>events-maths</td>
                       <td>Missing Events Arithmetic</td>
                       <td>Low</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>49</td>
+                      <td>65</td>
                       <td>incorrect-unary</td>
                       <td>Dangerous unary expressions</td>
                       <td>Low</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>50</td>
+                      <td>66</td>
                       <td>missing-zero-check</td>
                       <td>Missing Zero Address Validation</td>
                       <td>Low</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>51</td>
+                      <td>67</td>
                       <td>reentrancy-benign</td>
                       <td>Benign reentrancy vulnerabilities</td>
                       <td>Low</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>52</td>
+                      <td>68</td>
                       <td>reentrancy-events</td>
                       <td>Reentrancy vulnerabilities leading to out-of-order Events</td>
                       <td>Low</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>53</td>
+                      <td>69</td>
                       <td>timestamp</td>
                       <td>Dangerous usage of block.timestamp</td>
                       <td>Low</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>54</td>
+                      <td>70</td>
                       <td>assembly</td>
                       <td>Assembly usage</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>55</td>
+                      <td>71</td>
                       <td>assert-state-change</td>
                       <td>Assert state change</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>56</td>
+                      <td>72</td>
                       <td>boolean-equal</td>
                       <td>Comparison to boolean constant</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>57</td>
+                      <td>73</td>
+                      <td>byte</td>
+                      <td>Array of bytes</td>
+                      <td>Informational</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>74</td>
+                      <td>complex-fallback</td>
+                      <td>Complex fallcak function does not set up a separate function</td>
+                      <td>Informational</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>75</td>
+                      <td>delete-array</td>
+                      <td>Array element dosnt delete clearly</td>
+                      <td>Informational</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>76</td>
                       <td>deprecated-standards</td>
                       <td>Deprecated Solidity Standards</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>58</td>
+                      <td>77</td>
                       <td>erc20-indexed</td>
                       <td>Un-indexed ERC20 event parameters</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>59</td>
+                      <td>78</td>
                       <td>function-init-state</td>
                       <td>Function initializing state variables</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>60</td>
+                      <td>79</td>
+                      <td>implicit-visibility</td>
+                      <td>Null</td>
+                      <td>Informational</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>80</td>
+                      <td>invariant-in-loop</td>
+                      <td>Invariant is calculated for each loop</td>
+                      <td>Informational</td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>81</td>
                       <td>low-level-calls</td>
                       <td>Low level calls</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>61</td>
+                      <td>82</td>
                       <td>missing-inheritance</td>
                       <td>Missing inheritance</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>62</td>
+                      <td>83</td>
                       <td>naming-convention</td>
                       <td>Conformity to Solidity naming conventions</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>63</td>
+                      <td>84</td>
                       <td>pragma</td>
                       <td>If different pragma directives are used</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>64</td>
+                      <td>85</td>
                       <td>redundant-statements</td>
                       <td>Redundant statements</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>65</td>
+                      <td>86</td>
                       <td>solc-version</td>
                       <td>Incorrect Solidity version</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>66</td>
+                      <td>87</td>
                       <td>unimplemented-functions</td>
                       <td>Unimplemented functions</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>67</td>
+                      <td>88</td>
                       <td>unused-state</td>
                       <td>Unused state variables</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>68</td>
+                      <td>89</td>
                       <td>costly-loop</td>
                       <td>Costly operations in a loop</td>
                       <td>Informational</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>69</td>
+                      <td>90</td>
                       <td>dead-code</td>
                       <td>Functions that are not used</td>
                       <td>Informational</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>70</td>
+                      <td>91</td>
                       <td>reentrancy-unlimited-gas</td>
                       <td>Reentrancy vulnerabilities through send and transfer</td>
                       <td>Informational</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>71</td>
+                      <td>92</td>
                       <td>similar-names</td>
                       <td>Variable names are too similar</td>
                       <td>Informational</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>72</td>
+                      <td>93</td>
                       <td>too-many-digits</td>
                       <td>Conformance to numeric notation best practices</td>
                       <td>Informational</td>
                       <td>Medium</td>
                     </tr>
                     <tr>
-                      <td>73</td>
+                      <td>94</td>
                       <td>constable-states</td>
                       <td>State variables that could be declared constant</td>
                       <td>Informational</td>
                       <td>High</td>
                     </tr>
                     <tr>
-                      <td>74</td>
+                      <td>95</td>
                       <td>external-function</td>
                       <td>Public function that could be declared external</td>
                       <td>Informational</td>
