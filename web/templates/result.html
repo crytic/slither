@@ -1,10 +1,8 @@
 {% extends "base.html" %} {% block title %}Sample{% endblock %}
 {% block content %}
+<body>
 <!-- Begin Page Content -->
 <div class="container-fluid">
-
-    <!-- Page Heading -->
-    <h1 class="h3 mb-4 text-gray-800">Result</h1>
 
     <!-- The Modal -->
     <div class="modal fade" id="myModal">
@@ -49,7 +47,7 @@
                     <!-- Nested Row within Card Body -->
 
                     <div class="p-5">
-
+                        <div class="text-center text-gray-900 "><h1><b>Result</b></h1></div>
                         {% for title in title %}
                         {% set h = "#{0}".format(title) %}
                         <div class="card shadow mb-4">
