@@ -1,16 +1,6 @@
 {% extends "base.html" %} {% block title %}Sample{% endblock %}
 {% block content %}
 
-<div class="loading-wrapper">
-    <div class="loading la-ball-newton-cradle la-3x">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-    </div>
-</div>
-
-
 
 <!-- Begin Page Content -->
 <div class="container-fluid">
@@ -82,8 +72,17 @@
                                             value="Submit">
                                     </div>
                     </form>
-
-
+                    
+                    <div id="loading-wrapper" class="loading-wrapper" style="display:none">
+                        
+                        <div class="loading la-ball-newton-cradle la-3x">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                    </div>
+                   
                     <div id="data_loading" class="loading_box text-center">
                         <button class="btn btn-success" disabled>
                             <span class="spinner-border spinner-border-sm"></span>
@@ -107,7 +106,7 @@
     $(document).ready(function () {
         $('#data_loading').hide();
         $('#str').hide();
-        $('.loading-wrapper').hide();
+        
     });
 
 
@@ -158,6 +157,7 @@
 
     //$(document).on('submit', '#upload_form', function () {
     $('#upload_form').submit(function () {
+        $('.loading-wrapper').hide();
         var fullPath = document.getElementById('result_data');
         var fileExp = /(.*?)\.(sol)$/;
 
@@ -168,7 +168,7 @@
         if (fullPath.value.toLowerCase().match(fileExp)) {
             $('#data_upload').hide();
             $('#data_loading').show();
-            $('.loading-wrapper').show();
+            $('#loading-wrapper').show();
 
             return true;
         } else {
