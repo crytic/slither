@@ -1,9 +1,4 @@
-from slither.core.variables.state_variable import StateVariable
-from slither.slithir.operations import Return
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations.assignment import Assignment
-from slither.slithir.variables.reference import ReferenceVariable
-
 
 class MissingConstructor(AbstractDetector):
     """base on Jiuzhou dataset"""

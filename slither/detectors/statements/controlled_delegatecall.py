@@ -1,4 +1,3 @@
-from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall
 from slither.analyses.data_dependency.data_dependency import is_tainted

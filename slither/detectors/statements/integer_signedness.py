@@ -1,7 +1,7 @@
 import locale
 from slither.core.declarations.solidity_variables import SolidityVariable, SolidityVariableComposed
 from slither.slithir.variables import Constant
-from slither.slithir.operations import Binary, BinaryType, TypeConversion, Index
+from slither.slithir.operations import Binary, BinaryType, TypeConversion
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 

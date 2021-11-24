@@ -1,9 +1,7 @@
 from collections import defaultdict
-from slither.core.cfg.node import NodeType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.detectors.arithmetic.temp_and_reference_variables import  Handle_TmpandRefer
-from slither.slithir.operations import Delete, Index, InternalCall, Length, TypeConversion, Binary, BinaryType
-from slither.slithir.operations import length
+from slither.slithir.operations import Delete, Index, Length, TypeConversion, Binary, BinaryType
 from slither.slithir.operations.length import Length
 from slither.slithir.variables import ReferenceVariable, TemporaryVariable, Constant
 

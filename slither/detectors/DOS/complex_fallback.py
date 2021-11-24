@@ -1,4 +1,3 @@
-from slither.core.cfg.node import NodeType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 

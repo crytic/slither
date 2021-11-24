@@ -1,8 +1,4 @@
 from collections import defaultdict
-from slither.core.declarations.solidity_variables import SolidityVariable, SolidityVariableComposed
-from slither.slithir.variables import Constant
-from slither.slithir.operations import Binary, BinaryType, TypeConversion, Index
-from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 def detect_wrong_inheritance_order(contract, tuples):

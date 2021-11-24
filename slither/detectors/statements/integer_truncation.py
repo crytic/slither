@@ -1,7 +1,7 @@
 from collections import defaultdict
 from slither.slithir.variables import ReferenceVariable, TemporaryVariable
 from slither.slithir.operations import Binary, BinaryType, TypeConversion, Index
-from slither.core.solidity_types.elementary_type import ElementaryType, Int, N, Uint
+from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 def is_equal_or_not_equal(ir):
