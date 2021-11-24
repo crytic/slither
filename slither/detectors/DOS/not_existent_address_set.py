@@ -1,4 +1,3 @@
-from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.solidity_variables import SolidityVariableComposed
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations import Assignment

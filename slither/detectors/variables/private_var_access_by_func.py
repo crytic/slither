@@ -6,7 +6,6 @@ from slither.slithir.variables.reference import ReferenceVariable
 
 
 class PriVarBeAccessed(AbstractDetector):
-
     ARGUMENT = "pri-var-be-accessed"
     HELP = "Null"
     IMPACT = DetectorClassification.LOW
