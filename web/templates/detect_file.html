@@ -1,6 +1,17 @@
 {% extends "base.html" %} {% block title %}Sample{% endblock %}
 {% block content %}
 
+<div class="loading-wrapper">
+    <div class="loading la-ball-newton-cradle la-3x">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
+
+
+
 <!-- Begin Page Content -->
 <div class="container-fluid">
 
@@ -96,6 +107,7 @@
     $(document).ready(function () {
         $('#data_loading').hide();
         $('#str').hide();
+        $('.loading-wrapper').hide();
     });
 
 
@@ -156,6 +168,7 @@
         if (fullPath.value.toLowerCase().match(fileExp)) {
             $('#data_upload').hide();
             $('#data_loading').show();
+            $('.loading-wrapper').show();
 
             return true;
         } else {

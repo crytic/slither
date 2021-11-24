@@ -43,10 +43,12 @@ The array length is calculated for each loop, but the array length remains the s
         used_node = []
         tmp_n=[]
         tmp_id=[]
-
+        
         nodes = f.nodes
         id = 0
         while True:
+            if id == len(nodes):
+                break
 
             if nodes[id] in used_node:
                 if flag == True:
@@ -54,12 +56,7 @@ The array length is calculated for each loop, but the array length remains the s
                     id = tmp_id.pop()
                     nodes = tmp_n.pop()
                     flag = False
-
                 id = id+1
-                if id  == len(nodes):
-                    break
-                else:
-                    continue
 
             if nodes[id].type == NodeType.IFLOOP:
                 var.clear()
