@@ -97,5 +97,6 @@ from .DOS.complex_fallback import ComplexFallbackFunction
 from .DOS.not_existent_address_set import NotExistentAddress_set
 from .DOS.not_existent_address_tranfer import NotExistentAddress_transfer
 from .statements.implicit_visibility import  ImplicitVisibility
+from .variables.private_var_access_by_func import PriVarBeAccessed
 #
 #

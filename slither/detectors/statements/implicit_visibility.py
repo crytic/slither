@@ -1,8 +1,3 @@
-from slither.core.cfg.node import Node, NodeType
-from slither.core.declarations.solidity_variables import SolidityVariableComposed
-from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.slithir.operations import Assignment
-from slither.slithir.variables import Constant
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
@@ -38,6 +33,7 @@ function getConstuint() pure returns(uint256){
 
     def _detect(self):
         """"""
+        value = []
         res = []
         results = []
 
@@ -54,10 +50,10 @@ function getConstuint() pure returns(uint256){
                 with open(path, 'r') as file:
                     code = file.readlines()[line-1].rstrip()
                 if all(vis not in code for vis in ["public", "external", "private", "internal"]):
-                    res.append(t)
+                    value.append(t)
 
-        if res:
-            for r in res:
+        if value:
+            for r in value:
                 info = [r, " does not specify the visibility.\n",]
                 res = self.generate_result(info)
                 results.append(res)

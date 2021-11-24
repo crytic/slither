@@ -1,10 +1,7 @@
-from slither.core.cfg.node import NodeType
-from slither.core.declarations.function import Function
 from slither.core.declarations.solidity_variables import SolidityVariableComposed
-from slither.core.solidity_types import ElementaryType, ArrayType, array_type
-from slither.slithir.operations import Assignment, Binary, BinaryType, Send, Transfer
+from slither.core.solidity_types import ElementaryType, ArrayType
+from slither.slithir.operations import Binary, BinaryType, Send, Transfer
 from slither.analyses.data_dependency.data_dependency import is_dependent
-from slither.slithir.variables import Constant
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.variables.reference import ReferenceVariable
 
