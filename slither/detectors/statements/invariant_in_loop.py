@@ -1,6 +1,5 @@
 from collections import defaultdict
 from slither.core.cfg.node import NodeType
-from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.slithir.variables import Constant
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Length, Binary, Assignment
