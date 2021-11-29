@@ -233,10 +233,10 @@ class PrinterCallGraph(AbstractPrinter):
             info += f"Call Graph: {all_contracts_filename}\n"
 
             # Avoid duplicate functions due to different compilation unit
-            all_functions = [
+            all_functionss = [
                 compilation_unit.functions for compilation_unit in self.slither.compilation_units
             ]
-            all_functions = [item for sublist in all_functions for item in sublist]
+            all_functions = [item for sublist in all_functionss for item in sublist]
             all_functions_as_dict = {
                 function.canonical_name: function for function in all_functions
             }
