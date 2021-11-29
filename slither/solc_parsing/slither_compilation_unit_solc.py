@@ -8,7 +8,7 @@ from typing import List, Dict
 from slither.analyses.data_dependency.data_dependency import compute_dependency
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
-from slither.core.declarations.custom_error import CustomError
+from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.import_directive import Import
@@ -241,7 +241,7 @@ class SlitherCompilationUnitSolc:
                 self.add_function_or_modifier_parser(func_parser)
 
             elif top_level_data[self.get_key()] == "ErrorDefinition":
-                custom_error = CustomError(self._compilation_unit)
+                custom_error = CustomErrorTopLevel(self._compilation_unit)
                 custom_error.set_offset(top_level_data["src"], self._compilation_unit)
 
                 custom_error_parser = CustomErrorSolc(custom_error, top_level_data, self)
@@ -535,6 +535,7 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.parse_state_variables()
         contract.parse_modifiers()
         contract.parse_functions()
+        contract.parse_custom_errors()
         contract.set_is_analyzed(True)
 
     def _analyze_struct_events(self, contract: ContractSolc):
@@ -547,6 +548,7 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.analyze_events()
 
         contract.analyze_using_for()
+        contract.analyze_custom_errors()
 
         contract.set_is_analyzed(True)
 

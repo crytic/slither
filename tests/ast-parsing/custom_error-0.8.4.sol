@@ -24,3 +24,10 @@ contract VendingMachine {
         revert('test');
     }
 }
+
+contract A{
+
+    error MyError(uint);
+
+}
+

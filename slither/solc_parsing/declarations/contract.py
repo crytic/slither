@@ -3,8 +3,10 @@ from typing import List, Dict, Callable, TYPE_CHECKING, Union, Set
 
 from slither.core.declarations import Modifier, Event, EnumContract, StructureContract, Function
 from slither.core.declarations.contract import Contract
+from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.state_variable import StateVariable
+from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.event import EventSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.modifier import ModifierSolc
@@ -35,15 +37,17 @@ class ContractSolc:
         self._modifiersNotParsed: List[Dict] = []
         self._functions_no_params: List[FunctionSolc] = []
         self._modifiers_no_params: List[ModifierSolc] = []
-        self._eventsNotParsed: List[EventSolc] = []
+        self._eventsNotParsed: List[Dict] = []
         self._variablesNotParsed: List[Dict] = []
         self._enumsNotParsed: List[Dict] = []
         self._structuresNotParsed: List[Dict] = []
         self._usingForNotParsed: List[Dict] = []
+        self._customErrorParsed: List[Dict] = []
 
         self._functions_parser: List[FunctionSolc] = []
         self._modifiers_parser: List[ModifierSolc] = []
         self._structures_parser: List[StructureContractSolc] = []
+        self._custom_errors_parser: List[CustomErrorSolc] = []
 
         self._is_analyzed: bool = False
 
@@ -246,6 +250,8 @@ class ContractSolc:
                 self._structuresNotParsed.append(item)
             elif item[self.get_key()] == "UsingForDirective":
                 self._usingForNotParsed.append(item)
+            elif item[self.get_key()] == "ErrorDefinition":
+                self._customErrorParsed.append(item)
             else:
                 raise ParsingError("Unknown contract item: " + item[self.get_key()])
         return
@@ -267,6 +273,23 @@ class ContractSolc:
         for struct in self._structuresNotParsed:
             self._parse_struct(struct)
         self._structuresNotParsed = None
+
+    def _parse_custom_error(self, custom_error: Dict):
+        ce = CustomErrorContract(self.compilation_unit)
+        ce.set_contract(self._contract)
+        ce.set_offset(custom_error["src"], self.compilation_unit)
+
+        ce_parser = CustomErrorSolc(ce, custom_error, self._slither_parser)
+        self._contract.custom_errors_as_dict[ce.name] = ce
+        self._custom_errors_parser.append(ce_parser)
+
+    def parse_custom_errors(self):
+        for father in self._contract.inheritance_reverse:
+            self._contract.custom_errors_as_dict.update(father.custom_errors_as_dict)
+
+        for custom_error in self._customErrorParsed:
+            self._parse_custom_error(custom_error)
+        self._customErrorParsed = None
 
     def parse_state_variables(self):
         for father in self._contract.inheritance_reverse:
@@ -600,6 +623,10 @@ class ContractSolc:
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing struct {e}")
 
+    def analyze_custom_errors(self):
+        for custom_error in self._custom_errors_parser:
+            custom_error.analyze_params()
+
     def analyze_events(self):
         try:
             for father in self._contract.inheritance_reverse:
@@ -640,6 +667,7 @@ class ContractSolc:
         self._enumsNotParsed = []
         self._structuresNotParsed = []
         self._usingForNotParsed = []
+        self._customErrorParsed = []
 
     # endregion
     ###################################################################################
