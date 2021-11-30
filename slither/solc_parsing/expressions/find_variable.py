@@ -141,7 +141,7 @@ def _find_in_contract(
     contract: Optional[Contract],
     contract_declarer: Optional[Contract],
     is_super: bool,
-) -> Optional[Union[Variable, Function, Contract, Event, Enum, Structure,]]:
+) -> Optional[Union[Variable, Function, Contract, Event, Enum, Structure, CustomError]]:
 
     if contract is None or contract_declarer is None:
         return None
@@ -196,6 +196,14 @@ def _find_in_contract(
     enums = contract.enums_as_dict
     if var_name in enums:
         return enums[var_name]
+
+    # Note: contract.custom_errors_as_dict uses the name (not the sol sig) as key
+    # This is because when the dic is populated the underlying object is not yet parsed
+    # As a result, we need to iterate over all the custom errors here instead of using the dict
+    custom_errors = contract.custom_errors
+    for custom_error in custom_errors:
+        if var_name == custom_error.solidity_signature:
+            return custom_error
 
     # If the enum is refered as its name rather than its canonicalName
     enums = {e.name: e for e in contract.enums}
@@ -391,4 +399,4 @@ def find_variable(
     if ret:
         return ret, False
 
-    raise VariableNotFound("Variable not found: {} (context {})".format(var_name, caller_context))
+    raise VariableNotFound("Variable not found: {} (context {})".format(var_name, contract))

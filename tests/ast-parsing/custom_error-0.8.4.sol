@@ -28,6 +28,14 @@ contract VendingMachine {
 contract A{
 
     error MyError(uint);
+    function f() public{
+        revert MyError(2);
+    }
+}
 
+contract B is A{
+    function g() public{
+        revert MyError(2);
+    }
 }
 
