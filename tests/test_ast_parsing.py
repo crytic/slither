@@ -274,14 +274,16 @@ def _generate_test(test_item: Item, skip_existing=False):
         return
     # set_solc(test_item)
     try:
+        cc = load_from_zip(test_file)[0]
         sl = Slither(
-            test_file,
+            cc,
             solc_force_legacy_json=test_item.is_legacy,
             disallow_partial=True,
             skip_analyze=True,
         )
     # pylint: disable=broad-except
-    except Exception:
+    except Exception as e:
+        print(e)
         print(test_item)
         print(f"{expected_file} failed")
         return
