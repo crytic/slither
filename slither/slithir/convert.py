@@ -623,7 +623,19 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     b.set_expression(ir.expression)
                     b.set_node(ir.node)
                     return b
-                if ir.variable_right == "selector" and isinstance(ir.variable_left.type, Function):
+                if ir.variable_right == "selector" and isinstance(ir.variable_left, (CustomError)):
+                    assignment = Assignment(
+                        ir.lvalue,
+                        Constant(str(get_function_id(ir.variable_left.solidity_signature))),
+                        ElementaryType("bytes4"),
+                    )
+                    assignment.set_expression(ir.expression)
+                    assignment.set_node(ir.node)
+                    assignment.lvalue.set_type(ElementaryType("bytes4"))
+                    return assignment
+                if ir.variable_right == "selector" and isinstance(
+                    ir.variable_left.type, (Function)
+                ):
                     assignment = Assignment(
                         ir.lvalue,
                         Constant(str(get_function_id(ir.variable_left.type.full_name))),
