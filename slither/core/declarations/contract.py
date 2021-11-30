@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     from slither.core.variables.variable import Variable
     from slither.core.variables.state_variable import StateVariable
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.core.declarations.custom_error_contract import CustomErrorContract
 
 
 LOGGER = logging.getLogger("Contract")
@@ -68,6 +69,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._modifiers: Dict[str, "Modifier"] = {}
         self._functions: Dict[str, "FunctionContract"] = {}
         self._linearizedBaseContracts: List[int] = []
+        self._custom_errors: Dict[str:"CustomErrorContract"] = {}
 
         # The only str is "*"
         self._using_for: Dict[Union[str, Type], List[str]] = {}
@@ -241,6 +243,38 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def using_for(self) -> Dict[Union[str, Type], List[str]]:
         return self._using_for
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Custom Errors
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def custom_errors(self) -> List["CustomErrorContract"]:
+        """
+        list(CustomErrorContract): List of the contract's custom errors
+        """
+        return list(self._custom_errors.values())
+
+    @property
+    def custom_errors_inherited(self) -> List["CustomErrorContract"]:
+        """
+        list(CustomErrorContract): List of the inherited custom errors
+        """
+        return [s for s in self.custom_errors if s.contract != self]
+
+    @property
+    def custom_errors_declared(self) -> List["CustomErrorContract"]:
+        """
+        list(CustomErrorContract): List of the custom errors declared within the contract (not inherited)
+        """
+        return [s for s in self.custom_errors if s.contract == self]
+
+    @property
+    def custom_errors_as_dict(self) -> Dict[str, "CustomErrorContract"]:
+        return self._custom_errors
 
     # endregion
     ###################################################################################

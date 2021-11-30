@@ -8,6 +8,7 @@ from typing import List, Dict
 from slither.analyses.data_dependency.data_dependency import compute_dependency
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
+from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.import_directive import Import
@@ -16,6 +17,7 @@ from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.exceptions import SlitherException
 from slither.solc_parsing.declarations.contract import ContractSolc
+from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
 from slither.solc_parsing.exceptions import VariableNotFound
@@ -37,6 +39,7 @@ class SlitherCompilationUnitSolc:
 
         self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = dict()
         self._structures_top_level_parser: List[StructureTopLevelSolc] = []
+        self._custom_error_parser: List[CustomErrorSolc] = []
         self._variables_top_level_parser: List[TopLevelVariableSolc] = []
         self._functions_top_level_parser: List[FunctionSolc] = []
 
@@ -146,7 +149,7 @@ class SlitherCompilationUnitSolc:
 
     def parse_top_level_from_loaded_json(
         self, data_loaded: Dict, filename: str
-    ):  # pylint: disable=too-many-branches,too-many-statements
+    ):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
 
@@ -164,6 +167,8 @@ class SlitherCompilationUnitSolc:
             logger.error("solc version is not supported")
             return
 
+        if self.get_children() not in data_loaded:
+            return
         for top_level_data in data_loaded[self.get_children()]:
             if top_level_data[self.get_key()] == "ContractDefinition":
                 contract = Contract(self._compilation_unit)
@@ -234,6 +239,14 @@ class SlitherCompilationUnitSolc:
                 self._compilation_unit.functions_top_level.append(func)
                 self._functions_top_level_parser.append(func_parser)
                 self.add_function_or_modifier_parser(func_parser)
+
+            elif top_level_data[self.get_key()] == "ErrorDefinition":
+                custom_error = CustomErrorTopLevel(self._compilation_unit)
+                custom_error.set_offset(top_level_data["src"], self._compilation_unit)
+
+                custom_error_parser = CustomErrorSolc(custom_error, top_level_data, self)
+                self._compilation_unit.custom_errors.append(custom_error)
+                self._custom_error_parser.append(custom_error_parser)
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
@@ -522,6 +535,7 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.parse_state_variables()
         contract.parse_modifiers()
         contract.parse_functions()
+        contract.parse_custom_errors()
         contract.set_is_analyzed(True)
 
     def _analyze_struct_events(self, contract: ContractSolc):
@@ -534,6 +548,7 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.analyze_events()
 
         contract.analyze_using_for()
+        contract.analyze_custom_errors()
 
         contract.set_is_analyzed(True)
 
@@ -556,6 +571,10 @@ Please rename it, this name is reserved for Slither's internals"""
             func_parser.analyze_params()
             self._compilation_unit.add_function(func_parser.underlying_function)
 
+    def _analyze_params_custom_error(self):
+        for custom_error_parser in self._custom_error_parser:
+            custom_error_parser.analyze_params()
+
     def _analyze_content_top_level_function(self):
         try:
             for func_parser in self._functions_top_level_parser:
@@ -569,6 +588,7 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.analyze_params_modifiers()
         contract.analyze_params_functions()
         self._analyze_params_top_level_function()
+        self._analyze_params_custom_error()
 
         contract.analyze_state_variables()
 
