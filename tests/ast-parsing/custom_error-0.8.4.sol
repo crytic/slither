@@ -37,5 +37,9 @@ contract B is A{
     function g() public{
         revert MyError(2);
     }
+
+    function h() public returns(bytes4){
+        return MyError.selector;
+    }
 }
 
