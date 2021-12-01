@@ -11,7 +11,7 @@ from slither.core.cfg.scope import Scope
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 
-from slither.core.declarations.function import Function, FunctionType
+from slither.core.declarations.function import Function, FunctionType, FunctionLanguage
 from slither.utils.erc import (
     ERC20_signatures,
     ERC165_signatures,
@@ -540,7 +540,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def available_elements_from_inheritances(
         self,
         elements: Dict[str, "Function"],
-        getter_available: Callable[["Contract"], List["Function"]],
+        getter_available: Callable[["Contract"], List["FunctionContract"]],
     ) -> Dict[str, "Function"]:
         """
 
@@ -551,14 +551,16 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         # keep track of the contracts visited
         # to prevent an ovveride due to multiple inheritance of the same contract
         # A is B, C, D is C, --> the second C was already seen
-        inherited_elements: Dict[str, "Function"] = {}
+        inherited_elements: Dict[str, "FunctionContract"] = {}
         accessible_elements = {}
         contracts_visited = []
         for father in self.inheritance_reverse:
-            functions: Dict[str, "Function"] = {
+            functions: Dict[str, "FunctionContract"] = {
                 v.full_name: v
                 for v in getter_available(father)
                 if v.contract not in contracts_visited
+                and v.function_language
+                != FunctionLanguage.Yul  # Yul functions are not propagated in the inheritance
             }
             contracts_visited.append(father)
             inherited_elements.update(functions)
