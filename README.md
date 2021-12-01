@@ -199,7 +199,7 @@ Feel free to stop by our [Slack channel](https://empireslacking.herokuapp.com) (
 
 * The [Detector documentation](https://github.com/trailofbits/slither/wiki/Adding-a-new-detector) describes how to write a new vulnerability analyses.
 
-* The [API documentation](https://github.com/trailofbits/slither/wiki/API-examples) describes the methods and objects available for custom analyses.
+* The [API documentation](https://github.com/crytic/slither/wiki/Python-API) describes the methods and objects available for custom analyses.
 
 * The [SlithIR documentation](https://github.com/trailofbits/slither/wiki/SlithIR) describes the SlithIR intermediate representation.
 
