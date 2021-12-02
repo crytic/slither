@@ -100,12 +100,12 @@ class SlitherCompilationUnit(Context):
 
     @property
     def pragma_directives(self) -> List[Pragma]:
-        """ list(core.declarations.Pragma): Pragma directives."""
+        """list(core.declarations.Pragma): Pragma directives."""
         return self._pragma_directives
 
     @property
     def import_directives(self) -> List[Import]:
-        """ list(core.declarations.Import): Import directives"""
+        """list(core.declarations.Import): Import directives"""
         return self._import_directives
 
     # endregion

@@ -39,6 +39,7 @@ from slither.utils.command_line import (
     read_config_file,
     JSON_OUTPUT_TYPES,
     DEFAULT_JSON_OUTPUT_TYPES,
+    check_and_sanitize_markdown_root,
 )
 from slither.exceptions import SlitherException
 
@@ -429,6 +430,7 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
 
     group_misc.add_argument(
         "--markdown-root",
+        type=check_and_sanitize_markdown_root,
         help="URL for markdown generation",
         action="store",
         default="",

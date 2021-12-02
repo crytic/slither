@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import logging
 from collections import defaultdict
 from crytic_compile.cryticparser.defaults import (
@@ -332,3 +333,29 @@ def output_printers_json(printer_classes):
         table.append({"index": idx, "check": argument, "title": help_info})
         idx = idx + 1
     return table
+
+
+def check_and_sanitize_markdown_root(markdown_root: str) -> str:
+    # Regex to check whether the markdown_root is a GitHub URL
+    match = re.search(
+        r"(https://)github.com/([a-zA-z-]+)([:/][A-Za-z0-9_.-]+[:/]?)([A-Za-z0-9_.-]*)(.*)",
+        markdown_root,
+    )
+    if match:
+        if markdown_root[-1] != "/":
+            logger.warning("Appending '/' in markdown_root url for better code referencing")
+            markdown_root = markdown_root + "/"
+
+        if not match.group(4):
+            logger.warning(
+                "Appending 'master/tree/' in markdown_root url for better code referencing"
+            )
+            markdown_root = markdown_root + "master/tree/"
+        elif match.group(4) == "tree":
+            logger.warning(
+                "Replacing 'tree' with 'blob' in markdown_root url for better code referencing"
+            )
+            positions = match.span(4)
+            markdown_root = f"{markdown_root[:positions[0]]}blob{markdown_root[positions[1]:]}"
+
+    return markdown_root
