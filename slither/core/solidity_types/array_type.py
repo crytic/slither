@@ -38,6 +38,14 @@ class ArrayType(Type):
         return self._length_value
 
     @property
+    def is_fixed_array(self) -> bool:
+        return bool(self.length)
+
+    @property
+    def is_dynamic_array(self) -> bool:
+        return not self.is_fixed_array
+
+    @property
     def storage_size(self) -> Tuple[int, bool]:
         if self._length_value:
             elem_size, _ = self._type.storage_size
