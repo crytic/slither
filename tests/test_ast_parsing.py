@@ -26,7 +26,7 @@ ALL_04 = range(0, 27)
 ALL_05 = range(0, 18)
 ALL_06 = range(0, 13)
 ALL_07 = range(0, 7)
-ALL_08 = range(0, 10)
+ALL_08 = range(0, 11)
 
 # these are tests that are currently failing right now
 XFAIL = (
@@ -274,14 +274,16 @@ def _generate_test(test_item: Item, skip_existing=False):
         return
     # set_solc(test_item)
     try:
+        cc = load_from_zip(test_file)[0]
         sl = Slither(
-            test_file,
+            cc,
             solc_force_legacy_json=test_item.is_legacy,
             disallow_partial=True,
             skip_analyze=True,
         )
     # pylint: disable=broad-except
-    except Exception:
+    except Exception as e:
+        print(e)
         print(test_item)
         print(f"{expected_file} failed")
         return

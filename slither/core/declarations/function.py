@@ -104,6 +104,12 @@ def _filter_state_variables_written(expressions: List["Expression"]):
     return ret
 
 
+class FunctionLanguage(Enum):
+    Solidity = 0
+    Yul = 1
+    Vyper = 2
+
+
 class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-public-methods
     """
     Function class
@@ -206,6 +212,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._is_protected: Optional[bool] = None
 
         self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
+
+        # Assume we are analyzing Solidty by default
+        self.function_language: FunctionLanguage = FunctionLanguage.Solidity
 
     ###################################################################################
     ###################################################################################

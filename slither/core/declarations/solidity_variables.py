@@ -2,6 +2,7 @@
 from typing import List, Dict, Union, TYPE_CHECKING
 
 from slither.core.context.context import Context
+from slither.core.declarations.custom_error import CustomError
 from slither.core.solidity_types import ElementaryType, TypeInformation
 from slither.exceptions import SlitherException
 
@@ -42,6 +43,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "require(bool,string)": [],
     "revert()": [],
     "revert(string)": [],
+    "revert ": [],
     "addmod(uint256,uint256,uint256)": ["uint256"],
     "mulmod(uint256,uint256,uint256)": ["uint256"],
     "keccak256()": ["bytes32"],
@@ -184,3 +186,20 @@ class SolidityFunction:
 
     def __hash__(self):
         return hash(self.name)
+
+
+class SolidityCustomRevert(SolidityFunction):
+    def __init__(self, custom_error: CustomError):  # pylint: disable=super-init-not-called
+        self._name = "revert " + custom_error.solidity_signature
+        self._custom_error = custom_error
+        self._return_type: List[Union[TypeInformation, ElementaryType]] = []
+
+    def __eq__(self, other):
+        return (
+            self.__class__ == other.__class__
+            and self.name == other.name
+            and self._custom_error == other._custom_error
+        )
+
+    def __hash__(self):
+        return hash(hash(self.name) + hash(self._custom_error))

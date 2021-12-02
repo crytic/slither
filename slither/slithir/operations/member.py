@@ -1,4 +1,5 @@
 from slither.core.declarations import Contract, Function
+from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum import Enum
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -21,7 +22,7 @@ class Member(OperationWithLValue):
         #     }
         # }
         assert is_valid_rvalue(variable_left) or isinstance(
-            variable_left, (Contract, Enum, Function, SolidityImportPlaceHolder)
+            variable_left, (Contract, Enum, Function, CustomError, SolidityImportPlaceHolder)
         )
 
         assert isinstance(variable_right, Constant)

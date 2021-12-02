@@ -5,6 +5,7 @@
 
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
 from slither.core.declarations import Function
+from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import (
     Assignment,
@@ -106,6 +107,9 @@ contract Crowdsale{
         taints += self.sources_taint
 
         for func in funcs:
+            # Disable the detector on top level function until we have good taint on those
+            if isinstance(func, FunctionTopLevel):
+                continue
             for node in func.nodes:
                 for ir in node.irs_ssa:
 
