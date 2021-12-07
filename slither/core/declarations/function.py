@@ -1,7 +1,6 @@
 """
     Function module
 """
-import abc
 import logging
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
@@ -354,7 +353,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._id = new_id
 
     @property
-    @abc.abstractmethod
+    @abstractmethod
     def file_scope(self) -> "FileScope":
         pass
 

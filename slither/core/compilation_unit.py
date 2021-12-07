@@ -1,12 +1,10 @@
 import math
-from collections import defaultdict
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
 from crytic_compile import CompilationUnit, CryticCompile
 from crytic_compile.compiler.compiler import CompilerVersion
 from crytic_compile.utils.naming import Filename
 
-from slither.core.cfg.scope import Scope
 from slither.core.context.context import Context
 from slither.core.declarations import (
     Contract,

@@ -193,6 +193,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
         raise ParsingError("Type not found " + str(name))
     return UserDefinedType(var_type)
 
+
 # TODO: since the add of FileScope, we can probably refactor this function and makes it a lot simpler
 def parse_type(
     t: Union[Dict, UnknownType],

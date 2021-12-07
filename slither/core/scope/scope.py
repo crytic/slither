@@ -8,7 +8,7 @@ from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.slithir.variables import Constant
 
-#pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes
 class FileScope:
     def __init__(self, filename: Filename):
         self.filename = filename

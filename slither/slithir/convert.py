@@ -1415,7 +1415,7 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
 def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Optional[Contract]):
     func = None
     if isinstance(ir, InternalCall):
-        candidates : List[Function]
+        candidates: List[Function]
         if ir.function_candidates:
             # This path is taken only for SolidityImportPlaceHolder
             # Here we have already done a filtering on the potential targets
