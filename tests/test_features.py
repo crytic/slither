@@ -19,10 +19,8 @@ def _run_all_detectors(slither: Slither):
 
 
 def test_node():
-    cmd = ["npm", "install", "hardhat"]
-    subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd="./tests/test_node_modules"
-    )
+    # hardhat must have been installed in tests/test_node_modules
+    # For the CI its done through the github action config
 
     slither = Slither("./tests/test_node_modules")
     _run_all_detectors(slither)
