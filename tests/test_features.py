@@ -1,8 +1,8 @@
 import inspect
-import subprocess
 
 from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
+
 from slither import Slither
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import AbstractDetector
