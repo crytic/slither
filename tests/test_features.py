@@ -1,4 +1,6 @@
 import inspect
+import subprocess
+
 from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
 from slither import Slither
@@ -17,6 +19,10 @@ def _run_all_detectors(slither: Slither):
 
 
 def test_node():
+    cmd = ["npm", "install", "hardhat"]
+    subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd="./tests/test_node_modules"
+    )
 
     slither = Slither("./tests/test_node_modules")
     _run_all_detectors(slither)
