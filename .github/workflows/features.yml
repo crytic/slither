@@ -36,7 +36,6 @@ jobs:
           pip install solc-select
           solc-select install all
           solc-select use 0.8.0
-          cd ..
 
           cd tests/test_node_modules/
           npm install hardhat
