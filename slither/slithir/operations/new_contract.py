@@ -50,7 +50,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
     @property
     def contract_created(self):
         contract_name = self.contract_name
-        contract_instance = self.compilation_unit.get_contract_from_name(contract_name)
+        contract_instance = self.node.file_scope.get_contract_from_name(contract_name)
         return contract_instance
 
     ###################################################################################

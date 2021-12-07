@@ -11,7 +11,8 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result):
 
         # TODO: decide if this should be changed in the constant detector
         contract_name = element["type_specific_fields"]["parent"]["name"]
-        contract = compilation_unit.get_contract_from_name(contract_name)
+        scope = compilation_unit.get_scope(element["source_mapping"]["filename_absolute"])
+        contract = scope.get_contract_from_name(contract_name)
         var = contract.get_state_variable_from_name(element["name"])
         if not var.expression:
             raise FormatImpossible(f"{var.name} is uninitialized and cannot become constant.")

@@ -110,9 +110,7 @@ class SlitherCore(Context):
         """
         contracts = []
         for compilation_unit in self._compilation_units:
-            contract = compilation_unit.get_contract_from_name(contract_name)
-            if contract:
-                contracts.append(contract)
+            contracts += compilation_unit.get_contract_from_name(contract_name)
         return contracts
 
     ###################################################################################

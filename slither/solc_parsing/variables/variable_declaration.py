@@ -1,6 +1,7 @@
 import logging
 from typing import Dict
 
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 
 from slither.core.variables.variable import Variable
@@ -179,7 +180,7 @@ class VariableDeclarationSolc:
                 self._variable.initialized = True
                 self._initializedNotParsed = var["children"][1]
 
-    def analyze(self, caller_context):
+    def analyze(self, caller_context: CallerContextExpression):
         # Can be re-analyzed due to inheritance
         if self._was_analyzed:
             return

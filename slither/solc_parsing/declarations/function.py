@@ -14,6 +14,7 @@ from slither.core.expressions import AssignmentOperation
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.solc_parsing.cfg.node import NodeSolc
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
@@ -43,7 +44,7 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
 # pylint: disable=too-many-lines,too-many-branches,too-many-locals,too-many-statements,too-many-instance-attributes
 
 
-class FunctionSolc:
+class FunctionSolc(CallerContextExpression):
 
     # elems = [(type, name)]
 
@@ -59,11 +60,9 @@ class FunctionSolc:
         self._function = function
 
         # Only present if compact AST
-        self._referenced_declaration: Optional[int] = None
         if self.is_compact_ast:
             self._function.name = function_data["name"]
             if "id" in function_data:
-                self._referenced_declaration = function_data["id"]
                 self._function.id = function_data["id"]
         else:
             self._function.name = function_data["attributes"][self.get_key()]
@@ -124,13 +123,6 @@ class FunctionSolc:
     @property
     def is_compact_ast(self):
         return self._slither_parser.is_compact_ast
-
-    @property
-    def referenced_declaration(self) -> Optional[str]:
-        """
-        Return the compact AST referenced declaration id (None for legacy AST)
-        """
-        return self._referenced_declaration
 
     # endregion
     ###################################################################################

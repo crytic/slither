@@ -55,6 +55,7 @@ if TYPE_CHECKING:
         LowLevelCallType,
     )
     from slither.core.cfg.scope import Scope
+    from slither.core.scope.scope import FileScope
 
 
 # pylint: disable=too-many-lines,too-many-branches,too-many-instance-attributes
@@ -153,7 +154,13 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
     """
 
-    def __init__(self, node_type: NodeType, node_id: int, scope: Union["Scope", "Function"]):
+    def __init__(
+        self,
+        node_type: NodeType,
+        node_id: int,
+        scope: Union["Scope", "Function"],
+        file_scope: "FileScope",
+    ):
         super().__init__()
         self._node_type = node_type
 
@@ -221,7 +228,8 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
         self._asm_source_code: Optional[Union[str, Dict]] = None
 
-        self.scope = scope
+        self.scope: Union["Scope", "Function"] = scope
+        self.file_scope: "FileScope" = file_scope
 
     ###################################################################################
     ###################################################################################
@@ -903,7 +911,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                     except AttributeError as error:
                         #  pylint: disable=raise-missing-from
                         raise SlitherException(
-                            f"Function not found on {ir}. Please try compiling with a recent Solidity version. {error}"
+                            f"Function not found on IR: {ir}.\nNode: {self} ({self.source_mapping_str})\nFunction: {self.function}\nPlease try compiling with a recent Solidity version. {error}"
                         )
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)

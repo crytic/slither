@@ -81,6 +81,12 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
                 parser.parse_top_level_from_loaded_json(ast, path)
                 self.add_source_code(path)
 
+            candidates = list(compilation_unit_slither.scopes.values())
+            while candidates:
+                candidate = candidates.pop(0)
+                if not candidate.add_accesible_scopes():
+                    candidates.append(candidate)
+
         if kwargs.get("generate_patches", False):
             self.generate_patches = True
 

@@ -201,8 +201,9 @@ conventions = {
 
 
 def _get_from_contract(compilation_unit: SlitherCompilationUnit, element, name, getter):
+    scope = compilation_unit.get_scope(element["source_mapping"]["filename_absolute"])
     contract_name = element["type_specific_fields"]["parent"]["name"]
-    contract = compilation_unit.get_contract_from_name(contract_name)
+    contract = scope.get_contract_from_name(contract_name)
     return getattr(contract, getter)(name)
 
 
@@ -215,8 +216,10 @@ def _get_from_contract(compilation_unit: SlitherCompilationUnit, element, name, 
 
 
 def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
+    scope = compilation_unit.get_scope(element["source_mapping"]["filename_absolute"])
+
     if _target == "contract":
-        target = compilation_unit.get_contract_from_name(element["name"])
+        target = scope.get_contract_from_name(element["name"])
 
     elif _target == "structure":
         target = _get_from_contract(
@@ -250,7 +253,7 @@ def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
             "signature"
         ]
         param_name = element["name"]
-        contract = compilation_unit.get_contract_from_name(contract_name)
+        contract = scope.get_contract_from_name(contract_name)
         function = contract.get_function_from_signature(function_sig)
         target = function.get_local_variable_from_name(param_name)
 
@@ -264,7 +267,7 @@ def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
                 "signature"
             ]
             var_name = element["name"]
-            contract = compilation_unit.get_contract_from_name(contract_name)
+            contract = scope.get_contract_from_name(contract_name)
             function = contract.get_function_from_signature(function_sig)
             target = function.get_local_variable_from_name(var_name)
         # State variable

@@ -13,6 +13,7 @@ from slither.core.declarations.solidity_variables import (
     SolidityFunction,
     SolidityVariable,
 )
+from slither.core.scope.scope import FileScope
 from slither.core.solidity_types import (
     ArrayType,
     FunctionType,
@@ -20,18 +21,17 @@ from slither.core.solidity_types import (
 )
 from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import VariableNotFound
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
-    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
-    from slither.core.compilation_unit import SlitherCompilationUnit
 
 # pylint: disable=import-outside-toplevel,too-many-branches,too-many-locals
 
 
-CallerContext = Union["ContractSolc", "FunctionSolc"]
+# CallerContext =Union["ContractSolc", "FunctionSolc", "CustomErrorSolc", "StructureTopLevelSolc"]
 
 
 def _get_pointer_name(variable: Variable):
@@ -51,7 +51,7 @@ def _get_pointer_name(variable: Variable):
 def _find_variable_from_ref_declaration(
     referenced_declaration: Optional[int],
     all_contracts: List["Contract"],
-    all_functions_parser: List["FunctionSolc"],
+    all_functions: List["Function"],
 ) -> Optional[Union[Contract, Function]]:
     if referenced_declaration is None:
         return None
@@ -59,14 +59,11 @@ def _find_variable_from_ref_declaration(
     # This is not true for the functions, as we dont always have the referenced_declaration
     # But maybe we could? (TODO)
     for contract_candidate in all_contracts:
-        if contract_candidate.id == referenced_declaration:
+        if contract_candidate and contract_candidate.id == referenced_declaration:
             return contract_candidate
-    for function_candidate in all_functions_parser:
-        if (
-            function_candidate.referenced_declaration == referenced_declaration
-            and not function_candidate.underlying_function.is_shadowed
-        ):
-            return function_candidate.underlying_function
+    for function_candidate in all_functions:
+        if function_candidate.id == referenced_declaration and not function_candidate.is_shadowed:
+            return function_candidate
     return None
 
 
@@ -100,7 +97,7 @@ def _find_variable_in_function_parser(
 
 
 def _find_top_level(
-    var_name: str, sl: "SlitherCompilationUnit"
+    var_name: str, scope: "FileScope"
 ) -> Tuple[Optional[Union[Enum, Structure, SolidityImportPlaceHolder, CustomError]], bool]:
     """
     Return the top level variable use, and a boolean indicating if the variable returning was cretead
@@ -113,23 +110,19 @@ def _find_top_level(
     :return:
     :rtype:
     """
-    structures_top_level = sl.structures_top_level
-    for st in structures_top_level:
-        if st.name == var_name:
-            return st, False
 
-    enums_top_level = sl.enums_top_level
-    for enum in enums_top_level:
-        if enum.name == var_name:
-            return enum, False
+    if var_name in scope.structures:
+        return scope.structures[var_name], False
 
-    for import_directive in sl.import_directives:
+    if var_name in scope.enums:
+        return scope.enums[var_name], False
+
+    for import_directive in scope.imports:
         if import_directive.alias == var_name:
             new_val = SolidityImportPlaceHolder(import_directive)
             return new_val, True
 
-    # Note for now solidity prevent two custom error from having the same name
-    for custom_error in sl.custom_errors:
+    for custom_error in scope.custom_errors:
         if custom_error.solidity_signature == var_name:
             return custom_error, False
 
@@ -142,7 +135,6 @@ def _find_in_contract(
     contract_declarer: Optional[Contract],
     is_super: bool,
 ) -> Optional[Union[Variable, Function, Contract, Event, Enum, Structure, CustomError]]:
-
     if contract is None or contract_declarer is None:
         return None
 
@@ -214,56 +206,57 @@ def _find_in_contract(
 
 
 def _find_variable_init(
-    caller_context: CallerContext,
-) -> Tuple[
-    List[Contract],
-    Union[List["FunctionSolc"]],
-    "SlitherCompilationUnit",
-    "SlitherCompilationUnitSolc",
-]:
-    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+    caller_context: CallerContextExpression,
+) -> Tuple[List[Contract], List["Function"], FileScope,]:
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
 
     direct_contracts: List[Contract]
-    direct_functions_parser: List[FunctionSolc]
+    direct_functions_parser: List[Function]
+    scope: FileScope
 
-    if isinstance(caller_context, SlitherCompilationUnitSolc):
+    if isinstance(caller_context, FileScope):
         direct_contracts = []
         direct_functions_parser = []
-        sl = caller_context.compilation_unit
-        sl_parser = caller_context
+        scope = caller_context
     elif isinstance(caller_context, ContractSolc):
         direct_contracts = [caller_context.underlying_contract]
-        direct_functions_parser = caller_context.functions_parser + caller_context.modifiers_parser
-        sl = caller_context.slither_parser.compilation_unit
-        sl_parser = caller_context.slither_parser
+        direct_functions_parser = [
+            f.underlying_function
+            for f in caller_context.functions_parser + caller_context.modifiers_parser
+        ]
+        scope = caller_context.underlying_contract.file_scope
     elif isinstance(caller_context, FunctionSolc):
         if caller_context.contract_parser:
             direct_contracts = [caller_context.contract_parser.underlying_contract]
-            direct_functions_parser = (
-                caller_context.contract_parser.functions_parser
+            direct_functions_parser = [
+                f.underlying_function
+                for f in caller_context.contract_parser.functions_parser
                 + caller_context.contract_parser.modifiers_parser
-            )
+            ]
         else:
             # Top level functions
             direct_contracts = []
             direct_functions_parser = []
-        sl = caller_context.underlying_function.compilation_unit
-        sl_parser = caller_context.slither_parser
+        underlying_function = caller_context.underlying_function
+        if isinstance(underlying_function, FunctionTopLevel):
+            scope = underlying_function.file_scope
+        else:
+            assert isinstance(underlying_function, FunctionContract)
+            scope = underlying_function.contract.file_scope
     else:
         raise SlitherError(
             f"{type(caller_context)} ({caller_context} is not valid for find_variable"
         )
 
-    return direct_contracts, direct_functions_parser, sl, sl_parser
+    return direct_contracts, direct_functions_parser, scope
 
 
 def find_variable(
     var_name: str,
-    caller_context: CallerContext,
+    caller_context: CallerContextExpression,
     referenced_declaration: Optional[int] = None,
-    is_super=False,
+    is_super: bool = False,
 ) -> Tuple[
     Union[
         Variable,
@@ -311,28 +304,25 @@ def find_variable(
     # for events it's unclear what should be the behavior, as they can be shadowed, but there is not impact
     # structure/enums cannot be shadowed
 
-    direct_contracts, direct_functions_parser, sl, sl_parser = _find_variable_init(caller_context)
-
-    all_contracts = sl.contracts
-    all_functions_parser = sl_parser.all_functions_and_modifiers_parser
-
+    direct_contracts, direct_functions, current_scope = _find_variable_init(caller_context)
     # Only look for reference declaration in the direct contract, see comment at the end
     # Reference looked are split between direct and all
     # Because functions are copied between contracts, two functions can have the same ref
     # So we need to first look with respect to the direct context
 
-    ret = _find_variable_from_ref_declaration(
-        referenced_declaration, direct_contracts, direct_functions_parser
+    # Use ret0/ret1 to help mypy
+    ret0 = _find_variable_from_ref_declaration(
+        referenced_declaration, direct_contracts, direct_functions
     )
-    if ret:
-        return ret, False
+    if ret0:
+        return ret0, False
 
     function_parser: Optional[FunctionSolc] = (
         caller_context if isinstance(caller_context, FunctionSolc) else None
     )
-    ret = _find_variable_in_function_parser(var_name, function_parser, referenced_declaration)
-    if ret:
-        return ret, False
+    ret1 = _find_variable_in_function_parser(var_name, function_parser, referenced_declaration)
+    if ret1:
+        return ret1, False
 
     contract: Optional[Contract] = None
     contract_declarer: Optional[Contract] = None
@@ -352,12 +342,12 @@ def find_variable(
         return ret, False
 
     # Could refer to any enum
-    all_enumss = [c.enums_as_dict for c in sl.contracts]
+    all_enumss = [c.enums_as_dict for c in current_scope.contracts.values()]
     all_enums = {k: v for d in all_enumss for k, v in d.items()}
     if var_name in all_enums:
         return all_enums[var_name], False
 
-    contracts = sl.contracts_as_dict
+    contracts = current_scope.contracts
     if var_name in contracts:
         return contracts[var_name], False
 
@@ -368,7 +358,7 @@ def find_variable(
         return SolidityFunction(var_name), False
 
     # Top level must be at the end, if nothing else was found
-    ret, var_was_created = _find_top_level(var_name, sl)
+    ret, var_was_created = _find_top_level(var_name, current_scope)
     if ret:
         return ret, var_was_created
 
@@ -394,7 +384,7 @@ def find_variable(
     # get's AST will say that the ref declaration for _f() is A._f(), but in the context of B, its not
 
     ret = _find_variable_from_ref_declaration(
-        referenced_declaration, all_contracts, all_functions_parser
+        referenced_declaration, list(current_scope.contracts.values()), current_scope.functions
     )
     if ret:
         return ret, False

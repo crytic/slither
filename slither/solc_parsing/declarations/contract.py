@@ -6,6 +6,7 @@ from slither.core.declarations.contract import Contract
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.state_variable import StateVariable
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.event import EventSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
 # pylint: disable=too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks,too-many-public-methods
 
 
-class ContractSolc:
+class ContractSolc(CallerContextExpression):
     def __init__(self, slither_parser: "SlitherCompilationUnitSolc", contract: Contract, data):
         # assert slitherSolc.solc_version.startswith('0.4')
 
@@ -258,7 +259,7 @@ class ContractSolc:
 
     def _parse_struct(self, struct: Dict):
 
-        st = StructureContract()
+        st = StructureContract(self._contract.compilation_unit)
         st.set_contract(self._contract)
         st.set_offset(struct["src"], self._contract.compilation_unit)
 
@@ -423,7 +424,7 @@ class ContractSolc:
         Cls: Callable,
         Cls_parser: Callable,
         element_parser: FunctionSolc,
-        explored_reference_id: Set[int],
+        explored_reference_id: Set[str],
         parser: List[FunctionSolc],
         all_elements: Dict[str, Function],
     ):
@@ -442,13 +443,13 @@ class ContractSolc:
             elem, element_parser.function_not_parsed, self, self.slither_parser
         )
         if (
-            element_parser.referenced_declaration
-            and element_parser.referenced_declaration in explored_reference_id
+            element_parser.underlying_function.id
+            and element_parser.underlying_function.id in explored_reference_id
         ):
             # Already added from other fathers
             return
-        if element_parser.referenced_declaration:
-            explored_reference_id.add(element_parser.referenced_declaration)
+        if element_parser.underlying_function.id:
+            explored_reference_id.add(element_parser.underlying_function.id)
         elem_parser.analyze_params()
         if isinstance(elem, Modifier):
             self._contract.compilation_unit.add_modifier(elem)

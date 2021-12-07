@@ -1,7 +1,9 @@
 import logging
 import re
-from typing import List, TYPE_CHECKING, Union, Dict
+from typing import List, TYPE_CHECKING, Union, Dict, ValuesView
 
+from slither.core.declarations.custom_error_contract import CustomErrorContract
+from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions.literal import Literal
 from slither.core.solidity_types.array_type import ArrayType
@@ -16,11 +18,13 @@ from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.variables.function_type_variable import FunctionTypeVariable
 from slither.exceptions import SlitherError
 from slither.solc_parsing.exceptions import ParsingError
+from slither.solc_parsing.expressions.expression_parsing import CallerContextExpression
 
 if TYPE_CHECKING:
     from slither.core.declarations import Structure, Enum
     from slither.core.declarations.contract import Contract
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
 
 logger = logging.getLogger("TypeParsing")
 
@@ -41,9 +45,9 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     functions_direct_access: List["Function"],
     contracts_direct_access: List["Contract"],
     structures_direct_access: List["Structure"],
-    all_structures: List["Structure"],
+    all_structures: ValuesView["Structure"],
     enums_direct_access: List["Enum"],
-    all_enums: List["Enum"],
+    all_enums: ValuesView["Enum"],
 ) -> Type:
     name_elementary = name.split(" ")[0]
     if "[" in name_elementary:
@@ -189,13 +193,22 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
         raise ParsingError("Type not found " + str(name))
     return UserDefinedType(var_type)
 
-
+# TODO: since the add of FileScope, we can probably refactor this function and makes it a lot simpler
 def parse_type(
     t: Union[Dict, UnknownType],
-    caller_context: Union[
-        "SlitherCompilationUnitSolc", "FunctionSolc", "ContractSolc", "CustomSolc"
-    ],
+    caller_context: Union[CallerContextExpression, "SlitherCompilationUnitSolc"],
 ):
+    """
+    caller_context can be a SlitherCompilationUnitSolc because we recursively call the function
+    and go up in the context's scope. If we are really lost we just go over the SlitherCompilationUnitSolc
+
+    :param t:
+    :type t:
+    :param caller_context:
+    :type caller_context:
+    :return:
+    :rtype:
+    """
     # local import to avoid circular dependency
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     # pylint: disable=import-outside-toplevel
@@ -204,21 +217,19 @@ def parse_type(
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
+    from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
 
     sl: "SlitherCompilationUnit"
     # Note: for convenicence top level functions use the same parser than function in contract
     # but contract_parser is set to None
-    if isinstance(caller_context, (SlitherCompilationUnitSolc, CustomErrorSolc)) or (
+    if isinstance(caller_context, SlitherCompilationUnitSolc) or (
         isinstance(caller_context, FunctionSolc) and caller_context.contract_parser is None
     ):
         structures_direct_access: List["Structure"]
         if isinstance(caller_context, SlitherCompilationUnitSolc):
             sl = caller_context.compilation_unit
             next_context = caller_context
-        elif isinstance(caller_context, CustomErrorSolc):
-            sl = caller_context.underlying_custom_error.compilation_unit
-            next_context = caller_context.slither_parser
         else:
             assert isinstance(caller_context, FunctionSolc)
             sl = caller_context.underlying_function.compilation_unit
@@ -233,6 +244,25 @@ def parse_type(
         all_enums += enums_direct_access
         contracts = sl.contracts
         functions = []
+    elif isinstance(caller_context, (StructureTopLevelSolc, CustomErrorSolc)):
+        if isinstance(caller_context, StructureTopLevelSolc):
+            scope = caller_context.underlying_structure.file_scope
+        else:
+            assert isinstance(caller_context, CustomErrorSolc)
+            custom_error = caller_context.underlying_custom_error
+            if isinstance(custom_error, CustomErrorTopLevel):
+                scope = custom_error.file_scope
+            else:
+                assert isinstance(custom_error, CustomErrorContract)
+                scope = custom_error.contract.file_scope
+
+        next_context = caller_context.slither_parser
+        structures_direct_access = []
+        all_structures = scope.structures.values()
+        enums_direct_access = []
+        all_enums = scope.enums.values()
+        contracts = scope.contracts.values()
+        functions = scope.functions
     elif isinstance(caller_context, (ContractSolc, FunctionSolc)):
         if isinstance(caller_context, FunctionSolc):
             underlying_func = caller_context.underlying_function
@@ -246,16 +276,16 @@ def parse_type(
             next_context = caller_context
 
         structures_direct_access = contract.structures
-        structures_direct_access += contract.compilation_unit.structures_top_level
-        all_structuress = [c.structures for c in contract.compilation_unit.contracts]
+        structures_direct_access += contract.file_scope.structures.values()
+        all_structuress = [c.structures for c in contract.file_scope.contracts.values()]
         all_structures = [item for sublist in all_structuress for item in sublist]
-        all_structures += contract.compilation_unit.structures_top_level
+        all_structures += contract.file_scope.structures.values()
         enums_direct_access: List["Enum"] = contract.enums
-        enums_direct_access += contract.compilation_unit.enums_top_level
-        all_enumss = [c.enums for c in contract.compilation_unit.contracts]
+        enums_direct_access += contract.file_scope.enums.values()
+        all_enumss = [c.enums for c in contract.file_scope.contracts.values()]
         all_enums = [item for sublist in all_enumss for item in sublist]
-        all_enums += contract.compilation_unit.enums_top_level
-        contracts = contract.compilation_unit.contracts
+        all_enums += contract.file_scope.enums.values()
+        contracts = contract.file_scope.contracts.values()
         functions = contract.functions + contract.modifiers
     else:
         raise ParsingError(f"Incorrect caller context: {type(caller_context)}")
